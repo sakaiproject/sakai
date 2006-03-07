@@ -280,6 +280,7 @@
 
         <h:outputText value="#{msg.link_scores}" />
         <f:param name="actionString" value="gradeAssessment" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}" />
         <f:param name="allSubmissionsT" value="3"/>

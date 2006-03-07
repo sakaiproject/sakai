@@ -407,8 +407,12 @@ public class TotalScoreListener
     // daisyf: #1a - place for optimization. all score contains full object of
     // AssessmentGradingData, do we need full?
     GradingService delegate = new GradingService();
-    ArrayList allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
-    bean.setAssessmentGradingList(allscores);
+    ArrayList allscores = bean.getAssessmentGradingList();
+    if (allscores == null || allscores.size()==0){
+      System.out.println("**** need to get assessmentGradingList from DB");
+      allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
+      bean.setAssessmentGradingList(allscores);
+    }
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
     bean.setTotalPeople(scores.size()+"");
   }

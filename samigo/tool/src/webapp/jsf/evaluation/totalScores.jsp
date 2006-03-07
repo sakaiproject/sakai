@@ -170,6 +170,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
          <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
@@ -206,6 +208,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
          <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
@@ -234,6 +238,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
          <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="studentName" value="#{description.assessmentGradingId}" />
@@ -255,6 +261,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
@@ -482,6 +490,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+      <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>

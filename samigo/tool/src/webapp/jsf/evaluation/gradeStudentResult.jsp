@@ -67,7 +67,8 @@ $Id$
   </h3>
   <p class="navModeAction">
     <h:commandLink action="totalScores" immediate="true">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
     <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}"  />
@@ -224,9 +225,12 @@ $Id$
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
       <f:actionListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+      <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
    <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true">
+      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
 </p>

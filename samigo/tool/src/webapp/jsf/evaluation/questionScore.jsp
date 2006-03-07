@@ -57,6 +57,7 @@ $Id$
   </h3>
   <p class="navModeAction">
     <h:commandLink action="totalScores" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
