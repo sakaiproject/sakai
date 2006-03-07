@@ -1010,6 +1010,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTopicSettings()");
     
+    setEditMode(false);
     setPermissionMode(PERMISSION_MODE_TOPIC);
     DiscussionTopic topic = (DiscussionTopic) forumManager
         .getTopicByIdWithAttachments(new Long(

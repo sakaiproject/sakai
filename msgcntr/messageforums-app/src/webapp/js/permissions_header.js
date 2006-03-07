@@ -2,6 +2,7 @@ function setCorrespondingLevel(checkBox){
   //alert(checkBox);
   var2 = checkBox.split(":");
   selectLevel = getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":level");
+  //alert(selectLevel);
 
   changeSettings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":changeSetting");
   deletePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":deletePostings");
@@ -22,6 +23,7 @@ function setCorrespondingLevel(checkBox){
 
   if(selectLevel){
     if(!(changeSettings && markAsRead &&  movePosting && newForum && newResponse && r2R && newTopic && postGrades && read &&moderatePostings && deletePostings && revisePostings)){
+      //alert(changeSettings + " " + markAsRead + " " +  movePosting + " " + newForum + " " + newResponse + " " + r2R + " " + newTopic + " " + postGrades + " " + read &&moderatePostings + " " + deletePostings + " " + revisePostings);
       setIndexWithTextValue(selectLevel, custom)
     }
     else{
@@ -72,8 +74,8 @@ function getReviseOwn(element){
     return false;
   }
   var user_input =  getRadioButtonCheckedValue(element);
-  if(user_input==all)
-    return true;
+  //if(user_input==all)
+  //  return true;
   if(user_input==own)
     return true;
   else
@@ -96,8 +98,8 @@ function getDeleteOwn(element){
     return false;
     
   var user_input =  getRadioButtonCheckedValue(element);
-  if(user_input==all)
-    return true;
+  //if(user_input==all)
+  //  return true;
 
   if(user_input==own)
     return true;
