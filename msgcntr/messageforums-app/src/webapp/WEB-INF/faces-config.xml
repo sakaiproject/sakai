@@ -243,6 +243,11 @@
             <to-view-id>/jsp/dfMsgRevise.jsp</to-view-id>
             <redirect/>
         </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfMsgGrade</from-outcome>
+            <to-view-id>/jsp/discussionForum/message/dfMsgGrade.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
     
     </navigation-rule>
   
