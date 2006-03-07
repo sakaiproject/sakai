@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xmlns:j="jelly:core"
+	xmlns:license="license"
+	xmlns:util="jelly:util"
+	xmlns:ant="jelly:ant"
+	xmlns:artifact="artifact"
+	xmlns:maven="jelly:maven"
+	default="sakai:build">
+
+	<goal name="pack-demo"  description="package the sakai demo">
+
+		<attainGoal name="sakai:clean" />
+		<attainGoal name="sakai:build" />
+
+		<!-- clear the deploy area -->
+		<delete dir="${basedir}/target/demo/"/>
+		
+		<!-- expand the tomcat 5.5.9 zip from the repo into the target -->
+		<ant:unzip src="${maven.repo.local}/tomcat/zips/jakarta-tomcat-5.5.9.zip"
+					dest="${basedir}/target/demo/"
+					overwrite="true" />
+
+		<!-- expand the tomcat 5.5.9 compat into the target -->
+		<ant:unzip src="${maven.repo.local}/tomcat/zips/jakarta-tomcat-compat-5.5.9.zip"
+					dest="${basedir}/target/demo/"
+					overwrite="true" />
+
+		<!-- deploy sakai to this area -->
+		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/jakarta-tomcat-5.5.9/" />
+		<attainGoal name="sakai:deploy" />
+
+		<!-- add in demo stuff -->
+		<copy file="${basedir}/demo/sakai.properties" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai/sakai.properties" />
+		<copy file="${basedir}/demo/toolOrder.xml" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai/toolOrder.xml" />
+		<copy file="${basedir}/demo/readme.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/demo_readme.txt" />
+		<copy file="${basedir}/docs/readme_2-1-0.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_readme.txt" />
+		<copy todir="${basedir}/target/demo/jakarta-tomcat-5.5.9/licenses/">
+			<fileset dir="${basedir}/licenses">
+				<exclude name="CVS/**"/>
+			</fileset>
+		</copy>
+
+		<copy file="${basedir}/demo/bin/start-sakai.bat" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/start-sakai.bat" />
+		<copy file="${basedir}/demo/bin/start-sakai.sh" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/start-sakai.sh" />
+		<copy file="${basedir}/demo/bin/stop-sakai.bat" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/stop-sakai.bat" />
+		<copy file="${basedir}/demo/bin/stop-sakai.sh" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/stop-sakai.sh" />
+
+		<delete file="${basedir}/target/demo/jakarta-tomcat-5.5.9/licenses/.project" />
+		<ant:copy file="${basedir}/sakai_license_1_0.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_license_1_0.txt" overwrite="true" />
+		<ant:copy file="${basedir}/sakai_license_1_0.html" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_license_1_0.html" overwrite="true" />
+
+		<!-- custom Tomcat mods -->
+		<copy file="${basedir}/demo/index.html" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/webapps/ROOT/index.html" />
+		<copy overwrite="true"
+				file="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server.xml"
+				tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server-orig.xml" />
+		<copy overwrite="true"
+				file="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server-orig.xml"
+				tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server.xml" >
+			<filterset
+					begintoken="maxHttpHeaderSize"
+					endtoken="&quot;8192&quot;">
+				<filter token="=" value="maxHttpHeaderSize=&quot;8192&quot; URIEncoding=&quot;UTF-8&quot;"/>
+			</filterset>
+		</copy>
+
+		<!-- makes all ".sh" files readable and executable for anyone on a UNIX system  -->
+		<chmod dir="${basedir}/target/demo" perm="ugo+rx" includes="**/*.sh"/>
+
+		<!-- zip it -->
+		<delete file="sakai-demo.zip" />
+		<zip destfile="sakai-demo.zip" compress="yes" >
+			<zipfileset dir="${maven.tomcat.home}" prefix="sakai-demo" />
+		</zip>
+		<ant:echo>* * * sakai-demo.zip</ant:echo>
+
+		<!-- tar it -->
+		<delete file="sakai-demo.tar.gz" />
+		<tar destfile="sakai-demo.tar.gz" longfile="gnu" compression="gzip">
+			<tarfileset dir="${maven.tomcat.home}" mode="755" prefix="sakai-demo">
+				<include name="**/*.sh"/>
+			</tarfileset>
+			<tarfileset dir="${maven.tomcat.home}" prefix="sakai-demo">
+				<exclude name="**/*.sh"/>
+			</tarfileset>
+		</tar>
+		<ant:echo>* * * sakai-demo.tar.gz</ant:echo>
+
+		<delete dir="${basedir}/target/demo"/>
+	</goal>
+
+	<goal name="pack-src"  description="package the sakai source">
+
+		<zip destfile="sakai-src.zip" compress="yes" >
+			<zipfileset dir="." prefix="sakai-src" excludes="CVS/**,**/target/**,**/bin/**,sakai*.zip,sakai*.tar.gz" />
+		</zip>
+		<ant:echo>* * * sakai-src.zip</ant:echo>
+
+		<tar destfile="sakai-src.tar" longfile="gnu" >
+			<tarfileset dir="." prefix="sakai-src" excludes="CVS/**,**/target/**,**/bin/**,sakai*.zip,sakai*.tar.gz" />
+		</tar>
+		<gzip zipfile="sakai-src.tar.gz" src="sakai-src.tar"/>
+		<delete file="sakai-src.tar" />
+		<ant:echo>* * * sakai-src.tar.gz</ant:echo>
+
+	</goal>
+
+	<!-- 
+		Generates the JSF tag library documentation for Sakai.
+		This goal is very specific to Sakai and its JSF tags.
+	-->
+	<goal name="taglibdoc" description="Sakai: Create JSF taglibdocs.">
+		<ant:java fork="true" jar="${maven.repo.local}/taglibrarydoc/jars/tlddoc-1.2.jar">
+			<arg line="-d ${basedir}/target/taglibdoc" />
+			<arg line="${basedir}/jsf/widgets/src/META-INF/sakai-jsf.tld" />
+		</ant:java>
+		
+		<jar jarfile="target/sakai-taglibdoc.zip" basedir="target/taglibdoc" />
+	</goal>
+	
+	<!-- 
+		This goal is customized for Sakai.  However, it could be generally useful.
+		The default Maven javadoc goal
+		doesn't combine all subprojects into one giant javadoc.  We want one giant javadoc.
+		The goal works by creating a classpath that contains dependencies for all subprojects.
+		It executes javadoc on *.java within the org.sakaiproject.* package tree.  It also
+		links into the javadocs for outside projects (such as Hibernate), so that our javadocs
+		have direct links to outside projects at the appropriate places.  A zip file is also
+		created which contains the javadocs.
+	-->
+	<goal name="javadoc" description="Sakai: Create combined javadocs.">
+		<delete dir="target/javadoc"/>
+		<maven:reactor
+			includes="**/project.xml"
+			basedir="${basedir}"
+			ignoreFailures="true"
+			postProcessing="true"
+			/>
+
+		<ant:echo>Creating a classpath that contains the dependencies from all Maven subprojects...</ant:echo>			
+		<j:set var="combinedClasspath" value="" />
+		<j:forEach var="pom" items="${reactorProjects}">
+			<j:set var="combinedClasspath" value="${combinedClasspath};${pom.dependencyClasspath}" />
+		</j:forEach>	
+
+		<javadoc 
+			classpath="${combinedClasspath}"
+			destdir="target/javadoc" author="true" version="true" use="true"
+			maxmemory="1000m"
+			useexternalfile="yes"
+			additionalparam="-breakiterator"
+		>
+			<fileset dir="${basedir}" defaultexcludes="yes">
+				<include name="**/org/sakaiproject/**/*.java" />
+			</fileset>
+
+			<link href="http://java.sun.com/j2se/1.4.2/docs/api/" />
+			<link href="http://java.sun.com/j2ee/1.4/docs/api/" />
+			<link href="http://static.springframework.org/spring/docs/1.1.5/api/" />
+			<link href="http://java.sun.com/j2ee/javaserverfaces/1.1_01/docs/api/" />
+			<link href="http://jakarta.apache.org/velocity/api/" />
+			<link href="http://www.hibernate.org/hib_docs/api/" />
+			<link href="http://james.apache.org/javadocs/" />
+			<link href="http://james.apache.org/mailet/" />
+		</javadoc>
+		
+		<jar jarfile="target/sakai-javadoc.zip" basedir="target/javadoc" />
+	</goal>
+
+	<!-- Keep around the old goal name for backwards-compatibility -->
+	<goal name="sakai:taglibdoc">
+		<attainGoal name="taglibdoc" />
+	</goal>
+
+	<!-- Keep around the old goal name for backwards-compatibility -->
+	<goal name="sakai:javadoc">
+		<attainGoal name="javadoc" />
+	</goal>
+
+
+</project>
