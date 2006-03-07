@@ -27,7 +27,6 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.Topic;
@@ -51,14 +50,6 @@ import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
-
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
- 
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 
 /**
@@ -134,17 +125,6 @@ public class DiscussionForumTool
   private boolean threaded = false;
   private String expanded = "true";
   private boolean isDisplaySearchedMessages;
-
-  //grading
-  private boolean gradeNotify = false;
-  private List assignments;
-  private String selectedAssign = "Default_0";
-  private String gradePoint = "";
-  private String gradebookScore = "";
-  private String gradeComment;
-  private boolean noGradeWarn = false;
-  private boolean noAssignWarn = false;
-
   private List siteMembers = new ArrayList();
   private String selectedRole;
   
@@ -1942,40 +1922,7 @@ public class DiscussionForumTool
 
   public String processDfMsgGrd()
   {
-  	try
-		{
-  		GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService)
-			ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-  		List gradeAssignments = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-  		assignments = new ArrayList();
-  		SelectItem item = new SelectItem("Default_0", "Select an assignment");
-  		assignments.add(item);
-  		for(int i=0; i<gradeAssignments.size(); i++)
-  		{
-  			try
-				{
-  				Assignment thisAssign = (Assignment) gradeAssignments.get(i);
-  				
-  				String assignName = thisAssign.getName();
-  				
-  				item = new SelectItem((new Integer(i+1)).toString(), assignName);
-  				assignments.add(item);
-				}
-  			catch(Exception e)
-				{
-  				LOG.error("DiscussionForumTool - processDfMsgGrd:" + e);
-  				e.printStackTrace();
-				}
-  		}
-		}
-  	catch(Exception e1)
-		{
-  		LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1);
-  		e1.printStackTrace();
-		}
-		
-  			
-    return "dfMsgGrade";
+    return null;
   }
 
   public String processDfMsgRvs()
@@ -2644,87 +2591,7 @@ public class DiscussionForumTool
   {
     this.expanded = expanded;
   }
-  
-  public void setGradeNotify(boolean gradeNotify)
-  {
-  	this.gradeNotify = gradeNotify;
-  }
-  
-  public boolean getGradeNotify()
-  {
-  	return gradeNotify;
-  }
-  
-  public String getSelectedAssign()
-  {
-  	return selectedAssign;
-  }
-  
-  public void setSelectedAssign(String selectedAssign)
-  {
-  	this.selectedAssign = selectedAssign;
-  }
-  
-  public void setGradePoint(String gradePoint)
-  {
-  	this.gradePoint = gradePoint;
-  }
-  
-  public String getGradePoint()
-  {
-  	return gradePoint;
-  }
-  
-  public String getGradebookScore()
-  {
-  	return gradebookScore;
-  }
-  
-  public void setGradebookScore(String gradebookScore)
-  {
-  	this.gradebookScore = gradebookScore;
-  }
-  
-  public List getAssignments()
-  {
-  	return assignments;
-  }
-  
-  public void setAssignments(List assignments)
-  {
-  	this.assignments = assignments;
-  }
-  
-  public void setGradeComment(String gradeComment)
-  {
-  	this.gradeComment = gradeComment;
-  }
-  
-  public String getGradeComment()
-  {
-  	return gradeComment;
-  }
-  
-  public boolean getNoGradeWarn()
-  {
-  	return noGradeWarn;
-  }
 
-  public void setNoGradeWarn(boolean noGradeWarn)
-  {
-  	this.noGradeWarn = noGradeWarn;
-  }
-  
-  public boolean getNoAssignWarn()
-  {
-  	return noAssignWarn;
-  }
-
-  public void setNoAssignWarn(boolean noAssignWarn)
-  {
-  	this.noAssignWarn = noAssignWarn;
-  }
-  
   public void rearrageTopicMsgsThreaded()
   {
  
@@ -2802,149 +2669,6 @@ public class DiscussionForumTool
     }
   }
   
-  public String processDfGradeCancel()
-  {
-  	
-    gradeNotify = false;
-    assignments.clear();
-    selectedAssign = "Default_0";
-    gradePoint = "";
-    gradebookScore = "";
-    gradeComment = "";
-    noGradeWarn = false;
-    noAssignWarn = false;
-  	return MESSAGE_VIEW;
-  }
-
-  
-  public String processGradeAssignChange(ValueChangeEvent vce)
-  {
-  	String changeAssign = (String) vce.getNewValue();
-    if (changeAssign == null)
-    {
-      return null;
-    }
-    else
-    {
-    	try
-			{
-    		selectedAssign = changeAssign;
-    		
-    		GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService)
-				ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-    		
-    		if((!selectedAssign.equalsIgnoreCase("Default_0"))
-    			&& ((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(), 
-    					((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(), 
-							UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null))
-    		{
-    			gradebookScore = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(), 
-    					((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(), 
-							UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString(); 
-    		}
-    		else
-    		{
-    			gradebookScore = "";
-    		}
-
-    		return "dfMsgGrade";
-			}
-    	catch(Exception e)
-    	{
-    		LOG.error("processGradeAssignChange in DiscussionFOrumTool - " + e);
-    		e.printStackTrace();
-    		return null;
-    	}
-    }
-   }
-
-  public String processDfGradeSubmit()
-  {
-  	if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase("Default_0"))
-		{
-  		noAssignWarn = true;
-  		return null;
-		}
-  	else
-  		noAssignWarn = false;
-		if(gradePoint == null || gradePoint.trim().length()==0)
-		{
-			noGradeWarn = true;
-			return null;
-		}
-		else
-			noGradeWarn = false;
-		
-  	try
-		{
-  		if(selectedAssign != null && selectedAssign.trim().length()>0)
-  		{
-  			if(!selectedAssign.equalsIgnoreCase("Default_0"))
-  			{
-  				if(gradePoint != null && gradePoint.trim().length()>0)
-  				{
-  					GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService)
-						ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-  					String selectedAssignName = ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel();
-  					String tempName = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId();
-  					gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(), 
-  							selectedAssignName, 
-								UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId(), 
-								new Double(gradePoint), 
-								"");
-  					
-  					if(gradeNotify)
-  					{
-  						PrivateMessageManager pvtMsgManager = (PrivateMessageManager) ComponentManager.get(
-  						"org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager");
-  						User sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
-  						Set sendToSet = new HashSet();
-  						sendToSet.add(sendTo);
-  						
-  						PrivateMessage pvtMsg = messageManager.createPrivateMessage() ;
-
-  						pvtMsg.setTitle(selectedMessage.getMessage().getTitle());
-  						String msgBody = "";
-  						for(int i=0; i<assignments.size(); i++)
-  						{
-  							if(selectedAssign.equalsIgnoreCase((String)((SelectItem)assignments.get(i)).getValue()))
-  							{
-  								msgBody = msgBody.concat("ASSIGNMENT: " + ((SelectItem)assignments.get(i)).getLabel() + " <br/> ");
-  								break;
-  							}
-  						}
-  						msgBody = msgBody.concat("GRADE: " + gradePoint + " <br/> ");
-  						msgBody = msgBody.concat("COMMENTS: " + gradeComment + " <br/> <br/> ");
-  						msgBody = msgBody.concat(selectedMessage.getMessage().getBody() + " <br/> ");
-  						pvtMsg.setBody(msgBody);
-  						pvtMsg.setAuthor(UserDirectoryService.getCurrentUser().getId());
-  						pvtMsg.setApproved(Boolean.TRUE);
-  						pvtMsg.setModified(new Date());
-  						pvtMsg.setModifiedBy(UserDirectoryService.getCurrentUser().getId());
-  						
-  						pvtMsgManager.sendPrivateMessage(pvtMsg, sendToSet, false);
-  					}
-  				}
-  			}
-  		}
-		}
-  	catch(Exception e)
-		{
-  		LOG.error("DiscussionForumTool - processDfGradeSubmit:" + e);
-  		e.printStackTrace();
-		}
-  	
-    gradeNotify = false;
-    assignments.clear();
-    selectedAssign = "Default_0";
-    gradePoint = "";
-    gradebookScore = "";
-    gradeComment = "";
-    noAssignWarn = false;
-    noGradeWarn = false;
-  	return MESSAGE_VIEW;
-  }
-
   public String processCheckAll()
   {
   	for(int i=0; i<selectedTopic.getMessages().size(); i++)
@@ -3365,6 +3089,7 @@ public class DiscussionForumTool
     return selectItemList;     
     
   }
+  
   
   public void processPost(){
   	
