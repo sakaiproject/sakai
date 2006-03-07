@@ -32,7 +32,7 @@
     	    </h:column>
   	      <h:column>
     	      <f:facet name="header">
-    	        <h:outputText value="#{msgs.trigger.name}"/>
+    	        <h:outputText value="#{msgs.trigger_name}"/>
     	      </f:facet>
    	        <h:outputText value="#{wrapper.trigger.name}"/>
     	    </h:column>  	      
