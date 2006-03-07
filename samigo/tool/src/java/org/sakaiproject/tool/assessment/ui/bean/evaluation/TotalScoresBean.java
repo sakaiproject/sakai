@@ -741,4 +741,12 @@ public class TotalScoresBean
     return (HashMap)assessmentGradingHash.get(publishedAssessmentId);
   }
 
+  private ArrayList assessmentGradingList;
+  public void setAssessmentGradingList(ArrayList assessmentGradingList){
+      this.assessmentGradingList = assessmentGradingList;
+  }
+  public ArrayList getAssessmentGradingList(){
+    return assessmentGradingList;
+  }
+
 }

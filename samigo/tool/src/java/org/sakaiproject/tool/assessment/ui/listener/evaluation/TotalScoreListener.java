@@ -396,6 +396,8 @@ public class TotalScoreListener
     }
   }
 
+  // This method also store all the submitted assessment grading for a given published
+  // assessment in TotalScoresBean
   public void prepareAgentResultList(TotalScoresBean bean, PublishedAssessmentData p,
                  ArrayList scores, ArrayList students_not_submitted, Map useridMap){ 
 
@@ -406,6 +408,7 @@ public class TotalScoreListener
     // AssessmentGradingData, do we need full?
     GradingService delegate = new GradingService();
     ArrayList allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
+    bean.setAssessmentGradingList(allscores);
     getFilteredList(bean, allscores, scores, students_not_submitted, useridMap);
     bean.setTotalPeople(scores.size()+"");
   }

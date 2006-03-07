@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.HashMap;
 
 
 import javax.faces.event.AbortProcessingException;
@@ -40,6 +41,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
@@ -88,6 +90,15 @@ public class TotalScoreUpdateListener
 
   }
 
+  private HashMap prepareAssessmentGradingHash(ArrayList assessmentGradingList){
+    HashMap map = new HashMap();
+    for (int i=0; i<assessmentGradingList.size(); i++){
+      AssessmentGradingIfc a = (AssessmentGradingIfc)assessmentGradingList.get(i);
+      map.put(a.getAssessmentGradingId(), a);
+    }
+    return map;
+  }
+
   /**
    * Persist the results from the ActionForm in the total page.
    * @todo Some of this code will change when we move this to Hibernate persistence.
@@ -98,54 +109,40 @@ public class TotalScoreUpdateListener
   {
     try
     {
+      ArrayList assessmentGradingList = bean.getAssessmentGradingList();
+      HashMap map = prepareAssessmentGradingHash(assessmentGradingList);
       Collection agents = bean.getAgents();
       Iterator iter = agents.iterator();
       ArrayList grading = new ArrayList();
       while (iter.hasNext())
       {
         AgentResults agentResults = (AgentResults) iter.next();
+        float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
+                     new Float(agentResults.getTotalOverrideScore()).floatValue();
 
-
-	if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
-	  // these are students who have submitted for grades.
-          // Add up new score
-          agentResults.setFinalScore(new Float(
-            new Float(agentResults.getTotalAutoScore()).floatValue() +
-            new Float(agentResults.getTotalOverrideScore()).floatValue()).toString());
-
-          AssessmentGradingData data = new AssessmentGradingData();
-          BeanUtils.copyProperties(data, agentResults);
-
-          data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
-          data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
-          data.setFinalScore(new Float(agentResults.getFinalScore()));
-          data.setComments(agentResults.getComments());
-          grading.add(data);
-        }
-
-	else {
-
-	  boolean noOverrideScore =  false;
-          boolean noComment =  false;
-	  if ((new Float(0)).equals(new Float(agentResults.getTotalOverrideScore().trim())))
-	    noOverrideScore = true;
-	  if ("".equals(agentResults.getComments().trim()))
-	    noComment = true;
-
-
-          if (!(noOverrideScore && noComment )) {
+        boolean update = needUpdate(agentResults, map);
+        if (update){
+          System.out.println("**** need to update id="+agentResults.getAssessmentGradingId());
+          if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
+	    // these are students who have submitted for grades.
+            // Add up new score
+            agentResults.setFinalScore(newScore+"");
+            AssessmentGradingData data = new AssessmentGradingData();
+            BeanUtils.copyProperties(data, agentResults);
+            data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
+            data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
+            data.setFinalScore(new Float(agentResults.getFinalScore()));
+            data.setComments(agentResults.getComments());
+            grading.add(data);
+          }
+          else {
             // these are students who have not submitted for grades and instructor made adjustment to their scores
-
-	    // Add up new score
-	    agentResults.setFinalScore(new Float(
-              new Float(agentResults.getTotalAutoScore()).floatValue() +
-              new Float(agentResults.getTotalOverrideScore()).floatValue()).toString());
-
-
+            // Add up new score
+            agentResults.setFinalScore(newScore+"");
 	    AssessmentGradingData data = new AssessmentGradingData();
             BeanUtils.copyProperties(data, agentResults);
 
-	    String publishedId = bean.getPublishedId();
+            String publishedId = bean.getPublishedId();
 	    PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
     	    PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(publishedId);
 
@@ -155,17 +152,14 @@ public class TotalScoreUpdateListener
     	    data.setPublishedAssessment(pubassessment.getData());
 	    // tell hibernate this is a new record
     	    data.setAssessmentGradingId(new Long(0));
-
-	    data.setSubmittedDate(new Date());
+            data.setSubmittedDate(new Date());
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
             data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
             data.setFinalScore(new Float(agentResults.getFinalScore()));
             data.setComments(agentResults.getComments());
             grading.add(data);
           }
-        }
-
-
+	}
       }
 
       GradingService delegate = new GradingService();
@@ -187,6 +181,34 @@ public class TotalScoreUpdateListener
       return false;
     }
     return true;
+  }
+
+  private boolean needUpdate(AgentResults agentResults, HashMap map){
+    boolean update = true;
+    float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
+                     new Float(agentResults.getTotalOverrideScore()).floatValue();
+    // we will check if there is change of grade. if so, add up new score
+    // else skip
+    AssessmentGradingIfc old = (AssessmentGradingIfc)map.get(agentResults.getAssessmentGradingId());
+    if (old != null){
+      float oldScore = old.getFinalScore().floatValue();
+      if (oldScore==newScore) {
+        System.out.println("**** no need to update");
+        update = false;
+      }
+    }
+    else{ //students hasn't submitted the assessment  
+      boolean noOverrideScore =  false;
+      boolean noComment =  false;
+      if ((new Float(0)).equals(new Float(agentResults.getTotalOverrideScore().trim())))
+        noOverrideScore = true;
+      if ("".equals(agentResults.getComments().trim()))
+        noComment = true;
+
+      if (noOverrideScore && noComment) 
+	update = false;
+    }
+    return update;
   }
 
 }
