@@ -130,6 +130,54 @@ function checkTimeSelect(){
     document.getElementById(autoSubmitId).disabled=false;
   }
 }
+function checkUncheckTimeBox(){
+  var inputList= document.getElementsByTagName("INPUT");
+  var timedCheckBoxId;
+  var timedHourId;
+  var timedMinuteId;
+  for (i = 0; i <inputList.length; i++) 
+  {
+    if(inputList[i].type=='checkbox')
+    {
+      if(inputList[i].id.indexOf("selTimeAssess")>=0)
+        timedCheckBoxId = inputList[i].id;
+    }
+  }
+  inputList= document.getElementsByTagName("select");
+  for (i = 0; i <inputList.length; i++) 
+  {
+    if(inputList[i].id.indexOf("timedHours")>=0)
+      timedHourId =inputList[i].id;
+    if(inputList[i].id.indexOf("timedMinutes")>=0)
+      timedMinuteId =inputList[i].id;
+  }
+  if(document.getElementById(timedCheckBoxId) != null)
+  {
+    if(!document.getElementById(timedCheckBoxId).checked)
+    {
+      if(document.getElementById(timedHourId) != null)
+      {
+        for(i=0; i<document.getElementById(timedHourId).options.length; i++)
+        {
+          if(i==0)
+            document.getElementById(timedHourId).options[i].selected = true;
+          else
+            document.getElementById(timedHourId).options[i].selected = false;
+        }
+      }
+      if(document.getElementById(timedMinuteId) != null)
+      {
+        for(i=0; i<document.getElementById(timedMinuteId).options.length; i++)
+        {
+          if(i==0)
+            document.getElementById(timedMinuteId).options[i].selected = true;
+          else
+            document.getElementById(timedMinuteId).options[i].selected = false;
+        }
+      }
+    }
+  }
+}
 function uncheckOther(field){
  var fieldname = field.getAttribute("name");
  var inputList = document.getElementsByTagName("INPUT");
@@ -302,7 +350,7 @@ function uncheckOther(field){
     <h:panelGrid
         summary="#{summary_msg.timed_assmt_sec}">
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
-        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkTimeSelect();document.forms[0].onsubmit();document.forms[0].submit();"
+        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();document.forms[0].onsubmit();document.forms[0].submit();"
          value="#{assessmentSettings.valueMap.hasTimeAssessment}"/>
         <h:outputText value="#{msg.timed_assessment} " />
 				<h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}" >
