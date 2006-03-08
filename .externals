@@ -19,7 +19,7 @@ portal			https://source.sakaiproject.org/svn/trunk/sakai/portal
 portlet			https://source.sakaiproject.org/svn/trunk/sakai/portlet
 prefences		https://source.sakaiproject.org/svn/trunk/sakai/preferences
 presentation		https://source.sakaiproject.org/svn/trunk/sakai/presentation
-profile			https://source.sakaiproject.org/svn/trunk/sakai/profile
+profile			https://source.sakaiproject.org/svn/profile/trunk
 providers		https://source.sakaiproject.org/svn/trunk/sakai/providers
 reference		https://source.sakaiproject.org/svn/trunk/sakai/reference
 roster			https://source.sakaiproject.org/svn/trunk/sakai/roster
