@@ -126,12 +126,26 @@
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
 </h:panelGrid>
 
+<script language="javascript" style="text/JavaScript">
+<!--
+var clicked = 'false';
+function toggle(){
+  if (clicked == 'false'){
+    clicked = 'true'
+  }
+  else{ // any subsequent click disable button & action
+    document.forms[0].elements['publishAssessmentForm:publish'].disabled=true;
+  }
+}
+//-->
+</script>
+
 <f:verbatim><p></p></f:verbatim>
      <h:outputText value="#{msg.open_new_browser_for_publishedUrl}" />
 
      <p class="act">
-       <h:commandButton value="#{msg.button_save_and_publish}" type="submit"
-         styleClass="active" action="publishAssessment" >
+       <h:commandButton id="publish" value="#{msg.button_save_and_publish}" type="submit"
+         styleClass="active" action="publishAssessment" onclick="toggle()">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
        </h:commandButton>
@@ -145,4 +159,5 @@
 
       </body>
     </html>
+
   </f:view>
