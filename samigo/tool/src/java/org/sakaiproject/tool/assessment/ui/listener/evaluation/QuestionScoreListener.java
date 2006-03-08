@@ -340,7 +340,7 @@ public class QuestionScoreListener
         SectionDataIfc section = (SectionDataIfc) iter.next();
         ArrayList items = new ArrayList();
         PartData part = new PartData();
-        part.setPartNumber("Section " + i + ":");
+        part.setPartNumber("Part " + i + ":");
         part.setId(section.getSectionId().toString());
         Iterator iter2 = section.getItemArraySortedForGrading().iterator();
         int j = 1;
@@ -367,8 +367,8 @@ public class QuestionScoreListener
       ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
       bean.setTypeId(item.getTypeId().toString());
       bean.setItemId(item.getItemId().toString());
-      bean.setItemName("Section " + item.getSection().getSequence().toString()
-        + ", Item " + item.getSequence().toString());
+      bean.setItemName("Part " + item.getSection().getSequence().toString()
+        + ", Question " + item.getSequence().toString());
       //log.info("Rachel: TYpe id = " + item.getTypeId().toString());
       item.setHint("***"); // Keyword to not show student answer
 
