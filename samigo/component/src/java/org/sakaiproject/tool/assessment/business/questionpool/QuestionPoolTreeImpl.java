@@ -454,7 +454,7 @@ public class QuestionPoolTreeImpl
    * Auxiliary method for recursion.
    */
   private void addChildren(Collection total, Long parentId)
-  {
+  { 
     List childList = getChildList(parentId);
     if(childList.isEmpty())
     {

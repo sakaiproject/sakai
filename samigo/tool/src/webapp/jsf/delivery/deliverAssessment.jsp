@@ -116,7 +116,8 @@ function saveTime()
       <h:outputText value=" - #{part.nonDefaultText}" escape="false"/>
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
-      <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" / -->
+      <h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" 
+         rendered="#{delivery.actionString=='reviewAssessment'}"/>
       <f:verbatim></h4><div class="indnt1"></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
       <f:verbatim></div></f:verbatim>
@@ -126,7 +127,8 @@ function saveTime()
           <f:verbatim><h4 class="tier2"></f:verbatim>
            <h:outputText value="<a name=p#{part.number}q#{question.number}></a>" escape="false" />
 
-        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.maxPoints} #{msg.pt}"/>
+        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.points} / #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
 
           <f:verbatim></h4><div class="indnt3"></f:verbatim>
 <%--

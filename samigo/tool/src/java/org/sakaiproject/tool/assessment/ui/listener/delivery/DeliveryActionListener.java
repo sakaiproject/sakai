@@ -156,6 +156,7 @@ public class DeliveryActionListener
                 delivery.setAssessmentGrading(ag);
 	      }
               setDisplayByAssessment(delivery);
+              setDeliveryFeedbackOnforEvaluation(delivery);
               setGraderComment(delivery);
               break;
  
