@@ -28,7 +28,7 @@ sam			https://source.sakaiproject.org/svn/trunk/sakai/sam
 sample-tools		https://source.sakaiproject.org/svn/trunk/sakai/sample-tools
 scheduler		https://source.sakaiproject.org/svn/trunk/sakai/scheduler
 sections		https://source.sakaiproject.org/svn/trunk/sakai/sections
-syllabus		https://source.sakaiproject.org/svn/trunk/sakai/syllabus
+syllabus		https://source.sakaiproject.org/svn/syllabus/trunk
 test			https://source.sakaiproject.org/svn/trunk/sakai/test
 test-harness		https://source.sakaiproject.org/svn/trunk/sakai/test-harness
 tool_config		https://source.sakaiproject.org/svn/trunk/sakai/tool_config
