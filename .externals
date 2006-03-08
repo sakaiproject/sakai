@@ -4,7 +4,7 @@ demo			https://source.sakaiproject.org/svn/trunk/sakai/demo
 docs			https://source.sakaiproject.org/svn/trunk/sakai/docs
 edu			https://source.sakaiproject.org/svn/trunk/sakai/edu
 gradebook		https://source.sakaiproject.org/svn/trunk/sakai/gradebook
-help			https://source.sakaiproject.org/svn/trunk/sakai/help
+help			https://source.sakaiproject.org/svn/help/trunk
 high-util		https://source.sakaiproject.org/svn/trunk/sakai/high-util
 jsf			https://source.sakaiproject.org/svn/trunk/sakai/jsf
 kernel			https://source.sakaiproject.org/svn/trunk/sakai/kernel
