@@ -261,8 +261,15 @@ public class ItemHelper12Impl extends ItemHelperBase
     if (isInsert)
     {
       itemXml.insertElement(nextNode, xpath, "itemfeedback");
+// System.out.println(itemXml.stringValue());
+      itemXml.add(
+        xpath + "/itemfeedback[" + responseNo + "]", "flow_mat/material/mattext");
+
+
+/*
       itemXml.add(
         xpath, "itemfeedback/flow_mat/material/mattext");
+*/
     }
     else
     {
@@ -281,6 +288,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     {
       log.error("Cannot update value in addItemfeedback(): " + ex);
     }
+
 
     String newPath = xpath + "/itemfeedback[" + responseNo + "]";
     itemXml.addAttribute(newPath, "ident");
@@ -1074,11 +1082,11 @@ public class ItemHelper12Impl extends ItemHelperBase
 
   public void setFeedback(ArrayList itemTextList, Item itemXml)
   {
-    log.info("setFeedback()");
+    //log.info("setFeedback()");
 
     boolean hasAnswerLevelFeedback = itemXml.isMCMC() || itemXml.isMCSC();
-    log.info("itemXml.getItemType(): " + itemXml.getItemType());
-    log.info("hasAnswerLevelFeedback: " + hasAnswerLevelFeedback);
+    //log.info("itemXml.getItemType(): " + itemXml.getItemType());
+    //log.info("hasAnswerLevelFeedback: " + hasAnswerLevelFeedback);
 
     // for any answers that are now in the template, create a feedback
     String xpath =
@@ -1115,9 +1123,9 @@ public class ItemHelper12Impl extends ItemHelperBase
         while (aiter.hasNext())
         {
           AnswerIfc answer = (AnswerIfc) aiter.next();
-          log.info("Setting answer feedback for: " + answer.getText());
-          log.info("xpathIndex: " + xpathIndex);
-          log.info("label: " + label);
+          //log.info("Setting answer feedback for: " + answer.getText());
+          //log.info("xpathIndex: " + xpathIndex);
+          //log.info("label: " + label);
 
           String value = answer.getGeneralAnswerFeedback();
           boolean isInsert = true;

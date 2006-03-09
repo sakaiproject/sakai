@@ -1094,11 +1094,8 @@ public class ExtractionHelper
     }
 
     String correctItemFeedback = (String) itemMap.get("correctItemFeedback");
-      System.out.println("lydiatest : correctItemFeedback =  " + correctItemFeedback);
     String incorrectItemFeedback = (String) itemMap.get("incorrectItemFeedback");
-      System.out.println("lydiatest : incorrectItemFeedback =  " + incorrectItemFeedback);
     String generalItemFeedback = (String) itemMap.get("generalItemFeedback");
-      System.out.println("lydiatest : generalItemFeedback =  " + generalItemFeedback);
     if (generalItemFeedback==null) generalItemFeedback = "";
 
     // NOTE:
