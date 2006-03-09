@@ -934,7 +934,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
             studentanswer= data.getAnswerText().trim();
-    	    REGEX = answer.replaceAll("\\*", ".*");
+    	    REGEX = answer.replaceAll("\\*", ".+");
             p = Pattern.compile(REGEX);   // by default it's case sensitive
             m = p.matcher(studentanswer);
             matchresult = m.matches();
@@ -944,7 +944,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
     	    studentanswer= data.getAnswerText().trim();
-            REGEX = answer.replaceAll("\\*", ".*");
+            REGEX = answer.replaceAll("\\*", ".+");
 	    p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
             m = p.matcher(studentanswer);
             matchresult= m.matches();
