@@ -31,6 +31,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.faces.component.UIViewRoot;
+
+import org.sakaiproject.api.kernel.session.ToolSession;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+
 /**
  * <p>Description: </p>
  * <p>Render a stylesheet link for the value of our component's
@@ -139,6 +143,23 @@ public class HideDivisionRenderer extends Renderer
   {
     ResponseWriter writer = context.getResponseWriter();
     writer.write("</div>");
+    
+    ToolSession session = SessionManager.getCurrentToolSession();
+    if(session.getAttribute("sam_expande_hide_div_id") != null)
+    {
+      String jsfId = (String) component.getAttributes().get("id");
+      if(((String)session.getAttribute("sam_expande_hide_div_id")).equalsIgnoreCase(jsfId))
+      {
+      	String contextPath = context.getExternalContext()
+				.getRequestContextPath();
+      	
+      	writer.write("<script type=\"text/javascript\">");
+      	writer.write("  setExceptionId('" + session.getAttribute("sam_expande_hide_div_id") +"');");
+      	writer.write("</script>");
+      	
+      	session.removeAttribute("sam_expande_hide_div_id");
+      }
+    }
   }
 
 }

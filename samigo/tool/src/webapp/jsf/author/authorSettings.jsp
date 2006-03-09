@@ -197,7 +197,7 @@ function uncheckOther(field){
 
 
       </head>
-    <body onload="hideUnhideAllDivsWithWysiwyg('none');checkTimeSelect();<%= request.getAttribute("html.body.onload") %>">
+    <body onload="hideUnhideAllDivsExceptOne('none');checkTimeSelect();<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 
@@ -351,7 +351,9 @@ function uncheckOther(field){
         summary="#{summary_msg.timed_assmt_sec}">
       <h:panelGroup rendered="#{assessmentSettings.valueMap.timedAssessment_isInstructorEditable==true}">
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();document.forms[0].onsubmit();document.forms[0].submit();"
-         value="#{assessmentSettings.valueMap.hasTimeAssessment}"/>
+         value="#{assessmentSettings.valueMap.hasTimeAssessment}">
+					<f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.TimedAssessmentChangeListener" />
+				</h:selectBooleanCheckbox>
         <h:outputText value="#{msg.timed_assessment} " />
 				<h:selectOneMenu id="timedHours" value="#{assessmentSettings.timedHours}" disabled="#{!assessmentSettings.valueMap.hasTimeAssessment}" >
           <f:selectItems value="#{assessmentSettings.hours}" />

@@ -219,3 +219,38 @@ function getTheElement(thisid){
     }
   }
 }
+
+var exceptionId = "";
+function setExceptionId(thisExceptionIdValue)
+{
+  exceptionId = thisExceptionIdValue;
+}
+function hideUnhideAllDivsExceptOne(action)
+{
+  wysiwygShowHideDiv = true;
+
+  var exceptionFullId = "__hide_division_" + exceptionId;
+
+  if(runHide==true)
+  {
+    runHide=false;
+    myDocumentElements=document.getElementsByTagName("div");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+      if((divisionNo != null) && (divisionNo== exceptionFullId))
+      {
+        continue;
+      }
+      if (divisionNo.indexOf("__hide_division_")==0)
+      {
+        elem = document.getElementById(divisionNo);
+        if (elem)
+        {
+          elem.style.display =action;
+        }
+      }
+    }
+  }
+  exceptionId = "";
+}
