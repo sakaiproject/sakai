@@ -140,7 +140,6 @@ public class QuestionPoolTreeImpl
             log.error("Couldn't get ID " + next.getQuestionPoolId());
           }
         }
-
         poolFamilies.put(key, ids);
       }
     }

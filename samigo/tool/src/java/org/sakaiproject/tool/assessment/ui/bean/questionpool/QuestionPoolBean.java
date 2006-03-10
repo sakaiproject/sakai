@@ -28,9 +28,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;
@@ -53,6 +56,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 
 // from navigo
 
@@ -145,18 +149,33 @@ public class QuestionPoolBean
 
   public QuestionPoolDataModel getQpools()
   {
-
+        // daisyf note:
+        // #1 - buildTree() returns all branches immediate under the root as well as
+        // individual branches, e.g. you will get a branch 1 with its subsidiary 1.1 & 1.2 attached
+        // and branch 2 with its subsidiary 2.1 & 2.2 attached. Plus all 4 secondary branches 1.1, 
+        // 1.2, 1.3 and 1.4, each with their subsidiaries attached to them. 
 	buildTree();
-        //if ((this.sortProperty!=null) && (!this.sortProperty.equals("lastModified"))) {
- 	  tree.sortByProperty(this.getSortProperty(),this.getSortAscending());
-	//}
-        Collection objects = tree.getSortedObjects();
-        if ((this.sortProperty!=null) && (this.sortProperty.equals("lastModified")))
-            this.sortQpoolsByProperty((ArrayList)objects,this.getSortProperty(),this.getSortAscending());
 
-        ListDataModel model = new ListDataModel((List) objects);
-        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
-	return qpDataModel;
+        // #2 - tree.sortByProperty sort ALL the branches regardless of their level based on 
+        // this.getSortProperty(). I am not sure what tree.getSortProperty() is used for.
+        // tree.sortByProperty(this.getSortProperty(),this.getSortAscending()); 
+
+        // #3 - tree.getSortedObjects() doesn't sort, it just return a list of QuestionPoolFacade
+        // Think of it as all the nodes in the trees. You can drill down each node using methods 
+        // provided by the tree to get to the children nodes.
+        Collection objects = tree.getSortedObjects();
+
+        // #4 - construct the sortedList, pools need to be sorted one level at a time so the hierachical
+        // structure can be maintained. Here, we start from root = 0, 
+        if (objects!=null){
+          ArrayList sortedList = sortPoolByLevel(new Long("0"), objects, getSortProperty(), getSortAscending());
+          //printTree(sortedList);
+ 
+          ListDataModel model = new ListDataModel((List) sortedList);
+          QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
+	  return qpDataModel;
+	}
+        else return null;
   }
 
   public QuestionPoolDataModel getCopyQpools()
@@ -189,11 +208,20 @@ public class QuestionPoolBean
 
   public QuestionPoolDataModel getSortedSubqpools()
   {
+      if (tree == null)
+	buildTree();
 
-      this.sortSubqpoolsByProperty((ArrayList)sortedSubqpools,this.getSortSubPoolProperty(),this.getSortSubPoolAscending());
-      ListDataModel model = new ListDataModel((List) sortedSubqpools);
-      QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
-      return qpDataModel;
+      ArrayList subpools = (ArrayList) tree.getSortedObjects(getCurrentPool().getId());
+      if (subpools!=null){
+        ArrayList sortedList = sortPoolByLevel(getCurrentPool().getId(), subpools,
+                                               getSortSubPoolProperty(), getSortSubPoolAscending());
+        //printTree(sortedList);
+
+        ListDataModel model = new ListDataModel((List) sortedList);
+        QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree, model);
+        return qpDataModel;
+      }
+      else return null;
   }
 
   public void sortSubqpoolsByProperty(ArrayList sortedList, String sortProperty, boolean sortAscending)
@@ -231,7 +259,7 @@ public class QuestionPoolBean
          sort.toStringSort();
         }
 
-        sort.sort();
+        sortedList = (ArrayList)sort.sort();
 
         if (!sortAscending)
 	{
@@ -265,35 +293,33 @@ public class QuestionPoolBean
     try
     {
       QuestionPoolService delegate = new QuestionPoolService();
+      // getAllPools() returns pool in ascending order of poolId 
+      // then a tree which represent the pool structure is built - daisyf
+      System.out.println("****** QPBean: build tree");
       tree=
         new QuestionPoolTreeImpl(
           (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
 
-      /*** debug code ***/
-/*
       Collection objects = tree.getSortedObjects();
-      Iterator iter = objects.iterator();
-      while(iter.hasNext())
-      {
-        try
-        {
-          QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
-	tree.setCurrentId(pool.getQuestionPoolId());
-        }
-        catch(Exception e)
-        {
-          e.printStackTrace();
-          throw new Error(e);
-        }
-      }
-*/
-      /*** end debug code ***/
+      //printTree(objects);
     }
     catch(Exception e)
     {
       throw new Error(e);
     }
   }
+
+  private void printChildrenPool(Tree tree, QuestionPoolDataIfc pool, String stars){
+    List children = tree.getChildList(pool.getQuestionPoolId());
+    Map childrenMap = tree.getChildren(pool.getQuestionPoolId());
+    stars += "**";
+    for (int i=0; i<children.size();i++){
+      QuestionPoolDataIfc child = (QuestionPoolDataIfc) childrenMap.get(children.get(i).toString());
+      System.out.println(stars+child.getTitle()+":"+child.getLastModified());
+      printChildrenPool(tree, child, stars);
+    }  
+  }
+
 
   /**
    * DOCUMENTATION PENDING
@@ -1747,6 +1773,7 @@ String poolid = ContextUtil.lookupParam("poolId");
     String ascending = ContextUtil.lookupParam("ascending");
     this.setSortProperty(sortString);
     this.setSortAscending((Boolean.valueOf(ascending)).booleanValue());
+    System.out.println("****sortByColumnHeader ="+ sortString);
     return "poolList";
   }
 
@@ -1833,5 +1860,60 @@ String poolid = ContextUtil.lookupParam("poolId");
     }
 
   }
+
+  private HashMap buildHash(Collection objects){
+    HashMap map = new HashMap();
+    Iterator iter = objects.iterator();
+    while(iter.hasNext()){
+      QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();
+      Long parentPoolId = pool.getParentPoolId();
+      ArrayList poolList = (ArrayList)map.get(parentPoolId);
+      if (poolList == null){
+        poolList = new ArrayList();
+        map.put(parentPoolId, poolList);
+      }
+      poolList.add(pool);
+    }
+    return map;
+  }
+
+  private ArrayList sortPoolByLevel(Long level, Collection objects, String sortProperty, boolean sortAscending){
+    HashMap map = buildHash(objects);
+    Set keys = map.keySet();
+    Iterator iter = keys.iterator();
+    while(iter.hasNext()){
+      Long parentPoolId = (Long)iter.next();
+      ArrayList poolList = (ArrayList) map.get(parentPoolId); 
+      sortQpoolsByProperty(poolList, sortProperty, sortAscending);
+    }
+    // poolList in each level has been sorted, now we would put them in the right order
+    ArrayList sortedList = new ArrayList();
+    ArrayList firstLevelPoolList = (ArrayList) map.get(level);
+    addPoolByLevel(sortedList, map, firstLevelPoolList);
+    return sortedList;
+  }
+
+  private void addPoolByLevel(ArrayList sortedList, HashMap map, ArrayList poolList){
+    for (int i=0; i<poolList.size();i++){
+      QuestionPoolDataIfc pool = (QuestionPoolDataIfc) poolList.get(i); 
+      sortedList.add(pool);
+      ArrayList nextLevelPoolList = (ArrayList) map.get(pool.getQuestionPoolId());
+      if (nextLevelPoolList !=null)
+        addPoolByLevel(sortedList, map, nextLevelPoolList);
+    }
+  }
+
+  private void printTree(Collection objects){
+    Iterator iter = objects.iterator();
+    String stars="********";
+    while(iter.hasNext())
+    {
+      QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();
+      System.out.println();
+      System.out.println("****** QPBean: "+pool.getTitle()+":"+pool.getLastModified()); 
+      printChildrenPool(tree, pool, stars);
+    }
+  }
+
 
 }
