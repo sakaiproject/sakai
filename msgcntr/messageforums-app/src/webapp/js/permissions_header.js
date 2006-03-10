@@ -221,18 +221,35 @@ function displayRelevantBlock(){
   role=getTheElement("revise:role");
   i=0;
   while(true){
-    spanId=getTheElement("revise:perm:"+i+":permissionSet");
-    if(spanId){
-      spanId.style.display="none";
-    }
+    spanElement=getTheElement("revise:perm:"+i+":permissionSet");
+    if(spanElement){
+      rowNode = getSurroundingRowNode(spanElement);
+
+      if (rowNode){    
+        rowNode.style.display="none";
+      }   
+    }       
     else{
       break;
     }
     i++;
   }
 
-  spanId=getTheElement("revise:perm:"+ role.selectedIndex+":permissionSet");
-  if(spanId){
-    spanId.style.display="block";
+  spanElement=getTheElement("revise:perm:"+ role.selectedIndex+":permissionSet");
+  if(spanElement){    
+    rowNode = getSurroundingRowNode(spanElement);
+    if (rowNode){    
+      rowNode.style.display="block";
+    }    
   }
+}
+
+function getSurroundingRowNode(node){
+  while(node){
+    if (node.tagName == "TR"){
+      break;
+    }
+    node = node.parentNode;
+  }    
+  return node;
 }
