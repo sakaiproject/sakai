@@ -537,7 +537,7 @@ function uncheckOther(field){
         </h:selectOneRadio>
 
         <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
-          <f:convertDateTime pattern="MM/dd/yyyy" />
+          <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
         </samigo:datePicker>
      
       </h:panelGrid>

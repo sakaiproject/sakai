@@ -620,8 +620,8 @@ public class ItemAuthorBean
   public ArrayList getTrueFalseAnswerSelectList() {
     ArrayList list = new ArrayList();
 
-    String trueprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","true_msg");;
-    String falseprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","false_msg");;
+    String trueprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","true_msg");
+    String falseprop= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","false_msg");
     String[] answerValues = {"true", "false"};  // not to be displayed in the UI
     String[] answerLabelText= {trueprop, falseprop};
     currentItem.setAnswers(answerValues);

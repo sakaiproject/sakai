@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
         <h:column>
          <h:outputText value="("/>
          <h:outputText value="#{media.createdDate}">
-           <f:convertDateTime pattern="MM/dd/yyyy" />
+           <f:convertDateTime pattern="#{msg.delivery_date_no_time_format}" />
          </h:outputText>
          <h:outputText value=")"/>
         </h:column>

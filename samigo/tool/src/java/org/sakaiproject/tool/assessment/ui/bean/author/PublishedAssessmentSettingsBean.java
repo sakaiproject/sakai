@@ -49,6 +49,8 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
@@ -62,14 +64,16 @@ public class PublishedAssessmentSettingsBean
     integrationContextFactory.isIntegrated();
 
   /**
-   *  we use the calendar widget which uses 'MM-dd-yyyy hh:mm:ss a'
+   *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
    *  transparently in and out of the date properties
    *
    */
-  private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
-  private static final SimpleDateFormat displayFormat = new SimpleDateFormat(
-      DISPLAY_DATEFORMAT);
+  // private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
+  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
+
+  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -790,7 +794,7 @@ public class PublishedAssessmentSettingsBean
    * @param date Date object
    * @return date String "MM-dd-yyyy hh:mm:ss a"
    */
-  private static String getDisplayFormatFromDate(Date date) {
+  private String getDisplayFormatFromDate(Date date) {
     String dateString = "";
     if (date == null) {
       return dateString;
@@ -813,7 +817,7 @@ public class PublishedAssessmentSettingsBean
    * @param dateString "MM-dd-yyyy hh:mm:ss a"
    * @return Date object
    */
-  private static Date getDateFromDisplayFormat(String dateString) {
+  private Date getDateFromDisplayFormat(String dateString) {
     Date date = null;
     if (dateString == null || dateString.trim().equals("")) {
       return date;
