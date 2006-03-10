@@ -1,7 +1,6 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -31,20 +30,16 @@ import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
-import org.sakaiproject.api.common.authorization.PermissionsMask;
 import org.sakaiproject.api.kernel.session.SessionManager;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
 import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.authzGroup.Role;
 import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
 import org.sakaiproject.service.legacy.security.SecurityService;
@@ -1735,84 +1730,47 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       Integer type)
   {
     DBMembershipItem newItem = getDBMember(originalSet, name, type);
-
-    // if the user has a custom level, the permission level will be initialized 
-    if (newItem != null && newItem.getPermissionLevel() != null)
-    {
-      return newItem;
-    }
-        
-    PermissionLevel level = null;
-            
-    // if the user has redefined the level for this role, fetch it
-    if (newItem != null && newItem.getPermissionLevelName() != null){
-    	    	    	
-    	level = permissionLevelManager.getPermissionLevelByName(newItem.getPermissionLevelName());
-    	
-    	if (level == null){ 
-    		newItem.setPermissionLevel(permissionLevelManager.getDefaultNonePermissionLevel());
-    		newItem.setPermissionLevelName("None");
-    	}
-    	else{
-    		newItem.setPermissionLevel(level);
-    		newItem.setPermissionLevelName(level.getName());
-    	}
-    	
-    	return newItem;
-    }
-    
-    
-    if (newItem == null)
-    {
-      if (type.equals(DBMembershipItem.TYPE_ROLE))
-      {      	   
-      	
-      	String levelName = ServerConfigurationService.getString(MC_DEFAULT
-            + name);
-      	
-        if (levelName != null && levelName.trim().length() > 0)
-        {
-          level = permissionLevelManager.getPermissionLevelByName(levelName);
-        }
-      }
-      newItem = new DBMembershipItemImpl();
-      newItem.setName(name);
-      newItem.setPermissionLevelName((level != null) ? level.getName() : "");
-      newItem.setType(type);
-      if (level == null)
-      {
-        newItem.setPermissionLevel(permissionLevelManager
-            .getDefaultNonePermissionLevel());
-      }
-      else
-        newItem.setPermissionLevel(level);
-    }
-    if (newItem.getPermissionLevel() == null)
-    {
-      newItem.setPermissionLevel(permissionLevelManager
-          .getDefaultNonePermissionLevel());
-    }
     return newItem;
   }
 
   public DBMembershipItem getDBMember(Set originalSet, String name,
       Integer type)
   {
-    if (originalSet == null)
-    {
-      return null;
-    }
+      	
     DBMembershipItem membershipItem = null;
-    Iterator iter = originalSet.iterator();
-    while (iter.hasNext())
-    {
-      membershipItem = (DBMembershipItem) iter.next();
-      if (membershipItem.getType().equals(type)
-          && membershipItem.getName().equals(name))
+    
+    if (originalSet != null){
+      Iterator iter = originalSet.iterator();
+      while (iter.hasNext())
       {
-        break;
+        membershipItem = (DBMembershipItem) iter.next();
+        if (membershipItem.getType().equals(type)
+            && membershipItem.getName().equals(name))
+        {
+          break;
+        }
       }
     }
+    
+    if (membershipItem == null || membershipItem.getPermissionLevel() == null){    	
+    	PermissionLevel level = null;
+    	if (type.equals(DBMembershipItem.TYPE_ROLE))
+      {      	         
+      	String levelName = ServerConfigurationService.getString(MC_DEFAULT
+            + name);
+      	
+        if (levelName != null && levelName.trim().length() > 0)
+        {
+          level = permissionLevelManager.getPermissionLevelByName(levelName);
+        }                
+      }
+    	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
+      membershipItem = new DBMembershipItemImpl();
+      membershipItem.setName(name);
+      membershipItem.setPermissionLevelName((level == null) ? noneLevel.getName() : level.getName() );
+      membershipItem.setType(type);
+      membershipItem.setPermissionLevel((level == null) ? noneLevel : level);      
+    }        
     return membershipItem;
   }
  

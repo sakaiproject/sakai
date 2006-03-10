@@ -11,18 +11,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.ForumControlPermission;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsUser;
-import org.sakaiproject.api.app.messageforums.MessagePermissions;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
-import org.sakaiproject.api.app.messageforums.TopicControlPermission;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.kernel.session.SessionManager;
@@ -164,9 +160,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   }
 
   // end dependencies
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewForum()
    */
   public boolean isNewForum()
@@ -177,14 +171,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       return true;
     }
     try
-    {
-      if (getAreaItemByUserRole().getPermissionLevel() == null
-          || getAreaItemByUserRole().getPermissionLevel().getNewForum() == null)
-      {
-        return false;
-      }
-      return getAreaItemByUserRole().getPermissionLevel().getNewForum()
-          .booleanValue();
+    {   
+    	DBMembershipItem item = getAreaItemByUserRole();
+    	
+    	if (item == null){
+    		return false;
+    	}
+    	
+    	PermissionLevel level = item.getPermissionLevel();
+    	
+    	if (level == null){
+    		return false;
+    	}
+    	
+    	return (level.getNewForum() == null) ? false : level.getNewForum().booleanValue();                       
     }
     catch (Exception e)
     {
@@ -193,9 +193,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public boolean isChangeSettings(DiscussionForum forum)
@@ -214,14 +212,20 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       return true;
     }
     try
-    {
-      if (getAreaItemByUserRole().getPermissionLevel() == null
-          || getAreaItemByUserRole().getPermissionLevel().getNewForum() == null)
-      {
-        return false;
-      }
-      return getAreaItemByUserRole().getPermissionLevel().getNewForum()
-          .booleanValue();
+    {    	
+      DBMembershipItem item = getAreaItemByUserRole();
+    	
+    	if (item == null){
+    		return false;
+    	}
+    	
+    	PermissionLevel level = item.getPermissionLevel();
+    	
+    	if (level == null){
+    		return false;
+    	}
+    	
+    	return (level.getNewForum() == null) ? false : level.getNewForum().booleanValue();       	      
     }
     catch (Exception e)
     {
@@ -230,9 +234,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewTopic(org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
   public boolean isNewTopic(DiscussionForum forum)
@@ -247,7 +249,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     try
     {
-      Iterator iter = getForumItemByCurrentUser(forum);
+      Iterator iter = getForumItemsByCurrentUser(forum);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -265,9 +267,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -285,7 +285,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -307,9 +307,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isNewResponseToResponse(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -328,7 +326,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -351,9 +349,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMovePostings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -371,7 +367,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -394,9 +390,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isChangeSettings(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -429,7 +423,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -452,9 +446,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /** 
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isPostToGradebook(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -472,7 +464,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -495,9 +487,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isRead(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -514,7 +504,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       {
         return true;
       }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -537,9 +527,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseAny(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -565,7 +553,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -588,9 +576,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isReviseOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -621,7 +607,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -644,9 +630,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteAny(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -676,7 +660,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -699,9 +683,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isDeleteOwn(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -731,7 +713,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -754,9 +736,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /**   
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isMarkAsRead(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
@@ -796,7 +776,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemByCurrentUser(topic);
+      Iterator iter = getTopicItemsByCurrentUser(topic);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -820,6 +800,145 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
   }
 
+  
+  private Iterator getGroupsByCurrentUser()
+  {
+    List memberof = new ArrayList();
+    try
+    {
+      Collection groups = SiteService.getSite(PortalService.getCurrentSiteId())
+          .getGroups();
+      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+      {
+        Group currentGroup = (Group) groupIterator.next();
+
+        Member member = currentGroup.getMember(getCurrentUserId());
+        if (member != null && member.getUserId().equals(getCurrentUserId()))
+        {
+          memberof.add(currentGroup.getId());
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.debug("Group not found");
+    }
+    return memberof.iterator();
+  }
+
+  private DBMembershipItem getAreaItemByUserRole()
+  { 
+  	if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getAreaItemByUserRole()");
+    }	 
+    Set membershipItems = forumManager.getDiscussionForumArea()
+      .getMembershipItemSet();
+    return forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+      DBMembershipItem.TYPE_ROLE);
+  }
+
+  private Iterator getForumItemsByCurrentUser(DiscussionForum forum)
+  {
+    List forumItems = new ArrayList();
+    Set membershipItems = forum.getMembershipItemSet();
+    
+    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+        DBMembershipItem.TYPE_ROLE);
+    
+    if (item != null){
+      forumItems.add(item);
+    }
+
+//    Iterator iter = membershipItems.iterator();
+//    while (iter.hasNext())
+//    {
+//      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
+//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
+//          && membershipItem.getName().equals(getCurrentUserRole()))
+//      {
+//        forumItems.add(membershipItem);
+//      }
+//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
+//          && isGroupMember(membershipItem.getName()))
+//      {
+//        forumItems.add(membershipItem);
+//      }
+//    }
+    return forumItems.iterator();
+  }
+
+  private Iterator getTopicItemsByCurrentUser(DiscussionTopic topic)
+  {
+    List topicItems = new ArrayList();
+    Set membershipItems = topic.getMembershipItemSet();
+    DBMembershipItem item = forumManager.getDBMember(membershipItems, getCurrentUserRole(),
+        DBMembershipItem.TYPE_ROLE);
+    
+    if (item != null){
+      topicItems.add(item);
+    }
+
+//    Iterator iter = membershipItems.iterator();
+//    while (iter.hasNext())
+//    {
+//      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
+//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
+//          && membershipItem.getName().equals(getCurrentUserRole()))
+//      {
+//        topicItems.add(membershipItem);
+//      }
+//      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
+//          && isGroupMember(membershipItem.getName()))
+//      {
+//        topicItems.add(membershipItem);
+//      }
+//    }
+    return topicItems.iterator();
+  }
+  
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#isInstructor()
+   */
+  public boolean isInstructor()
+  {
+    LOG.debug("isInstructor()");
+    return isInstructor(UserDirectoryService.getCurrentUser());
+  }
+
+  /**
+   * Check if the given user has site.upd access
+   * 
+   * @param user
+   * @return
+   */
+  private boolean isInstructor(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isInstructor(User " + user + ")");
+    }
+    if (user != null)
+      return securityService.unlock(user, "site.upd", getContextSiteId());
+    else
+      return false;
+  }
+
+  /**
+   * @return siteId
+   */
+  private String getContextSiteId()
+  {
+    LOG.debug("getContextSiteId()");
+    return ("/site/" + toolManager.getCurrentPlacement().getContext());
+  }
+
+  public void setPermissionLevelManager(
+      PermissionLevelManager permissionLevelManager)
+  {
+    this.permissionLevelManager = permissionLevelManager;
+  }
+  
   /**
    * @return
    */
@@ -902,16 +1021,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return securityService.isSuperUser();
   }
 
-  // /**
-  // * @return
-  // */
-  // private AreaControlPermission getAreaControlPermissions()
-  // {
-  // LOG.debug("getAreaControlPermissions()");
-  // return permissionManager.getAreaControlPermissionForRole(
-  // getCurrentUserRole(), typeManager.getDiscussionForumType());
-  // }
-
+  
   /**
    * @param topic
    * @param forum
@@ -929,136 +1039,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
-    // if (forum.getLocked() == null || forum.getLocked().equals(Boolean.FALSE))
-    // {
-    // LOG.debug("This Forum is Locked");
-    // return false;
-    // }
-    // if (forum.getDraft() == null || forum.getDraft().equals(Boolean.FALSE))
-    // {
-    // LOG.debug("This forum is a draft");
-    // return false;
-    // }
-    // if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
-    // {
-    // LOG.debug("This topic is locked " + topic);
-    // return false;
-    // }
-    // if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
-    // {
-    // LOG.debug("This topic is at draft stage " + topic);
-    // return false;
-    // }
     return false;
   }
-
-  // /**
-  // * @param userId
-  // * @param topic
-  // * @return
-  // */
-  // private Boolean isContributor(DiscussionTopic topic)
-  // {
-  // if (LOG.isDebugEnabled())
-  // {
-  // LOG.debug("isContributor(DiscussionTopic " + topic + ")");
-  // }
-  // if (topic == null)
-  // {
-  // return null;
-  // }
-  // if (topic.getActorPermissions() == null
-  // || topic.getActorPermissions().getContributors() == null
-  // || topic.getActorPermissions().getContributors().size() < 1)
-  // {
-  // return null;
-  // }
-  // Iterator iter = topic.getActorPermissions().getContributors().iterator();
-  // while (iter.hasNext())
-  // {
-  // MessageForumsUser user = (MessageForumsUser) iter.next();
-  // if (user != null && user.getUuid() != null
-  // && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
-  // {
-  // if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
-  // {
-  // return null;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getGroupType())
-  // && isGroupMember(user.getUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getRoleType())
-  // && isRoleMember(user.getUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getUserType())
-  // && user.getUserId().equals(getCurrentUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // }
-  // }
-  // return Boolean.FALSE;
-  // }
-
-  // private Boolean isReadAccess(DiscussionTopic topic)
-  // {
-  // if (LOG.isDebugEnabled())
-  // {
-  // LOG.debug(" isReadAccess(DiscussionTopic " + topic + ")");
-  // }
-  // if (topic == null)
-  // {
-  // return null;
-  // }
-  // if (topic.getActorPermissions() == null
-  // || topic.getActorPermissions().getAccessors() == null
-  // || topic.getActorPermissions().getAccessors().size() < 1)
-  // {
-  // return null;
-  // }
-  // Iterator iter = topic.getActorPermissions().getAccessors().iterator();
-  // while (iter.hasNext())
-  // {
-  // MessageForumsUser user = (MessageForumsUser) iter.next();
-  // if (user != null && user.getUuid() != null
-  // && user.getUuid().trim().length() > 0 && user.getTypeUuid() != null)
-  // {
-  // if (user.getTypeUuid().equals(typeManager.getNotSpecifiedType()))
-  // {
-  // return null;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getAllParticipantType()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getGroupType())
-  // && isGroupMember(user.getUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getRoleType())
-  // && isRoleMember(user.getUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // if (user.getTypeUuid().equals(typeManager.getUserType())
-  // && user.getUserId().equals(getCurrentUserId()))
-  // {
-  // return Boolean.TRUE;
-  // }
-  // }
-  // }
-  // return Boolean.FALSE;
-  // }
-
+  
   private boolean isRoleMember(String roleId)
   {
     if (LOG.isDebugEnabled())
@@ -1106,130 +1089,4 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
   }
 
-  private Iterator getGroupsByCurrentUser()
-  {
-    List memberof = new ArrayList();
-    try
-    {
-      Collection groups = SiteService.getSite(PortalService.getCurrentSiteId())
-          .getGroups();
-      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
-      {
-        Group currentGroup = (Group) groupIterator.next();
-
-        Member member = currentGroup.getMember(getCurrentUserId());
-        if (member != null && member.getUserId().equals(getCurrentUserId()))
-        {
-          memberof.add(currentGroup.getId());
-        }
-      }
-    }
-    catch (IdUnusedException e)
-    {
-      LOG.debug("Group not found");
-    }
-    return memberof.iterator();
-  }
-
-  private DBMembershipItem getAreaItemByUserRole()
-  {
-    Set membershipItems = forumManager.getDiscussionForumArea()
-        .getMembershipItemSet();
-    return forumManager.getAreaDBMember(membershipItems, getCurrentUserRole(),
-        DBMembershipItem.TYPE_ROLE);
-  }
-
-  private Iterator getForumItemByCurrentUser(DiscussionForum forum)
-  {
-    List forumItems = new ArrayList();
-    Set membershipItems = forum.getMembershipItemSet();
-    forumManager.getDBMember(membershipItems, getCurrentUserRole(),
-        DBMembershipItem.TYPE_ROLE);
-
-    Iterator iter = membershipItems.iterator();
-    while (iter.hasNext())
-    {
-      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
-      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
-          && membershipItem.getName().equals(getCurrentUserRole()))
-      {
-        forumItems.add(membershipItem);
-      }
-      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
-          && isGroupMember(membershipItem.getName()))
-      {
-        forumItems.add(membershipItem);
-      }
-    }
-    return forumItems.iterator();
-  }
-
-  private Iterator getTopicItemByCurrentUser(DiscussionTopic topic)
-  {
-    List topicItems = new ArrayList();
-    Set membershipItems = topic.getMembershipItemSet();
-    forumManager.getDBMember(membershipItems, getCurrentUserRole(),
-        DBMembershipItem.TYPE_ROLE);
-
-    Iterator iter = membershipItems.iterator();
-    while (iter.hasNext())
-    {
-      DBMembershipItem membershipItem = (DBMembershipItem) iter.next();
-      if (membershipItem.getType().equals(DBMembershipItem.TYPE_ROLE)
-          && membershipItem.getName().equals(getCurrentUserRole()))
-      {
-        topicItems.add(membershipItem);
-      }
-      if (membershipItem.getType().equals(DBMembershipItem.TYPE_GROUP)
-          && isGroupMember(membershipItem.getName()))
-      {
-        topicItems.add(membershipItem);
-      }
-    }
-    return topicItems.iterator();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#isInstructor()
-   */
-  public boolean isInstructor()
-  {
-    LOG.debug("isInstructor()");
-    return isInstructor(UserDirectoryService.getCurrentUser());
-  }
-
-  /**
-   * Check if the given user has site.upd access
-   * 
-   * @param user
-   * @return
-   */
-  private boolean isInstructor(User user)
-  {
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("isInstructor(User " + user + ")");
-    }
-    if (user != null)
-      return securityService.unlock(user, "site.upd", getContextSiteId());
-    else
-      return false;
-  }
-
-  /**
-   * @return siteId
-   */
-  private String getContextSiteId()
-  {
-    LOG.debug("getContextSiteId()");
-    return ("/site/" + toolManager.getCurrentPlacement().getContext());
-  }
-
-  public void setPermissionLevelManager(
-      PermissionLevelManager permissionLevelManager)
-  {
-    this.permissionLevelManager = permissionLevelManager;
-  }
 }
