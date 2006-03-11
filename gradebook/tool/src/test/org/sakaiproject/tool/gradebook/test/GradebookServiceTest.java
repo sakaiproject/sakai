@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
@@ -134,6 +135,8 @@ public class GradebookServiceTest extends GradebookTestBase {
             }
         }
         Assert.assertEquals(asn.getPointsPossible(), new Double(floatingPoints));
+
+
     }
 
     public void testModifyExternalAssessment() throws Exception {
@@ -159,7 +162,8 @@ public class GradebookServiceTest extends GradebookTestBase {
     }
 
     public void testCreateExternalGradeRecords() throws Exception {
-    	// Add an external assessment
+
+        // Add an external assessment
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
         // Add the external assessment score
@@ -214,9 +218,31 @@ public class GradebookServiceTest extends GradebookTestBase {
 		gradebookService.addExternalAssessment(GRADEBOOK_UID, "Is Assignment Defined ID", null, assignmentTitle, 10, new Date(), "Assignments");
 		Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, assignmentTitle));
 
-		// Now test conflicts with an internally defined assignment.
-		Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
-		gradebookManager.removeAssignment(asn_1Id);
-		Assert.assertFalse(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
-	}
+        // Now test conflicts with an internally defined assignment.
+        Assert.assertTrue(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
+        gradebookManager.removeAssignment(asn_1Id);
+        Assert.assertFalse(gradebookService.isAssignmentDefined(GRADEBOOK_UID, ASN_1));
+    }
+
+    public void testExternalAssignmentWithZeroPoints() throws Exception {
+        //add assignment to grade book
+        boolean exceptionThrown = false;
+        try{
+            gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 0, new Date(), "Samigo");
+        }catch(AssignmentHasIllegalPointsException e){
+            exceptionThrown = true;
+
+        }
+        Assert.assertTrue(exceptionThrown);
+
+        exceptionThrown = false;
+        gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
+        try{
+
+            gradebookService.updateExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1,0, null);
+        }catch(AssignmentHasIllegalPointsException e){
+            exceptionThrown = true;
+        }
+        Assert.assertTrue(exceptionThrown);
+    }
 }

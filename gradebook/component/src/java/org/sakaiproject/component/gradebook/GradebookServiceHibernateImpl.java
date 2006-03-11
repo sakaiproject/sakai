@@ -41,6 +41,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -170,15 +171,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new RuntimeException("External service description, externalId, and title must not be empty");
         }
 
-        // Ensure that points is >= zero
-        if(points < 0) {
-            throw new RuntimeException("Points must be >= 0");
+        // Ensure that points is > zero
+        if(points <= 0) {
+            throw new AssignmentHasIllegalPointsException("Points must be > 0");
         }
 
         // Ensure that the assessment name is unique within this gradebook
 		if (isAssignmentDefined(gradebookUid, title)) {
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
+
+
 
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -213,14 +216,27 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	/**
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date)
-	 */
-	public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
-			final String title, final double points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException {
+     */
+    public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+                                         final String title, final double points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
 
         if(asn == null) {
             throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
         }
+
+        // Ensure that points is > zero
+        if(points <= 0) {
+            throw new AssignmentHasIllegalPointsException("Points must be > 0");
+        }
+
+        // Ensure that the required strings are not empty
+        if( StringUtils.trimToNull(externalId) == null ||
+                StringUtils.trimToNull(title) == null) {
+            throw new RuntimeException("ExternalId, and title must not be empty");
+        }
+
+
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -235,11 +251,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 }
                 asn.setPointsPossible(new Double(points));
                 session.update(asn);
-				if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
-				if (updateCourseGradeSortScore) {
-					recalculateCourseGradeRecords(asn.getGradebook(), session);
-				}
-				return null;
+                if (log.isInfoEnabled()) log.info("External assessment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid());
+                if (updateCourseGradeSortScore) {
+                    recalculateCourseGradeRecords(asn.getGradebook(), session);
+                }
+                return null;
 
             }
         };
@@ -496,5 +512,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return (AssignmentGradeRecord)scores.get(0);
 		}
 	}
+
+
 }
 

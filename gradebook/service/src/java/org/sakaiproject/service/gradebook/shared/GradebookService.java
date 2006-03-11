@@ -92,11 +92,11 @@ public interface GradebookService {
 	 * Add an externally-managed assessment to a gradebook to be treated as a
 	 * read-only assignment. The gradebook application will not modify the
 	 * assessment properties or create any scores for the assessment.
-	 * Since each assignment in a given gradebook must have a unique name,
-	 * conflicts are possible.
-	 *
-	 * @param externalId
-	 *            some unique identifier which Samigo uses for the assessment.
+     * Since each assignment in a given gradebook must have a unique name,
+     * conflicts are possible.
+     *
+     * @param externalId
+     *            some unique identifier which Samigo uses for the assessment.
      *            The externalId is globally namespaced within the gradebook, so
      *            if other apps decide to put assessments into the gradebook,
      *            they should prefix their externalIds with a well known (and
@@ -106,18 +106,23 @@ public interface GradebookService {
 	 *            in Samigo; if null, no direct link will be provided in the
 	 *            gradebook, and the user will have to navigate to the assessment
 	 *            within the other application
+     * @param points
+     *            this is the total amount of points available and must be greater than zero
+     *
 	 * @param externalServiceDescription
 	 *            what to display as the source of the assignment (e.g., "from Samigo")
+     *
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId, String externalUrl,
 			String title, double points, Date dueDate, String externalServiceDescription)
             throws GradebookNotFoundException, ConflictingAssignmentNameException,
-            ConflictingExternalIdException;
+            ConflictingExternalIdException, AssignmentHasIllegalPointsException;
 
-	public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
+
+    public void updateExternalAssessment(String gradebookUid, String externalId, String externalUrl,
 			String title, double points, Date dueDate)
 	        throws GradebookNotFoundException, AssessmentNotFoundException,
-            ConflictingAssignmentNameException;
+            ConflictingAssignmentNameException, AssignmentHasIllegalPointsException;
 
 	/**
 	 * Remove the assessment reference from the gradebook. Although Samigo
