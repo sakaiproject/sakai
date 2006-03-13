@@ -365,15 +365,16 @@ public class QuestionScoreListener
       bean.setSections(sections);
 
       ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
-      bean.setTypeId(item.getTypeId().toString());
-      bean.setItemId(item.getItemId().toString());
-      bean.setItemName("Part " + item.getSection().getSequence().toString()
-        + ", Question " + item.getSequence().toString());
-      //log.info("Rachel: TYpe id = " + item.getTypeId().toString());
-      item.setHint("***"); // Keyword to not show student answer
+      if (item!=null){
+        bean.setTypeId(item.getTypeId().toString());
+        bean.setItemId(item.getItemId().toString());
+        bean.setItemName("Part " + item.getSection().getSequence().toString()
+          + ", Question " + item.getSequence().toString());
+        item.setHint("***"); // Keyword to not show student answer
+      }
 
       ArrayList deliveryItems = new ArrayList(); // so we can use the var
-      deliveryItems.add(item);
+      if (item!=null)  deliveryItems.add(item);
       bean.setDeliveryItem(deliveryItems);
 
       if (cu.lookupParam("roleSelection") != null)
