@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 /**
  * <p>
@@ -93,9 +94,15 @@ public class StudentScoreListener
     log.debug("studentScores()");
     try
     {
-      bean.setStudentName(cu.lookupParam("studentName"));
+//  SAK-4121, do not pass studentName as f:param, will cause javascript error if name contains apostrophe 
+//    bean.setStudentName(cu.lookupParam("studentName"));
+
+
       bean.setPublishedId(publishedId);
-      bean.setStudentId(cu.lookupParam("studentid"));
+      String studentId = cu.lookupParam("studentid");
+      bean.setStudentId(studentId);
+      AgentFacade agent = new AgentFacade(studentId);
+      bean.setStudentName(agent.getFirstName() + " " + agent.getLastName());
       bean.setAssessmentGradingId(cu.lookupParam("gradingData"));
       bean.setItemId(cu.lookupParam("itemId"));
 

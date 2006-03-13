@@ -250,7 +250,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
-         <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
@@ -281,7 +280,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
          <f:param name="studentid" value="#{description.idString}" />
-         <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>

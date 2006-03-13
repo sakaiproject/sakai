@@ -344,4 +344,12 @@ public static ArrayList paramArrayValueLike(String paramPart)
       String newscore = nf.format(orig);
       return newscore;
   }
+
+  public static String escapeApostrophe(String input) {
+   // this is needed to escape the ' in some firstname and lastname,  that caused javascript error , SAK-4121
+        String regex = "'";
+        String replacement = "\\\\'";
+	String output = input.replaceAll(regex, replacement);
+   	return output;
+  }
 }
