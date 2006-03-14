@@ -23,6 +23,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String AUTHORITY = "org.sakaiproject.component.app.messageforums";
   private static final String DOMAIN = "sakai_messageforums";
   private static final String PRIVATE = "privateForums";
+  private static final String PRIVATE_USER_DEFINED_TOPIC = "privateUserDefinedTopic";
   private static final String DISCUSSION = "discussionForums";
   private static final String OPEN = "openForums";
 
@@ -176,6 +177,21 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, PRIVATE,
+          "Private Forums", "Private Message Forums").getUuid());
+    }
+  }
+  
+  public String getUserDefinedPrivateTopicType()
+  {
+    LOG.debug("getUserDefinedPrivateTopicType()");
+    Type type = typeManager.getType(AUTHORITY, DOMAIN, PRIVATE_USER_DEFINED_TOPIC);
+    if (type != null)
+    {
+      return type.getUuid();
+    }
+    else
+    {
+      return (typeManager.createType(AUTHORITY, DOMAIN, PRIVATE_USER_DEFINED_TOPIC,
           "Private Forums", "Private Message Forums").getUuid());
     }
   }

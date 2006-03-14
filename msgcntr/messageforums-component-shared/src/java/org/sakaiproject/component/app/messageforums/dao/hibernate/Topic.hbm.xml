@@ -94,7 +94,10 @@
         discriminator-value="PT">
       <property name="userId">
         <column name="USER_ID" not-null="false" />
-      </property>      
+      </property>
+      <property name="contextId">
+        <column name="CONTEXT_ID" length="36" not-null="false" index="MFR_PT_CONTEXT_I"/>
+      </property>   
       <!-- The list and many-to-one below are for the private folder parent/child relationship -->
       <set name="childrenFoldersSet" lazy="false" order-by="created desc" cascade="all-delete-orphan">
         <key column="pt_surrogateKey"/>                        

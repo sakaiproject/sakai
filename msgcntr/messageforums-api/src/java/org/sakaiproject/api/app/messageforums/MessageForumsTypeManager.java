@@ -29,6 +29,8 @@ public interface MessageForumsTypeManager
    * @return
    */
   public String getPrivateMessageAreaType();
+  
+  public String getUserDefinedPrivateTopicType();
  
 
   /**

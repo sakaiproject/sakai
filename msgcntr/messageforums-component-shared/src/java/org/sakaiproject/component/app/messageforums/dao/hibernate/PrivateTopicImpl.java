@@ -39,6 +39,7 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     private static final Log LOG = LogFactory.getLog(PrivateTopicImpl.class);
     
     private String userId;
+    private String contextId;
     private PrivateTopic parentTopic;
     private Set childrenFoldersSet;// = new HashSet();            
     
@@ -86,6 +87,14 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+    
+		public String getContextId() {
+			return contextId;
+		}
+
+		public void setContextId(String contextId) {
+			this.contextId = contextId;
+		}
 
     public PrivateTopic getParentTopic() {
         return parentTopic;

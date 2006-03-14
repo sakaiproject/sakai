@@ -31,6 +31,10 @@ public interface PrivateTopic extends Topic {
 
     public void setUserId(String userId);
     
+    public String getContextId();
+    
+    public void setContextId(String contextId);
+    
     public PrivateTopic getParentTopic();
     
     public void setParentTopic(PrivateTopic parentTopic);

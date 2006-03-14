@@ -172,10 +172,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       
     }    
     else{      
-       getHibernateTemplate().initialize(pf.getTopicsSet());
+       getHibernateTemplate().initialize(pf.getTopicsSet());              
     }
    
-
     return pf;
   }
   
@@ -327,8 +326,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     String userId = getCurrentUser();
     PrivateTopic createdTopic = forumManager.createPrivateForumTopic(folderName, true,true,
         userId, pf.getId()); 
+    
+    /** set context and type to differentiate user topics within sites */
+    createdTopic.setContextId(getContextId());
+    createdTopic.setTypeUuid(typeManager.getUserDefinedPrivateTopicType());
+    
     forumManager.savePrivateForumTopic(createdTopic);
-    pf.addTopic(createdTopic);    
+    pf.addTopic(createdTopic);   
     forumManager.savePrivateForum(pf);  
   }
 
@@ -1130,7 +1134,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     return ("/site/" + ToolManager.getCurrentPlacement().getContext());
   }
 
-  private String getContextId()
+  public String getContextId()
   {
 
     LOG.debug("getContextId()");

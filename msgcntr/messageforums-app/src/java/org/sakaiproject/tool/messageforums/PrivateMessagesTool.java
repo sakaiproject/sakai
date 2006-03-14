@@ -291,9 +291,17 @@ public class PrivateMessagesTool
       if (getPvtAreaEnabled()){        
         for (Iterator iterator = pvtTopics.iterator(); iterator.hasNext();)
         {
-          Topic topic = (Topic) iterator.next();
+          PrivateTopic topic = (PrivateTopic) iterator.next();
           if (topic != null)
           {
+          	
+          	/** filter topics by context and type*/                                                    
+            if (topic.getTypeUuid() != null
+            		&& topic.getTypeUuid().equals(typeManager.getUserDefinedPrivateTopicType())
+            	  && topic.getContextId() != null && !topic.getContextId().equals(prtMsgManager.getContextId())){
+               continue;
+            }       
+          	
             PrivateTopicDecoratedBean decoTopic= new PrivateTopicDecoratedBean(topic) ;
             //decoTopic.setTotalNoMessages(prtMsgManager.getTotalNoMessages(topic)) ;
             //decoTopic.setUnreadNoMessages(prtMsgManager.getUnreadNoMessages(SessionManager.getCurrentSessionUserId(), topic)) ;
