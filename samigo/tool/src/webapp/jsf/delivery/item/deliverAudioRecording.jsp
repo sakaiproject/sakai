@@ -65,7 +65,8 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
   <PARAM NAME = "saveAsFile" VALUE="false">
   <PARAM NAME = "saveToUrl" VALUE="true">
   <PARAM NAME = "fileName" VALUE="audio">
-  <PARAM NAME = "url" VALUE="/samigo/servlet/UploadAudio">
+  <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
+     value="#{delivery.protocol}" /><f:verbatim>/samigo/servlet/UploadAudio">
   <PARAM NAME = "compression" VALUE="linear">
   <PARAM NAME = "frequency" VALUE="8000">
   <PARAM NAME = "bits" VALUE="8">

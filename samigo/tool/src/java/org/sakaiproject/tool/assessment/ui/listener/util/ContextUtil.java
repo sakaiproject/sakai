@@ -37,6 +37,7 @@ import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import javax.servlet.*;
@@ -352,4 +353,15 @@ public static ArrayList paramArrayValueLike(String paramPart)
 	String output = input.replaceAll(regex, replacement);
    	return output;
   }
+
+  public static String getProtocol(){
+    FacesContext context = FacesContext.getCurrentInstance();
+    ExternalContext extContext = context.getExternalContext();
+    String server = ( (javax.servlet.http.HttpServletRequest) extContext.
+                       getRequest()).getRequestURL().toString();
+    int index = server.indexOf(extContext.getRequestContextPath() + "/"); 
+    String protocol = server.substring(0, index);
+    return protocol;
+  }
+
 }
