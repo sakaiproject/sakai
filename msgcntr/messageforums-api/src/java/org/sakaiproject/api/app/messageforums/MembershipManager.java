@@ -21,10 +21,11 @@ public interface MembershipManager {
    * Return hash map for direct access to members via id
    * (used in UI when for selected list items)<br>
    * @param filterFerpa
-   * @param nonSpecifiedType
+   * @param includeRoles
+   * @param includeAllParticipantsMember
    * @return map of members
    */
-  public Map getAllCourseMembers(boolean filterFerpa, boolean nonSpecifiedType);
+  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember);
   
   /**
    * get all users for course w/o filtering of FERPA enabled members

@@ -14,11 +14,17 @@
   <h:selectOneListbox size="4" style="width: 300px" id="role" value ="#{ForumTool.selectedRole}" onchange="javascript:displayRelevantBlock();">
     <f:selectItems value="#{ForumTool.siteRoles}"/>
   </h:selectOneListbox>
+  
+  <%--
+  <f:verbatim><p class="act"></f:verbatim>
+    <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
+  <f:verbatim><p/></f:verbatim>
+  --%>
 
-  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission">
+  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
     <h:column>
-      <h:panelGroup id="permissionSet" style="display:inline; margin:0; padding:0; border:0 none">
-        <f:verbatim>	<table ><tr><td colspan="2"></f:verbatim>
+      <h:panelGroup id="permissionSet" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
+        <f:verbatim>	<table style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px"><tr><td colspan="2"></f:verbatim>
         <h:outputText value="#{msgs.perm_level}" style="font-weight:bold"/>
         <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);"  disabled="#{not ForumTool.editMode}">
           <f:selectItems value="#{ForumTool.levels}"/>
@@ -68,6 +74,6 @@
 		<f:verbatim></td></tr></table></f:verbatim>
       </h:panelGroup>
     </h:column>
-  </h:dataTable>
+  </h:dataTable>  
   <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_footer.js"/>	 	
 </mf:forumHideDivision>

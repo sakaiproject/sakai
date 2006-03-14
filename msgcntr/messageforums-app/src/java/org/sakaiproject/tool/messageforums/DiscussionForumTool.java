@@ -14,6 +14,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,16 +85,11 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
-  private List totalComposeToList;
-  private List totalComposeToListRecipients;
+  private List groupsUsersList;   
+  private List totalGroupsUsersList;
+  private List selectedGroupsUsersList;
   private Map courseMemberMap;
   private List permissions;
-//  private List templateControlPermissions; // control settings
-//  private List templateMessagePermissions;
-  private List forumControlPermissions; // control settings
-  private List forumMessagePermissions;
-  private List topicControlPermissions; // control settings
-  private List topicMessagePermissions;   
   private List levels;
   private AreaManager areaManager;
   
@@ -397,51 +393,7 @@ public class DiscussionForumTool
     
     return TEMPLATE_SETTING;      
   }
-
-  /**
-   * @return Returns the forumControlPermissions.
-   */
-  public List getForumControlPermissions()
-  {
-    if (selectedForum != null)
-    {
-      forumControlPermissions = forumManager
-          .getForumControlPermissions(selectedForum.getForum());
-    }
-    return forumControlPermissions;
-  }
-
-  /**
-   * @param forumControlPermissions
-   *          The forumControlPermissions to set.
-   */
-  public void setForumControlPermissions(List forumControlPermissions)
-  {
-    this.forumControlPermissions = forumControlPermissions;
-  }
-
-  /**
-   * @return Returns the forumMessagePermissions.
-   */
-  public List getForumMessagePermissions()
-  {
-    if (selectedForum != null)
-    {
-      forumMessagePermissions = forumManager
-          .getForumMessagePermissions(selectedForum.getForum());
-    }
-    return forumMessagePermissions;
-
-  }
-
-  /**
-   * @param forumMessagePermissions
-   *          The forumMessagePermissions to set.
-   */
-  public void setForumMessagePermissions(List forumMessagePermissions)
-  {
-    this.forumMessagePermissions = forumMessagePermissions;
-  }
+  
 
   /**
    * Check out if the user is allowed to create new forum
@@ -521,8 +473,7 @@ public class DiscussionForumTool
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
-    
-    totalComposeToList=null;
+        
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
@@ -568,8 +519,7 @@ public class DiscussionForumTool
    */
   public String processActionReviseForumSettings()
   {
-    LOG.debug("processActionReviseForumSettings()");
-    totalComposeToList=null;
+    LOG.debug("processActionReviseForumSettings()");    
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
     if ((selectedForum) == null)
@@ -730,54 +680,7 @@ public class DiscussionForumTool
     return selectedTopic;
   }
 
-  /**
-   * @return Returns the topicControlPermissions.
-   */
-  public List getTopicControlPermissions()
-  {
-    if (selectedTopic != null)
-    {
-      topicControlPermissions = forumManager
-          .getTopicControlPermissions(selectedTopic.getTopic());
-    }
-
-    return topicControlPermissions;
-
-  }
-
-  /**
-   * @param topicControlPermissions
-   *          The topicControlPermissions to set.
-   */
-  public void setTopicControlPermissions(List topicControlPermissions)
-  {
-    this.topicControlPermissions = topicControlPermissions;
-  }
-
-  /**
-   * @return Returns the topicMessagePermissions.
-   */
-  public List getTopicMessagePermissions()
-  {
-    if (selectedTopic != null)
-    {
-      topicMessagePermissions = forumManager
-          .getTopicMessagePermissions(selectedTopic.getTopic());
-    }
-
-    return topicMessagePermissions;
-
-  }
-
-  /**
-   * @param topicMessagePermissions
-   *          The topicMessagePermissions to set.
-   */
-  public void setTopicMessagePermissions(List topicMessagePermissions)
-  {
-    this.topicMessagePermissions = topicMessagePermissions;
-  }
-
+  
   /**
    * @return
    */
@@ -787,8 +690,7 @@ public class DiscussionForumTool
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
-    
-    totalComposeToList=null; 
+         
     selectedTopic = createTopic();
     if (selectedTopic == null)
     {
@@ -816,8 +718,7 @@ public class DiscussionForumTool
     
     setPermissionMode(PERMISSION_MODE_TOPIC);
     setEditMode(true);
-    
-    totalComposeToList=null;
+        
     DiscussionTopic topic = selectedTopic.getTopic();
 
     if (topic == null)
@@ -3065,33 +2966,7 @@ public class DiscussionForumTool
         new FacesMessage("Alert: " + errorMsg));
   }
   
-  public List getTotalComposeToList()
-  { 
-      /** protect from jsf calling multiple times */
-    if (totalComposeToList != null){
-      return totalComposeToList;
-    }
-    
-    totalComposeToListRecipients = new ArrayList();
-    forumManager.setCourseMemberMapToNull();
-    courseMemberMap = forumManager.getAllCourseMembers();
-    List members = membershipManager.convertMemberMapToList(courseMemberMap);
-    List selectItemList = new ArrayList();
-    
-    /** create a list of SelectItem elements */
-    for (Iterator i = members.iterator(); i.hasNext();){
-      
-      MembershipItem item = (MembershipItem) i.next();     
-      selectItemList.add(
-        new SelectItem(item.getId(), item.getName()));
-    }
-    
-    totalComposeToList = selectItemList;
-    return selectItemList;     
-    
-  }
-  
-  
+ 
   public void processPost(){
   	
   }
@@ -3241,38 +3116,81 @@ public class DiscussionForumTool
     }
     siteMembers = null;
   }
-
- 
-//  /**
-//   * @return Returns the selectedRoleGroupOrUserForPermission.
-//   */
-//  public String getSelectedRoleGroupOrUserForPermission()
-//  {
-//     
-//    if(selectedRoleGroupOrUserForPermission==null &&( getRoles()==null || getRoles().size()<1))
-//    {
-//      return null;
-//    }
-//    if(selectedRoleGroupOrUserForPermission !=null)
-//    {
-//      return selectedRoleGroupOrUserForPermission;
-//    }    
-//    return (String)((SelectItem) getRoles().get(0)).getValue();
-//  }
-
-//  /**
-//   * @param selectedRoleGroupOrUserForPermission The selectedRoleGroupOrUserForPermission to set.
-//   */
-//  private void setSelectedRoleGroupOrUserForPermission(String selectedRole)
-//  {
-//    this.selectedRoleGroupOrUserForPermission = selectedRole;
-//  }
-
-//  public void processValueChangeForPermission(ValueChangeEvent vce)
-//  {
-//   setSelectedRoleGroupOrUserForPermission((String)vce.getNewValue()); 
-//  }
   
+  /**
+   * processActionAddGroupsUsers
+   * @return navigation String
+   */
+  public String processActionAddGroupsUsers(){
+  	
+  	totalGroupsUsersList = null;
+  	
+  	ExternalContext exContext = FacesContext.getCurrentInstance().getExternalContext();
+    HttpSession session = (HttpSession) exContext.getSession(false);
+    		
+    String attr = null;
+
+    if (session != null){
+    	/** get navigation string of previous navigation (set by navigation handler) */
+    	attr = (String) session.getAttribute("MC_PREVIOUS_NAV");	
+    }
+		    
+    /** store caller navigation string in session (used to return from add groups/users) */
+    session.setAttribute("MC_ADD_GROUPS_USERS_CALLER", attr);
+                  
+  	return "addGroupsUsers";
+  }
+  
+  /**
+   * processAddGroupsUsersSubmit
+   * @return navigation String
+   */
+  public String processAddGroupsUsersSubmit(){
+  	
+  	
+  	ExternalContext exContext = FacesContext.getCurrentInstance().getExternalContext();
+    HttpSession session = (HttpSession) exContext.getSession(false);
+    	
+    /** get navigation string of previous navigation (set by navigation handler) */
+    return (String) session.getAttribute("MC_ADD_GROUPS_USERS_CALLER");    
+  }
+  
+  /**
+   * processAddGroupsUsersCancel
+   * @return navigation String
+   */
+  public String processAddGroupsUsersCancel(){
+  	
+  	ExternalContext exContext = FacesContext.getCurrentInstance().getExternalContext();
+    HttpSession session = (HttpSession) exContext.getSession(false);
+    	
+    /** get navigation string of previous navigation (set by navigation handler) */
+    return (String) session.getAttribute("MC_ADD_GROUPS_USERS_CALLER");
+  }
+  
+  public List getTotalGroupsUsersList()
+  { 
+    
+    /** protect from jsf calling multiple times */
+    if (totalGroupsUsersList != null){
+      return totalGroupsUsersList;
+    }
+         
+    courseMemberMap = membershipManager.getAllCourseMembers(true, false, false);
+ 
+    List members = membershipManager.convertMemberMapToList(courseMemberMap);
+    totalGroupsUsersList = new ArrayList();
+    
+    /** create a list of SelectItem elements */
+    for (Iterator i = members.iterator(); i.hasNext();){
+      
+      MembershipItem item = (MembershipItem) i.next();     
+      totalGroupsUsersList.add(
+        new SelectItem(item.getId(), item.getName()));
+    }
+    
+    return totalGroupsUsersList;       
+  }
  
 	public void setPermissionLevelManager(
 			PermissionLevelManager permissionLevelManager) {
@@ -3359,5 +3277,17 @@ public class DiscussionForumTool
 
 		public void setPermissionMode(String permissionMode) {
 			this.permissionMode = permissionMode;
+		}
+
+		public List getSelectedGroupsUsersList() {
+			return selectedGroupsUsersList;
+		}
+
+		public void setSelectedGroupsUsersList(List selectedGroupsUsersList) {
+			this.selectedGroupsUsersList = selectedGroupsUsersList;
+		}		
+
+		public void setTotalGroupsUsersList(List totalGroupsUsersList) {
+			this.totalGroupsUsersList = totalGroupsUsersList;
 		}              
 }

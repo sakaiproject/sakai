@@ -31,6 +31,7 @@ import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
 import org.sakaiproject.service.legacy.authzGroup.Member;
 import org.sakaiproject.service.legacy.security.SecurityService;
 import org.sakaiproject.service.legacy.site.Group;
+import org.sakaiproject.service.legacy.site.Site;
 import org.sakaiproject.service.legacy.site.cover.SiteService;
 import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
@@ -206,6 +207,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     if (isSuperUser())
     {
       return true;
+    }
+    if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
+    	return true;
     }
     if (isForumOwner(forum))
     {

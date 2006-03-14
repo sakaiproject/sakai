@@ -245,6 +245,11 @@ function displayRelevantBlock(){
 }
 
 function getSurroundingRowNode(node){
+
+  if (navigator.appName != "Microsoft Internet Explorer"){
+    return node;    
+  }
+ 
   while(node){
     if (node.tagName == "TR"){
       break;

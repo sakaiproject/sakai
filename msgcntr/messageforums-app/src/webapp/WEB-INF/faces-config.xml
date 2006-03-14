@@ -173,10 +173,16 @@
             <to-view-id>/jsp/discussionForum/area/dfTemplateSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case>        
+        <!-- permissions -->
+        <navigation-case>
+          <from-outcome>addGroupsUsers</from-outcome>
+          <to-view-id>/jsp/discussionForum/permissions/addGroupsUsers.jsp</to-view-id>
+          <redirect/>
+        </navigation-case>navigation-case>
         <!--forum -->
         <navigation-case>
             <from-outcome>dfForumSettings</from-outcome>
--            <to-view-id>/jsp/discussionForum/forum/dfForumSettings.jsp</to-view-id>
+            <to-view-id>/jsp/discussionForum/forum/dfForumSettings.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
         <navigation-case>
@@ -325,4 +331,13 @@
             <value>#{Components["org.sakaiproject.api.common.edu.person.SakaiPersonManager"]}</value>
         </managed-property>                          
     </managed-bean>
+    
+    <!-- =================== Application Objects ============== -->
+
+	<application>	
+		<navigation-handler>
+			org.sakaiproject.tool.messageforums.jsf.MessageForumsNavigationHandler
+		</navigation-handler>
+	</application>
+    
 </faces-config>
