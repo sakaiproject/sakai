@@ -18,7 +18,7 @@
 				<h:column>
 			    <f:facet name="header">
 					</f:facet>
-			    	<h:selectOneRadio value="#{PrivateMessagesTool.moveToTopic}" onchange="this.form.submit();"
+			    	<h:selectOneRadio value="#{PrivateMessagesTool.moveToTopic}" onclick="this.form.submit();"
                                   valueChangeListener="#{PrivateMessagesTool.processPvtMsgParentFolderMove}">
 			      	<f:selectItem itemValue="#{topic.topic.uuid}"  itemLabel="#{topic.topic.title}" />	
 			      	<%--<f:param value="#{topic.topic.uuid}" name="pvtMsgMoveTopicId"/>--%>
