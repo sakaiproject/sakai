@@ -37,7 +37,7 @@ public interface AuthzQueriesFacadeAPI
   public AuthorizationData createAuthorization(String agentId,
       String functionId, String qualifierId);
 
-  public void removeAuthorizationByQualifier(String qualifierId);
+  public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment);
 
   /** This returns a HashMap containing (String a.qualiferId, AuthorizationData a)
    * agentId is a site for now but can be a user

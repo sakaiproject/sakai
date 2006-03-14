@@ -816,6 +816,9 @@ public class PublishedAssessmentFacadeQueries
     }
     else {
       getHibernateTemplate().delete(assessment);
+      // remove authorization
+      PersistenceService.getInstance().getAuthzQueriesFacade().
+          removeAuthorizationByQualifier(assessment.getPublishedAssessmentId().toString(), true);
     }
   }
 

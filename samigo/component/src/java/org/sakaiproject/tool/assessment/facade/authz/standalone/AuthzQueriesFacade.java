@@ -94,12 +94,23 @@ public class AuthzQueriesFacade
    * Remove authorization from qualifier (target).
    * @param qualifierId the target.
    */
-  public void removeAuthorizationByQualifier(String qualifierId) {
+  public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment) {
     String query =
       res.getString("select_authdata_q_id") + qualifierId + "'";
     log.info("query=" + query);
+    String clause="";
+    if (isPublishedAssessment){
+      clause = " and (a.functionId='OWN_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='TAKE_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT_FEEDBACK'"+
+               " or a.functionId='GRADE_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT')";
+    }
+    else{
+      clause = " and a.functionId='EDIT_ASSESSMENT'";
+    }
 
-    List l = getHibernateTemplate().find(query);
+    List l = getHibernateTemplate().find(query+clause);
     getHibernateTemplate().deleteAll(l);
   }
 

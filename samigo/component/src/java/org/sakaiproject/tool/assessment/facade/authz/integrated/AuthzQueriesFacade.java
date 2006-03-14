@@ -253,9 +253,20 @@ public class AuthzQueriesFacade
     return returnList;
   }
 
-  public void removeAuthorizationByQualifier(String qualifierId) {
-    List l = getHibernateTemplate().find(
-      "select a from AuthorizationData a where a.qualifierId="+qualifierId);
+  public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment) {
+    String query="select a from AuthorizationData a where a.qualifierId="+qualifierId;
+    String clause="";
+    if (isPublishedAssessment){
+      clause = " and (a.functionId='OWN_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='TAKE_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT_FEEDBACK'"+
+               " or a.functionId='GRADE_PUBLISHED_ASSESSMENT'"+
+               " or a.functionId='VIEW_PUBLISHED_ASSESSMENT')";
+    }
+    else{
+	clause = " and a.functionId='EDIT_ASSESSMENT'";
+    }
+    List l = getHibernateTemplate().find(query+clause);
     getHibernateTemplate().deleteAll(l);
   }
 

@@ -386,8 +386,9 @@ public class AssessmentFacadeQueries
       Set sectionSet = getSectionSetForAssessment(assessment);
       assessment.setSectionSet(sectionSet);
       getHibernateTemplate().delete(assessment);
+      // true below => regular assessment (not published assessment)
       PersistenceService.getInstance().getAuthzQueriesFacade().
-          removeAuthorizationByQualifier(assessment.getAssessmentId().toString());
+          removeAuthorizationByQualifier(assessment.getAssessmentId().toString(), false);
     }
   }
 
