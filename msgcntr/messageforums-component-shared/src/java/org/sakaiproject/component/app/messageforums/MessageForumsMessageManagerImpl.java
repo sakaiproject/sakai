@@ -577,8 +577,8 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
               q.setParameter("searchByBody", searchByBody);
               q.setParameter("searchByLabel", searchByLabel);
               q.setParameter("searchByDate", searchByDate);
-              q.setParameter("searchFromDate", searchFromDate);
-              q.setParameter("searchToDate", searchToDate);
+              q.setParameter("searchFromDate", (searchFromDate == null) ? new Date(0) : searchFromDate);
+              q.setParameter("searchToDate", (searchToDate == null) ? new Date(System.currentTimeMillis()) : searchToDate);
               q.setParameter("userId", getCurrentUser());
               q.setParameter("contextId", ToolManager.getCurrentPlacement().getContext());
               q.setParameter("typeUuid", typeUuid);
