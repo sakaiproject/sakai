@@ -130,6 +130,7 @@ public class GradingService
 
   public void saveTotalScores(ArrayList gdataList)
   {
+      System.out.println("**** GradingService: saveTotalScores");
     try {
      AssessmentGradingData gdata = null;
 System.out.println("lydiatest savetotalscore. gdatalist size  = " + gdataList.size());
@@ -562,6 +563,7 @@ System.out.println("lydiatest updated in gradebook");
    * false, we do everything from scratch.
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) throws GradebookServiceException {
+      System.out.println("**** regrade ="+regrade);
     //#0 - let's build a HashMap with (publishedItemId, publishedItem)
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     HashMap publishedItemHash = pubService.preparePublishedItemHash(pub); 
@@ -571,6 +573,7 @@ System.out.println("lydiatest updated in gradebook");
       String agent = data.getAgentId();
       if (!regrade)
       {
+	data.setSubmittedDate(new Date());
         setIsLate(data, pub);
       }
       Set itemGradingSet = data.getItemGradingSet();
@@ -996,8 +999,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return answer.getScore().floatValue();
   }
 
-  public void setIsLate(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
-    data.setSubmittedDate(new Date());
+  private void setIsLate(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
     if (pub.getAssessmentAccessControl() != null
       && pub.getAssessmentAccessControl().getDueDate() != null &&
           pub.getAssessmentAccessControl().getDueDate().before(new Date()))

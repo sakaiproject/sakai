@@ -132,6 +132,7 @@ public class TotalScoreUpdateListener
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
             data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
             data.setFinalScore(new Float(agentResults.getFinalScore()));
+            data.setIsLate(agentResults.getIsLate());
             data.setComments(agentResults.getComments());
             grading.add(data);
           }
@@ -148,15 +149,18 @@ public class TotalScoreUpdateListener
 
             data.setAgentId(agentResults.getIdString());
   	    data.setForGrade(new Boolean(true));
+	    data.setStatus(new Integer(1));
+            data.setIsLate(new Boolean(false));
    	    data.setItemGradingSet(new HashSet());
     	    data.setPublishedAssessment(pubassessment.getData());
 	    // tell hibernate this is a new record
     	    data.setAssessmentGradingId(new Long(0));
-            data.setSubmittedDate(new Date());
+            data.setSubmittedDate(null);
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
             data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
             data.setFinalScore(new Float(agentResults.getFinalScore()));
             data.setComments(agentResults.getComments());
+            // note that I am not sure if we should set this people as late or what?
             grading.add(data);
           }
 	}
@@ -187,12 +191,14 @@ public class TotalScoreUpdateListener
     boolean update = true;
     float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
                      new Float(agentResults.getTotalOverrideScore()).floatValue();
+    Boolean newIsLate = agentResults.getIsLate(); // if the duedate were postpond, we need to adjust this
     // we will check if there is change of grade. if so, add up new score
     // else skip
     AssessmentGradingIfc old = (AssessmentGradingIfc)map.get(agentResults.getAssessmentGradingId());
     if (old != null){
       float oldScore = old.getFinalScore().floatValue();
-      if (oldScore==newScore) {
+      Boolean oldIsLate=old.getIsLate();
+      if (oldScore==newScore && oldIsLate.equals(newIsLate)) {
         System.out.println("**** no need to update");
         update = false;
       }

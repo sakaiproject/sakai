@@ -135,7 +135,7 @@ create table SAM_ASSESSMENTGRADING_T (
    ASSESSMENTGRADINGID number(19,0) not null,
    PUBLISHEDASSESSMENTID number(19,0) not null,
    AGENTID varchar(36) not null,
-   SUBMITTEDDATE date not null,
+   SUBMITTEDDATE date,
    ISLATE varchar(1) not null,
    FORGRADE integer not null,
    TOTALAUTOSCORE float,

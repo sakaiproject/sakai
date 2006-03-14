@@ -686,7 +686,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
-    setIsLate(assessment);
     try {
         getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
     } catch (Exception e) {

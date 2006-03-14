@@ -1558,6 +1558,9 @@ public class DeliveryActionListener
     adata.setPublishedAssessment(publishedAssessment.getData());
     adata.setForGrade(Boolean.FALSE);
     adata.setAttemptDate(new Date());
+    adata.setIsLate(Boolean.FALSE);
+    adata.setStatus(new Integer(0));
+    adata.setTotalOverrideScore(new Float(0));
     adata.setTimeElapsed(new Integer("0"));
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(adata);
