@@ -143,7 +143,7 @@
 		    rendered="#{!ForumTool.selectedTopic.isReviseAny && 
 		    	ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}"/>
 <%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>--%>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
+<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
       	rendered="#{ForumTool.selectedTopic.isDeleteAny}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
       	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
@@ -153,7 +153,7 @@
         value="Delete Unavailable" disabled="true"
       	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
       		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
-      		&& ForumTool.selectedMessage.hasChild}"/>
+      		&& ForumTool.selectedMessage.hasChild}"/>--%>
     </sakai:button_bar>
 
 <%--		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.fullAccess}">--%>
