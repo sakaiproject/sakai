@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.spring.SpringBeanLocator;
 
 
@@ -158,6 +159,18 @@ public class PublishAssessmentListener
     PublishedAssessmentFacade pub = null;
     try {
        pub = publishedAssessmentService.publishAssessment(assessment);
+    } catch (AssignmentHasIllegalPointsException gbe) {
+       // Right now gradebook can only accept assessements with totalPoints > 0 
+       // this  might change later
+       log.warn(gbe);
+        gbe.printStackTrace();
+        // Add a global message (not bound to any component) to the faces context indicating the failure
+        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                                                 "gradebook_exception_min_points");
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(err));
+        throw new AbortProcessingException(gbe);
+
+ 
     } catch (Exception e) {
         log.warn(e);
         e.printStackTrace();
