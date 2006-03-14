@@ -1755,10 +1755,20 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (membershipItem == null || membershipItem.getPermissionLevel() == null){    	
     	PermissionLevel level = null;
     	if (type.equals(DBMembershipItem.TYPE_ROLE))
-      {      	         
-      	String levelName = ServerConfigurationService.getString(MC_DEFAULT
-            + name);
-      	
+      { 
+    		
+    		String levelName = null;
+    		
+    		if (membershipItem != null){
+    			/** use level from stored item */
+    			levelName = membershipItem.getPermissionLevelName();
+    		}
+    		else{    	
+    			/** get level from config file */
+    			levelName = ServerConfigurationService.getString(MC_DEFAULT
+              + name);
+    		}
+      	        	
         if (levelName != null && levelName.trim().length() > 0)
         {
           level = permissionLevelManager.getPermissionLevelByName(levelName);
