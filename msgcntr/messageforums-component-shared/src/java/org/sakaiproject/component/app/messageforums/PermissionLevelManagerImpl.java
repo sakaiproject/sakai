@@ -25,8 +25,10 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
@@ -60,6 +62,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private MessageForumsTypeManager typeManager;
 	private AreaManager areaManager;
 	private Boolean autoDdl;
+	
+	private Map defaultPermissionsMap = new HashMap();
 	
 	private static final String QUERY_BY_TYPE_UUID = "findPermissionLevelByTypeUuid";
 	private static final String QUERY_ORDERED_LEVEL_NAMES = "findOrderedPermissionLevelNames";
@@ -365,6 +369,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 			LOG.debug("getDefaultPermissionLevel executing with typeUuid: " + typeUuid);
 		}
 		
+		
+		PermissionLevel temp = (PermissionLevel) defaultPermissionsMap.get(typeUuid);		
+		if (temp != null){
+			return temp;
+		}
+		
+				
 		HibernateCallback hcb = new HibernateCallback() {
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
           Query q = session.getNamedQuery(QUERY_BY_TYPE_UUID);
@@ -373,7 +384,13 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
       }
     };
 					
-    return (PermissionLevel) getHibernateTemplate().execute(hcb);
+    PermissionLevel returnedLevel = (PermissionLevel) getHibernateTemplate().execute(hcb);
+    
+    if (returnedLevel != null){
+    	defaultPermissionsMap.put(typeUuid, returnedLevel);
+    }
+    
+    return returnedLevel;
   }	
 	
 	private String getCurrentUser() {    

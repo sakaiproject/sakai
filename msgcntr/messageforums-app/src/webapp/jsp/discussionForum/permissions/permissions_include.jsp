@@ -9,7 +9,7 @@
 
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
 
-<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" >
+<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="true" >
 
   <h:selectOneListbox size="4" style="width: 300px" id="role" value ="#{ForumTool.selectedRole}" onchange="javascript:displayRelevantBlock();">
     <f:selectItems value="#{ForumTool.siteRoles}"/>

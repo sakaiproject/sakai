@@ -2862,7 +2862,10 @@ public class DiscussionForumTool
     	membershipItems = selectedTopic.getTopic().getMembershipItemSet();
     	
     	if (membershipItems == null || membershipItems.size() == 0){
-    		membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    		if (selectedForum != null && selectedForum.getForum() != null){
+    		  membershipItems = selectedForum.getForum().getMembershipItemSet();
+    		}
     	}
     } 
     	            
