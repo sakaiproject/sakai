@@ -147,6 +147,9 @@ public class TotalScoreListener
    */
   public void processValueChange(ValueChangeEvent event)
   {
+    // need reset assessmentGrading list
+    ResetTotalScoreListener reset = new ResetTotalScoreListener();
+    reset.processAction(null);
 
     log.info("TotalScore CHANGE LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
