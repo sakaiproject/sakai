@@ -1407,8 +1407,13 @@ public class DeliveryActionListener
       publishedAssessment = delivery.getPublishedAssessment();
     }
     else {
-      publishedAssessment =
-        (new PublishedAssessmentService()).getPublishedAssessment(id);
+      try{
+        publishedAssessment =
+          (new PublishedAssessmentService()).getPublishedAssessment(id);
+      }
+      catch(Exception e){
+        log.warn(e.getMessage());
+      }
     }
     return publishedAssessment;
   }
