@@ -31,14 +31,12 @@ should be included in file importing DeliveryMessages
   separator=" " first="0" rows="100">
   <h:column>
       <h:outputText value="#{answer.text} " escape="false" />
-<%--  removing checkmarks for now, the logic needs to be rewritten
       <h:graphicImage id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
                     answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}"
         alt="#{msg.correct}" url="/images/checkmark.gif">
       </h:graphicImage>
---%>
       <h:inputText size="10" rendered="#{answer.hasInput}"
          disabled="#{delivery.actionString=='previewAssessment' 
                   || delivery.actionString=='reviewAssessment'

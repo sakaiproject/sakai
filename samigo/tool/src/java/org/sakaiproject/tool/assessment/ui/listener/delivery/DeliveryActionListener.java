@@ -1213,11 +1213,18 @@ public class DeliveryActionListener
             while (st2.hasMoreTokens())
             {
               String nextT = st2.nextToken();
+//  mark answer as correct if autoscore > 0
+ 
+/*
               if (data.getAnswerText() != null &&
                   data.getAnswerText().equalsIgnoreCase(nextT))
+*/
+              if (data.getAutoScore() != null &&
+                  data.getAutoScore().floatValue() > 0.0)
               {
                 fbean.setIsCorrect(true);
               }
+// need to check if case sensitive, mutual exclusive.
             }
           }
         }
