@@ -99,6 +99,7 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "Insufficient privileges to edit Template Settings";
+  private static final String SHORT_DESC_TOO_LONG = "Short description can not be longer than 255 characters.";
 
   private List forums = new ArrayList();
 
@@ -550,6 +551,15 @@ public class DiscussionForumTool
   public String processActionSaveForumAndAddTopic()
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
+
+    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    		(selectedForum.getForum().getShortDescription()!=null) && 
+    		(selectedForum.getForum().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }
+
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
@@ -588,6 +598,15 @@ public class DiscussionForumTool
   public String processActionSaveForumSettings()
   {
     LOG.debug("processActionSaveForumSettings()");
+    
+    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    		(selectedForum.getForum().getShortDescription()!=null) && 
+    		(selectedForum.getForum().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }
+    
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change forum settings");
@@ -612,6 +631,15 @@ public class DiscussionForumTool
   public String processActionSaveForumAsDraft()
   {
     LOG.debug("processActionSaveForumAsDraft()");
+
+    if(selectedForum !=null && selectedForum.getForum()!=null &&
+    		(selectedForum.getForum().getShortDescription()!=null) && 
+    		(selectedForum.getForum().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }
+
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change forum settings");
@@ -759,6 +787,14 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicAndAddTopic()");
     
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
+    		(selectedTopic.getTopic().getShortDescription()!=null) && 
+    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }    
+    
     setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
@@ -796,6 +832,14 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveTopicSettings()");
     
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
+    		(selectedTopic.getTopic().getShortDescription()!=null) && 
+    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }
+    
     setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
         (selectedTopic.getTopic().getTitle()==null 
@@ -815,6 +859,14 @@ public class DiscussionForumTool
   public String processActionSaveTopicAsDraft()
   {
     LOG.debug("processActionSaveTopicAsDraft()");
+    
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
+    		(selectedTopic.getTopic().getShortDescription()!=null) && 
+    		(selectedTopic.getTopic().getShortDescription().length() > 255))
+    {
+    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	return null;
+    }
     
     setPermissionMode(PERMISSION_MODE_TOPIC);
     if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
