@@ -43,7 +43,7 @@
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+<%--		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>--%>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">					
