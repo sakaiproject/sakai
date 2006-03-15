@@ -334,10 +334,12 @@
     
     <!-- =================== Application Objects ============== -->
 
+    <!-- 
 	<application>	
 		<navigation-handler>
 			org.sakaiproject.tool.messageforums.jsf.MessageForumsNavigationHandler
 		</navigation-handler>
 	</application>
+	-->
     
 </faces-config>

@@ -784,7 +784,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
-        if (item.getPermissionLevel().getRead().booleanValue()
+        if (item.getPermissionLevel().getMarkAsRead().booleanValue()
             && forum.getDraft().equals(Boolean.FALSE)
             && forum.getLocked().equals(Boolean.FALSE)
             && topic.getDraft().equals(Boolean.FALSE)
