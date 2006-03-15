@@ -409,6 +409,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       return true;
     }
+    if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, getContextSiteId())){
+    	return true;
+    }
     try
     {
       // Change Settings on Topic allowed even if the forum is locked
