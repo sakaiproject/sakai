@@ -686,10 +686,26 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
+    if (assessment.getAssessmentGradingId()!=null && assessment.getAssessmentGradingId().intValue() > 0)
+      updateAssessmentGrading(assessment);
+    else
+      saveAssessmentGrading(assessment);
+  }
+
+
+  public void saveAssessmentGrading(AssessmentGradingIfc assessment) {
     try {
-        getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
+        getHibernateTemplate().save((AssessmentGradingData)assessment);
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn("problem updating assessmentGrading: "+e.getMessage());
+    }
+  }
+
+  public void updateAssessmentGrading(AssessmentGradingIfc assessment) {
+    try {
+        getHibernateTemplate().update((AssessmentGradingData)assessment);
+    } catch (Exception e) {
+      log.warn("problem inserting assessmentGrading: "+e.getMessage());
     }
   }
 
