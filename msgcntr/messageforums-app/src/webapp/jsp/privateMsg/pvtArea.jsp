@@ -55,14 +55,15 @@
     		   <h:outputText value=" - #{topic.unreadNoMessages} unread" rendered="#{topic.topic.title == 'Received' || topic.topic.title == 'Deleted'}"/>
     		   <h:outputText value=")"/>
 					 <f:verbatim></div></f:verbatim>
-					 <f:verbatim><div class="rightAlign"></f:verbatim>
-					 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="#{msgs.pvt_foldersettings}">
-					   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
-	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
-					 </h:commandLink>
-					 <f:verbatim></div></f:verbatim>
 				</h:column>
-				
+				<h:column rendered="#{topic.topic.mutable}">
+									 <f:verbatim><div class="rightAlign"></f:verbatim>
+									 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="#{msgs.pvt_foldersettings}">
+									   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
+					    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
+									 </h:commandLink>
+									 <f:verbatim></div></f:verbatim>
+				</h:column>
 		</h:dataTable>
 	</h:column>
   </h:dataTable>       
