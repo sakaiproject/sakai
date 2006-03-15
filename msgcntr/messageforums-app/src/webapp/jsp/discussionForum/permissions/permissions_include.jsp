@@ -39,38 +39,42 @@
 	    <h:selectBooleanCheckbox id="newTopic" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newTopic}" disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_new_topic}" />
 		<f:verbatim></td><td></f:verbatim>
-        <h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
+		<h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
+     	<h:outputText value="#{msgs.perm_read}" />
+        <%--<h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_post_to_gradebook}" />
+        --%>
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:selectBooleanCheckbox  id="newR" value="#{permission.newResponse}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_new_response}" />
 		<f:verbatim></td><td></f:verbatim>
-        <h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_read}" />
+		<h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+		<h:outputText value="#{msgs.perm_mark_as_read}" />        
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:selectBooleanCheckbox id="newRtoR"  value="#{permission.responseToResponse}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_response_to_response}" />
-		<f:verbatim></td><td></f:verbatim>
-		<h:selectBooleanCheckbox  id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_mark_as_read}" />
+		<f:verbatim></td><td></f:verbatim>		
 		<f:verbatim></td></tr><tr><td></f:verbatim>
-		<h:selectBooleanCheckbox  id="movePosting" value="#{permission.movePosting}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
+		<%--<h:selectBooleanCheckbox id="movePosting" value="#{permission.movePosting}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_move_postings}" />
+		--%>
 		<f:verbatim></td><td></f:verbatim>
-		<h:selectBooleanCheckbox id="moderatePostings"  value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+		<%--<h:selectBooleanCheckbox id="moderatePostings"  value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_moderate_postings}" />
+		--%>
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:outputText value="#{msgs.perm_revise_postings}" style="font-weight:bold" />
 		<f:verbatim></td><td></f:verbatim>
-		<h:outputText value="#{msgs.perm_delete_postings}" style="font-weight:bold" />
+		<%--<h:outputText value="#{msgs.perm_delete_postings}" style="font-weight:bold" />--%>
 		<f:verbatim></td></tr><tr><td></f:verbatim>
         <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
 		  <f:selectItems   value="#{ForumTool.postingOptions}" />
 		</h:selectOneRadio>
-		<f:verbatim></td><td></f:verbatim>
-    	<h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
+		<f:verbatim></td><td></f:verbatim>				
+    	<%--<h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
 		  <f:selectItems   value="#{ForumTool.postingOptions}" />
 		</h:selectOneRadio>
+		--%>
 		<f:verbatim></td></tr></table></f:verbatim>
       </h:panelGroup>
     </h:column>

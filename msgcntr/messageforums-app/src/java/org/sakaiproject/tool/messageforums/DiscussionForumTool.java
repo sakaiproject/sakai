@@ -3059,7 +3059,7 @@ public class DiscussionForumTool
   			           "  var noneditingAuthorVal = true;\n" +
   			           "  var reviewerVal = true;\n" +
   			           "  var noneVal = true;\n" +
-  			           "  var contributorVal = true;\n\n" +  			
+  			           "  var contributorVal = true;\n\n" +  			           
   			           "  for (var i = 0; i < selectedLevel.length; i++){\n" +
   			           "    if (ownerVal && ownerLevelArray[i] != selectedLevel[i])\n" +
   	               "      ownerVal = false;\n" +
