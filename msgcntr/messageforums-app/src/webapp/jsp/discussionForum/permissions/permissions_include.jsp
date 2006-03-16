@@ -30,13 +30,13 @@
           <f:selectItems value="#{ForumTool.levels}"/>
         </h:selectOneMenu>
         <f:verbatim>	</td></tr><tr><td> </f:verbatim>
-        <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode}"/>
+        <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode != 'template'}"/>
         <h:outputText value="#{msgs.perm_new_forum}"/>
         <f:verbatim></td><td></f:verbatim>
         <h:selectBooleanCheckbox id="changeSetting" value="#{permission.changeSettings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_change_settings}"/>
 		<f:verbatim></td></tr><tr><td></f:verbatim>
-	    <h:selectBooleanCheckbox id="newTopic" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newTopic}" disabled="#{not ForumTool.editMode}"/>
+	    <h:selectBooleanCheckbox id="newTopic" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newTopic}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode == 'topic'}"/>
         <h:outputText value="#{msgs.perm_new_topic}" />
 		<f:verbatim></td><td></f:verbatim>
 		<h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
