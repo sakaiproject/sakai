@@ -1889,7 +1889,8 @@ String poolid = ContextUtil.lookupParam("poolId");
     // poolList in each level has been sorted, now we would put them in the right order
     ArrayList sortedList = new ArrayList();
     ArrayList firstLevelPoolList = (ArrayList) map.get(level);
-    addPoolByLevel(sortedList, map, firstLevelPoolList);
+    if (firstLevelPoolList != null)
+      addPoolByLevel(sortedList, map, firstLevelPoolList);
     return sortedList;
   }
 
