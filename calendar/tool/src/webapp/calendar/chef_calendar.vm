@@ -1,0 +1,36 @@
+#**
+calendar Portlet
+@author 
+@version 1.1 
+
+*#
+
+
+#if ($message=='new')
+        #parse("/vm/calendar/chef_calendar_new.vm")
+#elseif ($message=='scheduleImport')
+        #parse("/vm/calendar/chef_calendar_import_wizard.vm")
+#elseif ($message=='month')
+        #parse("/vm/calendar/chef_calendar_viewMonth.vm")
+#elseif ($message=='year')
+	#parse("/vm/calendar/chef_calendar_viewYear.vm")
+#elseif ($message=='day')
+	#parse("/vm/calendar/chef_calendar_viewDay.vm")
+#elseif ($message=='week')
+	#parse("/vm/calendar/chef_calendar_viewWeek.vm")
+#elseif ($message=='description')
+	#parse("/vm/calendar/chef_calendar_viewActivity.vm")
+#elseif ($message=='revise')
+	#parse("/vm/calendar/chef_calendar_revise.vm")
+#elseif ($message=='delete')
+	#parse("/vm/calendar/chef_calendar_delete.vm")
+#elseif ($message=='list')
+	#parse("/vm/calendar/chef_calendar_viewList.vm")
+#elseif ($message=='customizeCalendar')
+		#parse("/vm/calendar/chef_calendar-customize_fields.vm")
+#elseif ($message=='mergeCalendars')
+		#parse("/vm/calendar/chef_calendar-merge.vm")
+#elseif ($message=='setFrequency')
+        #parse("/vm/calendar/chef_calendar_setFrequency.vm")
+#end
+

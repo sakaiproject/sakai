@@ -1,0 +1,150 @@
+<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewMonth.vm,v 1.7 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)#toolbar($menu)#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+<!-- First table -->
+	<div style="display:block; clear:both"></div>
+
+<h3>$tlang.getString("view.calmonth")</h3>
+
+<!-- drop down menu for different views -->
+	<div style="margin-top:0;">
+		<div class="leftNav">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
+				<input type="hidden" name="eventSubmit_doView" value="view" />
+				<label for="view">$tlang.getString("view.view")</label>
+				<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
+					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+						#if ($selectedView.equals($view))
+							<option value="$view" selected="selected" >$view</option>
+						#else
+							<option value="$view" >$view</option>
+						#end
+					#end
+				</select>
+			</form>
+		</div>
+		<div class="rightNav">
+		 	<span class="instruction" style="margin-bottom:.3em">$nameOfMonth $year</span>
+			<form name="monthform" action="#toolForm("$action")" method="post" style="margin-top:0">
+				 <input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewm.lasm')" title ="$tlang.getString('viewm.gotopm')" />
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
+				 <input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexm')" title="$tlang.getString('viewm.gotonm')" />
+			</form>
+		</div>	
+	</div>
+	<div style="display:block; clear:both" />
+	<div style="margin:.5em 1.5em 1em 1.5em;padding:0">
+		#toolbar($menu_PDF)
+	</div>	
+
+<!-- how to draw a month -->
+<table cellpadding="2" width="100%" border="0" cellspacing="0" class="calendar">
+    <tr>
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.sun')</th>
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.mon')</th>
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.tue')</th>                     
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.wed')</th> 
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.thu')</th>
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.fri')</th> 
+        <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.sat')</th>  
+    </tr>           
+        #set($row = $monthArray.getRow()) 
+        #foreach ($xn in [0..$row])   	
+        <tr>          			
+            #foreach($u in [0..6])                    
+                #set ($mu = $monthArray.getDay($xn,$u))		
+                #if ($mu.getFlag() == 1) ## today
+                    #set($eventsn = $mu.getEvents())   
+                    #set($eventsn = $eventsn1)
+                    #set($flag = "false")
+
+                    #foreach ($m in $eventsn)                       
+                        #set($flag = "true")
+                    #end
+                    #if ($flag == "true")
+                        <td align="right"  valign= "top" height="51" class="borderToday event" >			
+                    #else			
+                        <td align="right"  valign= "top" bgcolor="#ffffff" height="51" class="borderToday">
+                    #end
+                                                 
+                #elseif ($mu.getFlag() == 0)  ## days dropping out of the current month
+                    #set ($eventsn = $mu.getEvents())
+                    <td align="right"  valign= "top" bgcolor="#cccccc" height="51"  class="borderGrayMonth">
+                                
+                #else ## days in the current month, but not today
+                    #set ($eventsn = $mu.getEvents())   
+                    #set($eventsn = $eventsn1)
+                    #set($flag = "false")
+
+                    #foreach ($m in $eventsn)                       
+                    #set($flag = "true")
+                    #end
+                    #if ($flag == "true")
+                          <td align="right"  valign= "top"  height="51" class="borderGrayMonth event">
+                    #else
+                          <td align="right"  valign= "top" bgcolor="#ffffff" height="51" class="borderGrayMonth">
+                    #end
+
+                #end  ## -- end of if-elseif-else                          
+                                                                                                                                           				
+                <p><a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+                $mu.getDay()</a></p>
+
+                <p align="left">
+                #foreach ($m in $eventsn)                    
+                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
+                    #set($size = $m.getDisplayName().length())
+                    #if($m.getType()=="Academic Calendar")
+                        <img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Activity")
+                        <img src = "#imageLink("sakai/activity.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Cancellation")
+                        <img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Class section - Discussion")
+                        <img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Class section - Lab")
+                        <img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Class section - Lecture")
+                        <img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Class section - Small Group")
+                        <img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Class session")
+                        <img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Computer Session")
+                        <img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Deadline")
+                        <img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Exam")
+                        <img src = "#imageLink("sakai/exam.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Quiz")
+                        <img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif ($m.getType()=="Meeting")
+                        <img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Special event")
+                        <img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Web Assignment")
+                        <img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #elseif($m.getType()=="Multidisciplinary Conference")
+                        <img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($m.getDisplayName())" />
+                    #end
+                    #set($size = $m.getDisplayName().length())                            
+                    #if ($size > 8)
+                        #set($stringa = $m.getDisplayName().substring(0,8))
+                        $validator.escapeHtml($stringa)...
+                    #else
+                        $validator.escapeHtml($m.getDisplayName())
+                    #end
+                    </a><br />
+                #end
+                </p>
+            </td>
+            #end  ## -- end of foreach
+        </tr>
+    #end  ## -- end of foreach
+</table>
+
+#eventLegend($tlang)
+
+</div>
+

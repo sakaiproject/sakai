@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.schedule"
+			title="Schedule"
+			description="For posting and viewing deadlines, events, etc.">
+
+		<configuration name="calendar" value="" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="myworkspace" />
+
+	</tool>
+
+</registration>

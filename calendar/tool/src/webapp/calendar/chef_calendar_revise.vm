@@ -1,0 +1,718 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_revise.vm,v 1.5 2005/06/14 20:13:33 suiyy.umich.edu Exp $
+
+<script type="text/javascript">
+focus_path = [ "activitytitle" ];
+
+function openCopyrightWindow(theURL,winName,winSettings) 
+{ 
+  window.open(theURL,winName,winSettings);
+  return false;
+}
+
+function hourChange(FieldName)
+{
+    var startHour;
+    var startMinute;
+    var endHour;
+    var endMinute;
+    var duHour;
+    var duMinute;
+
+    if (navigator.appName == "Netscape")
+    {
+    blur();
+    self.focus();
+    }
+
+    switch(FieldName)
+    {
+        case 'startHour':
+        case 'startMinute':
+        {
+            startHour = parseInt(document.getElementById('startHour').value);
+            if (startHour != 100)
+                minuteChange(FieldName);
+            else <!-- if the start hour is change back to null -->
+            {
+                document.getElementById('endHour').selectedIndex = 0;
+                document.getElementById('endMinute').selectedIndex = 0;
+            }
+        } break;
+        case 'duHour':
+        case 'duMinute':
+        {
+            minuteChange(FieldName);
+        } break;
+        <!-- if endHour is changed, modify the duration hour relatively -->
+        case 'endHour': <!-- same as minuteChange case endMinute -->
+        case 'endMinute':
+        {
+            minuteChange(FieldName);
+        } break;
+    }
+}
+
+function minuteChange(FieldName)
+    {
+        var startHour;
+        var startMinute;
+        var duMinute;
+        var endMinute;
+
+        switch(FieldName)
+        {
+        case 'startMinute':
+        case 'duMinute':
+        case 'startHour': 
+        case 'duHour': 
+        {
+        startHour = parseInt(document.getElementById('startHour').value);
+        if (startHour != 100)
+        {
+            startMinute = parseInt(document.getElementById('startMinute').value);
+            duMinute = parseInt(document.getElementById('duMinute').value);
+            endMinute = startMinute + duMinute;
+
+            duHour = parseInt(document.getElementById('duHour').value);
+            endHour = startHour + duHour;
+            if (endMinute >= 60)
+            {
+                document.getElementById('endMinute').selectedIndex = (endMinute-60)/5;
+
+                endHour = endHour + 1;
+                if ((endHour > 12) && (endHour <= 24))
+                    endHour = endHour - 12;
+                else
+                {
+                    if (endHour > 24)
+                            endHour = endHour - 24;
+                }
+            }
+            else <!-- if endMinute < 60 -->
+            {
+                document.getElementById('endMinute').selectedIndex = endMinute/5;
+
+                if ((endHour > 12) && (endHour <= 24))
+                        endHour = endHour - 12;
+                else
+                {
+                    if (endHour > 24)
+                            endHour = endHour - 24;
+                }
+            }
+            document.getElementById('endHour').selectedIndex = endHour;
+
+             <!-- the ampm issue is decided by if (12-start)< du-->
+            if (startHour < 12)
+            {
+                var sm = startHour * 60 + startMinute;
+                var dm = duHour * 60 + duMinute;
+                var em = sm + dm;
+                var halfdaym = 12 * 60;
+                var wholedaym = 24 * 60;
+                if ((em < halfdaym) || (em >= wholedaym)) 
+                {
+                    <!-- endHour still falls in the same half day -->
+                    startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
+                    document.getElementById('endAmpm').selectedIndex = Math.abs(startAmpmIndex);
+                }
+                else if ((em >= halfdaym) && (em < wholedaym))
+                {
+                    startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
+                    document.getElementById('endAmpm').selectedIndex = Math.abs(startAmpmIndex - 1);
+                }
+            }
+            else if (startHour = 12)
+            {
+                var sm = 12 * 60 + startMinute;
+                var dm = duHour * 60 + duMinute;
+                var em = sm + dm;
+                var oneandhalfdaym = 36 * 60;
+                var wholedaym = 24 * 60;
+                if ((em < wholedaym) || (em >= oneandhalfdaym))
+                {
+                    <!-- endHour still falls in the same half day -->
+                    startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
+                    document.getElementById('endAmpm').selectedIndex = Math.abs(startAmpmIndex);
+                }
+                else if ((em >= wholedaym) && (em < oneandhalfdaym))
+                {
+                    startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
+                    document.getElementById('endAmpm').selectedIndex = Math.abs(startAmpmIndex - 1);
+                }
+            }
+         } <!-- if startHour not equal to 0 -->
+        } break;
+
+        case 'endHour':
+        case 'endMinute':
+        case 'endAmpm':
+        {
+            startHour = parseInt(document.getElementById('startHour').value);
+            if (startHour != 100)
+            { <!-- ampm changes need to be considered as well -->
+                startMinute = parseInt(document.getElementById('startMinute').value);
+                endMinute = parseInt(document.getElementById('endMinute').value);
+                duMinute = endMinute - startMinute;
+
+                endHour = parseInt(document.getElementById('endHour').value);
+				if (endHour == 12)
+				{
+					endHour = 0;
+				}
+                startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
+                endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
+                sm = (startHour + startAmpmIndex * 12) * 60 + startMinute;
+                em = (endHour + endAmpmIndex * 12) * 60 + endMinute;
+                if (em == sm)
+                { <!-- set duTime to be zero -->
+                    duHour = 0; 
+                    duMinute =0;
+                }
+                else if (em < sm) 
+                { <!-- end time is earlier than start time -->
+                    dm = em - sm + 24 * 60;
+                    duMinute = dm % 60;
+                    duHour = Math.floor(dm / 60);
+                }
+                else
+                {
+                    dm = em - sm;
+                    duMinute = dm % 60;
+                    duHour = Math.floor(dm / 60);
+                }
+                document.getElementById('duHour').selectedIndex = duHour; 
+                document.getElementById('duMinute').selectedIndex = duMinute/5;
+            }
+        } break;
+    }
+}
+
+function ampmChange(FieldName)
+{
+    var startAmpm;
+    var endAmpm;
+
+    if (navigator.appName == "Netscape")
+    {
+    blur();
+    self.focus();
+    }
+
+    switch(FieldName)
+    {
+        case 'startAmpm':
+        {
+            
+            startHour = parseInt(document.getElementById('startHour').value);
+            if (startHour != 100)
+            {
+                startAmpm = document.getElementById('startAmpm').value;
+                endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
+                document.getElementById('endAmpm').selectedIndex = Math.abs(endAmpmIndex - 1);           
+            }
+        } break;
+        case 'endAmpm': 
+        {
+            minuteChange(FieldName);
+        } break;
+    }
+}
+
+</script>
+
+<div class="portletBody">
+	<h3>
+		$tlang.getString("rev.revising")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"/>#end
+	<p class="instruction">
+		$tlang.getString("rev.torev")<br />
+		$tlang.getString("new.a") <span class="reqStarInline">*</span>
+	</p>
+	<form action="#toolForm("$action")" method="post">                                        
+		<h4>$tlang.getString("new.scheduleitem")</h4>
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="activitytitle">$tlang.getString("new.title")</label>
+			#if($savedData.getTitle().length() != 0)
+				#set($str = $savedData.getTitle().trim())
+				<input type="text" name="activitytitle" id="activitytitle" size="32" maxlength="50" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
+			#elseif ($calEventFlag != "false")
+				#if ($event.getDisplayName().length() != 0)
+					#set($str = $event.getDisplayName().trim())
+					<input type="text" name="activitytitle" id="activitytitle" size="32" maxlength="50" value="$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
+				#end
+			#else
+				<input type="text" name="activitytitle" size="32" maxlength="50" value = "" />
+			#end
+		</p>
+		<p class="shorttext">
+			<span class="reqStar">*</span>	
+			<label for="month">
+				$tlang.getString("gen.date")
+			</label>	
+			## Setup a date selection widget
+			#set($todayYear = $realDate.breakdownLocal().Year)
+			#set($earliestYear = $todayYear - 3)
+			#set($latestYear = $todayYear + 4)	
+			#if($savedData.getMonth()!=0)
+				#set($month=$savedData.getMonth())
+				#set($day=$savedData.getDay())
+				#set($year=$savedData.getYearInt())
+			#else
+				#set($month = $event.getRange().firstTime().breakdownLocal().month)
+				#set($day = $event.getRange().firstTime().breakdownLocal().day)
+				#set($year = $event.getRange().firstTime().breakdownLocal().year)
+			#end 
+			#chef_dateselectionwidget("yearSelect" "month" "day" $earliestYear $latestYear $year $month $day)
+		</p>	
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="startHour">
+				$tlang.getString("rev.start")
+			</label>
+			#set($time = $event.getRange().firstTime().toStringLocalFull())
+			#set($hour = $event.getRange().firstTime().breakdownLocal().hour)
+			#set($minute = $event.getRange().firstTime().breakdownLocal().min)
+			
+			#if ($endTime.endsWith("am")) #set ($endTimeType = "am") #else #set ($endTimeType = "pm") #end
+			#if($savedData.getHour() != 0)
+				#set($hour = $savedData.getHour())
+			#end
+	
+			#if($hour>12)
+				#set($hour = $hour - 12)
+			#elseif ($hour == 0)
+				#set($hour = 12)
+			#end
+			
+			<select name="startHour" id="startHour" onchange="hourChange('startHour'); return false;">
+				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
+				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
+				#if($hour == 3) <option selected="selected" value="3">3</option> #else <option value="3">3</option> #end
+				#if($hour == 4) <option selected="selected" value="4">4</option> #else <option value="4">4</option> #end
+				#if($hour == 5) <option selected="selected" value="5">5</option> #else <option value="5">5</option> #end
+				#if($hour == 6) <option selected="selected" value="6">6</option> #else <option value="6">6</option> #end 
+				#if($hour == 7) <option selected="selected" value="7">7</option> #else <option value="7">7</option> #end
+				#if($hour == 8) <option selected="selected" value="8">8</option> #else <option value="8">8</option> #end
+				#if($hour == 9) <option selected="selected" value="9">9</option> #else <option value="9">9</option> #end
+				#if($hour == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
+				#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
+				#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
+			</select>
+			
+			#if($savedData.getMinute() != -1)
+				#set($minute = $savedData.getMinute())
+			#end
+			<select name="startMinute" id="startMinute" onchange="hourChange('startMinute'); return false;">
+				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
+				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
+				#if($minute == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
+				#if($minute == 15) <option selected="selected" value="15">15</option> #else <option value="15">15</option> #end
+				#if($minute == 20) <option selected="selected" value="20">20</option> #else <option value="20">20</option> #end
+				#if($minute == 25) <option selected="selected" value="25">25</option> #else <option value="25">25</option> #end
+				#if($minute == 30) <option selected="selected" value="30">30</option> #else <option value="30">30</option> #end 
+				#if($minute == 35) <option selected="selected" value="35">35</option> #else <option value="35">35</option> #end
+				#if($minute == 40) <option selected="selected" value="40">40</option> #else <option value="40">40</option> #end
+				#if($minute == 45) <option selected="selected" value="45">45</option> #else <option value="45">45</option> #end
+				#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
+				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
+			</select>
+		 
+			#if($$savedData.getAm().length() != 0)
+				#set($timeType = $savedData.getAm())
+			#else
+				#set($hourType = $event.getRange().firstTime().breakdownLocal().getHour())
+				#if ($hourType>=12)
+					#set($timeType = "pm")
+				#else
+					#set($timeType = "am")
+				#end
+			#end
+			<select name="startAmpm" id="startAmpm" onchange="ampmChange('startAmpm'); return false;">
+				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
+				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
+			</select>
+         $timezone
+		</p>	
+		<p class="shorttext">
+			<label for="duHour">
+				$tlang.getString("new.duration")
+			</label>	
+			## if back from attachment, there is the saved data
+			#if($savedData.getDurationHour() != -1)
+				#set($dhour = $savedData.getDurationHour())
+			#else
+				#set($dhour = $helper.getduration($event.getRange().duration(),3600000))
+			#end
+			
+			#set($dmi = 0)
+			#if($savedData.getDurationMinute() != -1)
+				#set($dmi = $savedData.getDurationMinute())
+			#else
+				#set($du = $event.getRange().duration())
+				#set($dmi = $helper.getFractionIn($du,$dhour))
+	
+				## if the duration minute ends with "4" or "9"
+				## it needs to be formatted
+				#if (($dmi % 5) != 0)
+					#set ($dmi = $dmi + 1)
+				#end
+				#if ($dmi == 60)
+					#set ($dmi = 0)
+					#if ($dhour == 12)
+						#set ($dhour = 1)
+					#else
+						#set ($dhour = $dhour + 1)
+					#end
+				#end
+			#end
+			<select name="duHour" id="duHour" onchange="hourChange('duHour'); return false;">
+				#if($dhour == 0) <option selected="selected" value="0">0</option> #else <option value="0">0</option> #end
+				#if($dhour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
+				#if($dhour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
+				#if($dhour == 3) <option selected="selected" value="3">3</option> #else <option value="3">3</option> #end
+				#if($dhour == 4) <option selected="selected" value="4">4</option> #else <option value="4">4</option> #end
+				#if($dhour == 5) <option selected="selected" value="5">5</option> #else <option value="5">5</option> #end
+				#if($dhour == 6) <option selected="selected" value="6">6</option> #else <option value="6">6</option> #end 
+				#if($dhour == 7) <option selected="selected" value="7">7</option> #else <option value="7">7</option> #end
+				#if($dhour == 8) <option selected="selected" value="8">8</option> #else <option value="8">8</option> #end
+				#if($dhour == 9) <option selected="selected" value="9">9</option> #else <option value="9">9</option> #end
+				#if($dhour == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
+				#if($dhour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
+				#if($dhour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
+				#if($dhour == 13) <option selected="selected" value="13">13</option> #else <option value="13">13</option> #end
+				#if($dhour == 14) <option selected="selected" value="14">14</option> #else <option value="14">14</option> #end
+				#if($dhour == 15) <option selected="selected" value="15">15</option> #else <option value="15">15</option> #end
+				#if($dhour == 16) <option selected="selected" value="16">16</option> #else <option value="16">16</option> #end
+				#if($dhour == 17) <option selected="selected" value="17">17</option> #else <option value="17">17</option> #end
+				#if($dhour == 18) <option selected="selected" value="18">18</option> #else <option value="18">18</option> #end
+				#if($dhour == 19) <option selected="selected" value="19">19</option> #else <option value="19">19</option> #end
+				#if($dhour == 20) <option selected="selected" value="20">20</option> #else <option value="20">20</option> #end
+				#if($dhour == 21) <option selected="selected" value="21">21</option> #else <option value="21">21</option> #end
+				#if($dhour == 22) <option selected="selected" value="22">22</option> #else <option value="22">22</option> #end
+				#if($dhour == 23) <option selected="selected" value="23">23</option> #else <option value="23">23</option> #end
+			</select>
+			$tlang.getString("rev.hours")
+			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); return false;">
+				#if($dmi == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
+				#if($dmi == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
+				#if($dmi == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
+				#if($dmi == 15) <option selected="selected" value="15">15</option> #else <option value="15">15</option> #end
+				#if($dmi == 20) <option selected="selected" value="20">20</option> #else <option value="20">20</option> #end
+				#if($dmi == 25) <option selected="selected" value="25">25</option> #else <option value="25">25</option> #end
+				#if($dmi == 30) <option selected="selected" value="30">30</option> #else <option value="30">30</option> #end 
+				#if($dmi == 35) <option selected="selected" value="35">35</option> #else <option value="35">35</option> #end
+				#if($dmi == 40) <option selected="selected" value="40">40</option> #else <option value="40">40</option> #end
+				#if($dmi == 45) <option selected="selected" value="45">45</option> #else <option value="45">45</option> #end
+				#if($dmi == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
+				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
+			</select>
+			$tlang.getString("rev.minutes")
+		</p>	
+		<p class="shorttext">
+			<label for="endHour">
+				$tlang.getString("new.end")
+			</label>	
+			<select size="1" name="endHour" id="endHour" onchange="hourChange('endHour'); return false;">
+			  <option selected="selected" value="0">0</option>
+			  <option value="1">1</option>
+			  <option value="2">2</option>
+			  <option value="3">3</option>
+			  <option value="4">4</option>
+			  <option value="5">5</option>
+			  <option value="6">6</option>
+			  <option value="7">7</option>
+			  <option value="8">8</option>
+			  <option value="9">9</option>
+			  <option value="10">10</option>
+			  <option value="11">11</option>
+			  <option value="12">12</option>
+			</select>
+			<select size="1" name="endMinute" id="endMinute" onchange="hourChange('endMinute'); return false;">
+				<option selected="selected" value="0">00</option>
+				<option value="5">05</option>
+				<option value="10">10</option>
+				<option value="15">15</option>
+				<option value="20">20</option>
+				<option value="25">25</option>
+				<option value="30">30</option>
+				<option value="35">35</option>
+				<option value="40">40</option>
+				<option value="45">45</option>
+				<option value="50">50</option>
+				<option value="55">55</option>
+			</select>
+			<select size="1" name="endAmpm" id="endAmpm" onchange="ampmChange('endAmpm'); return false;">
+			  <option selected="selected" value="am">am</option>
+			  <option value="pm">pm</option>
+			</select>
+         $timezone
+		</p>
+		<p class="longtext">
+			<label for="body" class="block">
+				$tlang.getString("new.descr")
+			</label>	
+			<table border="0"><tr><td>
+			#if($savedData.getDescription().length() != 0)
+			<textarea name="description"  id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
+			#chef_setupformattedtextarea("description")
+		   #elseif ($calEventFlag != "false")
+			#if($event.getDescriptionFormatted().length() != 0)
+			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($event.getDescriptionFormatted())</textarea>
+			#chef_setupformattedtextarea("description")
+			#else
+			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80"></textarea>
+			#chef_setupformattedtextarea("description")
+			#end
+			#else
+			<textarea name="description" id="description" wrap="virtual" rows="15" cols="80"></textarea>
+			#chef_setupformattedtextarea("description")
+			#end
+			</td></tr></table>
+		</p>	
+		<p class="shorttext">
+			<label for="">
+				$tlang.getString("new.freq")
+			</label>	
+			#if ($rule)
+			   $tlang.getString("new.every") $rule.Interval $freq(s)<br />
+				#if (!($rule.Count == 0)) $tlang.getString("new.number") $rule.Count $tlang.getString("new.times") <br />#end
+				#if ($rule.Until) $tlang.getString("new.endson") $rule.Until.breakdownLocal().Month/$rule.Until.breakdownLocal().Day/$rule.Until.breakdownLocal().year <br />#end
+			#else
+				#if ($freq) ## one occurrence doesn't have a 'freq' output
+					#if ($event.RecurrenceRule)
+						#set ($rule = $event.RecurrenceRule)
+						$tlang.getString("new.every") $rule.Interval $freq(s)<br />
+						#if (!($rule.Count == 0)) $tlang.getString("new.number") $rule.Count  $tlang.getString("new.times") <br />#end
+						#if ($rule.Until) Ends on $rule.Until.breakdownLocal().Month/$rule.Until.breakdownLocal().Day/$rule.Until.breakdownLocal().year <br />#end
+					#end
+				#else
+					$tlang.getString("new.oneocc")
+				#end
+			#end
+			<div class="act labelindnt" style="padding:0;">
+				<input type="submit"  name="eventSubmit_doEditfrequency" value="$tlang.getString('new.setfreq') " />
+			</div>
+			</p>
+		<p class="shorttext">
+			<label for="eventType">
+				$tlang.getString("new.itemtype")
+			</label>
+			
+			#if ($event.getType().length()!=0)
+				#set($type = $event.getType())
+			#else
+				#set($type = "Activity")
+			#end
+		
+			#if($savedData.getType().length() != 0)
+				#set($type = $savedData.getType())
+			#end
+	
+			<select name="eventType" id="eventType" onchange="blur()">
+				#if ($type =="Academic Calendar") 
+				<option selected="selected" value="Academic Calendar">$tlang.getString("del.acad")</option> 
+				#else  
+				<option value="Academic Calendar">$tlang.getString("del.acad")</option>  
+				#end
+				
+				#if ($type=="Activity") 
+				<option selected="selected" value="Activity">$tlang.getString("del.activ")</option>  
+				#else <option value="Activity">$tlang.getString("del.activ")</option>  
+				#end
+				
+				#if ($type =="Cancellation") 
+				<option selected="selected" value="Cancellation">$tlang.getString("del.cancell")</option>  
+				#else  
+				<option value="Cancellation">$tlang.getString("del.cancell")</option> 
+				#end
+				
+				#if ($type =="Class section - Discussion") 
+				<option selected="selected" value="Class section - Discussion">$tlang.getString("del.class") - $tlang.getString("del.disc") </option>  
+				#else 
+				<option value="Class section - Discussion">$tlang.getString("del.class") - $tlang.getString("del.disc") </option> 
+				#end
+				
+				#if ($type =="Class section - Lab") 
+				<option selected="selected" value="Class section - Lab">$tlang.getString("del.class") - $tlang.getString("del.lab") </option> 
+				#else 
+				<option value="Class section - Lab">$tlang.getString("del.class") - $tlang.getString("del.lab") </option> 
+				#end
+				
+				#if ($type =="Class section - Lecture") 
+				<option selected="selected" value="Class section - Lecture">$tlang.getString("del.class") - $tlang.getString("del.lect") </option> 
+				#else 
+				<option value="Class section - Lecture">$tlang.getString("del.class") - $tlang.getString("del.lect") </option> 
+				#end
+				
+				#if ($type =="Class section - Small Group") 
+				<option selected="selected" value="Class section - Small Group">$tlang.getString("del.class") - $tlang.getString("del.small") </option> 
+				#else 
+				<option value="Class section - Small Group">$tlang.getString("del.class") - $tlang.getString("del.small") </option> 
+				#end
+				
+				#if ($type =="Class session") 
+				<option selected="selected" value="Class session">$tlang.getString("del.classsession") </option> 
+				#else 
+				<option value="Class session">$tlang.getString("del.classsession") </option> 
+				#end
+				
+				#if ($type =="Computer Session") 
+				<option selected="selected" value="Computer Session">$tlang.getString("del.computer")</option> 
+				#else 
+				<option value="Computer Session">$tlang.getString("del.computer")</option> 
+				#end
+				
+				#if ($type =="Deadline") 
+				<option selected="selected" value="Deadline">$tlang.getString("del.dead")</option> 
+				#else 
+				<option value="Deadline">$tlang.getString("del.dead")</option> 
+				#end
+				
+				#if ($type =="Exam") 
+				<option selected="selected" value="Exam">$tlang.getString("del.exam")</option> 
+				#else 
+				<option value="Exam">$tlang.getString("del.exam")</option> 
+				#end
+				
+				#if ($type=="Meeting") 
+				<option selected="selected" value="Meeting">$tlang.getString("del.meet")</option> 
+				#else 
+				<option value="Meeting">$tlang.getString("del.meet")</option> 
+				#end
+				
+				#if ($type=="Multidisciplinary Conference") 
+				<option selected="selected" value="Multidisciplinary Conference">$tlang.getString("del.multi")</option value=> 
+				#else 
+				<option value="Multidisciplinary Conference">$tlang.getString("del.multi")</option> 
+				#end
+				
+				#if ($type =="Quiz") 
+				<option selected="selected" value="Quiz">$tlang.getString("del.quiz")</option> 
+				#else 
+				<option value="Quiz">$tlang.getString("del.quiz")</option> 
+				#end
+				
+				#if ($type =="Special event") 
+				<option selected="selected" value="Special event">$tlang.getString("del.special")</option> 
+				#else 
+				<option value="Special event">$tlang.getString("del.special")</option> 
+				#end
+				
+				#if ($type =="Web Assignment") 
+				<option selected="selected" value="Web Assignment">$tlang.getString("del.web")</option> 
+				#else 
+				<option value="Web Assignment">$tlang.getString("del.web")</option> 
+				#end
+			</select>
+		</p>
+		<p class="shorttext">
+			<label for="location">	
+				$tlang.getString("new.location")
+			</label>	
+			#if ($savedData.Location.length() !=0)
+				#set($str = $savedData.getLocation())
+				<textarea id="location"  name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+			#elseif ($calEventFlag != "false")
+				#if ($event.Location.length() != 0)
+					#set($str = $event.Location)
+					<textarea name="location" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+				#else
+				<textarea name="location"  wrap="virtual" rows="2" cols="60"></textarea>
+				#end
+			#else
+				<textarea name="location"  wrap="virtual" rows="2" cols="60"></textarea>
+			#end
+		</p>
+	
+		#foreach ($addfield in $addFieldsCalendarsCollection)
+			<p class="shorttext">
+				<label for="$addfield">
+					$addfield
+				</label>	
+				#if ($savedData.getAddfieldValue($addfield).length() != 0)
+					#set($afv = $savedData.getAddfieldValue($addfield))
+					<textarea id="$addfield" name="$addfield"  wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($afv)</textarea>
+				#elseif ($calEventFlag != "false")
+					#if ($event.getField($addfield).length() != 0)
+						#set($str = $event.getField($addfield))
+						<textarea name="$addfield" wrap="virtual" rows="2" cols="60">$validator.escapeHtmlTextarea($str)</textarea>
+					#else
+					<textarea name="$addfield" wrap="virtual" rows="2" cols="60"></textarea>
+					#end
+				#else
+					<textarea name="$addfield" wrap="virtual" rows="2" cols="60"></textarea>
+				#end
+			</p>	
+		#end
+		#set ($size = 0)
+			<h4>$tlang.getString("gen.attach")</h4>
+		#if (!$attachments.isEmpty())
+			#set ($props = false)
+			#set ($size = $attachments.size())
+			<ul class="attachList">
+				#foreach ($attachment in $attachments)
+					#set ($props = $attachment.Properties)
+					#if (!$props)
+						#if ($size >0) #set ($size = $size - 1) #end
+					#else
+						#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+						#else
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" />
+						#end
+		
+						#set ($copyflag = false)
+						#if ($props.getProperty("CHEF:copyrightalert"))
+							#if ($props.getBooleanProperty("CHEF:copyrightalert"))
+								#set ($copyflag = true)
+							#end
+						#end
+
+						#if ($copyflag)
+							## if there is a copyright alert, show the alert page first
+							<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+						#else
+							<a href="$attachment.Url" target="_blank">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+						#end
+						
+						#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+						#end<br />
+					#end
+					</li>
+					#set ($props = false)
+				#end
+			</ul>
+		#end
+		#if ($size == 0) $tlang.getString("gen.noattach")
+			<p class="act">
+			<input type="submit" name="eventSubmit_doAttachments" value="$tlang.getString("new.addattach")" />
+			</p>
+		#else
+			<p class="act">
+			<input type="submit" name="eventSubmit_doAttachments" value="$tlang.getString("new.adddrop")" />
+			</p>
+		#end
+		#if ($event.RecurrenceRule)
+			<select name="intention">
+				#if ($savedData.IntentionStr.length() !=0)
+					#set($str = $savedData.IntentionStr)
+					<option value="a" #if($str.equals("a"))selected="selected"#end>$tlang.getString("rev.modify")</option>
+					<option value="t" #if($str.equals("t"))selected="selected"#end>$tlang.getString("rev.modifyonly")</option>
+				#else
+					<option value="a" selected="selected">$tlang.getString("rev.modify")</option>
+					<option value="t">$tlang.getString("rev.modifyonly")</option>
+				#end		
+			</select>
+		#end
+		<p class="act">
+			<input type="submit" name="eventSubmit_doUpdate" value="$tlang.getString('new.post')" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+	</form>
+</div>

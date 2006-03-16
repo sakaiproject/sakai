@@ -1,0 +1,134 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_import_wizard.vm,v 1.5 2005/06/03 15:22:28 gsilver.umich.edu Exp $
+
+<script type="text/javascript">
+  focus_path = [ "textfield" ];
+</script>
+<div class="portletBody"> 
+	<h3>
+		$tlang.getString("java.cal") $tlang.getString("java.import")
+	</h3>
+	<p class="step">
+		#if ($importWizardState == "SELECT_TYPE")
+		$tlang.getString("imp.step1")
+		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+		$tlang.getString("imp.step2")
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+		$tlang.getString("imp.step2b")		
+		#elseif ($importWizardState == "CONFIRM_IMPORT")
+		$tlang.getString("imp.step3")		
+		#end
+	</p>
+		<script type="text/javascript"> var a = document.MyCalendar; </script>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($importWizardState == "SELECT_TYPE")
+			<h4>$tlang.getString("imp.select")</h4>
+		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
+				<a href="#scheduleLink("CToolsCalendarTemplate.zip")" title="CToolsCalendarTemplate.zip" target="_blank">
+				<img src = "#imageLink("sakai/excel_sc.gif")" border="0" alt="$tlang.getString('imp.generic')" />
+				$tlang.getString("imp.generic")
+				</a><br /><br />
+			</p>	
+			<p class="instruction">$tlang.getString("imp.when")</p>
+			                                                                                                                                             
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+##			$tlang.getString("imp.browse")
+		#elseif ($importWizardState == "CONFIRM_IMPORT")
+			$tlang.getString("imp.yourcustom") $wizardImportedEvents.size() $tlang.getString("imp.yourcustom2")<br /><br />
+		#end
+	
+	#if ($importWizardState == "SELECT_TYPE")
+		<form name="Options" action="#toolForm("$action")" method="post">
+			<p class="checkbox">
+				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label><br />
+				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
+				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br />
+			</p>
+			<p class="act">
+				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
+			</div>
+		</form>
+	#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
+			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
+			<p class="act">
+				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
+			</p>
+		</form>
+	#elseif ($importWizardState == "OTHER_SELECT_FILE")
+		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
+			<p class="shorttext"><label for="importFile">File:</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
+			<p class="act">
+				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"  />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  />
+			</p>
+		</form>
+	#elseif ($importWizardState == "CONFIRM_IMPORT")
+		<form name="Options" action="#toolForm("$action")" method="post">
+				<table class="listHier" cellspacing="0">
+					<tr>
+						<th scope="col">$tlang.getString("gen.date")</th>
+						<th scope="col">$tlang.getString("imp.actvtm")</th>
+						<th scope="col">$tlang.getString("imp.keep")</th>						
+					</tr>
+
+				#foreach($impEvent in $wizardImportedEvents)
+				  <tr>
+					<td nowrap="nowrap" >$impEvent.getDisplayStartDate()</td>
+					<td nowrap="nowrap" >
+						<label for="eventSelected$impEvent.getLineNumber()">
+							#if($impEvent.getType()=="Academic Calendar")
+								<img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Activity")
+								<img src = "#imageLink("sakai/activity.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Cancellation")
+								<img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Class section - Discussion")
+								<img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Class section - Lab")
+								<img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Class section - Lecture")
+								<img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Class section - Small Group")
+								<img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Class session")
+								<img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Computer Session")
+								<img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Deadline")
+								<img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Exam")
+								<img src = "#imageLink("sakai/exam.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Quiz")
+								<img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif ($impEvent.getType()=="Meeting")
+								<img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Special event")
+								<img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Web Assignment")
+								<img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#elseif($impEvent.getType()=="Multidisciplinary Conference")
+								<img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($impEvent.getType())" />
+							#end
+							&nbsp;$validator.escapeHtml($impEvent.getDisplayName())&nbsp;
+							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
+						</label>
+					</td>
+										<td nowrap="nowrap" ><input name="eventSelected$impEvent.getLineNumber()" id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
+				  </tr>
+				#end
+				
+				</table>
+			<p class="act">
+					<input type="submit" class="active"  name="eventSubmit_doScheduleContinue" value="$tlang.getString('imp.addeve')" />
+					<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" />
+					<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
+			</p>
+		</form>
+	#end
+</div>
+
