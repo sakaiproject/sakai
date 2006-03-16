@@ -370,10 +370,10 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		
 		
-		PermissionLevel temp = (PermissionLevel) defaultPermissionsMap.get(typeUuid);		
-		if (temp != null){
-			return temp;
-		}
+		//PermissionLevel temp = (PermissionLevel) defaultPermissionsMap.get(typeUuid);		
+		//if (temp != null){
+		//	return temp;
+		//}
 		
 				
 		HibernateCallback hcb = new HibernateCallback() {
@@ -386,9 +386,9 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 					
     PermissionLevel returnedLevel = (PermissionLevel) getHibernateTemplate().execute(hcb);
     
-    if (returnedLevel != null){
-    	defaultPermissionsMap.put(typeUuid, returnedLevel);
-    }
+    //if (returnedLevel != null){
+    //	defaultPermissionsMap.put(typeUuid, returnedLevel);
+    //}
     
     return returnedLevel;
   }	
