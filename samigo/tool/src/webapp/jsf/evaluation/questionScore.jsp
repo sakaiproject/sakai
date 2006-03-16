@@ -456,7 +456,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
       <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6'}" />
      <f:verbatim><br/></f:verbatim>
-     <h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');" >
+   <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
+<h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?answerText=#{description.fullAnswer}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
     <h:outputText  value="(#{msg.click_shortAnswer})" />
     </h:outputLink>
     <h:outputLink 
