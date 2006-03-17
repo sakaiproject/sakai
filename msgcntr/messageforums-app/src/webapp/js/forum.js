@@ -38,7 +38,6 @@ function showHideDiv(hideDivisionNo, context)
     if(panelId != null)
     {
       setMainFrameHeight(panelId);
-      setFocus(focus_path);
     }
   }
 }
