@@ -77,8 +77,8 @@ import org.sakaiproject.service.legacy.time.TimeBreakdown;
 import org.sakaiproject.service.legacy.time.TimeRange;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.content.ResourcesAction;
-import org.sakaiproject.tool.helper.PermissionsAction;
+//import org.sakaiproject.tool.content.ResourcesAction;
+//import org.sakaiproject.tool.helper.PermissionsAction;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.text.FormattedText;
@@ -2024,6 +2024,8 @@ extends VelocityPortletStateAction
 	{
 		CalendarActionState state = (CalendarActionState)getState(portlet, runData, CalendarActionState.class);
 		
+// TODO: restore as a modern helper -ggolden
+/*
 		// if we are in edit permissions...
 		String helperMode = (String) sstate.getAttribute(PermissionsAction.STATE_MODE);
 		if (helperMode != null)
@@ -2038,9 +2040,11 @@ extends VelocityPortletStateAction
 				return template;
 			}
 		}
-		
+*/
 		String template = (String)getContext(runData).get("template");
 		
+// TODO: restore as a modern helper -ggolden
+/*
 		// String mode = (String) sstate.getAttribute(AttachmentAction.STATE_MODE);
 		String mode = (String) sstate.getAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
 		if (mode != null)
@@ -2065,7 +2069,7 @@ extends VelocityPortletStateAction
 			sstate.removeAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
 			sstate.removeAttribute(ResourcesAction.STATE_ATTACHMENTS);
 		}
-		
+*/
 		String stateName = state.getState();
 		if (stateName == null) stateName = "";		
 		if ( stateName.equals(STATE_SCHEDULE_IMPORT) )
@@ -3667,6 +3671,8 @@ extends VelocityPortletStateAction
 	
 	public void doAttachments(RunData rundata, Context context)
 	{
+//TODO: restore as modern helper -ggolden
+/*
 		CalendarActionState State = (CalendarActionState)getState( context, rundata, CalendarActionState.class );
 		String peid = ((JetspeedRunData)rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)rundata).getPortletSessionState(peid);
@@ -3681,9 +3687,9 @@ extends VelocityPortletStateAction
 		sstate.setAttribute(ResourcesAction.STATE_MODE, ResourcesAction.MODE_HELPER);
 		sstate.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_SELECT);
 		boolean show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.helper", ResourcesAction.SHOW_ALL_SITES_IN_FILE_PICKER);
-		/** This attribute indicates whether "Other Sites" twiggle should show */
+		// This attribute indicates whether "Other Sites" twiggle should show
 		sstate.setAttribute(ResourcesAction.STATE_SHOW_ALL_SITES, Boolean.toString(show_other_sites));
-		/** This attribute indicates whether "Other Sites" twiggle should be open */
+		// This attribute indicates whether "Other Sites" twiggle should be open
 		sstate.setAttribute(ResourcesAction.STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
 		
 		String toolName = ToolManager.getCurrentTool().getTitle();
@@ -3786,6 +3792,7 @@ extends VelocityPortletStateAction
 		State.setNewData(State.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 		
 		// **************** changed for the new attachment editor **************************
+*/
 	} // doAttachments
 	
 	
@@ -6679,6 +6686,8 @@ extends VelocityPortletStateAction
 	 */
 	public void doPermissions(RunData data, Context context)
 	{
+// TODO: replace with modern helper -ggolen
+/*
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		CalendarActionState cstate = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
@@ -6701,11 +6710,11 @@ extends VelocityPortletStateAction
 		state.setAttribute(PermissionsAction.STATE_MODE, PermissionsAction.MODE_MAIN);
 		
 		// schedule a main refresh
-/*		String toolId = PortalService.getCurrentToolId();
-		String address = clientWindowId(state, toolId);
-		String mainPanelId = mainPanelUpdateId(toolId);
-		CourierService.deliver(address, mainPanelId);
- */
+//		String toolId = PortalService.getCurrentToolId();
+//		String address = clientWindowId(state, toolId);
+//		String mainPanelId = mainPanelUpdateId(toolId);
+//		CourierService.deliver(address, mainPanelId);
+*/
 	} // doPermissions
 	
 	

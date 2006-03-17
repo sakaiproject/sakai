@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.calendar.api.CalendarService"
+			class="org.sakaiproject.calendar.impl.DbCalendarService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
+		<property name="memoryService"><ref bean="org.sakaiproject.service.framework.memory.MemoryService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.service.framework.sql.SqlService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/></property>
+ 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.service.framework.config.ServerConfigurationService"/></property>
+		<property name="idService"><ref bean="org.sakaiproject.service.legacy.id.IdService"/></property>
+ 		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
+ 		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+</beans>
