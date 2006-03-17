@@ -18,7 +18,7 @@
       <column name="TITLE" not-null="false" sql-type="varchar(255)" />
     </property>
     <property name="assessmentId">
-      <column name="ASSESSMENTID" not-null="false" sql-type="integer" />
+      <column name="ASSESSMENTID" not-null="false" sql-type="integer" index="SAM_PUBA_ASSESSMENT_I" />
     </property>
     <property name="description">
       <column name="DESCRIPTION" not-null="false" sql-type="varchar(4000)" />

@@ -13,10 +13,10 @@
     <many-to-one name="assessmentGrading" class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        column="ASSESSMENTGRADINGID" index="SAM_ASSESSMENTGRADING_I" not-null="true"/>
     <property name="publishedItemId">
-      <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" />
+      <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEM_I" />
     </property>
     <property name="publishedItemTextId">
-      <column name="PUBLISHEDITEMTEXTID" not-null="true" sql-type="integer" />
+      <column name="PUBLISHEDITEMTEXTID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEMTEXT_I" />
     </property>
     <property name="agentId">
       <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
@@ -29,7 +29,7 @@
        column="PUBLISHEDANSWERID" not-null="false"/>
 -->
     <property name="publishedAnswerId">
-      <column name="PUBLISHEDANSWERID" not-null="false" sql-type="integer" />
+      <column name="PUBLISHEDANSWERID" not-null="false" sql-type="integer" index="SAM_ITEMGRADING_PUBANS_I" />
     </property>
     <property name="rationale">
       <column name="RATIONALE" not-null="false" sql-type="varchar(4000)" />
