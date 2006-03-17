@@ -3,6 +3,36 @@ function setPanelId(thisid)
 {
   panelId = thisid;
 }
+function showHideDivBlock(hideDivisionNo, context)
+{
+  var tmpdiv = hideDivisionNo + "__hide_division_";
+  var tmpimg = hideDivisionNo + "__img_hide_division_";
+  var divisionNo = getTheElement(tmpdiv);
+  var imgNo = getTheElement(tmpimg);
+  if(divisionNo)
+  {
+    if(divisionNo.style.display =="block")
+    {
+      divisionNo.style.display="none";
+      if (imgNo)
+      {
+        imgNo.src = context + "/images/right_arrow.gif";
+       }
+    }
+    else
+    {
+      divisionNo.style.display="block";
+      if(imgNo)
+      {
+        imgNo.src = context + "/images/down_arrow.gif";
+      }
+    }
+    if(panelId != null)
+    {
+      setMainFrameHeight(panelId);
+    }
+  }
+}
 function showHideDiv(hideDivisionNo, context)
 {
   var tmpdiv = hideDivisionNo + "__hide_division_";
@@ -34,10 +64,6 @@ function showHideDiv(hideDivisionNo, context)
       {
         imgNo.src = context + "/images/down_arrow.gif";
       }
-    }
-    if(panelId != null)
-    {
-      setMainFrameHeight(panelId);
     }
   }
 }

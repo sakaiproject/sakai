@@ -91,9 +91,9 @@ public class HideDivisionRenderer extends Renderer
     writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
     writer.write("<tr><td nowrap=\"nowrap\" align=\"left\">");
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
-        title + "\"" + " onclick=\"javascript:showHideDiv('" + id +
+        title + "\"" + " onclick=\"javascript:showHideDivBlock('" + id +
         "', '" +  RESOURCE_PATH + "');\"");
-    writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" /&gt;");
+    writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" >");
     writer.write("  <b>" + title + "</b>");
     writer.write("</td><td width=\"100%\">&nbsp;</td>");
     writer.write("<td nowrap=\"nowrap\" align=\"right\">");
