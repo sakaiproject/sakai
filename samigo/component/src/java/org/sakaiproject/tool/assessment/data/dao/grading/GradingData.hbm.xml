@@ -11,7 +11,7 @@
       </generator>
     </id>
     <many-to-one name="assessmentGrading" class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
-       column="ASSESSMENTGRADINGID" not-null="true"/>
+       column="ASSESSMENTGRADINGID" index="SAM_ASSESSMENTGRADING_I" not-null="true"/>
     <property name="publishedItemId">
       <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" />
     </property>
@@ -64,7 +64,7 @@
       </generator>
     </id>
     <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
-       column="PUBLISHEDASSESSMENTID" not-null="true"/>
+       column="PUBLISHEDASSESSMENTID" index="SAM_PUBLISHEDASSESSMENT_I" not-null="true"/>
     <property name="agentId">
       <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
     </property>

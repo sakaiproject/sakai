@@ -12,7 +12,7 @@
     </id>
     <many-to-one name="section"
       class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData"
-      column="SECTIONID" not-null="true" />
+      column="SECTIONID" not-null="true" index="SAM_PUBITEM_SECTION_I" />
     <property name="itemIdString">
       <column name="ITEMIDSTRING" not-null="false" sql-type="varchar(36)" />
     </property>
@@ -83,7 +83,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" />
+      column="ITEMID" not-null="true" index="SAM_PUBITEMTEXT_ITEM_I" />
     <property name="sequence">
       <column name="SEQUENCE" not-null="true" sql-type="integer" />
     </property>
@@ -103,7 +103,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" />
+      column="ITEMID" not-null="true" index="SAM_PUBITEMMETA_ITEM_I" />
     <property name="label">
       <column name="LABEL" not-null="true" sql-type="varchar(255)" />
     </property>
@@ -119,7 +119,7 @@
       </generator>
     </id>
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="ITEMID" not-null="true" />
+      column="ITEMID" not-null="true" index="SAM_PUBITEMFB_ITEM_I" />
     <property name="typeId">
       <column name="TYPEID" not-null="true" sql-type="varchar(36)" />
     </property>
@@ -135,9 +135,9 @@
       </generator>
     </id>
     <many-to-one name="itemText" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText"
-      column="ITEMTEXTID" not-null="true" />
+      column="ITEMTEXTID" not-null="true" index="SAM_PUBANSWER_ITEMTEXT_I" />
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData"
-      column="itemId" not-null="true" />
+      column="ITEMID" not-null="true" index="SAM_PUBANSWER_ITEM_I" />
     <property name="text">
       <column name="TEXT" not-null="false" sql-type="varchar(4000)" />
     </property>
@@ -169,7 +169,7 @@
       </generator>
     </id>
     <many-to-one name="answer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
-       column="ANSWERID" not-null="true"/>
+       column="ANSWERID" not-null="true" index="SAM_PUBANSWERFB_ANSWER_I"/>
     <property name="typeId">
       <column name="TYPEID" not-null="false" sql-type="varchar(36)" />
     </property>
