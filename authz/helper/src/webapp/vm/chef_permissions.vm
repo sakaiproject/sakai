@@ -1,0 +1,59 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+
+	<div class="instruction">
+		$!description
+	</div>
+		<form action="#toolForm("$action")" method="post">
+			#if ($!roles)
+				<table class="listHier lines" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0">
+					<tr>
+						<th id="role">
+							$thelp.getString("per.rol")
+						</th>
+						#foreach($lock in $abilities)
+							<th id="$lock.substring($prefix.length())">$lock.substring($prefix.length())</th>
+						#end
+					</tr>
+					#foreach($role in $roles)
+						#set($myRole = $realm.getRole($role.Id))
+						#set($roleAbilities = $rolesAbilities.get($role.Id))
+						<tr>
+							<td headers="role">
+								$role.Id
+							</td>
+						#foreach($lock in $abilities)
+							<td headers="$lock.substring($prefix.length())" style="text-align: left;">
+								#if ($!hiddenLock.indexOf($lock) != -1 || ($lock == "site.viewRoster" && !$!editViewRoster))
+									## don't show checkbox for those roles
+								#else
+									#if($roleAbilities.contains($lock))
+										<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$thelp.getString("per.alrgra")" hspace="5" />
+									#else
+										<label for="$role.Id$lock" class="skip">$role.Id$lock</label>
+										<input type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if(($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))checked="checked"#end />
+									#end
+								#end
+							</td>
+						#end
+						</tr>
+					#end
+				</table>
+					<div class="act">
+						<input type="submit" name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" />
+						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" />
+					</div>
+			#else
+				<div class="alertMessage">$thelp.getString("per.alert")</div>
+				<div class="act">
+					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" />
+				</div>
+			#end
+		</form>
+	</div>
+
