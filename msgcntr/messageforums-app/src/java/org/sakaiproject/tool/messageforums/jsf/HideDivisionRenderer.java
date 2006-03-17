@@ -26,9 +26,9 @@ public class HideDivisionRenderer extends Renderer
   private static final String CURSOR;
 
   static {
-    RESOURCE_PATH = "/" + "sakai-jsf-resource";
-    FOLD_IMG_HIDE = RESOURCE_PATH + "/" +"hideDivision/images/right_arrow.gif";
-    FOLD_IMG_SHOW = RESOURCE_PATH + "/" +"hideDivision/images/down_arrow.gif";
+  	RESOURCE_PATH = "/" + "sakai-messageforums-tool";
+    FOLD_IMG_HIDE = RESOURCE_PATH + "/images/right_arrow.gif";
+    FOLD_IMG_SHOW = RESOURCE_PATH + "/images/down_arrow.gif";
     CURSOR = "cursor:pointer";
     /*ConfigurationResource cr = new ConfigurationResource();
      RESOURCE_PATH = "/" + cr.get("resources");

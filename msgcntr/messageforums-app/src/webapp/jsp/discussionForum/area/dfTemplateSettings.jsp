@@ -10,7 +10,6 @@
    <sakai:view>
                  
       <h:form id="revise">
-        <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_default_template_settings}" />
  		<div class="instruction">
   		  <h:outputText id="instruction"  value="#{msgs.cdfm_default_template_settings_instruction}"/>

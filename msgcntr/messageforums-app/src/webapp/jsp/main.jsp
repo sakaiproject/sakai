@@ -20,12 +20,23 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
   <sakai:view>
        <h:form id="msgForum">
-      	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
-  		<h:messages styleClass="alertMessage" id="errorMessages" layout="table" />  		
+				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+  			<h:messages styleClass="alertMessage" id="errorMessages" layout="table" />  		
   		  
   		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 
                         rendered="#{PrivateMessagesTool.pvtAreaEnabled || PrivateMessagesTool.instructor}">
+<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.api.kernel.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+
+%>
+<script language="javascript">
+  setPanelId('<%= org.sakaiproject.util.web.Web.escapeJavascript(thisId)%>');
+</script> 
           <%@include file="privateMsg/pvtArea.jsp"%>
         </mf:forumHideDivision>
         <%@include file="discussionForum/area/dfArea.jsp"%>

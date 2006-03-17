@@ -1,9 +1,15 @@
+var panelId;
+function setPanelId(thisid)
+{
+  panelId = thisid;
+}
 function showHideDiv(hideDivisionNo, context)
 {
   var tmpdiv = hideDivisionNo + "__hide_division_";
   var tmpimg = hideDivisionNo + "__img_hide_division_";
   var divisionNo = getTheElement(tmpdiv);
   var imgNo = getTheElement(tmpimg);
+
   if(divisionNo)
   {
     if(divisionNo.style.display =="block" || divisionNo.style.display =="table-row")
@@ -11,7 +17,7 @@ function showHideDiv(hideDivisionNo, context)
       divisionNo.style.display="none";
       if (imgNo)
       {
-        imgNo.src = context + "/images/expand.gif";
+        imgNo.src = context + "/images/right_arrow.gif";
       }
     }
     else
@@ -26,8 +32,13 @@ function showHideDiv(hideDivisionNo, context)
       }
       if(imgNo)
       {
-        imgNo.src = context + "/images/collapse.gif";
+        imgNo.src = context + "/images/down_arrow.gif";
       }
+    }
+    if(panelId != null)
+    {
+      setMainFrameHeight(panelId);
+      setFocus(focus_path);
     }
   }
 }
@@ -65,26 +76,26 @@ function getTheElement(thisid)
 
 function check(field)
  {
-	for (i = 0; i < field.length; i++) 
-	{
-		field[i].checked = true;
-	}
+    for (i = 0; i < field.length; i++) 
+    {
+        field[i].checked = true;
+    }
  }
 function unCheck(field)
 {
-	for (i = 0; i < field.length; i++) 
-	{
-		field[i].checked = false; 
-	}
+    for (i = 0; i < field.length; i++) 
+    {
+        field[i].checked = false; 
+    }
 }
 
 function toggleDisplay(obj) {
-	var el = document.getTheElement(obj);
-	if ( el.style.display != 'none' ) {
-		el.style.display = 'none';
-	}
-	else {
-		el.style.display = '';
-	}
-	
+    var el = document.getTheElement(obj);
+    if ( el.style.display != 'none' ) {
+        el.style.display = 'none';
+    }
+    else {
+        el.style.display = '';
+    }
+    
 }

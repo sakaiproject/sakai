@@ -11,7 +11,6 @@
       <h:form id="msgForum">
         <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
         <h:outputText value="#{msgs.pvt_message_nav}"/>
-      	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <%@include file="pvtArea.jsp"%>
       </h:form>
   </sakai:view>

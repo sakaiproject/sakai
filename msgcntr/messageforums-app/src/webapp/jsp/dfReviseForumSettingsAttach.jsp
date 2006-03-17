@@ -9,7 +9,6 @@
 <f:view>
    <sakai:view>
       <h:form id="revise">
-      <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
  			 <div class="instruction">
   			    <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}  #{msgs.cdfm_info_required_sign}"/>

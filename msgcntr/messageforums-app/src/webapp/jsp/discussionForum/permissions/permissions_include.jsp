@@ -8,6 +8,7 @@
 %>
 
 <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
+<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="true" >
 
@@ -20,6 +21,17 @@
     <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
   <f:verbatim><p/></f:verbatim>
   --%>
+<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.api.kernel.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+
+%>
+<script language="javascript">
+  setPanelId('<%= org.sakaiproject.util.web.Web.escapeJavascript(thisId)%>');
+</script>   
 
   <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
     <h:column>
