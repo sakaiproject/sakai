@@ -28,6 +28,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-session</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -35,6 +41,18 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-active-tool</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-function</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

@@ -1,4 +1,4 @@
-package org.sakaiproject.tool.helper;
+package org.sakaiproject.authz.tool;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.security.PermissionsHelper;
+import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.util.java.ResourceLoader;
 
 /**

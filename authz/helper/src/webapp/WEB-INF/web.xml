@@ -13,7 +13,7 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.schedule</servlet-name>
+        <servlet-name>sakai.permissions.helper</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -34,19 +34,19 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-    <servlet>
-        <servlet-name>
-           sakai.schedule
-        </servlet-name>
-        <servlet-class>
-            org.sakaiproject.calendar.tool.CalendarAction
-        </servlet-class>
-        <init-param>
-            <param-name>template</param-name>
-            <param-value>calendar/chef_calendar</param-value>            
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-     </servlet>
+   <servlet>
+       <servlet-name>
+          sakai.permissions.helper
+       </servlet-name>
+       <servlet-class>
+           org.sakaiproject.authz.tool.PermissionsHelperAction
+       </servlet-class>
+       <init-param>
+           <param-name>template</param-name>
+           <param-value>helper/chef_permissions</param-value>
+       </init-param>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
 
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>

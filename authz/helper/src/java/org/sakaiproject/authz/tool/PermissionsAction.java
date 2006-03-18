@@ -22,7 +22,7 @@
 **********************************************************************************/
 
 // package
-package org.sakaiproject.tool.helper;
+package org.sakaiproject.authz.tool;
 
 // imports
 import java.util.Collection;
