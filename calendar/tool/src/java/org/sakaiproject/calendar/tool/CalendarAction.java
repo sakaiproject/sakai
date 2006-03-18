@@ -36,18 +36,19 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.sakaiproject.util.java.ResourceLoader;
 import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletStateAction;
-import org.sakaiproject.cheftool.menu.Menu;
+import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.cheftool.menu.MenuItem;
+import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -77,17 +78,16 @@ import org.sakaiproject.service.legacy.time.TimeBreakdown;
 import org.sakaiproject.service.legacy.time.TimeRange;
 import org.sakaiproject.service.legacy.time.cover.TimeService;
 import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-//import org.sakaiproject.tool.content.ResourcesAction;
-//import org.sakaiproject.tool.helper.PermissionsAction;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.text.FormattedText;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderBase;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.java.ResourceLoader;
 import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.util.text.FormattedText;
 
 
 /**
@@ -2024,23 +2024,6 @@ extends VelocityPortletStateAction
 	{
 		CalendarActionState state = (CalendarActionState)getState(portlet, runData, CalendarActionState.class);
 		
-// TODO: restore as a modern helper -ggolden
-/*
-		// if we are in edit permissions...
-		String helperMode = (String) sstate.getAttribute(PermissionsAction.STATE_MODE);
-		if (helperMode != null)
-		{
-			String template = PermissionsAction.buildHelperContext(portlet, context, runData, sstate);
-			if (template == null)
-			{
-				addAlert(sstate, rb.getString("java.alert.thereisa"));
-			}
-			else
-			{
-				return template;
-			}
-		}
-*/
 		String template = (String)getContext(runData).get("template");
 		
 // TODO: restore as a modern helper -ggolden
@@ -6463,7 +6446,7 @@ extends VelocityPortletStateAction
 	boolean allow_modify_calendar_properties,
 	boolean allow_import)
 	{
-		Menu bar = new Menu(portlet, runData, "CalendarAction");
+		Menu bar = new MenuImpl(portlet, runData, "CalendarAction");
 		
 		String status = state.getState();
 		
@@ -6504,7 +6487,7 @@ extends VelocityPortletStateAction
 		//bar.add( new MenuEntry("Go home", null, true/* visible at all views */, MenuItem.CHECKED_NA, "doHome") );
 		
 		// 2nd menu bar for the PDF print only
-		Menu bar_PDF = new Menu(portlet, runData, "CalendarAction");
+		Menu bar_PDF = new MenuImpl(portlet, runData, "CalendarAction");
 		
 		String stateName = state.getState();
 		
@@ -6686,38 +6669,28 @@ extends VelocityPortletStateAction
 	 */
 	public void doPermissions(RunData data, Context context)
 	{
-// TODO: replace with modern helper -ggolen
-/*
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		CalendarActionState cstate = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), "sakai.permissions.helper");
+
+		// setup the parameters for the helper
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		CalendarActionState cstate = (CalendarActionState) getState(context, data, CalendarActionState.class);
+
 		String calendarRefStr = cstate.getPrimaryCalendarReference();
 		Reference calendarRef = EntityManager.newReference(calendarRefStr);
 		String siteRef = SiteService.siteReference(calendarRef.getContext());
-		
+
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsAction.STATE_REALM_ID, siteRef);
-		state.setAttribute(PermissionsAction.STATE_REALM_ROLES_ID, siteRef);
-		
+		state.setAttribute(PermissionsHelper.SITE_REF, siteRef);
+
 		// ... with this description
-		state.setAttribute(PermissionsAction.STATE_DESCRIPTION, rb.getString("java.set")
-		+ SiteService.getSiteDisplay(calendarRef.getContext()));
-		
+		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
+				+ SiteService.getSiteDisplay(calendarRef.getContext()));
+
 		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsAction.STATE_PREFIX, rb.getString("java.calendar"));
-		
-		// start the helper
-		state.setAttribute(PermissionsAction.STATE_MODE, PermissionsAction.MODE_MAIN);
-		
-		// schedule a main refresh
-//		String toolId = PortalService.getCurrentToolId();
-//		String address = clientWindowId(state, toolId);
-//		String mainPanelId = mainPanelUpdateId(toolId);
-//		CourierService.deliver(address, mainPanelId);
-*/
-	} // doPermissions
-	
-	
+		state.setAttribute(PermissionsHelper.PREFIX, "calendar.");
+	}
+
 	/**
 	 * Action doFrequency is requested when "set Frequency" button is clicked in new/revise page
 	 */
