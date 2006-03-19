@@ -69,6 +69,9 @@ import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.kernel.tool.Placement;
 // note: we should wrap above dependency in a backend service--esmiley
 
+import java.text.SimpleDateFormat;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+
 /**
  *
  * @author casong
@@ -192,6 +195,13 @@ public class DeliveryBean
   // this instance tracks if the Agent is taking a test via URL, as well as
   // current agent string (if assigned). SAK-1927: esmiley
   private AgentFacade deliveryAgent;
+
+  // lydial added for timezone conversion 
+  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
+
+  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+
+
 
   /**
    * Creates a new DeliveryBean object.
@@ -901,6 +911,25 @@ public class DeliveryBean
     return dueDate;
   }
 
+  public String getDueDateString()
+  {
+    String dateString = "";
+    if (dueDate == null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, dueDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace(System.out);
+    }
+    return dateString;
+  }
+
   public void setDueDate(java.util.Date dueDate)
   {
     this.dueDate = dueDate;
@@ -1006,6 +1035,25 @@ public class DeliveryBean
   public java.util.Date getSubmissionDate()
   {
     return submissionDate;
+  }
+
+  public String getSubmissionDateString()
+  {
+    String dateString = "";
+    if (submissionDate== null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, submissionDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace(System.out);
+    }
+    return dateString;
   }
 
   public void setSubmissionDate(java.util.Date submissionDate)
@@ -1811,6 +1859,25 @@ public class DeliveryBean
   public java.util.Date getFeedbackDate()
   {
     return feedbackDate;
+  }
+
+  public String getFeedbackDateString()
+  {
+    String dateString = "";
+    if (feedbackDate== null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace(System.out);
+    }
+    return dateString;
   }
 
   public void setFeedbackDate(java.util.Date feedbackDate)

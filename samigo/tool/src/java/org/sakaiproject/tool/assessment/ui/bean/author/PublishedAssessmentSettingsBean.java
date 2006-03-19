@@ -50,11 +50,13 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
   private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
+
 
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
@@ -74,6 +76,7 @@ public class PublishedAssessmentSettingsBean
 
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
 
+ 
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -630950053380808339L;
@@ -802,7 +805,11 @@ public class PublishedAssessmentSettingsBean
 
     try {
       log.warn("DATETIME=:" + date + ":");
-      dateString = displayFormat.format(date);
+      //dateString = displayFormat.format(date);
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, date);
+      System.out.println("getDisplayFormatFromDate dateSTring:" + dateString+ ":");
+
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -825,7 +832,11 @@ public class PublishedAssessmentSettingsBean
 
     try {
       log.warn("DATETIME=:" + dateString + ":");
-      date = (Date) displayFormat.parse(dateString);
+      //date = (Date) displayFormat.parse(dateString);
+      TimeUtil tu = new TimeUtil();
+      date = tu.getServerDateTime(displayFormat, dateString);
+      System.out.println("getDateFromDisplayFormat date =:" + date+ ":");
+
     }
     catch (Exception ex) {
       // we will leave it as a null date

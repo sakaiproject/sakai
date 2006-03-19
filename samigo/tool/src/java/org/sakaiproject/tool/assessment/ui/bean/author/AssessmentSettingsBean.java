@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 
 /**
  * @author rshastri
@@ -939,8 +940,11 @@ public class AssessmentSettingsBean
     }
 
     try {
-      log.warn("DATETIME=:" + date + ":");
-      dateString = displayFormat.format(date);
+      System.out.println("getDisplayFormatFromDate:  DATETIME=:" + date + ":");
+      //dateString = displayFormat.format(date);
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, date);
+      System.out.println("getDisplayFormatFromDate dateSTring:" + dateString+ ":");
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -958,12 +962,18 @@ public class AssessmentSettingsBean
   private Date getDateFromDisplayFormat(String dateString) {
     Date date = null;
     if (dateString == null || dateString.trim().equals("")) {
+      System.out.println("getDateFromDisplayFormat DATETIME=:" + dateString + ":");
+      System.out.println("getDateFromDisplayFormat DATE=:" + date + ":");
       return date;
     }
 
     try {
-      log.warn("DATETIME=:" + dateString + ":");
-      date = (Date) displayFormat.parse(dateString);
+      System.out.println("getDateFromDisplayFormat DATETIME=:" + dateString + ":");
+      //Date date= (Date) displayFormat.parse(dateString);
+// dateString is in client timezone, change it to server time zone
+      TimeUtil tu = new TimeUtil();
+      date = tu.getServerDateTime(displayFormat, dateString);
+      System.out.println("getDateFromDisplayFormat date =:" + date+ ":");
     }
     catch (Exception ex) {
       // we will leave it as a null date

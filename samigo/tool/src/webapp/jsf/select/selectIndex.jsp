@@ -139,11 +139,9 @@ sorting actions for table:
        </h:panelGroup>
       </f:facet>
       <h:outputText value="n/a" rendered="#{takeable.dueDate == null}" />
-      <h:outputText value="#{takeable.dueDate}" style="color: red;" rendered="#{takeable.pastDue}">
-        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
+      <h:outputText value="#{takeable.dueDateString}" style="color: red;" rendered="#{takeable.pastDue}">
       </h:outputText>
-      <h:outputText value="#{takeable.dueDate}" rendered="#{!takeable.pastDue}">
-        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}" />
+      <h:outputText value="#{takeable.dueDateString}" rendered="#{!takeable.pastDue}">
       </h:outputText>
     </h:column>
   </h:dataTable>
@@ -294,9 +292,8 @@ sorting actions for table:
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{reviewable.feedbackDate}" 
+      <h:outputText value="#{reviewable.feedbackDateString}" 
         rendered="#{reviewable.feedbackDelivery eq '2'}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}"  />
       </h:outputText>
       <h:outputText value="Immediate" 
         rendered="#{reviewable.feedbackDelivery eq '1'}" />
@@ -484,8 +481,7 @@ sorting actions for table:
         </h:panelGroup>
       </f:facet>
 
-      <h:outputText value="#{reviewable.submissionDate}" >
-        <f:convertDateTime pattern="#{genMsg.output_date_no_sec}"  />
+      <h:outputText value="#{reviewable.submissionDateString}" >
       </h:outputText>
     </h:column>
   </h:dataTable>
