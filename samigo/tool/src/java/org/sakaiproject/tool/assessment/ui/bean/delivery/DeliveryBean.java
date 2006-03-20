@@ -1686,16 +1686,20 @@ public class DeliveryBean
     setAssessmentGrading(adata);
 
     // 5. save AssessmentGardingData with ItemGardingData
+    /*
     Set itemDataSet = adata.getItemGradingSet();
     log.debug("***5a. addMediaToItemGrading, itemDataSet=" + itemDataSet);
     if (itemDataSet == null)
     {
       itemDataSet = new HashSet();
     }
+    */
+    // we don't need to update every itemGrading in assessmentGrading 
+    log.info("***5b. addMediaToItemGrading, saved=" + adata);
+    HashSet itemDataSet = new HashSet();
     itemDataSet.add(itemGradingData);
     adata.setItemGradingSet(itemDataSet);
     gradingService.saveOrUpdateAssessmentGrading(adata);
-    log.debug("***5b. addMediaToItemGrading, saved=" + adata);
 
     //if media is uploaded, create media record and attach to itemGradingData
     if (mediaIsValid())
