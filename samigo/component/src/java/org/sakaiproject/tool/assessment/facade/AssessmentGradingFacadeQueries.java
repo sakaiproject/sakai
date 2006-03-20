@@ -978,4 +978,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     getHibernateTemplate().deleteAll(c);
   }
 
+
+  public void saveOrUpdateAll(Collection c) {
+    try {
+        getHibernateTemplate().saveOrUpdateAll(c);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
 }

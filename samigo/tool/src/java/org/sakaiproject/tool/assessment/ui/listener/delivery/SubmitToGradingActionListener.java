@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -255,7 +256,8 @@ public class SubmitToGradingActionListener implements ActionListener
       // 1. add all the new itemgrading for MC/Survey and discard any
       // itemgrading for MC/Survey
       // 2. add any modified SAQ/TF/FIB/Matching/MCMR
-
+  
+      HashMap fibMap = getFIBMap(publishedAssessment);
       Set itemGradingSet = adata.getItemGradingSet();
       if (itemGradingSet!=null){
         itemGradingSet.removeAll(removes);
@@ -267,7 +269,10 @@ public class SubmitToGradingActionListener implements ActionListener
         while (iter.hasNext()){
           ((ItemGradingIfc)iter.next()).setAssessmentGrading(adata);
 	}
-        adata.setItemGradingSet(updateItemGradingSet(itemGradingSet, adds));
+        // make update to old item and insert new item
+        // and we will only update item that has been changed
+        HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap);
+        adata.setItemGradingSet(updateItemGradingSet);
       }
     }
     adata.setForGrade(new Boolean(delivery.getForGrade()));
@@ -275,32 +280,57 @@ public class SubmitToGradingActionListener implements ActionListener
     return adata;
   }
 
-  private Set updateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet){
+  private HashMap getFIBMap(PublishedAssessmentIfc publishedAssessment){
+    PublishedAssessmentService s = new PublishedAssessmentService();
+    return s.prepareFIBItemHash(publishedAssessment);
+  }
+
+  private HashSet getUpdateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet, HashMap fibMap){
+    HashSet updateItemGradingSet = new HashSet();
     HashSet h = new HashSet();
     Iterator iter = oldItemGradingSet.iterator();
     HashMap map = new HashMap();
-    while (iter.hasNext()){
+    while (iter.hasNext()){ // create a map with old itemGrading
       ItemGradingIfc item = (ItemGradingIfc) iter.next();
       map.put(item.getItemGradingId(), item);
     }
 
+    // go through new itemGrading
     Iterator iter1 = newItemGradingSet.iterator();
     while (iter1.hasNext()){
       ItemGradingIfc newItem = (ItemGradingIfc) iter1.next();
       ItemGradingIfc oldItem = (ItemGradingIfc)map.get(newItem.getItemGradingId());
-      if (oldItem != null){ // itemGrading exist, replace with new in this case
-        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-        oldItem.setRationale(newItem.getRationale());
-        oldItem.setAnswerText(newItem.getAnswerText());
-        oldItem.setSubmittedDate(new Date());
-        oldItem.setAutoScore(newItem.getAutoScore());
-        oldItem.setOverrideScore(newItem.getOverrideScore());
+      if (oldItem != null){ 
+        // itemGrading exists and value has been change, then need update
+        Long oldAnswerId = oldItem.getPublishedAnswerId(); 
+        Long newAnswerId = newItem.getPublishedAnswerId(); 
+        String oldRationale = oldItem.getRationale();
+        String newRationale = newItem.getRationale();
+        String oldAnswerText = oldItem.getAnswerText();
+        String newAnswerText = newItem.getAnswerText();
+        if ((oldAnswerId!=null && !oldAnswerId.equals(newAnswerId))
+            || (newAnswerId!=null && !newAnswerId.equals(oldAnswerId))
+            || (oldRationale!=null && !oldRationale.equals(newRationale))
+            || (newRationale!=null && !newRationale.equals(newRationale))
+            || (oldAnswerText!=null && !oldAnswerText.equals(newAnswerText))
+            || (newAnswerText!=null && !newAnswerText.equals(newAnswerText))
+            || fibMap.get(oldItem.getPublishedItemId())!=null){
+          oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
+          oldItem.setRationale(newItem.getRationale());
+          oldItem.setAnswerText(newItem.getAnswerText());
+          oldItem.setSubmittedDate(new Date());
+          oldItem.setAutoScore(newItem.getAutoScore());
+          oldItem.setOverrideScore(newItem.getOverrideScore());
+          updateItemGradingSet.add(oldItem);
+          System.out.println("**** SubmitToGrading: need update "+oldItem.getItemGradingId());
+	}
       }
       else {  // itemGrading from new set doesn't exist, add to set in this case
-        oldItemGradingSet.add(newItem);
+        System.out.println("**** SubmitToGrading: need add new item");
+        updateItemGradingSet.add(newItem);
       }
     }
-    return oldItemGradingSet;
+    return updateItemGradingSet;
   }
 
   /**

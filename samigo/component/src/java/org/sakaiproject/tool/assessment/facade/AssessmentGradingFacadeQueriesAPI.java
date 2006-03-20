@@ -144,4 +144,6 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void deleteAll(Collection c);
 
+  public void saveOrUpdateAll(Collection c);
+
 }

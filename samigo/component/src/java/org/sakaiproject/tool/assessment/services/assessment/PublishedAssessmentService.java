@@ -405,4 +405,19 @@ public class PublishedAssessmentService {
     return map;
   }
 
+  public HashMap prepareFIBItemHash(PublishedAssessmentIfc publishedAssessment){
+    HashMap map = new HashMap();
+    ArrayList sectionArray = publishedAssessment.getSectionArray();
+    for (int i=0;i<sectionArray.size(); i++){
+      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+      ArrayList itemArray = section.getItemArray();
+      for (int j=0;j<itemArray.size(); j++){
+        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+        if (item.getTypeId().equals(new Long(8))) // FIB question
+          map.put(item.getItemId(), item);
+      }
+    }
+    return map;
+  }
+
 }

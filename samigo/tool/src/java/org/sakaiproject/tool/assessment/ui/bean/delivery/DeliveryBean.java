@@ -1623,8 +1623,11 @@ public class DeliveryBean
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
       PublishedAssessmentService();
+    /*
     PublishedAssessmentFacade publishedAssessment = publishedService.
       getPublishedAssessment(assessmentId);
+    */
+    PublishedAssessmentFacade publishedAssessment = getPublishedAssessment();
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 

@@ -512,6 +512,7 @@ System.out.println("lydiatest updated in gradebook");
     }
   }
 
+
   public void updateItemScore(ItemGradingData gdata, float scoreDifference){
     try {
       AssessmentGradingData adata = load(gdata.getAssessmentGradingId().toString());
@@ -576,12 +577,13 @@ System.out.println("lydiatest updated in gradebook");
 	data.setSubmittedDate(new Date());
         setIsLate(data, pub);
       }
+      // note that this itemGradingSet is a partial set of answer submitted. it contains only 
+      // newly submitted answers, updated answers and FIB answers ('cos we need the old ones to
+      // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
       if (itemGradingSet == null)
-        itemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
-      log.debug("*******itemGrading size="+itemGradingSet.size());
+        itemGradingSet = new HashSet();
       Iterator iter = itemGradingSet.iterator();
-      //float totalAutoScore = 0;
 
       // fibAnswersMap contains a map of HashSet of answers for a FIB item,
       // key =itemid, value= HashSet of answers for each item.  
@@ -632,19 +634,6 @@ System.out.println("lydiatest updated in gradebook");
         itemGrading.setAutoScore(new Float(autoScore));
       }
 
-      /*
-      Set keySet = totalItems.keySet();
-      Iterator keyIter = keySet.iterator();
-      while(keyIter.hasNext())
-      {
-        float eachItemScore = ((Float) totalItems.get((Long)keyIter.next())).floatValue();
-        if(eachItemScore > 0)
-        {
-          totalAutoScore += eachItemScore;
-        }
-      }
-      */
-
       // what does the following address? daisyf
       iter = itemGradingSet.iterator();
       while(iter.hasNext())
@@ -659,11 +648,21 @@ System.out.println("lydiatest updated in gradebook");
           itemGrading.setAutoScore(new Float(0));
         }
       }
-      float totalAutoScore = getTotalAutoScore(itemGradingSet);
+
+      // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
+      // updated old answers and FIB answers ('cos we need the old answer to calculate the score for new
+      // ones). we need to be cheap, we don't want to update record that hasn't been
+      // changed. Yes, assessmentGrading's total score will be out of sync at this point, I am afraid. It
+      // would be in sync again once the whole method is completed sucessfully. 
+      saveOrUpdateAll(itemGradingSet);
+
+      // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
+      // whole assessment.
+      Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
+      float totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(new Float(totalAutoScore));
       System.out.println("**#1 total AutoScore"+totalAutoScore);
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
-
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
       throw ge;
@@ -671,6 +670,10 @@ System.out.println("lydiatest updated in gradebook");
       e.printStackTrace();
       throw new Error(e);
     }
+
+    // save#3: itemGradingSet has been saved above so just need to update assessmentGrading
+    // therefore setItemGradingSet as empty first - daisyf
+    data.setItemGradingSet(new HashSet());
     saveOrUpdateAssessmentGrading(data);
     notifyGradebookByScoringType(data, pub);
     System.out.println("**#2 total AutoScore"+data.getTotalAutoScore());
@@ -1053,6 +1056,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
        throw new Error(e);
      }
   }
+
+  public void saveOrUpdateAll(Collection c)
+  {
+    try {
+      PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().saveOrUpdateAll(c);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
 
 }
 

@@ -104,6 +104,7 @@ public class DeliveryActionListener
     {
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+      System.out.println("***DeliveryBean in deliveryListener = "+delivery);
       // a. set publishedId, note that id can be changed by isPreviewingMode()
       String id = getPublishedAssessmentId(delivery);
       String agent = getAgentString();
@@ -1410,6 +1411,7 @@ public class DeliveryActionListener
       try{
         publishedAssessment =
           (new PublishedAssessmentService()).getPublishedAssessment(id);
+	delivery.setPublishedAssessment(publishedAssessment);
       }
       catch(Exception e){
         log.warn(e.getMessage());

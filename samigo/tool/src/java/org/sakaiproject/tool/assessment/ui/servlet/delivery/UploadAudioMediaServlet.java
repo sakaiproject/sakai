@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
@@ -37,6 +38,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 
 /**
  * <p>Title: Samigo</p>
@@ -67,21 +71,30 @@ public class UploadAudioMediaServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
+    ServletContext context = super.getServletContext();
+    String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+    String mediaLocation = "";
     // writer for status message
     PrintWriter pw = res.getWriter();
     // default status message, if things go wrong
     String status = "Upload failure: empty media location.";
 
     // we get media location in assessmentXXX/questionXXX/agentId/audio.ext form
-    String mediaLocation = req.getParameter("media")+"/audio.au";
+    String mediaDir = req.getParameter("media");
 
     // test for nonemptiness first
-    if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
+    if (mediaDir != null && !(mediaDir.trim()).equals(""))
     {
+      File dir = new File(repositoryPath+"/"+mediaDir); 
+      if (!dir.exists())
+        dir.mkdirs();
+      System.out.println("*** directory exist="+dir.exists());
+      mediaLocation = repositoryPath+"/"+mediaDir+"/audio.au";
       ServletInputStream inputStream = null;
       FileOutputStream fileOutputStream = null;
       BufferedInputStream bufInputStream = null;
-      BufferedOutputStream bufOutputStream = null; int count = 0;
+      BufferedOutputStream bufOutputStream = null; 
+      int count = 0;
 
       try
       {
@@ -104,6 +117,7 @@ public class UploadAudioMediaServlet extends HttpServlet
             count++;
           }
         }
+        bufOutputStream.flush();
 
         // clean up
         bufOutputStream.close();
@@ -116,7 +130,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       }
       catch (Exception ex)
       {
-        status = "Upload failure: "+ mediaLocation +".  " + ex + ".";
+        status = "Upload failure: "+ mediaLocation +"/audio.au";
       }
 
       status = "Acknowleged: "  + count + " bytes.";
@@ -126,6 +140,7 @@ public class UploadAudioMediaServlet extends HttpServlet
 
     pw.println(status);
     res.flushBuffer();
+
   }
 
   private FileOutputStream getFileOutputStream(String mediaLocation){
