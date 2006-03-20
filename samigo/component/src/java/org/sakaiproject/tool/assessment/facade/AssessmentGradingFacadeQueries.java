@@ -703,16 +703,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public void updateAssessmentGrading(AssessmentGradingIfc assessment) {
     try {
-      Set itemGradingSet = assessment.getItemGradingSet();
-      Iterator iter = itemGradingSet.iterator();
-      while (iter.hasNext()){
-        ItemGradingData item = (ItemGradingData)iter.next();
-        if (item.getItemGradingId()!=null && item.getItemGradingId().longValue()>0)
-          getHibernateTemplate().update(item);
-        else
-          getHibernateTemplate().save(item);
-      }
-      assessment.setItemGradingSet(new HashSet());
       getHibernateTemplate().update((AssessmentGradingData)assessment);
     } catch (Exception e) {
       log.warn("problem updating assessmentGrading: "+e.getMessage());
