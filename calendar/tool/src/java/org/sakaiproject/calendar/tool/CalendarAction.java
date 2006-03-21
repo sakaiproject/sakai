@@ -49,6 +49,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -2026,33 +2027,6 @@ extends VelocityPortletStateAction
 		
 		String template = (String)getContext(runData).get("template");
 		
-// TODO: restore as a modern helper -ggolden
-/*
-		// String mode = (String) sstate.getAttribute(AttachmentAction.STATE_MODE);
-		String mode = (String) sstate.getAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
-		if (mode != null)
-		{
-			// if the mode is not done, defer to the ResourcesAction
-			if (!mode.equals(ResourcesAction.MODE_ATTACHMENT_DONE))
-			{
-				template = ResourcesAction.buildHelperContext(portlet, context, runData, sstate);
-				// template = AttachmentAction.buildHelperContext(portlet, context, runData, sstate);
-				return template;
-			}
-			
-			// when done, get the new attachments, (if null, there was no change)
-			List attachments = (List) sstate.getAttribute(ResourcesAction.STATE_ATTACHMENTS);
-			if (attachments != null)
-			{
-				state.setAttachments(attachments);
-			}
-			
-			// clean up
-			sstate.removeAttribute(ResourcesAction.STATE_MODE);
-			sstate.removeAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
-			sstate.removeAttribute(ResourcesAction.STATE_ATTACHMENTS);
-		}
-*/
 		String stateName = state.getState();
 		if (stateName == null) stateName = "";		
 		if ( stateName.equals(STATE_SCHEDULE_IMPORT) )
@@ -3654,16 +3628,21 @@ extends VelocityPortletStateAction
 	
 	public void doAttachments(RunData rundata, Context context)
 	{
-//TODO: restore as modern helper -ggolden
-/*
+		// get into helper mode with this helper tool
+		startHelper(rundata.getRequest(), "sakai.filepicker");
+
+		// setup the parameters for the helper
+		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+		CalendarActionState State = (CalendarActionState)getState( context, rundata, CalendarActionState.class );
+		
+		int houri;
+
+		/*
+ 		TODO: none of this old code seems to be needd now... -ggolden
+
 		CalendarActionState State = (CalendarActionState)getState( context, rundata, CalendarActionState.class );
 		String peid = ((JetspeedRunData)rundata).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)rundata).getPortletSessionState(peid);
-		
-		int houri;
-		// Data dataObj = null;
-		
-		// **************** changed for the new attachment editor **************************
 		
 		// setup... we'll use ResourcesAction's mode
 		// sstate.setAttribute(AttachmentAction.STATE_MODE, AttachmentAction.MODE_MAIN);
@@ -3686,10 +3665,6 @@ extends VelocityPortletStateAction
 		}
 		sstate.setAttribute(ResourcesAction.STATE_FROM_TEXT, stateFromText);
 		
-		// put a copy of the attachments into the state
-		
-		List attachments = State.getAttachments();
-		sstate.setAttribute(ResourcesAction.STATE_ATTACHMENTS, EntityManager.newReferenceList(attachments));
 		// whether there is already an attachment //%%%zqian
 		if (attachments.size() > 0)
 		{
@@ -3699,6 +3674,11 @@ extends VelocityPortletStateAction
 		{
 			sstate.setAttribute(ResourcesAction.STATE_HAS_ATTACHMENT_BEFORE, Boolean.FALSE);
 		}
+		*/
+
+		// put a the real attachments into the stats - let the helper update it directly if the user chooses to save their attachment editing.
+		List attachments = State.getAttachments();
+		state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
 
 		String hour = "";
 		hour = rundata.getParameters().getString("startHour");
@@ -3712,7 +3692,7 @@ extends VelocityPortletStateAction
 		dminute = rundata.getParameters().getString("duMinute");
 		String description = "";
 		description = rundata.getParameters().getString("description");
-		description = processFormattedTextFromBrowser(sstate, description);
+		description = processFormattedTextFromBrowser(state, description);
 		String month = "";
 		month = rundata.getParameters().getString("month");
 		
@@ -3775,7 +3755,7 @@ extends VelocityPortletStateAction
 		State.setNewData(State.getPrimaryCalendarReference(), title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 		
 		// **************** changed for the new attachment editor **************************
-*/
+
 	} // doAttachments
 	
 	
