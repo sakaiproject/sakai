@@ -170,7 +170,7 @@ public class StudentScoreUpdateListener
         data.setAssessmentGradingId(adata.getAssessmentGradingId());
       }
 
-      delegate.updateAssessmentGradingScore(adata);
+      delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
 
       log.info("Saved student scores.");
 

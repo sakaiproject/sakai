@@ -139,7 +139,7 @@ public class QuestionScoreUpdateListener
           if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
 	    data.setAutoScore(new Float(newAutoScore));
             data.setComments(ar.getComments());
-            delegate.updateItemScore(data, newAutoScore-oldAutoScore);
+            delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
 	  }
         }
       }

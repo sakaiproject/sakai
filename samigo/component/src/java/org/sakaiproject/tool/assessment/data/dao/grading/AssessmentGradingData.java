@@ -51,7 +51,7 @@ public class AssessmentGradingData
 
   private Long assessmentGradingId;
   private String agentId;
-  private PublishedAssessmentIfc publishedAssessment;
+    //private PublishedAssessmentIfc publishedAssessment;
   private Date submittedDate;
   private Boolean isLate;
   private Boolean forGrade;
@@ -108,12 +108,22 @@ public class AssessmentGradingData
   public void setAssessmentGradingId(Long assessmentGradingId) {
     this.assessmentGradingId = assessmentGradingId;
   }
+    /*
   public PublishedAssessmentIfc getPublishedAssessment() {
     return publishedAssessment;
   }
   public void setPublishedAssessment(PublishedAssessmentIfc publishedAssessment) {
     this.publishedAssessment = publishedAssessment;
   }
+    */
+
+  public Long getPublishedAssessmentId() {
+    return publishedAssessmentId;
+  }
+  public void setPublishedAssessmentId(Long publishedAssessmentId) {
+    this.publishedAssessmentId = publishedAssessmentId;
+  }
+
   public String getAgentId() {
     return agentId;
   }
@@ -230,13 +240,6 @@ public class AssessmentGradingData
   }
   public void setTimeElapsed(Integer timeElapsed) {
     this.timeElapsed = timeElapsed;
-  }
-
-  public Long getPublishedAssessmentId() {
-    return publishedAssessmentId;
-  }
-  public void setPublishedAssessmentId(Long publishedAssessmentId) {
-    this.publishedAssessmentId = publishedAssessmentId;
   }
 
   public int getTotalSubmitted() {

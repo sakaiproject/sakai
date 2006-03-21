@@ -128,7 +128,7 @@ public class GradingService
   }
 
 
-  public void saveTotalScores(ArrayList gdataList)
+  public void saveTotalScores(ArrayList gdataList, PublishedAssessmentIfc pub)
   {
       System.out.println("**** GradingService: saveTotalScores");
     try {
@@ -138,9 +138,9 @@ System.out.println("lydiatest savetotalscore. gdatalist size  = " + gdataList.si
         gdata = (AssessmentGradingData) gdataList.get(0);
       else return;
 
-      Integer scoringType = getScoringType(gdata);
+      Integer scoringType = getScoringType(pub);
       ArrayList oldList = getAssessmentGradingsByScoringType(
-          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+          scoringType, gdata.getPublishedAssessmentId());
 System.out.println("lydiatest savetotalscore. oldlist size  = " + oldList.size());
       for (int i=0; i<gdataList.size(); i++){
         AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
@@ -148,15 +148,14 @@ System.out.println("lydiatest savetotalscore. oldlist size  = " + oldList.size()
       }
 
       // no need to notify gradebook if this submission is not for grade
-      //if (updateGradebook(gdata)){
-        // we only want to notify GB when there are changes
-        ArrayList newList = getAssessmentGradingsByScoringType(
-          scoringType, gdata.getPublishedAssessment().getPublishedAssessmentId());
+      // we only want to notify GB when there are changes
+      ArrayList newList = getAssessmentGradingsByScoringType(
+        scoringType, gdata.getPublishedAssessmentId());
 System.out.println("lydiatest savetotalscore. newlist size  = " + newList.size());
-        ArrayList l = getListForGradebookNotification(newList, oldList);
+      ArrayList l = getListForGradebookNotification(newList, oldList);
 System.out.println("lydiatest savetotalscore. l size  = " + l.size());
-        PublishedAssessmentIfc pub = gdata.getPublishedAssessment();
-        notifyGradebook(l, pub);
+      
+      notifyGradebook(l, pub);
       //}
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
@@ -209,21 +208,21 @@ System.out.println("lydiatest savetotalscore. l size  = " + l.size());
     return l;
   }
 
-  private Integer getScoringType(AssessmentGradingIfc data){
+  private Integer getScoringType(PublishedAssessmentIfc pub){
     Integer scoringType = null;
-    EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
+    EvaluationModelIfc e = pub.getEvaluationModel();
     if ( e!=null ){
       scoringType = e.getScoringType();
     }
     return scoringType;
   }
 
-  private boolean updateGradebook(AssessmentGradingIfc data){
+  private boolean updateGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
     // no need to notify gradebook if this submission is not for grade
     boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
 
     boolean toGradebook = false;
-    EvaluationModelIfc e = data.getPublishedAssessment().getEvaluationModel();
+    EvaluationModelIfc e = pub.getEvaluationModel();
     if ( e!=null ){
       String toGradebookString = e.getToGradeBook();
       toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
@@ -513,7 +512,7 @@ System.out.println("lydiatest updated in gradebook");
   }
 
 
-  public void updateItemScore(ItemGradingData gdata, float scoreDifference){
+  public void updateItemScore(ItemGradingData gdata, float scoreDifference, PublishedAssessmentIfc pub){
     try {
       AssessmentGradingData adata = load(gdata.getAssessmentGradingId().toString());
       adata.setItemGradingSet(getItemGradingSet(adata.getAssessmentGradingId().toString()));
@@ -536,7 +535,7 @@ System.out.println("lydiatest updated in gradebook");
       adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
       saveOrUpdateAssessmentGrading(adata);
       if (scoreDifference != 0){
-        notifyGradebookByScoringType(adata, adata.getPublishedAssessment());
+        notifyGradebookByScoringType(adata, pub);
       }
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
@@ -820,19 +819,6 @@ System.out.println("lydiatest updated in gradebook");
     return answer.getScore().floatValue();
   }
 
-  private boolean updateGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
-    // no need to notify gradebook if this submission is not for grade
-    boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
-
-    boolean toGradebook = false;
-    EvaluationModelIfc e = pub.getEvaluationModel();
-    if ( e!=null ){
-      String toGradebookString = e.getToGradeBook();
-      toGradebook = toGradebookString.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString());
-    }
-    return (forGrade && toGradebook);
-  }
-
   public void notifyGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub) throws GradebookServiceException {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
@@ -1029,7 +1015,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /* Note:
    * assessmentGrading contains set of itemGrading that are not saved in the DB yet
    */
-  public void updateAssessmentGradingScore(AssessmentGradingData adata){
+  public void updateAssessmentGradingScore(AssessmentGradingIfc adata, PublishedAssessmentIfc pub){
     try {
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
@@ -1046,7 +1032,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         adata.setFinalScore(new Float(totalAutoScore+totalOverrideScore));
         saveOrUpdateAssessmentGrading(adata);
         if (scoreDifference != 0){
-          notifyGradebookByScoringType(adata, adata.getPublishedAssessment());
+          notifyGradebookByScoringType(adata, pub);
         }
      } catch (GradebookServiceException ge) {
        ge.printStackTrace();

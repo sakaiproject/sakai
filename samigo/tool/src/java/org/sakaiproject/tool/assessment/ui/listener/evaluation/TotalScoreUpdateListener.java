@@ -143,16 +143,12 @@ public class TotalScoreUpdateListener
 	    AssessmentGradingData data = new AssessmentGradingData();
             BeanUtils.copyProperties(data, agentResults);
 
-            String publishedId = bean.getPublishedId();
-	    PublishedAssessmentService pubassessmentService = new PublishedAssessmentService();
-    	    PublishedAssessmentFacade pubassessment = pubassessmentService.getPublishedAssessment(publishedId);
-
             data.setAgentId(agentResults.getIdString());
   	    data.setForGrade(new Boolean(true));
 	    data.setStatus(new Integer(1));
             data.setIsLate(new Boolean(false));
    	    data.setItemGradingSet(new HashSet());
-    	    data.setPublishedAssessment(pubassessment.getData());
+    	    data.setPublishedAssessmentId(new Long(bean.getPublishedId()));
 	    // tell hibernate this is a new record
     	    data.setAssessmentGradingId(new Long(0));
             data.setSubmittedDate(null);
@@ -168,7 +164,7 @@ public class TotalScoreUpdateListener
 
       GradingService delegate = new GradingService();
 
-      delegate.saveTotalScores(grading);
+      delegate.saveTotalScores(grading, bean.getPublishedAssessment());
       log.info("Saved total scores.");
       } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();

@@ -175,6 +175,7 @@ public class HistogramListener
       bean.setHasNav(cu.lookupParam("hasNav"));
 
       GradingService delegate = new GradingService();
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
       ArrayList scores = delegate.getTotalScores(publishedId, which);
       HashMap itemscores = delegate.getItemScores(new Long(publishedId),
         new Long(0), which);
@@ -187,19 +188,17 @@ public class HistogramListener
         return false;
       Object next = iter.next();
       AssessmentGradingData data = (AssessmentGradingData) next;
-
-      if (data.getPublishedAssessment() != null)
+      PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService.getPublishedAssessment(data.getPublishedAssessmentId().toString());
+      if (pub != null)
       {
-        assessmentName = data.getPublishedAssessment().getTitle();
+        assessmentName = pub.getTitle();
         log.info("ASSESSMENT NAME= " + assessmentName);
         // if section set is null, initialize it - daisyf , 01/31/05
-        PublishedAssessmentData pub = (PublishedAssessmentData)data.getPublishedAssessment();
         HashSet sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
-        data.getPublishedAssessment().setSectionSet(sectionSet);
+        pub.setSectionSet(sectionSet);
 
-        ArrayList parts =
-          data.getPublishedAssessment().getSectionArraySorted();
+        ArrayList parts = pub.getSectionArraySorted();
         ArrayList info = new ArrayList();
         Iterator piter = parts.iterator();
         int secseq = 1;
@@ -247,12 +246,12 @@ public class HistogramListener
             qbean.setQuestionType(item.getTypeId().toString());
             //totalpossible = totalpossible + item.getScore().doubleValue();
             ArrayList responses = null;
-            determineResults(data.getPublishedAssessment(), qbean, (ArrayList) itemscores.get
+            determineResults(pub, qbean, (ArrayList) itemscores.get
               (item.getItemId()));
             qbean.setTotalScore(item.getScore().toString());
             info.add(qbean);
           }
-          totalpossible = data.getPublishedAssessment().getTotalScore().doubleValue();
+          totalpossible = pub.getTotalScore().doubleValue();
           
         }
         bean.setInfo(info);

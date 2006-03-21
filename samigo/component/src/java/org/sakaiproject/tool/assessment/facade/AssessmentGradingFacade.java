@@ -46,7 +46,6 @@ public class AssessmentGradingFacade
 
   private Long assessmentGradingId;
   private String agentId;
-  private PublishedAssessmentIfc publishedAssessment;
   private Date submittedDate;
   private Boolean isLate;
   private Boolean forGrade;
@@ -71,7 +70,6 @@ public class AssessmentGradingFacade
 
   public AssessmentGradingFacade(AssessmentGradingData data) {
     this.assessmentGradingId = data.getAssessmentGradingId();
-    this.publishedAssessment = data.getPublishedAssessment();
     this.agentId = data.getAgentId();
     this.publishedAssessmentId = data.getPublishedAssessmentId();
     this.publishedAssessmentTitle = data.getPublishedAssessmentTitle();
@@ -98,12 +96,12 @@ public class AssessmentGradingFacade
     this.assessmentGradingId = assessmentGradingId;
   }
 
-  public PublishedAssessmentIfc getPublishedAssessment() {
-    return publishedAssessment;
+  public Long getPublishedAssessmentId() {
+    return publishedAssessmentId;
   }
 
-  public void setPublishedAssessment(PublishedAssessmentIfc publishedAssessment) {
-    this.publishedAssessment = publishedAssessment;
+  public void setPublishedAssessmentId(Long publishedAssessmentId) {
+    this.publishedAssessmentId = publishedAssessmentId;
   }
 
   public String getAgentId() {
@@ -256,14 +254,6 @@ public class AssessmentGradingFacade
 
   public void setTimeElapsed(Integer timeElapsed) {
     this.timeElapsed = timeElapsed;
-  }
-
-  public Long getPublishedAssessmentId() {
-    return publishedAssessmentId;
-  }
-
-  public void setPublishedAssessmentId(Long publishedAssessmentId) {
-    this.publishedAssessmentId = publishedAssessmentId;
   }
 
   public String getPublishedAssessmentTitle()

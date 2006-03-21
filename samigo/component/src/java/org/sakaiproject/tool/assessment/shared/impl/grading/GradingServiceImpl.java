@@ -88,13 +88,13 @@ public class GradingServiceImpl implements GradingServiceAPI
    * Save the total scores.
    * @param data List of AssessmentGradingDataIfcs
    */
-  public void saveTotalScores(List data)
+  public void saveTotalScores(List data, PublishedAssessmentIfc pub)
   {
     try
     {
       GradingService service = new GradingService();
       ArrayList list = new ArrayList(data);
-      service.saveTotalScores(list);
+      service.saveTotalScores(list, pub);
     }
     catch (Exception ex)
     {

@@ -669,7 +669,7 @@ public class PublishedAssessmentFacadeQueries
 
   public Integer getNumberOfSubmissions(String publishedAssessmentId,
                                         String agentId) {
-    String query = "select count(a) from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? and a.agentId=? and a.forGrade=?";
+    String query = "select count(a) from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=?";
     Object[] objects = new Object[3];
     objects[0] = new Long(publishedAssessmentId);
     objects[1] = agentId;
@@ -684,9 +684,9 @@ public class PublishedAssessmentFacadeQueries
 
   public List getNumberOfSubmissionsOfAllAssessmentsByAgent(String agentId) {
     String query = "select new AssessmentGradingData(" +
-        " a.publishedAssessment.publishedAssessmentId, count(a)) " +
+        " a.publishedAssessmentId, count(a)) " +
         " from AssessmentGradingData as a where a.agentId=? and a.forGrade=?" +
-        " group by a.publishedAssessment.publishedAssessmentId";
+        " group by a.publishedAssessmentId";
     Object[] objects = new Object[2];
     objects[0] = agentId;
     objects[1] = new Boolean(true);
@@ -704,7 +704,7 @@ public class PublishedAssessmentFacadeQueries
     ArrayList newlist = new ArrayList();
     for (int i = 0; i < publishedIds.size(); i++) {
       String publishedId = ( (Long) publishedIds.get(i)).toString();
-      String query = "from AssessmentGradingData a where a.publishedAssessment.publishedAssessmentId=? order by agentId ASC," +
+      String query = "from AssessmentGradingData a where a.publishedAssessmentId=? order by agentId ASC," +
           orderBy;
       if (ascending) {
         query += " asc,";
@@ -805,8 +805,8 @@ public class PublishedAssessmentFacadeQueries
     // if AssessmentGradingData exist, simply set pub assessment to inactive
     // else delete assessment
     List count = getHibernateTemplate().find(
-        "select count(g) from AssessmentGradingData g where g.publishedAssessment=?",
-        assessment);
+        "select count(g) from AssessmentGradingData g where g.publishedAssessmentId=?",
+        assessment.getPublishedAssessmentId());
     log.debug("no. of Assessment Grading =" + count.size());
     Iterator iter = count.iterator();
     int i = ( (Integer) iter.next()).intValue();
@@ -939,7 +939,7 @@ public class PublishedAssessmentFacadeQueries
    * initialize it myself. I will take a look at it again next year.
    * - daisyf (12/13/04)
    */
-  public HashSet getSectionSetForAssessment(PublishedAssessmentData assessment) {
+  public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
     List sectionList = getHibernateTemplate().find(
         "from PublishedSectionData s where s.assessment.publishedAssessmentId=" +
         assessment.getPublishedAssessmentId());
@@ -1043,7 +1043,7 @@ public class PublishedAssessmentFacadeQueries
         " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate," +
         " a.timeElapsed) " +
         " from AssessmentGradingData a, PublishedAssessmentData p" +
-        " where a.publishedAssessment = p  and a.forGrade=1 and a.agentId=?" +
+        " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?" +
         " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
     /* The sorting for each type will be done in the action listener.
@@ -1106,7 +1106,7 @@ public class PublishedAssessmentFacadeQueries
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId) {
     String query =
         "select count(a) from AssessmentGradingData a where a.forGrade=1 " +
-        " and a.agentId=? and a.publishedAssessment.publishedAssessmentId=?";
+        " and a.agentId=? and a.publishedAssessmentId=?";
     List l = getHibernateTemplate().find(query,
                                          new Object[] {agentId,
                                          publishedAssessmentId}

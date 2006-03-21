@@ -24,8 +24,6 @@ package org.sakaiproject.tool.assessment.data.ifc.grading;
 import java.util.Date;
 import java.util.Set;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-
 public interface AssessmentGradingIfc
     extends java.io.Serializable{
 
@@ -33,9 +31,9 @@ public interface AssessmentGradingIfc
 
   void setAssessmentGradingId(Long assessmentGradingId);
 
-  PublishedAssessmentIfc getPublishedAssessment();
+  Long getPublishedAssessmentId();
 
-  void setPublishedAssessment(PublishedAssessmentIfc publishedAssessment);
+  void setPublishedAssessmentId(Long publishedAssessmentId);
 
   String getAgentId();
 

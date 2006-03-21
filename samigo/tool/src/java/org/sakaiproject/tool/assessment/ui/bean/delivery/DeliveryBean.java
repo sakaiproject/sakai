@@ -1636,7 +1636,7 @@ public class DeliveryBean
     {
       adata = new AssessmentGradingData();
       adata.setAgentId(agent);
-      adata.setPublishedAssessment(publishedAssessment.getData());
+      adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
       log.debug("***1a. addMediaToItemGrading, getForGrade()=" + getForGrade());
       adata.setForGrade(new Boolean(getForGrade()));
       adata.setAttemptDate(getBeginTime());

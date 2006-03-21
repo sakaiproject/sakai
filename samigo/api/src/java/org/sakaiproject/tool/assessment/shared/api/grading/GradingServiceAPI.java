@@ -54,7 +54,7 @@ public interface GradingServiceAPI
    * Save the total scores.
    * @param data List of AssessmentGradingDataIfcs
    */
-  public void saveTotalScores(List data);
+  public void saveTotalScores(List data, PublishedAssessmentIfc pub);
 
   /**
    * Save the item scores.

@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 public interface PublishedAssessmentFacadeQueriesAPI
 {
@@ -220,7 +221,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * initialize it myself. I will take a look at it again next year.
    * - daisyf (12/13/04)
    */
-  public HashSet getSectionSetForAssessment(PublishedAssessmentData assessment);
+  public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment);
 
   // IMPORTANT:
   // 1. we do not want any Section info, so set loadSection to false

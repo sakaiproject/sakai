@@ -357,7 +357,7 @@ public class SubmitToGradingActionListener implements ActionListener
     adata.setAgentId(person.getId());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     adata.setItemGradingSet(itemGradingHash);
-    adata.setPublishedAssessment(publishedAssessment.getData());
+    adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
     return adata;
   }
 

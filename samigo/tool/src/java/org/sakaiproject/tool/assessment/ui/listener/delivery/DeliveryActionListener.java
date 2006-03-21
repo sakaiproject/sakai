@@ -1569,7 +1569,7 @@ public class DeliveryActionListener
                                 PublishedAssessmentFacade publishedAssessment){
     AssessmentGradingData adata = new AssessmentGradingData();
     adata.setAgentId(getAgentString());
-    adata.setPublishedAssessment(publishedAssessment.getData());
+    adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
     adata.setForGrade(Boolean.FALSE);
     adata.setAttemptDate(new Date());
     adata.setIsLate(Boolean.FALSE);

@@ -68,8 +68,14 @@
         <param name="sequence">SAM_ASSESSMENTGRADING_ID_S</param>
       </generator>
     </id>
+<!--
     <many-to-one name="publishedAssessment" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData"
        column="PUBLISHEDASSESSMENTID" index="SAM_PUBLISHEDASSESSMENT_I" not-null="true"/>
+-->
+    <property name="publishedAssessmentId">
+      <column name="PUBLISHEDASSESSMENTID" not-null="true" 
+              sql-type="integer" index="SAM_PUBLISHEDASSESSMENT_I" />
+    </property>
     <property name="agentId">
       <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
     </property>

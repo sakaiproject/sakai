@@ -45,8 +45,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentD
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
@@ -159,10 +161,11 @@ System.out.println("lydiatest userroles size = " + userRoles.keySet().size());
       // information and a pointer to the graded assessment we should be
       // displaying.  We get the graded assessment.
       AssessmentGradingData data = (AssessmentGradingData) next;
-
-      if (data.getPublishedAssessment() != null)
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
+      PublishedAssessmentIfc pub = (PublishedAssessmentIfc) pubService.getPublishedAssessment(data.getPublishedAssessmentId().toString());
+      if (pub != null)
       {
-        bean.setAssessmentName(data.getPublishedAssessment().getTitle());
+        bean.setAssessmentName(pub.getTitle());
       }
 
       if (cu.lookupParam("roleSelection") != null)

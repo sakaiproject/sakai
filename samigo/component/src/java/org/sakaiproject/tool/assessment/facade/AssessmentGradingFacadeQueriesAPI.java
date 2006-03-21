@@ -126,7 +126,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);
 
-  public void setIsLate(AssessmentGradingIfc assessment);
+    //public void setIsLate(AssessmentGradingIfc assessment);
 
   public List getAssessmentGradingIds(Long publishedItemId);
 

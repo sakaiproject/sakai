@@ -24,15 +24,15 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.services.assessment.
-  PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.api.kernel.tool.Tool;
 import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.
-  PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.spring.SpringBeanLocator;
 
@@ -176,17 +176,18 @@ public void removeExternalAssessment(String gradebookUId,
   {
     boolean testErrorHandling=false;
     log.info("GradebookService instance=" + g);
-    PublishedAssessmentService publishedAssessmentService = new
-      PublishedAssessmentService();
-    String gradebookUId =
-      publishedAssessmentService.getPublishedAssessmentOwner(
-        ag.getPublishedAssessment().getPublishedAssessmentId());
+    PublishedAssessmentService pubService = new PublishedAssessmentService();
+    GradingService gradingService = new GradingService();
+    PublishedAssessmentIfc pub = (PublishedAssessmentIfc) gradingService.getPublishedAssessmentByAssessmentGradingId(ag.getAssessmentGradingId().toString());
+
+    String gradebookUId = pubService.getPublishedAssessmentOwner(
+        pub.getPublishedAssessmentId());
     if (gradebookUId == null)
     {
       return;
     }
     g.updateExternalAssessmentScore(gradebookUId,
-      ag.getPublishedAssessment().getPublishedAssessmentId().toString(),
+      ag.getPublishedAssessmentId().toString(),
       ag.getAgentId(), new Double(ag.getFinalScore().doubleValue()));
     if (testErrorHandling){
       throw new Exception("Encountered an error in update ExternalAssessmentScore.");
