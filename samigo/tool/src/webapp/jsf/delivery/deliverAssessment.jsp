@@ -230,17 +230,52 @@ function saveTime()
       onclick="pauseTiming='false'"/>
   </h:panelGroup>
 
+<script language="javascript" style="text/JavaScript">
+<!--
+var submitClicked = 'false';
+var saveClicked = 'false';
+var saveClicked2 = 'false';
+
+function toggleSubmit(){
+  if (submitClicked == 'false'){
+    submitClicked = 'true'
+  }
+  else{ // any subsequent click disable button & action
+    document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
+  }
+}
+
+function toggleSave(){
+  if (saveClicked == 'false'){
+    saveClicked = 'true'
+  }
+  else{ // any subsequent click disable button & action
+    document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
+  }
+}
+
+function toggleSave2(){
+  if (saveClicked2 == 'false'){
+    saveClicked2 = 'true'
+  }
+  else{ // any subsequent click disable button & action
+    document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
+  }
+}
+//-->
+</script>
+
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'"/>
+    onclick="pauseTiming='false'; toggleSubmit();"/>
 
   <h:commandButton type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && delivery.continue}"  
-    onclick="pauseTiming='false'" 
+    onclick="pauseTiming='false'; toggleSave();" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <h:commandButton type="submit" value="#{msg.button_quit}"
@@ -252,6 +287,7 @@ function saveTime()
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && (delivery.navigation eq '1'|| ! delivery.continue)}"
+    onclick="toggleSave2();"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 
 </p>
