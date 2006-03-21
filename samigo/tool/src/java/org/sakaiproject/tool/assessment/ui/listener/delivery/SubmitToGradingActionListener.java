@@ -258,6 +258,7 @@ public class SubmitToGradingActionListener implements ActionListener
       // 2. add any modified SAQ/TF/FIB/Matching/MCMR
   
       HashMap fibMap = getFIBMap(publishedAssessment);
+      HashMap mcmrMap = getMCMRMap(publishedAssessment);
       Set itemGradingSet = adata.getItemGradingSet();
       if (itemGradingSet!=null){
         itemGradingSet.removeAll(removes);
@@ -267,11 +268,11 @@ public class SubmitToGradingActionListener implements ActionListener
 
         Iterator iter = adds.iterator();
         while (iter.hasNext()){
-          ((ItemGradingIfc)iter.next()).setAssessmentGrading(adata);
+          ((ItemGradingIfc)iter.next()).setAssessmentGradingId(adata.getAssessmentGradingId());
 	}
         // make update to old item and insert new item
         // and we will only update item that has been changed
-        HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap);
+        HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap, mcmrMap);
         adata.setItemGradingSet(updateItemGradingSet);
       }
     }
@@ -285,7 +286,13 @@ public class SubmitToGradingActionListener implements ActionListener
     return s.prepareFIBItemHash(publishedAssessment);
   }
 
-  private HashSet getUpdateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet, HashMap fibMap){
+  private HashMap getMCMRMap(PublishedAssessmentIfc publishedAssessment){
+    PublishedAssessmentService s = new PublishedAssessmentService();
+    return s.prepareMCMRItemHash(publishedAssessment);
+  }
+
+  private HashSet getUpdateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet, 
+                                          HashMap fibMap, HashMap mcmrMap){
     HashSet updateItemGradingSet = new HashSet();
     HashSet h = new HashSet();
     Iterator iter = oldItemGradingSet.iterator();
@@ -314,7 +321,8 @@ public class SubmitToGradingActionListener implements ActionListener
             || (newRationale!=null && !newRationale.equals(newRationale))
             || (oldAnswerText!=null && !oldAnswerText.equals(newAnswerText))
             || (newAnswerText!=null && !newAnswerText.equals(newAnswerText))
-            || fibMap.get(oldItem.getPublishedItemId())!=null){
+            || fibMap.get(oldItem.getPublishedItemId())!=null
+            || mcmrMap.get(oldItem.getPublishedItemId())!=null){
           oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
           oldItem.setRationale(newItem.getRationale());
           oldItem.setAnswerText(newItem.getAnswerText());

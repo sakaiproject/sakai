@@ -211,7 +211,8 @@ public class QuestionScoreListener
         {
           // AssessmentGradingData data = (AssessmentGradingData) allscores_iter.next();
           ItemGradingData idata = (ItemGradingData) allscores_iter.next();
-          String agentid = idata.getAssessmentGrading().getAgentId();
+          //String agentid = idata.getAssessmentGrading().getAgentId();
+          String agentid = idata.getAgentId();
           // now we only include scores of users belong to the selected sections
           if (useridMap.containsKey(agentid) ) {
             scores.add(idata);
@@ -246,7 +247,7 @@ public class QuestionScoreListener
         AnswerIfc pubAnswer = (AnswerIfc) publishedAnswerHash.get(idata.getPublishedAnswerId());
 
         ArrayList temp = (ArrayList) scoresByItem.get
-          (idata.getAssessmentGrading().getAssessmentGradingId() + ":" +
+          (idata.getAssessmentGradingId() + ":" +
             idata.getPublishedItemId());
         if (temp == null)
           temp = new ArrayList();
@@ -276,7 +277,7 @@ public class QuestionScoreListener
         }
         if (!added)
           newList.add(idata);
-        scoresByItem.put(idata.getAssessmentGrading().getAssessmentGradingId()
+        scoresByItem.put(idata.getAssessmentGradingId()
          + ":" + idata.getPublishedItemId(), newList);
       }
       bean.setScoresByItem(scoresByItem);
@@ -484,8 +485,7 @@ public class QuestionScoreListener
           else
           {
             results.setItemGradingId(gdata.getItemGradingId());
-            results.setAssessmentGradingId(gdata.getAssessmentGrading()
-              .getAssessmentGradingId());
+            results.setAssessmentGradingId(gdata.getAssessmentGradingId());
             results.setTotalAutoScore(gdata.getAutoScore().toString());
             results.setComments(gdata.getComments());
             results.setAnswer(answerText);

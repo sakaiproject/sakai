@@ -499,7 +499,7 @@ System.out.println("lydiatest updated in gradebook");
 
           // Now we can move on.
           saveItemGrading(gdata);
-          storeGrades(gdata.getAssessmentGrading(), true, pub);
+          storeGrades(load(gdata.getAssessmentGradingId().toString()), true, pub);
         }
       }
     } 
@@ -578,7 +578,7 @@ System.out.println("lydiatest updated in gradebook");
         setIsLate(data, pub);
       }
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
-      // newly submitted answers, updated answers and FIB answers ('cos we need the old ones to
+      // newly submitted answers, updated answers and MCMR/FIB answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
       if (itemGradingSet == null)
@@ -605,7 +605,7 @@ System.out.println("lydiatest updated in gradebook");
         float autoScore = (float) 0;
         if (!regrade)
         {
-          itemGrading.setAssessmentGrading(data);
+          itemGrading.setAssessmentGradingId(data.getAssessmentGradingId());
           itemGrading.setSubmittedDate(new Date());
           itemGrading.setAgentId(agent);
           itemGrading.setOverrideScore(new Float(0));
@@ -1067,7 +1067,16 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     }
   }
 
-
+  public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(String id){
+    PublishedAssessmentIfc pub = null;
+    try {
+      pub = PersistenceService.getInstance().
+        getAssessmentGradingFacadeQueries().getPublishedAssessmentByAssessmentGradingId(new Long(id));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return pub;
+  }
 }
 
 

@@ -243,12 +243,12 @@ public class DeliveryActionListener
     AssessmentGradingData agrading = null;
     Iterator keys = itemGradingHash.keySet().iterator();
     // for each publishedItem, looks like we are getting the 1st itemGradingData
+    GradingService gradingService = new GradingService();
     if (keys.hasNext()) 
     {
       ItemGradingData igd = (ItemGradingData) ( (ArrayList) itemGradingHash.get(
         keys.next())).toArray()[0];
-      AssessmentGradingData agd = (AssessmentGradingData) igd.getAssessmentGrading();
-      GradingService gradingService = new GradingService();
+      AssessmentGradingData agd = gradingService.load(igd.getAssessmentGradingId().toString());
       agd.setItemGradingSet(gradingService.getItemGradingSet(agd.getAssessmentGradingId().toString()));
       if (!agd.getForGrade().booleanValue()){
         log.debug("setAssessmentGradingFromItemData agd.getTimeElapsed(): " + agd.getTimeElapsed());

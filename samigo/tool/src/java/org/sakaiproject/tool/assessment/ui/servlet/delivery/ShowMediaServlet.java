@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -85,18 +86,11 @@ public class ShowMediaServlet extends HttpServlet
     String agentIdString = getAgentString(req, res);
     String currentSiteId="";
     if (mediaData != null){
-      currentSiteId = mediaData.getItemGradingData().getAssessmentGrading().getPublishedAssessment().getOwnerSiteId();
+      Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
+      PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
+      if (pub!=null)
+        currentSiteId = pub.getOwnerSiteId();
     }
-
-    /* daisy commented out - I don't think these are necessary anymore  
-    else{
-      currentSiteId = AgentFacade.getCurrentSiteId();
-    }
-    //cwen
-    if((currentSiteId == null) || (currentSiteId.equals(""))){
-      currentSiteId = req.getParameter("sam_fileupload_siteId");
-    }
-    */
 
     // some log checking
     log.info("agentIdString ="+agentIdString);

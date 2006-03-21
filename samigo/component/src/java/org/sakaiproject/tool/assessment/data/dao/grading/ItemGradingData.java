@@ -99,6 +99,7 @@ public class ItemGradingData
     this.assessmentGradingId = assessmentGradingId;
   }
 
+    /*
   public AssessmentGradingIfc getAssessmentGrading() {
     return assessmentGrading;
   }
@@ -106,7 +107,7 @@ public class ItemGradingData
     this.assessmentGrading = assessmentGrading;
     setAssessmentGradingId(assessmentGrading.getAssessmentGradingId());
   }
-
+    */
     /*
   public ItemDataIfc getPublishedItem() {
     return publishedItem;

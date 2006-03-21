@@ -34,6 +34,10 @@ public interface ItemGradingIfc
 
   void setItemGradingId(Long itemGradingId);
 
+  Long getAssessmentGradingId();
+
+  void setAssessmentGradingId(Long assessmentGradingId);
+
   Long getPublishedItemId();
 
   void setPublishedItemId(Long publishedItemId);
@@ -42,10 +46,11 @@ public interface ItemGradingIfc
 
   void setPublishedItemTextId(Long publishedItemTextId);
 
+    /*
   AssessmentGradingIfc getAssessmentGrading();
 
   void setAssessmentGrading(AssessmentGradingIfc assessmentGrading);
-
+    */
     /*
   ItemDataIfc getPublishedItem();
 

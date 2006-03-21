@@ -437,12 +437,12 @@ public class HistogramListener
         if (num == null)
           num = new Integer(0);
 
-    	  ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGrading().getAssessmentGradingId());
+    	  ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGradingId());
           if (studentResponseList==null) {
     	    studentResponseList = new ArrayList();
           }
           studentResponseList.add(data);
-          numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
+          numStudentRespondedMap.put(data.getAssessmentGradingId(), studentResponseList);
         // we found a response, and got the  existing num , now update one
         if (qbean.getQuestionType().equals("8"))
         {
@@ -688,12 +688,12 @@ if (answer != null)
           num = new Integer(0);
 
 
-        ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGrading().getAssessmentGradingId());
+        ArrayList studentResponseList = (ArrayList)numStudentRespondedMap.get(data.getAssessmentGradingId());
         if (studentResponseList==null) {
             studentResponseList = new ArrayList();
         }
         studentResponseList.add(data);
-        numStudentRespondedMap.put(data.getAssessmentGrading().getAssessmentGradingId(), studentResponseList);
+        numStudentRespondedMap.put(data.getAssessmentGradingId(), studentResponseList);
 
         if (answer.getIsCorrect() != null && answer.getIsCorrect().booleanValue())
         // only store correct responses in the results

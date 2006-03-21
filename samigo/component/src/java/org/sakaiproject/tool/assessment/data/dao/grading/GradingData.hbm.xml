@@ -10,8 +10,13 @@
         <param name="sequence">SAM_ITEMGRADING_ID_S</param>
       </generator>
     </id>
+<!--
     <many-to-one name="assessmentGrading" class="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData"
        column="ASSESSMENTGRADINGID" index="SAM_ASSESSMENTGRADING_I" not-null="true"/>
+-->
+    <property name="assessmentGradingId">
+      <column name="ASSESSMENTGRADINGID" not-null="true" sql-type="integer" index="SAM_ASSESSMENTGRADING_I" />
+    </property>
     <property name="publishedItemId">
       <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEM_I" />
     </property>

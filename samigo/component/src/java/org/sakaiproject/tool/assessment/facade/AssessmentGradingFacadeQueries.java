@@ -64,6 +64,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
@@ -179,11 +180,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         for (int i = 0; i < gradingIdList.size(); i += 50){
           if (i + 50 > gradingIdList.size()){
               tempList = gradingIdList.subList(i, gradingIdList.size());
-              disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
+              disjunction.add(Expression.in("assessmentGradingId", tempList));
           }
           else{
             tempList = gradingIdList.subList(i, i + 50);
-            disjunction.add(Expression.in("assessmentGrading.assessmentGradingId", tempList));
+            disjunction.add(Expression.in("assessmentGradingId", tempList));
           }
         }
 
@@ -638,7 +639,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     log.debug("****assessmentGradingId="+assessmentGradingId);
     log.debug("****publishedItemId="+publishedItemId);
     List itemGradings = getHibernateTemplate().find(
-        "from ItemGradingData i where i.assessmentGrading.assessmentGradingId = ? and i.publishedItemId=?",
+        "from ItemGradingData i where i.assessmentGradingId = ? and i.publishedItemId=?",
         new Object[] { assessmentGradingId, publishedItemId },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG, Hibernate.LONG });
     if (itemGradings.size() == 0)
@@ -753,7 +754,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public List getAssessmentGradingIds(Long publishedItemId){
     return getHibernateTemplate().find(
-         "select g.assessmentGrading.assessmentGradingId from "+
+         "select g.assessmentGradingId from "+
          " ItemGradingData g where g.publishedItemId=?",
          new Object[] { publishedItemId },
          new net.sf.hibernate.type.Type[] { Hibernate.LONG });
@@ -822,7 +823,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a,"+
                    " PublishedItemData p where "+
-                   " i.assessmentGrading = a and i.publishedItemId = p.itemId and "+
+                   " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.submittedDate desc";
     List assessmentGradings = getHibernateTemplate().find(query,
@@ -869,7 +870,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                    " a.agentId, a.finalScore, a.submittedDate) "+
                    " from ItemGradingData i, AssessmentGradingData a, "+
                    " PublishedItemData p where "+
-                   " i.assessmentGrading = a and i.publishedItemId = p.itemId and "+
+                   " i.assessmentGradingId = a.assessmentGradingId and i.publishedItemId = p.itemId and "+
                    " a.publishedAssessment.publishedAssessmentId=? " +
                    " order by a.agentId asc, a.finalScore desc";
     List assessmentGradings = getHibernateTemplate().find(query,
@@ -907,7 +908,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public Set getItemGradingSet(Long assessmentGradingId){
-    String query = "from ItemGradingData i where i.assessmentGrading.assessmentGradingId=?";
+    String query = "from ItemGradingData i where i.assessmentGradingId=?";
     List itemGradings = getHibernateTemplate().find(query,
                                                     new Object[] { assessmentGradingId },
                                                     new net.sf.hibernate.type.Type[] { Hibernate.LONG });
@@ -928,7 +929,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
     String query = "select new ItemGradingData(i.itemGradingId, a.assessmentGradingId) "+
                    " from ItemGradingData i, AssessmentGradingData a "+
-                   " where i.assessmentGrading=a "+
+                   " where i.assessmentGradingId=a.assessmentGradingId "+
                    " and a.publishedAssessment.publishedAssessmentId=?";
     List l = getHibernateTemplate().find(query,
              new Object[] { publishedAssessmentId },
@@ -977,5 +978,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+  public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(Long assessmentGradingId){
+    PublishedAssessmentIfc pub = null;
+    String query = "select p from PublishedAssessmentData p, AssessmentGradingData a "+
+                   " where a.publishedAssessment=p and a.assessmentGradingId=?";
+    List pubList = getHibernateTemplate().find(query,
+                                                    new Object[] { assessmentGradingId },
+                                                    new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+    if (pubList!=null && pubList.size()>0)
+      pub = (PublishedAssessmentIfc) pubList.get(0);
+
+    return pub; 
+  }
 
 }

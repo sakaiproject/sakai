@@ -37,7 +37,7 @@ public class ItemGradingFacade
 // - daisyf 10/11/04
 {
   private Long itemGradingId;
-  private AssessmentGradingIfc assessmentGrading;
+  private Long assessmentGradingId;
   private Long publishedItemId;
   private Long publishedItemTextId;
     //private ItemDataIfc publishedItem;
@@ -63,11 +63,11 @@ public class ItemGradingFacade
   public void setItemGradingId(Long itemGradingId) {
     this.itemGradingId = itemGradingId;
   }
-  public AssessmentGradingIfc getAssessmentGrading() {
-    return assessmentGrading;
+  public Long getAssessmentGradingId() {
+    return assessmentGradingId;
   }
-  public void setAssessmentGrading(AssessmentGradingIfc assessmentGrading) {
-    this.assessmentGrading = assessmentGrading;
+  public void setAssessmentGradingId(Long assessmentGradingId) {
+    this.assessmentGradingId = assessmentGradingId;
   }
 
   public Long getPublishedItemId() {

@@ -141,6 +141,14 @@ public class UploadAudioMediaServlet extends HttpServlet
     pw.println(status);
     res.flushBuffer();
 
+    //#2 - record media as question submission
+    if (mediaLocation!=null && !("").equals(mediaLocation)){
+      Object delivery = ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+      System.out.println("**** deliveryBean="+delivery);
+      //DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+      //delivery.setpublishedAssessment();
+      //delivery.addMediaToItemGrading(mediaLocation);
+    }
   }
 
   private FileOutputStream getFileOutputStream(String mediaLocation){

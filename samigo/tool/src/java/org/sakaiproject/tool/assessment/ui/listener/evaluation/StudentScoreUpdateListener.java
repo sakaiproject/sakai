@@ -104,6 +104,7 @@ public class StudentScoreUpdateListener
     public boolean saveStudentScores(StudentScoresBean bean, TotalScoresBean tbean,
                                    DeliveryBean delivery)
   {
+    GradingService delegate = new GradingService();
     HashSet itemGradingSet = new HashSet();
     AssessmentGradingData adata = null;
     try
@@ -136,7 +137,7 @@ public class StudentScoreUpdateListener
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
             if (adata == null){
-              adata = (AssessmentGradingData) data.getAssessmentGrading();
+              adata = delegate.load(data.getAssessmentGradingId().toString());
 	    }
             if (data.getAgentId() == null)
             { // it's a new data, fill it in
@@ -166,11 +167,9 @@ public class StudentScoreUpdateListener
       while (iter.hasNext())
       {
         ItemGradingData data = (ItemGradingData) iter.next();
-        data.setAssessmentGrading(adata);
+        data.setAssessmentGradingId(adata.getAssessmentGradingId());
       }
 
-      GradingService delegate = new GradingService();
-      //delegate.saveItemScores(list, tbean.getAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId()), tbean.getPublishedAssessment());
       delegate.updateAssessmentGradingScore(adata);
 
       log.info("Saved student scores.");

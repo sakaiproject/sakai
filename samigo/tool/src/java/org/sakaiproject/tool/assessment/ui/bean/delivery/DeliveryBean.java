@@ -1676,7 +1676,7 @@ public class DeliveryBean
     {
       newItemGradingData = true;
       itemGradingData = new ItemGradingData();
-      itemGradingData.setAssessmentGrading(adata);
+      itemGradingData.setAssessmentGradingId(adata.getAssessmentGradingId());
       itemGradingData.setPublishedItemId(item.getItemId());
       itemGradingData.setPublishedItemTextId(itemText.getId());
       itemGradingData.setSubmittedDate(new Date());
