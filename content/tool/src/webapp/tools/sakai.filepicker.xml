@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.filepicker" title="Choose File" description="Sakai File Picker Helper Tool">
+       <configuration name="test" value="reg-value" />
+
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>

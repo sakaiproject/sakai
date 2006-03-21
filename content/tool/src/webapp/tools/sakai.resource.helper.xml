@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.resource.helper" title="Resource Create/Edit Helper" description="Resource Create Edit Helper">
+       <configuration name="test" value="reg-value" />
+
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>

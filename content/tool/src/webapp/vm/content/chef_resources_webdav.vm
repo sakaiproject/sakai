@@ -1,0 +1,112 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/content/chef_resources_webdav.vm,v 1.7 2005/06/08 15:19:32 gsilver.umich.edu Exp $
+<!-- chef_resources_webdav.vm, use with org.chefproject.ContentListAction.java -->
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+	  window.open(theURL,winName,winSettings);
+	  return false;
+	}
+	function setFrameHeight(frame)
+	{
+		var doc = frame.contentWindow.document;
+		//alert("doc == " + doc)
+		var height; 
+		
+		var scrollH = doc.body.scrollHeight;
+		var offsetH = doc.body.offsetHeight;
+		var clientH = doc.body.clientHeight;
+		var innerDocScrollH = null;
+
+		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		{
+			// very special way to get the height from IE on Windows!
+			// note that the above special way of testing for undefined variables is necessary for older browsers
+			// (IE 5.5 Mac) to not choke on the undefined variables.
+ 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+		}
+		//alert("After innerDocScrollH");
+		
+		if (document.all && innerDocScrollH != null)
+		{
+			// IE on Windows only
+			height = innerDocScrollH;
+		}
+		else
+		{
+			// every other browser!
+			height = offsetH;
+		}
+
+		// here we fudge to get a little bigger
+		var newHeight = height + 100;
+		
+		// no need to be smaller than...
+		//if (height < 200) height = 200;
+		frame.height=newHeight + "px";
+		
+		
+		//var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
+//		window.status = s;
+		//alert(s);
+	}
+//-->
+</script>
+## to prevent horiz scroll on IE
+<!--[if IE]>
+	<script type="text/javascript" language="JavaScript">
+		document.body.style.width='96%'
+	</script>
+<![endif]--> 
+<style>
+.ahref{behavior:url(#default#AnchorClick);}
+</style>
+<div class="portletBody">
+	<div class="navIntraTool">
+		<a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a>
+		| $tlang.getString('dav.webdav')
+	</div>
+	#if($menu)#toolbar($menu)#end
+	<h3>$tlang.getString("dav.webdav")</h3>
+	<h4>$tlang.getString("dav.url")</h4>
+	<p>$tlang.getString("dav.graf20a") <strong>${site_title}</strong>. $tlang.getString("dav.graf20b") <strong>#if("$!inMyWorkspace" == "true")${user_id}#else${site_id}#end</strong>.</p>
+	<p>$tlang.getString("dav.graf21")</p>
+	<p>
+		$tlang.getString("dav.graf22")
+	</p>
+	<p class="indnt3">
+		#if("$!inMyWorkspace" == "true")
+			<strong>${server_url}${dav_user}$user_id</strong>
+		#else
+			<strong>${server_url}${dav_group}$site_id</strong>
+		#end
+	</p>
+	#if($isWinIEBrowser)
+		<p class="shorttext">
+			$tlang.getString("dav.xpie")
+		</p>
+		<p class="indnt3">
+			#if("$!inMyWorkspace" == "true")
+				<a href="${server_url}${dav_user}$user_id" folder="${server_url}${dav_user}$user_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_user}$user_id</strong>
+				</a>
+			#else
+				<a href="${server_url}${dav_group}$site_id" folder="${server_url}${dav_group}$site_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group}$site_id</strong>
+				</a>
+			#end
+		</p>
+	#end
+	
+	<h4>$tlang.getString("dav.setup")</h4>
+	<iframe src="$webdav_instructions"
+		width="100%"
+		height="400px"
+		frameborder="0"
+		onload="javascript:setFrameHeight(this);">
+	</iframe>
+	<div style="margin:2em .3em .3em .3em;text-align:left">
+		<a href="#toolLink("ResourcesAction" "doCancel")" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">$tlang.getString("dav.cancel")</a>
+	</div>
+</div>

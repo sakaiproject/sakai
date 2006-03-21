@@ -1,0 +1,118 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/content/chef_resources_replace.vm,v 1.2 2005/06/03 15:50:41 jimeng.umich.edu Exp $ -->
+## Note: a paitence display is required here %%% -ggolden
+###############################################################
+##### deprecated -- not used in refactored resources tool #####
+###############################################################
+<div class="chefPortletContainer">
+	<h3>
+		$tlang.getString("rep.file")
+	</h3>
+	<div class="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class ="chefBreadCrumb">
+			$tlang.getString("gen.location")
+			<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder')" />
+			#foreach ($id in $collectionPath)
+				#if ($dropboxMode && $id==$homeCollection)
+					$siteTitle Drop Box /
+				#else
+					$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName)) /
+				#end
+			#end
+			#if ($dropboxMode && $collectionId==$homeCollection)
+				$siteTitle Drop Box
+			#else
+				$validator.escapeHtml($service.getProperties($collectionId).getPropertyFormatted($resourceProperties.NamePropDisplayName))
+			#end
+		</div>
+		<div class="chefPageviewTitle">
+			$tlang.getString("rep.rep")
+		</div>
+		<form name="replaceFileBasicForm" action="#toolForm("ResourcesAction")&special=upload" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+			<input type="hidden" name="replaceItems" value="$replaceItems" />
+			<input type="hidden" name="eventSubmit_doReplacefile" value="x" />
+			<input type="hidden" name="option" value="replace" />
+				#foreach ( $i in [1 ..$replaceNumber] )
+					#set($item=$replaceItems.get($i))
+					<fieldset>
+						<legend>
+							$tlang.getString("gen.file")  $validator.escapeHtml($service.getResource($item).getProperties().getPropertyFormatted($service.getResource($item).getProperties().NamePropDisplayName))
+						</legend>						
+						<table class ="chefEditItem">
+							<tr>
+								<td class="chefLabel">
+									#if ($unqualified_fields.get($i).indexOf($service.newResourceProperties().NamePropDisplayName)!=-1)
+										<span class="highlight">$tlang.getString("rep.thisfile")</span>
+									#else
+										$tlang.getString("rep.thisfile")
+									#end
+								</td>
+								<td>
+									#if ($osNames.get($i).length()==0)
+										<input type="file" name="fileName$i" class ="upload" />
+									#else
+										$osNames.get($i)<br />
+										$tlang.getString("rep.change") <br />
+										<input type="file" name="fileName$i" size="20" />
+									#end
+								</td>
+						  </tr>
+							<tr> 
+								<td class ="chefLabel">
+									#if (($titles.get($i).length()>0) && ($unqualified_fields.get($i).indexOf($titles.get($i))!=-1))
+										<span class="highlight">$tlang.getString("gen.title")</span>
+									#else
+										$tlang.getString("gen.title")
+									#end
+								</td>
+								<td>
+									<input type="text" name="title$i" value="$titles.get($i)" size="40" />
+								</td>
+							</tr>
+						</table>
+					</fieldset>
+					#if (!$dropboxMode)
+						#if ($notification)
+							<table>
+									<tr>
+									<td style="vertical-align:middle">$tlang.getString("gen.email1")</td>
+									<td>
+										<select name="notify">
+											<option value="r">$tlang.getString("gen.email2")</option>
+											<option value="o">$tlang.getString("gen.email3")</option>
+											<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+						#end
+					#end
+				#end
+			<div class ="act">
+				#if ($replaceNumber>1)
+					#set ($buttonName = "$tlang.getString('rep.items')")
+				#else
+					#set($buttonName = "$tlang.getString('rep.item')")
+				#end
+				## showNotif parameters: 1) id of the span that should show ('submitnotif'), 2) name of the input to disable (no spaces,hope that is OK), 3) name of the form)
+				## call the showNotif function first - set 1st parameter to 'noNotif' > notification will remain hidden, 2nd parameter to 'noBlock'  > submit button will not be disabled
+				<input 
+					type="button" 
+					name="replace" 
+					id="replace" 
+					value="$buttonName"
+					onClick="showNotif('submitnotif','replace','replaceFileBasicForm');document.replaceFileBasicForm.option.value='replace'; document.replaceFileBasicForm.submit(); return false;"
+				/>
+				<input 
+					type="button" 
+					name="Cancel" 
+					id="Cancel" 
+					value="$tlang.getString("gen.cancel")"
+					onClick="document.replaceFileBasicForm.option.value='cancel'; document.replaceFileBasicForm.submit(); return false;"
+				/>
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>	
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.resources"
+			title="Resources"
+			description="For posting documents, URLs to other websites, etc.">
+
+		<configuration name="home" value="" />
+		<configuration name="optional_properties" value="true" />
+		<configuration name="user_sees_all_their_sites" value="true" />
+		<configuration name="collections_per_page" value="50" />
+		
+		<configuration name="resources_mode" value="resources" type="final" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="myworkspace" />
+
+	</tool>
+
+</registration>

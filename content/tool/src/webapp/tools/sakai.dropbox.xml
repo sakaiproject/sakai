@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.dropbox"
+			title="Drop Box"
+			description="For private file sharing between instructor and student.">
+
+		<configuration name="resources_mode" value="dropbox" type="final" />
+
+		<category name="course" />
+		<category name="project" />
+
+	</tool>
+
+</registration>

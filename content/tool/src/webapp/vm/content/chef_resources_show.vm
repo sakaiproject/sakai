@@ -1,0 +1,415 @@
+##<!-- chef_show.vm, use with org.chefproject.ContentListAction.java -->
+###############################################################
+##### deprecated -- not used in refactored resources tool #####
+###############################################################
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+	  window.open(theURL,winName,winSettings);
+	  return false;
+	}
+//-->
+</script>
+
+<div class="chefPortletContainer">
+	#if($menu)#toolbar($menu)#end
+	<div class="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($collectionFlag == "true")
+			 <form name="showForm" action="#toolForm("ResourcesAction")" method="post">
+				<input type="hidden" name="source" value="0" />
+				<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+				<input type="hidden" name="from" value="revise" />
+				
+				#if (($service.allowGetCollection($collectionId)) && ($service.allowGetProperties($collectionId)))
+					<div class ="chefBreadCrumb">
+					$tlang.getString("gen.location")
+					<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder')" />
+					#foreach ($id in $collectionPath)
+						#if ($service.allowGetCollection($id))
+							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "cutFlag=$cutFlag&collectionId=$validator.escapeUrl($id)")" title ="$tlang.getString('sh.go') '$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName))' $tlang.getString('gen.folder')">
+								#if ($dropboxMode && $id==$homeCollection)
+									$siteTitle Drop Box
+								#else
+									$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName))
+								#end
+							</a> /
+						#else
+							$validator.escapeHtml($service.getProperties($id).getPropertyFormatted($resourceProperties.NamePropDisplayName)) /
+						#end
+					#end
+					#if ($dropboxMode && $collectionId==$homeCollection)
+						$siteTitle Drop Box
+					#else
+						 $validator.escapeHtml($service.getProperties($collectionId).getPropertyFormatted($resourceProperties.NamePropDisplayName))
+					#end
+					#if ($collectionId!=$homeCollection)
+						#if ($service.allowGetCollection($service.getContainingCollectionId($collectionId)))
+							<a href="#toolLinkParam("ResourcesAction" "doNavigate" "cutFlag=$cutFlag&collectionId=$validator.escapeUrl($service.getContainingCollectionId($collectionId))")" title= "$tlang.getString('sh.one')">
+								<img src = "#imageLink("sakai/onelevelup.gif")" border="0" alt ="$tlang.getString('sh.one')"/></a>
+						#end
+					#end
+					<a href="#toolLinkParam("ResourcesAction" "doMore" "from=show&id=$validator.escapeUrl($collectionId)&collectionId=$validator.escapeUrl($collectionId)")" title="$tlang.getString('sh.inf')">
+						<img src = "#imageLink("sakai/metainfo.gif")" border="0" alt ="$tlang.getString('sh.inf')" /></a>
+					</div>
+					#if (!$collectionMembers  || $collectionMembers.size() ==0)
+						<div class="chefPageviewTitle">
+							<div class ="chefLeftIndent">
+								<br />$tlang.getString("sh.no")
+								#if ($dropboxMode)
+									$tlang.getString("sh.drop")
+								#else
+									$tlang.getString("sh.reso")
+								#end
+								$tlang.getString("sh.item")
+							</div>	
+						</div>
+					#else			
+
+						<table cellspacing="0" class ="chefFlatListViewTable" border="0">
+							<tr>
+								<th>
+									#if ($collectionMembers.size()!=0)
+										#if ($selectallflag=="true")
+											<a href="#toolLink("ResourcesAction" "doUnselectall")" title ="$tlang.getString('sh.unsel')">
+												<img src = "#imageLink("sakai/checkedbox.gif")" border="0" title ="$tlang.getString('sh.unsel')" alt="$tlang.getString('sh.check')" /> 
+											</a>
+										#else
+											<a href="#toolLink("ResourcesAction" "doSelectall")" title ="$tlang.getString('sh.selall')">
+												<img src = "#imageLink("sakai/checkbox.gif")" border="0" title ="$tlang.getString('sh.selall')" alt ="$tlang.getString('sh.check')" /> 
+											</a>
+										#end	
+									#end
+								</th>
+								<th>
+									<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sorttit')"> 
+										$tlang.getString("gen.title1")
+										#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
+											#if ($currentSortAsc.equals("true")) 
+												<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('sh.sorttitas')" alt ="$tlang.getString('sh.sorttitas')" /> 
+											#else 
+												<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sorttitdesc')" alt ="$tlang.getString('sh.sorttitdesc')" /> 
+											#end 
+										#end 
+									</a>
+								</th>
+								<th>
+									<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=size&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortsize')"> 
+										$tlang.getString("gen.size")
+										#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
+											#if ($currentSortAsc.equals("true")) 
+												<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('sh.sortsizeas')" alt ="$tlang.getString('sh.sortsizeas')" /> 
+											#else 
+												<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortsizedesc')" alt ="$tlang.getString('sh.sortsizedesc')" /> 
+											#end 
+										#end
+									</a>
+								</th>
+								#if (!($dropboxMode && $collectionId==$homeCollection))
+								<th>
+									<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=created%20by&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortcrea')">  
+										$tlang.getString("gen.created1")
+									#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
+											#if ($currentSortAsc.equals("true")) 
+												<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('sh.sortcreaas')" alt ="$tlang.getString('sh.sortcreaas')" /> 
+											#else 
+												<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortcreadesc')" alt ="$tlang.getString('sh.sortcreadesc')" /> 
+											#end 
+										#end 
+									</a>
+								</th>
+								#end
+								<th>
+									<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=last%20modified&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortdate')"> 
+										$tlang.getString("gen.last1")
+										#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
+											#if ($currentSortAsc.equals("true")) 
+												<img src = "#imageLink("sakai/sortascending.gif")" border="0"  title ="$tlang.getString('sh.sortdateas')"  alt ="$tlang.getString('sh.sortdateas')" /> 
+											#else 
+												<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('sh.sortdatedesc')"  alt ="$tlang.getString('sh.sortdatedesc')" /> 
+											#end 
+										#end 
+									</a>
+								</th>
+								<th>
+									&nbsp;
+								</th>
+							</tr>
+							#foreach ($member in $collectionMembers)
+								#set ( $props = $member.getProperties() )
+								#set ($memberId = $member.Id)
+								#if ($props.getPropertyFormatted($props.NamePropIsCollection)=="false")
+									#set ($target = $validator.getResourceTarget($props))
+								#end
+								#set ($copyrightAlert = "false")
+								#set ($copyrightAlert = $props.getProperty($props.NamePropCopyrightAlert))
+								<tr>
+									<td>
+										#if ($selectallflag == "true")
+											<input type="checkbox" name="selectedMembers" checked value="$memberId" />
+										#else
+											<input type="checkbox" name="selectedMembers" value="$memberId" />					
+										#end
+									</td>
+									#set ($depth = ($service.getDepth($memberId, $collectionId) - 1))
+									#set ($unit ="em")
+									#set ($width = "$depth$unit")
+									#set ($widthSp = ($depth + 1) )
+									#set ($widthSpDo = "$widthSp$unit")
+									<td style="text-indent:$width">
+										#if ($props.getPropertyFormatted($props.NamePropIsCollection)=="true")
+				##   Changed expandedCollections to be a Map so that can keep the resources available as well as the id.		
+				##							#if (!$expandedCollections.contains($memberId))
+											#if (!$expandedCollections.containsKey($memberId))
+												#if ($service.allowGetCollection($memberId))
+													<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
+														<img src = "#imageLink("sakai/expand.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.closed')" hspace="0" /></a>
+												#else
+													<img src = "#imageLink("sakai/expand.gif")" border="0" alt = "$tlang.getString('sh.closed')" hspace="0" />
+												#end
+											#else
+												<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.close')">
+													<img src = "#imageLink("sakai/collapse.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.opened')" hspace="0" /></a>
+											#end
+										#else
+											#if ($service.allowGetResource($memberId))
+												#if ($!copyrightAlert == "true")
+													## if there is a copyright alert, show the alert page first
+													<a href="" onclick="openCopyrightWindow('$service.getUrl($member.Id)','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+												#else
+													<a href="$service.getUrl($member.Id)" target="$target">
+												#end
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border= "0" alt ="" hspace="0" />
+												</a>
+											#else
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="" hspace="0" />
+											#end
+										#end
+										#if ($props.getPropertyFormatted($props.NamePropIsCollection)=="true")
+											#if ($service.allowGetCollection($memberId))
+													<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($member.Id)")">
+				##   Changed expandedCollections to be a Map so that can keep the resources available as well as the id.									
+				##										#if (!$expandedCollections.contains($memberId))
+														#if (!$expandedCollections.containsKey($memberId))
+															<img src = "#imageLink("sakai/dir_closed.gif")" border="0" title="$tlang.getString('sh.go')" alt="$tlang.getString('sh.go')" />
+														#else
+															<img src = "#imageLink("sakai/dir_open.gif")" border="0" title="$tlang.getString('sh.go')" alt="$tlang.getString('sh.go')" />
+														#end	
+													</a>
+												<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.go')">
+													$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+												</a>
+											#else
+												$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+											#end
+										#else
+											#if (($cutFlag=="true") || ($copyFlag =="true"))
+												#set ($cutFound = "false")
+												#set ($copyFound = "false")
+												#if ($cutFlag=="true")
+													#foreach ($i in $cutItems)
+														#if ($memberId.equals($i))
+															#set ($cutFound = "true")
+														#end
+													#end
+												#end
+												#if ($copyFlag=="true")
+													#foreach ($j in $copiedItems)
+														#if ($memberId.equals($j))
+															#set ($copyFound = "true")
+														#end
+													#end
+												#end
+												#if ($service.allowGetResource($memberId))
+													#if ($!copyrightAlert == "true")
+														## if there is a copyright alert, show the alert page first
+														<a href="" onclick="openCopyrightWindow('$service.getUrl($member.Id)','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+													#else
+														<a href="$service.getUrl($member.Id)" target="$target">
+													#end
+													#if ($cutFound=="true")
+														<span class="Grayout">
+													#end
+													$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+													#if ($!copyrightAlert == "true")
+														&#169;
+													#end
+													#if ($cutFound=="true")
+														</span>
+													#end
+													</a>
+													#if ($cutFound == "true")
+														<div class="chefInlineAlert" style="margin-left:$widthSpDo">$tlang.getString("sh.cut")</div>
+													#elseif ($copyFound == "true")
+														<div class="chefInlineAlert" style="margin-left:$widthSpDo">$tlang.getString("sh.copied")</div>
+													#end
+												#else
+													#if ($cutFound=="true")
+														<span class="Grayout">
+													#end
+													$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+													#if ($!copyrightAlert == "true")
+														&#169;
+													#end
+													#if ($cutFound=="true")
+														</span>
+														<div class="chefInlineAlert" style="margin-left:$widthSpDo">$tlang.getString("sh.cut")</div>
+													#elseif ($copyFound=="true")
+														<div class="chefInlineAlert" style="margin-left:$widthSpDo">$tlang.getString("sh.copied")</div>
+													#end										
+												#end
+											#else
+												#if ($service.allowGetResource($memberId))
+													#if ($!copyrightAlert == "true")
+														## if there is a copyright alert, show the alert page first
+														<a href="" onclick="openCopyrightWindow('$service.getUrl($member.Id)','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+													#else
+														<a href="$service.getUrl($member.Id)" target="$target">
+													#end
+														$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+													</a>
+												#else
+													$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+												#end
+												#if ($!copyrightAlert == "true")
+													&#169;
+												#end
+											#end
+										#end
+									</td>
+									<td>
+										#if ($props.getPropertyFormatted($props.NamePropIsCollection)=="false")
+											$props.getPropertyFormatted($props.NamePropContentLength)&nbsp;&nbsp;&nbsp;&nbsp;
+										#end
+									</td>
+									#if (!($dropboxMode && $collectionId==$homeCollection))
+									<td>
+										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCreator))
+									</td>
+									#end
+									<td>
+										$props.getPropertyFormatted($props.NamePropModifiedDate)
+									</td>
+									<td>
+										#if ($service.allowGetProperties($memberId))
+											<a href="#toolLinkParam("ResourcesAction" "doMore" "from=show&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.get')">
+												<img src = "#imageLink("sakai/metainfo.gif")" border="0" alt ="$tlang.getString('sh.inf1')" />
+											</a>
+										#else
+											<img src = "#imageLink("sakai/metainfo.gif")" border="0" alt ="$tlang.getString('sh.inf1')" />
+										#end
+									</td>
+								</tr>
+							#end
+						</table>
+					#end	
+				#else
+					<div class="alertMessage" >
+						$tlang.getString("gen.youdonot")
+					</div>
+				#end
+			</form>
+		#else
+
+			 <form name="showForm" action="#toolForm("ResourcesAction")" method="post">
+				<input type="hidden" name="source" value="0" />
+				<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+			 </form>
+				 <div class ="chefBreadCrumb">
+				 	$tlang.getString("gen.location") #if($collectionDisplayName)$validator.escapeHtml($collectionDisplayName)#end
+					#if ($service.allowGetProperties($collectionId))
+						<a href="#toolLinkParam("ResourcesAction" "doMore" "collectionId=$homeCollection&id=$homeCollection&from=show")">
+							<img src = "#imageLink("sakai/metainfo.gif")" border="0" title ="$tlang.getString('sh.inf')" alt ="$tlang.getString('sh.inf')" /></a>
+					#else
+						<img src = "#imageLink("sakai/metainfo.gif")" border="0" alt ="$tlang.getString('sh.inf')" title ="$tlang.getString('sh.inf')" />
+					#end
+				</div>	
+					#if (!$collectionMembers  || $collectionMembers.size() ==0)
+						<div class="chefPageviewTitle">
+							<div class ="chefLeftIndent">
+								<br />$tlang.getString("sh.no") 
+								#if ($dropboxMode)
+									$tlang.getString("sh.drop")
+								#else
+									$tlang.getString("sh.reso")
+								#end
+								$tlang.getString("sh.item")
+							</div>	
+						</div>
+					#else			
+				<table cellspacing="0" class ="chefFlatListViewTable">
+					<tr>
+						<th>
+							#if ($selectallflag=="true")
+								<a href="#toolLink("ResourcesAction" "doUnselectall")" >
+									<img src = "#imageLink("sakai/checkedbox.gif")" border="0" alt="$tlang.getString('sh.check')" /> 
+								</a>
+							#else
+								<a href="#toolLink("ResourcesAction" "doSelectall")" >
+									<img src = "#imageLink("sakai/checkbox.gif")" border="0" alt="$tlang.getString('sh.check')" /> 
+								</a>
+							#end	
+						</th>
+						<th>
+							&nbsp;
+						</th>
+						<th>
+							<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=title")"> 
+								Title
+								#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('sh.sorttitas')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('sh.sorttitdesc')" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+						<th>
+							<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=size&collectionId=$validator.escapeUrl($collectionId)")">
+								Size
+								#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('sh.sortsizeas')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('sh.sortsizedesc')" /> 
+									#end 
+								#end
+							</a>
+						</th>
+						#if (!($dropboxMode && $collectionId==$homeCollection))
+						<th>
+							<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=created%20by")"> 
+								Created By
+								#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('sh.sortcreaas')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('sh.sortcreadesc')" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+						#end
+						<th>
+							<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=last%20modified")"> 
+								Last Modified
+								#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('sh.sortdateas')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('sh.sortdatedesc')" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+						<th>
+							&nbsp;
+						</th>
+					</tr>
+				</table>
+			#end
+		#end
+	</div>
+</div>
