@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -1606,7 +1607,7 @@ public class DeliveryBean
     String mediaLocation = (String) e.getNewValue();
     String action = addMediaToItemGrading(mediaLocation);
     syncTimeElapsedWithServer();
-    System.out.println("****time passed after fileupload before loading of next question"+getTimeElapse());
+    log.debug("****time passed after fileupload before loading of next question"+getTimeElapse());
     setTimeElapseAfterFileUpload(getTimeElapse());
     setOutcome(action);
   }
@@ -1623,15 +1624,12 @@ public class DeliveryBean
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
       PublishedAssessmentService();
-    /*
-    PublishedAssessmentFacade publishedAssessment = publishedService.
-      getPublishedAssessment(assessmentId);
-    */
-    PublishedAssessmentFacade publishedAssessment = getPublishedAssessment();
+    HashMap itemHash = publishedService.preparePublishedItemHash(getPublishedAssessment());
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
-    // 1. create assessmentGrading if it is null
+    // 1. create assessmentGrading is not null when it gets here
+    /*
     if (this.adata == null)
     {
       adata = new AssessmentGradingData();
@@ -1642,6 +1640,7 @@ public class DeliveryBean
       adata.setAttemptDate(getBeginTime());
       gradingService.saveOrUpdateAssessmentGrading(adata);
     }
+    */
     log.info("***1b. addMediaToItemGrading, adata=" + adata);
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
@@ -1661,11 +1660,8 @@ public class DeliveryBean
     log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);
 
     // 4. prepare itemGradingData and attach it to assessmentGarding
-    PublishedItemData item = publishedService.loadPublishedItem(questionId);
-    log.debug("***4a. addMediaToItemGrading, item =" + item);
-    log.debug("***4b. addMediaToItemGrading, itemTextArray =" +
-              item.getItemTextArray());
-    log.debug("***4c. addMediaToItemGrading, itemText(0) =" +
+    PublishedItemData item = (PublishedItemData)itemHash.get(new Long(questionId));
+    log.debug("***4a. addMediaToItemGrading, itemText(0) =" +
               item.getItemTextArray().get(0));
     // there is only one text in audio question
     PublishedItemText itemText = (PublishedItemText) item.
@@ -1685,21 +1681,9 @@ public class DeliveryBean
     }
     setAssessmentGrading(adata);
 
-    // 5. save AssessmentGardingData with ItemGardingData
-    /*
-    Set itemDataSet = adata.getItemGradingSet();
-    log.debug("***5a. addMediaToItemGrading, itemDataSet=" + itemDataSet);
-    if (itemDataSet == null)
-    {
-      itemDataSet = new HashSet();
-    }
-    */
+    // 5. save ItemGradingData alone 'cos assessmentGrading score won't be changed
     // we don't need to update every itemGrading in assessmentGrading 
-    log.info("***5b. addMediaToItemGrading, saved=" + adata);
-    HashSet itemDataSet = new HashSet();
-    itemDataSet.add(itemGradingData);
-    adata.setItemGradingSet(itemDataSet);
-    gradingService.saveOrUpdateAssessmentGrading(adata);
+    gradingService.saveItemGrading(itemGradingData);
 
     //if media is uploaded, create media record and attach to itemGradingData
     if (mediaIsValid())
