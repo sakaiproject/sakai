@@ -66,7 +66,7 @@ import org.sakaiproject.service.legacy.time.cover.TimeService;
 public class TimeUtil 
 {
 
-  private static Log log = LogFactory.getLog(ContextUtil.class);
+  private static Log log = LogFactory.getLog(TimeUtil.class);
 
   private TimeZone m_client_timezone= null;
   private TimeZone m_server_timezone= null;
