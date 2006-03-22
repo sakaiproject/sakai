@@ -34,8 +34,7 @@ should be included in file importing DeliveryMessages
       <h:graphicImage alt="#{msg.alt_correct}" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
-                    answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}"
-        alt="#{msg.correct}" url="/images/checkmark.gif">
+                    answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/checkmark.gif">
       </h:graphicImage>
       <h:inputText size="10" rendered="#{answer.hasInput}"
          disabled="#{delivery.actionString=='previewAssessment' 

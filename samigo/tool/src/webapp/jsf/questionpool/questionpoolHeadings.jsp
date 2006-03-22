@@ -16,7 +16,7 @@
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value=" #{genMsg.separator} " rendered="#{authorization.adminQuestionPool}"/>
-    <h:commandLink title="#{genMsg.t_questionPool}"action="poolList" immediate="true">
+    <h:commandLink title=" #{genMsg.t_questionPool} " action="poolList" immediate="true">
       <h:outputText value="#{genMsg.questionPool}" />
     </h:commandLink>
 </h:panelGroup>
