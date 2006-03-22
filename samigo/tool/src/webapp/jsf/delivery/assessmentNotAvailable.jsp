@@ -49,10 +49,10 @@
  </div>
 
 <p class="act">
-  <h:commandButton value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="button"
        style="act" onclick="javascript:window.open('/portal','_top')" />
 <!--
-  <h:commandButton value="#{msg.button_continue}" type="submit"
+  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="submit"
      styleClass="active" action="#{delivery.doit}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />

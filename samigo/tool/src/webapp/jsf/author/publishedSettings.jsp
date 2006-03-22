@@ -63,7 +63,7 @@
 <div class="indnt1">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
-  <samigo:hideDivision id="div1" title="#{msg.heading_assessment_introduction}" >
+  <samigo:hideDivision id="div1" title="#{msg.t_assessmentIntroduction}" >
 <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{summary_msg.enter_template_info_section}">
@@ -90,7 +90,7 @@
 
 
   <!-- *** DELIVERY DATES *** -->
-  <samigo:hideDivision id="div2" title="#{msg.heading_assessment_delivery_dates}" >
+  <samigo:hideDivision id="div2" title="#{msg.t_deliveryDates}" >
     <div class="indnt2">
     <h:panelGrid columns="3" columnClasses="shorttext"
       summary="#{summary_msg.delivery_dates_sec}">
@@ -115,7 +115,7 @@
 
   <!-- *** RELEASED TO *** -->
 
-  <samigo:hideDivision title="#{msg.heading_released_to}" id="div3">
+  <samigo:hideDivision title="#{msg.t_releasedTo}" id="div3">
 <div class="indnt2">
     <h:panelGrid   summary="#{summary_msg.released_to_info_sec}">
 <%--
@@ -144,7 +144,7 @@
   </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
-  <samigo:hideDivision title="#{msg.heading_high_security}" id="div4">
+  <samigo:hideDivision title="#{msg.t_highSecurity}" id="div4">
 <div class="indnt2">
     <h:panelGrid border="0" columns="3" columnClasses="longtext"
         summary="#{summary_msg.high_security_sec}">
@@ -171,7 +171,7 @@
 
 
   <!-- *** TIMED *** -->
-  <samigo:hideDivision id="div5" title="#{msg.heading_timed_assessment}">
+  <samigo:hideDivision id="div5" title="#{msg.t_timedAssessment}">
 <div class="indnt2">
 <%--DEBUGGING:
      Time Limit= <h:outputText value="#{publishedSettings.timeLimit}" /> ;
@@ -212,7 +212,7 @@
   </samigo:hideDivision>
 
   <!-- *** ASSESSMENT ORGANIZATION *** -->
-  <samigo:hideDivision id="div6" title="#{msg.heading_assessment_organization}" >
+  <samigo:hideDivision id="div6" title="#{msg.t_assessmentOrganization}" >
 <%--     DEBUGGING:  Layout= <h:outputText value="#{publishedSettings.assessmentFormat}" /> ;
      navigation= <h:outputText value="#{publishedSettings.itemNavigation}" /> ;
      numbering= <h:outputText value="#{publishedSettings.itemNumbering}" />
@@ -256,7 +256,7 @@
   </samigo:hideDivision>
 
   <!-- *** SUBMISSIONS *** -->
-  <samigo:hideDivision id="div7" title="#{msg.heading_submissions}" >
+  <samigo:hideDivision id="div7" title="#{msg.t_submissions}" >
 <%--     DEBUGGING:
      Unlimited= <h:outputText value="#{publishedSettings.unlimitedSubmissions}" /> ;
      Submissions= <h:outputText value="#{publishedSettings.submissionsAllowed}" /> ;
@@ -309,7 +309,7 @@
   </samigo:hideDivision>
 
   <!-- *** SUBMISSION MESSAGE *** -->
-  <samigo:hideDivision id="div8" title="#{msg.heading_submission_message}" >
+  <samigo:hideDivision id="div8" title="#{msg.t_submissionMessage}" >
     <div class="indnt2"><div class="longtext">
       <h:outputLabel value="#{msg.submission_message}" />
       <br/>
@@ -332,7 +332,7 @@
   </samigo:hideDivision>
 
   <!-- *** FEEDBACK *** -->
-  <samigo:hideDivision id="div9" title="#{msg.heading_feedback}" >
+  <samigo:hideDivision id="div9" title="#{msg.t_feedback}" >
  
  <!-- FEEDBACK AUTHORING -->
   <div class="indnt2">
@@ -426,7 +426,7 @@
   </samigo:hideDivision>
 
   <!-- *** GRADING *** -->
-  <samigo:hideDivision id="div10" title="#{msg.heading_grading}" >
+  <samigo:hideDivision id="div10" title="#{msg.t_grading}" >
 <div class="indnt2">
     <div class="longtext"><h:outputLabel value="#{msg.student_identity}" /></div><div class="indnt3">
       <h:panelGrid columns="2"  >
@@ -460,7 +460,7 @@
   </samigo:hideDivision>
 
   <!-- *** COLORS AND GRAPHICS	*** -->
-  <samigo:hideDivision id="div11" title="#{msg.heading_graphics}" >
+  <samigo:hideDivision id="div11" title="#{msg.t_graphics}" >
 <div class="indnt2">
     <h:panelGrid columns="2" columnClasses="shorttext" >
       <h:outputLabel value="#{msg.background_color}" />
@@ -476,7 +476,7 @@
 
   <!-- *** META *** -->
 
-  <samigo:hideDivision title="#{msg.heading_metadata}" id="div13">
+  <samigo:hideDivision title="#{msg.t_metadata}" id="div13">
    <div class="indnt2"><div class="longtext"> <h:outputLabel value="#{msg.assessment_metadata}" /> </div><div class="indnt3">
     <h:panelGrid columns="2" columnClasses="shorttext">
       <h:outputLabel value="#{msg.metadata_keywords}"/>
@@ -505,10 +505,10 @@
 </div>
 
 <p class="act">
-  <h:commandButton  type="submit" value="#{msg.button_save_settings}" action="saveSettings"  styleClass="active">
+  <h:commandButton accesskey="#{msg.a_saveSettings}" type="submit" value="#{msg.button_save_settings}" action="saveSettings"  styleClass="active">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
-  <h:commandButton  value="#{msg.button_cancel}" type="submit" action="author"  />
+  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit" action="author"  />
 </p>
 </h:form>
 <!-- end content -->

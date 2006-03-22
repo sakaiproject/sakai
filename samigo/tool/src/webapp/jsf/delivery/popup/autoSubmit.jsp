@@ -1,6 +1,9 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
 * $Id$
 <%--
@@ -26,10 +29,6 @@
 --%>
 -->
   <f:view>
-    <f:verbatim><!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-    </f:verbatim>
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
@@ -49,7 +48,7 @@
   <%-- Clicking OK returns user to the assessments page. --%>
   <h:form id="ok">
   <h:messages styleClass="validation"/>
-   <h:commandButton value="#{msg.button_ok}" type="submit"
+   <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>
 </div>

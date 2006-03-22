@@ -42,7 +42,7 @@
 
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="Edit Pool"/></title>
+      <title><h:outputText value="#{msg.edit_p}"/></title>
 <script language="javascript" style="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
@@ -56,6 +56,7 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/questionpool/questionpoolHeadings.jsp" %>
 
+<!-- dataLine here is not working -->
 <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
    separator=" > " first="0" rows="100" >
   <h:column>
@@ -70,8 +71,7 @@
 <h:outputText rendered="#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.displayName}"/>
 
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{msg.qp}: "/>
-<h:outputText value="#{questionpool.currentPool.displayName}"/>
+<h:outputText value="#{msg.qp}#{msg.column} #{questionpool.currentPool.displayName}"/>
 </h3>
 <h:messages styleClass="validation" />
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
@@ -106,7 +106,7 @@
  </div>
 
 
-<!-- dispaly subpools  -->
+<!-- display subpools  -->
 <div class="indnt1">
 <h4>
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,alignRight">
@@ -116,7 +116,7 @@
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 1}" value=" #{msg.subp}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 0}" value=" #{msg.subps}"/>
 </h:panelGroup>
-<h:commandLink  rendered="#{questionpool.importToAuthoring != 'true'}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+<h:commandLink title="#{msg.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText  id="add" value="#{msg.add}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
   <f:param name="addsource" value="editpool"/>
@@ -144,7 +144,7 @@
 <h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}"value=" #{msg.q}"/>
 <h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}"value=" #{msg.qs}"/>
 </h:panelGroup>
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
+<h:commandLink title="#{msg.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{msg.add}"/>
   <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandLink>
@@ -171,7 +171,7 @@
 
 <div class="indnt1">
 <!-- for normal pool operations -->
-  <h:commandButton id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
+  <h:commandButton accesskey="#{msg.a_update}" id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
         value="#{msg.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
  
@@ -179,14 +179,14 @@
 
 <!-- for importing questions from pool to authoring -->
 
-  <h:commandButton id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}"
+  <h:commandButton accesskey="#{msg.a_copy}" id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}"
         value="#{msg.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
 
 
- <h:commandButton style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
+ <h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
  </div>
 
 </h:form>

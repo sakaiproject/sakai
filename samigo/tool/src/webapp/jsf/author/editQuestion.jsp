@@ -64,11 +64,11 @@ We need to find a strategy for doing this.
 something like if type true false render include true false etc.
 -->
 <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton type="submit" value="#{msg.button_save}" action="editAssessment">
+  <h:commandButton accesskey="#{msg.a_save}" type="submit" value="#{msg.button_save}" action="editAssessment">
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorQuestionListener" />
   </h:commandButton>
-  <h:commandButton type="submit" value="#{msg.button_cancel}" action="editAssessment"/>
+  <h:commandButton accesskey="#{msg.a_cancel}" type="submit" value="#{msg.button_cancel}" action="editAssessment"/>
 </h:panelGrid>
 
 </h:form>

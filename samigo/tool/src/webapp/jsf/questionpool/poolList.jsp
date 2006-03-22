@@ -53,48 +53,47 @@
 <h:form id="questionpool">
 
 
-<p class="navIntraTool" style="background-color:DDE3EB">
+<p class="navIntraTool">
 
-   <h:commandLink rendered="#{questionpool.importToAuthoring == 'true'}" action="author" immediate="true">
-   <h:outputText value="#{msg.my_assessments}"/>
+   <h:commandLink title="#{genMsg.t_assessment}" rendered="#{questionpool.importToAuthoring == 'true'}" action="author" immediate="true">
+   <h:outputText value="#{genMsg.assessment}"/>
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
    </h:commandLink>
 
-   <h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" action="author"  immediate="true">
-   <h:outputText value="#{msg.my_assessments}"/>
+   <h:commandLink title="#{genMsg.t_assessment}" rendered="#{questionpool.importToAuthoring == 'false'}" action="author"  immediate="true">
+   <h:outputText value="#{genMsg.assessment}"/>
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
    </h:commandLink>
 
-<h:outputText value=" | " />
+<h:outputText value=" #{genMsg.separator} " />
 
-   <h:commandLink rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
-        <h:outputText value="#{msg.my_templates}"/>
+   <h:commandLink title="#{genMsg.t_template}" rendered="#{questionpool.importToAuthoring == 'false'}" action="template" immediate="true">
+        <h:outputText value="#{genMsg.template}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
    </h:commandLink>
 
-
-   <h:commandLink rendered="#{questionpool.importToAuthoring == 'true'}" action="template" immediate="true">
-        <h:outputText value="#{msg.my_templates}"/>
+   <h:commandLink title="#{genMsg.t_questionPool}" rendered="#{questionpool.importToAuthoring == 'true'}" action="template" immediate="true">
+        <h:outputText value="#{genMsg.template}"/>
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelImportToAssessmentListener" />
    </h:commandLink>
 
-<h:outputText value=" | " />
+<h:outputText value=" #{genMsg.separator} " />
         <h:outputText value="#{msg.qps}"/>
 </p>
 
 
- <h3><h:outputText value="#{msg.qps}"/></h3>
+ <h3><h:outputText value="#{genMsg.questionPool}"/></h3>
 
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_poolmanager}"/>
 
 <div class="indnt1">
 <h:outputText escape="false" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" value="<p class=\"navModeAction\">"/>
-<h:commandLink rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
+<h:commandLink title="#{msg.t_addPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" id="add" immediate="true" action="#{questionpool.addPool}">
  <h:outputText value="#{msg.add_new_pool}"/>
   <f:param name="qpid" value="0"/>
 </h:commandLink> 
@@ -109,10 +108,10 @@
 
 <p class="act">
  
-<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+<h:commandButton accesskey="#{msg.a_update}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{msg.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
 
-  <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{msg.cancel}" action="#{questionpool.cancelImport}"  >
+  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{msg.cancel}" action="#{questionpool.cancelImport}"  >
   </h:commandButton>
 </p>
 

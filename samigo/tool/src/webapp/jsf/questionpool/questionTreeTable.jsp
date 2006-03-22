@@ -27,7 +27,7 @@
     <h:column>
       <f:facet name="header">
 
-        <h:commandLink id="sortByTitleAction" immediate="true" action="editPool">
+        <h:commandLink title="#{msg.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool">
           <h:outputText value="#{msg.q_text}" />
           <f:param name="orderBy" value="text"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
@@ -35,7 +35,7 @@
 
       </f:facet>
 
-<h:commandLink id="modify" action="#{itemauthor.doit}">
+<h:commandLink title="#{msg.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
     <h:outputText escape="false" value="#{question.textHtmlStripped}" />
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
@@ -47,20 +47,20 @@
 <f:verbatim><br/></f:verbatim>
 
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
+<h:commandLink title="#{msg.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyQuestion}">
   <h:outputText id="copy" value="#{msg.copy}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
-<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
+<h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" #{msg.separator} " />
 
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
+<h:commandLink title="#{msg.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="movelink" immediate="true" action="#{questionpool.startMoveQuestion}">
   <h:outputText id="move" value="#{msg.move}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
 </h:commandLink>
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" | " />
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{msg.separator} " />
 <%-- export to same page --%>
 <%--
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}"  id="exportlink" immediate="true" action="xmlDisplay" target="_qti_export">
+<h:commandLink title="#{msg.t_exportQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}"  id="exportlink" immediate="true" action="xmlDisplay" target="_qti_export">
   <h:outputText id="export" value="#{msg.export}"/>
   <f:param name="itemId" value="#{question.itemId}"/>
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ExportItemListener" />
@@ -75,8 +75,8 @@
 
 
 
-<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" | " />
-<h:commandLink rendered="#{questionpool.importToAuthoring != 'true'}" id="previewlink" immediate="true" action="previewQuestion">
+<h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{msg.separator} " />
+<h:commandLink title="#{msg.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="previewlink" immediate="true" action="previewQuestion">
   <h:outputText id="preview" value="#{msg.preview}"/>
     <f:param name="itemid" value="#{question.itemId}"/>
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PreviewAssessmentListener" />
@@ -86,7 +86,7 @@
 
     <h:column>
       <f:facet name="header">
-        <h:commandLink id="sortByTypeAction" immediate="true" action="editPool">
+        <h:commandLink title="#{msg.t_sortQuestionType}" id="sortByTypeAction" immediate="true" action="editPool">
           <h:outputText value="#{msg.q_type}" />
           <f:param name="orderBy" value="keyword"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />

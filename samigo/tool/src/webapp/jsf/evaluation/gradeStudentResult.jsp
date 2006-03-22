@@ -66,20 +66,20 @@ $Id$
     <h:outputText value="#{studentScores.studentName} "/>
   </h3>
   <p class="navModeAction">
-    <h:commandLink action="totalScores" immediate="true">
+    <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}"  />
-    <h:commandLink action="questionScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne ''}"  />
+    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}"  />
-    <h:commandLink action="histogramScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}"  />
+    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{msg.stat_view}" />
       <f:actionListener
@@ -94,7 +94,7 @@ $Id$
 <f:verbatim></h4></f:verbatim>
 <div class="tier3">
 <h:panelGrid columns="2">
-   <h:outputText value="Comments:"/>
+   <h:outputText value="#{dmsg.comment}#{dmsg.column}"/>
    <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
    </h:panelGrid>
 </div>
@@ -106,17 +106,22 @@ $Id$
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
     <h:panelGroup>
+<<<<<<< .mine
+    <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
+       #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.points}#{msg.splash}#{part.maxPoints} #{dmsg.pt}" >
+=======
     <samigo:hideDivision title = "#{dmsg.p} #{part.number} - #{part.text}  -
        #{part.questions-part.unansweredQuestions}/#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
+>>>>>>> .r6873
 
       <h:dataTable value="#{part.itemContents}" var="question">
       <h:column>
       <f:verbatim><h4 class="tier2"></f:verbatim>
         <h:panelGroup>
           <h:outputText value="<a href=\"#" escape="false" />
-          <h:outputText value="#{part.number}_#{question.number}\">"
+          <h:outputText value="#{part.number}#{dmsg.underscore}#{question.number}\">"
             escape="false" />
-          <h:outputText value="#{question.number}. #{question.strippedText} #{question.maxPoints} #{dmsg.pt} " escape="false" />
+          <h:outputText value="#{question.number}#{dmsg.dot} #{question.strippedText} #{question.maxPoints} #{dmsg.pt} " escape="false" />
           <h:outputText value="</a>" escape="false" />
         </h:panelGroup>
         <f:verbatim></h4></f:verbatim>
@@ -148,11 +153,11 @@ $Id$
             escape="false" />
           <f:verbatim><h4 class="tier2"></f:verbatim>
             <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
-            <h:outputText value="#{part.questions} :  " />
+            <h:outputText value="#{part.questions}#{dmsg.column}  " />
             <h:inputText value="#{question.points}" >
 <%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
             </h:inputText>
-            <h:outputText value=" / #{question.maxPoints} " />
+            <h:outputText value=" #{dmsg.splash} #{question.maxPoints} " />
             <h:outputText value="#{dmsg.pt}"/>
           <f:verbatim></h4></f:verbatim>
 
@@ -210,7 +215,7 @@ $Id$
           <f:verbatim></div></f:verbatim>
 
           <h:panelGrid columns="2">
-            <h:outputText value="Comments:"/>
+            <h:outputText value="#{dmsg.comment}#{dmsg.column}"/>
             <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
           </h:panelGrid>
 
@@ -221,7 +226,7 @@ $Id$
 </div>
 
 <p class="act">
-   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit">
+   <h:commandButton accesskey="#{msg.a_save}" styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit">
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreUpdateListener" />
       <f:actionListener
@@ -231,7 +236,7 @@ $Id$
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{msg.cancel}" action="totalScores" immediate="true">
+   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>

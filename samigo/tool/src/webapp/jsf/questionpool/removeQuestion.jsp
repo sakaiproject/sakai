@@ -36,7 +36,7 @@
    
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="Remove Question"/></title>
+      <title><h:outputText value="#{msg.rm_q}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -57,11 +57,11 @@
 </h:dataTable>
 
      <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton type="submit" immediate="true" id="Submit" value="#{msg.remove}"
+  <h:commandButton accesskey="#{msg.a_remove}" type="submit" immediate="true" id="Submit" value="#{msg.remove}"
     action="#{questionpool.removeQuestionsFromPool}" >
   </h:commandButton>
 
-<h:commandButton style="act" value="#{msg.cancel}" action="poolList"/>
+<h:commandButton id="cancel" accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList"/>
 
      </h:panelGrid>
    </h:panelGrid>

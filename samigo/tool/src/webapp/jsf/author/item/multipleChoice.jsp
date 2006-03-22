@@ -131,7 +131,7 @@
 </h:selectOneRadio>
 
 
-<h:commandLink id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
+<h:commandLink title="#{msg.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
   <h:outputText id="text" value="#{msg.button_remove}"/>
   <f:param name="answerid" value="#{answer.label}"/>
 </h:commandLink>
@@ -267,29 +267,29 @@
 </div>
 
 <p class="act">
-  <h:commandButton rendered="#{itemauthor.target=='assessment' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
  
 
- <h:commandButton rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}"  styleClass="active">
+ <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
 
-  <h:commandButton rendered="#{itemauthor.target=='questionpool' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}"  styleClass="active">
+  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='questionpool' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
+  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true"/>
 
 </p>

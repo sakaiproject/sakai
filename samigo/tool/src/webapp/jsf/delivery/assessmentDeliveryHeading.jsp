@@ -39,7 +39,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                              || delivery.actionString=='takeAssessmentViaUrl')}">
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-    <h:commandLink action="#{delivery.getOutcome}" onmouseup="saveTime();" 
+    <h:commandLink title="#{msg.t_feedback}" action="#{delivery.getOutcome}" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl'}" >
      <h:outputText value="#{msg.show_feedback}" />
@@ -48,14 +48,14 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     </h:commandLink>
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
-    <h:commandLink action="takeAssessment" onmouseup="saveTime();" 
+    <h:commandLink title="#{msg.t_feedback}" action="takeAssessment" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='previewAssessment'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
      <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
     </h:commandLink>
 
-    <h:outputText value=" | "
+    <h:outputText value=" #{msg.separator} "
       rendered="#{(delivery.actionString=='previewAssessment'
                    || delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
@@ -64,7 +64,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-  <h:commandLink action="#{delivery.getOutcome}" onmouseup="saveTime();"
+  <h:commandLink title="#{msg.t_tableOfContents}" action="#{delivery.getOutcome}" onmouseup="saveTime();"
      rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
                && delivery.navigation ne '1'}">
@@ -74,7 +74,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- TABLE OF CONTENT LINK FOR PREVIEW ASSESSMENT -->
- <h:commandLink action="tableOfContents" onmouseup="saveTime();"
+ <h:commandLink title="#{msg.t_tableOfContents}" action="tableOfContents" onmouseup="saveTime();"
     rendered="#{delivery.actionString=='previewAssessment'
              && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
@@ -83,7 +83,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT -->
-  <h:commandLink action="select" 
+  <h:commandLink action="select" title="#{msg.t_returnAssessmentList}"
      rendered="#{delivery.actionString=='reviewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{msg.button_return_select}" />
@@ -106,12 +106,13 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                            || delivery.actionString=='takeAssessment'
                            || delivery.actionString=='takeAssessmentViaUrl')
                         && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Estimated Time Remaining: "/><f:verbatim></span></f:verbatim>
+<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
 <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseFloat ge delivery.timeElapseAfterFileUploadFloat}">
 <samigo:timerBar height="15" width="300"
+ 
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
     expireMessage="Your session has expired."
@@ -135,7 +136,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
-<h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
+<h:commandLink title="#{msg.t_submit}" id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
 <script language="javascript" style="text/JavaScript">
 <!--

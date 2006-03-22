@@ -85,7 +85,7 @@
      <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
      <f:selectItems value="#{sectionBean.authorTypeList}" />
      </h:selectOneRadio>
-     <h:selectOneRadio rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
+     <h:selectOneRadio accesskey="#{msg.a_options}" rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
        <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
      </h:selectOneRadio>
 
@@ -167,12 +167,12 @@
 
 
   <p class="act">
-     <h:commandButton value="#{msg.button_save}" type="submit"
+     <h:commandButton value="#{msg.button_save}" type="submit" accesskey="#{msg.a_save}"
        styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
-     <h:commandButton value="#{msg.button_cancel}" style="act" immediate="true" action="editAssessment" />
+     <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" style="act" immediate="true" action="editAssessment" />
   </p>
 
 </h:form>

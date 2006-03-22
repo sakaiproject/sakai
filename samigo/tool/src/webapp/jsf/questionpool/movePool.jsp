@@ -37,7 +37,7 @@
  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="Move Pool"/></title>
+      <title><h:outputText value="#{msg.mv_p"/></title>
                         <!-- stylesheet and script widgets -->
 <script language="javascript" style="text/JavaScript">
 <!--
@@ -85,15 +85,15 @@
 </div>
 
 <p class="act">
-  <h:commandButton type="submit" immediate="true" id="poolSubmit" value="#{msg.move}"
+  <h:commandButton accesskey="#{msg.a_move}" type="submit" immediate="true" id="poolSubmit" value="#{msg.move}"
     action="#{questionpool.movePool}" rendered="#{questionpool.actionType == 'pool'}" styleClass="active">
   </h:commandButton>
 
-  <h:commandButton type="submit" immediate="true" id="itemSubmit" value="#{msg.move}"
+  <h:commandButton accesskey="#{msg.a_move}" type="submit" immediate="true" id="itemSubmit" value="#{msg.move}"
     action="#{questionpool.moveQuestion}" rendered="#{questionpool.actionType == 'item'}" styleClass="active">
   </h:commandButton>
 
-  <h:commandButton value="#{msg.cancel}" action="poolList"/>
+  <h:commandButton id="cancel" accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="poolList"/>
 </p>
 
 </h:form>

@@ -54,8 +54,8 @@ should be included in file importing DeliveryMessages
      <f:verbatim></b></f:verbatim>
     <h:outputText  value="#{question.key}" escape="false"/>
 <%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
-    <h:outputLink value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
-    <h:outputText  value="#{dmsg.click}" />
+    <h:outputLink title="#{msg.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
+    <h:outputText  value="#{msg.click}" />
     </h:outputLink>
 --%>
 
@@ -63,14 +63,14 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}: " />
+    <h:outputLabel for="feedSC" value="#{msg.feedback}#{msg.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}: " />
+    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />

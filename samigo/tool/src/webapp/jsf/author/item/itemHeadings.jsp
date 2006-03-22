@@ -59,27 +59,27 @@ document.links[newindex].onclick();
 <h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
 <%-- --%>
 <p class="navIntraTool">
-    <h:commandLink action="author" immediate="true">
-      <h:outputText value="#{msg.global_nav_assessmt}" />
+    <h:commandLink title="#{genMsg.t_assessment}" action="author" immediate="true">
+      <h:outputText value="#{genMsg.assessment}" />
     </h:commandLink>
     <h:outputText value="#{genMsg.separator} " />
-    <h:commandLink action="template" immediate="true">
-      <h:outputText value="#{msg.global_nav_template}" />
+    <h:commandLink title="#{genMsg.t_template}" action="template" immediate="true">
+      <h:outputText value="#{genMsg.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
     <h:outputText value="#{genMsg.separator} " />
-    <h:commandLink action="poolList" immediate="true">
-      <h:outputText value="#{msg.global_nav_pools}" />
+    <h:commandLink title="#{genMsg.t_questionPool}" action="poolList" immediate="true">
+      <h:outputText value="#{genMsg.questionPool}" />
     </h:commandLink>
 </p>
-
+<br/>
 <!-- breadcrumb-->
 <div>
-    <h:commandLink rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
+    <h:commandLink title="#{msg.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
       <h:outputText value="#{msg.global_nav_assessmt}" />
     </h:commandLink>
     <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{msg.greater} " />
-    <h:commandLink action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
+    <h:commandLink title="#{msg.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
       <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h:commandLink>
     <h:outputText value=" #{msg.greater} " rendered="#{itemauthor.target == 'assessment'}" />
@@ -117,7 +117,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
 
 <%-- from question pool context, do not show question pool as option --%>
-<h:selectOneMenu rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
+<h:selectOneMenu accesskey="#{msg.a_options}" rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -173,7 +173,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 
   <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{msg.separator} " />
 --%>
-  <h:commandLink rendered="#{itemauthor.currentItem.itemId != null}" styleClass="alignRight" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+  <h:commandLink title="#{msg.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="alignRight" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
                 <h:outputText value="#{msg.button_remove}" />
                 <f:param name="itemid" value="#{itemauthor.currentItem.itemId}"/>
               </h:commandLink>

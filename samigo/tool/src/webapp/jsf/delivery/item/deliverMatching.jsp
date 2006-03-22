@@ -37,12 +37,12 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:graphicImage id="image"
         rendered="#{matching.isCorrect}"
-        alt="#{msg.correct}" url="/images/checkmark.gif" >
+        alt="#{msg.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image2"
         rendered="#{matching.isCorrect}"
         width="16" height="16"
-        alt="#{msg.not_correct}" url="/images/delivery/spacer.gif">
+        alt="#{msg.alt_incorrect}" url="/images/delivery/spacer.gif">
       </h:graphicImage>
    </h:column>
    <h:column>
@@ -58,7 +58,7 @@ should be included in file importing DeliveryMessages
      <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showSelectionLevel}" >
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{msg.feedback}: " rendered="#{matching.feedback ne ''}" />
+       <h:outputText value="#{msg.feedback}#{msg.column} " rendered="#{matching.feedback ne ''}" />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>

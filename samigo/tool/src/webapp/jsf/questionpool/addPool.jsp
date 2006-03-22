@@ -50,7 +50,7 @@
 <h:outputText value="#{msg.add_p_required}"/>
 
  <div class="shorttext indnt1">
-  <h:outputLabel for="namefield" value="#{msg.p_name}*"/>
+  <h:outputLabel for="namefield" value="#{msg.p_name}#{msg.star}"/>
   <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
 <h:message for="namefield" styleClass="validate"/>
  </div>
@@ -82,11 +82,11 @@
 
 
 <p class="act">
-  <h:commandButton id="submit"  action="#{questionpool.doit}"
+  <h:commandButton accesskey="#{msg.a_save}" id="submit"  action="#{questionpool.doit}"
 	value="#{msg.save}" styleClass="active">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>
-<h:commandButton style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
+<h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
 
 </p>
  </h:form>

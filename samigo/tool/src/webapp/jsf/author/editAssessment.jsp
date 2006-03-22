@@ -105,19 +105,19 @@ document.links[newindex].onclick();
     <h:outputText value="#{msg.total_pt}" />
  </div>
   <p class="navModeAction">
-    <h:commandLink id="addPart" action="editPart" immediate="true">
+    <h:commandLink title="#{msg.t_addPart}" id="addPart" action="editPart" immediate="true">
       <h:outputText value="#{msg.subnav_add_part}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPartListener" />
     </h:commandLink>
     <h:outputText value=" #{msg.separator} " />
-    <h:commandLink id="editAssessmentSettings" action="editAssessmentSettings" immediate="true">
+    <h:commandLink title="#{msg.t_settings}" id="editAssessmentSettings" action="editAssessmentSettings" immediate="true">
       <h:outputText value="#{msg.subnav_settings}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
     </h:commandLink>
     <h:outputText value=" #{msg.separator} " />
-      <h:commandLink  action="beginAssessment">
+      <h:commandLink  title="#{msg.t_preview}" action="beginAssessment">
         <h:outputText value="#{msg.subnav_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
 <!--        <f:param name="previewAssessment" value="true"/> -->
@@ -147,7 +147,7 @@ document.links[newindex].onclick();
 <f:verbatim><h4></f:verbatim>
     <h:panelGrid columns="2" columnClasses="alignLeft,alignRight" width="95%">
       <h:panelGroup>
-       <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p} " /> <f:verbatim></b></f:verbatim>
+       <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p}" /> <f:verbatim></b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
           <f:selectItems value="#{assessmentBean.partNumbers}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
@@ -158,7 +158,7 @@ document.links[newindex].onclick();
       </h:panelGroup>
       <h:panelGroup>
 
-        <h:commandLink action="confirmRemovePart" immediate="true"
+        <h:commandLink title="#{msg.t_removeP}" action="confirmRemovePart" immediate="true"
           rendered="#{partBean.number ne 1}">
           <h:outputText value="#{msg.remove_part}" />
           <!-- use this to set the sectionBean.sectionId in ConfirmRemovePartListener -->
@@ -167,7 +167,7 @@ document.links[newindex].onclick();
         </h:commandLink>
           <h:outputText value=" #{msg.separator} " rendered="#{partBean.number ne 1}"/>
 
-        <h:commandLink id="editPart" immediate="true" action="editPart">
+        <h:commandLink title="#{msg.t_editP}" id="editPart" immediate="true" action="editPart">
           <h:outputText value="#{msg.button_modify}" />
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
@@ -217,12 +217,12 @@ document.links[newindex].onclick();
           </h:panelGroup>
 
           <h:panelGroup>
-            <h:commandLink immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+            <h:commandLink title="#{msg.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
               <h:outputText value="#{msg.button_remove}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
             <h:outputText value=" #{msg.separator} " />
-            <h:commandLink id="modify" action="#{itemauthor.doit}" immediate="true">
+            <h:commandLink title="#{msg.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
               <h:outputText value="#{msg.button_modify}" />
               <f:actionListener
                   type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />

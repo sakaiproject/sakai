@@ -11,6 +11,9 @@
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
      var="msg"/>
+    <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
@@ -53,23 +56,23 @@ $Id$
 
   <h3>
     <h:outputText value="#{msg.stat_view}"/>
-    <h:outputText value=": "/>
+    <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{histogramScores.assessmentName} "/>
   </h3>
 <h:outputText value=" <p class=\"navModeAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
  
-    <h:commandLink action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+    <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-    <h:commandLink action="questionScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+    <h:outputText value=" #{msg.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
       <h:outputText value="#{msg.q_view}" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value=" #{msg.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
       <h:outputText value="#{msg.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
  <h:outputText value=" </p>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
@@ -81,7 +84,7 @@ $Id$
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
     <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
      <h:outputText value="#{msg.view} " />
-      <h:outputText value=" : " />
+      <h:outputText value="#{msg.column} " />
 
      <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
@@ -235,7 +238,7 @@ $Id$
   </h:dataTable>
 </div>
 
-<h:commandButton value="#{msg.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
+<h:commandButton accesskey="#{msg.a_return}"value="#{msg.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
 
 </h:form>
 </div>

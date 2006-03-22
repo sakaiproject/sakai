@@ -56,7 +56,7 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -138,7 +138,7 @@
 
 <!-- BEGIN ASSESSMENT BUTTON -->
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
- <h:commandButton value="#{msg.begin_assessment_}" 
+ <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl'}">
@@ -146,7 +146,7 @@
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
@@ -159,7 +159,7 @@
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton value="#{msg.button_cancel}" type="button"
+  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="button"
      style="act" onclick="javascript:window.open('/portal/','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
      disabled="#{delivery.actionString=='previewAssessment'}"/>
@@ -169,7 +169,7 @@
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

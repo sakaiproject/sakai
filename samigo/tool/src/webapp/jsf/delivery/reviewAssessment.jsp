@@ -45,7 +45,7 @@
 <!-- content... -->
 <h:form id="takeAssessmentForm">
 
-<h:outputText value="this is a review " />
+<h:outputText value="#{msg.review} " />
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 
@@ -58,7 +58,7 @@
      <f:subview id="parts">
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
-      <h:outputText value=" - #{part.text} />
+      <h:outputText value=" #{msg.dash} #{part.text} />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
       <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" / -->
@@ -71,7 +71,7 @@
           <f:verbatim><h4 class="tier1"></f:verbatim>
           <h:outputText value="#{msg.q} #{question.number} #{msg.of} " />
           <h:outputText value="#{part.itemContentsSize} " />
-          <h:outputText value="#{question.points}/#{question.maxPoints} " />
+          <h:outputText value="#{question.points}#{msg.splash}#{question.maxPoints} " />
           <h:outputText value="#{msg.pt}"/>
           <f:verbatim></h4></f:verbatim>
           <h:outputText value="#{question.itemData.description}" escape="false"/>
@@ -123,7 +123,7 @@
   </h:dataTable>
 </div>
 <h:panelGrid columns="3" cellpadding="3" cellspacing="3">
-  <h:commandButton type="submit" value="#{msg.button_cancel}" action="select">
+  <h:commandButton accesskey="#{msg.a_cancel}" type="submit" value="#{msg.button_cancel}" action="select">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 </h:panelGrid>

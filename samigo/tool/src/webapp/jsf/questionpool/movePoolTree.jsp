@@ -45,21 +45,21 @@
     <h:column id="col1">
      <f:facet name="header">
       <h:panelGroup>
-       <h:commandLink id="sortByTitle" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='title'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortTitle}" id="sortByTitle" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='title'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="title"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{msg.p_name}"  rendered="#{questionpool.sortMovePoolProperty !='title'}" />
        </h:commandLink>
        <h:outputText  value="#{msg.p_name}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='title'}" />
-       <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='title' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink  title="#{msg.t_sortTitle}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='title' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="title"/>
           <f:param name="movePoolAscending" value="false" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='title' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink  title="#{msg.t_sortTitle}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='title' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="title"/>
           <f:param name="movePoolAscending" value="true" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
@@ -72,11 +72,11 @@
 --%>
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
-<h:outputLink id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
-<h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
+<h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
+<h:graphicImage alt="#{msg.alt_togglelink}" id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
-<h:outputLink id="togglelink"  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
-<h:graphicImage id="spacer_for_mozilla1" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
+<h:outputLink title="" id="togglelink"  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
+<h:graphicImage alt="#{msg.alt_togglelink}" id="spacer_for_mozilla1" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
 
 
@@ -89,21 +89,21 @@
     <h:column id="col2">
      <f:facet name="header">
       <h:panelGroup>
-       <h:commandLink id="sortByOwner" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='ownerId'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink  title="#{msg.t_sortCreator}" id="sortByOwner" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='ownerId'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="ownerId"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{msg.creator}"  rendered="#{questionpool.sortMovePoolProperty !='ownerId'}" />
        </h:commandLink>
        <h:outputText  value="#{msg.creator}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='ownerId'}" />
-       <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='ownerId' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortCreator}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='ownerId' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="ownerId"/>
           <f:param name="movePoolAscending" value="false" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortCreatorDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='ownerId' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink title="#{msg.t_sortCreator}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='ownerId' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="ownerId"/>
           <f:param name="movePoolAscending" value="true" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortCreatorAscending}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
@@ -115,21 +115,21 @@
     <h:column id="col3">
      <f:facet name="header">
        <h:panelGroup>
-       <h:commandLink id="sortByLastModified" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='lastModified'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortLastModified}" id="sortByLastModified" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='lastModified'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="lastModified"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{msg.last_mod}"  rendered="#{questionpool.sortMovePoolProperty !='lastModified'}" />
        </h:commandLink>
        <h:outputText  value="#{msg.last_mod}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='lastModified'}" />
-       <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='lastModified' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='lastModified' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="lastModified"/>
           <f:param name="movePoolAscending" value="false" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortLastModifiedDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='lastModified' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='lastModified' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="lastModified"/>
           <f:param name="movePoolAscending" value="true" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortLastModifiedAscending}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
@@ -143,21 +143,21 @@
     <h:column id="col4">
      <f:facet name="header">
       <h:panelGroup>
-       <h:commandLink id="sortByQuestion" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='question'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortNumQuestions}" id="sortByQuestion" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='question'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="question"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{msg.qs}"  rendered="#{questionpool.sortMovePoolProperty !='question'}" />
        </h:commandLink>
        <h:outputText  value="#{msg.qs}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='question'}" />
-       <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='question' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortNumQuestions}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='question' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="question"/>
           <f:param name="movePoolAscending" value="false" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortNumQuestionsDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='question' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink title="#{msg.t_sortNumQuestions}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='question' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="question"/>
           <f:param name="movePoolAscending" value="true" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortNumQuestionsAscending}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
@@ -170,21 +170,21 @@
     <h:column id="col5">
      <f:facet name="header">
       <h:panelGroup>
-       <h:commandLink id="sortBySubPool" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortSubpools}" id="sortBySubPool" immediate="true"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="true"/>
           <h:outputText  value="#{msg.subps}"  rendered="#{questionpool.sortMovePoolProperty !='subPoolSize'}" />
        </h:commandLink>
        <h:outputText  value="#{msg.subps}" styleClass="currentSort" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize'}" />
-       <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+       <h:commandLink title="#{msg.t_sortSubpools}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="false" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortSubpoolsDescending}" rendered="#{questionpool.sortMovePoolAscending}" url="/images/sortascending.gif"/>
       </h:commandLink>
-      <h:commandLink  immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
+      <h:commandLink title="#{msg.t_sortSubpools}" immediate="true" rendered="#{questionpool.sortMovePoolProperty =='subPoolSize' && !questionpool.sortMovePoolAscending }"  action="#{questionpool.sortMovePoolByColumnHeader}">
           <f:param name="movePoolOrderBy" value="subPoolSize"/>
           <f:param name="movePoolAscending" value="true" />
-          <h:graphicImage alt="#{msg.asc}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortSubpoolsAscending}" rendered="#{!questionpool.sortMovePoolAscending}" url="/images/sortdescending.gif"/>
       </h:commandLink>
       </h:panelGroup>
      </f:facet>

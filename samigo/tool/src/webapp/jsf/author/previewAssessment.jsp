@@ -127,7 +127,7 @@
   </h:column>
 </h:dataTable>
 <p class="act">
- <h:commandButton value="#{msg.button_back}"  action="editAssessment" type="submit" styleClass="active"/>
+ <h:commandButton accesskey="#{msg.a_back}" value="#{msg.button_back}"  action="editAssessment" type="submit" styleClass="active"/>
 </p>
 </h:form>
 <!-- end content -->

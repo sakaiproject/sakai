@@ -48,10 +48,10 @@
   <h:outputText  value="#{msg.media_access_denied_message}" /></h3>
   </div>
  <p class="act">
-  <h:commandButton value="Login" type="button"
+  <h:commandButton accesskey="#{msg.a_login}" value="Login" type="button"
      styleClass="active" onclick="javascript:window.open('/portal/','_top')" />
 
-  <h:commandButton value="#{msg.button_ok}" type="submit"
+  <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="submit"
      style="act" action="#{delivery.doit}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />

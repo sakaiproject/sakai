@@ -6,20 +6,6 @@
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-  <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
-     var="msg"/>
-   <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
-    <html xmlns="http://www.w3.org/1999/xhtml">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText
-        value="#{msg.title_total}" /></title>
-      </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!--
 <%--
 ***********************************************************************************
@@ -43,6 +29,19 @@
 **********************************************************************************/
 --%>
 -->
+ <f:view>
+    <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
+     var="msg"/>
+   <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head><%= request.getAttribute("html.head") %>
+      <title><h:outputText
+        value="#{msg.title_total}" /></title>
+      </head>
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
 <!-- content... -->
 <h:form id="editTotalResults">
@@ -54,21 +53,21 @@
 
   <h3>
     <h:outputText value="#{msg.title_total}"/>
-    <h:outputText value=": "/>
+    <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
   <p class="navModeAction">
-    <h:commandLink action="submissionStatus" immediate="true"
+    <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
       <h:outputText value="#{msg.sub_status}" />
       <f:param name="allSubmissions" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.anonymous eq 'true'}" />
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.anonymous eq 'true'}" />
     <h:outputText value="#{msg.title_total}" />
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink action="questionScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
       <f:param name="allSubmissions" value="3"/>
@@ -77,8 +76,8 @@
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
-    <h:commandLink action="histogramScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{msg.stat_view}" />
       <f:param name="hasNav" value="true"/>
@@ -100,7 +99,7 @@
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
   <span class="indnt1">
      <h:outputText value="#{msg.view}" />
-     <h:outputText value=": " />
+     <h:outputText value="#{msg.column} " />
      <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
         required="true" onchange="document.forms[0].submit();" >
 	<f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
@@ -162,7 +161,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
          <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
-       <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
+       <h:commandLink title="#{msg.t_sortLastName}" action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.firstName}" />
          <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
@@ -183,7 +182,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType ne 'lastName'}">
      <f:facet name="header">
-        <h:commandLink immediate="true" id="lastName" action="totalScores">
+        <h:commandLink title="#{msg.t_sortLastName}" immediate="true" id="lastName" action="totalScores">
           <h:outputText value="#{msg.name}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -199,7 +198,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
          <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
          <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
-       <h:commandLink action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}" >
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.firstName}" />
          <h:outputText value=" " />
          <h:outputText value="#{description.lastName}" />
@@ -220,7 +219,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column rendered="#{totalScores.anonymous eq 'true' && totalScores.sortType ne 'assessmentGradingId'}">
      <f:facet name="header">
-        <h:commandLink action="totalScores" >
+        <h:commandLink title="#{msg.t_sortSubmissionId}" action="totalScores" >
           <h:outputText value="#{msg.sub_id}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -231,7 +230,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 <%--
       <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
 --%>
-       <h:commandLink action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
+       <h:commandLink title="#{msg.t_student}" action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -255,7 +254,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 <%--
        <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
 --%>
-       <h:commandLink action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}">
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}">
          <h:outputText value="#{description.assessmentGradingId}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
@@ -274,7 +273,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!-- STUDENT ID -->
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='idString'}" >
      <f:facet name="header">
-       <h:commandLink id="idString" action="totalScores" >
+       <h:commandLink title="#{msg.t_sortUserId}" id="idString" action="totalScores" >
           <h:outputText value="#{msg.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -294,7 +293,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- ROLE -->
     <h:column rendered="#{totalScores.sortType ne 'role'}">
      <f:facet name="header" >
-        <h:commandLink id="role" action="totalScores">
+        <h:commandLink title="#{msg.t_sortRole}" id="role" action="totalScores">
           <h:outputText value="#{msg.role}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -315,7 +314,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- DATE -->
     <h:column rendered="#{totalScores.sortType!='submittedDate'}">
      <f:facet name="header">
-        <h:commandLink id="submittedDate" action="totalScores">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" id="submittedDate" action="totalScores">
           <h:outputText value="#{msg.date}" />
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -339,7 +338,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- STATUS -->
     <h:column rendered="#{totalScores.sortType!='status'}">
       <f:facet name="header">
-        <h:commandLink id="status" action="totalScores">
+        <h:commandLink title="#{msg.t_sortStatus}" id="status" action="totalScores">
           <h:outputText value="#{msg.status}" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -384,7 +383,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- TOTAL -->
     <h:column rendered="#{totalScores.sortType!='totalAutoScore'}">
       <f:facet name="header">
-        <h:commandLink id="totalAutoScore" action="totalScores">
+        <h:commandLink title="#{msg.t_sortScore}" id="totalAutoScore" action="totalScores">
           <h:outputText value="#{msg.tot}" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -404,7 +403,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- ADJUSTMENT -->
     <h:column rendered="#{totalScores.sortType!='totalOverrideScore'}">
       <f:facet name="header">
-        <h:commandLink id="totalOverrideScore" action="totalScores">
+        <h:commandLink title="#{msg.t_sortAdjustScore}" id="totalOverrideScore" action="totalScores">
           <h:outputText value="#{msg.adj}" />
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -432,7 +431,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- FINAL SCORE -->
     <h:column rendered="#{totalScores.sortType!='finalScore'}">
      <f:facet name="header">
-      <h:commandLink id="finalScore" action="totalScores" >
+      <h:commandLink title="#{msg.t_sortFinalScore}" id="finalScore" action="totalScores" >
         <h:outputText value="#{msg.final}" />
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -452,7 +451,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- COMMENT -->
     <h:column rendered="#{totalScores.sortType!='comments'}">
      <f:facet name="header">
-      <h:commandLink id="comments" action="totalScores">
+      <h:commandLink title="#{msg.t_sortComments}" id="comments" action="totalScores">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <h:outputText value="#{msg.comment}"/>
@@ -482,10 +481,12 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
   </h:dataTable>
 
+<h:outputText value="#{msg.mult_sub}"/>
+
 <p class="act">
 
    <%-- <h:commandButton value="#{msg.save_exit}" action="author"/> --%>
-   <h:commandButton styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit" >
+   <h:commandButton accesskey="#{msg.a_save}" styleClass="active" value="#{msg.save_cont}" action="totalScores" type="submit" >
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       <f:actionListener

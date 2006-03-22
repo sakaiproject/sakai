@@ -49,12 +49,12 @@
           <h:outputText value="#{msg.cert_rem_assmt} \"#{assessmentBean.title}\" ?" />
   </div>
 <p class="act">
-       <h:commandButton value="#{msg.button_remove}" type="submit"
+       <h:commandButton accesskey="#{msg.a_remove}" value="#{msg.button_remove}" type="submit"
          styleClass="active" action="removeAssessment" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAssessmentListener" />
        </h:commandButton>
-       <h:commandButton value="#{msg.button_cancel}" type="submit"
+       <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit"
          action="author" />
     </p>
  </h:form>

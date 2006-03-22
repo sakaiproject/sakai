@@ -7,19 +7,7 @@
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   
-<f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
-     var="msg"/>
-   <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
-    <html xmlns="http://www.w3.org/1999/xhtml">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText
-        value="#{msg.sub_status}" /></title>
-      </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+
 <!--
 $Id$
 <%--
@@ -44,6 +32,20 @@ $Id$
 **********************************************************************************/
 --%>
 -->
+
+<f:view>
+    <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
+     var="msg"/>
+   <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head><%= request.getAttribute("html.head") %>
+      <title><h:outputText
+        value="#{msg.sub_status}" /></title>
+      </head>
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
  <div class="portletBody">
 <h:form id="editTotalResults">
@@ -55,26 +57,26 @@ $Id$
 
   <h3>
     <h:outputText value="#{msg.sub_status}"/>
-    <h:outputText value=": "/>
+    <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
   <p class="navModeAction">
     <h:outputText value="#{msg.sub_status}" />
-    <h:outputText value=" | " />
-    <h:commandLink action="totalScores" immediate="true">
+    <h:outputText value=" #{msg.separator} " />
+    <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{msg.title_total}" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink action="questionScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{msg.q_view}" />
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
-    <h:outputText value=" | " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
-    <h:commandLink action="histogramScores" immediate="true"
+    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{msg.stat_view}" />
       <f:param name="hasNav" value="true"/>
@@ -114,7 +116,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column rendered="#{submissionStatus.sortType ne 'lastName'}">
      <f:facet name="header">
-        <h:commandLink immediate="true" id="lastName" action="submissionStatus">
+        <h:commandLink title="#{msg.t_sortLastName}" immediate="true" id="lastName" action="submissionStatus">
           <h:outputText value="#{msg.name}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
@@ -151,7 +153,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!-- STUDENT ID -->
     <h:column  rendered="#{submissionStatus.sortType ne 'idString'}" >
      <f:facet name="header">
-       <h:commandLink id="idString" action="submissionStatus" >
+       <h:commandLink title="#{msg.t_sortUserId}" id="idString" action="submissionStatus" >
           <h:outputText value="#{msg.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
@@ -171,7 +173,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- ROLE -->
     <h:column rendered="#{submissionStatus.sortType ne 'role'}">
      <f:facet name="header" >
-        <h:commandLink id="role" action="submissionStatus">
+        <h:commandLink title="#{msg.t_sortRole}" id="role" action="submissionStatus">
           <h:outputText value="#{msg.role}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
@@ -191,7 +193,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <!-- DATE -->
     <h:column rendered="#{submissionStatus.sortType ne 'submittedDate'}">
      <f:facet name="header">
-        <h:commandLink id="submittedDate" action="submissionStatus">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" id="submittedDate" action="submissionStatus">
           <h:outputText value="#{msg.date}" />
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />

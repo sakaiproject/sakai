@@ -92,7 +92,7 @@ function clickSubmitForGrade(){
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -102,7 +102,7 @@ function clickSubmitForGrade(){
                            || delivery.actionString=='takeAssessmentViaUrl' 
                            || delivery.actionString=='previewAssessment')
                         && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="Estimated Time Remaining: "/><f:verbatim></span></f:verbatim>
+<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{msg.time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
@@ -118,7 +118,7 @@ function clickSubmitForGrade(){
 
 
 <div class="indnt1">
-  <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}: "/><f:verbatim></b></f:verbatim>
+  <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}#{msg.column} "/><f:verbatim></b></f:verbatim>
   <h:outputText value="#{msg.instruction_submitGrading}" />
 </div>
 
@@ -138,9 +138,9 @@ function clickSubmitForGrade(){
   <h5 class="plain">
     <h:outputLabel value="#{msg.key}"/>
   </h5>
-  <h:graphicImage  alt="#{msg.unans_q}" url="/images/tree/blank.gif" />
-  <h:outputText value="#{msg.unans_q}" /><br>
-  <h:graphicImage  alt="#{msg.q_marked}" url="/images/tree/marked.gif" />
+  <h:graphicImage  alt="#{msg.alt_unans_q}" url="/images/tree/blank.gif" />
+  <h:outputText value="#{msg.unans_q}" /><br/>
+  <h:graphicImage  alt="#{msg.alt_q_marked}" url="/images/tree/marked.gif" />
   <h:outputText value="#{msg.q_marked}" />
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
@@ -159,12 +159,12 @@ function clickSubmitForGrade(){
           <h:column>
             <f:verbatim><div class="indnt3"></f:verbatim>
             <h:panelGroup>
-            <h:graphicImage alt="#{msg.unans_q}" 
+            <h:graphicImage alt="#{msg.alt_unans_q}" 
                url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
-            <h:graphicImage alt="#{msg.q_marked}"
+            <h:graphicImage alt="#{msg.alt_q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
-              <h:commandLink immediate="true" action="takeAssessment"> 
-                <h:outputText escape="false" value="#{question.sequence}. #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
+              <h:commandLink title="#{msg.t_takeAssessment}" immediate="true" action="takeAssessment"> 
+                <h:outputText escape="false" value="#{question.sequence}#{msg.dot} #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
 <f:convertNumber maxFractionDigits="2"/>
         </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />
@@ -190,19 +190,19 @@ function clickSubmitForGrade(){
                              && authorization!=null 
                              && authorization.takeAssessment 
                              && authorization.submitAssessmentForGrade)}">
-    <h:commandButton type="submit" value="#{msg.button_submit_grading}"
+    <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}" styleClass="active"  
       onclick="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
-  <h:commandButton type="submit" value="#{msg.button_submit}"
+  <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}" styleClass="active"   
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
-  <h:commandButton type="submit" value="#{msg.button_save_x}"
+  <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}"
     onclick="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessment'
@@ -210,7 +210,7 @@ function clickSubmitForGrade(){
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
-  <h:commandButton type="submit" value="#{msg.button_quit}"
+  <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     onclick="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" >
@@ -221,7 +221,7 @@ function clickSubmitForGrade(){
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
      <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton value="#{msg.done}" action="editAssessment" type="submit"/>
+     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="editAssessment" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

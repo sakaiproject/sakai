@@ -94,7 +94,7 @@
 
         </h:panelGrid>
 <p class="act">
-  <h:commandButton value="#{msg.button_back}"  action="editPool" type="submit" styleClass="active"/>
+  <h:commandButton id="back" accesskey="#{msg.a_back}" value="#{msg.button_back}"  action="editPool" type="submit" styleClass="active"/>
 
 </p>
 

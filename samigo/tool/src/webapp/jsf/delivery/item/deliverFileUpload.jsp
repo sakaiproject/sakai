@@ -41,7 +41,7 @@ should be included in file importing DeliveryMessages
     target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}"
     valueChangeListener="#{delivery.addMediaToItemGrading}" />
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-  <h:commandButton value="Upload" action="#{delivery.getOutcome}" />
+  <h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" action="#{delivery.getOutcome}" />
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
@@ -54,9 +54,9 @@ should be included in file importing DeliveryMessages
   <!-- please check the valueChangeListener to get the final destination -->
   <h:inputText size="50" />
   <h:outputText value="  " />
-  <h:commandButton value="Browse" type="button"/>
+  <h:commandButton accesskey="#{msg.a_browse}" value="#{msg.browse}" type="button"/>
   <h:outputText value="  " />
-  <h:commandButton value="Upload" type="button"/>
+  <h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="button"/>
 </h:panelGroup>
 
 <f:verbatim><br /></f:verbatim>
@@ -71,15 +71,15 @@ should be included in file importing DeliveryMessages
           </h:outputLink>
         </h:column>
         <h:column>
-         <h:outputText value="("/>
+         <h:outputText value="#{msg.open_bracket}"/>
          <h:outputText value="#{media.createdDate}">
            <f:convertDateTime pattern="#{msg.delivery_date_no_time_format}" />
          </h:outputText>
-         <h:outputText value=")"/>
+         <h:outputText value="#{msg.close_bracket}"/>
         </h:column>
         <h:column rendered="#{delivery.actionString=='takeAssessment' 
                            || delivery.actionString=='takeAssessmentViaUrl'}">
-          <h:commandLink action="confirmRemoveMedia" immediate="true">
+          <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
             <h:outputText value="#{msg.remove}" />
             <f:param name="mediaId" value="#{media.mediaId}"/>
             <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
@@ -108,7 +108,7 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}: " />
+    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />

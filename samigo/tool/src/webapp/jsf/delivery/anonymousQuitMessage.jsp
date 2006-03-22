@@ -49,10 +49,10 @@
  </div>
 
 <p class="act">
-  <h:commandButton value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_continue}" type="button"
      styleClass="active" onclick="javascript:history.go(-1);" />
 
-  <h:commandButton value="#{msg.button_quit}" type="button"
+  <h:commandButton accesskey="#{msg.a_quit}" value="#{msg.button_quit}" type="button"
      onclick="javascript:window.open('/portal/','_top')" />
 </p>
 </h:form>

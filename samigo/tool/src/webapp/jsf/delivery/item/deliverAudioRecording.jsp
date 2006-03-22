@@ -38,10 +38,10 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputLabel value="#{msg.time_limit}: "  />
+<h:outputLabel value="#{msg.time_limit}#{msg.column} "  />
 <h:outputText value="#{question.duration} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputLabel value="#{msg.NoOfTries}: " />
+<h:outputLabel value="#{msg.NoOfTries}#{msg.column} " />
 <h:outputText value="#{question.triesAllowed} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <f:verbatim>
@@ -123,7 +123,7 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 <f:verbatim><br /></f:verbatim>
 
 <%-- delivery, actual upload action --%>
-<h:commandButton value="Upload" type="submit"
+<h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="submit"
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl'}" >
   <f:actionListener
@@ -131,7 +131,7 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 </h:commandButton>
 
 <%-- preview, simulated upload action --%>
-<h:commandButton value="Upload" type="button"
+<h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="button"
   rendered="#{delivery.actionString=='previewAssessment'
                        || delivery.actionString=='reviewAssessment'
                        || delivery.actionString=='gradeAssessment'}" />
@@ -147,14 +147,14 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}: " />
+    <h:outputLabel for="feedSC" value="#{msg.feedback}#{msg.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false"/>
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}: " />
+    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" />
   </h:panelGroup>

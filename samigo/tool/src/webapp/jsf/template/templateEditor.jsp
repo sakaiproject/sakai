@@ -3,6 +3,9 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 
+<!DOCTYPE html
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <!-- $Id$
 <%--
@@ -27,13 +30,14 @@
 **********************************************************************************/
 --%>
 -->
-<!DOCTYPE html
-     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
   <f:view>
   <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.TemplateMessages"
      var="msg"/>
+ <f:loadBundle
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
+     var="genMsg"/>
  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
@@ -46,26 +50,26 @@
   <h:form id="templateEditorForm">
   
    <p class="navIntraTool" >
-   <h:commandLink action="author" id="authorLink" immediate="true">
-      <h:outputText value="#{msg.link_assessments}" />
+   <h:commandLink title="#{genMsg.t_assessment}" action="author" id="authorLink" immediate="true">
+      <h:outputText value="#{genMsg.assessment}" />
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
    </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="template" id="templateLink" immediate="true">
-      <h:outputText value="#{msg.index_templates}" />
+    <h:outputText value=" #{genMsg.separator} " />
+    <h:commandLink title="#{genMsg.t_template}" action="template" id="templateLink" immediate="true">
+      <h:outputText value="#{genMsg.template}" />
        <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
-    <h:outputText value=" | " />
-    <h:commandLink action="poolList" id="poolLink" immediate="true">
+    <h:outputText value=" #{genMsg.separator} " />
+    <h:commandLink title="#{genMsg.t_questionPool}" action="poolList" id="poolLink" immediate="true">
       <h:outputText value="#{msg.link_pool}" />
     </h:commandLink>
    </p>
 <h3><h:outputText value="#{msg.template_editor}"/>
      <h:outputText value="#{template.templateName}"/>
 </h3>
- <h:outputText value="#{msg.template_instructions}"/>
+ <h:outputText escape="false" value="#{msg.template_instructions}"/>
  <h:messages styleClass="validation"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="indnt1">
@@ -608,17 +612,17 @@
 
   <p class="act">
   <h:panelGroup rendered="#{template.idString ne '1' || person.isAdmin}">
-    <h:commandButton type="submit" id="Submit" value="#{msg.save}"
+    <h:commandButton accesskey="#{msg.a_save}" type="submit" id="Submit" value="#{msg.save}"
       action="#{templateIndex.getOutcome}" styleClass="active">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateUpdateListener" />
                 </h:commandButton>
     <h:outputText escape="false" value="&nbsp;&nbsp;" />
-    <h:commandButton type="submit" id="Cancel" value="#{msg.cancel}"
+    <h:commandButton accesskey="#{msg.a_cancel}" type="submit" id="Cancel" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
   <h:panelGroup rendered="#{template.idString eq '1' && !person.isAdmin}">
-    <h:commandButton type="submit" id="Exit" value="#{msg.cancel}"
+    <h:commandButton accesskey="#{msg.a_cancel}" type="submit" id="Exit" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
   </p>

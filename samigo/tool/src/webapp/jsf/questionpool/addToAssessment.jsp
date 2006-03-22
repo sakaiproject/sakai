@@ -74,9 +74,9 @@
 
  <f:verbatim><br /><br />
   <center>
-  <h:commandButton type="submit" id="Submit" value="#{msg.save}"
+  <h:commandButton accesskey="#{msg.a_save}" type="submit" id="Submit" value="#{msg.save}"
     action="addToAssessment"/>
-  <h:commandButton type="cancel" id="Cancel" value="#{msg.cancel}"
+  <h:commandButton accesskey="#{msg.a_cancel}" type="cancel" id="Cancel" value="#{msg.cancel}"
     action="canceladdToAssessment"/>
   </center></f:verbatim>
  </h:form>

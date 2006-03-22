@@ -33,10 +33,10 @@ include file for displaying multiple choice questions
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
     <h:column>
       <h:graphicImage id="image6" rendered="#{answer.isCorrect}"
-        alt="#{msg.correct}" url="/images/delivery/checkmark.gif" >
+        alt="#{msg.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image7" rendered="#{!answer.isCorrect}"
-        alt="#{msg.not_correct}" url="/images/delivery/spacer.gif" >
+        alt=" " url="/images/delivery/spacer.gif" >
        </h:graphicImage>
     </h:column>
     <h:column>

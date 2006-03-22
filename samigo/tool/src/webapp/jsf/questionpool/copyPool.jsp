@@ -36,7 +36,7 @@
   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="copy pool"/></title>
+      <title><h:outputText value="#{msg.copy_p}"/></title>
                         <!-- stylesheet and script widgets -->
 <script language="javascript" style="text/JavaScript">
 <!--
@@ -83,15 +83,15 @@
 
 <p class="act">
 
-  <h:commandButton id="copypoolsubmit" immediate="true" value="#{msg.copy}"
+  <h:commandButton accesskey="#{msg.a_copy}" id="copypoolsubmit" immediate="true" value="#{msg.copy}"
     action="#{questionpool.copyPool}" styleClass="active" rendered="#{questionpool.actionType == 'pool'}">
   </h:commandButton>
 
-  <h:commandButton id="copyitemsubmit" immediate="true" value="#{msg.copy}"
+  <h:commandButton accesskey="#{msg.a_copy}" id="copyitemsubmit" immediate="true" value="#{msg.copy}"
     action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}">
   </h:commandButton>
 
-<h:commandButton value="#{msg.cancel}" action="poolList"/>
+<h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.cancel}" action="poolList"/>
 
 </p>
 </h:form>

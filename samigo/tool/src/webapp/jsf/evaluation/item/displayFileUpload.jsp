@@ -38,11 +38,12 @@ should be included in file importing DeliveryMessages
           </h:outputLink>
         </h:column>
         <h:column>
-         <h:outputText value="("/>
+         <h:outputText value="#{msg.open_bracket}"/>
          <h:outputText value="#{media.createdDate}">
            <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
+
          </h:outputText>
-         <h:outputText value=")"/>
+         <h:outputText value="#{msg.close_bracket}"/>
         </h:column>
       </h:dataTable>
 

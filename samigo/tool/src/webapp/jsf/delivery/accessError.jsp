@@ -56,14 +56,14 @@
    </h:panelGroup>
 
    <f:verbatim><p class="act"></f:verbatim>
-       <h:commandButton value="#{msg.button_return}" type="submit"
+       <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_return}" type="submit"
           style="act" action="select" 
           rendered="#{delivery.actionString=='takeAssessment'}">
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
    <f:verbatim></p></f:verbatim>
-  <h:commandButton value="#{msg.button_return}" type="button" 
+  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_return}" type="button" 
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
      style="act" onclick="javascript:window.open('login.faces','_top')" />
 
