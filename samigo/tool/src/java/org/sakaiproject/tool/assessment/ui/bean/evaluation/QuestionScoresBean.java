@@ -54,6 +54,7 @@ public class QuestionScoresBean
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
   private String itemName;
+    private String partName;
   private String itemId;
   private String anonymous;
   private String groupName;
@@ -106,6 +107,27 @@ public class QuestionScoresBean
   {
     assessmentName = passessmentName;
   }
+
+ /**
+   * get part name
+   *
+   * @return the name
+   */
+  public String getPartName()
+  {
+    return Validator.check(partName, "N/A");
+  }
+
+  /**
+   * set part name
+   *
+   * @param ppartName the name
+   */
+  public void setPartName(String ppartName)
+  {
+    partName = ppartName;
+  }
+
 
   /**
    * get item name

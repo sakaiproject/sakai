@@ -341,7 +341,9 @@ public class QuestionScoreListener
         SectionDataIfc section = (SectionDataIfc) iter.next();
         ArrayList items = new ArrayList();
         PartData part = new PartData();
-        part.setPartNumber("Part " + i + ":");
+	
+	part.setPartNumber(""+i);
+    
         part.setId(section.getSectionId().toString());
         Iterator iter2 = section.getItemArraySortedForGrading().iterator();
         int j = 1;
@@ -349,7 +351,8 @@ public class QuestionScoreListener
         {
           ItemDataIfc item = (ItemDataIfc) iter2.next();
           PartData partitem = new PartData();
-          partitem.setPartNumber("Q" + j);
+	  
+          partitem.setPartNumber(""+j);
           partitem.setId(item.getItemId().toString());
           if (totalBean.getAnsweredItems().get(item.getItemId()) != null)
             partitem.setLinked(true);
@@ -366,13 +369,15 @@ public class QuestionScoreListener
       bean.setSections(sections);
 
       ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
+
       if (item!=null){
         bean.setTypeId(item.getTypeId().toString());
         bean.setItemId(item.getItemId().toString());
-        bean.setItemName("Part " + item.getSection().getSequence().toString()
-          + ", Question " + item.getSequence().toString());
+	bean.setPartName(item.getSection().getSequence().toString()); 
+        bean.setItemName(item.getSequence().toString());
         item.setHint("***"); // Keyword to not show student answer
       }
+
 
       ArrayList deliveryItems = new ArrayList(); // so we can use the var
       if (item!=null)  deliveryItems.add(item);
