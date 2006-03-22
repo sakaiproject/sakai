@@ -101,6 +101,15 @@ public class ItemAddListener
 
     if(iType.equals(TypeFacade.MULTIPLE_CORRECT.toString()))
 	checkMC(false);
+    if(iType.equals(TypeFacade.MATCHING.toString()))
+        {   
+            ArrayList l=item.getMatchItemBeanList();
+	    if (l==null || l.size()==0){
+		String noPairMatching_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
+		context.addMessage(null,new FacesMessage(noPairMatching_err));
+		error=true;
+	    }
+	}
     if(error)
 	return;
     
