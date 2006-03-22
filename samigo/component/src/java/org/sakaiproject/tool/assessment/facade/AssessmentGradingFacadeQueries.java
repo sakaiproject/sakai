@@ -475,26 +475,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
-    if (assessment.getAssessmentGradingId()!=null && assessment.getAssessmentGradingId().intValue() > 0)
-      updateAssessmentGrading(assessment);
-    else
-      saveAssessmentGrading(assessment);
-  }
-
-
-  public void saveAssessmentGrading(AssessmentGradingIfc assessment) {
-    try {
-        getHibernateTemplate().save((AssessmentGradingData)assessment);
-    } catch (Exception e) {
-      log.warn("problem inserting assessmentGrading: "+e.getMessage());
-    }
-  }
-
-  public void updateAssessmentGrading(AssessmentGradingIfc assessment) {
-    try {
-      getHibernateTemplate().update((AssessmentGradingData)assessment);
-    } catch (Exception e) {
-      log.warn("problem updating assessmentGrading: "+e.getMessage());
+    int retryCount = 5;
+    while (retryCount > 0){ 
+      try {
+        getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
+        retryCount = 0;
+      }
+      catch (SQLException e) {
+        log.warn("problem inserting assessmentGrading: "+e.getMessage());
+        String sqlState = e.getSQLState();
+        if ("61000".equals(sqlState)){ // deadlock
+          log.warn("retry....");
+	  retryCount--;
+          try {
+            Thread.currentThread().sleep(500);
+          }
+          catch(InterruptedException ex){
+            log.warn(ex.getMessage()); 
+	  }
+        }
+        else retryCount = 0;
+      }
     }
   }
 
