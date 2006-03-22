@@ -83,6 +83,16 @@ public class PersistenceService{
           return deadlockInterval;
         }
 
+        private Integer retryCount; // in ms
+
+        public void setRetryCount(Integer retryCount){
+          this.retryCount = retryCount;
+        }
+
+        public Integer getRetryCount(){
+          return retryCount;
+        }
+
 
 	public QuestionPoolFacadeQueriesAPI getQuestionPoolFacadeQueries(){
 		return questionPoolFacadeQueries;

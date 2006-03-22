@@ -6,6 +6,7 @@
 	<bean id="PersistenceService"
 		class="org.sakaiproject.tool.assessment.services.PersistenceService">
                 <property name="deadlockInterval"><value>2500</value></property>
+                <property name="retryCount"><value>5</value></property>
 		<property name="typeFacadeQueries">
 			<ref bean="TypeFacadeQueries" />
 		</property>
