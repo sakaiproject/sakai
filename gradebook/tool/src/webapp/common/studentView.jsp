@@ -13,7 +13,8 @@
 			columnClasses="itemName"
 			styleClass="itemSummary">
 			<h:outputText value="#{msgs.student_view_cumulative_score}"/>
-			<h:outputFormat value="#{msgs.student_view_cumulative_score_details}">
+            <h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
+            <h:outputFormat value="#{msgs.student_view_cumulative_score_details}" rendered="#{studentViewBean.courseGradeReleased}">
 				<f:param value="#{studentViewBean.totalPointsEarned}" />
 				<f:param value="#{studentViewBean.totalPointsScored}" />
 				<f:param value="#{studentViewBean.percent}" />
@@ -23,7 +24,7 @@
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
 				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
-				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted}" escape="false"/>
+				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted && studentViewBean.courseGradeReleased}" escape="false"/>
 			</h:panelGroup>
 		</h:panelGrid>
 
@@ -67,20 +68,30 @@
 							<h:outputText value="#{msgs.student_view_score}"/>
 						</x:commandSortHeader>
 					</f:facet>
-					<h:outputText value="#{row.gradeRecord}" escape="false">
+
+                    <h:outputText value="#{row.gradeRecord}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
 					</h:outputText>
-				</h:column>
+                    <h:outputText value="#{row.gradeRecord.pointsEarned}" escape="false" rendered="#{!studentViewBean.courseGradeReleased}">
+                        <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
+                    </h:outputText>
+
+                </h:column>
 				<h:column>
 					<f:facet name="header">
 						<x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_points}"/>
 						</x:commandSortHeader>
 					</f:facet>
-					<h:outputText value="#{row.assignment}" escape="false">
+					<h:outputText value="#{row.assignment}" escape="false" rendered="#{studentViewBean.courseGradeReleased}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
 					</h:outputText>
-				</h:column>
+
+                    <h:outputText value="#{row.gradeRecord.pointsEarned}" escape="false" rendered="#{!studentViewBean.courseGradeReleased}">
+                        <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
+                    </h:outputText>
+
+                </h:column>
 				<h:column>
 					<f:facet name="header">
 						<x:commandSortHeader columnName="grade" immediate="true" arrow="true">
