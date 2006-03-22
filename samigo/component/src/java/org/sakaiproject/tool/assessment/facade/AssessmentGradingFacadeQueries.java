@@ -478,13 +478,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     int retryCount = 5;
     while (retryCount > 0){ 
       try {
+        /* for testing the catch block - daisyf
+        if (retryCount >2)
+          throw new Exception("SQLState: 61000");
+        */
         getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
         retryCount = 0;
       }
-      catch (SQLException e) {
+      catch (Exception e) {
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
-        String sqlState = e.getSQLState();
-        if ("61000".equals(sqlState)){ // deadlock
+        String errorMessage = e.getMessage();
+        int index = errorMessage.indexOf("SQLState: 61000"); // deadlock 
+        if (index > -1 ){
           log.warn("retry....");
 	  retryCount--;
           try {
