@@ -73,6 +73,17 @@ public class PersistenceService{
           }
 	}
 
+        private Integer deadlockInterval; // in ms
+
+        public void setDeadlockInterval(Integer deadlockInterval){
+          this.deadlockInterval = deadlockInterval;
+        }
+
+        public Integer getDeadlockInterval(){
+          return deadlockInterval;
+        }
+
+
 	public QuestionPoolFacadeQueriesAPI getQuestionPoolFacadeQueries(){
 		return questionPoolFacadeQueries;
 	}

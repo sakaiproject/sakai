@@ -50,6 +50,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -478,7 +479,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     int retryCount = 5;
     while (retryCount > 0){ 
       try {
-        /* for testing the catch block - daisyf
+	/* for testing the catch block - daisyf 
         if (retryCount >2)
           throw new Exception("SQLState: 61000");
         */
@@ -493,7 +494,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           log.warn("retry....");
 	  retryCount--;
           try {
-            Thread.currentThread().sleep(500);
+            int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
+            System.out.println("****deadlockInterval="+deadlockInterval);
+            Thread.currentThread().sleep(deadlockInterval);
           }
           catch(InterruptedException ex){
             log.warn(ex.getMessage()); 
@@ -736,30 +739,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
     return h;
   }
-
-    /*
-    public void setIsLate(AssessmentGradingIfc data){
-	data.setSubmittedDate(new Date());
-	if (data.getPublishedAssessment().getAssessmentAccessControl() != null
-	    && data.getPublishedAssessment().getAssessmentAccessControl()
-	    .getDueDate() != null &&
-	    data.getPublishedAssessment().getAssessmentAccessControl()
-	    .getDueDate().before(new Date()))
-	    data.setIsLate(new Boolean(true));
-	else
-	    data.setIsLate(new Boolean(false));
-	if (data.getForGrade().booleanValue())
-	    data.setStatus(new Integer(1));
-	else
-	    data.setStatus(new Integer(0));
-
-        // I don't know why we need to set OverrideScore to 0 here,
-        // but at least we shouldn't set it to 0 if there is an existing value
-        // so I added to check null before setting - daisyf for v2.1.2
-        if (data.getTotalOverrideScore()==null)
-          data.setTotalOverrideScore(new Float(0));
-    } 
-    */ 
 
   public void deleteAll(Collection c){
     getHibernateTemplate().deleteAll(c);
