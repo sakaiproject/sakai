@@ -490,7 +490,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
         String errorMessage = e.getMessage();
         int index = errorMessage.indexOf("ORA-00060"); // deadlock 
-        if (index > -1 ){
+        int index2 = errorMessage.indexOf("SQL state [61000]"); // deadlock 
+        if (index > -1 || index2 > -1){
           log.warn("retry....");
 	  retryCount--;
           try {
