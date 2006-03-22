@@ -89,7 +89,6 @@ public class TimeUtil
     Date serverDate= null;
     try {
       serverDate= ndf.parse(tz1string);
-    System.out.println("in convertFromTz1string to timezone 2 date , serverdate = "  + serverDate);
     }
     catch(Exception e){
       e.printStackTrace();
@@ -113,7 +112,6 @@ public class TimeUtil
     Calendar cal1= new GregorianCalendar(tz1);
     ndf.setCalendar(cal1);
     String clientStr= ndf.format(tz2Date);
-    System.out.println("in convertFromTz1date to timezone 2 string, clienttime = "  + clientStr);
 
     return clientStr;
   }
@@ -124,19 +122,14 @@ public class TimeUtil
 
   public Date getServerDateTime(SimpleDateFormat ndf, String clientString){
     Date serverDate = null;
-System.out.println("\n TimeUtil calling getServerDateTime");
-System.out.println("\n TimeUtil client tmezone" + m_client_timezone);
-System.out.println("TimeUtil server tmezone" + m_server_timezone);
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
-System.out.println("\n has DIFF rules ");
 
         serverDate =convertFromTimeZone1StringToTimeZone2Date 
                         (ndf, clientString, m_client_timezone, m_server_timezone);
       }
       else {
-System.out.println("\n has same rules ");
         serverDate= ndf.parse(clientString);
       }
     }
@@ -153,19 +146,14 @@ System.out.println("\n has same rules ");
 
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate ){
     String displayDate = "";
-System.out.println("\n TimeUtil calling getDisplayDateTime");
-System.out.println("\nTimeUtil client tmezone" + m_client_timezone);
-System.out.println("TimeUtil server tmezone" + m_server_timezone);
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
 
-System.out.println("\n has DIFF rules ");
         displayDate = convertFromTimeZone1DateToTimeZone2String
 			(ndf, serverDate, m_client_timezone, m_server_timezone);
       }
       else {
-System.out.println("\n has same rules ");
         displayDate= ndf.format(serverDate);
       }
     }

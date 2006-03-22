@@ -837,6 +837,44 @@ System.out.println("lydiatest updated in gradebook");
     if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)
         && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
         if(log.isDebugEnabled()) log.debug("Attempting to update a score in the gradebook");
+
+    // add retry logic to resolve deadlock problem while sending grades to gradebook
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        /* for testing the catch block 
+        if (retryCount >2)
+          throw new Exception();
+        */
+        gbsHelper.updateExternalAssessmentScore(data, g);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem sending grades to gradebook: "+e.getMessage());
+        log.warn("retrying...sending grades to gradebook. ");
+        String errorMessage = e.getMessage();
+          log.warn("retry....");
+          retryCount--;
+          try {
+            int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
+            System.out.println("****deadlockInterval="+deadlockInterval);
+            Thread.currentThread().sleep(deadlockInterval);
+          }
+          catch(InterruptedException ex){
+            log.warn(ex.getMessage());
+          }
+         if (retryCount==0) {
+            // after retries, still failed updating gradebook
+            log.warn("After all retries, still failed ...  Now throw error to UI");
+            throw new GradebookServiceException(e);
+         }
+      }
+    }
+
+////
+
+/*
         try {
             gbsHelper.updateExternalAssessmentScore(data, g);
         } catch (Exception e) {
@@ -845,6 +883,7 @@ System.out.println("lydiatest updated in gradebook");
             throw new GradebookServiceException(e);
 
         }
+*/
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
