@@ -481,8 +481,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       try {
 	/* for testing the catch block - daisyf 
         if (retryCount >2)
-          throw new Exception("ORA-00060");
-        */ 
+          throw new Exception("uncategorized SQLException for SQL []; SQL state [61000]; error code [60]; ORA-00060: deadlock detected while waiting for resource");
+	*/ 
         getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
         retryCount = 0;
       }
