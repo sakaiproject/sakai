@@ -34,7 +34,7 @@ include file for displaying matching questions
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
      <h:column>
       <h:graphicImage alt="#{msg.alt_correct}" id="image4" rendered="#{answer.isCorrect}"
-        alt="#{msg.correct}" url="/images/delivery/checkmark.gif" >
+        url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image5" rendered="#{!answer.isCorrect}"
         alt=" " url="/images/delivery/spacer.gif" >

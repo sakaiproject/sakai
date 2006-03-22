@@ -28,5 +28,5 @@ include file for displaying audio questions
 <h:outputText value="#{question.description}" escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{question.text}"  escape="false"/>
-  <h:graphicImage alt="#{msg.alt_recording}" id="image1" alt="#{msg2.audio_recording}."
+  <h:graphicImage alt="#{msg.alt_recording}" id="image1"
     url="/images/recordresponse.gif" />
