@@ -87,7 +87,7 @@
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
 					</h:outputText>
 
-                    <h:outputText value="#{row.gradeRecord.pointsEarned}" escape="false" rendered="#{!studentViewBean.courseGradeReleased}">
+                    <h:outputText value="#{row.assignment.pointsPossible}" escape="false" rendered="#{!studentViewBean.courseGradeReleased}">
                         <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
                     </h:outputText>
 
