@@ -481,15 +481,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       try {
 	/* for testing the catch block - daisyf 
         if (retryCount >2)
-          throw new Exception("SQLState: 61000");
-        */
+          throw new Exception("ORA-00060");
+        */ 
         getHibernateTemplate().saveOrUpdate((AssessmentGradingData)assessment);
         retryCount = 0;
       }
       catch (Exception e) {
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
         String errorMessage = e.getMessage();
-        int index = errorMessage.indexOf("SQLState: 61000"); // deadlock 
+        int index = errorMessage.indexOf("ORA-00060"); // deadlock 
         if (index > -1 ){
           log.warn("retry....");
 	  retryCount--;
