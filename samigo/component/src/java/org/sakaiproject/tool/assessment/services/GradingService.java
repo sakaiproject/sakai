@@ -133,7 +133,6 @@ public class GradingService
       System.out.println("**** GradingService: saveTotalScores");
     try {
      AssessmentGradingData gdata = null;
-System.out.println("lydiatest savetotalscore. gdatalist size  = " + gdataList.size());
       if (gdataList.size()>0)
         gdata = (AssessmentGradingData) gdataList.get(0);
       else return;
@@ -141,7 +140,6 @@ System.out.println("lydiatest savetotalscore. gdatalist size  = " + gdataList.si
       Integer scoringType = getScoringType(pub);
       ArrayList oldList = getAssessmentGradingsByScoringType(
           scoringType, gdata.getPublishedAssessmentId());
-System.out.println("lydiatest savetotalscore. oldlist size  = " + oldList.size());
       for (int i=0; i<gdataList.size(); i++){
         AssessmentGradingData ag = (AssessmentGradingData)gdataList.get(i);
         saveOrUpdateAssessmentGrading(ag);
@@ -151,9 +149,7 @@ System.out.println("lydiatest savetotalscore. oldlist size  = " + oldList.size()
       // we only want to notify GB when there are changes
       ArrayList newList = getAssessmentGradingsByScoringType(
         scoringType, gdata.getPublishedAssessmentId());
-System.out.println("lydiatest savetotalscore. newlist size  = " + newList.size());
       ArrayList l = getListForGradebookNotification(newList, oldList);
-System.out.println("lydiatest savetotalscore. l size  = " + l.size());
       
       notifyGradebook(l, pub);
       //}
@@ -232,9 +228,7 @@ System.out.println("lydiatest savetotalscore. l size  = " + l.size());
 
   private void notifyGradebook(ArrayList l, PublishedAssessmentIfc pub){
     for (int i=0; i<l.size(); i++){
-System.out.println("lydiatest i = " + i ); 
       notifyGradebook((AssessmentGradingData)l.get(i), pub);
-System.out.println("lydiatest updated in gradebook");
     }
   }
 

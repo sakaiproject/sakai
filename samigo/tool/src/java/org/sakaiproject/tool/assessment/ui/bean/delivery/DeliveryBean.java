@@ -180,6 +180,7 @@ public class DeliveryBean
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = -1090852048737428722L;
   private boolean showStudentScore;
+  private boolean showStudentQuestionScore;
 
   // SAM-387
   // esmiley added to track if timer has been started in timed assessments
@@ -1987,6 +1988,17 @@ public class DeliveryBean
   {
     this.showStudentScore = showStudentScore;
   }
+
+  public boolean isShowStudentQuestionScore()
+  {
+    return showStudentQuestionScore;
+  }
+
+  public void setShowStudentQuestionScore(boolean param)
+  {
+    this.showStudentQuestionScore = param;
+  }
+
 
   public boolean isTimeRunning()
   {

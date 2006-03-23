@@ -301,7 +301,7 @@ public class SectionContentsBean
   private String sequence;
 
   // for display/hide score
-  private boolean showStudentScore;
+  private boolean showStudentScore;   // show student Assessment Score
   private String pointsDisplayString;
 
   public String getTitle()

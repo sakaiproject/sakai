@@ -117,6 +117,7 @@ public class DeliveryActionListener
       PublishedAssessmentFacade publishedAssessment = getPublishedAssessment(delivery, id);
       // e. set show student score
       setShowStudentScore(delivery, publishedAssessment);
+      setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
 
       // 2. there 3 types of navigation: by question (question will be displayed one at a time), 
@@ -646,6 +647,7 @@ public class DeliveryActionListener
       maxPoints += itemBean.getMaxPoints();
       points += itemBean.getPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
+      itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
 
       if (itemBean.isUnanswered())
       {
@@ -725,6 +727,7 @@ public class DeliveryActionListener
       maxPoints += itemBean.getMaxPoints();
       points += itemBean.getPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
+      itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
 
       if (itemBean.isUnanswered())
       {
@@ -1431,6 +1434,21 @@ public class DeliveryActionListener
     }
     else {
       delivery.setShowStudentScore(false);
+    }
+  }
+
+  public void setShowStudentQuestionScore(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment){
+    if (Boolean.TRUE.equals(
+        publishedAssessment.getAssessmentFeedback().getShowStudentQuestionScore())) {
+      if (delivery.getFeedbackComponent()!=null &&
+          delivery.getFeedbackComponent().getShowDateFeedback() && !delivery.getFeedbackOnDate(
+))
+        delivery.setShowStudentQuestionScore(false);
+      else
+        delivery.setShowStudentQuestionScore(true);
+    }
+    else {
+      delivery.setShowStudentQuestionScore(false);
     }
   }
 

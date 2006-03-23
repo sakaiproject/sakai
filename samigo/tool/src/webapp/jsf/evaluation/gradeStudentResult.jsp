@@ -106,13 +106,8 @@ $Id$
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
     <h:panelGroup>
-<<<<<<< .mine
     <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
-       #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.points}#{msg.splash}#{part.maxPoints} #{dmsg.pt}" >
-=======
-    <samigo:hideDivision title = "#{dmsg.p} #{part.number} - #{part.text}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
->>>>>>> .r6873
+       #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
 
       <h:dataTable value="#{part.itemContents}" var="question">
       <h:column>

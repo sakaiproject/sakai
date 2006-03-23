@@ -149,12 +149,9 @@ public class SubmissionStatusListener
 
       // - Collect a list of all the users in the scores list
       Map useridMap= totalScoresBean.getUserIdMap();
-System.out.println("lydiatest useridmap size = " + useridMap.keySet().size());
       ArrayList agentUserIds = totalScorelistener.getAgentIds(useridMap);
-System.out.println("lydiatest agentUserid size = " + agentUserIds.size());
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
-System.out.println("lydiatest userroles size = " + userRoles.keySet().size());
 
 
       // Okay, here we get the first result set, which has a summary of
@@ -209,7 +206,6 @@ System.out.println("lydiatest userroles size = " + userRoles.keySet().size());
         students_submitted.add(agentid);
       }
 
-System.out.println("lydiatest agents size = " + agents.size());
       ArrayList students_not_submitted= new ArrayList();
       Iterator useridIterator = useridMap.keySet().iterator();
       while (useridIterator.hasNext()) {
@@ -219,7 +215,6 @@ System.out.println("lydiatest agents size = " + agents.size());
         }
       }
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
-System.out.println("lydiatest agents size = " + agents.size());
       log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (

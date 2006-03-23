@@ -76,7 +76,8 @@ public class ItemContentsBean
   private Integer triesAllowed;
 
   // for display/hide score
-  private boolean showStudentScore;
+  private boolean showStudentScore;  // this is to show student assessment score 
+  private boolean showStudentQuestionScore;
   private String pointsDisplayString;
 
   public ItemContentsBean()
@@ -812,6 +813,24 @@ public class ItemContentsBean
     this.showStudentScore = showStudentScore;
   }
 
+ /**
+   * Show the student question score currently earned?
+   * @return the score
+   */
+  public boolean isShowStudentQuestionScore()
+  {
+    return showStudentQuestionScore;
+  }
+
+  /**
+   * Set the student question score currently earned.
+   * @param param true/false Show the student score currently earned?
+   */
+  public void setShowStudentQuestionScore(boolean param)
+  {
+    this.showStudentQuestionScore = param;
+  }
+
   /**
    * If we display the score, return it, followed by a slash.
    * @return either, a) the score followed by a slash, or, b) "" (empty string)
@@ -819,7 +838,7 @@ public class ItemContentsBean
   public String getPointsDisplayString()
   {
     String pointsDisplayString = "";
-    if (showStudentScore)
+    if (showStudentQuestionScore)
     {
       pointsDisplayString = SectionContentsBean.roundTo2Decimals(points) + "/";
     }
@@ -874,7 +893,6 @@ public class ItemContentsBean
       char ch = charArray[i];
       s += toUnicode(ch);
     }
-    System.out.println("***unicode="+s);
     return s;
   }
 
