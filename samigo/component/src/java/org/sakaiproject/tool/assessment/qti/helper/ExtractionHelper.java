@@ -240,7 +240,10 @@ public class ExtractionHelper
     {
       Document transform = getTransformDocument(transformType);
       Document xml = asi.getDocument();
+System.out.println("lydiatest before transformDocument()  0000000000000000000000000000 this should be seen even with unpaired html \n");
       Document model = XmlUtil.transformDocument(xml, transform);
+System.out.println("lydiatest printing out after trnasofmration: \n");
+System.out.println(XmlUtil.getDOMString(model));
       map = XmlMapper.map(model);
     }
     catch (IOException ex)

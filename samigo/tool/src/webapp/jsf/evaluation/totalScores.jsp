@@ -481,7 +481,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
   </h:dataTable>
 
-<h:outputText value="#{msg.mult_sub}"/>
+<h:outputText value="#{msg.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'}"/>
+<h:outputText value="#{msg.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2'}"/>
 
 <p class="act">
 
