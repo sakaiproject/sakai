@@ -106,6 +106,7 @@ $Id$
   <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
   <h:column>
     <h:panelGroup>
+
     <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
        #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
 
