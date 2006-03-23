@@ -244,19 +244,12 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
 				if(asnGr.getPointsEarned() != null) {
-					if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-
-
                     if(asnGr.getAssignment().isCounted()){
-                    totalPointsEarned += asnGr.getPointsEarned().doubleValue();
+					    if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+                        totalPointsEarned += asnGr.getPointsEarned().doubleValue();
+                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
+                        totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
                     }
-                    if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
-
-                
-                    if(asnGr.getAssignment().isCounted()){
-                    totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
-                    }
-
                 }
 
 				// Put the letter grade into the grade record
