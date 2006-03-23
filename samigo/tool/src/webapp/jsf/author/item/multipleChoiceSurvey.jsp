@@ -36,7 +36,7 @@
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
+     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
      var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
