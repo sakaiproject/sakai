@@ -107,7 +107,7 @@ $Id$
   <h:column>
     <h:panelGroup>
 
-    <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
+    <samigo:hideDivision id="part" title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
        #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
 
       <h:dataTable value="#{part.itemContents}" var="question">
