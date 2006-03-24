@@ -88,7 +88,7 @@ $Id$
             <h:outputText value="#{msg.q} #{iteminit.partNumber} " />
             <f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-            <f:param name="newItemId" value="#{msg.q} #{iteminit.id}" />
+            <f:param name="newItemId" value="#{iteminit.id}" />
           </h:commandLink>
           <h:outputText value="#{msg.q} #{iteminit.partNumber} "
              rendered="#{!iteminit.linked}" />
