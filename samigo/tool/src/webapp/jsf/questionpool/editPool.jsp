@@ -160,7 +160,7 @@
 </div>
 <!-- END -->
 <f:verbatim><br/></f:verbatim>
-<h:panelGrid rendered="#{questionpool.importToAuthoring == 'true'}" columnClasses="shorttext">  <h:panelGroup>
+<h:panelGrid rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" columnClasses="shorttext">  <h:panelGroup>
   <h:outputLabel value="#{authmsg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{questionpool.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
@@ -179,7 +179,7 @@
 
 <!-- for importing questions from pool to authoring -->
 
-  <h:commandButton accesskey="#{msg.a_copy}" id="import"   rendered="#{questionpool.importToAuthoring == 'true'}" action="#{questionpool.doit}"
+  <h:commandButton accesskey="#{msg.a_copy}" id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
         value="#{msg.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
