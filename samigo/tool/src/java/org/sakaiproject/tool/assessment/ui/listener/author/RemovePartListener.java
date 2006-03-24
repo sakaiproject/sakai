@@ -76,7 +76,7 @@ public class RemovePartListener implements ActionListener
     // need to move question to another part
     AssessmentService assessmentService = new AssessmentService();
     //log.info("** removeAll Question="+removeAllQuestions);
-    if (!removeAllQuestions.equals("1")){
+    if (!("1").equals(removeAllQuestions)){
       // move questions to destinated Section when removing a section
       if (destSectionId == null || ("").equals(destSectionId)){
         destSectionId = assessmentBean.getFirstSectionId();

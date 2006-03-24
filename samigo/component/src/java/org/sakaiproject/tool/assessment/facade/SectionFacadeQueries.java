@@ -34,6 +34,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(SectionFacadeQueries.class);
@@ -93,7 +94,17 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
 
   public void remove(Long sectionId) {
       SectionFacade section = (SectionFacade) getHibernateTemplate().load(SectionData.class, sectionId);
-      getHibernateTemplate().delete(section);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(section);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem removing section: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public SectionFacade get(Long sectionId) {
@@ -110,7 +121,17 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     if (section != null) {
 
       SectionMetaData sectionmetadata = new SectionMetaData(section, label, value);
-      getHibernateTemplate().save(sectionmetadata);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(sectionmetadata);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem add section metadata: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     }
   }
 
@@ -119,7 +140,17 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     List sectionmetadatalist = getHibernateTemplate().find(query,
         new Object[] { sectionId, label },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
-    getHibernateTemplate().deleteAll(sectionmetadatalist);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().deleteAll(sectionmetadatalist);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete section metadata: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
 

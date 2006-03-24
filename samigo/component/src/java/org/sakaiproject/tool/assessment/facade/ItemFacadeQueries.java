@@ -128,7 +128,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     item.setCorrectItemFeedback("well done!");
     item.setInCorrectItemFeedback("better luck next time!");
 
-    getHibernateTemplate().save(item);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(item);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving item: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     return item.getItemId();
   }
 
@@ -165,7 +175,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       if (item != null) {
         printItem(item);
       }
-      getHibernateTemplate().delete(item);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(item);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleting item : "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       if (item != null) {
         printItem(item);
       }
@@ -176,7 +196,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       if (item != null) {
         printItem(item);
       }
-      getHibernateTemplate().delete(item);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(item);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleting item: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       if (item != null) {
         printItem(item);
       }
@@ -189,9 +219,41 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       if (item != null) {
         printItem(item);
       }
-      getHibernateTemplate().deleteAll(item.getItemTextSet());
-      getHibernateTemplate().deleteAll(item.getItemMetaDataSet());
-      getHibernateTemplate().deleteAll(item.getItemFeedbackSet());
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().deleteAll(item.getItemTextSet());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleteItemTextSet: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+
+    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().deleteAll(item.getItemMetaDataSet());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleteItemMetaDataSet: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+
+    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().deleteAll(item.getItemFeedbackSet());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleting ItemFeedbackSet: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       if (item != null) {
         printItem(item);
       }
@@ -202,7 +264,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     List itemmetadatalist = getHibernateTemplate().find(query,
         new Object[] { itemId, label },
         new net.sf.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
-    getHibernateTemplate().deleteAll(itemmetadatalist);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().deleteAll(itemmetadatalist);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete itemmetadatalist: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
 
@@ -212,7 +284,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         printItem(item);
 
     ItemMetaData itemmetadata = new ItemMetaData(item, label, value);
-    getHibernateTemplate().save(itemmetadata);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(itemmetadata);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving itemmetadata: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     //item.addItemMetaData(label, value);
     //getHibernateTemplate().saveOrUpdate(item);
       }
@@ -331,7 +413,17 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       ItemData itemdata = (ItemData) item.getData();
       itemdata.setLastModifiedDate(new Date());
       itemdata.setLastModifiedBy(AgentFacade.getAgentString());
-      getHibernateTemplate().saveOrUpdate(itemdata);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(itemdata);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update itemdata: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
 
       return item;
     }

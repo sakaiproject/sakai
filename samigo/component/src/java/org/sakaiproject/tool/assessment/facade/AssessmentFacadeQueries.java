@@ -198,14 +198,34 @@ public class AssessmentFacadeQueries
     assessmentTemplate.addAssessmentMetaData("ASSESSMENTTEMPLATE_OBJECTIVES",
         " assesmentT: the objective is to ...");
     // take default submission model
-    getHibernateTemplate().save(assessmentTemplate);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(assessmentTemplate);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving template: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     return assessmentTemplate.getAssessmentTemplateId();
   }
 
   public void removeTemplate(Long assessmentId) {
     AssessmentTemplateData assessment = (AssessmentTemplateData)
         getHibernateTemplate().load(AssessmentTemplateData.class, assessmentId);
-    getHibernateTemplate().delete(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete template: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public Long addAssessment(Long assessmentTemplateId) {
@@ -235,7 +255,17 @@ public class AssessmentFacadeQueries
     assessment.setAssessmentAccessControl( (AssessmentAccessControlIfc) s);
     assessment.addAssessmentMetaData("ASSESSMENT_OBJECTIVES",
                                      " assesment: the objective is to ...");
-    getHibernateTemplate().save(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     return assessment.getAssessmentId();
   }
 
@@ -376,7 +406,17 @@ public class AssessmentFacadeQueries
     int i = ( (Integer) iter.next()).intValue();
     if (i > 0) {
       assessment.setStatus(AssessmentIfc.DEAD_STATUS);
-      getHibernateTemplate().update(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().update(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     }
     else {
       // need to check if item in sections belongs to any QuestionPool
@@ -385,7 +425,18 @@ public class AssessmentFacadeQueries
       checkForQuestionPoolItem(assessment, h);
       Set sectionSet = getSectionSetForAssessment(assessment);
       assessment.setSectionSet(sectionSet);
-      getHibernateTemplate().delete(assessment);
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deleting assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       // true below => regular assessment (not published assessment)
       PersistenceService.getInstance().getAuthzQueriesFacade().
           removeAuthorizationByQualifier(assessment.getAssessmentId().toString(), false);
@@ -522,7 +573,18 @@ public class AssessmentFacadeQueries
       evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
       throw new Exception(e);
     }
-    getHibernateTemplate().save(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+
     registerWithCurrentSite(assessment.getAssessmentId().toString());
     return new AssessmentFacade(assessment);
   }
@@ -572,7 +634,17 @@ public class AssessmentFacadeQueries
       throw new Exception(e);
     }
 
-    getHibernateTemplate().save(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().save(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem saving assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     // register assessmnet with current site
     registerWithCurrentSite(assessment.getAssessmentId().toString());
     return new AssessmentFacade(assessment);
@@ -748,7 +820,17 @@ public class AssessmentFacadeQueries
       Iterator iter = ip.iterator();
       while (iter.hasNext()) {
         //log.debug("Deleting ip");
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
         getHibernateTemplate().delete( (SecuredIPAddress) iter.next());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete old IP: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       }
     }
     final AssessmentData data = (AssessmentData) assessment.getData();
@@ -756,7 +838,17 @@ public class AssessmentFacadeQueries
     //FIXME This is a hack to workaround net.sf.hibernate.NonUniqueObjectException
     //    getHibernateTemplate().clear();
 
-    getHibernateTemplate().saveOrUpdate(data);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(data);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save new IP: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public void saveOrUpdate(AssessmentTemplateData template) {
@@ -768,13 +860,43 @@ public class AssessmentFacadeQueries
     Iterator iter = metadatas.iterator();
     while (iter.hasNext()) {
       log.debug("Deleting metadata");
-      getHibernateTemplate().delete( (AssessmentMetaData) iter.next());
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete( (AssessmentMetaData) iter.next());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete assessment metadata: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
     }
-    getHibernateTemplate().saveOrUpdate(template);
+    }
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(template);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update template: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public void deleteTemplate(Long templateId) {
-    getHibernateTemplate().delete(getAssessmentTemplate(templateId).getData());
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(getAssessmentTemplate(templateId).getData());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem delete template: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public SectionFacade addSection(Long assessmentId) {
@@ -805,7 +927,17 @@ public class AssessmentFacadeQueries
     section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING,SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
 
     sectionSet.add(section);
-    getHibernateTemplate().saveOrUpdate(assessment);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(assessment);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     return new SectionFacade(section);
   }
 
@@ -846,8 +978,29 @@ public class AssessmentFacadeQueries
         }
       }
       assessment.setSectionSet(set);
-      getHibernateTemplate().update(assessment); // sections reordered
-      getHibernateTemplate().delete(section);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().update(assessment); // sections reordered
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating asssessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+
+    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().delete(section);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem deletint section: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     }
   }
 
@@ -857,7 +1010,17 @@ public class AssessmentFacadeQueries
   }
 
   public void saveOrUpdateSection(SectionFacade section) {
-    getHibernateTemplate().saveOrUpdate(section.getData());
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(section.getData());
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update section: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   /**
@@ -891,7 +1054,17 @@ public class AssessmentFacadeQueries
       set.add(a);
     }
     destSection.setItemSet(set);
-    getHibernateTemplate().update(destSection);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().update(destSection);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating section: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   /**
@@ -910,7 +1083,17 @@ public class AssessmentFacadeQueries
         // item belongs to a pool, set section=null so
         // item won't get deleted during section deletion
         item.setSection(null);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
         getHibernateTemplate().update(item);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating item: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
     }
     // need to reload the section again.
     section= loadSection(sourceSectionId);
@@ -959,7 +1142,17 @@ public class AssessmentFacadeQueries
         // item belongs to a pool, in this case, set section=null so
         // item won't get deleted during section deletion
         item.setSection(null);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
         getHibernateTemplate().update(item);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating item: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
       }
       else {
         newItemSet.add(item);
@@ -967,7 +1160,17 @@ public class AssessmentFacadeQueries
     }
     //log.debug("***itemSet after=" + newItemSet.size());
     section.setItemSet(newItemSet);
-    getHibernateTemplate().update(section);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().update(section);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem updating section: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
