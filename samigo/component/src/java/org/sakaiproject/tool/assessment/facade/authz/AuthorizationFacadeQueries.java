@@ -31,11 +31,20 @@ import net.sf.hibernate.Hibernate;
 
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
+import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
+import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIfc;
 import org.sakaiproject.tool.assessment.facade.DataFacadeException;
+import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacade;
+import org.sakaiproject.tool.assessment.facade.authz.QualifierFacade;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class AuthorizationFacadeQueries
    extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
+
+  private static Log log = LogFactory.getLog(AuthorizationFacadeQueries.class);
 
   public AuthorizationFacadeQueries() {
   }
@@ -77,14 +86,44 @@ public class AuthorizationFacadeQueries
     }
   }
 
-  public void addAuthz(AuthorizationFacade a) {
-    AuthorizationData data = (AuthorizationData) a.getData();
-    getHibernateTemplate().save(data);
+  public void addAuthz(AuthorizationIfc a) {
+    AuthorizationData data;
+    if (a instanceof AuthorizationFacade)
+      data  = (AuthorizationData)((AuthorizationFacade) a).getData();
+    else
+      data = (AuthorizationData)a;
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){ 
+      try {
+       getHibernateTemplate().save(data);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem adding authorization: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
-  public void addQualifier(QualifierFacade q) {
-    QualifierData data = (QualifierData) q.getData();
-    getHibernateTemplate().save(data);
+  public void addQualifier(QualifierIfc q) {
+    QualifierData data;
+    if (q instanceof QualifierFacade)
+      data = (QualifierData)((QualifierFacade) q).getData();
+    else
+      data = (QualifierData) q;
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){ 
+      try {
+        getHibernateTemplate().save(data);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem adding Qualifier: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public static void main(String[] args) throws DataFacadeException {

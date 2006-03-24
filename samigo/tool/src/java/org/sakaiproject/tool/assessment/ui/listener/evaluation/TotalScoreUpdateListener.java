@@ -129,6 +129,7 @@ public class TotalScoreUpdateListener
             agentResults.setFinalScore(newScore+"");
             AssessmentGradingData data = new AssessmentGradingData();
             BeanUtils.copyProperties(data, agentResults);
+    	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
             data.setTotalAutoScore(new Float(agentResults.getTotalAutoScore()));
             data.setTotalOverrideScore(new Float(agentResults.getTotalOverrideScore()));
             data.setFinalScore(new Float(agentResults.getFinalScore()));
@@ -148,7 +149,7 @@ public class TotalScoreUpdateListener
 	    data.setStatus(new Integer(1));
             data.setIsLate(new Boolean(false));
    	    data.setItemGradingSet(new HashSet());
-    	    data.setPublishedAssessmentId(new Long(bean.getPublishedId()));
+    	    data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
 	    // tell hibernate this is a new record
     	    data.setAssessmentGradingId(new Long(0));
             data.setSubmittedDate(null);

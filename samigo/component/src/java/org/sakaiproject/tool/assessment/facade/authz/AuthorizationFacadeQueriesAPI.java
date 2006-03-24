@@ -21,6 +21,8 @@
 *
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade.authz;
+import org.sakaiproject.tool.assessment.data.ifc.authz.AuthorizationIfc;
+import org.sakaiproject.tool.assessment.data.ifc.authz.QualifierIfc;
 
 public interface AuthorizationFacadeQueriesAPI
 {
@@ -31,8 +33,8 @@ public interface AuthorizationFacadeQueriesAPI
 
   public void showQualifiers(QualifierIteratorFacade iter);
 
-  public void addAuthz(AuthorizationFacade a);
+  public void addAuthz(AuthorizationIfc a);
 
-  public void addQualifier(QualifierFacade q);
+  public void addQualifier(QualifierIfc q);
 
 }
