@@ -455,7 +455,6 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public Long getPublishedAssessmentId(Long assessmentId) {
-    ////AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
     List list = getHibernateTemplate().find("from PublishedAssessmentData as p where p.assessmentId=? order by p.createdDate desc",assessmentId);
     Long publishedId = new Long(0);
     if (!list.isEmpty())
@@ -467,55 +466,18 @@ public class PublishedAssessmentFacadeQueries
 
   }
 
-
-  public static void print(AssessmentBaseIfc a) {
-    log.debug("**assessment base Id #" + a.getAssessmentBaseId());
-    log.debug("**assessment title #" + a.getTitle());
-    log.debug("**assessment is template? " + a.getIsTemplate());
-    if (a.getIsTemplate().equals(Boolean.FALSE)) {
-  log.debug("**assessmentTemplateId #" +
-                         ( (AssessmentData) a).getAssessmentTemplateId());
-  log.debug("**section: " +
-                         ( (AssessmentData) a).getSectionSet());
-    }
-    if (a.getAssessmentAccessControl() != null) {
-  log.debug("**assessment due date: " +
-                         a.getAssessmentAccessControl().getDueDate());
-    }
-    if (a.getAssessmentMetaDataSet() != null) {
-  log.debug("**assessment metadata" +
-                         a.getAssessmentMetaDataSet());
-  log.debug("**Objective not lazy = " +
-                         a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
-    }
-
-  }
-
-  public static void printPublished(PublishedAssessmentData a) {
-      log.debug("**assessment published Id #" +
-                       a.getPublishedAssessmentId());
-      log.debug("**assessment title #" + a.getTitle());
-    if (a.getAssessmentAccessControl() != null) {
-      log.debug("**assessment due date: " +
-                       a.getAssessmentAccessControl().getDueDate());
-    }
-    if (a.getAssessmentMetaDataSet() != null) {
-      log.debug("**assessment metadata" +
-                       a.getAssessmentMetaDataSet());
-      log.debug("**Objective not lazy = " +
-                       a.getAssessmentMetaDataByLabel("ASSESSMENT_OBJECTIVE"));
-    }
-
-  }
-
   public PublishedAssessmentFacade publishAssessment(AssessmentFacade
       assessment) throws Exception {
     boolean addedToGradebook = false;
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
         AssessmentData) assessment.getData());
 
-    getHibernateTemplate().save(publishedAssessment);
-    log.debug("**** save publish Assessment="+publishedAssessment);
+    try{
+      saveOrUpdate(publishedAssessment);
+    }
+    catch (Exception e){
+      throw e;
+    }
 
     // add to gradebook
     if (publishedAssessment.getEvaluationModel() != null){
@@ -539,7 +501,7 @@ public class PublishedAssessmentFacadeQueries
             addedToGradebook = gbsHelper.addToGradebook(publishedAssessment, g);
         } catch (Exception e) {
             log.error("Removing published assessment: " + e);
-            getHibernateTemplate().delete(publishedAssessment);
+            delete(publishedAssessment);
             throw e;
         }
       }
@@ -558,7 +520,12 @@ public class PublishedAssessmentFacadeQueries
     PublishedAssessmentData publishedAssessment = preparePublishedAssessment( (
         AssessmentData) assessment.getData());
     publishedAssessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
-    getHibernateTemplate().save(publishedAssessment);
+    try{
+      saveOrUpdate(publishedAssessment);
+    }
+    catch (Exception e){
+      log.warn(e.getMessage());
+    }
     // write authorization
     createAuthorization(publishedAssessment);
     return new PublishedAssessmentFacade(publishedAssessment);
@@ -652,21 +619,6 @@ public class PublishedAssessmentFacadeQueries
     return assessmentList;
   }
 
-/**
-  public ArrayList getAllPublishedAssessmentId() {
-
-    ArrayList list = getBasicInfoOfAllActivePublishedAssessments("title", true);
-    ArrayList publishedIds = new ArrayList();
-    for (int i = 0; i < list.size(); i++) {
-      PublishedAssessmentFacade f = (PublishedAssessmentFacade) list.get(i);
-      Long publishedId = f.getPublishedAssessmentId();
-      publishedIds.add(publishedId);
-    }
-    return publishedIds;
-
-  }
-*/
-
   public Integer getNumberOfSubmissions(String publishedAssessmentId,
                                         String agentId) {
     String query = "select count(a) from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=?";
@@ -696,54 +648,6 @@ public class PublishedAssessmentFacadeQueries
     return getHibernateTemplate().find(query, objects, types);
   }
 
-/**
-  public ArrayList getAllReviewableAssessments(String orderBy,
-                                               boolean ascending) {
-
-    ArrayList publishedIds = getAllPublishedAssessmentId();
-    ArrayList newlist = new ArrayList();
-    for (int i = 0; i < publishedIds.size(); i++) {
-      String publishedId = ( (Long) publishedIds.get(i)).toString();
-      String query = "from AssessmentGradingData a where a.publishedAssessmentId=? order by agentId ASC," +
-          orderBy;
-      if (ascending) {
-        query += " asc,";
-      }
-      else {
-        query += " desc,";
-      }
-      query += "submittedDate DESC";
-      List list = getHibernateTemplate().find(query, new Long(publishedId),
-                                              Hibernate.LONG);
-      if (!list.isEmpty()) {
-        Iterator items = list.iterator();
-        String agentid = null;
-        AssessmentGradingData data = (AssessmentGradingData) items.next();
-        agentid = data.getAgentId();
-        newlist.add(data);
-        while (items.hasNext()) {
-          while (items.hasNext()) {
-            data = (AssessmentGradingData) items.next();
-            if (!data.getAgentId().equals(agentid)) {
-              agentid = data.getAgentId();
-              newlist.add(data);
-              log.debug("Added new submission " +
-                                 data.getAssessmentGradingId());
-              break;
-            }
-          }
-        }
-      }
-    }
-    ArrayList assessmentList = new ArrayList();
-    for (int i = 0; i < newlist.size(); i++) {
-      AssessmentGradingData a = (AssessmentGradingData) newlist.get(i);
-      AssessmentGradingFacade f = new AssessmentGradingFacade(a);
-      assessmentList.add(f);
-    }
-    return assessmentList;
-  }
-*/
   public ArrayList getAllPublishedAssessments(String sortString) {
     String orderBy = getOrderBy(sortString);
     List list = getHibernateTemplate().find(
@@ -812,10 +716,15 @@ public class PublishedAssessmentFacadeQueries
     int i = ( (Integer) iter.next()).intValue();
     if (i > 0) {
       assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
-      getHibernateTemplate().update(assessment);
+      try{
+        saveOrUpdate(assessment);
+      }
+      catch (Exception e){
+        log.warn(e.getMessage());
+      }
     }
     else {
-      getHibernateTemplate().delete(assessment);
+      delete(assessment);
       // remove authorization
       PersistenceService.getInstance().getAuthzQueriesFacade().
           removeAuthorizationByQualifier(assessment.getPublishedAssessmentId().toString(), true);
@@ -844,9 +753,25 @@ public class PublishedAssessmentFacadeQueries
     }
   }
 
-  public void saveOrUpdate(PublishedAssessmentFacade assessment) {
-    PublishedAssessmentData data = (PublishedAssessmentData) assessment.getData();
-    getHibernateTemplate().saveOrUpdate(data);
+  public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception{
+    PublishedAssessmentData data;
+    if (assessment instanceof PublishedAssessmentFacade)
+      data = (PublishedAssessmentData)((PublishedAssessmentFacade) assessment).getData();
+    else
+      data = (PublishedAssessmentData) assessment;
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){ 
+      try {
+        getHibernateTemplate().saveOrUpdate(data);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update assessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        if (retryCount==0) throw e;
+      }
+    }
   }
 
   public ArrayList getBasicInfoOfAllActivePublishedAssessments(String
@@ -1122,14 +1047,6 @@ public class PublishedAssessmentFacadeQueries
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
       String label, String entry) {
-    /**
-         String query = "select new PublishedAssessmentData("+
-      " p.publishedAssessmentId, p.title, "+
-      " c.releaseTo, c.startDate, c.dueDate, c.retractDate) " +
-      " from PublishedAssessmentData p, PublishedAccessControl c, " +
-      " PublishedMetaData m where p=c.assessment and p=m.assessment "+
-      " and m.label=? and m.entry=?";
-     */
     String query = "select p " +
         " from PublishedAssessmentData p, " +
         " PublishedMetaData m where p=m.assessment " +
@@ -1151,7 +1068,17 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public void saveOrUpdateMetaData(PublishedMetaData meta) {
-    getHibernateTemplate().saveOrUpdate(meta);
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){ 
+      try {
+        getHibernateTemplate().saveOrUpdate(meta);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem save or update meta data: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
   }
 
   public HashMap getFeedbackHash() {
@@ -1248,19 +1175,6 @@ public class PublishedAssessmentFacadeQueries
 
   public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId)
   {
-  	/*    String query =
-  	 "select i from PublishedAssessmentData p, PublishedSectionData s, "+
-  	 " PublishedItemData i where p.publishedAssessmentId=? and"+
-  	 " p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
-  	 " s=i.section and s.sequence=? and i.sequence=?";
-  	 List l = getHibernateTemplate().find(query,
-  	 new Object[]{ publishedAssessmentId, new Integer("1"), new Integer("1")},
-  	 new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.INTEGER, Hibernate.INTEGER});
-  	 if(l.size()>0)
-  	 return (PublishedItemData)l.get(0);
-  	 else
-  	 return null;
-  	 */
   	String query =
   		"select i from PublishedAssessmentData p, PublishedSectionData s, "+
 			" PublishedItemData i where p.publishedAssessmentId=? and"+
@@ -1326,19 +1240,36 @@ public class PublishedAssessmentFacadeQueries
 	return null;
     }
 
-  class SecComparator implements Comparator
-	{
-  	public int compare(Object arg0, Object arg1) 
-  	{
-  		return ((PublishedSectionData)arg0).getSequence().compareTo(((PublishedSectionData)arg1).getSequence());
-  	}
-	}
+    class SecComparator implements Comparator{
+      public int compare(Object arg0, Object arg1){
+       return ((PublishedSectionData)arg0).getSequence().compareTo(((PublishedSectionData)arg1).getSequence());
+      }
+    }
 
-  class ItemComparator implements Comparator
-	{
-  	public int compare(Object arg0, Object arg1) 
-  	{
-  		return ((PublishedItemData)arg0).getSequence().compareTo(((PublishedItemData)arg1).getSequence());
-  	}
-	}
+  class ItemComparator implements Comparator{
+    public int compare(Object arg0, Object arg1){
+      return ((PublishedItemData)arg0).getSequence().compareTo(((PublishedItemData)arg1).getSequence());
+    }
+  }
+
+  public void delete(PublishedAssessmentIfc assessment){
+    PublishedAssessmentData data;
+    if (assessment instanceof PublishedAssessmentFacade)
+      data = (PublishedAssessmentData)((PublishedAssessmentFacade) assessment).getData();
+    else
+      data = (PublishedAssessmentData) assessment;
+
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){ 
+      try {
+        getHibernateTemplate().delete(data);
+        retryCount = 0;
+      }
+      catch (Exception e) {
+        log.warn("problem removing publishedAssessment: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+  }
+
 }

@@ -211,8 +211,13 @@ public class PublishedAssessmentService {
   }
 
   public void saveAssessment(PublishedAssessmentFacade assessment) {
-    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+    try{
+      PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
         saveOrUpdate(assessment);
+    }
+    catch (Exception e) {
+      log.error(e);
+    }
   }
 
   public void removeAssessment(String assessmentId) {

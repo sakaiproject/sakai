@@ -197,7 +197,9 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void removeAssessment(Long assessmentId);
 
-  public void saveOrUpdate(PublishedAssessmentFacade assessment);
+  public void saveOrUpdate(PublishedAssessmentIfc assessment) throws Exception;
+
+  public void delete(PublishedAssessmentIfc assessment);
 
   public ArrayList getBasicInfoOfAllActivePublishedAssessments(
       String sortString, String siteAgentId, boolean ascending);
