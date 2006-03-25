@@ -107,7 +107,7 @@ $Id$
   <h:column>
     <h:panelGroup>
 
-    <samigo:hideDivision id="part" title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
+    <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
        #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
 
       <h:dataTable value="#{part.itemContents}" var="question">
@@ -150,11 +150,14 @@ $Id$
           <f:verbatim><h4 class="tier2"></f:verbatim>
             <h:outputText value="#{dmsg.q} #{question.number} #{dmsg.of} " />
             <h:outputText value="#{part.questions}#{dmsg.column}  " />
-            <h:inputText value="#{question.points}" >
+            <h:inputText id="adjustedScore" value="#{question.points}" >
+<f:validateDoubleRange/>
 <%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
             </h:inputText>
             <h:outputText value=" #{dmsg.splash} #{question.maxPoints} " />
             <h:outputText value="#{dmsg.pt}"/>
+          <f:verbatim><br/></f:verbatim>
+<h:message for="adjustedScore" style="color:red"/>
           <f:verbatim></h4></f:verbatim>
 
           <f:verbatim><div class="indnt3"></f:verbatim>
