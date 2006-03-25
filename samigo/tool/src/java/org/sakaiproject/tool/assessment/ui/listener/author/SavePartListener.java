@@ -126,9 +126,10 @@ public class SavePartListener
 
     }
 
-    log.debug("**** section title ="+section.getTitle());
-    log.debug("**** title ="+title);
-    if (title != null & !title.equals(""))
+    log.warn("**** section title ="+section.getTitle());
+    log.warn("**** title ="+title);
+    // if (title != null & !title.equals(""))  // There is no spec saying we don't allow empty string for title , SAK-4211
+    if (title != null)
       section.setTitle(title);
     section.setDescription(description);
 
