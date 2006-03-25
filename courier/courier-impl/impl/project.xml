@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-courier-impl</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-courier-impl</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<!-- build as a jar -->
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-courier-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+
+	</build>
+
+</project>
