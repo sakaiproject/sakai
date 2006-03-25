@@ -1,0 +1,21 @@
+<script type="text/javascript" language="JavaScript">
+
+	function chef_setupformattedtextarea(textarea_id)
+	{
+        	var oFCKeditor = new FCKeditor(textarea_id);
+		oFCKeditor.BasePath = "#libraryLink("editor/FCKeditor/")";
+		oFCKeditor.Width  = "600" ;
+		oFCKeditor.Height = "400" ;
+		oFCKeditor.Config['CustomConfigurationsPath'] = "#libraryLink("editor/FCKeditor/config.js")";
+    		oFCKeditor.ReplaceTextarea() ;
+	}
+	
+</script>
+
+#*
+<script type="text/javascript">
+  var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
+  oFCKeditor.BasePath = "/FCKeditor/"
+  oFCKeditor.Create() ;
+</script>
+*#

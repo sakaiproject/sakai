@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Sakai legacy tool API</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-legacy-tool-api</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>The Sakai Foundation</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2006</inceptionYear>
+
+	<properties>
+		<!-- deploy as a jar -->
+		<deploy.type>jar</deploy.type>
+		<!-- deploy to "shared", "common" or "server" -->
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/java</sourceDirectory>
+
+	</build>
+
+</project>
