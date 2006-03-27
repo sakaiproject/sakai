@@ -3,7 +3,7 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.webapp.apiSessionManager"
+	<bean id="org.sakaiproject.webapp.api.SessionManager"
 			class="org.sakaiproject.webapp.impl.SessionComponent"
 			init-method="init"
 			destroy-method="destroy"
