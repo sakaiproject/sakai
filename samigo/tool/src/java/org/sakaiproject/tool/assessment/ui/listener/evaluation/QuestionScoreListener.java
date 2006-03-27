@@ -114,6 +114,7 @@ public class QuestionScoreListener
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
+    boolean toggleSubmissionSelection = false;
 
     String selectedvalue= (String) event.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
@@ -124,11 +125,12 @@ public class QuestionScoreListener
       else
       {
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
+        toggleSubmissionSelection = true;
       }
     }
 
     log.info("Calling questionScores.");
-    if (!questionScores(publishedId, bean, true))
+    if (!questionScores(publishedId, bean, toggleSubmissionSelection))
     {
       throw new RuntimeException("failed to call questionScores.");
     }
@@ -189,7 +191,7 @@ public class QuestionScoreListener
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
-      HashMap map = getItemScores(new Long(publishedId), new Long(itemId), which);
+      HashMap map = getItemScores(new Long(publishedId), new Long(itemId), which, isValueChange);
       ArrayList allscores = new ArrayList();
       Iterator keyiter = map.keySet().iterator();
       while (keyiter.hasNext())
@@ -439,6 +441,7 @@ public class QuestionScoreListener
           // This all just gets the text of the answer to display
           String answerText = "N/A";
           String rationale = "";
+          String fullAnswerText = "N/A";
           if (bean.getTypeId().equals("1") || bean.getTypeId().equals("2") ||
               bean.getTypeId().equals("3") || bean.getTypeId().equals("4") ||
               bean.getTypeId().equals("9"))
@@ -469,7 +472,7 @@ public class QuestionScoreListener
           }
           answerText = answerText.replaceAll("<.*?>", "");
           rationale = rationale.replaceAll("<.*?>", "");
-          String fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
+          fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
           if (answerText.length() > 35)
             answerText = answerText.substring(0, 35) + "...";
 /*
@@ -491,7 +494,13 @@ public class QuestionScoreListener
           {
             results.setItemGradingId(gdata.getItemGradingId());
             results.setAssessmentGradingId(gdata.getAssessmentGradingId());
-            results.setTotalAutoScore(gdata.getAutoScore().toString());
+            if (gdata.getAutoScore() != null) {
+              // for example, if an assessment has one fileupload question, the autoscore = null
+              results.setTotalAutoScore(gdata.getAutoScore().toString());
+            }
+	    else {
+              results.setTotalAutoScore(new Float(0).toString());
+            }
             results.setComments(gdata.getComments());
             results.setAnswer(answerText);
             results.setFullAnswer(fullAnswerText);
@@ -558,12 +567,12 @@ public class QuestionScoreListener
                    = (Long publishedItemId, (Long publishedItemId, Array itemGradings))
    * itemScoresMap will be refreshed when the next QuestionScore link is click
    */
-  private HashMap getItemScores(Long publishedId, Long itemId, String which){
+  private HashMap getItemScores(Long publishedId, Long itemId, String which, boolean isValueChange){
     GradingService delegate = new GradingService();
     QuestionScoresBean questionScoresBean =
       (QuestionScoresBean) cu.lookupBean("questionScores");
     HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
-    if (itemScoresMap == null){
+    if (itemScoresMap == null || isValueChange){
       itemScoresMap = new HashMap();
       questionScoresBean.setItemScoresMap(itemScoresMap);
     }
