@@ -1,30 +1,26 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
-// package
 package org.sakaiproject.authz.tool;
 
-// imports
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -34,37 +30,40 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.api.kernel.function.cover.FunctionManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupIdInvalidException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.framework.log.cover.Log;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
-* <p>PermissionsAction is a helper Action that other tools can use to edit their permissions.</p>
-* 
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
+ * <p>
+ * PermissionsAction is a helper Action that other tools can use to edit their permissions.
+ * </p>
+ */
 public class PermissionsAction
 {
-	
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(PermissionsAction.class);
+
 	/** Resource bundle using current language locale */
-    private static ResourceLoader rb = new ResourceLoader("helper");
-    
+	private static ResourceLoader rb = new ResourceLoader("helper");
+
 	/** State attributes for Permissions mode - when it is MODE_DONE the tool can process the results. */
 	public static final String STATE_MODE = "pemissions.mode";
 
@@ -91,24 +90,22 @@ public class PermissionsAction
 
 	/** State attribute for storing the abilities of each role for this resource. */
 	private static final String STATE_ROLE_ABILITIES = "permission.rolesAbilities";
-	
+
 	/** Modes. */
 	public static final String MODE_MAIN = "main";
 
 	/** vm files for each mode. TODO: path too hard coded */
 	private static final String TEMPLATE_MAIN = "helper/chef_permissions";
 
-	/** 
-	* build the context.
-	* @return The name of the template to use.
-	*/
-	static public String buildHelperContext(VelocityPortlet portlet, 
-										Context context,
-										RunData rundata,
-										SessionState state)
+	/**
+	 * build the context.
+	 * 
+	 * @return The name of the template to use.
+	 */
+	static public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		// in state is the realm id
-		context.put("thelp",rb);
+		context.put("thelp", rb);
 		String realmId = (String) state.getAttribute(STATE_REALM_ID);
 
 		// in state is the realm to use for roles - if not, use realmId
@@ -125,7 +122,7 @@ public class PermissionsAction
 					edit = AuthzGroupService.getAuthzGroup(realmId);
 					state.setAttribute(STATE_REALM_EDIT, edit);
 				}
-				catch (IdUnusedException e)
+				catch (GroupNotDefinedException e)
 				{
 					try
 					{
@@ -133,31 +130,31 @@ public class PermissionsAction
 						edit = AuthzGroupService.addAuthzGroup(realmId);
 						state.setAttribute(STATE_REALM_EDIT, edit);
 					}
-					catch (IdInvalidException ee)
+					catch (GroupIdInvalidException ee)
 					{
-						Log.warn("chef", "PermissionsAction.buildHelperContext: addRealm: " + ee);
+						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
-					catch (IdUsedException ee)
+					catch (GroupAlreadyDefinedException ee)
 					{
-						Log.warn("chef", "PermissionsAction.buildHelperContext: addRealm: " + ee);
+						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
-					catch (PermissionException ee)
+					catch (AuthzPermissionException ee)
 					{
-						Log.warn("chef", "PermissionsAction.buildHelperContext: addRealm: " + ee);
+						M_log.warn("PermissionsAction.buildHelperContext: addRealm: " + ee);
 						cleanupState(state);
 						return null;
 					}
 				}
 			}
-			
+
 			// no permission
 			else
 			{
-				Log.warn("chef", "PermissionsAction.buildHelperContext: no permission: " + realmId);
+				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
 				cleanupState(state);
 				return null;
 			}
@@ -193,7 +190,7 @@ public class PermissionsAction
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", "PermissionsAction.buildHelperContext: getRolesRealm: " + realmRolesId + " : " + e);
+					M_log.warn("PermissionsAction.buildHelperContext: getRolesRealm: " + realmRolesId + " : " + e);
 				}
 			}
 			roles = new Vector();
@@ -214,7 +211,7 @@ public class PermissionsAction
 			Collection realms = ref.getRealms();
 			realms.remove(ref.getReference());
 
-			for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); )
+			for (Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
 				Role role = (Role) iRoles.next();
 				Set locks = AuthzGroupService.getAllowedFunctions(role.getId(), realms);
@@ -226,7 +223,7 @@ public class PermissionsAction
 		context.put("prefix", prefix);
 		context.put("abilities", functions);
 		context.put("description", description);
-		if (roles.size()>0)
+		if (roles.size() > 0)
 		{
 			context.put("roles", roles);
 		}
@@ -239,12 +236,11 @@ public class PermissionsAction
 		VelocityPortletPaneledAction.disableObservers(state);
 
 		return TEMPLATE_MAIN;
-
-	}	// buildHelperContext
+	}
 
 	/**
-	* Remove the state variables used internally, on the way out.
-	*/
+	 * Remove the state variables used internally, on the way out.
+	 */
 	private static void cleanupState(SessionState state)
 	{
 		state.removeAttribute(STATE_REALM_ID);
@@ -259,15 +255,14 @@ public class PermissionsAction
 
 		// re-enable observers
 		VelocityPortletPaneledAction.enableObservers(state);
-
-	}	// cleanupState
+	}
 
 	/**
-	* Handle the eventSubmit_doSave command to save the edited permissions.
-	*/
+	 * Handle the eventSubmit_doSave command to save the edited permissions.
+	 */
 	static public void doSave(RunData data)
 	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
 
@@ -279,53 +274,51 @@ public class PermissionsAction
 		{
 			AuthzGroupService.save(edit);
 		}
-		catch (IdUnusedException e)
+		catch (GroupNotDefinedException e)
 		{
-			// TODO: IdUnusedException
+			// TODO: GroupNotDefinedException
 		}
-		catch (PermissionException e)
+		catch (AuthzPermissionException e)
 		{
-			// TODO: PermissionException
+			// TODO: AuthzPermissionException
 		}
 
 		// clean up state
 		cleanupState(state);
-
-	}	// doSave
+	}
 
 	/**
-	* Handle the eventSubmit_doCancel command to abort the edits.
-	*/
+	 * Handle the eventSubmit_doCancel command to abort the edits.
+	 */
 	static public void doCancel(RunData data)
 	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// clean up state
 		cleanupState(state);
-
-	}	// doCancel
+	}
 
 	/**
-	* Read the permissions form.
-	*/
+	 * Read the permissions form.
+	 */
 	static private void readForm(RunData data, AuthzGroup edit, SessionState state)
 	{
 		List abilities = (List) state.getAttribute(STATE_ABILITIES);
 		List roles = (List) state.getAttribute(STATE_ROLES);
 
 		// look for each role's ability field
-		for (Iterator iRoles = roles.iterator(); iRoles.hasNext(); )
+		for (Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 		{
 			Role role = (Role) iRoles.next();
 
-			for (Iterator iLocks = abilities.iterator(); iLocks.hasNext(); )
+			for (Iterator iLocks = abilities.iterator(); iLocks.hasNext();)
 			{
 				String lock = (String) iLocks.next();
 
 				String checked = data.getParameters().getString(role.getId() + lock);
 				if (checked != null)
 				{
-					// we have an ability!  Make sure there's a role
+					// we have an ability! Make sure there's a role
 					Role myRole = edit.getRole(role.getId());
 					if (myRole == null)
 					{
@@ -333,9 +326,9 @@ public class PermissionsAction
 						{
 							myRole = edit.addRole(role.getId());
 						}
-						catch (IdUsedException e)
+						catch (RoleAlreadyDefinedException e)
 						{
-							Log.warn("chef", "PermissionsAction.readForm: addRole after getRole null: " + role.getId() + " : " + e);
+							M_log.warn("PermissionsAction.readForm: addRole after getRole null: " + role.getId() + " : " + e);
 						}
 					}
 					myRole.allowFunction(lock);
@@ -351,10 +344,5 @@ public class PermissionsAction
 				}
 			}
 		}
-
-	}	// readForm
-
-}	// PermissionsAction
-
-
-
+	}
+}
