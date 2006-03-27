@@ -29,9 +29,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.api.kernel.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.api.kernel.tool.ToolURL;
-import org.sakaiproject.api.kernel.tool.ToolURLManager;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.webapp.api.ToolURL;
+import org.sakaiproject.webapp.api.ToolURLManager;
 
 /**
  * <p>

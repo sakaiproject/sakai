@@ -24,7 +24,7 @@
 // package
 package org.sakaiproject.cheftool;
 
-import org.sakaiproject.service.framework.session.SessionState;
+import org.sakaiproject.event.api.SessionState;
 
 // imports
 

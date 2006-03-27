@@ -31,21 +31,22 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.ActiveTool;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
-import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.webapp.api.ActiveTool;
+import org.sakaiproject.webapp.api.Session;
+import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.webapp.api.ToolException;
+import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.webapp.cover.ActiveToolManager;
+import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.webapp.cover.ToolManager;
 
 /**
 * <p>ToolServlet is a Servlet that support CHEF tools.</p>
@@ -56,6 +57,9 @@ import org.sakaiproject.util.ParameterParser;
 */
 public abstract class ToolServlet extends VmServlet
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(ToolServlet.class);
+
 	/** ToolSession attribute name holding the helper id, if we are in helper mode. NOTE: promote to Tool -ggolden */
 	protected static final String HELPER_ID = "sakai.tool.helper.id";
 
@@ -397,14 +401,14 @@ public abstract class ToolServlet extends VmServlet
 		if (key == null)
 		{
 			key = this.toString() + ".";
-			Logger.warn(this + "getState(): using servlet key: " + key);
+			M_log.warn("getState(): using servlet key: " + key);
 		}
 
 		SessionState rv = UsageSessionService.getSessionState(key);
 
 		if (rv == null)
 		{
-			Logger.warn(this + "getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " " + req.getRequestURI());
+			M_log.warn("getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " " + req.getRequestURI());
 		}
 
 		return rv;

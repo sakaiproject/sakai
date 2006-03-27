@@ -36,29 +36,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.framework.session.UsageSession;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.courier.api.ObservingCourier;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.courier.ObservingCourier;
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.vm.ActionURL;
+import org.sakaiproject.webapp.api.Placement;
+import org.sakaiproject.webapp.api.Session;
+import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.webapp.api.ToolException;
+import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.webapp.cover.ToolManager;
 
 /**
  * <p>
@@ -70,6 +68,9 @@ import org.sakaiproject.vm.ActionURL;
  */
 public abstract class VelocityPortletPaneledAction extends ToolServlet
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(VelocityPortletPaneledAction.class);
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("velocity");
 
@@ -91,42 +92,42 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	{
 		public void warn(String channel, String msg)
 		{
-			Logger.warn(msg);
+			M_log.warn(msg);
 		}
 
 		public void warn(String channel, String msg, Throwable e)
 		{
-			Logger.warn(msg, e);
+			M_log.warn(msg, e);
 		}
 
 		public void debug(String channel, String msg)
 		{
-			Logger.debug(msg);
+			M_log.debug(msg);
 		}
 
 		public void debug(String channel, String msg, Throwable e)
 		{
-			Logger.debug(msg, e);
+			M_log.debug(msg, e);
 		}
 
 		public void info(String channel, String msg)
 		{
-			Logger.info(msg);
+			M_log.info(msg);
 		}
 
 		public void info(String channel, String msg, Throwable e)
 		{
-			Logger.info(msg, e);
+			M_log.info(msg, e);
 		}
 
 		public void error(String channel, String msg)
 		{
-			Logger.error(msg);
+			M_log.error(msg);
 		}
 
 		public void error(String channel, String msg, Throwable e)
 		{
-			Logger.error(msg, e);
+			M_log.error(msg, e);
 		}
 
 		// to support: if (Log.getLogger("chef").isDebugEnabled())
@@ -137,17 +138,17 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 		public boolean isDebugEnabled()
 		{
-			return Logger.isDebugEnabled();
+			return M_log.isDebugEnabled();
 		}
 
 		public boolean isWarnEnabled()
 		{
-			return Logger.isWarnEnabled();
+			return M_log.isWarnEnabled();
 		}
 
 		public boolean isInfoEnabled()
 		{
-			return Logger.isInfoEnabled();
+			return M_log.isInfoEnabled();
 		}
 	}
 
@@ -192,7 +193,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	public static String mainPanelUpdateId(String toolId)
 	{
-		return Validator.escapeJavascript(PortalService.getToolDocElementId(toolId));
+		// TODO: who should be responsible for "Main" here?  It's a Portal thing... -ggolden
+		return Validator.escapeJavascript("Main" + toolId);
 
 	} // mainPanelUpdateId
 
@@ -205,7 +207,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	public static String titlePanelUpdateId(String toolId)
 	{
-		return Validator.escapeJavascript(PortalService.getToolTitleElementId(toolId));
+		// TODO: who should be responsible for "Title" here?  It's a Portal thing... -ggolden
+		return Validator.escapeJavascript("Title" + toolId);
 
 	} // titlePanelUpdateId
 
@@ -498,7 +501,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 		else
 		{
-			Logger.debug(this + ".processAction: no action");
+			M_log.debug("processAction: no action");
 		}
 
 	} // processAction
@@ -691,8 +694,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		//			msg = "you do not have permission to set options for this Worksite.";
 		//		}
 
-		String toolId = PortalService.getCurrentToolId();
-		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(toolId);
+		Placement placement = ToolManager.getCurrentPlacement();
+		String pid = null;
+		if (placement != null) pid = placement.getId();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(pid);
 
 		// go into options mode
 		state.setAttribute(STATE_MODE, MODE_OPTIONS);
@@ -704,7 +709,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String currentPanelId = runData.getParameters().getString(ActionURL.PARAM_PANEL);
 		if (!LAYOUT_MAIN.equals(currentPanelId))
 		{
-			String mainPanelId = mainPanelUpdateId(toolId);
+			String mainPanelId = mainPanelUpdateId(pid);
 			schedulePeerFrameRefresh(mainPanelId);
 		}
 
@@ -743,10 +748,15 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	protected void addOptionsMenu(Menu bar, JetspeedRunData data) // %%% don't need data -ggolden
 	{
-		if (SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
-		{
-			bar.add(new MenuEntry(rb.getString("options"), "doOptions"));
-		}
+		Placement placement = ToolManager.getCurrentPlacement();
+		String context = null;
+		if (placement != null) context = placement.getContext();
+
+		// TODO: need a security call here... -ggolden
+//		if (SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
+//		{
+//			bar.add(new MenuEntry(rb.getString("options"), "doOptions"));
+//		}
 
 	} // addOptionsMenu
 

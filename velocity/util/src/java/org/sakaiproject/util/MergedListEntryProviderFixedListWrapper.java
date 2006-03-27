@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /*
  * Used to provide a  interface to the MergedList class.  This wrapper

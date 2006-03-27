@@ -25,7 +25,7 @@ package org.sakaiproject.cheftool;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.service.framework.session.SessionState;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.util.ParameterParser;
 
 public class JetspeedRunData extends RunData

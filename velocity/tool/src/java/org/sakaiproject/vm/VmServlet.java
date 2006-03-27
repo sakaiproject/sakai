@@ -30,7 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -75,14 +75,14 @@ public abstract class VmServlet extends ComponentServlet
 		{
 			request.setAttribute(name, value);
 		}
-		//		else
-		//		{
-		//			Object old = request.getAttribute(name);
-		//			if (!old.equals(value))
-		//			{
-		//				log("double setting vmReference: " + name + " was: " + old + " to: " + value);
-		//			}
-		//		}
+		// else
+		// {
+		// Object old = request.getAttribute(name);
+		// if (!old.equals(value))
+		// {
+		// log("double setting vmReference: " + name + " was: " + old + " to: " + value);
+		// }
+		// }
 	}
 
 	/**
@@ -184,15 +184,11 @@ public abstract class VmServlet extends ComponentServlet
 		ActionURL a = new ActionURL(Web.returnUrl(request, null), request);
 
 		// set the pid and panel, if present in the request
-		//a.setPid(request.getParameter(ActionURL.PARAM_PID));
+		// a.setPid(request.getParameter(ActionURL.PARAM_PID));
 		a.setPanel(request.getParameter(ActionURL.PARAM_PANEL));
 		a.setSite(request.getParameter(ActionURL.PARAM_SITE));
 		a.setPage(request.getParameter(ActionURL.PARAM_PAGE));
 
 		return a;
 	}
-
 }
-
-
-

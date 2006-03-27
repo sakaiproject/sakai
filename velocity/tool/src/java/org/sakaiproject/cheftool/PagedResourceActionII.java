@@ -33,10 +33,10 @@ import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.util.courier.ObservingCourier;
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.courier.api.ObservingCourier;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 
 /**
 * <p>PagedResourceAction is a base class that handles paged display of lists of Resourecs with service support for paging.</p>

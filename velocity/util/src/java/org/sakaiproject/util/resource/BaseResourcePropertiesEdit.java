@@ -25,7 +25,7 @@
 package org.sakaiproject.util.resource;
 
 // imports
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.w3c.dom.Element;
 
 /**

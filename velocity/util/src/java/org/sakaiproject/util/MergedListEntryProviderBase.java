@@ -26,10 +26,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-
 /**
  * Collects common functionality between MergedListEntry providers.
  */
