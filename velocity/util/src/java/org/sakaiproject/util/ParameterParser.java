@@ -27,8 +27,6 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.util.java.EnumerationIterator;
-
 /**
  * ParameterParser is a wrapper over the request that provides compatibility with Sakai 1.5 and before.
  * 

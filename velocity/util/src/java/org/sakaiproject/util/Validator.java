@@ -24,13 +24,11 @@
 // package
 package org.sakaiproject.util;
 
-// imports
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.service.framework.log.cover.Log;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.util.text.FormattedText;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
 * <p>Validator is utility class that helps to validate stuff for CHEF.</p>
@@ -41,6 +39,9 @@ import org.sakaiproject.util.text.FormattedText;
 */
 public class Validator
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(Validator.class);
+
 	/** These characters are not allowed in a resource id */
 	protected static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
 	
@@ -207,7 +208,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeUrl: ", e);
+			M_log.warn("Validator.escapeUrl: ", e);
 			return id;
 		}
 
@@ -298,7 +299,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeResourceName: ", e);
+			M_log.warn("Validator.escapeResourceName: ", e);
 			return id;
 		}
 
@@ -333,7 +334,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeQuestionMark: ", e);
+			M_log.warn("Validator.escapeQuestionMark: ", e);
 			return id;
 		}
 
@@ -368,7 +369,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeZipEntry: ", e);
+			M_log.warn("Validator.escapeZipEntry: ", e);
 			return id;
 		}
 
@@ -413,7 +414,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeJsQuoted: ", e);
+			M_log.warn("Validator.escapeJsQuoted: ", e);
 			return value;
 		}
 
@@ -450,7 +451,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeSql: ", e);
+			M_log.warn("Validator.escapeSql: ", e);
 			return value;
 		}
 
@@ -495,7 +496,7 @@ public class Validator
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "Validator.escapeJavascript: ", e);
+			M_log.warn("Validator.escapeJavascript: ", e);
 			return value;
 		}
 
@@ -505,23 +506,24 @@ public class Validator
 	* Check for a valid user id.
 	* @exception IdInvalidException if the id is invalid.
 	*/
-	public static void checkUserId(String id)
-		throws IdInvalidException
+	public static boolean checkUserId(String id)
 	{
 		// the rules:
 		//	Null is rejected
 		//	all blank is rejected
 		//	INVALID_CHARS_IN_USER_ID characters are rejected
 
-		if (id == null) throw new IdInvalidException(BLANK_MSG);
-		if (id.trim().length() == 0) throw new IdInvalidException(BLANK_MSG);
+		if (id == null) return false;
+		if (id.trim().length() == 0) return false;
 		
 		// we must reject certain characters that we cannot even escape and get into Tomcat via a URL
 		for (int i = 0; i < id.length(); i++)
 		{
 			if (INVALID_CHARS_IN_USER_ID.indexOf(id.charAt(i)) != -1)
-				throw new IdInvalidException(INVALID_MSG);
+				return false;
 		}
+
+		return true;
 
 	}	// checkUserId
 	
@@ -529,23 +531,24 @@ public class Validator
 	* Check for a valid resource id.
 	* @exception IdInvalidException if the id is invalid.
 	*/
-	public static void checkResourceId(String id)
-		throws IdInvalidException
+	public static boolean checkResourceId(String id)
 	{
 		// the rules:
 		//	Null is rejected
 		//	all blank is rejected
 		//	INVALID_CHARS_IN_RESOURCE_ID characters are rejected
 
-		if (id == null) throw new IdInvalidException(BLANK_MSG);
-		if (id.trim().length() == 0) throw new IdInvalidException(BLANK_MSG);
+		if (id == null) return false;
+		if (id.trim().length() == 0) return false;
 		
 		// we must reject certain characters that we cannot even escape and get into Tomcat via a URL
 		for (int i = 0; i < id.length(); i++)
 		{
 			if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(id.charAt(i)) != -1)
-				throw new IdInvalidException(INVALID_MSG);
+				return false;
 		}
+
+		return true;
 
 	}	// checkResourceId
 
@@ -553,8 +556,7 @@ public class Validator
 	* Check for a valid resource reference.
 	* @exception IdInvalidException if the id is invalid.
 	*/
-	public static void checkResourceRef(String ref)
-		throws IdInvalidException
+	public static boolean checkResourceRef(String ref)
 	{
 		// the rules:
 		//	Null is rejected
@@ -566,15 +568,17 @@ public class Validator
 		// just check the id... %%% need more? -ggolden
 		String id = r.getId();
 
-		if (id == null) throw new IdInvalidException(BLANK_MSG);
-		if (id.trim().length() == 0) throw new IdInvalidException(BLANK_MSG);
+		if (id == null) return false;
+		if (id.trim().length() == 0) return false;
 
 		// we must reject certain characters that we cannot even escape and get into Tomcat via a URL
 		for (int i = 0; i < id.length(); i++)
 		{
 			if (INVALID_CHARS_IN_RESOURCE_ID.indexOf(id.charAt(i)) != -1)
-				throw new IdInvalidException(INVALID_MSG);
+				return false;
 		}
+
+		return true;
 
 	}	// checkResourceRef
 
