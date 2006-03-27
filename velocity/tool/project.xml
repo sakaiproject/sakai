@@ -22,55 +22,49 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
+			<artifactId>sakai-webapp-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
+			<artifactId>sakai-event-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-courier-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-util</artifactId>
+			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-i18n</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-courier</artifactId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -78,6 +72,12 @@
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>1.0</version>
 		</dependency>
 
 		<dependency>
@@ -91,32 +91,12 @@
 			<artifactId>servletapi</artifactId>
 			<version>2.4</version>
 		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-thread_local</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-active-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+
 	</dependencies>
 
 	<build>
 
 		<sourceDirectory>src/java</sourceDirectory>
-
-		<resources>
-
-			<resource>
-				<directory>${basedir}/src/templates</directory>
-				<includes>
-					<include>**/*.vm</include>
-				</includes>
-			</resource>
-
-		</resources>
 
 	</build>
 
