@@ -514,9 +514,17 @@ public class ItemAddListener
 
         // if assign to pool, add the item to the pool
         if ( (!bean.getSelectedPool().equals("")) && (bean.getSelectedPool() != null)) {
-          qpdelegate.addItemToPool(item.getItemIdString(),
-                                   new Long(bean.getSelectedPool()));
+          // if the item is already in the pool then do not add.
+          // This is a scenario where the item might already be in the pool:
+          // create an item in an assessemnt and assign it to p1
+          // copy item from p1 to p2. 
+          // now the item is already in p2. and if you want to edit the original item in the assessment, and reassign it to p2, you will get a duplicate error. 
 
+          if (!qpdelegate.hasItem(item.getItemIdString(),
+                                new Long(bean.getSelectedPool()))) {
+            qpdelegate.addItemToPool(item.getItemIdString(),
+                                   new Long(bean.getSelectedPool()));
+          }
         }
 
         // #1a - goto editAssessment.jsp, so reset assessmentBean
