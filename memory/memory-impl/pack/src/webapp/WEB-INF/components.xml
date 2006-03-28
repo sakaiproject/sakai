@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.memory.api.MemoryService"
+			class="org.sakaiproject.memory.impl.BasicMemoryService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+ 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+ 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+ 		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+ 		<property name="cacheLogging"><value>false</value></property>
+	</bean>
+
+</beans>
