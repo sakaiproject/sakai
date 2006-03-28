@@ -1572,8 +1572,6 @@ System.out.println("after tu.getDisplayDateTime dateString = " + dateString);
       mediaByte = new byte[size];
       mediaStream2.read(mediaByte, 0, size);
 
-      FileOutputStream out = new FileOutputStream("/tmp/test.txt");
-      out.write(mediaByte);
     }
     catch (FileNotFoundException ex)
     {
