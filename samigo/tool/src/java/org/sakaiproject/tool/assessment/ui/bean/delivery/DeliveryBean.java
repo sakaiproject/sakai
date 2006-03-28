@@ -491,14 +491,15 @@ public class DeliveryBean
   public void setTimeElapse(String timeElapse)
   {
     try{
-      float limit = (new Float(getTimeLimit())).floatValue();
-      float elapsed = (new Float(timeElapse)).floatValue();
-      if (limit > elapsed)
-        this.timeElapse = timeElapse;
-      else
-        this.timeElapse = getTimeLimit();
-      if (timeElapse!=null && !("").equals(timeElapse))
+      if (timeElapse!=null && !("").equals(timeElapse)){
+        float limit = (new Float(getTimeLimit())).floatValue();
+        float elapsed = (new Float(timeElapse)).floatValue();
+        if (limit > elapsed)
+          this.timeElapse = timeElapse;
+        else
+          this.timeElapse = getTimeLimit();
         setTimeElapseFloat((new Float(timeElapse)).floatValue());
+      }
     }
     catch (Exception e){
       log.warn("setTimeElapse error:"+e.getMessage());
