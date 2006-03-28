@@ -74,6 +74,8 @@ public class TimeUtil
   public TimeUtil() {
     m_client_timezone= TimeService.getLocalTimeZone();
     m_server_timezone= TimeZone.getDefault();
+    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
+    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
   }
 
 
@@ -84,10 +86,11 @@ public class TimeUtil
   * tz1 is the client timezone,  tz2 is the server timezone
   */
 
-  public Date convertFromTimeZone1StringToTimeZone2Date
-	(SimpleDateFormat ndf, String tz1string, TimeZone tz1, TimeZone tz2){
+  public Date convertFromTimeZone1StringToServerDate
+        (SimpleDateFormat ndf, String tz1string, TimeZone tz1){
     Date serverDate= null;
     try {
+      ndf.setTimeZone(tz1);
       serverDate= ndf.parse(tz1string);
     }
     catch(Exception e){
@@ -106,8 +109,8 @@ public class TimeUtil
   * tz1 is the client timezone,  tz2 is the server timezone
   */
 
-  public String convertFromTimeZone1DateToTimeZone2String
-    (SimpleDateFormat ndf, Date tz2Date, TimeZone tz1, TimeZone tz2){
+  public String convertFromServerDateToTimeZone2String 
+    (SimpleDateFormat ndf, Date tz2Date, TimeZone tz1){
     // for display
     Calendar cal1= new GregorianCalendar(tz1);
     ndf.setCalendar(cal1);
@@ -121,17 +124,22 @@ public class TimeUtil
   */
 
   public Date getServerDateTime(SimpleDateFormat ndf, String clientString){
+System.out.println(" timeutil.getServerDateTime() : clientString = " + clientString);
     Date serverDate = null;
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
 
-        serverDate =convertFromTimeZone1StringToTimeZone2Date 
-                        (ndf, clientString, m_client_timezone, m_server_timezone);
+    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
+    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
+        serverDate =convertFromTimeZone1StringToServerDate 
+                        (ndf, clientString, m_client_timezone);
       }
       else {
+System.out.println(" do not convert " );
         serverDate= ndf.parse(clientString);
       }
+System.out.println(" timeutil.getServerDateTime : serverDAte = " + serverDate);
     }
     catch (Exception e){
       log.warn("can not parse the string into a Date");
@@ -141,21 +149,26 @@ public class TimeUtil
 
 
   /**
-  * Convert a Date reprepsentation of date and time to String in the client timezone or display
+  * Convert a Date reprepsentation of date and time to String in the client timezone for display
   */
 
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate ){
     String displayDate = "";
+System.out.println(" timeutil.getDisplayDateTime() : serverDate = " + serverDate);
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
 
-        displayDate = convertFromTimeZone1DateToTimeZone2String
-			(ndf, serverDate, m_client_timezone, m_server_timezone);
+    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
+    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
+        displayDate = convertFromServerDateToTimeZone2String
+			(ndf, serverDate, m_client_timezone);
       }
       else {
+System.out.println(" do not convert " );
         displayDate= ndf.format(serverDate);
       }
+System.out.println(" timeutil.getDisplayDateTime() : displayDate = " + displayDate);
     }
     catch (Exception e){
       log.warn("can not format the Date to a string");

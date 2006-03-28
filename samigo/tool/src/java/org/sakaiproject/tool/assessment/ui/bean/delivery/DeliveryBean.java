@@ -923,6 +923,7 @@ public class DeliveryBean
     try {
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, dueDate);
+System.out.println("after tu.getDisplayDateTime due date dateString = " + dateString);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1043,12 +1044,14 @@ public class DeliveryBean
   {
     String dateString = "";
     if (submissionDate== null) {
+System.out.println("timezone test submissiondate = " + submissionDate);
       return dateString;
     }
 
     try {
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, submissionDate);
+System.out.println("after tu.getDisplayDateTime dateString = " + dateString);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
@@ -1863,6 +1866,7 @@ public class DeliveryBean
     try {
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+System.out.println("after tu.getDisplayDateTime feedbackdateString = " + dateString);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
