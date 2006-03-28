@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>sakai-legacy-tool</name>
+	<name>sakai-velocity-tool</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-legacy-tool</id>
+	<id>sakai-velocity-tool</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>The Sakai Foundation</name>
@@ -28,7 +28,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-tool-api</artifactId>
+			<artifactId>sakai-velocity-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
