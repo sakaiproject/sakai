@@ -67,7 +67,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-tool</artifactId>
+			<artifactId>sakai-velocity-tool</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
