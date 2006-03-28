@@ -3,26 +3,23 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-// package
-package org.sakaiproject.util.storage;
+package org.sakaiproject.util;
 
 // import
 import java.sql.Connection;
@@ -35,29 +32,40 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.service.framework.sql.SqlReader;
-import org.sakaiproject.service.framework.sql.SqlService;
-import org.sakaiproject.service.legacy.entity.Edit;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
- * BaseDbFlatStorage is a class that stores Resources (of some type) in a database, provides (optional) locked access, and generally implements a services "storage" class. The service's storage class can extend this to provide covers to turn Resource and Edit into
- * something more type specific to the service.
+ * BaseDbFlatStorage is a class that stores Resources (of some type) in a database, provides (optional) locked access, <br />
+ * and generally implements a services "storage" class. <br />
+ * The service's storage class can extend this to provide covers to turn Resource and Edit into something more type specific to the service.
  * </p>
- * Note: the methods here are all "id" based, with the following assumptions: - just the Resource Id field is enough to distinguish one Resource from another - a resource's reference is based on no more than the resource id - a resource's id cannot
- * change. In order to handle Unicode characters properly, the SQL statements executed by this class should not embed Unicode characters into the SQL statement text; rather, Unicode values should be inserted as fields in a PreparedStatement. Databases
- * handle Unicode better in fields.
- * 
- * @author Sakai Software Development Team
+ * <p>
+ * Note: the methods here are all "id" based, with the following assumptions:
+ * <ul>
+ * <li>just the Resource Id field is enough to distinguish one Resource from another</li>
+ * <li> a resource's reference is based on no more than the resource id</li>
+ * <li> a resource's id cannot change</li>
+ * </ul>
+ * <br />
+ * In order to handle Unicode characters properly, the SQL statements executed by this class should not embed Unicode characters into the SQL statement text; <br />
+ * rather, Unicode values should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
+ * </p>
  */
 public class BaseDbFlatStorage
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(BaseDbFlatStorage.class);
+
 	/** Table name for resource records. */
 	protected String m_resourceTableName = null;
 
@@ -139,8 +147,7 @@ public class BaseDbFlatStorage
 		m_resourceTableUpdateFields = resourceTableFields;
 		m_resourceTableInsertFields = resourceTableFields;
 		m_resourceTableInsertValues = resourceTableFields;
-
-	} // BaseDbSingleStorage
+	}
 
 	/**
 	 * Set the sort field to be something perhaps other than the default of the id field.
@@ -197,8 +204,7 @@ public class BaseDbFlatStorage
 	{
 		// setup for locks
 		m_locks = new Hashtable();
-
-	} // open
+	}
 
 	/**
 	 * Close.
@@ -207,13 +213,12 @@ public class BaseDbFlatStorage
 	{
 		if (!m_locks.isEmpty())
 		{
-			Logger.warn(this + ".close(): locks remain!");
+			M_log.warn("close(): locks remain!");
 			// %%%
 		}
 		m_locks.clear();
 		m_locks = null;
-
-	} // close
+	}
 
 	/**
 	 * Check if a Resource by this id exists.
@@ -233,8 +238,7 @@ public class BaseDbFlatStorage
 		List ids = m_sql.dbRead(sql, fields, null);
 
 		return (!ids.isEmpty());
-
-	} // check
+	}
 
 	/**
 	 * Get the Resource with this id, or null if not found.
@@ -275,8 +279,7 @@ public class BaseDbFlatStorage
 		}
 
 		return entry;
-
-	} // getResource
+	}
 
 	public List getAllResources()
 	{
@@ -286,8 +289,7 @@ public class BaseDbFlatStorage
 		List rv = m_sql.dbRead(sql, null, m_reader);
 
 		return rv;
-
-	} // getAllResources
+	}
 
 	public int countAllResources()
 	{
@@ -356,8 +358,7 @@ public class BaseDbFlatStorage
 		List rv = m_sql.dbRead(sql, fields, m_reader);
 
 		return rv;
-
-	} // getAllResources
+	}
 
 	/**
 	 * Get all Resources matching a SQL where clause, with sorting
@@ -409,12 +410,11 @@ public class BaseDbFlatStorage
 			order = m_resourceTableName + "." + m_resourceTableSortField1
 					+ (m_resourceTableSortField2 == null ? "" : "," + m_resourceTableName + "." + m_resourceTableSortField2);
 		}
-      if(where == null)
-         where = "";
+		if (where == null) where = "";
 
 		// read all resources from the db with a where
 		String sql = "select " + fieldList(m_resourceTableReadFields, null) + " from " + m_resourceTableName
-				+ ((join == null) ? "" : ("," + join)) + ((where.length() > 0)? (" where " + where) : "") + " order by " + order;
+				+ ((join == null) ? "" : ("," + join)) + ((where.length() > 0) ? (" where " + where) : "") + " order by " + order;
 
 		List all = m_sql.dbRead(sql, values, m_reader);
 
@@ -449,7 +449,8 @@ public class BaseDbFlatStorage
 	public int countSelectedResources(String where, Object[] values, String join)
 	{
 		// read all resources from the db with a where
-		String sql = "select count(1) from " + m_resourceTableName + ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "");
+		String sql = "select count(1) from " + m_resourceTableName + ((join == null) ? "" : ("," + join))
+				+ (((where != null) && (where.length() > 0)) ? (" where " + where) : "");
 
 		List results = m_sql.dbRead(sql, values, new SqlReader()
 		{
@@ -543,8 +544,8 @@ public class BaseDbFlatStorage
 					+ fieldList(m_resourceTableReadFields, null) + " ,RANK() OVER" + " (order by " + order + ","
 					+ m_resourceTableName + "." + m_resourceTableIdField + ") as rank" + " from " + m_resourceTableName
 					+ ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "")
-					+ " order by " + order + "," + m_resourceTableName
-					+ "." + m_resourceTableIdField + " )" + " where rank between ? and ?";
+					+ " order by " + order + "," + m_resourceTableName + "." + m_resourceTableIdField + " )"
+					+ " where rank between ? and ?";
 			fields[fields.length - 2] = new Long(first);
 			fields[fields.length - 1] = new Long(last);
 		}
@@ -554,8 +555,7 @@ public class BaseDbFlatStorage
 			// use MySQL LIMIT clause
 			sql = "select " + fieldList(m_resourceTableReadFields, null) + " from " + m_resourceTableName
 					+ ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "")
-					+ " order by " + order + "," + m_resourceTableName
-					+ "." + m_resourceTableSortField1
+					+ " order by " + order + "," + m_resourceTableName + "." + m_resourceTableSortField1
 					+ (m_resourceTableSortField2 == null ? "" : "," + m_resourceTableName + "." + m_resourceTableSortField2)
 					+ " limit " + (last - first + 1) + " offset " + (first - 1);
 		}
@@ -565,8 +565,9 @@ public class BaseDbFlatStorage
 			// use SQL2000 LIMIT clause
 			fields = values;
 			sql = "select " + "limit " + (first - 1) + " " + (last - first + 1) + " " + fieldList(m_resourceTableReadFields, null)
-					+ " from " + m_resourceTableName + ((join == null) ? "" : ("," + join)) + (((where != null) && (where.length() > 0)) ? (" where " + where) : "") + " order by "
-					+ order + "," + m_resourceTableName + "." + m_resourceTableSortField1
+					+ " from " + m_resourceTableName + ((join == null) ? "" : ("," + join))
+					+ (((where != null) && (where.length() > 0)) ? (" where " + where) : "") + " order by " + order + ","
+					+ m_resourceTableName + "." + m_resourceTableSortField1
 					+ (m_resourceTableSortField2 == null ? "" : "," + m_resourceTableName + "." + m_resourceTableSortField2);
 		}
 
@@ -612,13 +613,12 @@ public class BaseDbFlatStorage
 		Edit edit = editResource(conn, id);
 		if (edit == null)
 		{
-			Logger.warn(this + ".putResource(): didn't get a lock!");
+			M_log.warn("putResource(): didn't get a lock!");
 			return null;
 		}
 
 		return edit;
-
-	} // putResource
+	}
 
 	/**
 	 * Add a new Resource with this id - no edit is returned, no lock is held.
@@ -729,8 +729,7 @@ public class BaseDbFlatStorage
 		}
 
 		return edit;
-
-	} // editResource
+	}
 
 	/**
 	 * Commit the changes and release the lock.
@@ -774,7 +773,7 @@ public class BaseDbFlatStorage
 			{
 				// remove the lock
 				statement = "delete from SAKAI_LOCKS where TABLE_NAME = ? and RECORD_ID = ?";
-	
+
 				// collect the fields
 				Object lockFields[] = new Object[2];
 				lockFields[0] = m_resourceTableName;
@@ -782,18 +781,17 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(conn, statement, lockFields);
 				if (!ok)
 				{
-					Logger.warn(this + ".commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					M_log.warn("commit: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
-	
+
 			else
-			{	
+			{
 				// remove the lock
 				m_locks.remove(edit.getReference());
 			}
 		}
-
-	} // commitResource
+	}
 
 	/**
 	 * Cancel the changes and release the lock.
@@ -809,7 +807,7 @@ public class BaseDbFlatStorage
 			{
 				// remove the lock
 				String statement = "delete from SAKAI_LOCKS where TABLE_NAME = ? and RECORD_ID = ?";
-	
+
 				// collect the fields
 				Object lockFields[] = new Object[2];
 				lockFields[0] = m_resourceTableName;
@@ -817,18 +815,17 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(statement, lockFields);
 				if (!ok)
 				{
-					Logger.warn(this + ".cancel: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					M_log.warn("cancel: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
-	
+
 			else
 			{
 				// release the lock
 				m_locks.remove(edit.getReference());
 			}
 		}
-
-	} // cancelResource
+	}
 
 	/**
 	 * Remove this (locked) Resource.
@@ -871,7 +868,7 @@ public class BaseDbFlatStorage
 			{
 				// remove the lock
 				statement = "delete from SAKAI_LOCKS where TABLE_NAME = ? and RECORD_ID = ?";
-	
+
 				// collect the fields
 				Object lockFields[] = new Object[2];
 				lockFields[0] = m_resourceTableName;
@@ -879,18 +876,17 @@ public class BaseDbFlatStorage
 				boolean ok = m_sql.dbWrite(conn, statement, lockFields);
 				if (!ok)
 				{
-					Logger.warn(this + ".remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
+					M_log.warn("remove: missing lock for table: " + lockFields[0] + " key: " + lockFields[1]);
 				}
 			}
-	
+
 			else
 			{
 				// release the lock
 				m_locks.remove(edit.getReference());
 			}
 		}
-
-	} // removeResource
+	}
 
 	/**
 	 * Read in properties from the database - when the properties and the main table are related by the id
@@ -985,7 +981,7 @@ public class BaseDbFlatStorage
 				}
 				catch (SQLException e)
 				{
-					Logger.warn(this + ".readProperties: " + e);
+					M_log.warn("readProperties: " + e);
 					return null;
 				}
 			}
@@ -1033,7 +1029,7 @@ public class BaseDbFlatStorage
 				}
 				catch (SQLException e)
 				{
-					Logger.warn(this + ".readProperties: " + e);
+					M_log.warn("readProperties: " + e);
 					return null;
 				}
 			}
@@ -1175,10 +1171,10 @@ public class BaseDbFlatStorage
 				}
 				catch (Exception ee)
 				{
-					Logger.warn(this + ".writeProperties, while rolling back: " + ee);
+					M_log.warn("writeProperties, while rolling back: " + ee);
 				}
 			}
-			Logger.warn(this + ".writeProperties: " + e);
+			M_log.warn("writeProperties: " + e);
 		}
 		finally
 		{
@@ -1192,7 +1188,7 @@ public class BaseDbFlatStorage
 					}
 					catch (Exception e)
 					{
-						Logger.warn(this + ".writeProperties, while setting auto commit: " + e);
+						M_log.warn("writeProperties, while setting auto commit: " + e);
 					}
 					m_sql.returnConnection(connection);
 				}
@@ -1301,10 +1297,10 @@ public class BaseDbFlatStorage
 				}
 				catch (Exception ee)
 				{
-					Logger.warn(this + ".writeProperties, while rolling back: " + ee);
+					M_log.warn("writeProperties, while rolling back: " + ee);
 				}
 			}
-			Logger.warn(this + ".writeProperties: " + e);
+			M_log.warn("writeProperties: " + e);
 		}
 		finally
 		{
@@ -1318,7 +1314,7 @@ public class BaseDbFlatStorage
 					}
 					catch (Exception e)
 					{
-						Logger.warn(this + ".writeProperties, while setting auto commit: " + e);
+						M_log.warn("writeProperties, while setting auto commit: " + e);
 					}
 					m_sql.returnConnection(connection);
 				}
@@ -1412,8 +1408,7 @@ public class BaseDbFlatStorage
 		}
 
 		return buf.toString();
-
-	} // valuesParams
+	}
 
 	/**
 	 * Form a string of n name=?, for sql update set statements, one for each item in the values array, or an empty string if null.
@@ -1443,8 +1438,7 @@ public class BaseDbFlatStorage
 		buf.setLength(buf.length() - 1);
 
 		return buf.toString();
-
-	} // updateSet
+	}
 
 	/**
 	 * For update, we don't want to include the first, primary key, field, so strip it off
@@ -1492,8 +1486,7 @@ public class BaseDbFlatStorage
 		}
 
 		return buf.toString();
-
-	} // fieldList
+	}
 
 	/**
 	 * Qualify the fiel with the table name, if it's a field.
@@ -1533,8 +1526,7 @@ public class BaseDbFlatStorage
 		}
 
 		return id;
-
-	} // caseId
+	}
 
 	/**
 	 * Enable / disable case insensitive ids.
@@ -1545,8 +1537,7 @@ public class BaseDbFlatStorage
 	protected void setCaseInsensitivity(boolean setting)
 	{
 		m_caseInsensitive = setting;
-
-	} // setCaseInsensitivity
+	}
 
 	/**
 	 * Return a record ID to use internally in the database. This is needed for databases (MySQL) that have limits on key lengths. The hash code ensures that the record ID will be unique, even if the DB only considers a prefix of a very long record ID.
@@ -1567,6 +1558,4 @@ public class BaseDbFlatStorage
 			return recordId;
 		}
 	}
-
-} // BaseDbSingleStorage
-
+}

@@ -32,6 +32,8 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -49,13 +51,17 @@ import org.w3c.dom.Element;
  * Edit into something more type specific to the service.
  * </p>
  * <p>
- * Note: the methods here are all "id" based, with the following assumptions: - just the Resource Id field is enough to distinguish one Resource from another <br />
- * (or, for resource, the container's id and the resource id). <br /> - a resource's reference is based on no more than the resource id, for containers, and <br />
- * no more than resource and container id for resources. <br /> - a resource's id and container id cannot change.
+ * Note: the methods here are all "id" based, with the following assumptions:
+ * <ul>
+ * <li>just the Resource Id field is enough to distinguish one Resource from another (or, for resource, the container's id and the resource id).</li>
+ * <li>a resource's reference is based on no more than the resource id, for containers </li>
+ * <li>and no more than resource and container id for resources</li>
+ * <li>a resource's id and container id cannot change</li>
+ * </ul>
  * </p>
- * <p>
- * In order to handle Unicode characters properly, the SQL statements executed by this class should not embed Unicode characters into the SQL statement text; rather, Unicode values <br />
- * should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
+ * <br />
+ * In order to handle Unicode characters properly, the SQL statements executed by this class should not embed Unicode characters into the SQL statement text; <br />
+ * rather, Unicode values should be inserted as fields in a PreparedStatement. Databases handle Unicode better in fields.
  * </p>
  */
 public class BaseDbDoubleStorage
@@ -168,8 +174,7 @@ public class BaseDbDoubleStorage
 		m_resourceTablePubViewField = resourceTablePubViewField;
 		m_user = user;
 		m_sql = sqlService;
-
-	} // BaseDbDoubleStorage
+	}
 
 	/**
 	 * Open and be ready to read / write.
@@ -178,8 +183,7 @@ public class BaseDbDoubleStorage
 	{
 		// setup for locks
 		m_locks = new Hashtable();
-
-	} // open
+	}
 
 	/**
 	 * Close.
@@ -193,8 +197,7 @@ public class BaseDbDoubleStorage
 		}
 		m_locks.clear();
 		m_locks = null;
-
-	} // close
+	}
 
 	/**
 	 * Read one Container Resource from xml
@@ -225,11 +228,10 @@ public class BaseDbDoubleStorage
 		}
 		catch (Exception e)
 		{
-			Log.debug("chef", this + ".readContainer(): ", e);
+			M_log.debug("readContainer(): ", e);
 			return null;
 		}
-
-	} // readContainer
+	}
 
 	/**
 	 * Check if a Container by this id exists.
@@ -247,8 +249,7 @@ public class BaseDbDoubleStorage
 		fields[0] = ref;
 		List ids = m_sql.dbRead(sql, fields, null);
 		return (!ids.isEmpty());
-
-	} // checkContainer
+	}
 
 	/**
 	 * Get the Container with this id, or null if not found.
@@ -274,8 +275,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return entry;
-
-	} // getContainer
+	}
 
 	/**
 	 * Get all Containers.
@@ -302,8 +302,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return all;
-
-	} // getAllContainers
+	}
 
 	/**
 	 * Add a new Container with this id.
@@ -345,8 +344,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return edit;
-
-	} // putContainer
+	}
 
 	/**
 	 * Get a lock on the Container with this id, or null if a lock cannot be gotten.
@@ -443,8 +441,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return edit;
-
-	} // editContainer
+	}
 
 	/**
 	 * Commit the changes and release the lock.
@@ -508,8 +505,7 @@ public class BaseDbDoubleStorage
 			// remove the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // commitContainer
+	}
 
 	/**
 	 * Cancel the changes and release the lock.
@@ -557,8 +553,7 @@ public class BaseDbDoubleStorage
 			// release the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // cancelContainer
+	}
 
 	/**
 	 * Remove this (locked) Container.
@@ -617,8 +612,7 @@ public class BaseDbDoubleStorage
 			// release the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // removeContainer
+	}
 
 	/**
 	 * Read one Resource from xml
@@ -651,11 +645,10 @@ public class BaseDbDoubleStorage
 		}
 		catch (Exception e)
 		{
-			Log.debug("chef", this + ".readResource(): ", e);
+			M_log.debug("readResource(): ", e);
 			return null;
 		}
-
-	} // readResource
+	}
 
 	/**
 	 * Check if a Resource by this id exists.
@@ -676,8 +669,7 @@ public class BaseDbDoubleStorage
 		fields[1] = id;
 		List ids = m_sql.dbRead(sql, fields, null);
 		return (!ids.isEmpty());
-
-	} // check
+	}
 
 	/**
 	 * Get the Resource with this id, or null if not found.
@@ -706,8 +698,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return entry;
-
-	} // getResource
+	}
 
 	/**
 	 * Get all Resources.
@@ -738,8 +729,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return all;
-
-	} // getAllResources
+	}
 
 	/**
 	 * Add a new Resource with this id.
@@ -789,8 +779,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return edit;
-
-	} // putResource
+	}
 
 	/**
 	 * Get a lock on the Resource with this id, or null if a lock cannot be gotten.
@@ -890,8 +879,7 @@ public class BaseDbDoubleStorage
 		}
 
 		return edit;
-
-	} // editResource
+	}
 
 	/**
 	 * Commit the changes and release the lock.
@@ -964,8 +952,7 @@ public class BaseDbDoubleStorage
 			// remove the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // commitResource
+	}
 
 	/**
 	 * Cancel the changes and release the lock.
@@ -1015,8 +1002,7 @@ public class BaseDbDoubleStorage
 			// release the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // cancelResource
+	}
 
 	/**
 	 * Remove this (locked) Resource.
@@ -1079,8 +1065,7 @@ public class BaseDbDoubleStorage
 			// release the lock
 			m_locks.remove(edit.getReference());
 		}
-
-	} // removeResource
+	}
 
 	/**
 	 * Form a string of n question marks with commas, for sql value statements, one for each item in the values array, or an empty string if null.
@@ -1098,8 +1083,7 @@ public class BaseDbDoubleStorage
 			buf.append(" ?,");
 		}
 		return buf.toString();
-
-	} // valuesParams
+	}
 
 	/**
 	 * Form a string of n name=?, for sql update set statements, one for each item in the values array, or an empty string if null.
@@ -1117,8 +1101,7 @@ public class BaseDbDoubleStorage
 			buf.append(fields[i] + " = ?,");
 		}
 		return buf.toString();
-
-	} // updateSet
+	}
 
 	/**
 	 * Form a string of (field, field, field), for sql insert statements, one for each item in the fields array, plus one before, and one after.
@@ -1160,8 +1143,7 @@ public class BaseDbDoubleStorage
 		buf.append(")");
 
 		return buf.toString();
-
-	} // insertFields
+	}
 
 	/**
 	 * Get resources filtered by date and count and drafts, in descending (latest first) order

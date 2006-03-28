@@ -3,7 +3,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>Sakai Legacy Tool</name>
+	<name>sakai-legacy-tool</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-legacy-tool</id>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -65,6 +65,12 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

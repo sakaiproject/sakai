@@ -28,13 +28,15 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -175,7 +177,7 @@ public class BaseDbSingleStorage
 		}
 		catch (Exception e)
 		{
-			Log.debug("chef", this + ".readResource(): ", e);
+			M_log.debug("readResource(): ", e);
 			return null;
 		}
 	}
