@@ -158,6 +158,12 @@
 			<version>${sakai.version}</version>
 		</dependency>  		  
 
+		<dependency> 
+         	<groupId>sakaiproject</groupId> 
+         	<artifactId>sakai-gradebook-service</artifactId> 
+	     	<version>${sakai.version}</version>            
+ 		</dependency> 
+
 <!--try for sakai tag and wysiwyg-->
 		<dependency>
 			<groupId>commons-digester</groupId>
