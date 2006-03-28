@@ -104,6 +104,15 @@ public class SavePartListener
     boolean addItemsFromPool = false;
 
     sectionBean.setOutcome("editAssessment");
+   
+    if((sectionBean.getType().equals("2"))&& (sectionBean.getSelectedPool().equals(""))){
+          
+	String selectedPool_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","selectedPool_error");
+	context.addMessage(null,new FacesMessage(selectedPool_err));
+	sectionBean.setOutcome("editPart");
+	return ;
+
+    }
 
     if (!("".equals(sectionBean.getType()))  && ((SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()).equals(sectionBean.getType()))) {
 
@@ -207,38 +216,33 @@ public class SavePartListener
 
 
   public boolean validateItemsDrawn(SectionBean sectionBean){
+     FacesContext context = FacesContext.getCurrentInstance();
      String numberDrawn = sectionBean.getNumberSelected();
- FacesContext context=FacesContext.getCurrentInstance();
- ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
      String err;
     
-
      QuestionPoolService qpservice = new QuestionPoolService();
 
      ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
      int itemcount = itemlist.size();
+     String itemcountString=" "+Integer.toString(itemcount);
 
      try{
 	 int numberDrawnInt = Integer.parseInt(numberDrawn);
-	 if(numberDrawnInt <=0){
- err="Number of Questions should be an integer greater than 0 and not more than "+ Integer.toString(itemcount);
-     context.addMessage(null,new FacesMessage(err));
-	 return false;
+	 if(numberDrawnInt <=0 || numberDrawnInt>itemcount){
+	     err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
+	     context.addMessage(null,new FacesMessage(err+itemcountString ));
+	     return false;
+
 	 }
-	 if(itemcount< numberDrawnInt) {
-	 //  err=(String)rb.getObject("overdrawn_error");
-	 err="You cannot have more questions drawn than there are questions in a pool.  Please enter a number greater than 0 and not more than "+ Integer.toString(itemcount)+ " for this pool in \"number of Questionss\"";
-         context.addMessage(null,new FacesMessage(err));
-	 return false;
-     }
+	
      } catch(NumberFormatException e){
-	 err="Number of Questions should be an integer greater than 0 and not more than "+ Integer.toString(itemcount);
-     context.addMessage(null,new FacesMessage(err));
+	 err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","qdrawn_error");
+	 context.addMessage(null,new FacesMessage(err+itemcountString ));
 	 return false;
      }
      
      return true;
            
-    }
+  }
 
 }

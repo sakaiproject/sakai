@@ -110,11 +110,10 @@
 <h:panelGrid rendered="#{sectionBean.hideRandom eq 'false'}" columns="2" columnClasses="longtext" >
 --%>
 
-<h:message for="assignToPool" styleClass="validate"/>
 <h:panelGrid columns="2" columnClasses="longtext" >
  
    <h:outputText value="#{msg.pool_name} #{msg.number_questions} " />
-   <h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="assignToPool" value="#{sectionBean.selectedPool}">
+   <h:selectOneMenu disabled="#{sectionBean.type == '1'}" id="assignToPool" value="#{sectionBean.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_for_random_draw}(###)" />
      <f:selectItems value="#{sectionBean.poolsAvailable}" />
   </h:selectOneMenu>
