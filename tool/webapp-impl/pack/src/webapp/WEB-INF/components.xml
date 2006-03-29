@@ -15,9 +15,9 @@
 	</bean>
 
 	<!-- register one component to be both the ToolManager and the ActiveToolManager -->
-	<bean id="org.sakaiproject.tool.api.ActiveToolManager"
-			name="org.sakaiproject.tool.api.ToolManager"
-			class="org.sakaiproject.tool.impl.ActiveToolComponent"
+	<bean id="org.sakaiproject.webapp.api.ActiveToolManager"
+			name="org.sakaiproject.webapp.api.ToolManager"
+			class="org.sakaiproject.webapp.impl.ActiveToolComponent"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
