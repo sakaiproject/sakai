@@ -74,8 +74,6 @@ public class TimeUtil
   public TimeUtil() {
     m_client_timezone= TimeService.getLocalTimeZone();
     m_server_timezone= TimeZone.getDefault();
-    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
-    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
   }
 
 
@@ -124,22 +122,17 @@ public class TimeUtil
   */
 
   public Date getServerDateTime(SimpleDateFormat ndf, String clientString){
-System.out.println(" timeutil.getServerDateTime() : clientString = " + clientString);
     Date serverDate = null;
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
 
-    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
-    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
         serverDate =convertFromTimeZone1StringToServerDate 
                         (ndf, clientString, m_client_timezone);
       }
       else {
-System.out.println(" do not convert " );
         serverDate= ndf.parse(clientString);
       }
-System.out.println(" timeutil.getServerDateTime : serverDAte = " + serverDate);
     }
     catch (Exception e){
       log.warn("can not parse the string into a Date");
@@ -154,21 +147,16 @@ System.out.println(" timeutil.getServerDateTime : serverDAte = " + serverDate);
 
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate ){
     String displayDate = "";
-System.out.println(" timeutil.getDisplayDateTime() : serverDate = " + serverDate);
     try {
       if ((m_client_timezone !=null) && (m_server_timezone!=null) 
 	&& (!m_client_timezone.hasSameRules(m_server_timezone))) {
 
-    System.out.println("timeutil() : m_client_timezone =" + m_client_timezone.getID());
-    System.out.println("timeutil() : m_server_timezone=" + m_server_timezone.getID());
         displayDate = convertFromServerDateToTimeZone2String
 			(ndf, serverDate, m_client_timezone);
       }
       else {
-System.out.println(" do not convert " );
         displayDate= ndf.format(serverDate);
       }
-System.out.println(" timeutil.getDisplayDateTime() : displayDate = " + displayDate);
     }
     catch (Exception e){
       log.warn("can not format the Date to a string");
