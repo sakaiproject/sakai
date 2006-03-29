@@ -3,27 +3,41 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.webapp.api.SessionManager"
-			class="org.sakaiproject.webapp.impl.SessionComponent"
+	<bean id="org.sakaiproject.authz.api.AuthzGroupService"
+			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
-		<property name="inactiveInterval"><value>1800</value></property>
-		<property name="checkEvery"><value>60</value></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+ 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+ 		<property name="sessionManager"><ref bean="org.sakaiproject.webapp.api.SessionManager"/></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
-	<!-- register one component to be both the ToolManager and the ActiveToolManager -->
-	<bean id="org.sakaiproject.tool.api.ActiveToolManager"
-			name="org.sakaiproject.tool.api.ToolManager"
-			class="org.sakaiproject.tool.impl.ActiveToolComponent"
+	<bean id="org.sakaiproject.authz.api.SecurityService"
+			class="org.sakaiproject.authz.impl.SakaiSecurity"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="sessionManager"><ref bean="org.sakaiproject.webapp.api.SessionManager"/></property>
-		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+ 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+ 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+  		<property name="cacheMinutes"><value>5</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.authz.api.FunctionManager"
+			class="org.sakaiproject.authz.impl.FunctionManagerComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
 	</bean>
 
 </beans>
