@@ -38,14 +38,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.vm.ActionURL;
@@ -69,6 +72,9 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(VelocityPortletPaneledAction.class);
+
+	/** message bundle */
+	private static ResourceLoader rb = new ResourceLoader("velocity-tool");
 
 	protected static final String BUTTON = "eventSubmit_";
 
@@ -748,11 +754,11 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String context = null;
 		if (placement != null) context = placement.getContext();
 
-		// TODO: need a security call here... -ggolden
-//		if (SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
-//		{
-//			bar.add(new MenuEntry(rb.getString("options"), "doOptions"));
-//		}
+		// TODO: stolen from site -ggolden
+		if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), "site.upd", "/site/" + context))
+		{
+			bar.add(new MenuEntry(rb.getString("options"), "doOptions"));
+		}
 
 	} // addOptionsMenu
 
