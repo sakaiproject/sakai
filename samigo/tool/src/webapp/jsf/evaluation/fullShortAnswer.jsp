@@ -6,13 +6,7 @@
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-  <f:view>
-    <html xmlns="http://www.w3.org/1999/xhtml">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText
-        value="#{msg.title_question}" /></title>
-      </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
+
 <!--
 $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 <%--
@@ -37,7 +31,25 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 **********************************************************************************/
 --%>
 -->
-<h:outputText escape="false" value="#{param.answerText}"/>
+  <f:view>
+    <html xmlns="http://www.w3.org/1999/xhtml">
+      <head><%= request.getAttribute("html.head") %>
+      <title><h:outputText
+        value="#{msg.title_question}" /></title>
+      </head>
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
+<%--
+ <h:outputText escape="false"
+      value="<input type='hidden' name='agentId' value='#{param.idString}'" />
+<h:outputText escape="false" value="#{description.fullAnswer}"/>
+--%>
+
+<h:dataTable id="questionScoreTable" value="#{questionScores.agents}"
+    var="description" style="listHier indnt2" columnClasses="textTable">
+<h:column>
+<h:outputText escape="false" value="#{description.fullAnswer}"/>
+</h:column>
+</h:dataTable>
       </body>
     </html>
   </f:view>

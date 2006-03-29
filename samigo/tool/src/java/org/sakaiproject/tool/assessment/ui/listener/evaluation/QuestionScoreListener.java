@@ -470,9 +470,12 @@ public class QuestionScoreListener
                !gdata.getRationale().trim().equals(""))
               rationale = "\nRationale: " + gdata.getRationale();
           }
-          answerText = answerText.replaceAll("<.*?>", "");
+	  //Huong's temp commandout
+	  //answerText = answerText.replaceAll("<.*?>", "");
+	  answerText = answerText.replaceAll("\r\n", "<br/>");
           rationale = rationale.replaceAll("<.*?>", "");
           fullAnswerText = answerText;  // this is the non-abbreviated answers for essay questions
+	 
           if (answerText.length() > 35)
             answerText = answerText.substring(0, 35) + "...";
 /*
