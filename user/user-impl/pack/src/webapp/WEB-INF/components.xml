@@ -25,4 +25,12 @@
  		<property name="caseSensitiveId"><value>false</value></property>
 	</bean>
 
+	<bean id="org.sakaiproject.user.api.AuthenticationManager"
+			class="org.sakaiproject.user.impl.UserAuthnComponent"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+	</bean>
+
 </beans>
