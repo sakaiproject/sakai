@@ -44,7 +44,7 @@ import org.sakaiproject.webapp.cover.ToolManager;
  */
 public class PermissionsHelperAction extends VelocityPortletPaneledAction
 {
-	private static ResourceLoader rb = new ResourceLoader("announcement");
+	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException

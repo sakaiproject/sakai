@@ -62,7 +62,7 @@ public class PermissionsAction
 	private static Log M_log = LogFactory.getLog(PermissionsAction.class);
 
 	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("helper");
+	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
 	/** State attributes for Permissions mode - when it is MODE_DONE the tool can process the results. */
 	public static final String STATE_MODE = "pemissions.mode";
