@@ -113,6 +113,13 @@
 				</includes>
 			</resource>
 
+			<resource>
+				<directory>${basedir}/src/templates</directory>
+				<includes>
+					<include>**/*.vm</include>
+				</includes>
+			</resource>
+
 		</resources>
 
 	</build>
