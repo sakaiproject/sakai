@@ -1,23 +1,21 @@
 /**********************************************************************************
  * $URL$
  * $Id$
- **********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
@@ -64,9 +62,6 @@ import org.sakaiproject.webapp.cover.ToolManager;
  * <p>
  * VelocityPortletPaneledAction ...
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public abstract class VelocityPortletPaneledAction extends ToolServlet
 {
@@ -195,7 +190,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	public static String mainPanelUpdateId(String toolId)
 	{
-		// TODO: who should be responsible for "Main" here?  It's a Portal thing... -ggolden
+		// TODO: who should be responsible for "Main" here? It's a Portal thing... -ggolden
 		return Validator.escapeJavascript("Main" + toolId);
 
 	} // mainPanelUpdateId
@@ -209,21 +204,21 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	public static String titlePanelUpdateId(String toolId)
 	{
-		// TODO: who should be responsible for "Title" here?  It's a Portal thing... -ggolden
+		// TODO: who should be responsible for "Title" here? It's a Portal thing... -ggolden
 		return Validator.escapeJavascript("Title" + toolId);
 
 	} // titlePanelUpdateId
 
 	// Note: this is the "new" way - but the old code needs the "old" way
-	//	/**
-	//	* Add another string to the alert message.
-	//	* @param state The session state.
-	//	* @param message The string to add.
-	//	*/
-	//	protected void addAlert(SessionState state, String message)
-	//	{
-	//		getAlert(state).add(message);
-	//	}
+	// /**
+	// * Add another string to the alert message.
+	// * @param state The session state.
+	// * @param message The string to add.
+	// */
+	// protected void addAlert(SessionState state, String message)
+	// {
+	// getAlert(state).add(message);
+	// }
 
 	/**
 	 * Add another string to the alert message.
@@ -306,7 +301,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 * @param res
 	 *        The HttpServletResponse
 	 */
-	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res) throws ToolException
+	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
+			throws ToolException
 	{
 		// the context wraps our real vm attribute set
 		Context context = (Context) req.getAttribute(ATTR_CONTEXT);
@@ -330,17 +326,18 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String editor = ServerConfigurationService.getString("wysiwyg.editor");
 		context.put("sakai_editor", editor);
 		String twinpeaks = ServerConfigurationService.getString("wysiwyg.twinpeaks");
-		if(Boolean.TRUE.toString().equalsIgnoreCase(twinpeaks))
+		if (Boolean.TRUE.toString().equalsIgnoreCase(twinpeaks))
 		{
 			context.put("twinpeaks", "true");
 		}
-		
+
 		UsageSession session = UsageSessionService.getSession();
-		if(session != null)
+		if (session != null)
 		{
 			String browserId = session.getBrowserId();
-			if(UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId) || UsageSession.WIN_NN.equals(browserId) 
-					|| UsageSession.MAC_MZ.equals(browserId) || UsageSession.MAC_NN.equals(browserId) )
+			if (UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId)
+					|| UsageSession.WIN_NN.equals(browserId) || UsageSession.MAC_MZ.equals(browserId)
+					|| UsageSession.MAC_NN.equals(browserId))
 			{
 				context.put("wysiwyg", "true");
 			}
@@ -486,12 +483,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			}
 
 			// redirect to the tool's registration's url, with the tool id (pid) and panel
-			//Tool tool = (Tool) req.getAttribute(ATTR_TOOL);
+			// Tool tool = (Tool) req.getAttribute(ATTR_TOOL);
 			// TODO: redirect url? pannel? placement id?
 			String url = Web.returnUrl(req, null);
 			String redirect = url + "?" + /* ActionURL.PARAM_PID + "=" + tool.getId() + "&" + */ActionURL.PARAM_PANEL + "="
 					+ ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-			//			Logger.info(this + " ** redirect to: " + redirect);
+			// Logger.info(this + " ** redirect to: " + redirect);
 
 			try
 			{
@@ -691,10 +688,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	{
 		// the editor will operate on the tool placement configuration of the current tool
 		// TODO: does the end user have permission to modify this placement?
-		//		catch (PermissionException e)
-		//		{
-		//			msg = "you do not have permission to set options for this Worksite.";
-		//		}
+		// catch (PermissionException e)
+		// {
+		// msg = "you do not have permission to set options for this Worksite.";
+		// }
 
 		Placement placement = ToolManager.getCurrentPlacement();
 		String pid = null;
@@ -808,7 +805,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	/**
 	 * Tell the main observer we have just delivered.
-	 *
+	 * 
 	 * @param state
 	 *        The session state.
 	 */
@@ -831,25 +828,25 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// preserve floating, if we are
-		//		boolean floating = state.getAttribute(STATE_FLOAT) != null;
+		// boolean floating = state.getAttribute(STATE_FLOAT) != null;
 
 		// clear this state
 		resetTool(state);
 
 		String windowToolId = null;
 
-		//		// restore the floating
-		//		if (floating)
-		//		{
-		//			state.setAttribute(STATE_FLOAT, "float");
+		// // restore the floating
+		// if (floating)
+		// {
+		// state.setAttribute(STATE_FLOAT, "float");
 		//
-		//			// we need to tell the window with this tool id (i.e. the floating one) what's going on
-		//			windowToolId = peid;
-		//		}
+		// // we need to tell the window with this tool id (i.e. the floating one) what's going on
+		// windowToolId = peid;
+		// }
 
-		//		// make sure the Main panel is updated
+		// // make sure the Main panel is updated
 		String main = VelocityPortletPaneledAction.mainPanelUpdateId(peid);
-		//		CourierService.deliver(PortalService.getCurrentClientWindowId(windowToolId), main);
+		// CourierService.deliver(PortalService.getCurrentClientWindowId(windowToolId), main);
 		schedulePeerFrameRefresh(main);
 
 	} // doReset
@@ -894,14 +891,14 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				setVmReference("topRefresh", Boolean.TRUE, request);
 				session.removeAttribute(ATTR_TOP_REFRESH);
 			}
-			
+
 			Set ids = (Set) session.getAttribute(ATTR_FRAME_REFRESH);
 			if (ids != null)
 			{
 				setVmReference("frameRefresh", ids, request);
 				session.removeAttribute(ATTR_FRAME_REFRESH);
 			}
-			
+
 			String focusPath = (String) session.getAttribute(ATTR_FRAME_FOCUS);
 			if (focusPath != null)
 			{
@@ -918,6 +915,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	/**
 	 * Setup the vm context for a courier
+	 * 
 	 * @param request
 	 */
 	protected void setVmCourier(HttpServletRequest request, int refresh)
@@ -932,7 +930,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	}
 
 	/** A Context bound into the request attributes. */
-	
+
 	protected final static String ATTR_CONTEXT = "sakai.wrapper.context";
 
 	/** A PortletConfig bound into the request attributes. */
@@ -970,7 +968,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 	/** Tool session attribute name used to schedule a peer frame refresh. */
 	public static final String ATTR_FRAME_REFRESH = "sakai.vppa.frame.refresh";
-	
+
 	/** Tool session attribute name used to schedule a whole page refresh. */
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
@@ -990,7 +988,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		}
 	}
-	
+
 	/**
 	 * Schedule a refresh for a peer frame.
 	 * 
@@ -1023,21 +1021,19 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 		// make the js string from the elements
 		String jsArray = "[";
-		for(int i = 0; i < path.length; i++)
+		for (int i = 0; i < path.length; i++)
 		{
-			if(i > 0)
+			if (i > 0)
 			{
 				jsArray = jsArray + ",";
 			}
 			jsArray = jsArray + " \"" + path[i] + "\"";
 		}
-		jsArray = jsArray + " ]";	  
+		jsArray = jsArray + " ]";
 
 		// save it for the next display
 		session.setAttribute(ATTR_FRAME_FOCUS, jsArray);
 	}
 
 } // class VelocityPortletPaneledAction
-
-
 

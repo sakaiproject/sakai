@@ -1,30 +1,26 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
-// package
 package org.sakaiproject.cheftool.menu;
 
-// imports
 import java.util.List;
 import java.util.Vector;
 
@@ -34,11 +30,10 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 
 /**
-* <p>Menu is an ordered list of MenuItems.</p>
-* 
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
+ * <p>
+ * Menu is an ordered list of MenuItems.
+ * </p>
+ */
 public class MenuImpl implements Menu
 {
 	/** The menu's title. */
@@ -67,18 +62,21 @@ public class MenuImpl implements Menu
 
 	// CHEF 1.x support
 	public final static String CONTEXT_ACTION = "action";
+
 	public final static String CONTEXT_MENU = "menu";
+
 	public final static String STATE_MENU = "menu";
 
 	public MenuImpl(VelocityPortlet p, RunData r, String action)
 	{
 		super();
 	}
+
 	// CHEF 1.x support
-	
+
 	/**
-	* Construct a menu (good for sub-menus).
-	*/
+	 * Construct a menu (good for sub-menus).
+	 */
 	public MenuImpl(String title, String icon, boolean enabled)
 	{
 		m_title = title;
@@ -88,8 +86,8 @@ public class MenuImpl implements Menu
 	} // Menu
 
 	/**
-	* Construct a menu (good for sub-menus).
-	*/
+	 * Construct a menu (good for sub-menus).
+	 */
 	public MenuImpl(String title, String icon, boolean enabled, String form)
 	{
 		m_title = title;
@@ -100,16 +98,19 @@ public class MenuImpl implements Menu
 	} // Menu
 
 	/**
-	* Construct a menu (good for a menu bar).
-	*/
+	 * Construct a menu (good for a menu bar).
+	 */
 	public MenuImpl()
-	{} // Menu
+	{
+	} // Menu
 
 	/**
-	* Add a menu item to the bar.
-	* @param entry The menu item to add.
-	* @return the item.
-	*/
+	 * Add a menu item to the bar.
+	 * 
+	 * @param entry
+	 *        The menu item to add.
+	 * @return the item.
+	 */
 	public MenuItem add(MenuItem item)
 	{
 		m_items.add(item);
@@ -119,8 +120,8 @@ public class MenuImpl implements Menu
 	} // add
 
 	/**
-	* Clear the menu of all items.
-	*/
+	 * Clear the menu of all items.
+	 */
 	public void clear()
 	{
 		m_items.clear();
@@ -128,9 +129,10 @@ public class MenuImpl implements Menu
 	} // clear
 
 	/**
-	* Does this item act as a container for other items?
-	* @return true if this MenuItem is a container for other items, false if not.
-	*/
+	 * Does this item act as a container for other items?
+	 * 
+	 * @return true if this MenuItem is a container for other items, false if not.
+	 */
 	public boolean getIsContainer()
 	{
 		return true;
@@ -138,9 +140,10 @@ public class MenuImpl implements Menu
 	} // getIsContainer
 
 	/**
-	* Is this item a divider ?
-	* @return true if this MenuItem is a divider, false if not.
-	*/
+	 * Is this item a divider ?
+	 * 
+	 * @return true if this MenuItem is a divider, false if not.
+	 */
 	public boolean getIsDivider()
 	{
 		return false;
@@ -148,9 +151,10 @@ public class MenuImpl implements Menu
 	} // getIsDivider
 
 	/**
-	* Access the display title for the item.
-	* @return The display title for the item.
-	*/
+	 * Access the display title for the item.
+	 * 
+	 * @return The display title for the item.
+	 */
 	public String getTitle()
 	{
 		return ((m_title == null) ? "" : m_title);
@@ -158,9 +162,10 @@ public class MenuImpl implements Menu
 	} // getTitle
 
 	/**
-	* Access the icon name for the item (or null if no icon).
-	* @return The icon name for the item (or null if no icon).
-	*/
+	 * Access the icon name for the item (or null if no icon).
+	 * 
+	 * @return The icon name for the item (or null if no icon).
+	 */
 	public String getIcon()
 	{
 		return m_icon;
@@ -168,9 +173,10 @@ public class MenuImpl implements Menu
 	} // getIcon
 
 	/**
-	* Access the enabled flag for the item.
-	* @return True if the item is enabled, false if not.
-	*/
+	 * Access the enabled flag for the item.
+	 * 
+	 * @return True if the item is enabled, false if not.
+	 */
 	public boolean getIsEnabled()
 	{
 		return m_enabled;
@@ -178,10 +184,10 @@ public class MenuImpl implements Menu
 	} // getIsEnabled
 
 	/**
-	* Access the action string for this item; what to do when the user clicks.
-	* Note: if getIsMenu(), there will not be an action string (will return "").
-	* @return The action string for this item.
-	*/
+	 * Access the action string for this item; what to do when the user clicks. Note: if getIsMenu(), there will not be an action string (will return "").
+	 * 
+	 * @return The action string for this item.
+	 */
 	public String getAction()
 	{
 		return "";
@@ -189,11 +195,10 @@ public class MenuImpl implements Menu
 	} // getAction
 
 	/**
-	* Access the full URL string for this item; what to do when the user clicks.
-	* Note: this if defined overrides getAction() which should be "".
-	* Note: if getIsMenu(), there will not be a  URL string (will return "").
-	* @return The full URL string for this item.
-	*/
+	 * Access the full URL string for this item; what to do when the user clicks. Note: this if defined overrides getAction() which should be "". Note: if getIsMenu(), there will not be a URL string (will return "").
+	 * 
+	 * @return The full URL string for this item.
+	 */
 	public String getUrl()
 	{
 		return "";
@@ -201,9 +206,10 @@ public class MenuImpl implements Menu
 	} // getUrl
 
 	/**
-	* Access the form name whose values will be used when this item is selected.
-	* @return The form name whose values will be used when this item is selected.
-	*/
+	 * Access the form name whose values will be used when this item is selected.
+	 * 
+	 * @return The form name whose values will be used when this item is selected.
+	 */
 	public String getForm()
 	{
 		return m_form;
@@ -211,10 +217,10 @@ public class MenuImpl implements Menu
 	} // getForm
 
 	/**
-	* Access the sub-items of the item.
-	* Note: if !isContainer(), there will be no sub-items (will return EmptyIterator).
-	* @return The sub-items of the item.
-	*/
+	 * Access the sub-items of the item. Note: if !isContainer(), there will be no sub-items (will return EmptyIterator).
+	 * 
+	 * @return The sub-items of the item.
+	 */
 	public List getItems()
 	{
 		return m_items;
@@ -222,10 +228,10 @@ public class MenuImpl implements Menu
 	} // getItems
 
 	/**
-	* Count the sub-items of the item.
-	* Note: if !isContainer(), the count is 0.
-	* @return The count of sub-items of the item.
-	*/
+	 * Count the sub-items of the item. Note: if !isContainer(), the count is 0.
+	 * 
+	 * @return The count of sub-items of the item.
+	 */
 	public int size()
 	{
 		return m_items.size();
@@ -233,10 +239,10 @@ public class MenuImpl implements Menu
 	} // size
 
 	/**
-	* Check if there are any sub-items.
-	* Note: if !isContainer(), this is empty.
-	* @return true of there are no sub-items, false if there are.
-	*/
+	 * Check if there are any sub-items. Note: if !isContainer(), this is empty.
+	 * 
+	 * @return true of there are no sub-items, false if there are.
+	 */
 	public boolean isEmpty()
 	{
 		return m_items.isEmpty();
@@ -244,11 +250,12 @@ public class MenuImpl implements Menu
 	} // isEmpty
 
 	/**
-	* Access one sub-items of the item.
-	* Note: if !isContainer(), there will be no sub-items (will return null).
-	* @param index The index position (0 based) for the sub-item to get.
-	* @return The sub-item of the item.
-	*/
+	 * Access one sub-items of the item. Note: if !isContainer(), there will be no sub-items (will return null).
+	 * 
+	 * @param index
+	 *        The index position (0 based) for the sub-item to get.
+	 * @return The sub-item of the item.
+	 */
 	public MenuItem getItem(int index)
 	{
 		try
@@ -263,10 +270,11 @@ public class MenuImpl implements Menu
 	} // getItems
 
 	/**
-	* Access the checked status of this item.
-	* Possible values: @see MenuItem
-	* @return The the checked status of this item.
-	*/
+	 * Access the checked status of this item. Possible values:
+	 * 
+	 * @see MenuItem
+	 * @return The the checked status of this item.
+	 */
 	public int getChecked()
 	{
 		return CHECKED_NA;
@@ -274,9 +282,10 @@ public class MenuImpl implements Menu
 	} // getChecked
 
 	/**
-	* Access the is-field (not a button) flag.
-	* @return True if the item is a field, false if not.
-	*/
+	 * Access the is-field (not a button) flag.
+	 * 
+	 * @return True if the item is a field, false if not.
+	 */
 	public boolean getIsField()
 	{
 		return false;
@@ -284,20 +293,18 @@ public class MenuImpl implements Menu
 	} // getIsField
 
 	/**
-	* Adjust by removing any dividers at the start or end.
-	*/
+	 * Adjust by removing any dividers at the start or end.
+	 */
 	public void adjustDividers()
 	{
 		// trim leading dividers
-		while ((m_items.size() > 0)
-			&& (m_items.get(0) instanceof MenuDivider))
+		while ((m_items.size() > 0) && (m_items.get(0) instanceof MenuDivider))
 		{
 			m_items.remove(0);
 		}
 
 		// trim trailing dividers
-		while ((m_items.size() > 0)
-			&& (m_items.get(m_items.size() - 1) instanceof MenuDivider))
+		while ((m_items.size() > 0) && (m_items.get(m_items.size() - 1) instanceof MenuDivider))
 		{
 			m_items.remove(m_items.size() - 1);
 		}
@@ -305,10 +312,12 @@ public class MenuImpl implements Menu
 	} // adjustDividers
 
 	/**
-	* Set whether disabled items in this menu should be shown.
-	* @param value True to show disabled items, False otherwise.
-	* @return This, for convenience.
-	*/
+	 * Set whether disabled items in this menu should be shown.
+	 * 
+	 * @param value
+	 *        True to show disabled items, False otherwise.
+	 * @return This, for convenience.
+	 */
 	public Menu setShowdisabled(boolean value)
 	{
 		m_showDisabled = value;
@@ -317,10 +326,10 @@ public class MenuImpl implements Menu
 	} // setShowdisabled
 
 	/**
-	* Access whether disabled items in this menu should be shown.
-	* @return Current setting for show-disabled status (true to show disabled items, 
-	* false to NOT show disabled items).
-	*/
+	 * Access whether disabled items in this menu should be shown.
+	 * 
+	 * @return Current setting for show-disabled status (true to show disabled items, false to NOT show disabled items).
+	 */
 	public boolean getShowdisabled()
 	{
 		return m_showDisabled;
@@ -328,6 +337,4 @@ public class MenuImpl implements Menu
 	} // getShowdisabled
 
 } // class Menu
-
-
 

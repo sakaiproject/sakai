@@ -1,53 +1,50 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
-// package
 package org.sakaiproject.cheftool.menu;
 
-// imports
 import java.util.List;
 import java.util.Vector;
 
 import org.sakaiproject.cheftool.api.MenuItem;
 
 /**
-* <p>MenuDivider is a menu item that makes a visible divider in the menu.</p>
-* 
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
+ * <p>
+ * MenuDivider is a menu item that makes a visible divider in the menu.
+ * </p>
+ */
 public class MenuDivider implements MenuItem
 {
 	/**
-	* Construct a menu divider.
-	*/
+	 * Construct a menu divider.
+	 */
 	public MenuDivider()
-	{} // MenuDivider
+	{
+	} // MenuDivider
 
 	/**
-	* Does this item act as a container for other items?
-	* @return true if this MenuItem is a container for other items, false if not.
-	*/
+	 * Does this item act as a container for other items?
+	 * 
+	 * @return true if this MenuItem is a container for other items, false if not.
+	 */
 	public boolean getIsContainer()
 	{
 		return false;
@@ -55,9 +52,10 @@ public class MenuDivider implements MenuItem
 	} // getIsContainer
 
 	/**
-	* Is this item a divider ?
-	* @return true if this MenuItem is a divider, false if not.
-	*/
+	 * Is this item a divider ?
+	 * 
+	 * @return true if this MenuItem is a divider, false if not.
+	 */
 	public boolean getIsDivider()
 	{
 		return true;
@@ -65,9 +63,10 @@ public class MenuDivider implements MenuItem
 	} // getIsDivider
 
 	/**
-	* Access the display title for the item.
-	* @return The display title for the item.
-	*/
+	 * Access the display title for the item.
+	 * 
+	 * @return The display title for the item.
+	 */
 	public String getTitle()
 	{
 		return "-";
@@ -75,9 +74,10 @@ public class MenuDivider implements MenuItem
 	} // getTitle
 
 	/**
-	* Access the icon name for the item (or null if no icon).
-	* @return The icon name for the item (or null if no icon).
-	*/
+	 * Access the icon name for the item (or null if no icon).
+	 * 
+	 * @return The icon name for the item (or null if no icon).
+	 */
 	public String getIcon()
 	{
 		return null;
@@ -85,9 +85,10 @@ public class MenuDivider implements MenuItem
 	} // getIcon
 
 	/**
-	* Access the enabled flag for the item.
-	* @return True if the item is enabled, false if not.
-	*/
+	 * Access the enabled flag for the item.
+	 * 
+	 * @return True if the item is enabled, false if not.
+	 */
 	public boolean getIsEnabled()
 	{
 		return true;
@@ -95,10 +96,10 @@ public class MenuDivider implements MenuItem
 	} // getIsEnabled
 
 	/**
-	* Access the action string for this item; what to do when the user clicks.
-	* Note: if getIsMenu(), there will not be an action string (will return "").
-	* @return The action string for this item.
-	*/
+	 * Access the action string for this item; what to do when the user clicks. Note: if getIsMenu(), there will not be an action string (will return "").
+	 * 
+	 * @return The action string for this item.
+	 */
 	public String getAction()
 	{
 		return "";
@@ -106,11 +107,10 @@ public class MenuDivider implements MenuItem
 	} // getAction
 
 	/**
-	* Access the full URL string for this item; what to do when the user clicks.
-	* Note: this if defined overrides getAction() which should be "".
-	* Note: if getIsMenu(), there will not be a  URL string (will return "").
-	* @return The full URL string for this item.
-	*/
+	 * Access the full URL string for this item; what to do when the user clicks. Note: this if defined overrides getAction() which should be "". Note: if getIsMenu(), there will not be a URL string (will return "").
+	 * 
+	 * @return The full URL string for this item.
+	 */
 	public String getUrl()
 	{
 		return "";
@@ -118,9 +118,10 @@ public class MenuDivider implements MenuItem
 	} // getUrl
 
 	/**
-	* Access the form name whose values will be used when this item is selected.
-	* @return The form name whose values will be used when this item is selected.
-	*/
+	 * Access the form name whose values will be used when this item is selected.
+	 * 
+	 * @return The form name whose values will be used when this item is selected.
+	 */
 	public String getForm()
 	{
 		return null;
@@ -128,10 +129,10 @@ public class MenuDivider implements MenuItem
 	} // getForm
 
 	/**
-	* Access the sub-items of the item.
-	* Note: if !isContainer(), there will be no sub-items (will return EmptyIterator).
-	* @return The sub-items of the item.
-	*/
+	 * Access the sub-items of the item. Note: if !isContainer(), there will be no sub-items (will return EmptyIterator).
+	 * 
+	 * @return The sub-items of the item.
+	 */
 	public List getItems()
 	{
 		return new Vector();
@@ -139,11 +140,12 @@ public class MenuDivider implements MenuItem
 	} // getItems
 
 	/**
-	* Access one sub-items of the item.
-	* Note: if !isContainer(), there will be no sub-items (will return null).
-	* @param index The index position (0 based) for the sub-item to get.
-	* @return The sub-item of the item.
-	*/
+	 * Access one sub-items of the item. Note: if !isContainer(), there will be no sub-items (will return null).
+	 * 
+	 * @param index
+	 *        The index position (0 based) for the sub-item to get.
+	 * @return The sub-item of the item.
+	 */
 	public MenuItem getItem(int index)
 	{
 		return null;
@@ -151,10 +153,11 @@ public class MenuDivider implements MenuItem
 	} // getItem
 
 	/**
-	* Access the checked status of this item.
-	* Possible values: @see MenuItem
-	* @return The the checked status of this item.
-	*/
+	 * Access the checked status of this item. Possible values:
+	 * 
+	 * @see MenuItem
+	 * @return The the checked status of this item.
+	 */
 	public int getChecked()
 	{
 		return CHECKED_NA;
@@ -162,10 +165,10 @@ public class MenuDivider implements MenuItem
 	} // getChecked
 
 	/**
-	* Count the sub-items of the item.
-	* Note: if !isContainer(), the count is 0.
-	* @return The count of sub-items of the item.
-	*/
+	 * Count the sub-items of the item. Note: if !isContainer(), the count is 0.
+	 * 
+	 * @return The count of sub-items of the item.
+	 */
 	public int size()
 	{
 		return 0;
@@ -173,10 +176,10 @@ public class MenuDivider implements MenuItem
 	} // size
 
 	/**
-	* Check if there are any sub-items.
-	* Note: if !isContainer(), this is empty.
-	* @return true of there are no sub-items, false if there are.
-	*/
+	 * Check if there are any sub-items. Note: if !isContainer(), this is empty.
+	 * 
+	 * @return true of there are no sub-items, false if there are.
+	 */
 	public boolean isEmpty()
 	{
 		return true;
@@ -184,9 +187,10 @@ public class MenuDivider implements MenuItem
 	} // isEmpty
 
 	/**
-	* Access the is-field (not a button) flag.
-	* @return True if the item is a field, false if not.
-	*/
+	 * Access the is-field (not a button) flag.
+	 * 
+	 * @return True if the item is a field, false if not.
+	 */
 	public boolean getIsField()
 	{
 		return false;
@@ -194,6 +198,4 @@ public class MenuDivider implements MenuItem
 	} // getIsField
 
 } // MenuDivider
-
-
 

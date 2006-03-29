@@ -1,25 +1,23 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.vm;
 
@@ -39,45 +37,31 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
 /**
-* <p>Responds with the expansion of a Velocity Template.
-* The template and context references are specified in the request.</p>
-*
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
-public class VelocityServlet
-	extends org.apache.velocity.servlet.VelocityServlet
+ * <p>
+ * Responds with the expansion of a Velocity Template. The template and context references are specified in the request.
+ * </p>
+ */
+public class VelocityServlet extends org.apache.velocity.servlet.VelocityServlet
 {
 
 	/**
-	 *   Called by the VelocityServlet
-	 *   init().  We want to set a set of properties
-	 *   so that templates will be found in the webapp
-	 *   root.  This makes this easier to work with as 
-	 *   an example, so a new user doesn't have to worry
-	 *   about config issues when first figuring things
-	 *   out
+	 * Called by the VelocityServlet init(). We want to set a set of properties so that templates will be found in the webapp root. This makes this easier to work with as an example, so a new user doesn't have to worry about config issues when first
+	 * figuring things out
 	 */
-	protected Properties loadConfiguration(ServletConfig config)
-		throws IOException, FileNotFoundException
+	protected Properties loadConfiguration(ServletConfig config) throws IOException, FileNotFoundException
 	{
 		// load the properties as configured in the servlet init params
 		Properties p = super.loadConfiguration(config);
 
 		/*
-		 *  first, we set the template path for the
-		 *  FileResourceLoader to the root of the 
-		 *  webapp.  This probably won't work under
-		 *  in a WAR under WebLogic, but should 
-		 *  under tomcat :)
+		 * first, we set the template path for the FileResourceLoader to the root of the webapp. This probably won't work under in a WAR under WebLogic, but should under tomcat :)
 		 */
 
 		String path = config.getServletContext().getRealPath("/");
 
 		if (path == null)
 		{
-			System.out.println(
-				" SampleServlet.loadConfiguration() : unable to "
+			System.out.println(" SampleServlet.loadConfiguration() : unable to "
 					+ "get the current webapp root.  Using '/'. Please fix.");
 
 			path = "/";
@@ -86,30 +70,24 @@ public class VelocityServlet
 		p.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH, path);
 
 		/**
-		 *  and the same for the log file
+		 * and the same for the log file
 		 */
-		
+
 		p.setProperty("runtime.log", path + p.getProperty("runtime.log"));
 
 		return p;
 	}
 
 	/**
-	 *  <p>
-	 *  main routine to handle a request.  Called by
-	 *  VelocityServlet, your responsibility as programmer
-	 *  is to simply return a valid Template
-	 *  </p>
-	 *
-	 *  @param ctx a Velocity Context object to be filled with
-	 *             data.  Will be used for rendering this 
-	 *             template
-	 *  @return Template to be used for request
+	 * <p>
+	 * main routine to handle a request. Called by VelocityServlet, your responsibility as programmer is to simply return a valid Template
+	 * </p>
+	 * 
+	 * @param ctx
+	 *        a Velocity Context object to be filled with data. Will be used for rendering this template
+	 * @return Template to be used for request
 	 */
-	public Template handleRequest(
-		HttpServletRequest request,
-		HttpServletResponse response,
-		Context ctx)
+	public Template handleRequest(HttpServletRequest request, HttpServletResponse response, Context ctx)
 	{
 		// Note: Velocity doesn't like dots in the context names, so we change them to '_'
 
@@ -122,12 +100,11 @@ public class VelocityServlet
 			Object value = request.getAttribute(name);
 
 			ctx.put(vName, value);
-//			log("--> context (attribute): " + vName + " = " + value);
+			// log("--> context (attribute): " + vName + " = " + value);
 		}
 
 		// if the javax.servlet.include.servlet_path attribute exists, use this value as the template
-		String templatePath =
-			(String) request.getAttribute("javax.servlet.include.servlet_path");
+		String templatePath = (String) request.getAttribute("javax.servlet.include.servlet_path");
 
 		// if not there, try our special include
 		if (templatePath == null)
@@ -144,7 +121,7 @@ public class VelocityServlet
 		Template template = null;
 		try
 		{
-//			log("--> template path: " + templatePath);
+			// log("--> template path: " + templatePath);
 			template = getTemplate(templatePath);
 		}
 		catch (ParseErrorException ex)
@@ -166,7 +143,9 @@ public class VelocityServlet
 
 	/**
 	 * Change any characters that Velocity doesn't like in the name to '_' to make a valid Velocity name
-	 * @param name The name to convert.
+	 * 
+	 * @param name
+	 *        The name to convert.
 	 * @return The name converted to a valid Velocity name.
 	 */
 	protected String escapeVmName(String name)
@@ -194,6 +173,4 @@ public class VelocityServlet
 	} // escapeVmName
 
 } // class VelocityServlet
-
-
 

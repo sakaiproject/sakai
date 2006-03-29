@@ -1,25 +1,23 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
 package org.sakaiproject.cheftool;
 
@@ -49,12 +47,13 @@ import org.sakaiproject.webapp.cover.SessionManager;
 import org.sakaiproject.webapp.cover.ToolManager;
 
 /**
-* <p>ToolServlet is a Servlet that support CHEF tools.</p>
-* <p>Extending VmServlet provides support for component location and use of the Velocity Template Engine.</p>
-* 
-* @author University of Michigan, Sakai Software Development Team
-* @version $Revision$
-*/
+ * <p>
+ * ToolServlet is a Servlet that support CHEF tools.
+ * </p>
+ * <p>
+ * Extending VmServlet provides support for component location and use of the Velocity Template Engine.
+ * </p>
+ */
 public abstract class ToolServlet extends VmServlet
 {
 	/** Our logger. */
@@ -65,12 +64,13 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Add some standard references to the vm context.
-	 * @param request The render request.
-	 * @param response The render response.
+	 * 
+	 * @param request
+	 *        The render request.
+	 * @param response
+	 *        The render response.
 	 */
-	protected void setVmStdRef(
-		HttpServletRequest request,
-		HttpServletResponse response)
+	protected void setVmStdRef(HttpServletRequest request, HttpServletResponse response)
 	{
 		super.setVmStdRef(request, response);
 
@@ -85,11 +85,9 @@ public abstract class ToolServlet extends VmServlet
 
 	} // setVmStdRef
 
-	/*******************************************************************************
-	* tool mode support
-	********************************************************************************
-	* Tool mode is stored in the servlet session state.
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * tool mode support ******************************************************************************* Tool mode is stored in the servlet session state.
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The mode value when no mode has been set. */
 	protected final String TOOL_MODE_DEFAULT = "Default";
@@ -102,8 +100,11 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Set the tool mode.
-	 * @param toolMode The new tool mode.
-	 * @param req The portlet request.
+	 * 
+	 * @param toolMode
+	 *        The new tool mode.
+	 * @param req
+	 *        The portlet request.
 	 */
 	protected void setToolMode(String toolMode, HttpServletRequest req)
 	{
@@ -114,8 +115,10 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Access the tool mode for the current Portlet mode.
+	 * 
 	 * @return the tool mode for the current Portlet mode.
-	 * @param req The portlet request.
+	 * @param req
+	 *        The portlet request.
 	 */
 	protected String getToolMode(HttpServletRequest req)
 	{
@@ -134,8 +137,7 @@ public abstract class ToolServlet extends VmServlet
 	/**
 	 * Respond to a request by dispatching to a portlet like "do" method based on the portlet mode and tool mode
 	 */
-	protected void doPost(HttpServletRequest req, HttpServletResponse res)
-		throws ServletException
+	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
 		doGet(req, res);
 
@@ -144,19 +146,18 @@ public abstract class ToolServlet extends VmServlet
 	/**
 	 * Respond to a request by dispatching to a portlet like "do" method based on the portlet mode and tool mode
 	 */
-	protected void doGet(HttpServletRequest req, HttpServletResponse res)
-		throws ServletException
+	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
-// Note: this not needed (?) since we are sync'ing in prepState -ggolden
-//		// jump right to disptch, no state init or actions, for title.
-//		// Note: this is to avoid concurrent prepState() when Title and Main come in together. -ggolden
-//		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
-//		if (TITLE_PANEL.equals(panel))
-//		{
-//			// dispatch
-//			toolModeDispatch("doView", getToolMode(req), req, res);
-//			return;
-//		}
+		// Note: this not needed (?) since we are sync'ing in prepState -ggolden
+		// // jump right to disptch, no state init or actions, for title.
+		// // Note: this is to avoid concurrent prepState() when Title and Main come in together. -ggolden
+		// String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+		// if (TITLE_PANEL.equals(panel))
+		// {
+		// // dispatch
+		// toolModeDispatch("doView", getToolMode(req), req, res);
+		// return;
+		// }
 
 		// detect a helper done
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -199,31 +200,37 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Setup for a helper tool - all subsequent requests will be directed there, till the tool is done.
-	 * @param helperId The helper tool id.
+	 * 
+	 * @param helperId
+	 *        The helper tool id.
 	 */
 	protected void startHelper(HttpServletRequest req, String helperId)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		toolSession.setAttribute(HELPER_ID, helperId);
-		
+
 		// the done URL
-		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?" + HELPER_ID + "=done";
+		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?"
+				+ HELPER_ID + "=done";
 		toolSession.setAttribute(helperId + Tool.HELPER_DONE_URL, doneUrl);
 	}
 
 	/**
 	 * Dispatch to a "do" method based on reflection.
-	 * @param methodBase The base name of the method to call.
-	 * @param methodExt The end name of the method to call.
-	 * @param req The HttpServletRequest.
-	 * @param res The HttpServletResponse
-	 * @throws PortletExcption, IOException, just like the "do" methods.
+	 * 
+	 * @param methodBase
+	 *        The base name of the method to call.
+	 * @param methodExt
+	 *        The end name of the method to call.
+	 * @param req
+	 *        The HttpServletRequest.
+	 * @param res
+	 *        The HttpServletResponse
+	 * @throws PortletExcption,
+	 *         IOException, just like the "do" methods.
 	 */
-	protected void toolModeDispatch(
-		String methodBase,
-		String methodExt,
-		HttpServletRequest req,
-		HttpServletResponse res) throws ToolException
+	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
+			throws ToolException
 	{
 		String methodName = null;
 		try
@@ -263,12 +270,9 @@ public abstract class ToolServlet extends VmServlet
 
 	} // toolModeDispatch
 
-	/*******************************************************************************
-	* action model support
-	********************************************************************************
-	* Dispatch by reflection to the method named in the value of the "sakai_action" parameter.
-	* Option to use "sakai_action_ACTION" to dispatch to ACTION.
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * action model support ******************************************************************************* Dispatch by reflection to the method named in the value of the "sakai_action" parameter. Option to use "sakai_action_ACTION" to dispatch to ACTION.
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The request parameter name root that has the action name following. */
 	protected final static String PARAM_ACTION_COMBO = "sakai_action_";
@@ -279,9 +283,7 @@ public abstract class ToolServlet extends VmServlet
 	/**
 	 * Process a Portlet action.
 	 */
-	protected void processAction(
-		HttpServletRequest req,
-		HttpServletResponse res)
+	protected void processAction(HttpServletRequest req, HttpServletResponse res)
 	{
 		// see if there's an action parameter, whose value has the action to use
 		String action = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(PARAM_ACTION);
@@ -311,17 +313,19 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Dispatch to a "processAction" method based on reflection.
-	 * @param methodBase The base name of the method to call.
-	 * @param methodExt The end name of the method to call.
-	 * @param req The ActionRequest.
-	 * @param res The ActionResponse
-	 * @throws PortletExcption, IOException, just like the "do" methods.
+	 * 
+	 * @param methodBase
+	 *        The base name of the method to call.
+	 * @param methodExt
+	 *        The end name of the method to call.
+	 * @param req
+	 *        The ActionRequest.
+	 * @param res
+	 *        The ActionResponse
+	 * @throws PortletExcption,
+	 *         IOException, just like the "do" methods.
 	 */
-	protected void actionDispatch(
-		String methodBase,
-		String methodExt,
-		HttpServletRequest req,
-		HttpServletResponse res)
+	protected void actionDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 	{
 		String methodName = null;
 		try
@@ -348,38 +352,34 @@ public abstract class ToolServlet extends VmServlet
 		}
 		catch (NoSuchMethodException e)
 		{
-			getServletContext().log(
-				"Exception calling method " + methodName + " " + e);
+			getServletContext().log("Exception calling method " + methodName + " " + e);
 		}
 		catch (IllegalAccessException e)
 		{
-			getServletContext().log(
-				"Exception calling method " + methodName + " " + e);
+			getServletContext().log("Exception calling method " + methodName + " " + e);
 		}
 		catch (InvocationTargetException e)
 		{
 			String xtra = "";
 			if (e.getCause() != null) xtra = " (Caused by " + e.getCause() + ")";
-			getServletContext().log(
-				"Exception calling method " + methodName + " " + e + xtra);
+			getServletContext().log("Exception calling method " + methodName + " " + e + xtra);
 		}
 
 	} // actionDispatch
 
-	/*******************************************************************************
-	* session state support
-	********************************************************************************
-	* SessionState is a cover for the portlet's attributes in the session.
-	* Attributes are those that are portlet scoped.
-	* Attributes names are protected with a namespace.
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * session state support ******************************************************************************* SessionState is a cover for the portlet's attributes in the session. Attributes are those that are portlet scoped. Attributes names are protected
+	 * with a namespace.
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The state attribute name used to store the marker of have been initialized. */
 	protected static final String ALERT_STATE_INITED = "sakai.inited";
 
 	/**
 	 * Access the "pid" - portlet window id, tool id, from the request
-	 * @param req The current request.
+	 * 
+	 * @param req
+	 *        The current request.
 	 * @return the "pid" - portlet window id, tool id, from the request
 	 */
 	protected String getPid(HttpServletRequest req)
@@ -389,14 +389,15 @@ public abstract class ToolServlet extends VmServlet
 	}
 
 	/**
-	 * Access the SessionState for the current request.
-	 * Note: this is scoped only for the current request.
-	 * @param req The current portlet request.
+	 * Access the SessionState for the current request. Note: this is scoped only for the current request.
+	 * 
+	 * @param req
+	 *        The current portlet request.
 	 * @return The SessionState objet for the current request.
 	 */
 	protected SessionState getState(HttpServletRequest req)
 	{
-		// key the state based on the pid, if present.  If not we will use the servlet's class name
+		// key the state based on the pid, if present. If not we will use the servlet's class name
 		String key = getPid(req);
 		if (key == null)
 		{
@@ -408,7 +409,8 @@ public abstract class ToolServlet extends VmServlet
 
 		if (rv == null)
 		{
-			M_log.warn("getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " " + req.getRequestURI());
+			M_log.warn("getState(): no state found for key: " + key + " " + req.getPathInfo() + " " + req.getQueryString() + " "
+					+ req.getRequestURI());
 		}
 
 		return rv;
@@ -416,8 +418,11 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Prepare state, either for first time or update
-	 * @param req The current portlet request.
-	 * @param res The current response.
+	 * 
+	 * @param req
+	 *        The current portlet request.
+	 * @param res
+	 *        The current response.
 	 */
 	protected void prepState(HttpServletRequest req, HttpServletResponse res)
 	{
@@ -425,9 +430,9 @@ public abstract class ToolServlet extends VmServlet
 
 		// If two requests from the same session to the same tool (pid) come in at the same time, we might
 		// get two threads in here doing initState() at once, which would not be good.
-		// We need to sync. on something...  but we have no object that maps to a session/tool instance
+		// We need to sync. on something... but we have no object that maps to a session/tool instance
 		// (state is a cover freshly created each time)
-		// lets try to sync on the Sakai session.  That's more than we need but not too bad. -ggolden
+		// lets try to sync on the Sakai session. That's more than we need but not too bad. -ggolden
 		Session session = SessionManager.getCurrentSession();
 		synchronized (session)
 		{
@@ -450,45 +455,46 @@ public abstract class ToolServlet extends VmServlet
 	} // initState
 
 	/**
-	 * Initialize for the first time the session state for this session.
-	 * If overridden in a sub-class, make sure to call super.
-	 * @param state The session state.
-	 * @param req The current request.
-	 * @param res The current response.
+	 * Initialize for the first time the session state for this session. If overridden in a sub-class, make sure to call super.
+	 * 
+	 * @param state
+	 *        The session state.
+	 * @param req
+	 *        The current request.
+	 * @param res
+	 *        The current response.
 	 */
-	protected void initState(
-		SessionState state,
-		HttpServletRequest req,
-		HttpServletResponse res)
-	{}
+	protected void initState(SessionState state, HttpServletRequest req, HttpServletResponse res)
+	{
+	}
 
 	/**
-	 * Update for this request processing the session state.
-	 * If overridden in a sub-class, make sure to call super.
-	 * @param state The session state.
-	 * @param req The current request.
-	 * @param res The current response.
+	 * Update for this request processing the session state. If overridden in a sub-class, make sure to call super.
+	 * 
+	 * @param state
+	 *        The session state.
+	 * @param req
+	 *        The current request.
+	 * @param res
+	 *        The current response.
 	 */
-	protected void updateState(
-		SessionState state,
-		HttpServletRequest req,
-		HttpServletResponse res)
-	{}
+	protected void updateState(SessionState state, HttpServletRequest req, HttpServletResponse res)
+	{
+	}
 
-	/*******************************************************************************
-	* alert support
-	********************************************************************************
-	* Alerts are messages displayed to the user in the portlet output in a standard way.
-	* Alerts are added as needed.
-	* The Alert text reference is placed into the velocity context, and then cleared.
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * alert support ******************************************************************************* Alerts are messages displayed to the user in the portlet output in a standard way. Alerts are added as needed. The Alert text reference is placed into the
+	 * velocity context, and then cleared.
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The state attribute name used to store the Alert. */
 	protected static final String ALERT_ATTR = "sakai.alert";
 
 	/**
 	 * Access the Alert for the current request.
-	 * @param req The current portlet request.
+	 * 
+	 * @param req
+	 *        The current portlet request.
 	 * @return The Alert objet for the current request.
 	 */
 	protected Alert getAlert(HttpServletRequest req)
@@ -508,7 +514,9 @@ public abstract class ToolServlet extends VmServlet
 
 	/**
 	 * Access the Alert in this state - will create one if needed.
-	 * @param state The state in which to find the alert.
+	 * 
+	 * @param state
+	 *        The state in which to find the alert.
 	 * @return The Alert objet.
 	 */
 	protected Alert getAlert(SessionState state)
@@ -525,18 +533,18 @@ public abstract class ToolServlet extends VmServlet
 
 	} // getAlert
 
-	/*******************************************************************************
-	* menu support
-	********************************************************************************
-	* Menus are sets of commands to be displayed in the user interface.
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * menu support ******************************************************************************* Menus are sets of commands to be displayed in the user interface.
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The state attribute name used to store the Menu. */
 	protected static final String MENU_ATTR = "sakai.menu";
 
 	/**
 	 * Access the Menu for the current request.
-	 * @param req The current portlet request.
+	 * 
+	 * @param req
+	 *        The current portlet request.
 	 * @return The Menu objet for the current request.
 	 */
 	protected Menu getMenu(HttpServletRequest req)
@@ -555,6 +563,4 @@ public abstract class ToolServlet extends VmServlet
 	} // getMenu
 
 } // class ToolServlet
-
-
 

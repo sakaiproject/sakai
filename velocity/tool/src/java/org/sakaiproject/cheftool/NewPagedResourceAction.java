@@ -1,30 +1,26 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
-// package
 package org.sakaiproject.cheftool;
 
-// imports
 import java.util.List;
 import java.util.Vector;
 
@@ -38,13 +34,11 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.util.StringUtil;
 
 /**
-* <p>PagedResourceAction is a base class that handles paged display of lists of Resourecs.</p>
-* 
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
-public abstract class NewPagedResourceAction
-	extends VelocityPortletPaneledAction
+ * <p>
+ * PagedResourceAction is a base class that handles paged display of lists of Resourecs.
+ * </p>
+ */
+public abstract class NewPagedResourceAction extends VelocityPortletPaneledAction
 {
 	/** The default number of items per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 15;
@@ -54,63 +48,83 @@ public abstract class NewPagedResourceAction
 
 	/** state attribute names. */
 	protected static final String STATE_VIEW_ID = "view-id";
+
 	protected static final String STATE_TOP_PAGE_ITEM = "item-top";
+
 	protected static final String STATE_PAGESIZE = "page-size";
+
 	protected static final String STATE_TOTAL_PAGENUMBER = "total_page_number";
+
 	protected static final String STATE_NUM_ITEMS = "num-items";
+
 	protected static final String STATE_NEXT_PAGE_EXISTS = "item-next-page";
+
 	protected static final String STATE_PREV_PAGE_EXISTS = "item-prev-page";
+
 	protected static final String STATE_GO_NEXT_PAGE = "item-go-next-page";
+
 	protected static final String STATE_GO_PREV_PAGE = "item-go-prev-page";
+
 	protected static final String STATE_GO_NEXT = "item-go-next";
+
 	protected static final String STATE_GO_PREV = "item-go-prev";
+
 	protected static final String STATE_NEXT_EXISTS = "item-next";
+
 	protected static final String STATE_PREV_EXISTS = "item-prev";
+
 	protected static final String STATE_GO_FIRST_PAGE = "item-go-first-page";
+
 	protected static final String STATE_GO_LAST_PAGE = "item-go-last-page";
+
 	protected static final String STATE_SEARCH = "search";
+
 	protected static final String STATE_MANUAL_REFRESH = "manual";
+
 	protected static final String STATE_GOTO_PAGE = "goto-page";
+
 	protected static final String STATE_CURRENT_PAGE = "current-page";
+
 	protected static final String STATE_SELECTED_VIEW = "selected_view";
+
 	protected static final String STATE_PAGING = "paging";
 
 	/** Form fields. */
 	protected static final String FORM_SEARCH = "search";
+
 	protected static final String FORM_PAGE_NUMBER = "page_number";
 
 	/**
-	* Implement this to return alist of all the resources that there are to page.
-	* Sort them as appropriate, and apply search criteria.
-	*/
+	 * Implement this to return alist of all the resources that there are to page. Sort them as appropriate, and apply search criteria.
+	 */
 	protected abstract List readAllResources(SessionState state);
-	
+
 	/**
 	 * Return the total page number
 	 */
 	protected int totalPageNumber(SessionState state)
 	{
 		return ((Integer) state.getAttribute(STATE_TOTAL_PAGENUMBER)).intValue();
-		
-	}	// totalPageNumber
 
-	/** 
-	* Add the menus for search.
-	*/
+	} // totalPageNumber
+
+	/**
+	 * Add the menus for search.
+	 */
 	protected void addSearchMenus(Menu bar, SessionState state)
 	{
-		bar.add( new MenuField(FORM_SEARCH, "2ndToolbarForm", "doSearch", (String) state.getAttribute(STATE_SEARCH)));
-		bar.add( new MenuEntry("Search", null, true, MenuItem.CHECKED_NA, "doSearch", "2ndToolbarForm"));
+		bar.add(new MenuField(FORM_SEARCH, "2ndToolbarForm", "doSearch", (String) state.getAttribute(STATE_SEARCH)));
+		bar.add(new MenuEntry("Search", null, true, MenuItem.CHECKED_NA, "doSearch", "2ndToolbarForm"));
 		if (state.getAttribute(STATE_SEARCH) != null)
 		{
-			bar.add( new MenuEntry("Clear Search", "doSearch_clear"));
+			bar.add(new MenuEntry("Clear Search", "doSearch_clear"));
 		}
 
-	}   // addSearchMenus
-	
+	} // addSearchMenus
+
 	/**
-	* Populate the state object, if needed, concerning paging
-	*/
+	 * Populate the state object, if needed, concerning paging
+	 */
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
 		super.initState(state, portlet, rundata);
@@ -126,20 +140,20 @@ public abstract class NewPagedResourceAction
 				{
 					size = new Integer(DEFAULT_PAGE_SIZE);
 					if (Log.getLogger("chef").isDebugEnabled())
-						Log.debug("chef", this + ".initState: size parameter invalid 1: "
-									+ config.getInitParameter(PARAM_PAGESIZE));
+						Log
+								.debug("chef", this + ".initState: size parameter invalid 1: "
+										+ config.getInitParameter(PARAM_PAGESIZE));
 				}
 				state.setAttribute(STATE_PAGESIZE, size);
 			}
 			catch (Exception any)
 			{
 				if (Log.getLogger("chef").isDebugEnabled())
-					Log.debug("chef", this + ".initState: size parameter invalid 2: "
-								+ any.toString());
+					Log.debug("chef", this + ".initState: size parameter invalid 2: " + any.toString());
 				state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
 			}
 		}
-		
+
 		if (state.getAttribute(STATE_CURRENT_PAGE) == null)
 		{
 			state.setAttribute(STATE_CURRENT_PAGE, new Integer(1));
@@ -149,21 +163,22 @@ public abstract class NewPagedResourceAction
 		{
 			state.setAttribute(STATE_PAGING, Boolean.FALSE);
 		}
-		
+
 		if (state.getAttribute(STATE_TOTAL_PAGENUMBER) == null)
 		{
 			state.setAttribute(STATE_TOTAL_PAGENUMBER, new Integer(1));
 		}
-	}   // initState
+	} // initState
 
 	/**
-	* Prepare the current page of items to display.
-	* @return List of items to display on this page.
-	*/
+	 * Prepare the current page of items to display.
+	 * 
+	 * @return List of items to display on this page.
+	 */
 	protected List prepPage(SessionState state)
 	{
 		List rv = new Vector();
-		
+
 		// read all items
 		List allItems = readAllResources(state);
 
@@ -171,28 +186,28 @@ public abstract class NewPagedResourceAction
 		{
 			return rv;
 		}
-		
+
 		// access the page size
 		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
-		
+
 		// set the total page number
 		int totalPageNumber = 1;
 		int listSize = allItems.size();
-		if ((listSize%pageSize)>0)
+		if ((listSize % pageSize) > 0)
 		{
-			totalPageNumber = listSize/pageSize + 1;
+			totalPageNumber = listSize / pageSize + 1;
 		}
 		else
 		{
-			totalPageNumber = listSize/pageSize;
+			totalPageNumber = listSize / pageSize;
 		}
 		state.setAttribute(STATE_TOTAL_PAGENUMBER, new Integer(totalPageNumber));
-		
-		boolean paged = ((Boolean)state.getAttribute(STATE_PAGING)).booleanValue();
+
+		boolean paged = ((Boolean) state.getAttribute(STATE_PAGING)).booleanValue();
 		if (!paged)
 		{
 			// no paging, return all items
-			//if the total page is greater than 1, set the STATE_NEXT_PAGE_EXISTS 
+			// if the total page is greater than 1, set the STATE_NEXT_PAGE_EXISTS
 			if (totalPageNumber > 1)
 			{
 				state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
@@ -229,14 +244,14 @@ public abstract class NewPagedResourceAction
 			boolean goViewPage = state.getAttribute(STATE_GOTO_PAGE) != null;
 
 			// if we have no prev page and do have a top item, then we will stay "pined" to the top
-			boolean pinToTop = (	(state.getAttribute(STATE_TOP_PAGE_ITEM) != null)
-								&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
-								&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage && !goViewPage);
+			boolean pinToTop = ((state.getAttribute(STATE_TOP_PAGE_ITEM) != null)
+					&& (state.getAttribute(STATE_PREV_PAGE_EXISTS) == null) && !goNextPage && !goPrevPage && !goNext && !goPrev
+					&& !goFirstPage && !goLastPage && !goViewPage);
 
 			// if we have no next page and do have a top item, then we will stay "pined" to the bottom
-			boolean pinToBottom = (	(state.getAttribute(STATE_TOP_PAGE_ITEM) != null)
-								&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
-								&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage && !goViewPage);
+			boolean pinToBottom = ((state.getAttribute(STATE_TOP_PAGE_ITEM) != null)
+					&& (state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null) && !goNextPage && !goPrevPage && !goNext && !goPrev
+					&& !goFirstPage && !goLastPage && !goViewPage);
 
 			// how many items, total
 			int numItems = allItems.size();
@@ -307,17 +322,14 @@ public abstract class NewPagedResourceAction
 				if (posStart < 0) posStart = 0;
 			}
 
-
 			// get the last page fully displayed
-			/*if (posStart + pageSize > numItems)
-			{
-				posStart = numItems - pageSize;
-				if (posStart < 0) posStart = 0;
-			}*/
+			/*
+			 * if (posStart + pageSize > numItems) { posStart = numItems - pageSize; if (posStart < 0) posStart = 0; }
+			 */
 
 			// compute the end to a page size, adjusted for the number of items available
-			int posEnd = posStart + (pageSize-1);
-			if (posEnd >= numItems) posEnd = numItems-1;
+			int posEnd = posStart + (pageSize - 1);
+			if (posEnd >= numItems) posEnd = numItems - 1;
 			int numItemsOnThisPage = (posEnd - posStart) + 1;
 
 			// select the items on this page
@@ -361,7 +373,7 @@ public abstract class NewPagedResourceAction
 				{
 					// advance
 					viewPos++;
-					if (viewPos >= numItems) viewPos = numItems-1;
+					if (viewPos >= numItems) viewPos = numItems - 1;
 				}
 
 				// are we moving to the prev item
@@ -388,21 +400,21 @@ public abstract class NewPagedResourceAction
 
 				if (viewPos > 0)
 				{
-					state.setAttribute(STATE_PREV_EXISTS,"");
+					state.setAttribute(STATE_PREV_EXISTS, "");
 				}
 				else
 				{
 					state.removeAttribute(STATE_PREV_EXISTS);
 				}
 
-				if (viewPos < numItems-1)
+				if (viewPos < numItems - 1)
 				{
-					state.setAttribute(STATE_NEXT_EXISTS,"");
+					state.setAttribute(STATE_NEXT_EXISTS, "");
 				}
 				else
 				{
 					state.removeAttribute(STATE_NEXT_EXISTS);
-				}			
+				}
 			}
 
 			if (state.getAttribute(STATE_GOTO_PAGE) != null)
@@ -413,140 +425,140 @@ public abstract class NewPagedResourceAction
 			return rv;
 		}
 
-	}	// prepPage
+	} // prepPage
 
-	/** 
-	* Handle a view indecated page request
-	**/
+	/**
+	 * Handle a view indecated page request
+	 */
 	public void doView_page(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the next item on the next view
 		String page = runData.getParameters().getString(FORM_PAGE_NUMBER);
 		state.setAttribute(STATE_GOTO_PAGE, new Integer(page));
 
-	}	// doView_page
-	
-	/** 
-	* Handle a next-item (view) request.
-	**/
+	} // doView_page
+
+	/**
+	 * Handle a next-item (view) request.
+	 */
 	public void doView_next(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the next item on the next view
-		state.setAttribute(STATE_GO_NEXT,"");
-		
+		state.setAttribute(STATE_GO_NEXT, "");
+
 		// set the page number
 		int page = ((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue();
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(page + 1));
 
-	}	// doView_next
+	} // doView_next
 
-	/** 
-	* Handle a first-item page (list) request.
-	**/
+	/**
+	 * Handle a first-item page (list) request.
+	 */
 	public void doList_first(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the next item on the next view
-		state.setAttribute(STATE_GO_FIRST_PAGE,"");
+		state.setAttribute(STATE_GO_FIRST_PAGE, "");
 
 		// set the page number
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(1));
-		
-	}	// doList_first
+
+	} // doList_first
 
 	/**
-	* Handle a last-item page (list) request.
-	**/
+	 * Handle a last-item page (list) request.
+	 */
 	public void doList_last(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the next item on the next view
-		state.setAttribute(STATE_GO_LAST_PAGE,"");
-		
+		state.setAttribute(STATE_GO_LAST_PAGE, "");
+
 		// set the page number
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(totalPageNumber(state)));
 
-	}	// doList_last
+	} // doList_last
 
-	/** 
-	* Handle a next-page (list) request.
-	**/	
+	/**
+	 * Handle a next-page (list) request.
+	 */
 	public void doList_next(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the next page on the next list
-		state.setAttribute(STATE_GO_NEXT_PAGE,"");
-		
+		state.setAttribute(STATE_GO_NEXT_PAGE, "");
+
 		// set the page number
 		int page = ((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue();
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(page + 1));
-		
+
 		// %%% ?? doList(runData, context);
 
-	}	// doList_next
+	} // doList_next
 
-	/** 
-	* Handle a prev-item (view) request.
-	**/	
+	/**
+	 * Handle a prev-item (view) request.
+	 */
 	public void doView_prev(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the prev item on the next view
-		state.setAttribute(STATE_GO_PREV,"");
-		
+		state.setAttribute(STATE_GO_PREV, "");
+
 		// set the page number
 		int page = ((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue();
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(page - 1));
 
-	}	// doView_prev
+	} // doView_prev
 
-	/** 
-	* Handle a prev-page (list) request.
-	**/	
+	/**
+	 * Handle a prev-page (list) request.
+	 */
 	public void doList_prev(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// set the flag to go to the prev page on the next list
-		state.setAttribute(STATE_GO_PREV_PAGE,"");
+		state.setAttribute(STATE_GO_PREV_PAGE, "");
 
 		// set the page number
 		int page = ((Integer) state.getAttribute(STATE_CURRENT_PAGE)).intValue();
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(page - 1));
-		
-	}	// doList_prev
 
-	/** 
-	* Handle a Search request.
-	**/	
+	} // doList_prev
+
+	/**
+	 * Handle a Search request.
+	 */
 	public void doSearch(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
-				
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
+
 		// read the search form field into the state object
 		String search = StringUtil.trimToNull(runData.getParameters().getString(FORM_SEARCH));
 
@@ -572,23 +584,23 @@ public abstract class NewPagedResourceAction
 				observer.disable();
 			}
 		}
-		
+
 		// else turn it back on
 		else
 		{
 			enableObserver(state);
 		}
 
-	}	// doSearch
+	} // doSearch
 
-	/** 
-	* Handle a Search Clear request.
-	**/	
+	/**
+	 * Handle a Search Clear request.
+	 */
 	public void doSearch_clear(RunData runData, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)runData).getJs_peid();
-		SessionState state = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) runData).getJs_peid();
+		SessionState state = ((JetspeedRunData) runData).getPortletSessionState(peid);
 
 		// clear the search
 		state.removeAttribute(STATE_SEARCH);
@@ -599,25 +611,28 @@ public abstract class NewPagedResourceAction
 		// turn on auto refresh
 		enableObserver(state);
 
-	}	// doSearch_clear
+	} // doSearch_clear
 
 	/**
-	* Reset to the first page
-	*/
+	 * Reset to the first page
+	 */
 	protected void resetPaging(SessionState state)
 	{
 		// we are changing the sort, so start from the first page again
 		state.removeAttribute(STATE_TOP_PAGE_ITEM);
 		state.setAttribute(STATE_CURRENT_PAGE, new Integer(1));
 
-	}	// resetPaging
+	} // resetPaging
 
 	/**
-	* Find the resource with this id in the list.
-	* @param items The list of items.
-	* @param id The item id.
-	* @return The index position in the list of the item with this id, or -1 if not found.
-	*/
+	 * Find the resource with this id in the list.
+	 * 
+	 * @param items
+	 *        The list of items.
+	 * @param id
+	 *        The item id.
+	 * @return The index position in the list of the item with this id, or -1 if not found.
+	 */
 	protected int findResourceInList(List resources, String id)
 	{
 		for (int i = 0; i < resources.size(); i++)
@@ -629,16 +644,16 @@ public abstract class NewPagedResourceAction
 		// not found
 		return -1;
 
-	}	// findResourceInList
+	} // findResourceInList
 
 	/**
-	* Toggle auto-update
-	*/
+	 * Toggle auto-update
+	 */
 	public void doAuto(RunData data, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)data).getJs_peid();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		// get the observer
 		ObservingCourier observer = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
@@ -648,7 +663,7 @@ public abstract class NewPagedResourceAction
 			if (enabled)
 			{
 				observer.disable();
-				state.setAttribute(STATE_MANUAL_REFRESH,"manual");
+				state.setAttribute(STATE_MANUAL_REFRESH, "manual");
 			}
 			else
 			{
@@ -657,22 +672,22 @@ public abstract class NewPagedResourceAction
 			}
 		}
 
-	}	// doAuto
+	} // doAuto
 
 	/**
-	* The action for when the user want's an update
-	*/
+	 * The action for when the user want's an update
+	 */
 	public void doRefresh(RunData data, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)data).getJs_peid();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(peid);
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
-	}	// doRefresh
+	} // doRefresh
 
 	/**
-	* Enable the observer, unless we are in search mode, where we want it disabled.
-	*/
+	 * Enable the observer, unless we are in search mode, where we want it disabled.
+	 */
 	public void enableObserver(SessionState state)
 	{
 		// get the observer
@@ -680,8 +695,7 @@ public abstract class NewPagedResourceAction
 		if (observer != null)
 		{
 			// we leave it disabled if we are searching, or if the user has last selected to be manual
-			if (	(state.getAttribute(STATE_SEARCH) != null)
-				||	(state.getAttribute(STATE_MANUAL_REFRESH) != null))
+			if ((state.getAttribute(STATE_SEARCH) != null) || (state.getAttribute(STATE_MANUAL_REFRESH) != null))
 			{
 				observer.disable();
 			}
@@ -691,26 +705,24 @@ public abstract class NewPagedResourceAction
 			}
 		}
 
-	}	// enableObserver
-	
+	} // enableObserver
+
 	/**
-	* The action for toggling paging status: show all(no paging) or paging
-	*/
+	 * The action for toggling paging status: show all(no paging) or paging
+	 */
 	public void doToggle_paging(RunData data, Context context)
 	{
 		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)data).getJs_peid();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(peid);
-		Boolean paging_status = (Boolean) state.getAttribute(STATE_PAGING);			
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		Boolean paging_status = (Boolean) state.getAttribute(STATE_PAGING);
 		state.setAttribute(STATE_PAGING, new Boolean(!(paging_status.booleanValue())));
 		if (((Boolean) state.getAttribute(STATE_PAGING)).booleanValue())
 		{
 			resetPaging(state);
 		}
 
-	}	// doToggle_paging
+	} // doToggle_paging
 
-}   // PagedResourceAction
-
-
+} // PagedResourceAction
 
