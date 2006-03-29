@@ -47,7 +47,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 <h:dataTable id="questionScoreTable" value="#{questionScores.agents}"
     var="description" style="listHier indnt2" columnClasses="textTable">
 <h:column>
-<h:outputText escape="false" value="#{description.fullAnswer}"/>
+<h:outputText rendered="#{param.idString eq description.assessmentGradingId}" escape="false" value="#{description.fullAnswer}"/>
 </h:column>
 </h:dataTable>
       </body>

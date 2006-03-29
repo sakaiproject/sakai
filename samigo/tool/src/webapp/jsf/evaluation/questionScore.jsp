@@ -461,7 +461,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
 
-<h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.idString}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+<h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
 
 
     <h:outputText  value="(#{msg.click_shortAnswer})" />
