@@ -146,15 +146,6 @@ public class MemoryService
 		return service.newHardCache();
 	}
 
-	// TODO: restore this! -ggolden
-/*	public static org.sakaiproject.memory.api.SiteCache newSiteCache(long param0, java.lang.String param1)
-	{
-		org.sakaiproject.memory.api.MemoryService service = getInstance();
-		if (service == null) return null;
-
-		return service.newSiteCache(param0, param1);
-	}
-*/
 	public static org.sakaiproject.memory.api.MultiRefCache newMultiRefCache(long param0)
 	{
 		org.sakaiproject.memory.api.MemoryService service = getInstance();

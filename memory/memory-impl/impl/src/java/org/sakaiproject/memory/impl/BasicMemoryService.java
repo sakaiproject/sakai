@@ -301,15 +301,6 @@ public class BasicMemoryService implements MemoryService, Observer
 	/**
 	 * {@inheritDoc}
 	 */
-	// TODO: restore this! -ggolden
-/*	public SiteCache newSiteCache(long sleep, String pattern)
-	{
-		return new SiteCacheImpl(this, m_eventTrackingService, sleep, pattern);
-	}
-*/
-	/**
-	 * {@inheritDoc}
-	 */
 	public MultiRefCache newMultiRefCache(long sleep)
 	{
 		return new MultiRefCacheImpl(this, m_eventTrackingService, sleep);
