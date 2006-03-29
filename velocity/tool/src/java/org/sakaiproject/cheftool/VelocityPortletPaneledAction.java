@@ -46,7 +46,6 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.vm.ActionURL;
@@ -70,9 +69,6 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(VelocityPortletPaneledAction.class);
-
-	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("velocity");
 
 	protected static final String BUTTON = "eventSubmit_";
 
