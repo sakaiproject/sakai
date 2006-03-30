@@ -71,6 +71,7 @@ public class EditAssessmentListener
 
     AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
                                           "assessmentBean");
+   
 
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) cu.lookupBean(
                                           "itemauthor");
@@ -79,15 +80,18 @@ public class EditAssessmentListener
     // goto editAssessment.jsp if successful
     String assessmentId = (String) FacesContext.getCurrentInstance().
         getExternalContext().getRequestParameterMap().get("assessmentId");
-    if (assessmentId == null){
-	AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
-	    lookupBean("assessmentSettings");
-        assessmentId = assessmentSettings.getAssessmentId().toString();
-    }
-
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getAssessment(
+  
+   	AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+	    lookupBean("assessmentSettings");
+
+
+	if (assessmentId == null){
+	    assessmentId = assessmentSettings.getAssessmentId().toString();
+	}
+  AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId);
+	assessmentSettings.setAssessment(assessment);
 
     //#1b - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean("author");
