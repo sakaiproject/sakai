@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Pattern;
-import org.sakaiproject.util.java.ResourceLoader;
+
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * The class represents metadata properties.

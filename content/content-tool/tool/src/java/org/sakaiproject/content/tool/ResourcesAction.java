@@ -51,9 +51,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceHelperAction;
@@ -61,7 +61,26 @@ import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
-import org.sakaiproject.exception.EmptyException;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -80,41 +99,22 @@ import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
 import org.sakaiproject.metaobj.shared.model.ElementBean;
 import org.sakaiproject.metaobj.shared.model.ValidationError;
 import org.sakaiproject.metaobj.utils.xml.SchemaNode;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.framework.session.UsageSession;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.content.ContentCollection;
-import org.sakaiproject.service.legacy.content.ContentCollectionEdit;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.ContentResourceEdit;
-import org.sakaiproject.service.legacy.content.ContentResourceFilter;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.content.cover.ContentTypeImageService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.util.ContentHostingComparator;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.util.java.StringUtil;
-import org.sakaiproject.util.text.FormattedText;
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.util.Xml;
+import org.sakaiproject.webapp.cover.ToolManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -300,7 +300,7 @@ public class ResourcesAction
 	Using tools can pre-populate, and can read the results from here. */
 	public static final String STATE_ATTACHMENTS = "resources.attachments";
 
-   /** State Attribute for the org.sakaiproject.service.legacy.content.ContentResourceFilter
+   /** State Attribute for the org.sakaiproject.content.api.ContentResourceFilter
     * object that the current filter should honor.  If this is set to null, then all files will
     * be selectable and viewable */
    public static final String STATE_RESOURCE_FILTER = "resources.contentResourceFilter";
@@ -541,7 +541,7 @@ public class ResourcesAction
 		String template = null;
 
 		// place if notification is enabled and current site is not of My Workspace type
-		boolean isUserSite = SiteService.isUserSite(PortalService.getCurrentSiteId());
+		boolean isUserSite = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("notification", new Boolean(!isUserSite && notificationEnabled(state)));
 		// get the mode
 		String mode = (String) state.getAttribute (STATE_MODE);
@@ -633,10 +633,10 @@ public class ResourcesAction
 		context.put("selectedItems", selectedItems);
 
 		// find the ContentHosting service
-		org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		context.put ("service", contentService);
 
-		boolean inMyWorkspace = SiteService.isUserSite(PortalService.getCurrentSiteId());
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
 		boolean atHome = false;
@@ -677,7 +677,7 @@ public class ResourcesAction
 			catch (TypeException e) {}
 			catch (PermissionException e) {}
 		}
-		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
+		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
 			context.put("showPermissions", Boolean.TRUE.toString());
 			//buildListMenu(portlet, context, data, state);
@@ -867,7 +867,7 @@ public class ResourcesAction
 		try
 		{
 			// TODO: why 'site' here?
-			Site site = SiteService.getSite(PortalService.getCurrentSiteId());
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			context.put("siteTitle", site.getTitle());
 		}
 		catch (IdUnusedException e)
@@ -1467,10 +1467,10 @@ public class ResourcesAction
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
 
 		// find the ContentHosting service
-		org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		// context.put ("service", contentService);
 
-		boolean inMyWorkspace = SiteService.isUserSite(PortalService.getCurrentSiteId());
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		// context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
 		boolean atHome = false;
@@ -1749,7 +1749,7 @@ public class ResourcesAction
 		try
 		{
 			// TODO: why 'site' here?
-			Site site = SiteService.getSite(PortalService.getCurrentSiteId());
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			context.put("siteTitle", site.getTitle());
 		}
 		catch (IdUnusedException e)
@@ -1810,11 +1810,11 @@ public class ResourcesAction
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
-		boolean inMyWorkspace = SiteService.isUserSite(PortalService.getCurrentSiteId());
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
 		context.put("server_url", ServerConfigurationService.getServerUrl());
-		context.put("site_id", PortalService.getCurrentSiteId());
+		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
 		context.put("user_id", UserDirectoryService.getCurrentUser().getId());
 		context.put ("dav_group", "/dav/group/");
@@ -1896,7 +1896,7 @@ public class ResourcesAction
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		// find the ContentHosting service
-		org.sakaiproject.service.legacy.content.ContentHostingService service = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService service = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		context.put ("service", service);
 
 		Map current_stack_frame = peekAtStack(state);
@@ -3739,7 +3739,7 @@ public class ResourcesAction
 				// make an attachment resource for this URL
 				try
 				{
-					String siteId = PortalService.getCurrentSiteId();
+					String siteId = ToolManager.getCurrentPlacement().getContext();
 
 					String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
 					if(toolName == null)
@@ -3840,7 +3840,7 @@ public class ResourcesAction
 			byte[] newUrl = url.getBytes();
 			String newResourceId = Validator.escapeResourceName(url);
 
-			String siteId = PortalService.getCurrentSiteId();
+			String siteId = ToolManager.getCurrentPlacement().getContext();
 			String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
 			if(toolName == null)
 			{
@@ -4102,7 +4102,7 @@ public class ResourcesAction
 
 	public static void attachItem(String itemId, SessionState state)
 	{
-		org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
 		Map current_stack_frame = peekAtStack(state);
 
@@ -4143,7 +4143,7 @@ public class ResourcesAction
 				String filename = Validator.getFileName(itemId);
 				String resourceId = Validator.escapeResourceName(filename);
 
-				String siteId = PortalService.getCurrentSiteId();
+				String siteId = ToolManager.getCurrentPlacement().getContext();
 				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
 				if(toolName == null)
 				{
@@ -4209,7 +4209,7 @@ public class ResourcesAction
 
 	public static void attachLink(String itemId, SessionState state)
 	{
-		org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
 		Map current_stack_frame = peekAtStack(state);
 
@@ -4257,7 +4257,7 @@ public class ResourcesAction
 				String filename = Validator.getFileName(itemId);
 				String resourceId = Validator.escapeResourceName(filename);
 
-				String siteId = PortalService.getCurrentSiteId();
+				String siteId = ToolManager.getCurrentPlacement().getContext();
 				String toolName = (String) current_stack_frame.get(STATE_ATTACH_TOOL_NAME);
 				if(toolName == null)
 				{
@@ -5210,7 +5210,7 @@ public class ResourcesAction
 			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			if(! expandedCollections.containsKey(collectionId))
 			{
-				org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+				org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 				try
 				{
 					ContentCollection coll = contentService.getCollection(collectionId);
@@ -5436,7 +5436,7 @@ public class ResourcesAction
 			{
 				isCollection = properties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 			}
-			catch(EmptyException e)
+			catch(Exception e)
 			{
 				// assume isCollection is false if property is not set
 			}
@@ -5559,7 +5559,7 @@ public class ResourcesAction
 			}
 			try
 			{
-				String createdBy = properties.getUserProperty(ResourceProperties.PROP_CREATOR).getDisplayName();
+				String createdBy = getUserProperty(properties, ResourceProperties.PROP_CREATOR).getDisplayName();
 				item.setCreatedBy(createdBy);
 			}
 			catch(Exception e)
@@ -5580,7 +5580,7 @@ public class ResourcesAction
 			}
 			try
 			{
-				String modifiedBy = properties.getUserProperty(ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+				String modifiedBy = getUserProperty(properties, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
 				item.setModifiedBy(modifiedBy);
 			}
 			catch(Exception e)
@@ -5649,13 +5649,9 @@ public class ResourcesAction
 							{
 								time = properties.getTimeProperty(name);
 							}
-							catch(EmptyException ignore)
+							catch(Exception ignore)
 							{
 								// use "now" as default in that case
-							}
-							catch(TypeException ignore)
-							{
-								// use "now" as default
 							}
 							metadata.put(name, time);
 						}
@@ -8268,7 +8264,7 @@ public class ResourcesAction
 				// TODO: what's the 'name' of the context? -ggolden
 				// we'll need this to create the home collection if needed
 				state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext()
-						/*SiteService.getSiteDisplay(PortalService.getCurrentSiteId()) */);
+						/*SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext()) */);
 			}
 		}
 		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
@@ -8289,7 +8285,7 @@ public class ResourcesAction
 			String title = "";
 			try
 			{
-				title = ((Site) SiteService.getSite(PortalService.getCurrentSiteId())).getTitle();
+				title = ((Site) SiteService.getSite(ToolManager.getCurrentPlacement().getContext())).getTitle();
 			}
 			catch (IdUnusedException e)
 			{	// ignore
@@ -8672,7 +8668,7 @@ public class ResourcesAction
 	 */
 	public static List getCollectionPath(SessionState state)
 	{
-		org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		// make sure the channedId is set
 		String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		if(! isStackEmpty(state))
@@ -8751,10 +8747,10 @@ public class ResourcesAction
 					boolean isFolder = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 					item.setIsFolder(isFolder);
 				}
-				catch (EmptyException e1)
+				catch (EntityPropertyNotDefinedException e1)
 				{
 				}
-				catch (TypeException e1)
+				catch (EntityPropertyTypeException e1)
 				{
 				}
 
@@ -8790,7 +8786,7 @@ public class ResourcesAction
 		try
 		{
 			// find the ContentHosting service
-			org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+			org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
 			// get the collection
 			// try using existing resource first
@@ -8945,7 +8941,7 @@ public class ResourcesAction
 			}
 			try
 			{
-				String createdBy = cProperties.getUserProperty(ResourceProperties.PROP_CREATOR).getDisplayName();
+				String createdBy = getUserProperty(cProperties, ResourceProperties.PROP_CREATOR).getDisplayName();
 				folder.setCreatedBy(createdBy);
 			}
 			catch(Exception e)
@@ -8966,7 +8962,7 @@ public class ResourcesAction
 			}
 			try
 			{
-				String modifiedBy = cProperties.getUserProperty(ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+				String modifiedBy = getUserProperty(cProperties, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
 				folder.setModifiedBy(modifiedBy);
 			}
 			catch(Exception e)
@@ -9011,7 +9007,7 @@ public class ResourcesAction
 					{
 						isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
 					}
-					catch(EmptyException e)
+					catch(Exception e)
 					{
 						// assume isCollection is false if property is not set
 					}
@@ -9072,7 +9068,7 @@ public class ResourcesAction
 						}
 						try
 						{
-							String createdBy = props.getUserProperty(ResourceProperties.PROP_CREATOR).getDisplayName();
+							String createdBy = getUserProperty(props, ResourceProperties.PROP_CREATOR).getDisplayName();
 							newItem.setCreatedBy(createdBy);
 						}
 						catch(Exception e)
@@ -9093,7 +9089,7 @@ public class ResourcesAction
 						}
 						try
 						{
-							String modifiedBy = props.getUserProperty(ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+							String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
 							newItem.setModifiedBy(modifiedBy);
 						}
 						catch(Exception e)
@@ -9105,7 +9101,7 @@ public class ResourcesAction
 						String size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
 						newItem.setSize(size);
 
-						String target = Validator.getResourceTarget(props);
+						String target = Validator.getResourceTarget(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
 						newItem.setTarget(target);
 
 						String newUrl = contentService.getUrl(itemId);
@@ -9116,9 +9112,7 @@ public class ResourcesAction
 							boolean copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
 							newItem.setCopyrightAlert(copyrightAlert);
 						}
-						catch(EmptyException e)
-						{}
-						catch(TypeException e)
+						catch(Exception e)
 						{}
 						newItem.setDepth(depth + 1);
 
@@ -9339,7 +9333,7 @@ public class ResourcesAction
 				HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				if(! expandedCollections.containsKey(collectionId))
 				{
-					org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+					org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 					try
 					{
 						ContentCollection coll = contentService.getCollection(collectionId);
@@ -9462,7 +9456,7 @@ public class ResourcesAction
 				HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				if(! expandedCollections.containsKey(collectionId))
 				{
-					org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+					org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 					try
 					{
 						ContentCollection coll = contentService.getCollection(collectionId);
@@ -9589,7 +9583,7 @@ public class ResourcesAction
 			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			if(! expandedCollections.containsKey(collectionId))
 			{
-				org.sakaiproject.service.legacy.content.ContentHostingService contentService = (org.sakaiproject.service.legacy.content.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+				org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 				try
 				{
 					ContentCollection coll = contentService.getCollection(collectionId);
@@ -12017,5 +12011,22 @@ public class ResourcesAction
 		return -1;
 
 	}	// findResourceInList
+
+	protected static User getUserProperty(ResourceProperties props, String name)
+	{
+		String id = props.getProperty(name);
+		if (id != null)
+		{
+			try
+			{
+				return UserDirectoryService.getUser(id);
+			}
+			catch (UserNotDefinedException e)
+			{
+			}
+		}
+		
+		return null;
+	}
 
 }	// ResourcesAction

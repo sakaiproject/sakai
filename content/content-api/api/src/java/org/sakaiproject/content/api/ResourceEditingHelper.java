@@ -23,18 +23,18 @@ package org.sakaiproject.content.api;
 
 public interface ResourceEditingHelper
 {
-	public static final String CREATE_TYPE = "sakaiproject.filepicker.resourceCreateType";
+	static final String CREATE_TYPE = "sakaiproject.filepicker.resourceCreateType";
 
-	public static final String CREATE_TYPE_FORM = "sakaiproject.filepicker.resourceCreateTypeForm";
+	static final String CREATE_TYPE_FORM = "sakaiproject.filepicker.resourceCreateTypeForm";
 
-	public static final String CREATE_SUB_TYPE = "sakaiproject.filepicker.resourceCreateSubType";
+	static final String CREATE_SUB_TYPE = "sakaiproject.filepicker.resourceCreateSubType";
 
-	public static final String CREATE_PARENT = "sakaiproject.filepicker.resourceParentCollection";
+	static final String CREATE_PARENT = "sakaiproject.filepicker.resourceParentCollection";
 
 	/**
 	 * if attachment id is missing, must be create mode.
 	 */
-	public static final String ATTACHMENT_ID = "sakaiproject.filepicker.resourceEditId";
+	static final String ATTACHMENT_ID = "sakaiproject.filepicker.resourceEditId";
 
-	public static final String CUSTOM_CSS = "sakaiproject.filepicker.customCss";
+	static final String CUSTOM_CSS = "sakaiproject.filepicker.customCss";
 }

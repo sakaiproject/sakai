@@ -28,19 +28,19 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.util.java.ResourceLoader;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.webapp.api.ToolException;
+import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.webapp.cover.ToolManager;
 
 /**
  * The FilePickerAction drives the FilePicker helper.<br />
@@ -49,7 +49,6 @@ import org.sakaiproject.util.java.ResourceLoader;
  */
 public class FilePickerAction extends VelocityPortletPaneledAction
 {
-
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");
 

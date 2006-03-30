@@ -2,8 +2,8 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>Sakai content API</name>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-content-api</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-content-api</id>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -22,10 +22,21 @@
 
 	<dependencies>
 
-		<!-- to be able to access the Sakai component manager -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
