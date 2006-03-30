@@ -28,7 +28,8 @@ should be included in file importing DeliveryMessages
 -->
 <h:outputText value="#{question.text}"  escape="false"/>
 
-<f:verbatim><br/></f:verbatim>
+<f:verbatim><br/><br/></f:verbatim>
+<h:outputText value="#{msg.maxSAText}" /><f:verbatim><br/></f:verbatim>
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
    disabled="#{delivery.actionString=='reviewAssessment'
             || delivery.actionString=='gradeAssessment'}" />
