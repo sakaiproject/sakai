@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.content.tool;
+package org.sakaiproject.content.impl;
 
 import java.util.Comparator;
 

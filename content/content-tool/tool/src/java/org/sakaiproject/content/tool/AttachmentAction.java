@@ -248,7 +248,7 @@ public class AttachmentAction
 			members = collection.getMemberResources();
 
 			// sort by display name, ascending
-			Collections.sort(members, new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
+			Collections.sort(members, ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
 		}
 		catch (Exception e)
 		{

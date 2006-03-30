@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.content.api.ContentHostingService"
+			class="org.sakaiproject.content.impl.DbContentService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="notificationService"><ref bean="org.sakaiproject.eent.api.Notificationervice"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+ 		<property name="collectionTableName"><value>CONTENT_COLLECTION</value></property>
+ 		<property name="resourceTableName"><value>CONTENT_RESOURCE</value></property>
+ 		<property name="resourceBodyTableName"><value>CONTENT_RESOURCE_BODY_BINARY</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+		<property name="bodyPath"><null/></property>
+		<property name="bodyVolumes"><null/></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="siteQuota"><value>1048576</value></property>
+ 		
+	</bean>
+
+	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
+			class="org.sakaiproject.content.impl.BasicContentTypeImageService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+ 		<property name="imageFile"><value>content_type_images.properties</value></property>
+ 		<property name="nameFile"><value>content_type_names.properties</value></property>
+ 		<property name="extensionFile"><value>content_type_extensions.properties</value></property>
+	</bean>
+
+	<bean id="org.sakaiproject.content.api.ContentResourceFilter.base"
+			class="org.sakaiproject.content.impl.BaseExtensionResourceFilter">
+		<property name="viewAll"><value>true</value></property>
+		<property name="mimeTypes"><list/></property>
+	</bean>
+
+</beans>

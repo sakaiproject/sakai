@@ -8992,7 +8992,7 @@ public class ResourcesAction
 				// Get the collection members from the 'new' collection
 				List newMembers = collection.getMemberResources ();
 
-				Collections.sort (newMembers, new ContentHostingComparator (sortedBy, Boolean.valueOf (sortedAsc).booleanValue ()));
+				Collections.sort (newMembers, ContentHostingService.newContentHostingComparator (sortedBy, Boolean.valueOf (sortedAsc).booleanValue ()));
 				// loop thru the (possibly) new members and add to the list
 				Iterator it = newMembers.iterator();
 				while(it.hasNext())

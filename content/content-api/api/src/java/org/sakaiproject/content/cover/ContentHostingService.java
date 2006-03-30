@@ -820,4 +820,12 @@ public class ContentHostingService
 
 		return service.getDropboxDisplayName(param0);
 	}
+
+	public static java.util.Comparator newContentHostingComparator(java.lang.String param0, boolean param1)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.newContentHostingComparator(param0, param1);
+	}
 }

@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -1181,4 +1182,14 @@ public interface ContentHostingService extends EntityProducer
 	 * @return The default dropbox collection display name for the site.
 	 */
 	public String getDropboxDisplayName(String siteId);
+	
+	/**
+	 * Construct a content hosting comparator.
+	 * 
+	 * @param property
+	 *        The property name used for the sort.
+	 * @param asc
+	 *        true if the sort is to be ascending (false for descending).
+	 */
+	public Comparator newContentHostingComparator(String property, boolean ascending);
 }
