@@ -72,6 +72,7 @@ public class AuthorPartListener implements ActionListener
                                           "sectionBean");
     // clean it
     sectionBean.setSectionTitle("");
+    sectionBean.setAssessmentTitle(assessmentBean.getTitle());
     sectionBean.setSectionDescription("");
     sectionBean.setSectionId("");
     String assessmentId = assessmentBean.getAssessmentId();
