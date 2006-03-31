@@ -73,23 +73,22 @@ public class UploadAudioMediaServlet extends HttpServlet
   {
     ServletContext context = super.getServletContext();
     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
-    String mediaLocation = "";
     // writer for status message
     PrintWriter pw = res.getWriter();
     // default status message, if things go wrong
     String status = "Upload failure: empty media location.";
 
-    // we get media location in assessmentXXX/questionXXX/agentId/audio.ext form
-    String mediaDir = req.getParameter("media");
-
+    // we get media location in assessmentXXX/questionXXX/agentId/audio.au form
+    String mediaLocation = req.getParameter("media");
     // test for nonemptiness first
-    if (mediaDir != null && !(mediaDir.trim()).equals(""))
+    if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
-      File dir = new File(repositoryPath+"/"+mediaDir); 
-      if (!dir.exists())
-        dir.mkdirs();
-      System.out.println("*** directory exist="+dir.exists());
-      mediaLocation = repositoryPath+"/"+mediaDir+"/audio.au";
+      mediaLocation = repositoryPath+"/"+mediaLocation;
+      File mediaFile = new File(mediaLocation);
+      File mediaDir = mediaFile.getParentFile(); 
+      if (!mediaDir.exists())
+        mediaDir.mkdirs();
+      System.out.println("*** directory exist="+mediaDir.exists());
       ServletInputStream inputStream = null;
       FileOutputStream fileOutputStream = null;
       BufferedInputStream bufInputStream = null;
@@ -127,18 +126,16 @@ public class UploadAudioMediaServlet extends HttpServlet
           inputStream.close();
         }
         fileOutputStream.close();
+        status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
       }
       catch (Exception ex)
       {
-        status = "Upload failure: "+ mediaLocation +"/audio.au";
+        log.info(ex.getMessage());
+        status = "Upload failure: "+ mediaLocation;
       }
-
-      status = "Acknowleged: "  + count + " bytes.";
-      log.info("**** mediaLocation="+mediaLocation);
-      log.info("**** count="+count);
     }
 
-    pw.println(status);
+    log.info(status);
     res.flushBuffer();
 
     //#2 - record media as question submission

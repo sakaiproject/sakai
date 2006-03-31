@@ -132,7 +132,9 @@ public class QuestionScoreUpdateListener
           String newComments = ar.getComments();
           if (newComments!=null) newComments.trim();
 
-          float oldAutoScore = data.getAutoScore().floatValue();
+          float oldAutoScore = 0;
+          if (data.getAutoScore() !=null)
+            oldAutoScore=data.getAutoScore().floatValue();
           String oldComments = data.getComments();
 
           if (oldComments!=null) oldComments.trim();

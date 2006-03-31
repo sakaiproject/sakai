@@ -165,7 +165,7 @@ $Id$
 
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
-                <%@ include file="/jsf/delivery/item/deliverAudioRecording.jsp" %>
+               <%@ include file="/jsf/evaluation/item/displayAudioRecording.jsp" %>
               </f:subview>
             </h:panelGroup>
 

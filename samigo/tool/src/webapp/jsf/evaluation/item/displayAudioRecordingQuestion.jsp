@@ -1,8 +1,5 @@
-<%-- $Id$
-include file for displaying file upload questions
-should be included in file importing DeliveryMessages
---%>
 <!--
+* $Id: displayFileUploadQuestion.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
 <%--
 ***********************************************************************************
 *
@@ -25,28 +22,9 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-
-<h:outputText value="#{question.text}"  escape="false"/>
-<f:verbatim><br /></f:verbatim>
-
-  <h:dataTable value="#{question.mediaArray}" var="media">
-    <h:column>
-<%--
-      <h:outputText escape="false" value="
-         <div><embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" 
-                volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/></div>
-         " />
+<%-- $Id: displayFileUploadQuestion.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
+include file for delivering file upload questions
+should be included in file importing DeliveryMessages
 --%>
-      <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
-             <h:outputText escape="false" value="play audio" />
-      </h:outputLink>
-    </h:column>
-    <h:column>
-      <h:outputText value="#{msg.open_bracket}"/>
-      <h:outputText value="#{media.createdDate}">
-           <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
-      </h:outputText>
-      <h:outputText value="#{msg.close_bracket}"/>
-    </h:column>
-  </h:dataTable>
-
+<h:outputText value="#{question.text} "  escape="false"/>
+<f:verbatim><br /></f:verbatim>

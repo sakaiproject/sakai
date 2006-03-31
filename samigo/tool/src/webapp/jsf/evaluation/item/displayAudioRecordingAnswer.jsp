@@ -1,9 +1,8 @@
-<%--
-include file for delivering audio questions
+<%-- $Id: displayFileUploadAnswer.jsp 6874 2006-03-22 17:01:47Z hquinn@stanford.edu $
+include file for displaying file upload questions
 should be included in file importing DeliveryMessages
 --%>
 <!--
-* $Id$
 <%--
 ***********************************************************************************
 *
@@ -26,30 +25,34 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-  <h:outputText escape="false" value="#{question.itemData.text}" />
-  <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-  <h:outputText escape="false" value="#{msg.time_allowed_seconds} #{question.itemData.duration}" />
-  <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
 
-  <h:outputText escape="false" value="#{msg.number_of_tries}: " />
-  <h:panelGroup rendered="#{question.itemData.triesAllowed > 10}">
-    <h:outputText escape="false" value="Unlimited" />
-  </h:panelGroup>
-  <h:panelGroup rendered="#{question.itemData.triesAllowed <= 10}">
-    <h:outputText escape="false" value="#{question.itemData.triesAllowed}" />
-  </h:panelGroup>
+<h:outputText value="#{question.text}"  escape="false"/>
+<f:verbatim><br /></f:verbatim>
 
-  <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
+      <%-- media list, note that question is ItemContentsBean --%>
+  <h:dataTable value="#{description.itemGradingArrayList}" var="itemGradingArrayList">
     <h:column>
-      <h:dataTable value="#{itemText.answerArray}" var="answer">
+      <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
-          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
-          <h:outputText escape="false" value="#{answer.text}" />
+<%--
+          <h:outputText escape="false" value="
+            <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
+                volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/>
+            " />
+--%>
+          <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+             <h:outputText escape="false" value="play audio" />
+          </h:outputLink>
+        </h:column>
+        <h:column>
+         <h:outputText value="#{msg.open_bracket}"/>
+         <h:outputText value="#{media.createdDate}">
+           <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
+         </h:outputText>
+         <h:outputText value="#{msg.close_bracket}"/>
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
- <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty}">
- <h:outputLabel value="#{msg.feedback}: " />
-  <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
-</h:panelGroup>
+
+

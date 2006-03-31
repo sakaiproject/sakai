@@ -94,6 +94,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setLastTimer(0);
     delivery.setTimeLimit("0");
     delivery.setBeginAssessment(true);
+    delivery.setTimeStamp((new Date()).getTime());
 
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);

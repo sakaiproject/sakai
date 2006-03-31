@@ -29,12 +29,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.io.File;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.context.ExternalContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -227,7 +230,7 @@ public class SubmitToGradingActionListener implements ActionListener
       Iterator iter2 = part.getItemContents().iterator();
       while (iter2.hasNext()){ // go through each item from form
         ItemContentsBean item = (ItemContentsBean) iter2.next();
-        prepareItemGradingPerItem(item, adds, removes);
+        prepareItemGradingPerItem(delivery, item, adds, removes);
       }
     }
     AssessmentGradingData adata = persistAssessmentGrading(delivery, itemGradingHash, 
@@ -364,17 +367,17 @@ public class SubmitToGradingActionListener implements ActionListener
   /* This is specific to JSF - question for each type is layout differently in JSF and the
    * answers submitted are being collected differently too.
    * e.g. for each MC/Survey/MCMR, an itemgrading is associated with each choice.
-   *      whereas there is only one itemgrading per each question for SAQ/TF, and one for
+   *      whereas there is only one itemgrading per each question for SAQ/TF/Audio, and one for
    *      ecah blank in FIB.
    * To understand the logic in this method, it is best to study jsf/delivery/item/deliver*.jsp
    */
-  private void prepareItemGradingPerItem(ItemContentsBean item, HashSet adds, HashSet removes){
+  private void prepareItemGradingPerItem(DeliveryBean delivery, ItemContentsBean item, HashSet adds, HashSet removes){
     ArrayList grading = item.getItemGradingDataArray();
     int typeId = item.getItemData().getTypeId().intValue();
 
     // 1. add all the new itemgrading for MC/Survey and discard any
     // itemgrading for MC/Survey
-    // 2. add any modified SAQ/TF/FIB/Matching/MCMR
+    // 2. add any modified SAQ/TF/FIB/Matching/MCMR/Audio
     switch (typeId){
     case 1: // MC
     case 3: // Survey
@@ -412,7 +415,6 @@ public class SubmitToGradingActionListener implements ActionListener
     case 4: // T/F
     case 5: // SAQ
     case 6: // File Upload
-    case 7: // Audio
     case 8: // FIB
     case 9: // Matching
 	    for (int m=0;m<grading.size();m++){
@@ -446,6 +448,27 @@ public class SubmitToGradingActionListener implements ActionListener
 	      }
 	    }
             break;   
+    case 7: // Audio
+            // audio is uploaded by UploadAudioMediaServlet to 
+            // {repositoryPath}/jsf/upload_tmp/assessmentId/questionId/agentId
+            // 1. check if saveToDB=true, if so move audio to DB
+            // 2. add an itemGrading record for audio question.   
+            ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
+	    ServletContext context = (ServletContext) extContext.getContext();
+            String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+            Long questionId = item.getItemData().getItemId();
+            String mediaLocation = repositoryPath+ContextUtil.lookupParam("mediaLocation_"+questionId.toString());           
+            System.out.println("**** mediaLocation="+mediaLocation);
+            try{
+              File file = new File(mediaLocation); 
+              System.out.println("**** file exists="+file.exists());
+              if (file.exists())
+                delivery.addMediaToItemGrading(mediaLocation);
+	    }
+            catch(Exception e){
+              log.info("audio question not answered:"+e.getMessage());
+	    }
+            break;
     }
   }
 

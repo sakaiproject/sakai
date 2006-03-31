@@ -31,13 +31,41 @@ should be included in file importing DeliveryMessages
 <%-- this invisible text is a trick to get the value set in the component tree
      without displaying it; audioMediaUploadPath will get this to the back end
 --%>
-<h:outputText id="audioMediaUploadPath" style="display:none"
-escape="false"
-value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio.au"
-/>
+<h:outputText escape="false" value="
+<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
+
+<h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
+  <h:dataTable value="#{question.mediaArray}" var="media">
+    <h:column>
+      <h:outputText escape="false" value="
+         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" 
+                volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/>
+         " />
+    </h:column>
+    <h:column>
+      <h:outputText value="#{msg.open_bracket}"/>
+      <h:outputText value="#{media.createdDate}">
+        <f:convertDateTime pattern="#{msg.delivery_date_no_time_format}" />
+      </h:outputText>
+      <h:outputText value="#{msg.close_bracket}"/>
+    </h:column>
+    <h:column rendered="#{delivery.actionString=='takeAssessment' 
+                        || delivery.actionString=='takeAssessmentViaUrl'}">
+      <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
+        <h:outputText value="#{msg.remove}" />
+        <f:param name="mediaId" value="#{media.mediaId}"/>
+        <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
+        <f:param name="mediaFilename" value="#{media.filename}"/>
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.ConfirmRemoveMediaListener" />
+      </h:commandLink>
+    </h:column>
+  </h:dataTable>
+</h:panelGroup>
+
+
 <h:outputLabel value="#{msg.time_limit}#{msg.column} "  />
 <h:outputText value="#{question.duration} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
@@ -66,7 +94,7 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
   <PARAM NAME = "saveToUrl" VALUE="true">
   <PARAM NAME = "fileName" VALUE="audio">
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}" /><f:verbatim>">
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
   <PARAM NAME = "frequency" VALUE="8000">
   <PARAM NAME = "bits" VALUE="8">
@@ -121,20 +149,6 @@ value="/tmp/jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question
 
 </f:verbatim>
 <f:verbatim><br /></f:verbatim>
-
-<%-- delivery, actual upload action --%>
-<h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="submit"
-    rendered="#{delivery.actionString=='takeAssessment'
-             || delivery.actionString=='takeAssessmentViaUrl'}" >
-  <f:actionListener
-   type="org.sakaiproject.tool.assessment.ui.listener.delivery.AudioUploadActionListener" />
-</h:commandButton>
-
-<%-- preview, simulated upload action --%>
-<h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="button"
-  rendered="#{delivery.actionString=='previewAssessment'
-                       || delivery.actionString=='reviewAssessment'
-                       || delivery.actionString=='gradeAssessment'}" />
 
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
    rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
