@@ -52,7 +52,7 @@ import org.sakaiproject.util.StringUtil;
  * DbSiteService is an extension of the BaseSiteService with a database storage.
  * </p>
  */
-public class DbSiteService extends BaseSiteService
+public abstract class DbSiteService extends BaseSiteService
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(DbSiteService.class);
@@ -75,22 +75,17 @@ public class DbSiteService extends BaseSiteService
 			"CREATEDON", "MODIFIEDON" };
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
 	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	protected abstract SqlService sqlService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_useExternalLocks = true;
@@ -134,13 +129,13 @@ public class DbSiteService extends BaseSiteService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_site");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site");
 
 				// also load the 2.1 new site database tables
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_site_group");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_group");
 
 				// also load the 2.1.0.003 field insertion
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_site_2_1_0_003");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_site_2_1_0_003");
 			}
 
 			super.init();
@@ -187,7 +182,7 @@ public class DbSiteService extends BaseSiteService
 		 */
 		public DbStorage(BaseSiteService service)
 		{
-			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, m_sqlService);
+			super(m_siteTableName, m_siteIdFieldName, m_siteFieldNames, m_sitePropTableName, m_useExternalLocks, null, sqlService());
 			m_reader = this;
 
 			m_service = service;
@@ -767,7 +762,7 @@ public class DbSiteService extends BaseSiteService
 				int pos = 0;
 				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
 				{
-					fields[pos++] = m_sessionManager.getCurrentSessionUserId();
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
 				if (ofType != null)
 				{
@@ -819,7 +814,7 @@ public class DbSiteService extends BaseSiteService
 				}
 				if (type == SelectionType.JOINABLE)
 				{
-					fields[pos++] = m_sessionManager.getCurrentSessionUserId();
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
 			}
 
@@ -853,7 +848,7 @@ public class DbSiteService extends BaseSiteService
 		{
 			String statement = "select distinct TYPE from SAKAI_SITE order by TYPE";
 
-			List rv = m_sqlService.dbRead(statement);
+			List rv = sqlService().dbRead(statement);
 
 			return rv;
 		}
@@ -870,7 +865,7 @@ public class DbSiteService extends BaseSiteService
 			Object fields[] = new Object[1];
 			fields[0] = caseId(siteId);
 
-			List rv = m_sqlService.dbRead(statement, fields, new SqlReader()
+			List rv = sqlService().dbRead(statement, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -1021,7 +1016,7 @@ public class DbSiteService extends BaseSiteService
 				int pos = 0;
 				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE))
 				{
-					fields[pos++] = m_sessionManager.getCurrentSessionUserId();
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
 				if (ofType != null)
 				{
@@ -1073,7 +1068,7 @@ public class DbSiteService extends BaseSiteService
 				}
 				if (type == SelectionType.JOINABLE)
 				{
-					fields[pos++] = m_sessionManager.getCurrentSessionUserId();
+					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
 			}
 
@@ -2073,12 +2068,12 @@ public class DbSiteService extends BaseSiteService
 
 			if (edit == null)
 			{
-				String current = m_sessionManager.getCurrentSessionUserId();
+				String current = sessionManager().getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
 
-				Time now = m_timeService.newTime();
+				Time now = timeService().newTime();
 
 				rv[1] = "";
 				rv[2] = "";
@@ -2150,17 +2145,17 @@ public class DbSiteService extends BaseSiteService
 				boolean isUser = "1".equals(result.getString(14)) ? true : false;
 				String createdBy = result.getString(15);
 				String modifiedBy = result.getString(16);
-				java.sql.Timestamp ts = result.getTimestamp(17, m_sqlService.getCal());
+				java.sql.Timestamp ts = result.getTimestamp(17, sqlService().getCal());
 				Time createdOn = null;
 				if (ts != null)
 				{
-					createdOn = m_timeService.newTime(ts.getTime());
+					createdOn = timeService().newTime(ts.getTime());
 				}
-				ts = result.getTimestamp(18, m_sqlService.getCal());
+				ts = result.getTimestamp(18, sqlService().getCal());
 				Time modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = m_timeService.newTime(ts.getTime());
+					modifiedOn = timeService().newTime(ts.getTime());
 				}
 
 				// create the Resource from these fields

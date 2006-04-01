@@ -120,7 +120,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -150,7 +150,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(lock, resource))
+		if (!securityService().unlock(lock, resource))
 		{
 			return false;
 		}
@@ -172,7 +172,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock, resource);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
@@ -189,9 +189,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
-		if (!m_securityService.unlock(lock1, resource))
+		if (!securityService().unlock(lock1, resource))
 		{
-			if (!m_securityService.unlock(lock2, resource))
+			if (!securityService().unlock(lock2, resource))
 			{
 				return false;
 			}
@@ -216,7 +216,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		if (!unlockCheck2(lock1, lock2, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
 		}
 	}
 
@@ -225,10 +225,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected void addLiveUpdateProperties(BaseSite site)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		site.m_lastModifiedUserId = current;
-		site.m_lastModifiedTime = m_timeService.newTime();
+		site.m_lastModifiedTime = timeService().newTime();
 	}
 
 	/**
@@ -236,12 +236,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	protected void addLiveProperties(BaseSite site)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		site.m_createdUserId = current;
 		site.m_lastModifiedUserId = current;
 
-		Time now = m_timeService.newTime();
+		Time now = timeService().newTime();
 		site.m_createdTime = now;
 		site.m_lastModifiedTime = (Time) now.clone();
 	}
@@ -252,7 +252,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	protected String convertReferenceUrl(String url)
 	{
 		// make a reference
-		Reference ref = m_entityManager.newReference(url);
+		Reference ref = entityManager().newReference(url);
 
 		// if it didn't recognize this, return it unchanged
 		if (!ref.isKnownType()) return url;
@@ -286,7 +286,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** If true, run the regenerate ids pass on all sites at startup. */
@@ -331,156 +331,64 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		m_cacheCleanerSeconds = Integer.parseInt(time) * 60;
 	}
 
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
+	protected abstract EntityManager entityManager();
 
 	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
+	 * @return the EventTrackingService collaborator.
 	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
-
-	/** Dependency: the current manager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**
-	 * Dependency - set the current manager.
-	 * 
-	 * @param value
-	 *        The current manager.
+	 * @return the ThreadLocalManager collaborator.
 	 */
-	public void setThreadLocalManager(ThreadLocalManager manager)
-	{
-		m_threadLocalManager = manager;
-	}
-
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
+	protected abstract ThreadLocalManager threadLocalManager();
 
 	/**
-	 * Dependency: SecurityService.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: the session manager. */
-	protected SessionManager m_sessionManager = null;
+	protected abstract SecurityService securityService();
 
 	/**
-	 * Dependency - set the session manager.
-	 * 
-	 * @param value
-	 *        The session manager.
+	 * @return the SessionManager collaborator.
 	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: TimeService. */
-	protected TimeService m_timeService = null;
+	protected abstract SessionManager sessionManager();
 
 	/**
-	 * Dependency: TimeService.
-	 * 
-	 * @param service
-	 *        The TimeService.
+	 * @return the TimeService collaborator.
 	 */
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
-
-	/** Dependency: FunctionManager. */
-	protected FunctionManager m_functionManager = null;
+	protected abstract TimeService timeService();
 
 	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param manager
-	 *        The FunctionManager.
+	 * @return the FunctionManager collaborator.
 	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
-
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
+	protected abstract FunctionManager functionManager();
 
 	/**
-	 * Dependency: MemoryService.
-	 * 
-	 * @param service
-	 *        The MemoryService.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
+	protected abstract MemoryService memoryService();
 
 	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
+	 * @return the UserDirectoryService collaborator.
 	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
-
-	/** Dependency: AuthzGroupService. */
-	protected AuthzGroupService m_authzGroupService = null;
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**
-	 * Dependency: AuthzGroupService.
-	 * 
-	 * @param service
-	 *        The AuthzGroupService.
+	 * @return the AuthzGroupService collaborator.
 	 */
-	public void setAuthzGroupService(AuthzGroupService service)
-	{
-		m_authzGroupService = service;
-	}
+	protected abstract AuthzGroupService authzGroupService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -509,22 +417,22 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			if (m_cacheSeconds > 0)
 			{
 				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins.
-				m_siteCache = new SiteCacheImpl(m_memoryService, m_cacheCleanerSeconds, siteReference(""));
+				m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
 			}
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			m_functionManager.registerFunction(SITE_VISIT);
-			m_functionManager.registerFunction(SITE_VISIT_UNPUBLISHED);
-			m_functionManager.registerFunction(SECURE_ADD_SITE);
-			m_functionManager.registerFunction(SECURE_ADD_USER_SITE);
-			m_functionManager.registerFunction(SECURE_REMOVE_SITE);
-			m_functionManager.registerFunction(SECURE_UPDATE_SITE);
-			m_functionManager.registerFunction(SECURE_VIEW_ROSTER);
-			m_functionManager.registerFunction(SECURE_UPDATE_SITE_MEMBERSHIP);
-			m_functionManager.registerFunction(SECURE_UPDATE_GROUP_MEMBERSHIP);
+			functionManager().registerFunction(SITE_VISIT);
+			functionManager().registerFunction(SITE_VISIT_UNPUBLISHED);
+			functionManager().registerFunction(SECURE_ADD_SITE);
+			functionManager().registerFunction(SECURE_ADD_USER_SITE);
+			functionManager().registerFunction(SECURE_REMOVE_SITE);
+			functionManager().registerFunction(SECURE_UPDATE_SITE);
+			functionManager().registerFunction(SECURE_VIEW_ROSTER);
+			functionManager().registerFunction(SECURE_UPDATE_SITE_MEMBERSHIP);
+			functionManager().registerFunction(SECURE_UPDATE_GROUP_MEMBERSHIP);
 
 			M_log.info("init() - caching minutes: " + m_cacheSeconds / 60);
 		}
@@ -698,13 +606,13 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		catch (IdUnusedException e)
 		{
 			// if this is the current user's site, we can create it
-			if (isUserSite(id) && id.substring(1).equals(m_sessionManager.getCurrentSessionUserId()))
+			if (isUserSite(id) && id.substring(1).equals(sessionManager().getCurrentSessionUserId()))
 			{
 				// pick a template, type based, to clone it exactly but set this as the id
 				BaseSite template = null;
 				try
 				{
-					User user = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
+					User user = userDirectoryService().getUser(sessionManager().getCurrentSessionUserId());
 					template = (BaseSite) getDefinedSite(USER_SITE_TEMPLATE + "." + user.getType());
 				}
 				catch (Throwable t)
@@ -843,10 +751,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		enableAzgSecurityAdvisor();
 		saveSiteAzg(site);
-		m_securityService.clearAdvisors();
+		securityService().clearAdvisors();
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_SITE_MEMBERSHIP, site.getReference(), true));
 	}
 
 	/**
@@ -867,10 +775,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		enableAzgSecurityAdvisor();
 		saveGroupAzgs(site);
-		m_securityService.clearAdvisors();
+		securityService().clearAdvisors();
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_UPDATE_GROUP_MEMBERSHIP, site.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_UPDATE_GROUP_MEMBERSHIP, site.getReference(), true));
 	}
 
 	/**
@@ -896,7 +804,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		enableAzgSecurityAdvisor();
 		saveSiteAzg(site);
 		saveGroupAzgs(site);
-		m_securityService.clearAdvisors();
+		securityService().clearAdvisors();
 
 		// sync up with all other services
 		// TODO: do this under the security advisor, too, so we don't need all the various service security on site creation? -ggolden
@@ -905,7 +813,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// track it
 		String event = site.getEvent();
 		if (event == null) event = SECURE_UPDATE_SITE;
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(event, site.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(event, site.getReference(), true));
 
 		// clear the event for next time
 		site.setEvent(null);
@@ -918,7 +826,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		// put in a security advisor so we can do our azg work without need of further permissions
 		// TODO: could make this more specific to the AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP permission -ggolden
-		m_securityService.pushAdvisor(new SecurityAdvisor()
+		securityService().pushAdvisor(new SecurityAdvisor()
 		{
 			public SecurityAdvice isAllowed(String userId, String function, String reference)
 			{
@@ -939,7 +847,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		{
 			try
 			{
-				m_authzGroupService.save(((BaseSite) site).m_azg);
+				authzGroupService().save(((BaseSite) site).m_azg);
 			}
 			catch (Throwable t)
 			{
@@ -964,7 +872,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			{
 				try
 				{
-					m_authzGroupService.save(group.m_azg);
+					authzGroupService().save(group.m_azg);
 				}
 				catch (Throwable t)
 				{
@@ -1076,15 +984,15 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// copy the realm (to get permissions settings)
 		try
 		{
-			AuthzGroup realm = m_authzGroupService.getAuthzGroup(other.getReference());
-			AuthzGroup re = m_authzGroupService.addAuthzGroup(site.getReference(), realm, m_userDirectoryService.getCurrentUser()
-					.getId());
+			AuthzGroup realm = authzGroupService().getAuthzGroup(other.getReference());
+			AuthzGroup re = authzGroupService().addAuthzGroup(site.getReference(), realm,
+					userDirectoryService().getCurrentUser().getId());
 
 			// clear the users from the copied realm, adding in the current user as a maintainer
 			re.removeMembers();
-			re.addMember(m_userDirectoryService.getCurrentUser().getId(), re.getMaintainRole(), true, false);
+			re.addMember(userDirectoryService().getCurrentUser().getId(), re.getMaintainRole(), true, false);
 
-			m_authzGroupService.save(re);
+			authzGroupService().save(re);
 		}
 		catch (Exception e)
 		{
@@ -1121,7 +1029,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		m_storage.remove(site);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_SITE, site.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_SITE, site.getReference(), true));
 
 		// get the services related to this site setup for the site's removal
 		disableRelated(site);
@@ -1265,7 +1173,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			String userName = id;
 			try
 			{
-				User user = m_userDirectoryService.getUser(getSiteUserId(id));
+				User user = userDirectoryService().getUser(getSiteUserId(id));
 				userName = user.getDisplayName();
 			}
 			catch (UserNotDefinedException ignore)
@@ -1392,7 +1300,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public void join(String id) throws IdUnusedException, PermissionException
 	{
-		String user = m_sessionManager.getCurrentSessionUserId();
+		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
 
 		// get the site
@@ -1415,7 +1323,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// do the join
 		try
 		{
-			m_authzGroupService.joinGroup(siteReference(id), roleId);
+			authzGroupService().joinGroup(siteReference(id), roleId);
 		}
 		catch (GroupNotDefinedException e)
 		{
@@ -1434,7 +1342,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		try
 		{
-			m_authzGroupService.unjoinGroup(siteReference(id));
+			authzGroupService().unjoinGroup(siteReference(id));
 		}
 		catch (GroupNotDefinedException e)
 		{
@@ -1452,7 +1360,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public boolean allowUnjoinSite(String id)
 	{
 		// basic unjoin AuthzGroup test
-		if (!m_authzGroupService.allowUnjoinGroup(siteReference(id))) return false;
+		if (!authzGroupService().allowUnjoinGroup(siteReference(id))) return false;
 
 		// one more check - don't let a maintain role user unjoin a non-joinable site, or
 		// a joinable site that does not have the maintain role as the joiner role.
@@ -1462,9 +1370,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			Site site = getDefinedSite(id);
 
 			// get the AuthGroup
-			AuthzGroup azg = m_authzGroupService.getAuthzGroup(siteReference(id));
+			AuthzGroup azg = authzGroupService().getAuthzGroup(siteReference(id));
 
-			String user = m_sessionManager.getCurrentSessionUserId();
+			String user = sessionManager().getCurrentSessionUserId();
 			if (user == null) return false;
 
 			if ((StringUtil.different(site.getJoinerRole(), azg.getMaintainRole())) || (!site.isJoinable()))
@@ -1603,7 +1511,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		return new HttpAccess()
 		{
 			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
-					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException
+					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
+					EntityAccessOverloadException, EntityCopyrightException
 			{
 				try
 				{
@@ -1761,7 +1670,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			// }
 
 			// add the current user's realm
-			ref.addUserAuthzGroup(rv, m_sessionManager.getCurrentSessionUserId());
+			ref.addUserAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
 
 			// site helper
 			rv.add("!site.helper");
@@ -1834,10 +1743,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// take care of our AuthzGroups
 		enableAzgSecurityAdvisor();
 		enableAzg(site);
-		m_securityService.clearAdvisors();
+		securityService().clearAdvisors();
 
 		// offer to all EntityProducers
-		for (Iterator i = m_entityManager.getEntityProducers().iterator(); i.hasNext();)
+		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
 			try
@@ -1866,7 +1775,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 
 		// offer to all EntityProducers
-		for (Iterator i = m_entityManager.getEntityProducers().iterator(); i.hasNext();)
+		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
 			ep.syncWithSiteChange(site, EntityProducer.ChangeType.REMOVE);
@@ -1875,7 +1784,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// disable the azgs last, so permissions were in place for the above
 		enableAzgSecurityAdvisor();
 		disableAzg(site);
-		m_securityService.clearAdvisors();
+		securityService().clearAdvisors();
 	}
 
 	/**
@@ -1896,7 +1805,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			// make sure it's valid
 			try
 			{
-				m_userDirectoryService.getUser(userId);
+				userDirectoryService().getUser(userId);
 			}
 			catch (UserNotDefinedException e1)
 			{
@@ -1907,7 +1816,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// use the current user if needed
 		if (userId == null)
 		{
-			User user = m_userDirectoryService.getCurrentUser();
+			User user = userDirectoryService().getCurrentUser();
 			userId = user.getId();
 		}
 
@@ -2021,7 +1930,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		// see if it exists already
 		try
 		{
-			AuthzGroup realm = m_authzGroupService.getAuthzGroup(ref);
+			AuthzGroup realm = authzGroupService().getAuthzGroup(ref);
 		}
 		catch (GroupNotDefinedException un)
 		{
@@ -2029,14 +1938,14 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			AuthzGroup template = null;
 			try
 			{
-				template = m_authzGroupService.getAuthzGroup(templateId);
+				template = authzGroupService().getAuthzGroup(templateId);
 			}
 			catch (Exception e)
 			{
 				try
 				{
 					// if the template is not defined, try the fall back template
-					template = m_authzGroupService.getAuthzGroup(fallbackTemplate);
+					template = authzGroupService().getAuthzGroup(fallbackTemplate);
 				}
 				catch (Exception ee)
 				{
@@ -2050,11 +1959,11 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 				if (template == null)
 				{
-					realm = m_authzGroupService.addAuthzGroup(ref);
+					realm = authzGroupService().addAuthzGroup(ref);
 				}
 				else
 				{
-					realm = m_authzGroupService.addAuthzGroup(ref, template, userId);
+					realm = authzGroupService().addAuthzGroup(ref, template, userId);
 				}
 			}
 			catch (Exception e)
@@ -2074,7 +1983,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 		try
 		{
-			m_authzGroupService.removeAuthzGroup(ref);
+			authzGroupService().removeAuthzGroup(ref);
 		}
 		catch (Exception e)
 		{
@@ -2670,7 +2579,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		Group rv = null;
 
 		// parse the reference or id
-		Reference ref = m_entityManager.newReference(refOrId);
+		Reference ref = entityManager().newReference(refOrId);
 
 		// for ref, get the site from the cache, or cache it and get the group from the site
 		if (SERVICE_NAME.equals(ref.getType()))
@@ -2743,12 +2652,12 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	protected void enforceGroupSubMembership(String siteId)
 	{
 		// just being paranoid, but lets make sure we don't get stuck in a loop here -ggolden
-		if (m_threadLocalManager.get("enforceGroupSubMembership") != null)
+		if (threadLocalManager().get("enforceGroupSubMembership") != null)
 		{
 			M_log.warn(".enforceGroupSubMembership: recursion avoided!: " + siteId);
 			return;
 		}
-		m_threadLocalManager.set("enforceGroupSubMembership", siteId);
+		threadLocalManager().set("enforceGroupSubMembership", siteId);
 
 		try
 		{
@@ -2762,7 +2671,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			// save any changed group azg
 			enableAzgSecurityAdvisor();
 			saveGroupAzgs(site);
-			m_securityService.clearAdvisors();
+			securityService().clearAdvisors();
 		}
 		catch (IdUnusedException e)
 		{
@@ -2770,6 +2679,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			M_log.warn(".enforceGroupSubMembership: site not found: " + siteId);
 		}
 
-		m_threadLocalManager.set("enforceGroupSubMembership", null);
+		threadLocalManager().set("enforceGroupSubMembership", null);
 	}
 }

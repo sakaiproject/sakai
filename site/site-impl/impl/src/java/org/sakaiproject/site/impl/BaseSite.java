@@ -539,7 +539,7 @@ public class BaseSite implements Site
 	 */
 	public String getUrl()
 	{
-		return ((BaseSiteService) (SiteService.getInstance())).m_serverConfigurationService.getPortalUrl() + "/site/" + m_id;
+		return ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl() + "/site/" + m_id;
 	}
 
 	/**
@@ -821,7 +821,7 @@ public class BaseSite implements Site
 	 */
 	public List getOrderedPages()
 	{
-		List order = ((BaseSiteService) (SiteService.getInstance())).m_serverConfigurationService.getToolOrder(getType());
+		List order = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getToolOrder(getType());
 		if (order.isEmpty()) return getPages();
 
 		// get a copy we can modify without changing the site!
@@ -934,7 +934,7 @@ public class BaseSite implements Site
 		// if this is a reference, starting with a "/", parse it, make sure it's a group, in this site, and pull the id
 		if (id.startsWith(Entity.SEPARATOR))
 		{
-			Reference ref = ((BaseSiteService) (SiteService.getInstance())).m_entityManager.newReference(id);
+			Reference ref = ((BaseSiteService) (SiteService.getInstance())).entityManager().newReference(id);
 			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))
 			{
