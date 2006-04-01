@@ -8,8 +8,10 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+
 		<property name="inactiveInterval"><value>1800</value></property>
 		<property name="checkEvery"><value>60</value></property>
 	</bean>
@@ -21,9 +23,11 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="sessionManager"><ref bean="org.sakaiproject.webapp.api.SessionManager"/></property>
-		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
-		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<lookup-method name="sessionManager" bean="org.sakaiproject.webapp.api.SessionManager" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+
 	</bean>
 
 </beans>

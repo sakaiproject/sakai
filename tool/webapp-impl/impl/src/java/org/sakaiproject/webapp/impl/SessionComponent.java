@@ -50,11 +50,8 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
  * <p>
  * Standard implementation of the Sakai SessionManager.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
-public class SessionComponent implements SessionManager
+public abstract class SessionComponent implements SessionManager
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
@@ -72,36 +69,22 @@ public class SessionComponent implements SessionManager
 	protected final static String CURRENT_TOOL_SESSION = "org.sakaiproject.api.kernel.session.current.tool";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: the current manager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
+	/**
+	 * @return the ThreadLocalManager collaborator.
+	 */
+	protected abstract ThreadLocalManager threadLocalManager();
 
 	/**
-	 * Dependency - set the current manager.
-	 * 
-	 * @param value
-	 *        The current manager.
+	 * @return the IdManager collaborator.
 	 */
-	public void setThreadLocalManager(ThreadLocalManager manager)
-	{
-		m_threadLocalManager = manager;
-	}
+	protected abstract IdManager idManager();
 
-	/** Dependency: the id manager. */
-	protected IdManager m_idManager = null;
-
-	/**
-	 * Dependency - set the id manager.
-	 * 
-	 * @param value
-	 *        The id manager.
-	 */
-	public void setIdManager(IdManager manager)
-	{
-		m_idManager = manager;
-	}
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Configuration: default inactive period for sessions (seconds). */
 	protected int m_defaultInactiveInterval = 30 * 60;
@@ -237,7 +220,7 @@ public class SessionComponent implements SessionManager
 	 */
 	public Session getCurrentSession()
 	{
-		Session rv = (Session) m_threadLocalManager.get(CURRENT_SESSION);
+		Session rv = (Session) threadLocalManager().get(CURRENT_SESSION);
 		
 		// if we don't have one already current, make one and bind it as current, but don't save it in our by-id table - let it just go away after the thread
 		if (rv == null)
@@ -254,7 +237,7 @@ public class SessionComponent implements SessionManager
 	 */
 	public String getCurrentSessionUserId()
 	{
-		Session s = (Session) m_threadLocalManager.get(CURRENT_SESSION);
+		Session s = (Session) threadLocalManager().get(CURRENT_SESSION);
 		if (s != null)
 		{
 			return s.getUserId();
@@ -268,7 +251,7 @@ public class SessionComponent implements SessionManager
 	 */
 	public ToolSession getCurrentToolSession()
 	{
-		return (ToolSession) m_threadLocalManager.get(CURRENT_TOOL_SESSION);
+		return (ToolSession) threadLocalManager().get(CURRENT_TOOL_SESSION);
 	}
 
 	/**
@@ -276,7 +259,7 @@ public class SessionComponent implements SessionManager
 	 */
 	public void setCurrentSession(Session s)
 	{
-		m_threadLocalManager.set(CURRENT_SESSION, s);
+		threadLocalManager().set(CURRENT_SESSION, s);
 	}
 
 	/**
@@ -284,7 +267,7 @@ public class SessionComponent implements SessionManager
 	 */
 	public void setCurrentToolSession(ToolSession s)
 	{
-		m_threadLocalManager.set(CURRENT_TOOL_SESSION, s);
+		threadLocalManager().set(CURRENT_TOOL_SESSION, s);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -325,7 +308,7 @@ public class SessionComponent implements SessionManager
 
 		public MySession()
 		{
-			m_id = m_idManager.createUuid();
+			m_id = idManager().createUuid();
 			m_created = System.currentTimeMillis();
 			m_accessed = m_created;
 		}
@@ -776,7 +759,7 @@ public class SessionComponent implements SessionManager
 
 		public MyLittleSession(Session s, String id)
 		{
-			m_id = m_idManager.createUuid();
+			m_id = idManager().createUuid();
 			m_created = System.currentTimeMillis();
 			m_accessed = m_created;
 			m_littleId = id;

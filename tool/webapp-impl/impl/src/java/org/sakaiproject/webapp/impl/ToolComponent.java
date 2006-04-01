@@ -50,7 +50,7 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
  * ToolComponent is the standard implementation of the Sakai Tool API.
  * </p>
  */
-public class ToolComponent implements ToolManager
+public abstract class ToolComponent implements ToolManager
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ToolComponent.class);
@@ -65,22 +65,17 @@ public class ToolComponent implements ToolManager
 	protected Map m_tools = new ConcurrentReaderHashMap();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: the current manager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
-
 	/**
-	 * Dependency - set the current manager.
-	 * 
-	 * @param value
-	 *        The current manager.
+	 * @return the ThreadLocalManager collaborator.
 	 */
-	public void setThreadLocalManager(ThreadLocalManager manager)
-	{
-		m_threadLocalManager = manager;
-	}
+	protected abstract ThreadLocalManager threadLocalManager();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** tool ids to be stealthed. */
 	protected String[] m_stealthToolIds = null;
@@ -156,7 +151,7 @@ public class ToolComponent implements ToolManager
 	 */
 	public Placement getCurrentPlacement()
 	{
-		return (Placement) m_threadLocalManager.get(CURRENT_PLACEMENT);
+		return (Placement) threadLocalManager().get(CURRENT_PLACEMENT);
 	}
 
 	/**
@@ -164,7 +159,7 @@ public class ToolComponent implements ToolManager
 	 */
 	public Tool getCurrentTool()
 	{
-		return (Tool) m_threadLocalManager.get(CURRENT_TOOL);
+		return (Tool) threadLocalManager().get(CURRENT_TOOL);
 	}
 
 	/**
@@ -350,7 +345,7 @@ public class ToolComponent implements ToolManager
 	 */
 	protected void setCurrentPlacement(Placement placement)
 	{
-		m_threadLocalManager.set(CURRENT_PLACEMENT, placement);
+		threadLocalManager().set(CURRENT_PLACEMENT, placement);
 	}
 
 	/**
@@ -361,6 +356,6 @@ public class ToolComponent implements ToolManager
 	 */
 	protected void setCurrentTool(Tool tool)
 	{
-		m_threadLocalManager.set(CURRENT_TOOL, tool);
+		threadLocalManager().set(CURRENT_TOOL, tool);
 	}
 }

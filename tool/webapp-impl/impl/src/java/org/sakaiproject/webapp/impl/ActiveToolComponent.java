@@ -61,42 +61,24 @@ import org.w3c.dom.NodeList;
  * ActiveToolComponent is the standard implementation of the Sakai ActiveTool API.
  * </p>
  */
-public class ActiveToolComponent extends ToolComponent implements ActiveToolManager
+public abstract class ActiveToolComponent extends ToolComponent implements ActiveToolManager
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: the session manager. */
-	protected SessionManager m_sessionManager = null;
+	/**
+	 * @return the SessionManager collaborator.
+	 */
+	protected abstract SessionManager sessionManager();
 
 	/**
-	 * Dependency - set the session manager.
-	 * 
-	 * @param value
-	 *        The session manager.
+	 * @return the FunctionManager collaborator.
 	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: the authz function manager. */
-	protected FunctionManager m_functionManager = null;
-
-	/**
-	 * Dependency - set the authz function manager.
-	 * 
-	 * @param value
-	 *        The authz function manager.
-	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
+	protected abstract FunctionManager functionManager();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -242,7 +224,7 @@ public class ActiveToolComponent extends ToolComponent implements ActiveToolMana
 			else if (rootElement.getTagName().equals("function"))
 			{
 				String function = rootElement.getAttribute("name").trim();
-				m_functionManager.registerFunction(function);
+				functionManager().registerFunction(function);
 			}
 		}
 	}
@@ -486,14 +468,14 @@ public class ActiveToolComponent extends ToolComponent implements ActiveToolMana
 
 				if (placement != null)
 				{
-					ToolSession ts = m_sessionManager.getCurrentSession().getToolSession(placement.getId());
+					ToolSession ts = sessionManager().getCurrentSession().getToolSession(placement.getId());
 
 					// put the session in the request attribute
 					setAttribute(TOOL_SESSION, ts);
 
 					// set as the current tool session, and setup for undoing this later
-					m_priorToolSession = m_sessionManager.getCurrentToolSession();
-					m_sessionManager.setCurrentToolSession(ts);
+					m_priorToolSession = sessionManager().getCurrentToolSession();
+					sessionManager().setCurrentToolSession(ts);
 
 					// set this tool placement as current, in the request and for the service's "current" tool placement
 					setAttribute(PLACEMENT, placement);
@@ -588,7 +570,7 @@ public class ActiveToolComponent extends ToolComponent implements ActiveToolMana
 			{
 				// restore the tool, placement and tool session and tool placement config that was in effect before we changed it
 				setCurrentTool(m_priorTool);
-				m_sessionManager.setCurrentToolSession(m_priorToolSession);
+				sessionManager().setCurrentToolSession(m_priorToolSession);
 				setCurrentPlacement(m_priorPlacement);
 			}
 
