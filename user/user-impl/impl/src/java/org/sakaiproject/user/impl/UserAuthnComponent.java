@@ -39,28 +39,20 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * An Authentication component working with the UserDirectoryService.
  * </p>
  */
-public class UserAuthnComponent implements AuthenticationManager
+public abstract class UserAuthnComponent implements AuthenticationManager
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(UserAuthnComponent.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
 	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
+	 * @return the UserDirectoryService collaborator.
 	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
+	protected abstract UserDirectoryService userDirectoryService();
+
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -103,7 +95,7 @@ public class UserAuthnComponent implements AuthenticationManager
 			}
 
 			// the evidence id must match a defined User
-			User user = m_userDirectoryService.authenticate(evidence.getIdentifier(), evidence.getPassword());
+			User user = userDirectoryService().authenticate(evidence.getIdentifier(), evidence.getPassword());
 			if (user == null)
 			{
 				throw new AuthenticationException("invalid login");
@@ -127,7 +119,7 @@ public class UserAuthnComponent implements AuthenticationManager
 			// accept, so now lookup the user in our database.
 			try
 			{
-				User user = m_userDirectoryService.getUserByEid(evidence.getIdentifier());
+				User user = userDirectoryService().getUserByEid(evidence.getIdentifier());
 
 				// use the User id as both the uuid and eid
 				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getId());

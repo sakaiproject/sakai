@@ -34,7 +34,7 @@ import org.sakaiproject.util.StorageUser;
  * DbPreferencesService is an extension of the BasePreferencesService with database storage.
  * </p>
  */
-public class DbPreferencesService extends BasePreferencesService
+public abstract class DbPreferencesService extends BasePreferencesService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbPreferencesService.class);
@@ -46,22 +46,17 @@ public class DbPreferencesService extends BasePreferencesService
 	protected boolean m_locksInDb = true;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
 	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	protected abstract SqlService sqlService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: set the table name
@@ -113,7 +108,7 @@ public class DbPreferencesService extends BasePreferencesService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_preferences");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_preferences");
 			}
 
 			super.init();
@@ -157,7 +152,7 @@ public class DbPreferencesService extends BasePreferencesService
 		 */
 		public DbStorage(StorageUser user)
 		{
-			super(m_tableName, "PREFERENCES_ID", null, m_locksInDb, "preferences", user, m_sqlService);
+			super(m_tableName, "PREFERENCES_ID", null, m_locksInDb, "preferences", user, sqlService());
 		}
 
 		public boolean check(String id)

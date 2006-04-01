@@ -52,7 +52,7 @@ import org.w3c.dom.Element;
  * DbCachedUserService is an extension of the BaseUserService with a database storage backed up by an in-memory cache.
  * </p>
  */
-public class DbUserService extends BaseUserDirectoryService
+public abstract class DbUserService extends BaseUserDirectoryService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbUserService.class);
@@ -77,22 +77,17 @@ public class DbUserService extends BaseUserDirectoryService
 			"MODIFIEDBY", "CREATEDON", "MODIFIEDON" };
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
 	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	protected abstract SqlService sqlService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: set the table name
@@ -175,13 +170,13 @@ public class DbUserService extends BaseUserDirectoryService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_user");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user");
 
 				// load the 2.1.0.004 email_lc conversion
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0_004");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0_004");
 
 				// load the 2.1.0 postmaster password conversion
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0");
 			}
 
 			super.init();
@@ -242,7 +237,7 @@ public class DbUserService extends BaseUserDirectoryService
 		 */
 		public DbStorage(StorageUser user)
 		{
-			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, m_sqlService);
+			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService());
 			setSortField(m_sortField1, m_sortField2);
 
 			m_reader = this;
@@ -540,12 +535,12 @@ public class DbUserService extends BaseUserDirectoryService
 
 			if (edit == null)
 			{
-				String attribUser = m_sessionManager.getCurrentSessionUserId();
+				String attribUser = sessionManager().getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if ((attribUser == null) || (attribUser.length() == 0)) attribUser = (String) rv[0];
 
-				Time now = m_timeService.newTime();
+				Time now = timeService().newTime();
 				rv[1] = "";
 				rv[2] = "";
 				rv[3] = "";
@@ -606,8 +601,8 @@ public class DbUserService extends BaseUserDirectoryService
 				String pw = result.getString(7);
 				String createdBy = result.getString(8);
 				String modifiedBy = result.getString(9);
-				Time createdOn = m_timeService.newTime(result.getTimestamp(10, m_sqlService.getCal()).getTime());
-				Time modifiedOn = m_timeService.newTime(result.getTimestamp(11, m_sqlService.getCal()).getTime());
+				Time createdOn = timeService().newTime(result.getTimestamp(10, sqlService().getCal()).getTime());
+				Time modifiedOn = timeService().newTime(result.getTimestamp(11, sqlService().getCal()).getTime());
 
 				// create the Resource from these fields
 				return new BaseUserEdit(id, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);
@@ -633,7 +628,7 @@ public class DbUserService extends BaseUserDirectoryService
 		 */
 		public DbStorageOld(StorageUser user)
 		{
-			super("CHEF_USER", "USER_ID", null, false, "user", user, m_sqlService);
+			super("CHEF_USER", "USER_ID", null, false, "user", user, sqlService());
 		}
 
 		public boolean check(String id)
@@ -795,13 +790,13 @@ public class DbUserService extends BaseUserDirectoryService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService().borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all user ids
 			String sql = "select USER_ID, XML from CHEF_USER";
-			m_sqlService.dbRead(connection, sql, null, new SqlReader()
+			sqlService().dbRead(connection, sql, null, new SqlReader()
 			{
 				private int count = 0;
 
@@ -841,7 +836,7 @@ public class DbUserService extends BaseUserDirectoryService
 						String statement = "delete from CHEF_USER where USER_ID = ?";
 						fields = new Object[1];
 						fields[0] = id;
-						ok = m_sqlService.dbWrite(connection, statement, fields);
+						ok = sqlService().dbWrite(connection, statement, fields);
 						if (!ok)
 						{
 							M_log.warn("convertOld: failed to delete: " + id);
@@ -860,7 +855,7 @@ public class DbUserService extends BaseUserDirectoryService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService().returnConnection(connection);
 		}
 		catch (Throwable t)
 		{

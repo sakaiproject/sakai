@@ -101,7 +101,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -139,7 +139,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(lock, resource))
+		if (!securityService().unlock(lock, resource))
 		{
 			return false;
 		}
@@ -161,122 +161,53 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock, resource);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
+	/**
+	 * @return the MemoryService collaborator.
+	 */
+	protected abstract MemoryService memoryService();
 
 	/**
-	 * Dependency: MemoryService.
-	 * 
-	 * @param service
-	 *        The MemoryService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
+	protected abstract EntityManager entityManager();
 
 	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
+	protected abstract SecurityService securityService();
 
 	/**
-	 * Dependency: SecurityService.
+	 * @return the FunctionManager collaborator.
 	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: FunctionManager. */
-	protected FunctionManager m_functionManager = null;
+	protected abstract FunctionManager functionManager();
 
 	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param manager
-	 *        The FunctionManager.
+	 * @return the SessionManager collaborator.
 	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
-
-	/** Dependency: the session manager. */
-	protected SessionManager m_sessionManager = null;
+	protected abstract SessionManager sessionManager();
 
 	/**
-	 * Dependency - set the session manager.
-	 * 
-	 * @param value
-	 *        The session manager.
+	 * @return the EventTrackingService collaborator.
 	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
+	 * @return the UserDirectoryService collaborator.
 	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
-
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -296,12 +227,12 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 			m_storage.open();
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			m_functionManager.registerFunction(SECURE_ADD_PREFS);
-			m_functionManager.registerFunction(SECURE_EDIT_PREFS);
-			m_functionManager.registerFunction(SECURE_REMOVE_PREFS);
+			functionManager().registerFunction(SECURE_ADD_PREFS);
+			functionManager().registerFunction(SECURE_EDIT_PREFS);
+			functionManager().registerFunction(SECURE_REMOVE_PREFS);
 
 			M_log.info("init()");
 		}
@@ -392,8 +323,8 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 		m_storage.commit(edit);
 
 		// track it
-		m_eventTrackingService
-				.post(m_eventTrackingService.newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
+		eventTrackingService()
+				.post(eventTrackingService().newEvent(((BasePreferences) edit).getEvent(), edit.getReference(), true));
 
 		// close the edit object
 		((BasePreferences) edit).closeEdit();
@@ -456,7 +387,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 		m_storage.remove(edit);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_PREFS, edit.getReference(), true));
 
 		// close the edit object
 		((BasePreferences) edit).closeEdit();
@@ -602,9 +533,9 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 		// for preferences access: no additional role realms
 		try
 		{
-			rv.add(m_userDirectoryService.userReference(ref.getId()));
+			rv.add(userDirectoryService().userReference(ref.getId()));
 
-			ref.addUserTemplateAuthzGroup(rv, m_sessionManager.getCurrentSessionUserId());
+			ref.addUserTemplateAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
 		}
 		catch (NullPointerException e)
 		{

@@ -122,7 +122,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -167,7 +167,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(lock, resource))
+		if (!securityService().unlock(lock, resource))
 		{
 			return false;
 		}
@@ -188,9 +188,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
-		if (!m_securityService.unlock(lock1, resource))
+		if (!securityService().unlock(lock1, resource))
 		{
-			if (!m_securityService.unlock(lock2, resource))
+			if (!securityService().unlock(lock2, resource))
 			{
 				return false;
 			}
@@ -213,7 +213,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new UserPermissionException(m_sessionManager.getCurrentSessionUserId(), lock, resource);
+			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
@@ -233,12 +233,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		if (!unlockCheck2(lock1, lock2, resource))
 		{
-			throw new UserPermissionException(m_sessionManager.getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
+			throw new UserPermissionException(sessionManager().getCurrentSessionUserId(), lock1 + "/" + lock2, resource);
 		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
@@ -280,34 +280,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_cacheCleanerSeconds = Integer.parseInt(time) * 60;
 	}
 
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
-
-	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
-	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
-
-	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
-	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
 	/** Configuration: case sensitive user id. */
 	protected boolean m_caseSensitiveId = false;
 
@@ -322,114 +294,59 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_caseSensitiveId = new Boolean(value).booleanValue();
 	}
 
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Dependency: SecurityService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: FunctionManager. */
-	protected FunctionManager m_functionManager = null;
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param manager
-	 *        The FunctionManager.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
-
-	/** Dependency: the session manager. */
-	protected SessionManager m_sessionManager = null;
+	protected abstract EntityManager entityManager();
 
 	/**
-	 * Dependency - set the session manager.
-	 * 
-	 * @param value
-	 *        The session manager.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
+	protected abstract SecurityService securityService();
 
 	/**
-	 * Dependency: MemoryService.
-	 * 
-	 * @param service
-	 *        The MemoryService.
+	 * @return the FunctionManager collaborator.
 	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
+	protected abstract FunctionManager functionManager();
 
 	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
+	 * @return the SessionManager collaborator.
 	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
-
-	/** Dependency: the current manager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
+	protected abstract SessionManager sessionManager();
 
 	/**
-	 * Dependency - set the current manager.
-	 * 
-	 * @param value
-	 *        The current manager.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setThreadLocalManager(ThreadLocalManager manager)
-	{
-		m_threadLocalManager = manager;
-	}
-
-	/** Dependency: AuthzGroupService. */
-	protected AuthzGroupService m_authzGroupService = null;
+	protected abstract MemoryService memoryService();
 
 	/**
-	 * Dependency: AuthzGroupService.
-	 * 
-	 * @param service
-	 *        The AuthzGroupService.
+	 * @return the EventTrackingService collaborator.
 	 */
-	public void setAuthzGroupService(AuthzGroupService service)
-	{
-		m_authzGroupService = service;
-	}
-
-	/** Dependency: TimeService. */
-	protected TimeService m_timeService = null;
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**
-	 * Dependency: TimeService.
-	 * 
-	 * @param service
-	 *        The TimeService.
+	 * @return the ThreadLocalManager collaborator.
 	 */
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
+	protected abstract ThreadLocalManager threadLocalManager();
+
+	/**
+	 * @return the AuthzGroupService collaborator.
+	 */
+	protected abstract AuthzGroupService authzGroupService();
+
+	/**
+	 * @return the TimeService collaborator.
+	 */
+	protected abstract TimeService timeService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -455,17 +372,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
 				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = m_memoryService.newHardCache(m_cacheCleanerSeconds, userReference(""));
+				m_callCache = memoryService().newHardCache(m_cacheCleanerSeconds, userReference(""));
 			}
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			m_functionManager.registerFunction(SECURE_ADD_USER);
-			m_functionManager.registerFunction(SECURE_REMOVE_USER);
-			m_functionManager.registerFunction(SECURE_UPDATE_USER_OWN);
-			m_functionManager.registerFunction(SECURE_UPDATE_USER_ANY);
+			functionManager().registerFunction(SECURE_ADD_USER);
+			functionManager().registerFunction(SECURE_REMOVE_USER);
+			functionManager().registerFunction(SECURE_UPDATE_USER_OWN);
+			functionManager().registerFunction(SECURE_UPDATE_USER_ANY);
 
 			// if no provider was set, see if we can find one
 			if (m_provider == null)
@@ -511,7 +428,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		// see if we've done this already in this thread
 		String ref = userReference(id);
-		UserEdit user = (UserEdit) m_threadLocalManager.get(ref);
+		UserEdit user = (UserEdit) threadLocalManager().get(ref);
 
 		// if not
 		if (user == null)
@@ -543,7 +460,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				// if found, save it for later use in this thread
 				if (user != null)
 				{
-					m_threadLocalManager.set(ref, user);
+					threadLocalManager().set(ref, user);
 
 					// cache
 					if (m_callCache != null) m_callCache.put(ref, user, m_cacheSeconds);
@@ -558,7 +475,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		// track it - Note: we are not tracking user access -ggolden
-		// m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_ACCESS_USER, user.getReference()));
+		// eventTrackingService().post(eventTrackingService().newEvent(SECURE_ACCESS_USER, user.getReference()));
 
 		return user;
 	}
@@ -600,7 +517,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 			// see if we've done this already in this thread
 			String ref = userReference(id);
-			UserEdit user = (UserEdit) m_threadLocalManager.get(ref);
+			UserEdit user = (UserEdit) threadLocalManager().get(ref);
 
 			// if not
 			if (user == null)
@@ -628,7 +545,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 					// if found, save it for later use in this thread
 					if (user != null)
 					{
-						m_threadLocalManager.set(ref, user);
+						threadLocalManager().set(ref, user);
 
 						// cache
 						if (m_callCache != null) m_callCache.put(ref, user, m_cacheSeconds);
@@ -655,7 +572,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 				// cache, thread and call cache
 				String ref = user.getReference();
-				m_threadLocalManager.set(ref, user);
+				threadLocalManager().set(ref, user);
 				if (m_callCache != null) m_callCache.put(ref, user, m_cacheSeconds);
 
 				// add to return
@@ -671,10 +588,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public User getCurrentUser()
 	{
-		String id = m_sessionManager.getCurrentSessionUserId();
+		String id = sessionManager().getCurrentSessionUserId();
 
 		// check current service caching - discard if the session user is different
-		User rv = (User) m_threadLocalManager.get(M_curUserKey);
+		User rv = (User) threadLocalManager().get(M_curUserKey);
 		if ((rv != null) && (rv.getId().equals(id))) return rv;
 
 		try
@@ -687,7 +604,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		// cache in the current service
-		m_threadLocalManager.set(M_curUserKey, rv);
+		threadLocalManager().set(M_curUserKey, rv);
 
 		return rv;
 	}
@@ -701,7 +618,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		id = cleanId(id);
 
 		// is this the user's own?
-		if (id.equals(m_sessionManager.getCurrentSessionUserId()))
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
 			// own or any
 			return unlockCheck2(SECURE_UPDATE_USER_OWN, SECURE_UPDATE_USER_ANY, userReference(id));
@@ -726,7 +643,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		// is this the user's own?
 		String function = null;
-		if (id.equals(m_sessionManager.getCurrentSessionUserId()))
+		if (id.equals(sessionManager().getCurrentSessionUserId()))
 		{
 			// own or any
 			unlock2(SECURE_UPDATE_USER_OWN, SECURE_UPDATE_USER_ANY, userReference(id));
@@ -780,7 +697,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_storage.commit(user);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(((BaseUserEdit) user).getEvent(), user.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) user).getEvent(), user.getReference(), true));
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
@@ -963,7 +880,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_storage.commit(edit);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(((BaseUserEdit) edit).getEvent(), edit.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) edit).getEvent(), edit.getReference(), true));
 
 		// close the edit object
 		((BaseUserEdit) edit).closeEdit();
@@ -1037,7 +954,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_storage.remove(user);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_USER, user.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_USER, user.getReference(), true));
 
 		// %%% sync with portal service, i.e. user's portal page, any others? -ggolden
 
@@ -1047,7 +964,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// remove any realm defined for this resource
 		try
 		{
-			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(user.getReference()));
+			authzGroupService().removeAuthzGroup(authzGroupService().getAuthzGroup(user.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -1186,7 +1103,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 				m_storage.commit(edit);
 
-				m_eventTrackingService.post(m_eventTrackingService.newEvent(edit.getEvent(), edit.getReference(), true));
+				eventTrackingService().post(eventTrackingService().newEvent(edit.getEvent(), edit.getReference(), true));
 			}
 			else
 			{
@@ -1240,12 +1157,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected void addLiveProperties(BaseUserEdit edit)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		edit.m_createdUserId = current;
 		edit.m_lastModifiedUserId = current;
 
-		Time now = m_timeService.newTime();
+		Time now = timeService().newTime();
 		edit.m_createdTime = now;
 		edit.m_lastModifiedTime = (Time) now.clone();
 	}
@@ -1255,10 +1172,10 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected void addLiveUpdateProperties(BaseUserEdit edit)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		edit.m_lastModifiedUserId = current;
-		edit.m_lastModifiedTime = m_timeService.newTime();
+		edit.m_lastModifiedTime = timeService().newTime();
 	}
 
 	/**
@@ -1396,7 +1313,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			rv.add(userReference(ref.getId()));
 
-			ref.addUserTemplateAuthzGroup(rv, m_sessionManager.getCurrentSessionUserId());
+			ref.addUserTemplateAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
 		}
 		catch (NullPointerException e)
 		{
@@ -1561,13 +1478,13 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			String time = StringUtil.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
-				m_createdTime = m_timeService.newTimeGmt(time);
+				m_createdTime = timeService().newTimeGmt(time);
 			}
 
 			time = StringUtil.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
-				m_lastModifiedTime = m_timeService.newTimeGmt(time);
+				m_lastModifiedTime = timeService().newTimeGmt(time);
 			}
 
 			// the children (roles, properties)
