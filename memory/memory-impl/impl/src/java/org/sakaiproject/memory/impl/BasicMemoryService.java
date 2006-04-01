@@ -45,7 +45,7 @@ import org.sakaiproject.memory.api.MultiRefCache;
  * MemBasicMemoryServiceoryService is an implementation for the MemoryService which reports memory usage and runs a periodic garbage collection to keep memory available.
  * </p>
  */
-public class BasicMemoryService implements MemoryService, Observer
+public abstract class BasicMemoryService implements MemoryService, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BasicMemoryService.class);
@@ -63,16 +63,24 @@ public class BasicMemoryService implements MemoryService, Observer
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
+	/**
+	 * @return the EventTrackingService collaborator.
+	 */
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**
-	 * Dependency: EventTrackingService.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
+	protected abstract SecurityService securityService();
+
+	/**
+	 * @return the UsageSessionService collaborator.
+	 */
+	protected abstract UsageSessionService usageSessionService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuraiton
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: cache verbose debug
@@ -87,31 +95,6 @@ public class BasicMemoryService implements MemoryService, Observer
 		return m_cacheLogging;
 	}
 
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
-
-	/**
-	 * Dependency: SecurityService.
-	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: the usage session service. */
-	protected UsageSessionService m_usageSessionService = null;
-
-	/**
-	 * Dependency - set the usage session service.
-	 * 
-	 * @param value
-	 *        The usage session service.
-	 */
-	public void setUsageSessionService(UsageSessionService manager)
-	{
-		m_usageSessionService = manager;
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -124,7 +107,7 @@ public class BasicMemoryService implements MemoryService, Observer
 		try
 		{
 			// get notified of events to watch for a reset
-			m_eventTrackingService.addObserver(this);
+			eventTrackingService().addObserver(this);
 
 			M_log.info("init()");
 		}
@@ -140,7 +123,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public void destroy()
 	{
-		m_eventTrackingService.deleteObserver(this);
+		eventTrackingService().deleteObserver(this);
 
 		m_cachers.clear();
 
@@ -168,14 +151,14 @@ public class BasicMemoryService implements MemoryService, Observer
 	public void resetCachers() throws MemoryPermissionException
 	{
 		// check that this is a "super" user with the security service
-		if (!m_securityService.isSuperUser())
+		if (!securityService().isSuperUser())
 		{
 			// TODO: session id or session user id?
-			throw new MemoryPermissionException(m_usageSessionService.getSessionId(), EVENT_RESET, "");
+			throw new MemoryPermissionException(usageSessionService().getSessionId(), EVENT_RESET, "");
 		}
 
 		// post the event so this and any other app servers in the cluster will reset
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(EVENT_RESET, "", true));
+		eventTrackingService().post(eventTrackingService().newEvent(EVENT_RESET, "", true));
 
 	} // resetMemory
 
@@ -247,7 +230,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newCache(CacheRefresher refresher, String pattern)
 	{
-		return new MemCache(this, m_eventTrackingService, refresher, pattern);
+		return new MemCache(this, eventTrackingService(), refresher, pattern);
 	}
 
 	/**
@@ -255,7 +238,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newHardCache(CacheRefresher refresher, String pattern)
 	{
-		return new HardCache(this, m_eventTrackingService, refresher, pattern);
+		return new HardCache(this, eventTrackingService(), refresher, pattern);
 	}
 
 	/**
@@ -263,7 +246,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newHardCache(long sleep, String pattern)
 	{
-		return new HardCache(this, m_eventTrackingService, sleep, pattern);
+		return new HardCache(this, eventTrackingService(), sleep, pattern);
 	}
 
 	/**
@@ -271,7 +254,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newCache(CacheRefresher refresher, long sleep)
 	{
-		return new MemCache(this, m_eventTrackingService, refresher, sleep);
+		return new MemCache(this, eventTrackingService(), refresher, sleep);
 	}
 
 	/**
@@ -279,7 +262,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newHardCache(CacheRefresher refresher, long sleep)
 	{
-		return new HardCache(this, m_eventTrackingService, refresher, sleep);
+		return new HardCache(this, eventTrackingService(), refresher, sleep);
 	}
 
 	/**
@@ -287,7 +270,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newCache()
 	{
-		return new MemCache(this, m_eventTrackingService);
+		return new MemCache(this, eventTrackingService());
 	}
 
 	/**
@@ -295,7 +278,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public Cache newHardCache()
 	{
-		return new HardCache(this, m_eventTrackingService);
+		return new HardCache(this, eventTrackingService());
 	}
 
 	/**
@@ -303,7 +286,7 @@ public class BasicMemoryService implements MemoryService, Observer
 	 */
 	public MultiRefCache newMultiRefCache(long sleep)
 	{
-		return new MultiRefCacheImpl(this, m_eventTrackingService, sleep);
+		return new MultiRefCacheImpl(this, eventTrackingService(), sleep);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
