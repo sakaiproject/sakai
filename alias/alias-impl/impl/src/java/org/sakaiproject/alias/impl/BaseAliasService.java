@@ -109,7 +109,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 
 	} // getAccessPoint
 
@@ -154,7 +154,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(lock, resource))
+		if (!securityService().unlock(lock, resource))
 		{
 			return false;
 		}
@@ -177,7 +177,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock, resource);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
 
 	} // unlock
@@ -193,16 +193,16 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	{
 		// check the target for modify access.
 		// TODO: this is setup only for sites and mail archive channels, we need an Entity Model based generic "allowModify()" -ggolden.
-		Reference ref = m_entityManager.newReference(target);
+		Reference ref = entityManager().newReference(target);
 		if (ref.getType().equals(SiteService.SERVICE_NAME))
 		{
-			return m_siteService.allowUpdateSite(ref.getId());
+			return siteService().allowUpdateSite(ref.getId());
 		}
 
 		else if (ref.getType().equals("org.sakaiproject.mailarchive.api.MailArchiveService"))
 		{
 			// base this on site update, too
-			return m_siteService.allowUpdateSite(ref.getContext());
+			return siteService().allowUpdateSite(ref.getContext());
 		}
 
 		return false;
@@ -214,12 +214,12 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 */
 	protected void addLiveProperties(ResourcePropertiesEdit props)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		props.addProperty(ResourceProperties.PROP_CREATOR, current);
 		props.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
 
-		String now = m_timeService.newTime().toString();
+		String now = timeService().newTime().toString();
 		props.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		props.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
 
@@ -230,58 +230,70 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	 */
 	protected void addLiveUpdateProperties(ResourcePropertiesEdit props)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		props.addProperty(ResourceProperties.PROP_MODIFIED_BY, current);
-		props.addProperty(ResourceProperties.PROP_MODIFIED_DATE, m_timeService.newTime().toString());
+		props.addProperty(ResourceProperties.PROP_MODIFIED_DATE, timeService().newTime().toString());
 
 	} // addLiveUpdateProperties
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: MemoryService. */
-	protected MemoryService m_memoryService = null;
+	/**
+	 * @return the MemoryService collaborator.
+	 */
+	protected abstract MemoryService memoryService();
 
 	/**
-	 * Dependency: MemoryService.
-	 * 
-	 * @param service
-	 *        The MemoryService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
+	protected abstract EntityManager entityManager();
 
 	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
+	protected abstract SecurityService securityService();
+
+	/**
+	 * @return the SessionManager collaborator.
+	 */
+	protected abstract SessionManager sessionManager();
+
+	/**
+	 * @return the SiteService collaborator.
+	 */
+	protected abstract SiteService siteService();
+
+	/**
+	 * @return the TimeService collaborator.
+	 */
+	protected abstract TimeService timeService();
+
+	/**
+	 * @return the FunctionManager collaborator.
+	 */
+	protected abstract FunctionManager functionManager();
+
+	/**
+	 * @return the EventTrackingService collaborator.
+	 */
+	protected abstract EventTrackingService eventTrackingService();
+
+	/**
+	 * @return the UserDirectoryService collaborator.
+	 */
+	protected abstract UserDirectoryService userDirectoryService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
@@ -311,98 +323,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		m_cacheCleanerSeconds = Integer.parseInt(time) * 60;
 	}
 
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
-
-	/**
-	 * Dependency: SecurityService.
-	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: the session manager. */
-	protected SessionManager m_sessionManager = null;
-
-	/**
-	 * Dependency - set the session manager.
-	 * 
-	 * @param manager
-	 *        The session manager.
-	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: SiteService. */
-	protected SiteService m_siteService = null;
-
-	/**
-	 * Dependency: SiteService.
-	 */
-	public void setSiteService(SiteService service)
-	{
-		m_siteService = service;
-	}
-
-	/** Dependency: m_timeService. */
-	protected TimeService m_timeService = null;
-
-	/**
-	 * Dependency: m_timeService.
-	 * 
-	 * @param service
-	 *        The m_timeService.
-	 */
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
-
-	/** Dependency: FunctionManager. */
-	protected FunctionManager m_functionManager = null;
-
-	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param manager
-	 *        The FunctionManager.
-	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
-
-	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
-	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
-
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -424,16 +344,16 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
 				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = m_memoryService.newHardCache(m_cacheCleanerSeconds, aliasReference(""));
+				m_callCache = memoryService().newHardCache(m_cacheCleanerSeconds, aliasReference(""));
 			}
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			m_functionManager.registerFunction(SECURE_ADD_ALIAS);
-			m_functionManager.registerFunction(SECURE_UPDATE_ALIAS);
-			m_functionManager.registerFunction(SECURE_REMOVE_ALIAS);
+			functionManager().registerFunction(SECURE_ADD_ALIAS);
+			functionManager().registerFunction(SECURE_UPDATE_ALIAS);
+			functionManager().registerFunction(SECURE_REMOVE_ALIAS);
 
 			M_log.info("init()" + " - caching minutes: " + m_cacheSeconds / 60 + " - cache cleaner minutes: "
 					+ m_cacheCleanerSeconds / 60);
@@ -496,7 +416,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 
 		if (!unlockTargetCheck(target))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_ADD_ALIAS, target);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), SECURE_ADD_ALIAS, target);
 		}
 
 		// attempt to register this alias with storage - if it's in use, this will return null
@@ -514,7 +434,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		m_storage.commit(a);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_ADD_ALIAS, aliasReference(alias), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_ADD_ALIAS, aliasReference(alias), true));
 
 	} // setAlias
 
@@ -575,7 +495,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	{
 		if (!unlockTargetCheck(target))
 		{
-			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_REMOVE_ALIAS, target);
+			throw new PermissionException(sessionManager().getCurrentSessionUserId(), SECURE_REMOVE_ALIAS, target);
 		}
 
 		List all = getAliases(target);
@@ -591,7 +511,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 					m_storage.remove(a);
 
 					// track it
-					m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_ALIAS, a.getReference(), true));
+					eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_ALIAS, a.getReference(), true));
 				}
 			}
 			catch (Exception ignore)
@@ -827,7 +747,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		m_storage.commit(edit);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(((BaseAliasEdit) edit).getEvent(), edit.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(((BaseAliasEdit) edit).getEvent(), edit.getReference(), true));
 
 		// close the edit object
 		((BaseAliasEdit) edit).closeEdit();
@@ -895,7 +815,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		m_storage.remove(edit);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_ALIAS, edit.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_ALIAS, edit.getReference(), true));
 
 		// close the edit object
 		((BaseAliasEdit) edit).closeEdit();
@@ -1172,13 +1092,13 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			String time = StringUtil.trimToNull(el.getAttribute("created-time"));
 			if (time != null)
 			{
-				m_createdTime = m_timeService.newTimeGmt(time);
+				m_createdTime = timeService().newTimeGmt(time);
 			}
 
 			time = StringUtil.trimToNull(el.getAttribute("modified-time"));
 			if (time != null)
 			{
-				m_lastModifiedTime = m_timeService.newTimeGmt(time);
+				m_lastModifiedTime = timeService().newTimeGmt(time);
 			}
 
 			// the children (properties)
@@ -1315,11 +1235,11 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		{
 			try
 			{
-				return m_userDirectoryService.getUser(m_createdUserId);
+				return userDirectoryService().getUser(m_createdUserId);
 			}
 			catch (Exception e)
 			{
-				return m_userDirectoryService.getAnonymousUser();
+				return userDirectoryService().getAnonymousUser();
 			}
 		}
 
@@ -1330,11 +1250,11 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		{
 			try
 			{
-				return m_userDirectoryService.getUser(m_lastModifiedUserId);
+				return userDirectoryService().getUser(m_lastModifiedUserId);
 			}
 			catch (Exception e)
 			{
-				return m_userDirectoryService.getAnonymousUser();
+				return userDirectoryService().getAnonymousUser();
 			}
 		}
 
@@ -1549,7 +1469,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			try
 			{
 				// the rest are references to some resource
-				Reference ref = m_entityManager.newReference(getTarget());
+				Reference ref = entityManager().newReference(getTarget());
 				return ref.getDescription();
 			}
 			catch (Throwable any)

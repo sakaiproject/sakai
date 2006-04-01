@@ -54,7 +54,7 @@ import org.w3c.dom.Element;
  * included.
  * </p>
  */
-public class DbAliasService extends BaseAliasService
+public abstract class DbAliasService extends BaseAliasService
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(DbAliasService.class);
@@ -89,22 +89,17 @@ public class DbAliasService extends BaseAliasService
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
-
 	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	protected abstract SqlService sqlService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: set the external locks value.
@@ -159,7 +154,7 @@ public class DbAliasService extends BaseAliasService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_alias");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_alias");
 			}
 
 			super.init();
@@ -220,7 +215,7 @@ public class DbAliasService extends BaseAliasService
 		 */
 		public DbStorage(StorageUser user)
 		{
-			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, m_sqlService);
+			super(m_tableName, m_idFieldName, m_fieldNames, m_propTableName, m_useExternalLocks, null, sqlService());
 			m_reader = this;
 			setCaseInsensitivity(true);
 
@@ -541,10 +536,10 @@ public class DbAliasService extends BaseAliasService
 
 			if (edit == null)
 			{
-				String current = m_sessionManager.getCurrentSessionUserId();
+				String current = sessionManager().getCurrentSessionUserId();
 				if (current == null) current = "";
 
-				Time now = m_timeService.newTime();
+				Time now = timeService().newTime();
 				rv[1] = "";
 				rv[2] = current;
 				rv[3] = current;
@@ -580,8 +575,8 @@ public class DbAliasService extends BaseAliasService
 				String target = result.getString(2);
 				String createdBy = result.getString(3);
 				String modifiedBy = result.getString(4);
-				Time createdOn = m_timeService.newTime(result.getTimestamp(5, m_sqlService.getCal()).getTime());
-				Time modifiedOn = m_timeService.newTime(result.getTimestamp(6, m_sqlService.getCal()).getTime());
+				Time createdOn = timeService().newTime(result.getTimestamp(5, sqlService().getCal()).getTime());
+				Time modifiedOn = timeService().newTime(result.getTimestamp(6, sqlService().getCal()).getTime());
 
 				// create the Resource from these fields
 				return new BaseAliasEdit(id, target, createdBy, createdOn, modifiedBy, modifiedOn);
@@ -607,7 +602,7 @@ public class DbAliasService extends BaseAliasService
 		 */
 		public DbStorageOld(StorageUser user)
 		{
-			super("CHEF_ALIAS", "ALIAS_ID", null, false, "alias", user, m_sqlService);
+			super("CHEF_ALIAS", "ALIAS_ID", null, false, "alias", user, sqlService());
 			setCaseInsensitivity(true);
 
 		} // DbStorage
@@ -793,13 +788,13 @@ public class DbAliasService extends BaseAliasService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService().borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all alias ids
 			String sql = "select ALIAS_ID, XML from CHEF_ALIAS";
-			m_sqlService.dbRead(connection, sql, null, new SqlReader()
+			sqlService().dbRead(connection, sql, null, new SqlReader()
 			{
 				private int count = 0;
 
@@ -837,7 +832,7 @@ public class DbAliasService extends BaseAliasService
 						String statement = "delete from CHEF_ALIAS where ALIAS_ID = ?";
 						fields = new Object[1];
 						fields[0] = id;
-						ok = m_sqlService.dbWrite(connection, statement, fields);
+						ok = sqlService().dbWrite(connection, statement, fields);
 						if (!ok)
 						{
 							M_log.warn("convertOld: failed to delete: " + id);
@@ -856,7 +851,7 @@ public class DbAliasService extends BaseAliasService
 
 			connection.commit();
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService().returnConnection(connection);
 		}
 		catch (Throwable t)
 		{

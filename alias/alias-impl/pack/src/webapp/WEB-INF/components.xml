@@ -8,19 +8,21 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
-		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
-		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
-		<property name="sessionManager"><ref bean="org.sakaiproject.webapp.api.SessionManager"/></property>
-		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
-		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
-		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-  		<property name="autoDdl"><value>${auto.ddl}</value></property>
- 		<property name="cacheMinutes"><value>5</value></property>
- 		<property name="cacheCleanerMinutes"><value>15</value></property>
+
+		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
+		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
+		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.webapp.api.SessionManager" />
+		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
+		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
+		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+		<property name="cacheMinutes"><value>5</value></property>
+		<property name="cacheCleanerMinutes"><value>15</value></property>
 	</bean>
 
 </beans>
