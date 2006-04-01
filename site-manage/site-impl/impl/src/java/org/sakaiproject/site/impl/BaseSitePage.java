@@ -570,11 +570,11 @@ public class BaseSitePage implements SitePage, Identifiable
 		String rv = null;
 		if (m_site == null)
 		{
-			rv = ((BaseSiteService) (SiteService.getInstance())).m_serverConfigurationService.getPortalUrl()
+			rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl()
 					+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_siteId, m_id);
 		}
 
-		rv = ((BaseSiteService) (SiteService.getInstance())).m_serverConfigurationService.getPortalUrl()
+		rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl()
 				+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_site.getId(), m_id);
 
 		return rv;
