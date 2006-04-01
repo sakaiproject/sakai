@@ -36,28 +36,19 @@ import org.sakaiproject.user.api.UserDirectoryService;
  * NoSecurity is an example implementation of the Sakai SecurityService.
  * </p>
  */
-public class NoSecurity implements SecurityService
+public abstract class NoSecurity implements SecurityService
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(NoSecurity.class);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: the user service. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
 	/**
-	 * Dependency - set the user service.
-	 * 
-	 * @param value
-	 *        The user service.
+	 * @return the UserDirectoryService collaborator.
 	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -94,7 +85,7 @@ public class NoSecurity implements SecurityService
 	{
 		if (user != null) return user;
 
-		return m_userDirectoryService.getCurrentUser();
+		return userDirectoryService().getCurrentUser();
 	}
 
 	/**

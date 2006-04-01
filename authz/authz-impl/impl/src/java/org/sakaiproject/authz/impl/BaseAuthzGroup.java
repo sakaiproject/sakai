@@ -494,7 +494,7 @@ public class BaseAuthzGroup implements AuthzGroup
 		// the rest are references to some resource
 		try
 		{
-			Reference ref = ((BaseAuthzGroupService) (AuthzGroupService.getInstance())).m_entityManager.newReference(getId());
+			Reference ref = ((BaseAuthzGroupService) (AuthzGroupService.getInstance())).entityManager().newReference(getId());
 			return ref.getDescription();
 		}
 		catch (Throwable ignore)

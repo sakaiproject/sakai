@@ -45,7 +45,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  * SakaiSecurity is a Sakai security service.
  * </p>
  */
-public class SakaiSecurity implements SecurityService
+public abstract class SakaiSecurity implements SecurityService
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SakaiSecurity.class);
@@ -60,75 +60,34 @@ public class SakaiSecurity implements SecurityService
 	 * Dependencies, configuration, and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: the current manager. */
-	protected ThreadLocalManager m_threadLocalManager = null;
+	/**
+	 * @return the ThreadLocalManager collaborator.
+	 */
+	protected abstract ThreadLocalManager threadLocalManager();
 
 	/**
-	 * Dependency - set the current manager.
-	 * 
-	 * @param value
-	 *        The current manager.
+	 * @return the AuthzGroupService collaborator.
 	 */
-	public void setThreadLocalManager(ThreadLocalManager manager)
-	{
-		m_threadLocalManager = manager;
-	}
-
-	/** Dependency: the authzGroup service. */
-	protected AuthzGroupService m_authzGroupService = null;
+	protected abstract AuthzGroupService authzGroupService();
 
 	/**
-	 * Dependency - set the authzGroup service.
-	 * 
-	 * @param value
-	 *        The authzGroup service.
+	 * @return the UserDirectoryService collaborator.
 	 */
-	public void setAuthzGroupService(AuthzGroupService service)
-	{
-		m_authzGroupService = service;
-	}
-
-	/** Dependency: the user service. */
-	protected UserDirectoryService m_userDirectoryService = null;
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**
-	 * Dependency - set the user service.
-	 * 
-	 * @param value
-	 *        The user service.
+	 * @return the MemoryService collaborator.
 	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
-
-	/** Dependency: the memory service. */
-	protected MemoryService m_memoryService = null;
+	protected abstract MemoryService memoryService();
 
 	/**
-	 * Dependency - set the memory service.
-	 * 
-	 * @param value
-	 *        The memory service.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setMemoryService(MemoryService service)
-	{
-		m_memoryService = service;
-	}
+	protected abstract EntityManager entityManager();
 
-	/** Dependency: the entity manager. */
-	protected EntityManager m_entityManager = null;
-
-	/**
-	 * Dependency - set the entity managere.
-	 * 
-	 * @param value
-	 *        The entity manager.
-	 */
-	public void setEntityManager(EntityManager manager)
-	{
-		m_entityManager = manager;
-	}
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** The # minutes to cache the security answers. 0 disables the cache. */
 	protected int m_cacheMinutes = 3;
@@ -157,7 +116,7 @@ public class SakaiSecurity implements SecurityService
 		if (m_cacheMinutes > 0)
 		{
 			// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins.
-			m_callCache = m_memoryService.newMultiRefCache(15 * 60);
+			m_callCache = memoryService().newMultiRefCache(15 * 60);
 		}
 
 		M_log.info("init() - caching minutes: " + m_cacheMinutes);
@@ -180,7 +139,7 @@ public class SakaiSecurity implements SecurityService
 	 */
 	public boolean isSuperUser()
 	{
-		return isSuperUser(m_userDirectoryService.getCurrentUser());
+		return isSuperUser(userDirectoryService().getCurrentUser());
 	}
 
 	/**
@@ -218,7 +177,7 @@ public class SakaiSecurity implements SecurityService
 		else
 		{
 			// TODO: stolen from site -ggolden
-			if (m_authzGroupService.isAllowed(user.getId(), "site.upd", "/site/!admin"))
+			if (authzGroupService().isAllowed(user.getId(), "site.upd", "/site/!admin"))
 			{
 				rv = true;
 			}
@@ -252,7 +211,7 @@ public class SakaiSecurity implements SecurityService
 		User user = u;
 		if (user == null)
 		{
-			user = m_userDirectoryService.getCurrentUser();
+			user = userDirectoryService().getCurrentUser();
 		}
 
 		// make sure we have complete parameters
@@ -305,11 +264,11 @@ public class SakaiSecurity implements SecurityService
 		}
 
 		// make a reference for the entity
-		Reference ref = m_entityManager.newReference(entityRef);
+		Reference ref = entityManager().newReference(entityRef);
 
 		// get this entity's AuthzGroups
 		Collection azgs = ref.getRealms();
-		boolean rv = m_authzGroupService.isAllowed(userId, function, azgs);
+		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
 		// cache
 		if (m_callCache != null) m_callCache.put(command, Boolean.valueOf(rv), m_cacheMinutes * 60, entityRef, azgs);
@@ -335,17 +294,17 @@ public class SakaiSecurity implements SecurityService
 		}
 
 		// make a reference for the resource
-		Reference ref = m_entityManager.newReference(reference);
+		Reference ref = entityManager().newReference(reference);
 
 		// get this resource's Realms
 		Collection realms = ref.getRealms();
 
 		// get the users who can unlock in these realms
 		List ids = new Vector();
-		ids.addAll(m_authzGroupService.getUsersIsAllowed(lock, realms));
+		ids.addAll(authzGroupService().getUsersIsAllowed(lock, realms));
 
 		// convert the set of Users into a sorted list of users
-		List users = m_userDirectoryService.getUsers(ids);
+		List users = userDirectoryService().getUsers(ids);
 		Collections.sort(users);
 
 		return users;
@@ -363,11 +322,11 @@ public class SakaiSecurity implements SecurityService
 	 */
 	protected Stack getAdvisorStack(boolean force)
 	{
-		Stack advisors = (Stack) m_threadLocalManager.get(ADVISOR_STACK);
+		Stack advisors = (Stack) threadLocalManager().get(ADVISOR_STACK);
 		if ((advisors == null) && force)
 		{
 			advisors = new Stack();
-			m_threadLocalManager.set(ADVISOR_STACK, advisors);
+			threadLocalManager().set(ADVISOR_STACK, advisors);
 		}
 
 		return advisors;
@@ -378,7 +337,7 @@ public class SakaiSecurity implements SecurityService
 	 */
 	protected void dropAdvisorStack()
 	{
-		m_threadLocalManager.set(ADVISOR_STACK, null);
+		threadLocalManager().set(ADVISOR_STACK, null);
 	}
 
 	/**

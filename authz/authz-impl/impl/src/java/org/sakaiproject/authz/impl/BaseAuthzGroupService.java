@@ -102,7 +102,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	protected String getAccessPoint(boolean relative)
 	{
-		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
 
 	/**
@@ -132,7 +132,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!m_securityService.unlock(lock, resource))
+		if (!securityService().unlock(lock, resource))
 		{
 			return false;
 		}
@@ -154,7 +154,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new AuthzPermissionException(m_sessionManager.getCurrentSessionUserId(), lock, resource);
+			throw new AuthzPermissionException(sessionManager().getCurrentSessionUserId(), lock, resource);
 		}
 	}
 
@@ -163,12 +163,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	protected void addLiveProperties(BaseAuthzGroup azGroup)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		azGroup.m_createdUserId = current;
 		azGroup.m_lastModifiedUserId = current;
 
-		Time now = m_timeService.newTime();
+		Time now = timeService().newTime();
 		azGroup.m_createdTime = now;
 		azGroup.m_lastModifiedTime = (Time) now.clone();
 	}
@@ -178,14 +178,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	protected void addLiveUpdateProperties(BaseAuthzGroup azGroup)
 	{
-		String current = m_sessionManager.getCurrentSessionUserId();
+		String current = sessionManager().getCurrentSessionUserId();
 
 		azGroup.m_lastModifiedUserId = current;
-		azGroup.m_lastModifiedTime = m_timeService.newTime();
+		azGroup.m_lastModifiedTime = timeService().newTime();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies and their setter methods
+	 * Provider configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
@@ -199,103 +199,44 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		m_provider = provider;
 	}
 
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Dependency: ServerConfigurationService.
-	 * 
-	 * @param service
-	 *        The ServerConfigurationService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setServerConfigurationService(ServerConfigurationService service)
-	{
-		m_serverConfigurationService = service;
-	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
+	protected abstract ServerConfigurationService serverConfigurationService();
 
 	/**
-	 * Dependency: EntityManager.
-	 * 
-	 * @param service
-	 *        The EntityManager.
+	 * @return the EntityManager collaborator.
 	 */
-	public void setEntityManager(EntityManager service)
-	{
-		m_entityManager = service;
-	}
-
-	/** Dependency: FunctionManager. */
-	protected FunctionManager m_functionManager = null;
+	protected abstract EntityManager entityManager();
 
 	/**
-	 * Dependency: FunctionManager.
-	 * 
-	 * @param manager
-	 *        The FunctionManager.
+	 * @return the FunctionManager collaborator.
 	 */
-	public void setFunctionManager(FunctionManager manager)
-	{
-		m_functionManager = manager;
-	}
-
-	/** Dependency: SecurityService. */
-	protected SecurityService m_securityService = null;
+	protected abstract FunctionManager functionManager();
 
 	/**
-	 * Dependency: SecurityService.
-	 * 
-	 * @param service
-	 *        The SecurityService.
+	 * @return the SecurityService collaborator.
 	 */
-	public void setSecurityService(SecurityService service)
-	{
-		m_securityService = service;
-	}
-
-	/** Dependency: TimeService. */
-	protected TimeService m_timeService = null;
+	protected abstract SecurityService securityService();
 
 	/**
-	 * Dependency: TimeService.
-	 * 
-	 * @param service
-	 *        The TimeService.
+	 * @return the TimeService collaborator.
 	 */
-	public void setTimeService(TimeService service)
-	{
-		m_timeService = service;
-	}
-
-	/** Dependency: SessionManager. */
-	protected SessionManager m_sessionManager = null;
+	protected abstract TimeService timeService();
 
 	/**
-	 * Dependency: SessionManager.
-	 * 
-	 * @param manager
-	 *        The SessionManager.
+	 * @return the SessionManager collaborator.
 	 */
-	public void setSessionManager(SessionManager manager)
-	{
-		m_sessionManager = manager;
-	}
-
-	/** Dependency: EventTrackingService. */
-	protected EventTrackingService m_eventTrackingService = null;
+	protected abstract SessionManager sessionManager();
 
 	/**
-	 * Dependency: EventTrackingService.
-	 * 
-	 * @param service
-	 *        The EventTrackingService.
+	 * @return the EventTrackingService collaborator.
 	 */
-	public void setEventTrackingService(EventTrackingService service)
-	{
-		m_eventTrackingService = service;
-	}
+	protected abstract EventTrackingService eventTrackingService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -315,13 +256,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			m_storage.open();
 
 			// register as an entity producer
-			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
+			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
 			// register functions
-			m_functionManager.registerFunction(SECURE_ADD_AUTHZ_GROUP);
-			m_functionManager.registerFunction(SECURE_REMOVE_AUTHZ_GROUP);
-			m_functionManager.registerFunction(SECURE_UPDATE_AUTHZ_GROUP);
-			m_functionManager.registerFunction(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+			functionManager().registerFunction(SECURE_ADD_AUTHZ_GROUP);
+			functionManager().registerFunction(SECURE_REMOVE_AUTHZ_GROUP);
+			functionManager().registerFunction(SECURE_UPDATE_AUTHZ_GROUP);
+			functionManager().registerFunction(SECURE_UPDATE_OWN_AUTHZ_GROUP);
 
 			// if no provider was set, see if we can find one
 			if (m_provider == null)
@@ -392,7 +333,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public void joinGroup(String authzGroupId, String roleId) throws GroupNotDefinedException, AuthzPermissionException
 	{
-		String user = m_sessionManager.getCurrentSessionUserId();
+		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 
 		// check security (throws if not permitted)
@@ -437,7 +378,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public void unjoinGroup(String authzGroupId) throws GroupNotDefinedException, AuthzPermissionException
 	{
-		String user = m_sessionManager.getCurrentSessionUserId();
+		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 
 		// check security (throws if not permitted)
@@ -489,7 +430,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public boolean allowJoinGroup(String authzGroupId)
 	{
-		String user = m_sessionManager.getCurrentSessionUserId();
+		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) return false;
 
 		// check security (throws if not permitted)
@@ -501,7 +442,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public boolean allowUnjoinGroup(String authzGroupId)
 	{
-		String user = m_sessionManager.getCurrentSessionUserId();
+		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null)
 		{
 			return false;
@@ -558,7 +499,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		if (azGroup.getId() == null) throw new GroupNotDefinedException("<null>");
 
-		Reference ref = m_entityManager.newReference(azGroup.getId());
+		Reference ref = entityManager().newReference(azGroup.getId());
 		if (!SiteService.allowUpdateSiteMembership(ref.getId()))
 		{
 			// check security (throws if not permitted)
@@ -604,7 +545,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		// track it
 		String event = ((BaseAuthzGroup) azGroup).getEvent();
 		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(event, azGroup.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -727,7 +668,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		m_storage.remove(azGroup);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -757,7 +698,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		m_storage.remove(azGroup);
 
 		// track it
-		m_eventTrackingService.post(m_eventTrackingService.newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
+		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
@@ -851,7 +792,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		for (Iterator i = updAuthzGroups.iterator(); i.hasNext();)
 		{
 			String azGroupId = (String) i.next();
-			Reference ref = m_entityManager.newReference(azGroupId);
+			Reference ref = entityManager().newReference(azGroupId);
 			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
@@ -863,7 +804,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		for (Iterator i = unpAuthzGroups.iterator(); i.hasNext();)
 		{
 			String azGroupId = (String) i.next();
-			Reference ref = m_entityManager.newReference(azGroupId);
+			Reference ref = entityManager().newReference(azGroupId);
 			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
@@ -875,7 +816,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		for (Iterator i = visitAuthzGroups.iterator(); i.hasNext();)
 		{
 			String azGroupId = (String) i.next();
-			Reference ref = m_entityManager.newReference(azGroupId);
+			Reference ref = entityManager().newReference(azGroupId);
 			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
@@ -895,7 +836,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	protected void updateSiteSecurity(AuthzGroup azGroup)
 	{
 		// Special code for the site service
-		Reference ref = m_entityManager.newReference(azGroup.getId());
+		Reference ref = entityManager().newReference(azGroup.getId());
 		if (SiteService.SERVICE_NAME.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
 		{
 			// collect the users
@@ -916,7 +857,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	protected void removeSiteSecurity(AuthzGroup azGroup)
 	{
 		// Special code for the site service
-		Reference ref = m_entityManager.newReference(azGroup.getId());
+		Reference ref = entityManager().newReference(azGroup.getId());
 		if (ref.getType().equals(SiteService.SERVICE_NAME))
 		{
 			// no azGroup, no users
@@ -1020,10 +961,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		if ((ref.getId() != null) && (ref.getId().length() > 0) && (!ref.getId().startsWith("!")))
 		{
 			// add the current user's azGroup (for what azGroup stuff everyone can do, i.e. add)
-			ref.addUserAuthzGroup(rv, m_sessionManager.getCurrentSessionUserId());
+			ref.addUserAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
 
 			// make a new reference on the azGroup's id
-			Reference refnew = m_entityManager.newReference(ref.getId());
+			Reference refnew = entityManager().newReference(ref.getId());
 			rv.addAll(refnew.getRealms());
 		}
 

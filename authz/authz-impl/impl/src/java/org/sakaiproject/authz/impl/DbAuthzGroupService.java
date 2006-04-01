@@ -55,7 +55,7 @@ import org.w3c.dom.Element;
  * DbAuthzGroupService is an extension of the BaseAuthzGroupService with database storage.
  * </p>
  */
-public class DbAuthzGroupService extends BaseAuthzGroupService
+public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbAuthzGroupService.class);
@@ -97,36 +97,22 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			"?", "?", "?", "?" };
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
+	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
+	/**
+	 * @return the ServerConfigurationService collaborator.
+	 */
+	protected abstract SqlService sqlService();
 
 	/**
-	 * Dependency: SqlService.
-	 * 
-	 * @param service
-	 *        The SqlService.
+	 * @return the ServerConfigurationService collaborator.
 	 */
-	public void setSqlService(SqlService service)
-	{
-		m_sqlService = service;
-	}
+	protected abstract UserDirectoryService userDirectoryService();
 
-	/** Dependency: UserDirectoryService. */
-	protected UserDirectoryService m_userDirectoryService = null;
-
-	/**
-	 * Dependency: UserDirectoryService.
-	 * 
-	 * @param service
-	 *        The UserDirectoryService.
-	 */
-	public void setUserDirectoryService(UserDirectoryService service)
-	{
-		m_userDirectoryService = service;
-	}
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Set if we are to run the from-old conversion. */
 	protected boolean m_convertOld = false;
@@ -184,7 +170,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_realm");
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
 			}
 
 			super.init();
@@ -242,7 +228,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
-		List results = m_sqlService.dbRead(statement, fields, new SqlReader()
+		List results = sqlService().dbRead(statement, fields, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
 			{
@@ -267,11 +253,11 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		// write if we didn't find it
 		if (!rv)
 		{
-			if ("oracle".equals(m_sqlService.getVendor()))
+			if ("oracle".equals(sqlService().getVendor()))
 			{
 				statement = "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (SAKAI_REALM_ROLE_SEQ.NEXTVAL, ?)";
 			}
-			else if ("mysql".equals(m_sqlService.getVendor()))
+			else if ("mysql".equals(sqlService().getVendor()))
 			{
 				statement = "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (DEFAULT, ?)";
 			}
@@ -282,7 +268,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this role name
-			m_sqlService.dbWriteFailQuiet(null, statement, fields);
+			sqlService().dbWriteFailQuiet(null, statement, fields);
 		}
 
 		synchronized (m_roleNameCache)
@@ -299,7 +285,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		synchronized (m_roleNameCache)
 		{
 			String statement = "select ROLE_NAME from SAKAI_REALM_ROLE";
-			List results = m_sqlService.dbRead(statement, null, new SqlReader()
+			List results = sqlService().dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -337,7 +323,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
-		List results = m_sqlService.dbRead(statement, fields, new SqlReader()
+		List results = sqlService().dbRead(statement, fields, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
 			{
@@ -362,11 +348,11 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		// write if we didn't find it
 		if (!rv)
 		{
-			if ("oracle".equals(m_sqlService.getVendor()))
+			if ("oracle".equals(sqlService().getVendor()))
 			{
 				statement = "insert into SAKAI_REALM_FUNCTION (FUNCTION_KEY, FUNCTION_NAME) values (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, ?)";
 			}
-			else if ("mysql".equals(m_sqlService.getVendor()))
+			else if ("mysql".equals(sqlService().getVendor()))
 			{
 				statement = "insert into SAKAI_REALM_FUNCTION (FUNCTION_KEY, FUNCTION_NAME) values (DEFAULT, ?)";
 			}
@@ -377,7 +363,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this function
-			m_sqlService.dbWriteFailQuiet(null, statement, fields);
+			sqlService().dbWriteFailQuiet(null, statement, fields);
 		}
 
 		// cache the existance of the function name
@@ -395,7 +381,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		synchronized (m_functionCache)
 		{
 			String statement = "select FUNCTION_NAME from SAKAI_REALM_FUNCTION";
-			List results = m_sqlService.dbRead(statement, null, new SqlReader()
+			List results = sqlService().dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -429,7 +415,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		public DbStorage()
 		{
 			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null,
-					m_sqlService);
+					sqlService());
 			m_reader = this;
 
 			setDbidField(m_realmDbidField);
@@ -504,7 +490,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// read the roles and role functions
 			String sql = null;
-			if ("mysql".equals(m_sqlService.getVendor()))
+			if ("mysql".equals(sqlService().getVendor()))
 			{
 				sql = "SELECT SAKAI_REALM_ROLE.ROLE_NAME, SAKAI_REALM_FUNCTION.FUNCTION_NAME FROM SAKAI_REALM_ROLE, "
 						+ " SAKAI_REALM_FUNCTION,SAKAI_REALM_RL_FN,SAKAI_REALM WHERE SAKAI_REALM.REALM_ID = ? AND "
@@ -729,7 +715,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			// Note: consider over all realms just those realms where there's a grant of a role that satisfies the lock
 			// Ignore realms where anon or auth satisfy the lock.
 
-			boolean auth = (userId != null) && (!m_userDirectoryService.getAnonymousUser().getId().equals(userId));
+			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 			String sql = "";
 			StringBuffer sqlBuf = null;
 
@@ -1061,12 +1047,12 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 
 			if (edit == null)
 			{
-				String current = m_sessionManager.getCurrentSessionUserId();
+				String current = sessionManager().getCurrentSessionUserId();
 
 				// if no current user, since we are working up a new user record, use the user id as creator...
 				if (current == null) current = "";
 
-				Time now = m_timeService.newTime();
+				Time now = timeService().newTime();
 
 				rv[1] = "";
 				rv[2] = "";
@@ -1105,17 +1091,17 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 				String maintainRole = result.getString(3);
 				String createdBy = result.getString(4);
 				String modifiedBy = result.getString(5);
-				java.sql.Timestamp ts = result.getTimestamp(6, m_sqlService.getCal());
+				java.sql.Timestamp ts = result.getTimestamp(6, sqlService().getCal());
 				Time createdOn = null;
 				if (ts != null)
 				{
-					createdOn = m_timeService.newTime(ts.getTime());
+					createdOn = timeService().newTime(ts.getTime());
 				}
-				ts = result.getTimestamp(7, m_sqlService.getCal());
+				ts = result.getTimestamp(7, sqlService().getCal());
 				Time modifiedOn = null;
 				if (ts != null)
 				{
-					modifiedOn = m_timeService.newTime(ts.getTime());
+					modifiedOn = timeService().newTime(ts.getTime());
 				}
 
 				// the special local integer 'db' id field, read after the field list
@@ -1137,7 +1123,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		public boolean isAllowed(String userId, String lock, String realmId)
 		{
 			// does the user have any roles granted that include this lock, based on grants or anon/auth?
-			boolean auth = (userId != null) && (!m_userDirectoryService.getAnonymousUser().getId().equals(userId));
+			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			// String statement = "select count(1) from SAKAI_REALM_RL_FN " +
 			// "where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?) " +
@@ -1241,7 +1227,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public boolean isAllowed(String userId, String lock, Collection realms)
 		{
-			boolean auth = (userId != null) && (!m_userDirectoryService.getAnonymousUser().getId().equals(userId));
+			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			// TODO: pre-compute some fields arrays and statements for common roleRealms sizes for efficiency? -ggolden
 
@@ -1263,7 +1249,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			String statement = null;
 
 			// any of the grant or role realms
-			if ("mysql".equals(m_sqlService.getVendor()))
+			if ("mysql".equals(sqlService().getVendor()))
 			{
 				statement = "select count(1) from SAKAI_REALM_RL_FN,SAKAI_REALM force index "
 						+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY "
@@ -1427,7 +1413,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf = new StringBuffer();
 			sqlBuf.append("select SRRG.USER_ID ");
 			sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
-			if ("mysql".equals(m_sqlService.getVendor()))
+			if ("mysql".equals(sqlService().getVendor()))
 			{
 				sqlBuf.append("inner join SAKAI_REALM SR force index (AK_SAKAI_REALM_ID) ON SRRG.REALM_KEY = SR.REALM_KEY ");
 			}
@@ -1442,7 +1428,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf.append("(select SRRF.ROLE_KEY ");
 			sqlBuf.append("from SAKAI_REALM_RL_FN SRRF ");
 			sqlBuf.append("inner join SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");
-			if ("mysql".equals(m_sqlService.getVendor()))
+			if ("mysql".equals(sqlService().getVendor()))
 			{
 				sqlBuf.append("inner join SAKAI_REALM SR1 force index (AK_SAKAI_REALM_ID) ON SRRF.REALM_KEY = SR1.REALM_KEY ");
 			}
@@ -2069,14 +2055,14 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 		try
 		{
 			// get a connection
-			final Connection connection = m_sqlService.borrowConnection();
+			final Connection connection = sqlService().borrowConnection();
 			boolean wasCommit = connection.getAutoCommit();
 			connection.setAutoCommit(false);
 
 			// read all realms we don't already have
 			// TODO: check last modified date, too
 			String sql = "select REALM_ID, XML from CHEF_REALM where REALM_ID not in (select REALM_ID from SAKAI_REALM)";
-			List realms = m_sqlService.dbRead(sql, null, new SqlReader()
+			List realms = sqlService().dbRead(sql, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
 				{
@@ -2159,7 +2145,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 				String role = (String) i.next();
 				fields[0] = role;
 
-				List results = m_sqlService.dbRead(connection, statement, fields, new SqlReader()
+				List results = sqlService().dbRead(connection, statement, fields, new SqlReader()
 				{
 					public Object readSqlResultRecord(ResultSet result)
 					{
@@ -2193,7 +2179,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 				String function = (String) i.next();
 				fields[0] = function;
 
-				List results = m_sqlService.dbRead(connection, statement, fields, new SqlReader()
+				List results = sqlService().dbRead(connection, statement, fields, new SqlReader()
 				{
 					public Object readSqlResultRecord(ResultSet result)
 					{
@@ -2227,18 +2213,18 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			Object[] fields2 = new Object[2];
 			String sqlSequenceNextVal;
 			String sqlSequenceCurrVal;
-			if ("oracle".equals(m_sqlService.getVendor()))
+			if ("oracle".equals(sqlService().getVendor()))
 			{
 				sqlSequenceNextVal = "SAKAI_REALM_SEQ.NEXTVAL";
 				sqlSequenceCurrVal = "SAKAI_REALM_SEQ.CURRVAL";
 			}
-			else if ("mysql".equals(m_sqlService.getVendor()))
+			else if ("mysql".equals(sqlService().getVendor()))
 			{
 				sqlSequenceNextVal = "DEFAULT";
 				sqlSequenceCurrVal = "LAST_INSERT_ID()";
 			}
 			else
-			// if ("hsqldb".equals(m_sqlService.getVendor()))
+			// if ("hsqldb".equals(sqlService().getVendor()))
 			{
 				sqlSequenceNextVal = "NEXT VALUE FOR SAKAI_REALM_SEQ";
 				sqlSequenceCurrVal = "(SELECT START_WITH - 1 FROM SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SAKAI_REALM_SEQ')";
@@ -2268,7 +2254,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 				fields7[4] = StringUtil.trimToZero(realm.m_lastModifiedUserId);
 				fields7[5] = realm.getCreatedTime();
 				fields7[6] = realm.getModifiedTime();
-				m_sqlService.dbWrite(connection, statement1, fields7);
+				sqlService().dbWrite(connection, statement1, fields7);
 
 				// 2.wite the realm properties
 				for (Iterator iProps = realm.getProperties().getPropertyNames(); iProps.hasNext();)
@@ -2278,7 +2264,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 
 					fields2[0] = name;
 					fields2[1] = value;
-					m_sqlService.dbWrite(connection, statement2, fields2);
+					sqlService().dbWrite(connection, statement2, fields2);
 				}
 
 				// 3. write the realm role definitions
@@ -2291,14 +2277,14 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 					{
 						String function = (String) iFunctions.next();
 						fields2[1] = functionMap.get(function);
-						m_sqlService.dbWrite(connection, statement3, fields2);
+						sqlService().dbWrite(connection, statement3, fields2);
 					}
 
 					// and the description
 					if (role.getDescription() != null)
 					{
 						fields2[1] = role.getDescription();
-						m_sqlService.dbWrite(connection, statement4, fields2);
+						sqlService().dbWrite(connection, statement4, fields2);
 					}
 				}
 
@@ -2313,7 +2299,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 					fields4[1] = roleMap.get(grant.role.getId());
 					fields4[2] = (grant.active ? "1" : "0");
 					fields4[3] = (grant.provided ? "1" : "0");
-					m_sqlService.dbWrite(connection, statement5, fields4);
+					sqlService().dbWrite(connection, statement5, fields4);
 				}
 
 				// 6. write the realm providers
@@ -2323,7 +2309,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 					for (int i = 0; i < ids.length; i++)
 					{
 						fields[0] = ids[i];
-						m_sqlService.dbWrite(connection, statement6, fields);
+						sqlService().dbWrite(connection, statement6, fields);
 					}
 				}
 
@@ -2336,7 +2322,7 @@ public class DbAuthzGroupService extends BaseAuthzGroupService
 			M_log.info("convertOld: done realms: " + count);
 
 			connection.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(connection);
+			sqlService().returnConnection(connection);
 		}
 		catch (Throwable t)
 		{
