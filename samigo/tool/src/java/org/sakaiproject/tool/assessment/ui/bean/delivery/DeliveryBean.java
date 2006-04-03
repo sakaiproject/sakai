@@ -491,7 +491,8 @@ public class DeliveryBean
   public void setTimeElapse(String timeElapse)
   {
     try{
-      if (timeElapse!=null && !("").equals(timeElapse)){
+      if (timeElapse!=null && !("").equals(timeElapse)
+          && getTimeLimit()!=null && !("").equals(getTimeLimit())){
         float limit = (new Float(getTimeLimit())).floatValue();
         float elapsed = (new Float(timeElapse)).floatValue();
         if (limit > elapsed)

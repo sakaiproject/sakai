@@ -53,6 +53,10 @@
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
 
+
+<!-- JAVASCRIPT -->
+<%@ include file="/js/delivery.js" %>
+
 <script language="javascript">
 function checkRadio()
 {
@@ -90,11 +94,13 @@ function saveTime()
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<!-- HEADING -->
 
+<!-- HEADING -->
 <f:subview id="assessmentDeliveryHeading">
 <%@ include file="/jsf/delivery/assessmentDeliveryHeading.jsp" %>
 </f:subview>
+
+
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 <h:messages styleClass="validation"/>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
@@ -182,39 +188,34 @@ function saveTime()
   </h:dataTable>
 
 <p class="act">
-
-  <h:commandButton id="saveAndContinue" accesskey="#{msg.a_saveAndContinue}" type="submit" value="#{msg.save_and_continue}"
+  <%-- NEXT --%>
+  <h:commandButton id="next" accesskey="#{msg.a_saveAndContinue}" type="submit" value="#{msg.save_and_continue}"
     action="#{delivery.next_page}" styleClass="active"
     rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment' 
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.continue}"/>
+              && delivery.continue}"
+    onclick="disableNext()" />
 
+  <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitforGrade" accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
-    action="#{delivery.submitForGrade}" styleClass="active"
+    action="#{delivery.submitForGrade}" styleClass="active" 
     rendered="#{delivery.actionString=='takeAssessment'
              && delivery.navigation ne '1' 
-             && !delivery.continue}"/>
+             && !delivery.continue}"
+    onclick="disableSubmitForGrade()" />
 
-<!--
- <h:commandButton accesskey="#{msg.a_saveAndContinue}" type="submit" value="#{msg.save_and_continue}"
-    action="tableOfContents" styleClass="active"
-    rendered="#{(delivery.actionString=='previewAssessment'
-                 || delivery.actionString=='takeAssessment'
-                 || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.navigation ne '1' && !delivery.continue}">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
- </h:commandButton>
--->
+  <%-- PREVIOUS --%>
   <h:commandButton id="previous" accesskey="#{msg.a_prev}" type="submit" value="#{msg.previous}"
     action="#{delivery.previous}"
     rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.navigation ne '1' && delivery.previous}" />
+              && delivery.navigation ne '1' && delivery.previous}" 
+    onclick="disablePrevious()" />
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
-
+  <%-- SUBMIT FOR GRADE --%>
   <h:panelGroup rendered="#{delivery.actionString=='takeAssessmentViaUrl' 
                         || (authorization!=null && authorization.takeAssessment 
                             && authorization.submitAssessmentForGrade)}">
@@ -224,67 +225,36 @@ function saveTime()
                    || delivery.actionString=='takeAssessmentViaUrl')
                 && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
-      onclick="pauseTiming='false'"/>
+      onclick="pauseTiming='false'; disableSubmit()"/>
   </h:panelGroup>
 
-<script language="javascript" style="text/JavaScript">
-<!--
-var submitClicked = 'false';
-var saveClicked = 'false';
-var saveClicked2 = 'false';
-
-function toggleSubmit(){
-  if (submitClicked == 'false'){
-    submitClicked = 'true'
-  }
-  else{ // any subsequent click disable button & action
-    document.forms[0].elements['takeAssessmentForm:submitForm2'].disabled=true;
-  }
-}
-
-function toggleSave(){
-  if (saveClicked == 'false'){
-    saveClicked = 'true'
-  }
-  else{ // any subsequent click disable button & action
-    document.forms[0].elements['takeAssessmentForm:saveAndExit'].disabled=true;
-  }
-}
-
-function toggleSave2(){
-  if (saveClicked2 == 'false'){
-    saveClicked2 = 'true'
-  }
-  else{ // any subsequent click disable button & action
-    document.forms[0].elements['takeAssessmentForm:saveAndExit2'].disabled=true;
-  }
-}
-//-->
-</script>
-
+  <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; toggleSubmit();"/>
+    onclick="pauseTiming='false'; disableSubmit2();"/>
 
+  <%-- SAVE AND EXIT --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && delivery.continue}"  
-    onclick="pauseTiming='false'; toggleSave();" 
+    onclick="pauseTiming='false'; disableSave();" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
+  <%-- SAVE AND EXIT DURING PAU --%>
   <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl')}"
-    onclick="pauseTiming='false'" /> 
+    onclick="pauseTiming='false'; disableQuit()" /> 
 
-<h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
+  <%-- SAVE AND EXIT --%>
+  <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && (delivery.navigation eq '1'|| ! delivery.continue)}"
-    onclick="toggleSave2();"
+    onclick="disableSave2();"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 
 </p>
