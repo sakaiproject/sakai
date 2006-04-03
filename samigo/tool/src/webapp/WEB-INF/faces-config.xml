@@ -102,7 +102,7 @@
     </managed-property>
     <managed-property>
       <property-name>showAudio</property-name>
-      <value>true</value>
+      <value>false</value>
     </managed-property>
     <managed-property>
       <property-name>showMatching</property-name>
