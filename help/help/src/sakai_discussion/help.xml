@@ -4,7 +4,7 @@
 <beans>
    <bean id="discussionOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardo</value></property>
-      <property name="name"><value>discussions Overview</value></property>
+      <property name="name"><value>Discussion Overview</value></property>
       <property name="location"><value>/sakai_discussion/ardo.html</value></property>
       <property name="defaultForTool"><value>sakai.discussion</value></property>      
    </bean>
