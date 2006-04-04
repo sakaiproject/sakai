@@ -33,6 +33,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
@@ -855,6 +856,10 @@ public class MemCache implements Cache, Runnable, Observer
 	 */
 	public void run()
 	{
+		// since we might be running while the component manager is still being created and populated, such as at server
+		// startup, wait here for a complete component manager
+		ComponentManager.getInstance();
+
 		// loop till told to stop
 		while ((!m_threadStop) && (!Thread.currentThread().isInterrupted()))
 		{
