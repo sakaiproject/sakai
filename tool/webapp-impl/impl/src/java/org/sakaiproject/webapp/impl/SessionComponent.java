@@ -34,6 +34,7 @@ import javax.servlet.http.HttpSessionContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.IteratorEnumeration;
@@ -1113,6 +1114,10 @@ public abstract class SessionComponent implements SessionManager
 		 */
 		public void run()
 		{
+			// since we might be running while the component manager is still being created and populated, such as at server
+			// startup, wait here for a complete component manager
+			ComponentManager.getInstance();
+
 			while (!m_maintenanceCheckerStop)
 			{
 				try
