@@ -53,7 +53,7 @@
    
    <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arei</value></property>
-      <property name="name"><value>Change My Workspace Inforamtion Appearance</value></property>
+      <property name="name"><value>Change My Workspace Information Appearance</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arei.html</value></property>
    </bean>
    
