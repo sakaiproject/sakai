@@ -408,6 +408,12 @@ public class DiscussionTopicBean
     return uiPermissionsManager.isPostToGradebook(topic,
         (DiscussionForum) topic.getBaseForum());
   }
+  
+  public boolean getIsPostToGradebook()
+  {
+    LOG.debug("getIsPostToGradebook()");
+    return isPostToGradebook();
+  }
 
   /**
    * @return
