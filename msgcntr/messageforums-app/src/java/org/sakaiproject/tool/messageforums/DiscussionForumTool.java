@@ -1900,7 +1900,16 @@ public class DiscussionForumTool
     { 
       GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
       ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-      List gradeAssignments = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext()); 
+      List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+      List gradeAssignments = new ArrayList();
+      for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
+      {
+        Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+        if(!thisAssign.isExternallyMaintained())
+        {
+          gradeAssignments.add(thisAssign);
+        }
+      }
       assignments = new ArrayList(); 
       SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
       assignments.add(item); 
