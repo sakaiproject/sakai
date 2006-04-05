@@ -2,67 +2,88 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>Sakai Calendar API Implementation Package</name>
+	<extend>../../../master/project.xml</extend>
+	<name>Sakai calendar impl</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-calendar-pack</id>
+	<id>sakai-calendar-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
-		<name>The Sakai Foundation</name>
+		<name>The Sakai Foundaation</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- deploy as a components -->
-		<deploy.type>components</deploy.type>
+		<!-- build as a jar -->
+		<deploy.type>jar</deploy.type>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-calendar-impl</artifactId>
+			<artifactId>sakai-calendar-api</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-session</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-function</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-legacy-service</artifactId>
+			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-util</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-text</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-xml</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-java</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<!-- fop: fop, avalon-framework, xercesImpl, xmlParserAPIs, batik -->
@@ -70,25 +91,16 @@
 			<groupId>fop</groupId>
 			<artifactId>fop</artifactId>
 			<version>0.20.5</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 		<dependency>
 			<groupId>avalon-framework</groupId>
 			<artifactId>avalon-framework</artifactId>
 			<version>20020627</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 		<dependency>
 			<groupId>batik</groupId>
 			<artifactId>batik</artifactId>
 			<version>1.5-fop-0.20-5</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 	</dependencies>
@@ -97,6 +109,31 @@
 
 		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/sql</directory>
+				<includes>
+					<include>**/*.sql</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src/config</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src/config</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
+		</resources>
 
 	</build>
 
