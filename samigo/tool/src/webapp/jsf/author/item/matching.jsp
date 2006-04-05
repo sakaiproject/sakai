@@ -80,7 +80,7 @@
   </div>
 
   <!-- 1 POINTS -->
-  <div class="indnt2">
+  <div class="tier2">
 
    <span id="num1" class="number"></span>
    <div class="shorttext"> <h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
@@ -108,7 +108,7 @@
 
       <span id="num3" class="number"></span>
     <div class="longtext"> <h:outputLabel value="#{msg.create_pairing} " /></div>
-<div class="indnt2">
+<div class="tier2">
   <!-- display existing pairs -->
 
 <h:dataTable styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
@@ -164,7 +164,7 @@
 
 </div>
         <!-- WYSIWYG -->
-<div class="indnt2">
+<div class="tier2">
    
           <h:outputText value=" Choice"/>
 <h:panelGrid>
@@ -183,27 +183,28 @@
 </div>
 
  <!-- Match FEEDBACK -->
-<div class="indnt2">
- 
+
+<div class="tier2">
+  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '1'}">
   <h:outputText value="#{msg.correct_match_feedback_opt}" />
-<h:panelGrid>
+<f:verbatim><br/></f:verbatim>
 <!-- WYSIWYG -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.corrMatchFeedback}">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-  </h:panelGrid>
+  <f:verbatim><br/></f:verbatim>
 
   <h:outputText value="#{msg.incorrect_match_feedback_opt}" />
 
 
-  <h:panelGrid>
+ <f:verbatim><br/></f:verbatim>
   <!-- WYSIWYG -->
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.incorrMatchFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
-
-</h:panelGrid>
+<f:verbatim><br/></f:verbatim>
+</h:panelGroup>
   </div>
 
 
@@ -269,35 +270,32 @@
   </h:panelGrid>
 
 
- 
-  <span id="num8" class="number"></span>
- <div class="longtext">
+ <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+  <f:verbatim><span id="num8" class="number"></span></f:verbatim>
+<f:verbatim><div class="tier2"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-   </div><div class="indnt2">
-  <h:outputText value="#{msg.correct_answer_opti}" />
- <h:panelGrid>
+  <h:outputText value="#{msg.correct_answer_opti}" /><f:verbatim><br/></f:verbatim>
+
   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-</h:panelGrid>
+<f:verbatim><br/></f:verbatim>
 
   <h:outputText value="#{msg.incorrect_answer_op}" />
- <h:panelGrid>
+<f:verbatim><br/></f:verbatim>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-  </h:panelGrid>
+<f:verbatim><br/></div></f:verbatim>
+  </h:panelGroup>
 
-</div>
-
- 
 
 <!-- METADATA -->
 
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt2"></f:verbatim>
+<f:verbatim><div class="tier2"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
 <h:outputText value="#{msg.objective}" />
