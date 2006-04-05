@@ -35,7 +35,7 @@ import java.util.Map;
 
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
+import org.sakaiproject.time.api.TimeBreakdown;
 
 /**
  * This class parses a comma (or other separator other than a double-quote) delimited

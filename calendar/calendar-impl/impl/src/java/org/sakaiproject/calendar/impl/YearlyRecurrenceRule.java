@@ -26,7 +26,7 @@ package org.sakaiproject.calendar.impl;
 import java.util.GregorianCalendar;
 import java.util.Stack;
 
-import org.sakaiproject.service.legacy.time.Time;
+import org.sakaiproject.time.api.Time;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.service.legacy.time.TimeService;
+import org.sakaiproject.time.api.TimeService;
 
 /**
  * This class provides common functionality for parsers of various

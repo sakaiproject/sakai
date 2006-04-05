@@ -22,10 +22,21 @@
 
 	<dependencies>
 
-		<!-- to be able to access the Sakai component manager -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -34,14 +45,6 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-
-		<!-- TEMP till these move out -->
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
 
 	</dependencies>
 

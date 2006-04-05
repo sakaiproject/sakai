@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.TimeZone;
 
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

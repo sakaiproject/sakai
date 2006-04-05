@@ -34,7 +34,7 @@ import java.util.Map;
 
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
+import org.sakaiproject.time.api.TimeBreakdown;
 
 /**
  * This class parses an import file from MeetingMaker.

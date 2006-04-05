@@ -55,62 +55,67 @@ import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
 import org.apache.xerces.dom.DocumentImpl;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.kernel.function.cover.FunctionManager;
-import org.sakaiproject.api.kernel.session.SessionBindingEvent;
-import org.sakaiproject.api.kernel.session.SessionBindingListener;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityAccessOverloadException;
+import org.sakaiproject.entity.api.EntityCopyrightException;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.service.framework.config.ServerConfigurationService;
-import org.sakaiproject.service.framework.current.cover.CurrentService;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.framework.log.cover.Log;
-import org.sakaiproject.service.framework.memory.Cache;
-import org.sakaiproject.service.framework.memory.CacheRefresher;
-import org.sakaiproject.service.framework.memory.MemoryService;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.calendar.Calendar;
-import org.sakaiproject.service.legacy.calendar.CalendarEdit;
-import org.sakaiproject.service.legacy.calendar.CalendarEvent;
-import org.sakaiproject.service.legacy.calendar.CalendarEventEdit;
-import org.sakaiproject.service.legacy.calendar.CalendarEventVector;
-import org.sakaiproject.service.legacy.calendar.CalendarService;
-import org.sakaiproject.service.legacy.calendar.RecurrenceRule;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Edit;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityManager;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.entity.HttpAccess;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
-import org.sakaiproject.service.legacy.id.IdService;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.util.CalendarUtil;
-import org.sakaiproject.util.Filter;
-import org.sakaiproject.util.text.FormattedText;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.java.StringUtil;
-import org.sakaiproject.util.resource.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.storage.StorageUser;
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.util.Xml;
+import org.sakaiproject.webapp.api.SessionBindingEvent;
+import org.sakaiproject.webapp.api.SessionBindingListener;
+import org.sakaiproject.webapp.cover.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -127,6 +132,9 @@ import org.w3c.dom.NodeList;
 public abstract class BaseCalendarService
 	implements CalendarService, StorageUser, CacheRefresher
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
+
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -189,7 +197,7 @@ public abstract class BaseCalendarService
 	{
 		if (!SecurityService.unlock(lock, reference))
 		{
-			throw new PermissionException(lock, reference);
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, reference);
 		}
 
 	} // unlock
@@ -337,24 +345,12 @@ public abstract class BaseCalendarService
 	 */
 	protected String getUniqueId()
 	{
-		return m_IdService.getUniqueId();
+		return m_idManager.createUuid();
 	}
 
 	/*******************************************************************************
 	* Constructors, Dependencies and their setter methods
 	*******************************************************************************/
-
-	/** Dependency: logging service */
-	protected Logger m_logger = null;
-
-	/**
-	 * Dependency: logging service.
-	 * @param service The logging service.
-	 */
-	public void setLogger(Logger service)
-	{
-		m_logger = service;
-	}
 
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
@@ -368,16 +364,16 @@ public abstract class BaseCalendarService
 		m_memoryService = service;
 	}
 
-	/** Dependency: IdService. */
-	protected IdService m_IdService = null;
+	/** Dependency: IdManager. */
+	protected IdManager m_idManager = null;
 
 	/**
-	 * Dependency: IdService.
-	 * @param manager The IdService.
+	 * Dependency: IdManager.
+	 * @param manager The IdManager.
 	 */
-	public void setIdService(IdService manager)
+	public void setIdManager(IdManager manager)
 	{
-		m_IdService = manager;
+		m_idManager = manager;
 	}
 
 	/** Configuration: cache, or not. */
@@ -447,11 +443,11 @@ public abstract class BaseCalendarService
 				m_eventCaches = new Hashtable();
 			}
 
-			m_logger.info(this +".init(): caching: " + m_caching);
+			M_log.info("init(): caching: " + m_caching);
 		}
 		catch (Throwable t)
 		{
-			m_logger.warn(this +".init(): ", t);
+			M_log.warn("init(): ", t);
 		}
 
 		// register as an entity producer
@@ -483,7 +479,7 @@ public abstract class BaseCalendarService
 		m_storage.close();
 		m_storage = null;
 
-		m_logger.info(this +".destroy()");
+		M_log.info("destroy()");
 	}
 
 	/*******************************************************************************
@@ -557,7 +553,7 @@ public abstract class BaseCalendarService
 		{
 			// TODO: do we really want to do this? -ggolden
 			// if we have done this already in this thread, use that
-			calendar = (Calendar) CurrentService.getInThread(ref);
+			calendar = (Calendar) ThreadLocalManager.get(ref);
 			if (calendar == null)
 			{
 				calendar = m_storage.getCalendar(ref);
@@ -565,7 +561,7 @@ public abstract class BaseCalendarService
 				// "cache" the calendar in the current service in case they are needed again in this thread...
 				if (calendar != null)
 				{
-					CurrentService.setInThread(ref, calendar);
+					ThreadLocalManager.set(ref, calendar);
 				}
 			}
 
@@ -638,7 +634,7 @@ public abstract class BaseCalendarService
 			}
 			catch (Exception e)
 			{
-				m_logger.warn(this +".removeCalendar(): closed CalendarEdit", e);
+				M_log.warn("removeCalendar(): closed CalendarEdit", e);
 			}
 			return;
 		}
@@ -663,11 +659,11 @@ public abstract class BaseCalendarService
 		{
 			AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(calendar.getReference()));
 		}
-		catch (PermissionException e)
+		catch (AuthzPermissionException e)
 		{
-			m_logger.warn(this +".removeCalendar: removing realm for : " + calendar.getReference() + " : " + e);
+			M_log.warn("removeCalendar: removing realm for : " + calendar.getReference() + " : " + e);
 		}
-		catch (IdUnusedException ignore)
+		catch (GroupNotDefinedException ignore)
 		{
 		}
 
@@ -801,7 +797,7 @@ public abstract class BaseCalendarService
 			}
 			catch (Exception e)
 			{
-				m_logger.warn(this +".commitCalendar(): closed CalendarEdit", e);
+				M_log.warn("commitCalendar(): closed CalendarEdit", e);
 			}
 			return;
 		}
@@ -833,7 +829,7 @@ public abstract class BaseCalendarService
 			}
 			catch (Exception e)
 			{
-				m_logger.warn(this +".cancelCalendar(): closed CalendarEventEdit", e);
+				M_log.warn("cancelCalendar(): closed CalendarEventEdit", e);
 			}
 			return;
 		}
@@ -981,11 +977,10 @@ public abstract class BaseCalendarService
 	{
 		return new HttpAccess()
 		{
-			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs) throws PermissionException,
-					IdUnusedException, ServerOverloadException
+			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException
 			{
 				// we only access the pdf reference
-				if (!REF_TYPE_CALENDAR_PDF.equals(ref.getSubType())) throw new IdUnusedException(ref.getReference());
+				if (!REF_TYPE_CALENDAR_PDF.equals(ref.getSubType())) throw new EntityNotDefinedException(ref.getReference());
 
 				// TODO: permissions?
 
@@ -1061,7 +1056,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Throwable t)
 				{
-					throw new IdUnusedException(ref.getReference());
+					throw new EntityNotDefinedException(ref.getReference());
 				}
 			}
 		};
@@ -1110,7 +1105,7 @@ public abstract class BaseCalendarService
 					}
 				}
 				else
-					m_logger.warn(this + ".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
+					M_log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
 			}
 
 			ref.set(SERVICE_NAME, subType, id, container, context);
@@ -1187,12 +1182,12 @@ public abstract class BaseCalendarService
 			}
 
 			else
-				m_logger.warn(this + ".getEntityResourceProperties(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
+				M_log.warn(".getEntityResourceProperties(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
 						+ ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			m_logger.warn(this + ".getEntityResourceProperties(): " + e);
+			M_log.warn(".getEntityResourceProperties(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1201,7 +1196,7 @@ public abstract class BaseCalendarService
 		}
 		catch (NullPointerException e)
 		{
-			m_logger.warn(this + ".getEntityResourceProperties(): " + e);
+			M_log.warn(".getEntityResourceProperties(): " + e);
 		}
 		
 		return props;
@@ -1233,20 +1228,20 @@ public abstract class BaseCalendarService
 			}
 
 			else
-				m_logger.warn(this + "getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
+				M_log.warn("getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
 						+ ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			m_logger.warn(this + "getEntity(): " + e);
+			M_log.warn("getEntity(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			m_logger.warn(this + "getEntity(): " + e);
+			M_log.warn("getEntity(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			m_logger.warn(this + ".getEntity(): " + e);
+			M_log.warn(".getEntity(): " + e);
 		}
 		
 		return rv;
@@ -1288,7 +1283,7 @@ public abstract class BaseCalendarService
 		}
 		catch (Throwable e)
 		{
-			m_logger.warn(this + ".getEntityAuthzGroups(): " + e);
+			M_log.warn(".getEntityAuthzGroups(): " + e);
 		}
 		
 		return rv;
@@ -1322,19 +1317,19 @@ public abstract class BaseCalendarService
 			}
 
 			else
-				m_logger.warn(this + "getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+				M_log.warn("getEntityUrl(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
-			m_logger.warn(this + ".getEntityUrl(): " + e);
+			M_log.warn(".getEntityUrl(): " + e);
 		}
 		catch (IdUnusedException e)
 		{
-			m_logger.warn(this + ".getEntityUrl(): " + e);
+			M_log.warn(".getEntityUrl(): " + e);
 		}
 		catch (NullPointerException e)
 		{
-			m_logger.warn(this + ".getEntityUrl(): " + e);
+			M_log.warn(".getEntityUrl(): " + e);
 		}
 		
 		return rv;
@@ -1390,7 +1385,7 @@ public abstract class BaseCalendarService
 		}
 		catch (Exception any)
 		{
-			m_logger.warn(this + ".archve: exception archiving messages for service: "
+			M_log.warn(".archve: exception archiving messages for service: "
 						+ CalendarService.class.getName() + " channel: "
 						+ calRef);
 		}
@@ -1489,7 +1484,7 @@ public abstract class BaseCalendarService
 														}
 														catch (Exception e)
 														{
-															m_logger.warn(this + ".merge() when editing calendar: exception: ", e);
+															M_log.warn(".merge() when editing calendar: exception: ", e);
 														}
 													}
 												}
@@ -1558,7 +1553,7 @@ public abstract class BaseCalendarService
 		}
 		catch (Exception any)
 		{
-			m_logger.warn(this + ".merge(): exception: ", any);
+			M_log.warn(".merge(): exception: ", any);
 		}
 
 		results.append("merging calendar " + calendarRef + " (" + count + ") messages.\n");
@@ -2008,13 +2003,13 @@ public abstract class BaseCalendarService
 			{
 				// TODO: do we really want to do this? -ggolden
 				// if we have done this already in this thread, use that
-				events = (List) CurrentService.getInThread(getReference()+".events");
+				events = (List) ThreadLocalManager.get(getReference()+".events");
 				if (events == null)
 				{
 					events = m_storage.getEvents(this);
 
 					// "cache" the events in the current service in case they are needed again in this thread...
-					CurrentService.setInThread(getReference()+".events", events);
+					ThreadLocalManager.set(getReference()+".events", events);
 				}
 			}
 
@@ -2303,7 +2298,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception e)
 				{
-					m_logger.warn(this +".removeEvent(): closed EventEdit", e);
+					M_log.warn("removeEvent(): closed EventEdit", e);
 				}
 				return;
 			}
@@ -2324,7 +2319,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception ex)
 				{
-					m_logger.warn(this +".removeEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					M_log.warn("removeEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -2374,11 +2369,11 @@ public abstract class BaseCalendarService
 			{
 				AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(edit.getReference()));
 			}
-			catch (PermissionException e)
+			catch (AuthzPermissionException e)
 			{
-				m_logger.warn(this +".removeEvent: removing realm for : " + edit.getReference() + " : " + e);
+				M_log.warn("removeEvent: removing realm for : " + edit.getReference() + " : " + e);
 			}
-			catch (IdUnusedException ignore)
+			catch (GroupNotDefinedException ignore)
 			{
 			}
 
@@ -2425,7 +2420,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception ex)
 				{
-					m_logger.warn(this +".editEvent: exception parsing eventId: " + eventId + " : " + ex);
+					M_log.warn("editEvent: exception parsing eventId: " + eventId + " : " + ex);
 				}
 			}
 
@@ -2489,7 +2484,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception e)
 				{
-					m_logger.warn(this +".commitEvent(): closed CalendarEventEdit", e);
+					M_log.warn("commitEvent(): closed CalendarEventEdit", e);
 				}
 				return;
 			}
@@ -2510,7 +2505,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception ex)
 				{
-					m_logger.warn(this +".commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					M_log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -2607,7 +2602,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception e)
 				{
-					m_logger.warn(this +".cancelEvent(): closed CalendarEventEdit", e);
+					M_log.warn("cancelEvent(): closed CalendarEventEdit", e);
 				}
 				return;
 			}
@@ -2628,7 +2623,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception ex)
 				{
-					m_logger.warn(this +".commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
+					M_log.warn("commitEvent: exception parsing eventId: " + bedit.m_id + " : " + ex);
 				}
 			}
 
@@ -2728,7 +2723,7 @@ public abstract class BaseCalendarService
 				}
 				catch (Exception ex)
 				{
-					m_logger.warn(this +".findEvent: exception parsing eventId: " + eventId + " : " + ex);
+					M_log.warn("findEvent: exception parsing eventId: " + eventId + " : " + ex);
 				}
 			}
 
@@ -2739,7 +2734,7 @@ public abstract class BaseCalendarService
 			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
 			{
 				// if we have "cached" the entire set of events in the thread, get that and find our message there
-				List events = (List) CurrentService.getInThread(getReference()+".events");
+				List events = (List) ThreadLocalManager.get(getReference()+".events");
 				if (events != null)
 				{
 					for (Iterator i = events.iterator(); i.hasNext();)
@@ -2871,8 +2866,8 @@ public abstract class BaseCalendarService
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (m_logger.isDebugEnabled())
-				m_logger.debug(this +".valueUnbound()");
+			if (M_log.isDebugEnabled())
+				M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -3051,7 +3046,7 @@ public abstract class BaseCalendarService
 										}
 										catch (Throwable t)
 										{
-											m_logger.warn(this +": trouble loading rule: " + ruleName + " : " + t);
+											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
 										}
 									}
 									
@@ -3066,7 +3061,7 @@ public abstract class BaseCalendarService
 									}
 									catch (Throwable t)
 									{
-										m_logger.warn(this +": trouble loading rule: " + ruleClass + " : " + t);
+										M_log.warn(": trouble loading rule: " + ruleClass + " : " + t);
 									}
 								}
 
@@ -3089,7 +3084,7 @@ public abstract class BaseCalendarService
 										}
 										catch (Throwable t)
 										{
-											m_logger.warn(this +": trouble loading rule: " + ruleName + " : " + t);
+											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
 										}
 									}
 									
@@ -3104,7 +3099,7 @@ public abstract class BaseCalendarService
 									}
 									catch (Throwable t)
 									{
-										m_logger.warn(this +": trouble loading rule: " + ruleClass + " : " + t);
+										M_log.warn(": trouble loading rule: " + ruleClass + " : " + t);
 									}
 								}
 							}
@@ -3723,8 +3718,8 @@ public abstract class BaseCalendarService
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (m_logger.isDebugEnabled())
-				m_logger.debug(this +".valueUnbound()");
+			if (M_log.isDebugEnabled())
+				M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -3867,10 +3862,9 @@ public abstract class BaseCalendarService
 		// for events
 		if (REF_TYPE_EVENT.equals(ref.getSubType()))
 		{
-			if (m_logger.isDebugEnabled())
-				m_logger.debug(
-					this
-						+ ".refresh(): key "
+			if (M_log.isDebugEnabled())
+				M_log.debug(
+						"refresh(): key "
 						+ key
 						+ " calendar id : "
 						+ ref.getContext()
@@ -3892,8 +3886,8 @@ public abstract class BaseCalendarService
 		// for calendar
 		else
 		{
-			if (m_logger.isDebugEnabled())
-				m_logger.debug(this +".refresh(): key " + key + " calendar id : " + ref.getReference());
+			if (M_log.isDebugEnabled())
+				M_log.debug("refresh(): key " + key + " calendar id : " + ref.getReference());
 
 			// return the calendar (Note: not from cache! but only from storage)
 			rv = m_storage.getCalendar(ref.getReference());
@@ -4854,7 +4848,7 @@ public abstract class BaseCalendarService
 
 		catch (TransformerException e)
 		{
-			m_logger.warn(this + ".generatePDF(): " + e);
+			M_log.warn(".generatePDF(): " + e);
 			return;
 		}
 
@@ -4867,7 +4861,7 @@ public abstract class BaseCalendarService
 
 		catch (TransformerException e1)
 		{
-			m_logger.warn(this + ".generatePDF(): " + e1);
+			M_log.warn(".generatePDF(): " + e1);
 			return;
 		}
 	}
@@ -4986,7 +4980,7 @@ public abstract class BaseCalendarService
 				break;
 
 			default:
-				m_logger.warn(this + ".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
+				M_log.warn(".generateXMLDocument(): bad scheduleType parameter = " + scheduleType);
 				break;
 		}
 
@@ -5375,11 +5369,11 @@ public abstract class BaseCalendarService
 		}
 		catch (IdUnusedException e)
 		{
-			m_logger.warn(this + ".getSiteName(): " + e);
+			M_log.warn(".getSiteName(): " + e);
 		}
 		catch (PermissionException e)
 		{
-			m_logger.warn(this + ".getSiteNamee(): " + e);
+			M_log.warn(".getSiteNamee(): " + e);
 		}
 
 		// Use the context name as the site name.
@@ -5398,7 +5392,7 @@ public abstract class BaseCalendarService
 			}
 			catch (IdUnusedException e1)
 			{
-				m_logger.warn(this + ".getSiteName(): " + e1);
+				M_log.warn(".getSiteName(): " + e1);
 			}
 		}
 
@@ -5577,8 +5571,7 @@ public abstract class BaseCalendarService
 				break;
 
 			default:
-				Log
-						.debug("chef", "PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = "
+				M_log.debug("PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = "
 								+ scheduleType);
 				break;
 		}

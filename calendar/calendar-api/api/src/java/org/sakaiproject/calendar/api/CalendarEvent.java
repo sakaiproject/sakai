@@ -25,9 +25,9 @@
 package org.sakaiproject.calendar.api;
 
 // import
-import org.sakaiproject.service.legacy.entity.AttachmentContainer;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.entity.api.AttachmentContainer;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>CalendarEvent is the interface for events placed into a CHEF Calendar Service Calendar.</p>

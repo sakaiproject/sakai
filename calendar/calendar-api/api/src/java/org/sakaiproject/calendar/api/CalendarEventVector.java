@@ -28,7 +28,7 @@ package org.sakaiproject.calendar.api;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>CalendarEventVector is a helper class for the Calendar service.  It will read in

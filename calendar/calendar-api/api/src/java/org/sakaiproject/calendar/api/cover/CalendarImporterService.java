@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.service.framework.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
 * <p>CalendarService is a static Cover for the {@link org.sakaiproject.calendar.api.CalendarImporterService};
@@ -53,7 +53,7 @@ public class CalendarImporterService
 	 */
 	public static org.sakaiproject.calendar.api.CalendarImporterService getInstance()
 	{
-		if (ComponentManager.CACHE_SINGLETONS)
+		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null) m_instance = (org.sakaiproject.calendar.api.CalendarImporterService) ComponentManager.get(org.sakaiproject.calendar.api.CalendarImporterService.class);
 			return m_instance;

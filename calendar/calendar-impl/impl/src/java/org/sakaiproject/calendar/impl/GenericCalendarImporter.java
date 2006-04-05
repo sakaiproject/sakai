@@ -35,23 +35,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import org.sakaiproject.calendar.impl.readers.CSVReader;
-import org.sakaiproject.calendar.impl.readers.MeetingMakerReader;
-import org.sakaiproject.calendar.impl.readers.OutlookReader;
-import org.sakaiproject.calendar.impl.readers.Reader;
-import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.TimeService;
-import org.sakaiproject.util.text.FormattedText;
+import org.sakaiproject.calendar.impl.readers.CSVReader;
+import org.sakaiproject.calendar.impl.readers.MeetingMakerReader;
+import org.sakaiproject.calendar.impl.readers.OutlookReader;
+import org.sakaiproject.calendar.impl.readers.Reader;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.ImportException;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -61,6 +62,9 @@ import org.w3c.dom.Element;
  */
 public class GenericCalendarImporter implements CalendarImporterService
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(GenericCalendarImporter.class);
+
 	public static final String LOCATION_PROPERTY_NAME = "Location";
 	public static final String LOCATION_DEFAULT_COLUMN_HEADER = "Location";
 
@@ -113,7 +117,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;
 	private TimeService timeService = null;
-	private Logger logger = null;
 	
 	/*
 	 * This class is used as a "prototype" event that may be added to
@@ -869,24 +872,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 		timeService = service;
 	}
 
-	/**
-	 * Getter for injected service
-	 */
-	public Logger getLogger()
-	{
-		return logger;
-	}
-
-	/**
-	 * Setter for injected service
-	 * @param logger
-	 */
-	public void setLogger(Logger logger)
-	{
-		this.logger = logger;
-	}
-
-
 	/*******************************************************************************
 	* Init and Destroy
 	*******************************************************************************/
@@ -906,10 +891,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		}
 		catch (Throwable t)
 		{
-			if ( getLogger() != null )
-			{
-				getLogger().warn(this +".init(): ", t);
-			} 
+			M_log.warn("init(): ", t);
 		}
 	}
 
@@ -918,9 +900,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	*/
 	public void destroy()
 	{
-		if ( logger != null )
-		{
-			getLogger().info(this +".destroy()");
-		} 
+		M_log.info("destroy()");
 	}
 }

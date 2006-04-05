@@ -23,7 +23,7 @@
 
 package org.sakaiproject.calendar.api.cover;
 
-import org.sakaiproject.service.framework.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
 * <p>CalendarService is a static Cover for the {@link org.sakaiproject.calendar.api.CalendarService CalendarService};
@@ -40,7 +40,7 @@ public class CalendarService
 	 */
 	public static org.sakaiproject.calendar.api.CalendarService getInstance()
 	{
-		if (ComponentManager.CACHE_SINGLETONS)
+		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null) m_instance = (org.sakaiproject.calendar.api.CalendarService) ComponentManager.get(org.sakaiproject.calendar.api.CalendarService.class);
 			return m_instance;
@@ -85,7 +85,7 @@ public class CalendarService
 	}
 
 	public static java.lang.String calendarPdfReference(java.lang.String param0, java.lang.String param1,
-			int param2, java.util.List param3, java.lang.String param4, java.lang.String param5, org.sakaiproject.service.legacy.time.TimeRange param6)
+			int param2, java.util.List param3, java.lang.String param4, java.lang.String param5, org.sakaiproject.time.api.TimeRange param6)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)
@@ -202,7 +202,7 @@ public class CalendarService
 		return service.eventReference(param0, param1, param2);
 	}
 
-	public static org.sakaiproject.calendar.api.CalendarEventVector getEvents(java.util.List param0, org.sakaiproject.service.legacy.time.TimeRange param1)
+	public static org.sakaiproject.calendar.api.CalendarEventVector getEvents(java.util.List param0, org.sakaiproject.time.api.TimeRange param1)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)
@@ -211,7 +211,7 @@ public class CalendarService
 		return service.getEvents(param0, param1);
 	}
 
-	public static org.sakaiproject.calendar.api.RecurrenceRule newRecurrence(java.lang.String param0, int param1, org.sakaiproject.service.legacy.time.Time param2)
+	public static org.sakaiproject.calendar.api.RecurrenceRule newRecurrence(java.lang.String param0, int param1, org.sakaiproject.time.api.Time param2)
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();
 		if (service == null)

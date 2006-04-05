@@ -31,11 +31,12 @@ import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.sakaiproject.service.legacy.calendar.RecurrenceRule;
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,6 +51,9 @@ import org.w3c.dom.NodeList;
 public class ExclusionRecurrenceRule
 	implements RecurrenceRule
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(ExclusionRecurrenceRule.class);
+
 	/** The list of TimeRange values to exclude. */
 	protected List m_ranges = null;
 
@@ -100,7 +104,7 @@ public class ExclusionRecurrenceRule
 				{
 					m_ranges.add(TimeService.newTimeRange(element.getAttribute("range")));
 				}
-				catch (Exception e) { Logger.warn(this + ".set: while reading time range: " + e); }
+				catch (Exception e) { M_log.warn("set: while reading time range: " + e); }
 			}
 		}
 

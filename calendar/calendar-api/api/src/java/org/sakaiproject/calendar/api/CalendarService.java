@@ -27,15 +27,15 @@ package org.sakaiproject.calendar.api;
 // import
 import java.util.List;
 
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>CalendarService is the interface for the CHEF Calendar service.</p>

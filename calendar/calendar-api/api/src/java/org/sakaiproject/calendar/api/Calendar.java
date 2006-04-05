@@ -27,13 +27,13 @@ package org.sakaiproject.calendar.api;
 // import
 import java.util.List;
 
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.util.Filter;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.time.api.TimeRange;
 import org.w3c.dom.Element;
 
 /**

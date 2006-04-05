@@ -25,9 +25,9 @@
 package org.sakaiproject.calendar.api;
 
 // import
-import org.sakaiproject.service.legacy.entity.AttachmentContainerEdit;
-import org.sakaiproject.service.legacy.entity.Edit;
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.entity.api.AttachmentContainerEdit;
+import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>CalendarEventEdit is an editable CalendarEvent</p>

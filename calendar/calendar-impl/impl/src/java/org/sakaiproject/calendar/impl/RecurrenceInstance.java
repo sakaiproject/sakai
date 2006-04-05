@@ -25,7 +25,7 @@
 package org.sakaiproject.calendar.impl;
 
 // import
-import org.sakaiproject.service.legacy.time.TimeRange;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>RecurrenceInstance is one instance of a recurrence sequence, with the time range and sequence # of the instance.</p>

@@ -25,7 +25,7 @@
 package org.sakaiproject.calendar.api;
 
 // import
-import org.sakaiproject.service.legacy.entity.Edit;
+import org.sakaiproject.entity.api.Edit;
 
 /**
 * <p>CalendarEdit is an editable Calendar.</p>

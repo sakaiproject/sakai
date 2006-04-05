@@ -27,11 +27,11 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.sakaiproject.service.legacy.calendar.RecurrenceRule;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Element;
 
 /**
