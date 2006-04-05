@@ -16,8 +16,6 @@
 	<properties>
 		<!-- deploy as a jar -->
 		<deploy.type>jar</deploy.type>
-		<!-- deploy to "shared", "common" or "server" -->
-		<deploy.target>shared</deploy.target>
 	</properties>
 
 	<dependencies>
@@ -141,6 +139,24 @@
 	<build>
 
 		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/sql</directory>
+				<includes>
+					<include>**/*.sql</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src/config</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
+		</resources>
 
 	</build>
 
