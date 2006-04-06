@@ -1,25 +1,25 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+ *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * 
+ * Licensed under the Educational Community License Version 1.0 (the "License");
+ * By obtaining, using and/or copying this Original Work, you agree that you have read,
+ * understand, and will comply with the terms and conditions of the Educational Community License.
+ * You may obtain a copy of the License at:
+ * 
+ *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+ * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ **********************************************************************************/
 
 // package
 package org.sakaiproject.calendar.impl;
@@ -76,6 +76,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -83,7 +84,6 @@ import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -123,15 +123,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
-* <p>BaseCalendarService is an base implementation of the
-* CHEF CalendarService, implemented as a Turbine service.  Extension classes
-* implement object creation, access and storage.</p>
-* 
-* @author University of Michigan, CHEF Software Development Team
-* @version $Revision$
-*/
-public abstract class BaseCalendarService
-	implements CalendarService, StorageUser, CacheRefresher
+ * <p>
+ * BaseCalendarService is an base implementation of the CHEF CalendarService, implemented as a Turbine service. Extension classes implement object creation, access and storage.
+ * </p>
+ * 
+ * @author University of Michigan, CHEF Software Development Team
+ * @version $Revision$
+ */
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -147,29 +146,32 @@ public abstract class BaseCalendarService
 
 	/** A Storage object for access to calendars and events. */
 	protected Storage m_storage = null;
-	
+
 	/** DELIMETER used to separate the list of custom fields for this calendar. */
 	private final static String ADDFIELDS_DELIMITER = "_,_";
 
 	/**
-	* Access this service from the inner classes.
-	*/
+	 * Access this service from the inner classes.
+	 */
 	protected BaseCalendarService service()
 	{
 		return this;
 	}
 
 	/**
-	* Construct a Storage object.
-	* @return The new storage object.
-	*/
+	 * Construct a Storage object.
+	 * 
+	 * @return The new storage object.
+	 */
 	protected abstract Storage newStorage();
 
 	/**
-	* Access the partial URL that forms the root of calendar URLs.
-	* @param relative if true, form within the access path only (i.e. starting with /content)
-	* @return the partial URL that forms the root of calendar URLs.
-	*/
+	 * Access the partial URL that forms the root of calendar URLs.
+	 * 
+	 * @param relative
+	 *        if true, form within the access path only (i.e. starting with /content)
+	 * @return the partial URL that forms the root of calendar URLs.
+	 */
 	protected String getAccessPoint(boolean relative)
 	{
 		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
@@ -177,11 +179,14 @@ public abstract class BaseCalendarService
 	} // getAccessPoint
 
 	/**
-	* Check security permission.
-	* @param lock The lock id string.
-	* @param reference The resource's reference string, or null if no resource is involved.
-	* @return true if permitted, false if not.
-	*/
+	 * Check security permission.
+	 * 
+	 * @param lock
+	 *        The lock id string.
+	 * @param reference
+	 *        The resource's reference string, or null if no resource is involved.
+	 * @return true if permitted, false if not.
+	 */
 	protected boolean unlockCheck(String lock, String reference)
 	{
 		return SecurityService.unlock(lock, reference);
@@ -189,11 +194,15 @@ public abstract class BaseCalendarService
 	} // unlockCheck
 
 	/**
-	* Check security permission.
-	* @param lock The lock id string.
-	* @param reference The resource's reference string, or null if no resource is involved.
-	* @exception PermissionException thrown if the user does not have access
-	*/
+	 * Check security permission.
+	 * 
+	 * @param lock
+	 *        The lock id string.
+	 * @param reference
+	 *        The resource's reference string, or null if no resource is involved.
+	 * @exception PermissionException
+	 *            thrown if the user does not have access
+	 */
 	protected void unlock(String lock, String reference) throws PermissionException
 	{
 		if (!SecurityService.unlock(lock, reference))
@@ -204,83 +213,60 @@ public abstract class BaseCalendarService
 	} // unlock
 
 	/**
-	* Access the internal reference which can be used to access the calendar from within the system.
-	* @param context The context.
-	* @param id The calendar id.
-	* @return The the internal reference which can be used to access the calendar from within the system.
-	*/
+	 * Access the internal reference which can be used to access the calendar from within the system.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param id
+	 *        The calendar id.
+	 * @return The the internal reference which can be used to access the calendar from within the system.
+	 */
 	public String calendarReference(String context, String id)
 	{
-		return getAccessPoint(true)
-			+ Entity.SEPARATOR
-			+ REF_TYPE_CALENDAR
-			+ Entity.SEPARATOR
-			+ context
-			+ Entity.SEPARATOR
-			+ id;
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
 
 	} // calendarReference
 
 	/**
 	 * @inheritDoc
-	*/
+	 */
 	public String calendarPdfReference(String context, String id, int scheduleType, List calendars, String timeRangeString,
 			String userName, TimeRange dailyTimeRange)
 	{
-		return getAccessPoint(true)
-			+ Entity.SEPARATOR
-			+ REF_TYPE_CALENDAR_PDF
-			+ Entity.SEPARATOR
-			+ context
-			+ Entity.SEPARATOR
-			+ id
-			+ "?"
-			+ SCHEDULE_TYPE_PARAMETER_NAME
-			+ "="
-			+ Validator.escapeHtml(new Integer(scheduleType).toString())
-			+ "&"
-			+ getCalendarListParameters(calendars)
-			+ "&"
-			+ TIME_RANGE_PARAMETER_NAME
-			+ "="
-			+ timeRangeString
-			+ "&"
-			+ Validator.escapeHtml(USER_NAME_PARAMETER_NAME)
-			+ "="
-			+ Validator.escapeHtml(userName)
-			+ "&"
-			+ DAILY_START_TIME_PARAMETER_NAME
-			+ "="
-			+ Validator.escapeHtml(dailyTimeRange.toString());
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_PDF + Entity.SEPARATOR + context + Entity.SEPARATOR + id
+				+ "?" + SCHEDULE_TYPE_PARAMETER_NAME + "=" + Validator.escapeHtml(new Integer(scheduleType).toString()) + "&"
+				+ getCalendarListParameters(calendars) + "&" + TIME_RANGE_PARAMETER_NAME + "=" + timeRangeString + "&"
+				+ Validator.escapeHtml(USER_NAME_PARAMETER_NAME) + "=" + Validator.escapeHtml(userName) + "&"
+				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString());
 	}
 
 	/**
-	* Access the internal reference which can be used to access the event from within the system.
-	* @param context The context.
-	* @param calendarId The calendar id.
-	* @param id The event id.
-	* @return The the internal reference which can be used to access the event from within the system.
-	*/
+	 * Access the internal reference which can be used to access the event from within the system.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param calendarId
+	 *        The calendar id.
+	 * @param id
+	 *        The event id.
+	 * @return The the internal reference which can be used to access the event from within the system.
+	 */
 	public String eventReference(String context, String calendarId, String id)
 	{
-		return getAccessPoint(true)
-			+ Entity.SEPARATOR
-			+ REF_TYPE_EVENT
-			+ Entity.SEPARATOR
-			+ context
-			+ Entity.SEPARATOR
-			+ calendarId
-			+ Entity.SEPARATOR
-			+ id;
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_EVENT + Entity.SEPARATOR + context + Entity.SEPARATOR
+				+ calendarId + Entity.SEPARATOR + id;
 
 	} // eventReference
 
 	/**
-	* Takes several calendar References and merges their events from within a given time range.
-	* @param references The List of calendar References.
-	* @param range The time period to use to select events.
-	* @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
-	*/
+	 * Takes several calendar References and merges their events from within a given time range.
+	 * 
+	 * @param references
+	 *        The List of calendar References.
+	 * @param range
+	 *        The time period to use to select events.
+	 * @return CalendarEventVector object with the union of all events from the list of calendars in the given time range.
+	 */
 	public CalendarEventVector getEvents(List references, TimeRange range)
 	{
 		CalendarEventVector calendarEventVector = null;
@@ -342,6 +328,7 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Access the id generating service and return a unique id.
+	 * 
 	 * @return a unique id.
 	 */
 	protected String getUniqueId()
@@ -349,16 +336,18 @@ public abstract class BaseCalendarService
 		return m_idManager.createUuid();
 	}
 
-	/*******************************************************************************
-	* Constructors, Dependencies and their setter methods
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Constructors, Dependencies and their setter methods
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
 
 	/**
 	 * Dependency: MemoryService.
-	 * @param service The MemoryService.
+	 * 
+	 * @param service
+	 *        The MemoryService.
 	 */
 	public void setMemoryService(MemoryService service)
 	{
@@ -370,7 +359,9 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Dependency: IdManager.
-	 * @param manager The IdManager.
+	 * 
+	 * @param manager
+	 *        The IdManager.
 	 */
 	public void setIdManager(IdManager manager)
 	{
@@ -382,7 +373,9 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Configuration: set the locks-in-db
-	 * @param path The storage path.
+	 * 
+	 * @param path
+	 *        The storage path.
 	 */
 	public void setCaching(String value)
 	{
@@ -417,9 +410,9 @@ public abstract class BaseCalendarService
 		m_serverConfigurationService = service;
 	}
 
-	/*******************************************************************************
-	* Init and Destroy
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Init and Destroy
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -437,8 +430,8 @@ public abstract class BaseCalendarService
 			// make the calendar cache
 			if (m_caching)
 			{
-				m_calendarCache =
-					m_memoryService.newCache(this, getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR + Entity.SEPARATOR);
+				m_calendarCache = m_memoryService.newCache(this, getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR
+						+ Entity.SEPARATOR);
 
 				// make the table to hold the event caches
 				m_eventCaches = new Hashtable();
@@ -453,7 +446,7 @@ public abstract class BaseCalendarService
 
 		// register as an entity producer
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
-		
+
 		// register functions
 		FunctionManager.registerFunction(EVENT_ADD_CALENDAR);
 		FunctionManager.registerFunction(EVENT_REMOVE_CALENDAR);
@@ -463,8 +456,8 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Returns to uninitialized state.
-	*/
+	 * Returns to uninitialized state.
+	 */
 	public void destroy()
 	{
 		if (m_caching)
@@ -483,15 +476,17 @@ public abstract class BaseCalendarService
 		M_log.info("destroy()");
 	}
 
-	/*******************************************************************************
-	* CalendarService implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * CalendarService implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	* check permissions for addCalendar().
-	* @param ref A reference for the calendar.
-	* @return true if the user is allowed to addCalendar(ref), false if not.
-	*/
+	 * check permissions for addCalendar().
+	 * 
+	 * @param ref
+	 *        A reference for the calendar.
+	 * @return true if the user is allowed to addCalendar(ref), false if not.
+	 */
 	public boolean allowAddCalendar(String ref)
 	{
 		return unlockCheck(EVENT_ADD_CALENDAR, ref);
@@ -499,14 +494,18 @@ public abstract class BaseCalendarService
 	} // allowAddCalendar
 
 	/**
-	* Add a new calendar.
-	* Must commitCalendar() to make official, or cancelCalendar() when done!
-	* @param ref A reference for the calendar.
-	* @return The newly created calendar.
-	* @exception IdUsedException if the id is not unique.
-	* @exception IdInvalidException if the id is not made up of valid characters.
-	* @exception PermissionException if the user does not have permission to add a calendar.
-	*/
+	 * Add a new calendar. Must commitCalendar() to make official, or cancelCalendar() when done!
+	 * 
+	 * @param ref
+	 *        A reference for the calendar.
+	 * @return The newly created calendar.
+	 * @exception IdUsedException
+	 *            if the id is not unique.
+	 * @exception IdInvalidException
+	 *            if the id is not made up of valid characters.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a calendar.
+	 */
 	public CalendarEdit addCalendar(String ref) throws IdUsedException, IdInvalidException, PermissionException
 	{
 		// check the name's validity
@@ -531,10 +530,12 @@ public abstract class BaseCalendarService
 	} // addCalendar
 
 	/**
-	* check permissions for getCalendar().
-	* @param ref The calendar reference.
-	* @return true if the user is allowed to getCalendar(calendarId), false if not.
-	*/
+	 * check permissions for getCalendar().
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to getCalendar(calendarId), false if not.
+	 */
 	public boolean allowGetCalendar(String ref)
 	{
 		return unlockCheck(EVENT_READ_CALENDAR, ref);
@@ -542,10 +543,12 @@ public abstract class BaseCalendarService
 	} // allowGetCalendar
 
 	/**
-	* Find the calendar, in cache or info store - cache it if newly found.
-	* @param ref The calendar reference.
-	* @return The calendar, if found.
-	*/
+	 * Find the calendar, in cache or info store - cache it if newly found.
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return The calendar, if found.
+	 */
 	protected Calendar findCalendar(String ref)
 	{
 		Calendar calendar = null;
@@ -589,17 +592,20 @@ public abstract class BaseCalendarService
 	} // findCalendar
 
 	/**
-	* Return a specific calendar.
-	* @param ref The calendar reference.
-	* @return the Calendar that has the specified name.
-	* @exception IdUnusedException If this name is not defined for any calendar.
-	* @exception PermissionException If the user does not have any permissions to the calendar.
-	*/
+	 * Return a specific calendar.
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return the Calendar that has the specified name.
+	 * @exception IdUnusedException
+	 *            If this name is not defined for any calendar.
+	 * @exception PermissionException
+	 *            If the user does not have any permissions to the calendar.
+	 */
 	public Calendar getCalendar(String ref) throws IdUnusedException, PermissionException
 	{
 		Calendar c = findCalendar(ref);
-		if (c == null)
-			throw new IdUnusedException(ref);
+		if (c == null) throw new IdUnusedException(ref);
 
 		// check security (throws if not permitted)
 		unlock(EVENT_READ_CALENDAR, ref);
@@ -609,10 +615,12 @@ public abstract class BaseCalendarService
 	} // getCalendar
 
 	/**
-	* check permissions for removeCalendar().
-	* @param ref The calendar reference.
-	* @return true if the user is allowed to removeCalendar(calendarId), false if not.
-	*/
+	 * check permissions for removeCalendar().
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to removeCalendar(calendarId), false if not.
+	 */
 	public boolean allowRemoveCalendar(String ref)
 	{
 		return unlockCheck(EVENT_REMOVE_CALENDAR, ref);
@@ -620,10 +628,13 @@ public abstract class BaseCalendarService
 	} // allowRemoveCalendar
 
 	/**
-	* Remove a calendar that is locked for edit.
-	* @param calendar The calendar to remove.
-	* @exception PermissionException if the user does not have permission to remove a calendar.
-	*/
+	 * Remove a calendar that is locked for edit.
+	 * 
+	 * @param calendar
+	 *        The calendar to remove.
+	 * @exception PermissionException
+	 *            if the user does not have permission to remove a calendar.
+	 */
 	public void removeCalendar(CalendarEdit calendar) throws PermissionException
 	{
 		// check for closed edit
@@ -650,10 +661,10 @@ public abstract class BaseCalendarService
 		EventTrackingService.post(event);
 
 		// mark the calendar as removed
-		 ((BaseCalendarEdit) calendar).setRemoved(event);
+		((BaseCalendarEdit) calendar).setRemoved(event);
 
 		// close the edit object
-		 ((BaseCalendarEdit) calendar).closeEdit();
+		((BaseCalendarEdit) calendar).closeEdit();
 
 		// remove any realm defined for this resource
 		try
@@ -671,15 +682,16 @@ public abstract class BaseCalendarService
 	} // removeCalendar
 
 	/**
-	* Return a List of all the defined calendars.
-	* @return a List of Calendar objects (may be empty)
-	*/
+	 * Return a List of all the defined calendars.
+	 * 
+	 * @return a List of Calendar objects (may be empty)
+	 */
 	public List getCalendars()
 	{
 		List calendars = new Vector();
 
 		if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
-		{ 
+		{
 			calendars = m_storage.getCalendars();
 			return calendars;
 		}
@@ -694,7 +706,7 @@ public abstract class BaseCalendarService
 		// otherwise get all the calendars from storage
 		else
 		{
-			// Note: while we are getting from storage, storage might change.  These can be processed
+			// Note: while we are getting from storage, storage might change. These can be processed
 			// after we get the storage entries, and put them in the cache, and mark the cache complete.
 			// -ggolden
 			synchronized (m_calendarCache)
@@ -730,10 +742,12 @@ public abstract class BaseCalendarService
 	} // getCalendars
 
 	/**
-	* check permissions for importing calendar events
-	* @param ref The calendar reference.
-	* @return true if the user is allowed to import events, false if not.
-	*/
+	 * check permissions for importing calendar events
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to import events, false if not.
+	 */
 	public boolean allowImportCalendar(String ref)
 	{
 		return unlockCheck(EVENT_IMPORT_CALENDAR, ref);
@@ -741,10 +755,12 @@ public abstract class BaseCalendarService
 	} // allowImportCalendar
 
 	/**
-	* check permissions for editCalendar()
-	* @param ref The calendar reference.
-	* @return true if the user is allowed to update the calendar, false if not.
-	*/
+	 * check permissions for editCalendar()
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to update the calendar, false if not.
+	 */
 	public boolean allowUpdateCalendar(String ref)
 	{
 		return unlockCheck(EVENT_MODIFY_CALENDAR, ref);
@@ -752,14 +768,18 @@ public abstract class BaseCalendarService
 	} // allowUpdateCalendar
 
 	/**
-	* Get a locked calendar object for editing.
-	* Must commitCalendar() to make official, or cancelCalendar() or removeCalendar() when done!
-	* @param ref The calendar reference.
-	* @return A CalendarEdit object for editing.
-	* @exception IdUnusedException if not found, or if not an CalendarEdit object
-	* @exception PermissionException if the current user does not have permission to mess with this user.
-	* @exception InUseException if the Calendar object is locked by someone else.
-	*/
+	 * Get a locked calendar object for editing. Must commitCalendar() to make official, or cancelCalendar() or removeCalendar() when done!
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return A CalendarEdit object for editing.
+	 * @exception IdUnusedException
+	 *            if not found, or if not an CalendarEdit object
+	 * @exception PermissionException
+	 *            if the current user does not have permission to mess with this user.
+	 * @exception InUseException
+	 *            if the Calendar object is locked by someone else.
+	 */
 	public CalendarEdit editCalendar(String ref) throws IdUnusedException, PermissionException, InUseException
 	{
 		// check for existance
@@ -773,8 +793,7 @@ public abstract class BaseCalendarService
 
 		// ignore the cache - get the calendar with a lock from the info store
 		CalendarEdit edit = m_storage.editCalendar(ref);
-		if (edit == null)
-			throw new InUseException(ref);
+		if (edit == null) throw new InUseException(ref);
 
 		((BaseCalendarEdit) edit).setEvent(EVENT_MODIFY_CALENDAR);
 
@@ -783,10 +802,11 @@ public abstract class BaseCalendarService
 	} // editCalendar
 
 	/**
-	* Commit the changes made to a CalendarEdit object, and release the lock.
-	* The CalendarEdit is disabled, and not to be used after this call.
-	* @param edit The CalendarEdit object to commit.
-	*/
+	 * Commit the changes made to a CalendarEdit object, and release the lock. The CalendarEdit is disabled, and not to be used after this call.
+	 * 
+	 * @param edit
+	 *        The CalendarEdit object to commit.
+	 */
 	public void commitCalendar(CalendarEdit edit)
 	{
 		// check for closed edit
@@ -810,15 +830,16 @@ public abstract class BaseCalendarService
 		EventTrackingService.post(event);
 
 		// close the edit object
-		 ((BaseCalendarEdit) edit).closeEdit();
+		((BaseCalendarEdit) edit).closeEdit();
 
 	} // commitCalendar
 
 	/**
-	* Cancel the changes made to a CalendarEdit object, and release the lock.
-	* The CalendarEdit is disabled, and not to be used after this call.
-	* @param edit The CalendarEdit object to commit.
-	*/
+	 * Cancel the changes made to a CalendarEdit object, and release the lock. The CalendarEdit is disabled, and not to be used after this call.
+	 * 
+	 * @param edit
+	 *        The CalendarEdit object to commit.
+	 */
 	public void cancelCalendar(CalendarEdit edit)
 	{
 		// check for closed edit
@@ -839,7 +860,7 @@ public abstract class BaseCalendarService
 		m_storage.cancelCalendar(edit);
 
 		// close the edit object
-		 ((BaseCalendarEdit) edit).closeEdit();
+		((BaseCalendarEdit) edit).closeEdit();
 
 	} // cancelCalendar
 
@@ -943,9 +964,9 @@ public abstract class BaseCalendarService
 		return null;
 	}
 
-	/*******************************************************************************
-	* ResourceService implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * ResourceService implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * {@inheritDoc}
@@ -978,7 +999,9 @@ public abstract class BaseCalendarService
 	{
 		return new HttpAccess()
 		{
-			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref, Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException
+			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
+					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
+					EntityAccessOverloadException, EntityCopyrightException
 			{
 				// we only access the pdf reference
 				if (!REF_TYPE_CALENDAR_PDF.equals(ref.getSubType())) throw new EntityNotDefinedException(ref.getReference());
@@ -1151,10 +1174,10 @@ public abstract class BaseCalendarService
 		catch (NullPointerException e)
 		{
 		}
-		
+
 		return rv;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1199,7 +1222,7 @@ public abstract class BaseCalendarService
 		{
 			M_log.warn(".getEntityResourceProperties(): " + e);
 		}
-		
+
 		return props;
 	}
 
@@ -1210,7 +1233,7 @@ public abstract class BaseCalendarService
 	{
 		// double check that it's mine
 		if (SERVICE_NAME != ref.getType()) return null;
-		
+
 		Entity rv = null;
 
 		try
@@ -1229,8 +1252,7 @@ public abstract class BaseCalendarService
 			}
 
 			else
-				M_log.warn("getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: "
-						+ ref.getReference());
+				M_log.warn("getEntity(): unknown calendar ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
 		}
 		catch (PermissionException e)
 		{
@@ -1244,7 +1266,7 @@ public abstract class BaseCalendarService
 		{
 			M_log.warn(".getEntity(): " + e);
 		}
-		
+
 		return rv;
 	}
 
@@ -1255,7 +1277,7 @@ public abstract class BaseCalendarService
 	{
 		// double check that it's mine
 		if (SERVICE_NAME != ref.getType()) return null;
-		
+
 		Collection rv = new Vector();
 
 		try
@@ -1286,7 +1308,7 @@ public abstract class BaseCalendarService
 		{
 			M_log.warn(".getEntityAuthzGroups(): " + e);
 		}
-		
+
 		return rv;
 	}
 
@@ -1297,7 +1319,7 @@ public abstract class BaseCalendarService
 	{
 		// double check that it's mine
 		if (SERVICE_NAME != ref.getType()) return null;
-		
+
 		String rv = null;
 
 		try
@@ -1332,7 +1354,7 @@ public abstract class BaseCalendarService
 		{
 			M_log.warn(".getEntityUrl(): " + e);
 		}
-		
+
 		return rv;
 	}
 
@@ -1346,7 +1368,7 @@ public abstract class BaseCalendarService
 
 		// start with an element with our very own (service) name
 		Element element = doc.createElement(CalendarService.class.getName());
-		((Element)stack.peek()).appendChild(element);
+		((Element) stack.peek()).appendChild(element);
 		stack.push(element);
 
 		// get the channel associated with this site
@@ -1367,28 +1389,26 @@ public abstract class BaseCalendarService
 			{
 				CalendarEvent event = (CalendarEvent) events.next();
 				event.toXml(doc, stack);
-		
+
 				// collect message attachments
 				List atts = event.getAttachments();
 				for (int i = 0; i < atts.size(); i++)
 				{
 					Reference ref = (Reference) atts.get(i);
 					// if it's in the attachment area, and not already in the list
-					if (	(ref.getReference().startsWith("/content/attachment/"))
-						&&	(!attachments.contains(ref)))
+					if ((ref.getReference().startsWith("/content/attachment/")) && (!attachments.contains(ref)))
 					{
 						attachments.add(ref);
 					}
 				}
 			}
-			
+
 			stack.pop();
 		}
 		catch (Exception any)
 		{
-			M_log.warn(".archve: exception archiving messages for service: "
-						+ CalendarService.class.getName() + " channel: "
-						+ calRef);
+			M_log.warn(".archve: exception archiving messages for service: " + CalendarService.class.getName() + " channel: "
+					+ calRef);
 		}
 
 		stack.pop();
@@ -1399,7 +1419,8 @@ public abstract class BaseCalendarService
 	/**
 	 * {@inheritDoc}
 	 */
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
+			Set userListAllowImport)
 	{
 		Map ids = new HashMap();
 
@@ -1424,7 +1445,7 @@ public abstract class BaseCalendarService
 				commitCalendar(edit);
 				calendar = edit;
 			}
-			
+
 			// pass the DOM to get new event ids, and adjust attachments
 			NodeList children2 = root.getChildNodes();
 			int length2 = children2.getLength();
@@ -1433,31 +1454,31 @@ public abstract class BaseCalendarService
 				Node child2 = children2.item(i2);
 				if (child2.getNodeType() == Node.ELEMENT_NODE)
 				{
-					Element element2 = (Element)child2;
-	
+					Element element2 = (Element) child2;
+
 					// get the "calendar" child
 					if (element2.getTagName().equals("calendar"))
-					{					
+					{
 						NodeList children3 = element2.getChildNodes();
 						final int length3 = children3.getLength();
-						for(int i3 = 0; i3 < length3; i3++)
+						for (int i3 = 0; i3 < length3; i3++)
 						{
 							Node child3 = children3.item(i3);
 							if (child3.getNodeType() == Node.ELEMENT_NODE)
 							{
-								Element element3 = (Element)child3;
+								Element element3 = (Element) child3;
 
 								if (element3.getTagName().equals("properties"))
 								{
 									NodeList children8 = element3.getChildNodes();
 									final int length8 = children8.getLength();
-									for(int i8 = 0; i8 < length8; i8++)
+									for (int i8 = 0; i8 < length8; i8++)
 									{
 										Node child8 = children8.item(i8);
 										if (child8.getNodeType() == Node.ELEMENT_NODE)
 										{
-											Element element8 = (Element)child8;
-	
+											Element element8 = (Element) child8;
+
 											// for "event" children
 											if (element8.getTagName().equals("property"))
 											{
@@ -1469,17 +1490,17 @@ public abstract class BaseCalendarService
 													{
 														pValue = Xml.decodeAttribute(element8, "value");
 													}
-													
+
 													if (pValue != null)
 													{
 														try
 														{
 															CalendarEdit calEdit = editCalendar(calendarRef);
 															String calFields = StringUtil.trimToNull(calEdit.getEventFields());
-			
+
 															if (calFields != null)
-																pValue = calFields + ADDFIELDS_DELIMITER + pValue;	
-		
+																pValue = calFields + ADDFIELDS_DELIMITER + pValue;
+
 															calEdit.setEventFields(pValue);
 															commitCalendar(calEdit);
 														}
@@ -1493,7 +1514,7 @@ public abstract class BaseCalendarService
 										}
 									}
 								}
-				
+
 								// for "event" children
 								if (element3.getTagName().equals("event"))
 								{
@@ -1505,13 +1526,13 @@ public abstract class BaseCalendarService
 									// get the attachment kids
 									NodeList children5 = element3.getChildNodes();
 									final int length5 = children5.getLength();
-									for(int i5 = 0; i5 < length5; i5++)
+									for (int i5 = 0; i5 < length5; i5++)
 									{
 										Node child5 = children5.item(i5);
 										if (child5.getNodeType() == Node.ELEMENT_NODE)
 										{
-											Element element5 = (Element)child5;
-							
+											Element element5 = (Element) child5;
+
 											// for "attachment" children
 											if (element5.getTagName().equals("attachment"))
 											{
@@ -1522,19 +1543,17 @@ public abstract class BaseCalendarService
 													String newUrl = (String) attachmentNames.get(oldUrl);
 													if (newUrl != null)
 													{
-														if (newUrl.startsWith("/attachment/"))
-															newUrl = "/content".concat(newUrl);
-																	
+														if (newUrl.startsWith("/attachment/")) newUrl = "/content".concat(newUrl);
+
 														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 													}
 												}
-												
+
 												// map any references to this site to the new site id
 												else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
 												{
-													String newUrl = "/content/group/"
-														+ siteId
-														+ oldUrl.substring(15 + fromSiteId.length());
+													String newUrl = "/content/group/" + siteId
+															+ oldUrl.substring(15 + fromSiteId.length());
 													element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 												}
 											}
@@ -1562,11 +1581,15 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* import tool(s) contents from the source context into the destination context
-	* @param fromContext The source context
-	* @param toContext The destination context
-	* @param resourceIds when null, all resources will be imported; otherwise, only resources with those ids will be imported
-	*/
+	 * import tool(s) contents from the source context into the destination context
+	 * 
+	 * @param fromContext
+	 *        The source context
+	 * @param toContext
+	 *        The destination context
+	 * @param resourceIds
+	 *        when null, all resources will be imported; otherwise, only resources with those ids will be imported
+	 */
 	public void importEntities(String fromContext, String toContext, List resourceIds)
 	{
 		// get the channel associated with this site
@@ -1576,7 +1599,7 @@ public abstract class BaseCalendarService
 		try
 		{
 			oCalendar = getCalendar(oCalendarRef);
-			
+
 			// new calendar
 			CalendarEdit nCalendar = null;
 			String nCalendarRef = calendarReference(toContext, SiteService.MAIN_CONTAINER);
@@ -1590,20 +1613,28 @@ public abstract class BaseCalendarService
 				{
 					nCalendar = addCalendar(nCalendarRef);
 				}
-				catch (IdUsedException ee){}
-				catch (IdInvalidException ee){}
+				catch (IdUsedException ee)
+				{
+				}
+				catch (IdInvalidException ee)
+				{
+				}
 			}
-			catch (PermissionException e){}
-			catch (InUseException e) {}
-			
+			catch (PermissionException e)
+			{
+			}
+			catch (InUseException e)
+			{
+			}
+
 			if (nCalendar != null)
 			{
 				List oEvents = oCalendar.getEvents(null, null);
-				
+
 				String oFields = StringUtil.trimToNull(oCalendar.getEventFields());
 				String nFields = StringUtil.trimToNull(nCalendar.getEventFields());
 				String allFields = "";
-				
+
 				if (oFields != null)
 				{
 					if (nFields != null)
@@ -1616,21 +1647,15 @@ public abstract class BaseCalendarService
 					}
 					nCalendar.setEventFields(allFields);
 				}
-				
-																
-				for (int i=0; i < oEvents.size(); i++)
+
+				for (int i = 0; i < oEvents.size(); i++)
 				{
 					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
 					try
 					{
-						CalendarEvent e = nCalendar.addEvent(
-								oEvent.getRange(),
-								oEvent.getDisplayName(),
-								oEvent.getDescription(),
-								oEvent.getType(),
-								oEvent.getLocation(),
-								oEvent.getAttachments());
-								
+						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
+								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
+
 						try
 						{
 							BaseCalendarEventEdit eEdit = (BaseCalendarEventEdit) nCalendar.editEvent(e.getId());
@@ -1641,11 +1666,11 @@ public abstract class BaseCalendarService
 							// attachment
 							List oAttachments = eEdit.getAttachments();
 							List nAttachments = m_entityManager.newReferenceList();
-							for (int n=0; n<oAttachments.size(); n++)
+							for (int n = 0; n < oAttachments.size(); n++)
 							{
 								Reference oAttachment = (Reference) oAttachments.get(n);
 								String oAttachmentId = ((Reference) oAttachments.get(n)).getId();
-								if (oAttachmentId.indexOf(fromContext) !=-1)
+								if (oAttachmentId.indexOf(fromContext) != -1)
 								{
 									// replace old site id with new site id in attachments
 									String nAttachmentId = oAttachmentId.replaceAll(fromContext, toContext);
@@ -1656,9 +1681,9 @@ public abstract class BaseCalendarService
 									}
 									catch (Exception any)
 									{
-										
+
 									}
-									
+
 								}
 								else
 								{
@@ -1669,7 +1694,7 @@ public abstract class BaseCalendarService
 							// recurrence rule
 							RecurrenceRule rule = oEvent.getRecurrenceRule();
 							eEdit.setRecurrenceRule(rule);
-							
+
 							try
 							{
 								BaseCalendarEventEdit oEdit = (BaseCalendarEventEdit) oCalendar.editEvent(oEvent.getId());
@@ -1677,12 +1702,15 @@ public abstract class BaseCalendarService
 								eEdit.setExclusionRule(exRule);
 							}
 							catch (Exception error)
-							{}
-												
-							//commit new event
+							{
+							}
+
+							// commit new event
 							m_storage.commitEvent(nCalendar, eEdit);
 						}
-						catch (InUseException eee){}
+						catch (InUseException eee)
+						{
+						}
 					}
 					catch (PermissionException ee)
 					{
@@ -1691,7 +1719,7 @@ public abstract class BaseCalendarService
 				// commit new calendar
 				m_storage.commitCalendar(nCalendar);
 				((BaseCalendarEdit) nCalendar).closeEdit();
-			}	// if
+			} // if
 		}
 		catch (IdUnusedException e)
 		{
@@ -1699,42 +1727,32 @@ public abstract class BaseCalendarService
 		catch (PermissionException e)
 		{
 		}
-		
-	}	// importResources
+
+	} // importResources
+
+	/**
+	 * @inheritDoc
+	 */
+	public String[] myToolIds()
+	{
+		String[] toolIds = { "sakai.schedule" };
+		return toolIds;
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChange(/* Site */Object o, EntityProducer.ChangeType change)
+	public void startContext(String context)
 	{
-		Site site = (Site) o;
+		enableSchedule(context);
+	}
 
-		String[] toolIds = {"sakai.schedule"};
-
-		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change)
-		{
-			disableSchedule(site);
-		}
-		
-		// otherwise enable if we now have the mailbox tool, disable otherwise
-		else
-		{
-			// collect the site's email tool placements
-			Collection tools = site.getTools(toolIds);
-
-			// if we have a mailbox tool
-			if (!tools.isEmpty())
-			{
-				enableSchedule(site);
-			}
-			
-			// if we do not
-			else
-			{
-				disableSchedule(site);
-			}
-		}
+	/**
+	 * {@inheritDoc}
+	 */
+	public void endContext(String context)
+	{
+		disableSchedule(context);
 	}
 
 	/**
@@ -1743,10 +1761,10 @@ public abstract class BaseCalendarService
 	 * @param site
 	 *        The site.
 	 */
-	protected void enableSchedule(Site site)
+	protected void enableSchedule(String context)
 	{
 		// form the calendar name
-		String calRef = calendarReference(site.getId(), SiteService.MAIN_CONTAINER);
+		String calRef = calendarReference(context, SiteService.MAIN_CONTAINER);
 
 		// see if there's a calendar
 		try
@@ -1782,14 +1800,14 @@ public abstract class BaseCalendarService
 	 * @param site
 	 *        The site.
 	 */
-	protected void disableSchedule(Site site)
+	protected void disableSchedule(String context)
 	{
 		// TODO: currently we do not remove a calendar when the tool is removed from the site or the site is deleted -ggolden
 	}
 
-	/*******************************************************************************
-	* Calendar implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Calendar implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	public class BaseCalendarEdit extends Observable implements CalendarEdit, SessionBindingListener
 	{
@@ -1812,9 +1830,11 @@ public abstract class BaseCalendarService
 		protected boolean m_active = false;
 
 		/**
-		* Construct with an id.
-		* @param ref The calendar reference.
-		*/
+		 * Construct with an id.
+		 * 
+		 * @param ref
+		 *        The calendar reference.
+		 */
 		public BaseCalendarEdit(String ref)
 		{
 			// set the ids
@@ -1828,9 +1848,11 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEdit
 
 		/**
-		* Construct as a copy of another.
-		* @param id The other to copy.
-		*/
+		 * Construct as a copy of another.
+		 * 
+		 * @param id
+		 *        The other to copy.
+		 */
 		public BaseCalendarEdit(Calendar other)
 		{
 			// set the ids
@@ -1844,11 +1866,11 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEdit
 
 		/**
-		* Construct from a calendar (and possibly events) already defined
-		* in XML in a DOM tree.
-		* The Calendar is added to storage.
-		* @param el The XML DOM element defining the calendar.
-		*/
+		 * Construct from a calendar (and possibly events) already defined in XML in a DOM tree. The Calendar is added to storage.
+		 * 
+		 * @param el
+		 *        The XML DOM element defining the calendar.
+		 */
 		public BaseCalendarEdit(Element el)
 		{
 			// setup for properties
@@ -1863,8 +1885,7 @@ public abstract class BaseCalendarService
 			for (int i = 0; i < length; i++)
 			{
 				Node child = children.item(i);
-				if (child.getNodeType() != Node.ELEMENT_NODE)
-					continue;
+				if (child.getNodeType() != Node.ELEMENT_NODE) continue;
 				Element element = (Element) child;
 
 				// look for properties (ignore possible "event" entries)
@@ -1878,8 +1899,8 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEdit
 
 		/**
-		* Clean up.
-		*/
+		 * Clean up.
+		 */
 		protected void finalize()
 		{
 			deleteObservers();
@@ -1893,9 +1914,11 @@ public abstract class BaseCalendarService
 		} // finalize
 
 		/**
-		* Set the calendar as removed.
-		* @param event The tracking event associated with this action.
-		*/
+		 * Set the calendar as removed.
+		 * 
+		 * @param event
+		 *        The tracking event associated with this action.
+		 */
 		public void setRemoved(Event event)
 		{
 			m_isRemoved = true;
@@ -1909,9 +1932,10 @@ public abstract class BaseCalendarService
 		} // setRemoved
 
 		/**
-		* Access the context of the resource.
-		* @return The context.
-		*/
+		 * Access the context of the resource.
+		 * 
+		 * @return The context.
+		 */
 		public String getContext()
 		{
 			return m_context;
@@ -1919,9 +1943,10 @@ public abstract class BaseCalendarService
 		} // getContext
 
 		/**
-		* Access the id of the resource.
-		* @return The id.
-		*/
+		 * Access the id of the resource.
+		 * 
+		 * @return The id.
+		 */
 		public String getId()
 		{
 			return m_id;
@@ -1929,9 +1954,10 @@ public abstract class BaseCalendarService
 		} // getId
 
 		/**
-		* Access the URL which can be used to access the resource.
-		* @return The URL which can be used to access the resource.
-		*/
+		 * Access the URL which can be used to access the resource.
+		 * 
+		 * @return The URL which can be used to access the resource.
+		 */
 		public String getUrl()
 		{
 			return getAccessPoint(false) + SEPARATOR + getId() + SEPARATOR; // %%% needs fixing re: context
@@ -1939,9 +1965,10 @@ public abstract class BaseCalendarService
 		} // getUrl
 
 		/**
-		* Access the internal reference which can be used to access the resource from within the system.
-		* @return The the internal reference which can be used to access the resource from within the system.
-		*/
+		 * Access the internal reference which can be used to access the resource from within the system.
+		 * 
+		 * @return The the internal reference which can be used to access the resource from within the system.
+		 */
 		public String getReference()
 		{
 			return calendarReference(m_context, m_id);
@@ -1965,9 +1992,10 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		* Access the collection's properties.
-		* @return The collection's properties.
-		*/
+		 * Access the collection's properties.
+		 * 
+		 * @return The collection's properties.
+		 */
 		public ResourceProperties getProperties()
 		{
 			return m_properties;
@@ -1975,9 +2003,10 @@ public abstract class BaseCalendarService
 		} // getProperties
 
 		/**
-		* check permissions for getEvents() and getEvent().
-		* @return true if the user is allowed to get events from the calendar, false if not.
-		*/
+		 * check permissions for getEvents() and getEvent().
+		 * 
+		 * @return true if the user is allowed to get events from the calendar, false if not.
+		 */
 		public boolean allowGetEvents()
 		{
 			return unlockCheck(EVENT_READ_CALENDAR, getReference());
@@ -1985,20 +2014,23 @@ public abstract class BaseCalendarService
 		} // allowGetEvents
 
 		/**
-		* Return a List of all or filtered events in the calendar.
-		* The order in which the events will be found in the iteration is by event start date.
-		* @param range A time range to limit the iterated events.  May be null; all events will be returned.
-		* @param filter A filtering object to accept events into the iterator, or null if no filtering is desired.
-		* @return a List of all or filtered CalendarEvents in the calendar (may be empty).
-		* @exception PermissionException if the user does not have read permission to the calendar.
-		*/
+		 * Return a List of all or filtered events in the calendar. The order in which the events will be found in the iteration is by event start date.
+		 * 
+		 * @param range
+		 *        A time range to limit the iterated events. May be null; all events will be returned.
+		 * @param filter
+		 *        A filtering object to accept events into the iterator, or null if no filtering is desired.
+		 * @return a List of all or filtered CalendarEvents in the calendar (may be empty).
+		 * @exception PermissionException
+		 *            if the user does not have read permission to the calendar.
+		 */
 		public List getEvents(TimeRange range, Filter filter) throws PermissionException
 		{
 			// check security (throws if not permitted)
 			unlock(EVENT_READ_CALENDAR, getReference());
 
 			// track event
-			//EventTrackingService.post(EventTrackingService.newEvent(EVENT_READ_CALENDAR, getReference(), false));
+			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_READ_CALENDAR, getReference(), false));
 
 			List events = new Vector();
 
@@ -2006,13 +2038,13 @@ public abstract class BaseCalendarService
 			{
 				// TODO: do we really want to do this? -ggolden
 				// if we have done this already in this thread, use that
-				events = (List) ThreadLocalManager.get(getReference()+".events");
+				events = (List) ThreadLocalManager.get(getReference() + ".events");
 				if (events == null)
 				{
 					events = m_storage.getEvents(this);
 
 					// "cache" the events in the current service in case they are needed again in this thread...
-					ThreadLocalManager.set(getReference()+".events", events);
+					ThreadLocalManager.set(getReference() + ".events", events);
 				}
 			}
 
@@ -2046,7 +2078,7 @@ public abstract class BaseCalendarService
 				// otherwise get all the events from storage
 				else
 				{
-					// Note: while we are getting from storage, storage might change.  These can be processed
+					// Note: while we are getting from storage, storage might change. These can be processed
 					// after we get the storage entries, and put them in the cache, and mark the cache complete.
 					// -ggolden
 					synchronized (eventCache)
@@ -2081,12 +2113,11 @@ public abstract class BaseCalendarService
 				}
 			}
 
-			if (events.size() == 0)
-				return events;
+			if (events.size() == 0) return events;
 
 			// now filter out the events to just those in the range
 			// Note: if no range, we won't filter, which means we don't expand recurring events, but just
-			//       return it as a single event.  This is very good for an archive... -ggolden
+			// return it as a single event. This is very good for an archive... -ggolden
 			if (range != null)
 			{
 				events = filterEvents(events, range);
@@ -2099,11 +2130,9 @@ public abstract class BaseCalendarService
 				for (int i = 0; i < events.size(); i++)
 				{
 					Event event = (Event) events.get(i);
-					if (filter.accept(event))
-						filtered.add(event);
+					if (filter.accept(event)) filtered.add(event);
 				}
-				if (filtered.size() == 0)
-					return filtered;
+				if (filtered.size() == 0) return filtered;
 				events = filtered;
 			}
 
@@ -2115,11 +2144,14 @@ public abstract class BaseCalendarService
 		} // getEvents
 
 		/**
-		* Filter the events to only those in the time range.
-		* @param events The full list of events.
-		* @param range The time range.
-		* @return A list of events from the incoming list that overlap the given time range.
-		*/
+		 * Filter the events to only those in the time range.
+		 * 
+		 * @param events
+		 *        The full list of events.
+		 * @param range
+		 *        The time range.
+		 * @return A list of events from the incoming list that overlap the given time range.
+		 */
 		protected List filterEvents(List events, TimeRange range)
 		{
 			List filtered = new Vector();
@@ -2137,12 +2169,16 @@ public abstract class BaseCalendarService
 		} // filterEvents
 
 		/**
-		* Return a specific calendar event, as specified by event id.
-		* @param eventId The id of the event to get.
-		* @return the CalendarEvent that has the specified id.
-		* @exception IdUnusedException If this id is not a defined event in this calendar.
-		* @exception PermissionException If the user does not have any permissions to read the calendar.
-		*/
+		 * Return a specific calendar event, as specified by event id.
+		 * 
+		 * @param eventId
+		 *        The id of the event to get.
+		 * @return the CalendarEvent that has the specified id.
+		 * @exception IdUnusedException
+		 *            If this id is not a defined event in this calendar.
+		 * @exception PermissionException
+		 *            If the user does not have any permissions to read the calendar.
+		 */
 		public CalendarEvent getEvent(String eventId) throws IdUnusedException, PermissionException
 		{
 			// check security on the calendar (throws if not permitted)
@@ -2150,8 +2186,7 @@ public abstract class BaseCalendarService
 
 			CalendarEvent e = findEvent(eventId);
 
-			if (e == null)
-				throw new IdUnusedException(eventId);
+			if (e == null) throw new IdUnusedException(eventId);
 
 			// track event
 			// EventTrackingService.post(EventTrackingService.newEvent(EVENT_READ_CALENDAR, e.getReference(), false));
@@ -2161,9 +2196,10 @@ public abstract class BaseCalendarService
 		} // getEvent
 
 		/**
-		* check permissions for addEvent().
-		* @return true if the user is allowed to addEvent(...), false if not.
-		*/
+		 * check permissions for addEvent().
+		 * 
+		 * @return true if the user is allowed to addEvent(...), false if not.
+		 */
 		public boolean allowAddEvent()
 		{
 			return unlockCheck(EVENT_ADD_CALENDAR, getReference());
@@ -2171,24 +2207,26 @@ public abstract class BaseCalendarService
 		} // allowAddEvent
 
 		/**
-		* Add a new event to this calendar.
-		* @param range The event's time range.
-		* @param displayName The event's display name (PROP_DISPLAY_NAME) property value.
-		* @param description The event's description as plain text (PROP_DESCRIPTION) property value.
-		* @param type The event's calendar event type (PROP_CALENDAR_TYPE) property value.
-		* @param location The event's calendar event location (PROP_CALENDAR_LOCATION) property value.
-		* @param attachments The event attachments, a vector of Reference objects.
-		* @return The newly added event.
-		* @exception PermissionException If the user does not have permission to modify the calendar.
-		*/
-		public CalendarEvent addEvent(
-			TimeRange range,
-			String displayName,
-			String description,
-			String type,
-			String location,
-			List attachments)
-			throws PermissionException
+		 * Add a new event to this calendar.
+		 * 
+		 * @param range
+		 *        The event's time range.
+		 * @param displayName
+		 *        The event's display name (PROP_DISPLAY_NAME) property value.
+		 * @param description
+		 *        The event's description as plain text (PROP_DESCRIPTION) property value.
+		 * @param type
+		 *        The event's calendar event type (PROP_CALENDAR_TYPE) property value.
+		 * @param location
+		 *        The event's calendar event location (PROP_CALENDAR_LOCATION) property value.
+		 * @param attachments
+		 *        The event attachments, a vector of Reference objects.
+		 * @return The newly added event.
+		 * @exception PermissionException
+		 *            If the user does not have permission to modify the calendar.
+		 */
+		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location,
+				List attachments) throws PermissionException
 		{
 			// make one
 			CalendarEventEdit edit = addEvent();
@@ -2209,16 +2247,17 @@ public abstract class BaseCalendarService
 		} // addEvent
 
 		/**
-		* Add a new event to this calendar.
-		* Must commitEvent() to make official, or cancelEvent() when done!
-		* @return The newly added event, locked for update.
-		* @exception PermissionException If the user does not have write permission to the calendar.
-		*/
+		 * Add a new event to this calendar. Must commitEvent() to make official, or cancelEvent() when done!
+		 * 
+		 * @return The newly added event, locked for update.
+		 * @exception PermissionException
+		 *            If the user does not have write permission to the calendar.
+		 */
 		public CalendarEventEdit addEvent() throws PermissionException
 		{
 			// check security (throws if not permitted)
 			unlock(EVENT_ADD_CALENDAR, getReference());
-			
+
 			// allocate a new unique event id
 			String id = getUniqueId();
 
@@ -2232,11 +2271,15 @@ public abstract class BaseCalendarService
 		} // addEvent
 
 		/**
-		* Merge in a new event as defined in the xml.
-		* @param el The event information in XML in a DOM element.
-		* @exception PermissionException If the user does not have write permission to the calendar.
-		* @exception IdUsedException if the user id is already used.
-		*/
+		 * Merge in a new event as defined in the xml.
+		 * 
+		 * @param el
+		 *        The event information in XML in a DOM element.
+		 * @exception PermissionException
+		 *            If the user does not have write permission to the calendar.
+		 * @exception IdUsedException
+		 *            if the user id is already used.
+		 */
 		public CalendarEventEdit mergeEvent(Element el) throws PermissionException, IdUsedException
 		{
 			// check security (throws if not permitted)
@@ -2261,10 +2304,12 @@ public abstract class BaseCalendarService
 		} // mergeEvent
 
 		/**
-		* check permissions for removeEvent().
-		* @param event The event from this calendar to remove.
-		* @return true if the user is allowed to removeEvent(event), false if not.
-		*/
+		 * check permissions for removeEvent().
+		 * 
+		 * @param event
+		 *        The event from this calendar to remove.
+		 * @return true if the user is allowed to removeEvent(event), false if not.
+		 */
 		public boolean allowRemoveEvent(CalendarEvent event)
 		{
 			// check security
@@ -2273,10 +2318,11 @@ public abstract class BaseCalendarService
 		} // allowRemoveEvent
 
 		/**
-		* Remove an event from the calendar, one locked for edit.
-		* Note: if the event is a recurring event, the entire sequence is modified by this commit (MOD_ALL).
-		* @param event The event from this calendar to remove.
-		*/
+		 * Remove an event from the calendar, one locked for edit. Note: if the event is a recurring event, the entire sequence is modified by this commit (MOD_ALL).
+		 * 
+		 * @param event
+		 *        The event from this calendar to remove.
+		 */
 		public void removeEvent(CalendarEventEdit edit)
 		{
 			removeEvent(edit, MOD_ALL);
@@ -2284,12 +2330,13 @@ public abstract class BaseCalendarService
 		} // removeEvent
 
 		/**
-		* Remove an event from the calendar, one locked for edit.
-		* @param event The event from this calendar to remove.
-		* @param intention The recurring event modification intention,
-		* based on values in the CalendarService "MOD_*",
-		* used if the event is part of a recurring event sequence to determine how much of the sequence is removed.
-		*/
+		 * Remove an event from the calendar, one locked for edit.
+		 * 
+		 * @param event
+		 *        The event from this calendar to remove.
+		 * @param intention
+		 *        The recurring event modification intention, based on values in the CalendarService "MOD_*", used if the event is part of a recurring event sequence to determine how much of the sequence is removed.
+		 */
 		public void removeEvent(CalendarEventEdit edit, int intention)
 		{
 			// check for closed edit
@@ -2365,7 +2412,7 @@ public abstract class BaseCalendarService
 			notify(event);
 
 			// close the edit object
-			 ((BaseCalendarEventEdit) edit).closeEdit();
+			((BaseCalendarEventEdit) edit).closeEdit();
 
 			// remove any realm defined for this resource
 			try
@@ -2383,15 +2430,16 @@ public abstract class BaseCalendarService
 		} // removeEvent
 
 		/**
-		* check permissions for editEvent()
-		* @param id The event id.
-		* @return true if the user is allowed to update the event, false if not.
-		*/
+		 * check permissions for editEvent()
+		 * 
+		 * @param id
+		 *        The event id.
+		 * @return true if the user is allowed to update the event, false if not.
+		 */
 		public boolean allowEditEvent(String eventId)
 		{
 			CalendarEvent e = findEvent(eventId);
-			if (e == null)
-				return false;
+			if (e == null) return false;
 
 			// check security (throws if not permitted)
 			return unlockCheck(EVENT_MODIFY_CALENDAR, getReference());
@@ -2399,14 +2447,18 @@ public abstract class BaseCalendarService
 		} // allowEditCalendarEvent
 
 		/**
-		* Return a specific calendar event, as specified by event name, locked for update.
-		* Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
-		* @param eventId The id of the event to get.
-		* @return the Event that has the specified id.
-		* @exception IdUnusedException If this name is not a defined event in this calendar.
-		* @exception PermissionException If the user does not have any permissions to edit the event.
-		* @exception InUseException if the event is locked for edit by someone else.
-		*/
+		 * Return a specific calendar event, as specified by event name, locked for update. Must commitEvent() to make official, or cancelEvent(), or removeEvent() when done!
+		 * 
+		 * @param eventId
+		 *        The id of the event to get.
+		 * @return the Event that has the specified id.
+		 * @exception IdUnusedException
+		 *            If this name is not a defined event in this calendar.
+		 * @exception PermissionException
+		 *            If the user does not have any permissions to edit the event.
+		 * @exception InUseException
+		 *            if the event is locked for edit by someone else.
+		 */
 		public CalendarEventEdit editEvent(String eventId) throws IdUnusedException, PermissionException, InUseException
 		{
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
@@ -2428,16 +2480,14 @@ public abstract class BaseCalendarService
 			}
 
 			CalendarEvent e = findEvent(eventId);
-			if (e == null)
-				throw new IdUnusedException(eventId);
+			if (e == null) throw new IdUnusedException(eventId);
 
 			// check security (throws if not permitted)
 			unlock(EVENT_MODIFY_CALENDAR, getReference());
 
 			// ignore the cache - get the CalendarEvent with a lock from the info store
 			CalendarEventEdit edit = m_storage.editEvent(this, eventId);
-			if (edit == null)
-				throw new InUseException(eventId);
+			if (edit == null) throw new InUseException(eventId);
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
 
@@ -2457,11 +2507,12 @@ public abstract class BaseCalendarService
 		} // editEvent
 
 		/**
-		* Commit the changes made to a CalendarEventEdit object, and release the lock.
-		* The CalendarEventEdit is disabled, and not to be used after this call.
-		* Note: if the event is a recurring event, the entire sequence is modified by this commit (MOD_ALL).
-		* @param edit The CalendarEventEdit object to commit.
-		*/
+		 * Commit the changes made to a CalendarEventEdit object, and release the lock. The CalendarEventEdit is disabled, and not to be used after this call. Note: if the event is a recurring event, the entire sequence is modified by this commit
+		 * (MOD_ALL).
+		 * 
+		 * @param edit
+		 *        The CalendarEventEdit object to commit.
+		 */
 		public void commitEvent(CalendarEventEdit edit)
 		{
 			commitEvent(edit, MOD_ALL);
@@ -2469,13 +2520,13 @@ public abstract class BaseCalendarService
 		} // commitEvent
 
 		/**
-		* Commit the changes made to a CalendarEventEdit object, and release the lock.
-		* The CalendarEventEdit is disabled, and not to be used after this call.
-		* @param edit The CalendarEventEdit object to commit.
-		* @param intention The recurring event modification intention,
-		* based on values in the CalendarService "MOD_*",
-		* used if the event is part of a recurring event sequence to determine how much of the sequence is changed by this commmit.
-		*/
+		 * Commit the changes made to a CalendarEventEdit object, and release the lock. The CalendarEventEdit is disabled, and not to be used after this call.
+		 * 
+		 * @param edit
+		 *        The CalendarEventEdit object to commit.
+		 * @param intention
+		 *        The recurring event modification intention, based on values in the CalendarService "MOD_*", used if the event is part of a recurring event sequence to determine how much of the sequence is changed by this commmit.
+		 */
 		public void commitEvent(CalendarEventEdit edit, int intention)
 		{
 			// check for closed edit
@@ -2525,8 +2576,7 @@ public abstract class BaseCalendarService
 					newEvent = (BaseCalendarEventEdit) m_storage.putEvent(this, id);
 					newEvent.setPartial(edit);
 					m_storage.commitEvent(this, newEvent);
-					EventTrackingService.post(
-						EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, newEvent.getReference(), true));
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, newEvent.getReference(), true));
 
 					// get the edit back to initial values... so only the exclusion is changed
 					edit = (CalendarEventEdit) m_storage.getEvent(this, bedit.m_id);
@@ -2552,7 +2602,7 @@ public abstract class BaseCalendarService
 			}
 
 			// update the properties
-			//addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
+			// addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
 
 			// complete the edit
 			m_storage.commitEvent(this, edit);
@@ -2590,10 +2640,11 @@ public abstract class BaseCalendarService
 		} // commitEvent
 
 		/**
-		* Cancel the changes made to a CalendarEventEdit object, and release the lock.
-		* The CalendarEventEdit is disabled, and not to be used after this call.
-		* @param edit The CalendarEventEdit object to commit.
-		*/
+		 * Cancel the changes made to a CalendarEventEdit object, and release the lock. The CalendarEventEdit is disabled, and not to be used after this call.
+		 * 
+		 * @param edit
+		 *        The CalendarEventEdit object to commit.
+		 */
 		public void cancelEvent(CalendarEventEdit edit)
 		{
 			// check for closed edit
@@ -2634,14 +2685,15 @@ public abstract class BaseCalendarService
 			m_storage.cancelEvent(this, edit);
 
 			// close the edit object
-			 ((BaseCalendarEventEdit) edit).closeEdit();
+			((BaseCalendarEventEdit) edit).closeEdit();
 
 		} // cancelCalendarEvent
 
 		/**
-		* Return the extra fields kept for each event in this calendar.
-		* @return the extra fields kept for each event in this calendar, formatted into a single string. %%%
-		*/
+		 * Return the extra fields kept for each event in this calendar.
+		 * 
+		 * @return the extra fields kept for each event in this calendar, formatted into a single string. %%%
+		 */
 		public String getEventFields()
 		{
 			return m_properties.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_EVENT_FIELDS);
@@ -2649,9 +2701,11 @@ public abstract class BaseCalendarService
 		} // getEventFields
 
 		/**
-		* Set the extra fields kept for each event in this calendar.
-		* @param meta The extra fields kept for each event in this calendar, formatted into a single string. %%%
-		*/
+		 * Set the extra fields kept for each event in this calendar.
+		 * 
+		 * @param meta
+		 *        The extra fields kept for each event in this calendar, formatted into a single string. %%%
+		 */
 		public void setEventFields(String fields)
 		{
 			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_EVENT_FIELDS, fields);
@@ -2659,9 +2713,11 @@ public abstract class BaseCalendarService
 		} // setEventFields
 
 		/**
-		* Notify the calendar that it has changed
-		* @param event The event that caused the update.
-		*/
+		 * Notify the calendar that it has changed
+		 * 
+		 * @param event
+		 *        The event that caused the update.
+		 */
 		public void notify(Event event)
 		{
 			// notify observers, sending the tracking event to identify the change
@@ -2671,11 +2727,14 @@ public abstract class BaseCalendarService
 		} // notify
 
 		/**
-		* Serialize the resource into XML, adding an element to the doc under the top of the stack element.
-		* @param doc The DOM doc to contain the XML (or null for a string return).
-		* @param stack The DOM elements, the top of which is the containing element of the new "resource" element.
-		* @return The newly added element.
-		*/
+		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
+		 * 
+		 * @param doc
+		 *        The DOM doc to contain the XML (or null for a string return).
+		 * @param stack
+		 *        The DOM elements, the top of which is the containing element of the new "resource" element.
+		 * @return The newly added element.
+		 */
 		public Element toXml(Document doc, Stack stack)
 		{
 			Element calendar = doc.createElement("calendar");
@@ -2704,10 +2763,12 @@ public abstract class BaseCalendarService
 		} // toXml
 
 		/**
-		* Find the event, in cache or info store - cache it if newly found.
-		* @param eventId The id of the event.
-		* @return The event, if found.
-		*/
+		 * Find the event, in cache or info store - cache it if newly found.
+		 * 
+		 * @param eventId
+		 *        The id of the event.
+		 * @return The event, if found.
+		 */
 		protected CalendarEvent findEvent(String eventId)
 		{
 			CalendarEvent e = null;
@@ -2737,7 +2798,7 @@ public abstract class BaseCalendarService
 			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
 			{
 				// if we have "cached" the entire set of events in the thread, get that and find our message there
-				List events = (List) ThreadLocalManager.get(getReference()+".events");
+				List events = (List) ThreadLocalManager.get(getReference() + ".events");
 				if (events != null)
 				{
 					for (Iterator i = events.iterator(); i.hasNext();)
@@ -2804,27 +2865,31 @@ public abstract class BaseCalendarService
 		} // findEvent
 
 		/**
-		* Access the event code for this edit.
-		* @return The event code for this edit.
-		*/
+		 * Access the event code for this edit.
+		 * 
+		 * @return The event code for this edit.
+		 */
 		protected String getEvent()
 		{
 			return m_event;
 		}
 
 		/**
-		* Set the event code for this edit.
-		* @param event The event code for this edit.
-		*/
+		 * Set the event code for this edit.
+		 * 
+		 * @param event
+		 *        The event code for this edit.
+		 */
 		protected void setEvent(String event)
 		{
 			m_event = event;
 		}
 
 		/**
-		* Access the resource's properties for modification
-		* @return The resource's properties.
-		*/
+		 * Access the resource's properties for modification
+		 * 
+		 * @return The resource's properties.
+		 */
 		public ResourcePropertiesEdit getPropertiesEdit()
 		{
 			return m_properties;
@@ -2832,8 +2897,8 @@ public abstract class BaseCalendarService
 		} // getPropertiesEdit
 
 		/**
-		* Enable editing.
-		*/
+		 * Enable editing.
+		 */
 		protected void activate()
 		{
 			m_active = true;
@@ -2841,9 +2906,10 @@ public abstract class BaseCalendarService
 		} // activate
 
 		/**
-		* Check to see if the edit is still active, or has already been closed.
-		* @return true if the edit is active, false if it's been closed.
-		*/
+		 * Check to see if the edit is still active, or has already been closed.
+		 * 
+		 * @return true if the edit is active, false if it's been closed.
+		 */
 		public boolean isActiveEdit()
 		{
 			return m_active;
@@ -2851,17 +2917,17 @@ public abstract class BaseCalendarService
 		} // isActiveEdit
 
 		/**
-		* Close the edit object - it cannot be used after this.
-		*/
+		 * Close the edit object - it cannot be used after this.
+		 */
 		protected void closeEdit()
 		{
 			m_active = false;
 
 		} // closeEdit
 
-		/*******************************************************************************
-		* SessionBindingListener implementation
-		*******************************************************************************/
+		/******************************************************************************************************************************************************************************************************************************************************
+		 * SessionBindingListener implementation
+		 *****************************************************************************************************************************************************************************************************************************************************/
 
 		public void valueBound(SessionBindingEvent event)
 		{
@@ -2869,8 +2935,7 @@ public abstract class BaseCalendarService
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("valueUnbound()");
+			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -2882,9 +2947,9 @@ public abstract class BaseCalendarService
 
 	} // class BaseCalendar
 
-	/*******************************************************************************
-	* CalendarEvent implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * CalendarEvent implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	public class BaseCalendarEventEdit implements CalendarEventEdit, SessionBindingListener
 	{
@@ -2894,8 +2959,9 @@ public abstract class BaseCalendarService
 		/** The effective time range. */
 		protected TimeRange m_range = null;
 
-		/** The base time range: for non-recurring events, this matches m_range,
-		    but for recurring events, it is always the range of the initial event in the sequence (transient). */
+		/**
+		 * The base time range: for non-recurring events, this matches m_range, but for recurring events, it is always the range of the initial event in the sequence (transient).
+		 */
 		protected TimeRange m_baseRange = null;
 
 		/** The recurrence rule (single rule). */
@@ -2920,10 +2986,13 @@ public abstract class BaseCalendarService
 		protected boolean m_active = false;
 
 		/**
-		* Construct.
-		* @param calendar The calendar in which this event lives.
-		* @param id The event id, unique within the calendar.
-		*/
+		 * Construct.
+		 * 
+		 * @param calendar
+		 *        The calendar in which this event lives.
+		 * @param id
+		 *        The event id, unique within the calendar.
+		 */
 		public BaseCalendarEventEdit(Calendar calendar, String id)
 		{
 			m_calendar = (BaseCalendarEdit) calendar;
@@ -2938,9 +3007,11 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEventEdit
 
 		/**
-		* Construct as a copy  of another event.
-		* @param other  The other event to copy.
-		*/
+		 * Construct as a copy of another event.
+		 * 
+		 * @param other
+		 *        The other event to copy.
+		 */
 		public BaseCalendarEventEdit(Calendar calendar, CalendarEvent other)
 		{
 			// store the calendar
@@ -2951,11 +3022,13 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEventEdit
 
 		/**
-		* Construct as a thin copy of another event, with this new time range, and no rules,
-		* as part of a recurring event sequence.
-		* @param other The other event to copy.
-		* @param ri The RecurrenceInstance with the time range (and sequence number) to use.
-		*/
+		 * Construct as a thin copy of another event, with this new time range, and no rules, as part of a recurring event sequence.
+		 * 
+		 * @param other
+		 *        The other event to copy.
+		 * @param ri
+		 *        The RecurrenceInstance with the time range (and sequence number) to use.
+		 */
 		public BaseCalendarEventEdit(CalendarEvent other, RecurrenceInstance ri)
 		{
 			// store the calendar
@@ -2981,10 +3054,13 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEventEdit
 
 		/**
-		* Construct from an existing definition, in xml.
-		* @param calendar The calendar in which this event lives.
-		* @param el The event in XML in a DOM element.
-		*/
+		 * Construct from an existing definition, in xml.
+		 * 
+		 * @param calendar
+		 *        The calendar in which this event lives.
+		 * @param el
+		 *        The event in XML in a DOM element.
+		 */
 		public BaseCalendarEventEdit(Calendar calendar, Element el)
 		{
 			m_calendar = (BaseCalendarEdit) calendar;
@@ -3045,14 +3121,14 @@ public abstract class BaseCalendarService
 											String ruleClassOld = ruleChildElement.getAttribute("class");
 
 											// use the last class name minus the package
-											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.')+1);
+											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
 										}
 										catch (Throwable t)
 										{
 											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
 										}
 									}
-									
+
 									// put my package on the class name
 									String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
 
@@ -3083,14 +3159,14 @@ public abstract class BaseCalendarService
 											String ruleClassOld = ruleChildElement.getAttribute("class");
 
 											// use the last class name minus the package
-											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.')+1);
+											ruleName = ruleClassOld.substring(ruleClassOld.lastIndexOf('.') + 1);
 										}
 										catch (Throwable t)
 										{
 											M_log.warn(": trouble loading rule: " + ruleName + " : " + t);
 										}
 									}
-									
+
 									// put my package on the class name
 									String ruleClass = this.getClass().getPackage().getName() + "." + ruleName;
 
@@ -3114,9 +3190,11 @@ public abstract class BaseCalendarService
 		} // BaseCalendarEventEdit
 
 		/**
-		* Take all values from this object.
-		* @param other The other object to take values from.
-		*/
+		 * Take all values from this object.
+		 * 
+		 * @param other
+		 *        The other object to take values from.
+		 */
 		protected void set(CalendarEvent other)
 		{
 			// copy the id
@@ -3141,9 +3219,11 @@ public abstract class BaseCalendarService
 		} // set
 
 		/**
-		* Take some values from this object (not id, not rules).
-		* @param other The other object to take values from.
-		*/
+		 * Take some values from this object (not id, not rules).
+		 * 
+		 * @param other
+		 *        The other object to take values from.
+		 */
 		protected void setPartial(CalendarEvent other)
 		{
 			// copy the range
@@ -3160,8 +3240,8 @@ public abstract class BaseCalendarService
 		} // setPartial
 
 		/**
-		* Clean up.
-		*/
+		 * Clean up.
+		 */
 		protected void finalize()
 		{
 			// catch the case where an edit was made but never resolved
@@ -3175,9 +3255,10 @@ public abstract class BaseCalendarService
 		} // finalize
 
 		/**
-		* Access the time range
-		* @return The event time range
-		*/
+		 * Access the time range
+		 * 
+		 * @return The event time range
+		 */
 		public TimeRange getRange()
 		{
 			// range might be null in the creation process, before the fields are set in an edit, but
@@ -3187,14 +3268,16 @@ public abstract class BaseCalendarService
 				return TimeService.newTimeRange(TimeService.newTime(0));
 			}
 
-			//return (TimeRange) m_range.clone();
+			// return (TimeRange) m_range.clone();
 			return m_range;
 		} // getRange
 
 		/**
-		* Replace the time range
-		* @param The new event time range
-		*/
+		 * Replace the time range
+		 * 
+		 * @param The
+		 *        new event time range
+		 */
 		public void setRange(TimeRange range)
 		{
 			m_range = (TimeRange) range.clone();
@@ -3202,9 +3285,10 @@ public abstract class BaseCalendarService
 		} // setRange
 
 		/**
-		* Access the display name property (cover for PROP_DISPLAY_NAME).
-		* @return The event's display name property.
-		*/
+		 * Access the display name property (cover for PROP_DISPLAY_NAME).
+		 * 
+		 * @return The event's display name property.
+		 */
 		public String getDisplayName()
 		{
 			return m_properties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
@@ -3212,9 +3296,11 @@ public abstract class BaseCalendarService
 		} // getDisplayName
 
 		/**
-		* Set the display name property (cover for PROP_DISPLAY_NAME).
-		* @param name The event's display name property.
-		*/
+		 * Set the display name property (cover for PROP_DISPLAY_NAME).
+		 * 
+		 * @param name
+		 *        The event's display name property.
+		 */
 		public void setDisplayName(String name)
 		{
 			m_properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
@@ -3222,59 +3308,65 @@ public abstract class BaseCalendarService
 		} // setDisplayName
 
 		/**
-		* Access the description property as plain text.
-		* @return The event's description property.
-		*/
+		 * Access the description property as plain text.
+		 * 
+		 * @return The event's description property.
+		 */
 		public String getDescription()
 		{
 			return FormattedText.convertFormattedTextToPlaintext(getDescriptionFormatted());
 		}
-		
+
 		/**
-		* Access the description property as formatted text.
-		* @return The event's description property.
-		*/
+		 * Access the description property as formatted text.
+		 * 
+		 * @return The event's description property.
+		 */
 		public String getDescriptionFormatted()
 		{
 			// %%% JANDERSE the calendar event description can now be formatted text
 			// first try to use the formatted text description; if that isn't found, use the plaintext description
-			String desc = m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION+"-html");
+			String desc = m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION + "-html");
 			if (desc != null && desc.length() > 0) return desc;
-			desc = m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION+"-formatted");
+			desc = m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION + "-formatted");
 			desc = FormattedText.convertOldFormattedText(desc);
 			if (desc != null && desc.length() > 0) return desc;
-			desc = FormattedText.convertPlaintextToFormattedText(m_properties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
+			desc = FormattedText.convertPlaintextToFormattedText(m_properties
+					.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
 			return desc;
 		} // getDescriptionFormatted()
 
-		
 		/**
-		* Set the description property as plain text.
-		* @param description The event's description property.
-		*/
+		 * Set the description property as plain text.
+		 * 
+		 * @param description
+		 *        The event's description property.
+		 */
 		public void setDescription(String description)
 		{
 			setDescriptionFormatted(FormattedText.convertPlaintextToFormattedText(description));
 		}
-		
-		
+
 		/**
-		* Set the description property as formatted text.
-		* @param description The event's description property.
-		*/
+		 * Set the description property as formatted text.
+		 * 
+		 * @param description
+		 *        The event's description property.
+		 */
 		public void setDescriptionFormatted(String description)
 		{
 			// %%% JANDERSE the calendar event description can now be formatted text
 			// save both a formatted and a plaintext version of the description
-			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION+"-html", description);
-			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION, FormattedText.convertFormattedTextToPlaintext(description));
+			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION + "-html", description);
+			m_properties.addProperty(ResourceProperties.PROP_DESCRIPTION, FormattedText
+					.convertFormattedTextToPlaintext(description));
 		} // setDescriptionFormatted()
 
-		
 		/**
-		* Access the type (cover for PROP_CALENDAR_TYPE).
-		* @return The event's type property.
-		*/
+		 * Access the type (cover for PROP_CALENDAR_TYPE).
+		 * 
+		 * @return The event's type property.
+		 */
 		public String getType()
 		{
 			return m_properties.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_TYPE);
@@ -3282,9 +3374,11 @@ public abstract class BaseCalendarService
 		} // getType
 
 		/**
-		* Set the type (cover for PROP_CALENDAR_TYPE).
-		* @param type The event's type property.
-		*/
+		 * Set the type (cover for PROP_CALENDAR_TYPE).
+		 * 
+		 * @param type
+		 *        The event's type property.
+		 */
 		public void setType(String type)
 		{
 			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_TYPE, type);
@@ -3292,9 +3386,10 @@ public abstract class BaseCalendarService
 		} // setType
 
 		/**
-		* Access the location (cover for PROP_CALENDAR_LOCATION).
-		* @return The event's location property.
-		*/
+		 * Access the location (cover for PROP_CALENDAR_LOCATION).
+		 * 
+		 * @return The event's location property.
+		 */
 		public String getLocation()
 		{
 			return m_properties.getPropertyFormatted(ResourceProperties.PROP_CALENDAR_LOCATION);
@@ -3302,9 +3397,10 @@ public abstract class BaseCalendarService
 		} // getLocation
 
 		/**
-		* Gets the recurrence rule, if any.
-		* @return The recurrence rule, or null if none.
-		*/
+		 * Gets the recurrence rule, if any.
+		 * 
+		 * @return The recurrence rule, or null if none.
+		 */
 		public RecurrenceRule getRecurrenceRule()
 		{
 			return m_singleRule;
@@ -3312,36 +3408,29 @@ public abstract class BaseCalendarService
 		} // getRecurrenceRule
 
 		/**
-		* Gets the exclusion recurrence rule, if any.
-		* @return The exclusionrecurrence rule, or null if none.
-		*/
+		 * Gets the exclusion recurrence rule, if any.
+		 * 
+		 * @return The exclusionrecurrence rule, or null if none.
+		 */
 		protected RecurrenceRule getExclusionRule()
 		{
-			if (m_exclusionRule == null)
-				m_exclusionRule = new ExclusionSeqRecurrenceRule();
+			if (m_exclusionRule == null) m_exclusionRule = new ExclusionSeqRecurrenceRule();
 
 			return m_exclusionRule;
 
 		} // getExclusionRule
-		
+
 		/*
-		public RecurrenceRule getExclusionRuleII()
-		{
-			if (m_exclusionRule == null)
-				m_exclusionRule = new ExclusionSeqRecurrenceRule();
-
-			return m_exclusionRule;
-
-		} // getExclusionRule
-		*/
+		 * public RecurrenceRule getExclusionRuleII() { if (m_exclusionRule == null) m_exclusionRule = new ExclusionSeqRecurrenceRule(); return m_exclusionRule; } // getExclusionRule
+		 */
 
 		/**
-		* Return a list of all resolved events generated from this event plus it's recurrence rules
-		* that fall within the time range, including this event, possibly empty.
-		* @param range The time range bounds for the events returned.
-		* @return a List (CalendarEvent) of all events and recurrences within the time range, including
-		* this, possibly empty.
-		*/
+		 * Return a list of all resolved events generated from this event plus it's recurrence rules that fall within the time range, including this event, possibly empty.
+		 * 
+		 * @param range
+		 *        The time range bounds for the events returned.
+		 * @return a List (CalendarEvent) of all events and recurrences within the time range, including this, possibly empty.
+		 */
 		protected List resolve(TimeRange range)
 		{
 			List rv = new Vector();
@@ -3380,10 +3469,12 @@ public abstract class BaseCalendarService
 		} // resolve
 
 		/**
-		* Get the value of an "extra" event field.
-		* @param name The name of the field.
-		* @return the value of the "extra" event field.
-		*/
+		 * Get the value of an "extra" event field.
+		 * 
+		 * @param name
+		 *        The name of the field.
+		 * @return the value of the "extra" event field.
+		 */
 		public String getField(String name)
 		{
 			// names are prefixed to form a namespace
@@ -3394,10 +3485,13 @@ public abstract class BaseCalendarService
 		} // getField
 
 		/**
-		* Set the value of an "extra" event field.
-		* @param name The "extra" field name
-		* @param value The value to set, or null to remove the field.
-		*/
+		 * Set the value of an "extra" event field.
+		 * 
+		 * @param name
+		 *        The "extra" field name
+		 * @param value
+		 *        The value to set, or null to remove the field.
+		 */
 		public void setField(String name, String value)
 		{
 			// names are prefixed to form a namespace
@@ -3415,9 +3509,11 @@ public abstract class BaseCalendarService
 		} // setField
 
 		/**
-		* Set the location (cover for PROP_CALENDAR_LOCATION).
-		* @param location The event's location property.
-		*/
+		 * Set the location (cover for PROP_CALENDAR_LOCATION).
+		 * 
+		 * @param location
+		 *        The event's location property.
+		 */
 		public void setLocation(String location)
 		{
 			m_properties.addProperty(ResourceProperties.PROP_CALENDAR_LOCATION, location);
@@ -3425,9 +3521,11 @@ public abstract class BaseCalendarService
 		} // setLocation
 
 		/**
-		* Sets the recurrence rule.
-		* @param rule The recurrence rule, or null to clear out the rule.
-		*/
+		 * Sets the recurrence rule.
+		 * 
+		 * @param rule
+		 *        The recurrence rule, or null to clear out the rule.
+		 */
 		public void setRecurrenceRule(RecurrenceRule rule)
 		{
 			m_singleRule = rule;
@@ -3435,9 +3533,11 @@ public abstract class BaseCalendarService
 		} // setRecurrenceRule
 
 		/**
-		* Sets the exclusion recurrence rule.
-		* @param rule The recurrence rule, or null to clear out the rule.
-		*/
+		 * Sets the exclusion recurrence rule.
+		 * 
+		 * @param rule
+		 *        The recurrence rule, or null to clear out the rule.
+		 */
 		protected void setExclusionRule(RecurrenceRule rule)
 		{
 			m_exclusionRule = rule;
@@ -3445,9 +3545,10 @@ public abstract class BaseCalendarService
 		} // setExclusionRule
 
 		/**
-		* Access the id of the resource.
-		* @return The id.
-		*/
+		 * Access the id of the resource.
+		 * 
+		 * @return The id.
+		 */
 		public String getId()
 		{
 			return m_id;
@@ -3455,9 +3556,10 @@ public abstract class BaseCalendarService
 		} // getId
 
 		/**
-		* Access the URL which can be used to access the resource.
-		* @return The URL which can be used to access the resource.
-		*/
+		 * Access the URL which can be used to access the resource.
+		 * 
+		 * @return The URL which can be used to access the resource.
+		 */
 		public String getUrl()
 		{
 			return m_calendar.getUrl() + getId();
@@ -3465,9 +3567,10 @@ public abstract class BaseCalendarService
 		} // getUrl
 
 		/**
-		* Access the internal reference which can be used to access the resource from within the system.
-		* @return The the internal reference which can be used to access the resource from within the system.
-		*/
+		 * Access the internal reference which can be used to access the resource from within the system.
+		 * 
+		 * @return The the internal reference which can be used to access the resource from within the system.
+		 */
 		public String getReference()
 		{
 			return eventReference(m_calendar.getContext(), m_calendar.getId(), getId());
@@ -3491,9 +3594,10 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		* Access the event's properties.
-		* @return The event's properties.
-		*/
+		 * Access the event's properties.
+		 * 
+		 * @return The event's properties.
+		 */
 		public ResourceProperties getProperties()
 		{
 			return m_properties;
@@ -3501,9 +3605,11 @@ public abstract class BaseCalendarService
 		} // getProperties
 
 		/**
-		* Notify the event that it has changed.
-		* @param event The event that caused the update.
-		*/
+		 * Notify the event that it has changed.
+		 * 
+		 * @param event
+		 *        The event that caused the update.
+		 */
 		public void notify(Event event)
 		{
 			m_calendar.notify(event);
@@ -3511,31 +3617,32 @@ public abstract class BaseCalendarService
 		} // notify
 
 		/**
-		* Compare one event to another, based on range.
-		* @param o The object to be compared.
-		* @return A negative integer, zero, or a positive integer as this object is less than, equal to,
-		* or greater than the specified object.
-		*/
+		 * Compare one event to another, based on range.
+		 * 
+		 * @param o
+		 *        The object to be compared.
+		 * @return A negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
+		 */
 		public int compareTo(Object o)
 		{
-			if (!(o instanceof CalendarEvent))
-				throw new ClassCastException();
+			if (!(o instanceof CalendarEvent)) throw new ClassCastException();
 			Time mine = getRange().firstTime();
 			Time other = ((CalendarEvent) o).getRange().firstTime();
 
-			if (mine.before(other))
-				return -1;
-			if (mine.after(other))
-				return +1;
+			if (mine.before(other)) return -1;
+			if (mine.after(other)) return +1;
 			return 0; // %%% perhaps check the rest of the range if the starts are the same?
 		}
 
 		/**
-		* Serialize the resource into XML, adding an element to the doc under the top of the stack element.
-		* @param doc The DOM doc to contain the XML (or null for a string return).
-		* @param stack The DOM elements, the top of which is the containing element of the new "resource" element.
-		* @return The newly added element.
-		*/
+		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
+		 * 
+		 * @param doc
+		 *        The DOM doc to contain the XML (or null for a string return).
+		 * @param stack
+		 *        The DOM elements, the top of which is the containing element of the new "resource" element.
+		 * @return The newly added element.
+		 */
 		public Element toXml(Document doc, Stack stack)
 		{
 			Element event = doc.createElement("event");
@@ -3594,27 +3701,31 @@ public abstract class BaseCalendarService
 		} // toXml
 
 		/**
-		* Access the event code for this edit.
-		* @return The event code for this edit.
-		*/
+		 * Access the event code for this edit.
+		 * 
+		 * @return The event code for this edit.
+		 */
 		protected String getEvent()
 		{
 			return m_event;
 		}
 
 		/**
-		* Set the event code for this edit.
-		* @param event The event code for this edit.
-		*/
+		 * Set the event code for this edit.
+		 * 
+		 * @param event
+		 *        The event code for this edit.
+		 */
 		protected void setEvent(String event)
 		{
 			m_event = event;
 		}
 
 		/**
-		* Access the resource's properties for modification
-		* @return The resource's properties.
-		*/
+		 * Access the resource's properties for modification
+		 * 
+		 * @return The resource's properties.
+		 */
 		public ResourcePropertiesEdit getPropertiesEdit()
 		{
 			return m_properties;
@@ -3622,8 +3733,8 @@ public abstract class BaseCalendarService
 		} // getPropertiesEdit
 
 		/**
-		* Enable editing.
-		*/
+		 * Enable editing.
+		 */
 		protected void activate()
 		{
 			m_active = true;
@@ -3631,9 +3742,10 @@ public abstract class BaseCalendarService
 		} // activate
 
 		/**
-		* Check to see if the edit is still active, or has already been closed.
-		* @return true if the edit is active, false if it's been closed.
-		*/
+		 * Check to see if the edit is still active, or has already been closed.
+		 * 
+		 * @return true if the edit is active, false if it's been closed.
+		 */
 		public boolean isActiveEdit()
 		{
 			return m_active;
@@ -3641,22 +3753,23 @@ public abstract class BaseCalendarService
 		} // isActiveEdit
 
 		/**
-		* Close the edit object - it cannot be used after this.
-		*/
+		 * Close the edit object - it cannot be used after this.
+		 */
 		protected void closeEdit()
 		{
 			m_active = false;
 
 		} // closeEdit
 
-		/*******************************************************************************
-		* AttachmentContainer implementation
-		*******************************************************************************/
+		/******************************************************************************************************************************************************************************************************************************************************
+		 * AttachmentContainer implementation
+		 *****************************************************************************************************************************************************************************************************************************************************/
 
 		/**
-		* Access the attachments of the event.
-		* @return An copy of the set of attachments (a ReferenceVector containing Reference objects) (may be empty).
-		*/
+		 * Access the attachments of the event.
+		 * 
+		 * @return An copy of the set of attachments (a ReferenceVector containing Reference objects) (may be empty).
+		 */
 		public List getAttachments()
 		{
 			return m_entityManager.newReferenceList(m_attachments);
@@ -3664,9 +3777,11 @@ public abstract class BaseCalendarService
 		} // getAttachments
 
 		/**
-		* Add an attachment.
-		* @param ref The attachment Reference.
-		*/
+		 * Add an attachment.
+		 * 
+		 * @param ref
+		 *        The attachment Reference.
+		 */
 		public void addAttachment(Reference ref)
 		{
 			m_attachments.add(ref);
@@ -3674,9 +3789,11 @@ public abstract class BaseCalendarService
 		} // addAttachment
 
 		/**
-		* Remove an attachment.
-		* @param ref The attachment Reference to remove (the one removed will equal this, they need not be ==).
-		*/
+		 * Remove an attachment.
+		 * 
+		 * @param ref
+		 *        The attachment Reference to remove (the one removed will equal this, they need not be ==).
+		 */
 		public void removeAttachment(Reference ref)
 		{
 			m_attachments.remove(ref);
@@ -3684,9 +3801,11 @@ public abstract class BaseCalendarService
 		} // removeAttachment
 
 		/**
-		* Replace the attachment set.
-		* @param attachments A vector of Reference objects that will become the new set of attachments.
-		*/
+		 * Replace the attachment set.
+		 * 
+		 * @param attachments
+		 *        A vector of Reference objects that will become the new set of attachments.
+		 */
 		public void replaceAttachments(List attachments)
 		{
 			m_attachments.clear();
@@ -3703,17 +3822,17 @@ public abstract class BaseCalendarService
 		} // replaceAttachments
 
 		/**
-		* Clear all attachments.
-		*/
+		 * Clear all attachments.
+		 */
 		public void clearAttachments()
 		{
 			m_attachments.clear();
 
 		} // clearAttachments
 
-		/*******************************************************************************
-		* SessionBindingListener implementation
-		*******************************************************************************/
+		/******************************************************************************************************************************************************************************************************************************************************
+		 * SessionBindingListener implementation
+		 *****************************************************************************************************************************************************************************************************************************************************/
 
 		public void valueBound(SessionBindingEvent event)
 		{
@@ -3721,8 +3840,7 @@ public abstract class BaseCalendarService
 
 		public void valueUnbound(SessionBindingEvent event)
 		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("valueUnbound()");
+			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
 
 			// catch the case where an edit was made but never resolved
 			if (m_active)
@@ -3733,126 +3851,131 @@ public abstract class BaseCalendarService
 		} // valueUnbound
 
 		/**
-		* Gets the containing calendar's reference.
-		* @return The containing calendar reference.
-		*/
+		 * Gets the containing calendar's reference.
+		 * 
+		 * @return The containing calendar reference.
+		 */
 		public String getCalendarReference()
 		{
 			return m_calendar.getReference();
 
-		} // 	getCalendarReference
+		} // getCalendarReference
 
 	} // BaseCalendarEvent
 
-	/*******************************************************************************
-	* Storage implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Storage implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	protected interface Storage
 	{
 		/**
-		* Open and read.
-		*/
+		 * Open and read.
+		 */
 		public void open();
 
 		/**
-		* Write and Close.
-		*/
+		 * Write and Close.
+		 */
 		public void close();
 
 		/**
-		* Return the identified calendar, or null if not found.
-		*/
+		 * Return the identified calendar, or null if not found.
+		 */
 		public Calendar getCalendar(String ref);
 
 		/**
-		* Return true if the identified calendar exists.
-		*/
+		 * Return true if the identified calendar exists.
+		 */
 		public boolean checkCalendar(String ref);
 
 		/**
-		* Get a list of all calendars
-		*/
+		 * Get a list of all calendars
+		 */
 		public List getCalendars();
 
 		/**
-		* Keep a new calendar.
-		*/
+		 * Keep a new calendar.
+		 */
 		public CalendarEdit putCalendar(String ref);
 
 		/**
-		* Get a calendar locked for update
-		*/
+		 * Get a calendar locked for update
+		 */
 		public CalendarEdit editCalendar(String ref);
 
 		/**
-		* Commit a calendar edit.
-		*/
+		 * Commit a calendar edit.
+		 */
 		public void commitCalendar(CalendarEdit edit);
 
 		/**
-		* Cancel a calendar edit.
-		*/
+		 * Cancel a calendar edit.
+		 */
 		public void cancelCalendar(CalendarEdit edit);
 
 		/**
-		* Forget about a calendar.
-		*/
+		 * Forget about a calendar.
+		 */
 		public void removeCalendar(CalendarEdit calendar);
 
 		/**
-		* Get a event from a calendar.
-		*/
+		 * Get a event from a calendar.
+		 */
 		public CalendarEvent getEvent(Calendar calendar, String eventId);
 
 		/**
-		* Get a event from a calendar locked for update
-		*/
+		 * Get a event from a calendar locked for update
+		 */
 		public CalendarEventEdit editEvent(Calendar calendar, String eventId);
 
 		/**
-		* Commit an edit.
-		*/
+		 * Commit an edit.
+		 */
 		public void commitEvent(Calendar calendar, CalendarEventEdit edit);
 
 		/**
-		* Cancel an edit.
-		*/
+		 * Cancel an edit.
+		 */
 		public void cancelEvent(Calendar calendar, CalendarEventEdit edit);
 
 		/**
-		* Does this events exist in a calendar?
-		*/
+		 * Does this events exist in a calendar?
+		 */
 		public boolean checkEvent(Calendar calendar, String eventId);
 
 		/**
-		* Get the events from a calendar (within this time range, or all if null)
-		*/
+		 * Get the events from a calendar (within this time range, or all if null)
+		 */
 		public List getEvents(Calendar calendar);
 
 		/**
-		* Make and lock a new event.
-		*/
+		 * Make and lock a new event.
+		 */
 		public CalendarEventEdit putEvent(Calendar calendar, String id);
 
 		/**
-		* Forget about a event.
-		*/
+		 * Forget about a event.
+		 */
 		public void removeEvent(Calendar calendar, CalendarEventEdit edit);
 
 	} // Storage
 
-	/*******************************************************************************
-	* CacheRefresher implementation (no container)
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * CacheRefresher implementation (no container)
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	* Get a new value for this key whose value has already expired in the cache.
-	* @param key The key whose value has expired and needs to be refreshed.
-	* @param oldValue The old exipred value of the key.
-	* @param event The event which triggered this refresh.
-	* @return a new value for use in the cache for this key; if null, the entry will be removed.
-	*/
+	 * Get a new value for this key whose value has already expired in the cache.
+	 * 
+	 * @param key
+	 *        The key whose value has expired and needs to be refreshed.
+	 * @param oldValue
+	 *        The old exipred value of the key.
+	 * @param event
+	 *        The event which triggered this refresh.
+	 * @return a new value for use in the cache for this key; if null, the entry will be removed.
+	 */
 	public Object refresh(Object key, Object oldValue, Event event)
 	{
 		Object rv = null;
@@ -3866,15 +3989,8 @@ public abstract class BaseCalendarService
 		if (REF_TYPE_EVENT.equals(ref.getSubType()))
 		{
 			if (M_log.isDebugEnabled())
-				M_log.debug(
-						"refresh(): key "
-						+ key
-						+ " calendar id : "
-						+ ref.getContext()
-						+ "/"
-						+ ref.getContainer()
-						+ " event id : "
-						+ ref.getId());
+				M_log.debug("refresh(): key " + key + " calendar id : " + ref.getContext() + "/" + ref.getContainer()
+						+ " event id : " + ref.getId());
 
 			// get calendar (Note: from the cache is ok)
 			Calendar calendar = findCalendar(calendarReference(ref.getContext(), ref.getContainer()));
@@ -3889,8 +4005,7 @@ public abstract class BaseCalendarService
 		// for calendar
 		else
 		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("refresh(): key " + key + " calendar id : " + ref.getReference());
+			if (M_log.isDebugEnabled()) M_log.debug("refresh(): key " + key + " calendar id : " + ref.getReference());
 
 			// return the calendar (Note: not from cache! but only from storage)
 			rv = m_storage.getCalendar(ref.getReference());
@@ -3900,79 +4015,97 @@ public abstract class BaseCalendarService
 
 	} // refresh
 
-	/*******************************************************************************
-	* StorageUser implementation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * StorageUser implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	* Construct a new continer given just an id.
-	* @param ref The reference for the new object.
-	* @return The new containe Resource.
-	*/
+	 * Construct a new continer given just an id.
+	 * 
+	 * @param ref
+	 *        The reference for the new object.
+	 * @return The new containe Resource.
+	 */
 	public Entity newContainer(String ref)
 	{
 		return new BaseCalendarEdit(ref);
 	}
 
 	/**
-	* Construct a new container resource, from an XML element.
-	* @param element The XML.
-	* @return The new container resource.
-	*/
+	 * Construct a new container resource, from an XML element.
+	 * 
+	 * @param element
+	 *        The XML.
+	 * @return The new container resource.
+	 */
 	public Entity newContainer(Element element)
 	{
 		return new BaseCalendarEdit(element);
 	}
 
 	/**
-	* Construct a new container resource, as a copy of another
-	* @param other The other contianer to copy.
-	* @return The new container resource.
-	*/
+	 * Construct a new container resource, as a copy of another
+	 * 
+	 * @param other
+	 *        The other contianer to copy.
+	 * @return The new container resource.
+	 */
 	public Entity newContainer(Entity other)
 	{
 		return new BaseCalendarEdit((Calendar) other);
 	}
 
 	/**
-	* Construct a new rsource given just an id.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param id The id for the new object.
-	* @param others (options) array of objects to load into the Resource's fields.
-	* @return The new resource.
-	*/
+	 * Construct a new rsource given just an id.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param id
+	 *        The id for the new object.
+	 * @param others
+	 *        (options) array of objects to load into the Resource's fields.
+	 * @return The new resource.
+	 */
 	public Entity newResource(Entity container, String id, Object[] others)
 	{
 		return new BaseCalendarEventEdit((Calendar) container, id);
 	}
 
 	/**
-	* Construct a new resource, from an XML element.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param element The XML.
-	* @return The new resource from the XML.
-	*/
+	 * Construct a new resource, from an XML element.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param element
+	 *        The XML.
+	 * @return The new resource from the XML.
+	 */
 	public Entity newResource(Entity container, Element element)
 	{
 		return new BaseCalendarEventEdit((Calendar) container, element);
 	}
 
 	/**
-	* Construct a new resource from another resource of the same type.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param other The other resource.
-	* @return The new resource as a copy of the other.
-	*/
+	 * Construct a new resource from another resource of the same type.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param other
+	 *        The other resource.
+	 * @return The new resource as a copy of the other.
+	 */
 	public Entity newResource(Entity container, Entity other)
 	{
 		return new BaseCalendarEventEdit((Calendar) container, (CalendarEvent) other);
 	}
 
 	/**
-	* Construct a new continer given just an id.
-	* @param ref The reference for the new object.
-	* @return The new containe Resource.
-	*/
+	 * Construct a new continer given just an id.
+	 * 
+	 * @param ref
+	 *        The reference for the new object.
+	 * @return The new containe Resource.
+	 */
 	public Edit newContainerEdit(String ref)
 	{
 		BaseCalendarEdit rv = new BaseCalendarEdit(ref);
@@ -3981,10 +4114,12 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Construct a new container resource, from an XML element.
-	* @param element The XML.
-	* @return The new container resource.
-	*/
+	 * Construct a new container resource, from an XML element.
+	 * 
+	 * @param element
+	 *        The XML.
+	 * @return The new container resource.
+	 */
 	public Edit newContainerEdit(Element element)
 	{
 		BaseCalendarEdit rv = new BaseCalendarEdit(element);
@@ -3993,10 +4128,12 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Construct a new container resource, as a copy of another
-	* @param other The other contianer to copy.
-	* @return The new container resource.
-	*/
+	 * Construct a new container resource, as a copy of another
+	 * 
+	 * @param other
+	 *        The other contianer to copy.
+	 * @return The new container resource.
+	 */
 	public Edit newContainerEdit(Entity other)
 	{
 		BaseCalendarEdit rv = new BaseCalendarEdit((Calendar) other);
@@ -4005,12 +4142,16 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Construct a new rsource given just an id.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param id The id for the new object.
-	* @param others (options) array of objects to load into the Resource's fields.
-	* @return The new resource.
-	*/
+	 * Construct a new rsource given just an id.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param id
+	 *        The id for the new object.
+	 * @param others
+	 *        (options) array of objects to load into the Resource's fields.
+	 * @return The new resource.
+	 */
 	public Edit newResourceEdit(Entity container, String id, Object[] others)
 	{
 		BaseCalendarEventEdit rv = new BaseCalendarEventEdit((Calendar) container, id);
@@ -4019,11 +4160,14 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Construct a new resource, from an XML element.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param element The XML.
-	* @return The new resource from the XML.
-	*/
+	 * Construct a new resource, from an XML element.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param element
+	 *        The XML.
+	 * @return The new resource from the XML.
+	 */
 	public Edit newResourceEdit(Entity container, Element element)
 	{
 		BaseCalendarEventEdit rv = new BaseCalendarEventEdit((Calendar) container, element);
@@ -4032,11 +4176,14 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Construct a new resource from another resource of the same type.
-	* @param container The Resource that is the container for the new resource (may be null).
-	* @param other The other resource.
-	* @return The new resource as a copy of the other.
-	*/
+	 * Construct a new resource from another resource of the same type.
+	 * 
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param other
+	 *        The other resource.
+	 * @return The new resource as a copy of the other.
+	 */
 	public Edit newResourceEdit(Entity container, Entity other)
 	{
 		BaseCalendarEventEdit rv = new BaseCalendarEventEdit((Calendar) container, (CalendarEvent) other);
@@ -4045,9 +4192,10 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	* Collect the fields that need to be stored outside the XML (for the resource).
-	* @return An array of field values to store in the record outside the XML (for the resource).
-	*/
+	 * Collect the fields that need to be stored outside the XML (for the resource).
+	 * 
+	 * @return An array of field values to store in the record outside the XML (for the resource).
+	 */
 	public Object[] storageFields(Entity r)
 	{
 		Object[] rv = new Object[2];
@@ -4060,7 +4208,9 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Check if this resource is in draft mode.
-	 * @param r The resource.
+	 * 
+	 * @param r
+	 *        The resource.
 	 * @return true if the resource is in draft mode, false if not.
 	 */
 	public boolean isDraft(Entity r)
@@ -4070,7 +4220,9 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Access the resource owner user id.
-	 * @param r The resource.
+	 * 
+	 * @param r
+	 *        The resource.
 	 * @return The resource owner user id.
 	 */
 	public String getOwnerId(Entity r)
@@ -4080,7 +4232,9 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Access the resource date.
-	 * @param r The resource.
+	 * 
+	 * @param r
+	 *        The resource.
 	 * @return The resource date.
 	 */
 	public Time getDate(Entity r)
@@ -4088,66 +4242,98 @@ public abstract class BaseCalendarService
 		return null;
 	}
 
-	/*******************************************************************************
-	* PDF file generation
-	*******************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * PDF file generation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	// XSL File Names
 	protected final static String DAY_VIEW_XLST_FILENAME = "schedule.xsl";
+
 	protected final static String LIST_VIEW_XLST_FILENAME = "schlist.xsl";
+
 	protected final static String MONTH_VIEW_XLST_FILENAME = "schedulemm.xsl";
+
 	protected final static String WEEK_VIEW_XLST_FILENAME = "schedule.xsl";
-	
+
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
-	
+
 	// Constants for time calculations
 	protected static long MILLISECONDS_IN_DAY = (60 * 60 * 24 * 1000);
+
 	protected final static long MILLISECONDS_IN_HOUR = (60 * 60 * 1000);
+
 	protected final static long MILLISECONDS_IN_MINUTE = (1000 * 60);
-	protected static final long MINIMUM_EVENT_LENGTH_IN_MSECONDS = (29*MILLISECONDS_IN_MINUTE);
+
+	protected static final long MINIMUM_EVENT_LENGTH_IN_MSECONDS = (29 * MILLISECONDS_IN_MINUTE);
+
 	protected static final int SCHEDULE_INTERVAL_IN_MINUTES = 15;
+
 	protected static final int MAX_OVERLAPPING_COLUMNS = 7;
+
 	protected static final int TIMESLOT_FOR_OVERLAP_DETECTION_IN_MINUTES = 10;
-	
+
 	// URL Parameter Constants
 	protected static final String TIME_RANGE_PARAMETER_NAME = "timeRange";
+
 	protected static final String DAILY_START_TIME_PARAMETER_NAME = "dailyStartTime";
+
 	protected final static String USER_NAME_PARAMETER_NAME = "user";
+
 	protected final static String CALENDAR_PARAMETER_BASE_NAME = "calendar";
+
 	protected final static String SCHEDULE_TYPE_PARAMETER_NAME = "scheduleType";
 
 	// XML Node/Attribute Names
 	protected static final String COLUMN_NODE_NAME = "col";
+
 	protected static final String EVENT_NODE_NAME = "event";
+
 	protected static final String FACULTY_EVENT_ATTRIBUTE_NAME = "Faculty";
+
 	protected static final String FACULTY_NODE = "faculty";
+
 	protected static final String DESCRIPTION_NODE = "description";
+
 	protected static final String FROM_ATTRIBUTE_STRING = "from";
+
 	protected static final String GROUP_NODE = "grp";
+
 	protected static final String LIST_DATE_ATTRIBUTE_NAME = "dt";
+
 	protected static final String LIST_DAY_OF_WEEK_ATTRIBUTE_NAME = "dayofweek";
+
 	protected static final String LIST_NODE_NAME = "list";
+
 	protected static final String MONTH_NODE_NAME = "month";
+
 	protected static final String MAX_CONCURRENT_EVENTS_NAME = "maxConcurrentEvents";
+
 	protected static final String PLACE_NODE = "place";
+
 	protected static final String ROW_NODE_NAME = "row";
+
 	protected static final String SCHEDULE_NODE = "schedule";
+
 	protected static final String START_DAY_WEEK_ATTRIBUTE_NAME = "startdayweek";
+
 	protected static final String START_TIME_ATTRIBUTE_NAME = "start-time";
+
 	protected static final String SUB_EVENT_NODE_NAME = "subEvent";
+
 	protected static final String TITLE_NODE = "title";
+
 	protected static final String TO_ATTRIBUTE_STRING = "to";
+
 	protected static final String TYPE_NODE = "type";
+
 	protected static final String UID_NODE = "uid";
-	
+
 	// Misc.
 	protected static final String HOUR_MINUTE_SEPARATOR = ":";
-		
+
 	/**
-	 * This is a container for a list of columns, plus the timerange for
-	 * all the events contained in the row.  This time range is a union
-	 * of all the separate time ranges.
+	 * This is a container for a list of columns, plus the timerange for all the events contained in the row. This time range is a union of all the separate time ranges.
 	 */
 	protected class LayoutRow extends ArrayList
 	{
@@ -4172,8 +4358,7 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * Table used to layout a single day, with potentially overlapping
-	 * events.
+	 * Table used to layout a single day, with potentially overlapping events.
 	 */
 	protected class SingleDayLayoutTable
 	{
@@ -4235,7 +4420,7 @@ public abstract class BaseCalendarService
 				numRowsNeeded = getNumRows() - startingRow;
 			}
 
-			// Get the first column that has enough sequential free intervals to 
+			// Get the first column that has enough sequential free intervals to
 			// contain this event.
 			int columnNumber = getFreeColumn(startingRow, numRowsNeeded);
 
@@ -4266,8 +4451,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Convert the time range to fall entirely within the time range of the
-		 * layout table.
+		 * Convert the time range to fall entirely within the time range of the layout table.
 		 */
 		protected TimeRange adjustTimeRangeToLayoutTable(TimeRange eventTimeRange)
 		{
@@ -4298,8 +4482,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns true if there are any events in this or other rows that
-		 * overlap the event associated with this cell.
+		 * Returns true if there are any events in this or other rows that overlap the event associated with this cell.
 		 */
 		protected boolean cellHasOverlappingEvents(int rowNum, int colNum)
 		{
@@ -4328,7 +4511,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Get a particular cell.  Returns a reference to the actual cell and not a copy.
+		 * Get a particular cell. Returns a reference to the actual cell and not a copy.
 		 */
 		protected LayoutTableCell getCell(int rowNum, int colNum)
 		{
@@ -4399,8 +4582,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Creates a list of lists of lists.  The outer list is a list of rows.  Each row is
-		 * a list of columns.  Each column is a list of column values.
+		 * Creates a list of lists of lists. The outer list is a list of rows. Each row is a list of columns. Each column is a list of column values.
 		 */
 		public List getLayoutRows()
 		{
@@ -4443,7 +4625,7 @@ public abstract class BaseCalendarService
 						}
 					}
 
-					// Get ready for the next iteration.  Skip those
+					// Get ready for the next iteration. Skip those
 					// rows that we have already processed.
 					mainRowIndex += (numRowsInGroup - 1);
 				}
@@ -4461,8 +4643,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Gets the number of rows in an event group.  This function assumes that the
-		 * row that it starts on is the starting row of the group.
+		 * Gets the number of rows in an event group. This function assumes that the row that it starts on is the starting row of the group.
 		 */
 		protected int getNumberRowsInEventGroup(int rowNum)
 		{
@@ -4500,8 +4681,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Given a time range, returns the starting row number in the
-		 * layout table.
+		 * Given a time range, returns the starting row number in the layout table.
 		 */
 		protected int getStartingRow(TimeRange eventTimeRange)
 		{
@@ -4519,8 +4699,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns the earliest/latest times for events in this group.  This function 
-		 * assumes that the row that it starts on is the starting row of the group.
+		 * Returns the earliest/latest times for events in this group. This function assumes that the row that it starts on is the starting row of the group.
 		 */
 		public TimeRange getTimeRangeForEventGroup(int rowNum, int numRowsInThisEventGroup)
 		{
@@ -4604,8 +4783,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns true if this row has only starting cells and no
-		 * continuation cells.
+		 * Returns true if this row has only starting cells and no continuation cells.
 		 */
 		protected boolean isStartingRowOfGroup(int rowNum)
 		{
@@ -4635,9 +4813,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns true if there are any cells in this row associated
-		 * with events which overlap each other in this row or any
-		 * other row.
+		 * Returns true if there are any cells in this row associated with events which overlap each other in this row or any other row.
 		 */
 		public boolean rowHasOverlappingEvents(int rowNum)
 		{
@@ -4721,8 +4897,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns true if this cell is a continuation of an event and not
-		 * the first cell in the event.
+		 * Returns true if this cell is a continuation of an event and not the first cell in the event.
 		 */
 		public boolean isContinuationCell()
 		{
@@ -4738,8 +4913,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Returns true if this is the first cell in a column of cells associated
-		 * with an event.
+		 * Returns true if this is the first cell in a column of cells associated with an event.
 		 */
 		public boolean isFirstCell()
 		{
@@ -4755,8 +4929,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Set flag indicating that this is the first cell in column
-		 * of cells associated with an event.
+		 * Set flag indicating that this is the first cell in column of cells associated with an event.
 		 */
 		public void setFirstCell(boolean b)
 		{
@@ -4764,8 +4937,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Sets a value in this cell to point to the very first
-		 * cell in the column of cells associated with this event.
+		 * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
 		 */
 		public void setFirstCellColumn(int i)
 		{
@@ -4773,8 +4945,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Sets a value in this cell to point to the very first
-		 * cell in the column of cells associated with this event.
+		 * Sets a value in this cell to point to the very first cell in the column of cells associated with this event.
 		 */
 		public void setFirstCellRow(int i)
 		{
@@ -4782,8 +4953,7 @@ public abstract class BaseCalendarService
 		}
 
 		/**
-		 * Gets the number of cells (if any) in the group of cells associated with this cell
-		 * by event.
+		 * Gets the number of cells (if any) in the group of cells associated with this cell by event.
 		 */
 		public void setNumCellsInEvent(int i)
 		{
@@ -4808,8 +4978,7 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * Debugging routine to get a string for a TimeRange.  This should probably
-	 * be in the TimeRange class.
+	 * Debugging routine to get a string for a TimeRange. This should probably be in the TimeRange class.
 	 */
 	protected String dumpTimeRange(TimeRange timeRange)
 	{
@@ -4825,8 +4994,11 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Takes a DOM structure and renders a PDF
-	 * @param doc DOM structure
-	 * @param xslFileName XSL file to use to translate the DOM document to FOP
+	 * 
+	 * @param doc
+	 *        DOM structure
+	 * @param xslFileName
+	 *        XSL file to use to translate the DOM document to FOP
 	 */
 	protected void generatePDF(Document doc, String xslFileName, OutputStream streamOut)
 	{
@@ -4843,7 +5015,7 @@ public abstract class BaseCalendarService
 		try
 		{
 			// Note: an attempt to move the xls files into the jar and get it from the classpath:
-			//		InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
+			// InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
 			// failed - the file was found and readable, but newTransformer() generated an IOException -ggolden
 
 			transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(xslFileName));
@@ -4870,7 +5042,7 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * Make a full-day time range given a year, month, and day 
+	 * Make a full-day time range given a year, month, and day
 	 */
 	protected TimeRange getFullDayTimeRangeFromYMD(int year, int month, int day)
 	{
@@ -4883,7 +5055,7 @@ public abstract class BaseCalendarService
 	 */
 	protected List makeListViewTimeRangeList(TimeRange timeRange, List calendarReferenceList)
 	{
-		// This is used to dimension a hash table.  The default load factor is .75.
+		// This is used to dimension a hash table. The default load factor is .75.
 		// A rehash isn't done until the number of items in the table is .75 * the number
 		// of items in the capacity.
 		final int DEFAULT_INITIAL_HASH_CAPACITY = 150;
@@ -4931,11 +5103,16 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * @param scheduleType daily, weekly, monthly, or list (no yearly).
-	 * @param doc XML output document
-	 * @param timeRange this is the overall time range.  For example, for a weekly schedule, it would be the start/end times for the currently selected  week period.
-	 * @param dailyTimeRange On a weekly time schedule, even if the overall time range is for a week, you're only looking at a portion of the day (e.g., 8 AM to 6 PM, etc.)
-	 * @param userID This is the name of the user whose schedule is being printed.
+	 * @param scheduleType
+	 *        daily, weekly, monthly, or list (no yearly).
+	 * @param doc
+	 *        XML output document
+	 * @param timeRange
+	 *        this is the overall time range. For example, for a weekly schedule, it would be the start/end times for the currently selected week period.
+	 * @param dailyTimeRange
+	 *        On a weekly time schedule, even if the overall time range is for a week, you're only looking at a portion of the day (e.g., 8 AM to 6 PM, etc.)
+	 * @param userID
+	 *        This is the name of the user whose schedule is being printed.
 	 */
 	protected void generateXMLDocument(int scheduleType, Document doc, TimeRange timeRange, TimeRange dailyTimeRange,
 			List calendarReferenceList, String userID)
@@ -4955,7 +5132,7 @@ public abstract class BaseCalendarService
 
 			case MONTH_VIEW:
 				// Make sure that we trim off the days of the previous and next
-				// month.  The time range that we're being passed is "padded"
+				// month. The time range that we're being passed is "padded"
 				// with extra days to make up a full block of an integral number
 				// of seven day weeks.
 				actualTimeRange = shrinkTimeRangeToCurrentMonth(timeRange);
@@ -4974,7 +5151,7 @@ public abstract class BaseCalendarService
 
 			case DAY_VIEW:
 				//
-				// We have a single entry in the list for a day.  Having a singleton
+				// We have a single entry in the list for a day. Having a singleton
 				// list may seem wasteful, but it allows us to use one loop below
 				// for all processing.
 				//
@@ -5059,7 +5236,7 @@ public abstract class BaseCalendarService
 				eventList.setAttribute(LIST_DATE_ATTRIBUTE_NAME, getDateFromTime(currentTimeRange.firstTime()));
 
 				// Set the maximum number of events per timeslot
-				// Assume 1 as a starting point.  This may be changed
+				// Assume 1 as a starting point. This may be changed
 				// later on.
 				eventList.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(maxConcurrentEventsOverListNode));
 
@@ -5404,8 +5581,11 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Access some named configuration value as a string.
-	 * @param name The configuration value name.
-	 * @param dflt The value to return if not found.
+	 * 
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
 	 * @return The configuration value with this name, or the default value if not found.
 	 */
 	protected String getString(String name, String dflt)
@@ -5422,9 +5602,12 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * Generates a list of time ranges for a week.  Each range in the list is a day.
-	 * @param dailyTimeRange representative daily time range (start hour/minute, end hour/minute)
-	 * @param skipSaturdayAndSundayIfNoEvents if true, then Saturday and Sundary are skipped if there are no events.
+	 * Generates a list of time ranges for a week. Each range in the list is a day.
+	 * 
+	 * @param dailyTimeRange
+	 *        representative daily time range (start hour/minute, end hour/minute)
+	 * @param skipSaturdayAndSundayIfNoEvents
+	 *        if true, then Saturday and Sundary are skipped if there are no events.
 	 */
 	protected ArrayList getTimeRangeListForWeek(TimeRange timeRange, List calendarReferenceList, TimeRange dailyTimeRange,
 			boolean skipSaturdayAndSundayIfNoEvents)
@@ -5460,7 +5643,7 @@ public abstract class BaseCalendarService
 			TimeRange newTimeRange = TimeService.newTimeRange(curStartTime, curEndTime, true, false);
 
 			//
-			// If the Saturday/Sunday skipping feature is specified, then on 
+			// If the Saturday/Sunday skipping feature is specified, then on
 			// Saturday, if there are no events scheduled, then check Sunday.
 			// If Sunday also has no events, then we will trim off Saturday/Sunday
 			//
@@ -5574,8 +5757,7 @@ public abstract class BaseCalendarService
 				break;
 
 			default:
-				M_log.debug("PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = "
-								+ scheduleType);
+				M_log.debug("PrintFileGeneration.getXSLFileNameForScheduleType(): unexpected scehdule type = " + scheduleType);
 				break;
 		}
 
@@ -5583,7 +5765,7 @@ public abstract class BaseCalendarService
 		{
 			// this is the setup for finding the actual files in the components package.
 			// NOTE: this assumes that this is in the legacy-components package.
-			//       If it's moved, or the package's name is changed, this will break if not modified -ggolden
+			// If it's moved, or the package's name is changed, this will break if not modified -ggolden
 			String componentsRoot = System.getProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP);
 			fullPath = componentsRoot + "sakai-legacy-components/WEB-INF/calendar/" + baseFileName;
 		}
@@ -5592,10 +5774,8 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * This routine is used to round the end time.  The time is stored at one minute less than the
-	 * actual end time, but the user will expect to see the end time on the hour.  For example,
-	 * an event that ends at 10:00 is actually stored at 9:59.  This code should really be
-	 * in a central place so that the velocity template can see it as well.
+	 * This routine is used to round the end time. The time is stored at one minute less than the actual end time, but the user will expect to see the end time on the hour. For example, an event that ends at 10:00 is actually stored at 9:59. This code
+	 * should really be in a central place so that the velocity template can see it as well.
 	 */
 	protected Time performEndMinuteKludge(TimeBreakdown breakDown)
 	{
@@ -5673,11 +5853,11 @@ public abstract class BaseCalendarService
 
 			// Start Debug Code
 
-			//dumpGeneratedXML(servletContext, document);
+			// dumpGeneratedXML(servletContext, document);
 			// Leaving this call in, but commented out until PDF generation is
 			// more mature. -- brettm 6/18/2003
 
-			// End Debug Code		
+			// End Debug Code
 
 			generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
 
@@ -5691,9 +5871,7 @@ public abstract class BaseCalendarService
 	}
 
 	/**
-	 * The time ranges that we get from the CalendarAction class have days in the week
-	 * of the first and last weeks padded out to make a full week.  This function will
-	 * shrink this range to only one month. 
+	 * The time ranges that we get from the CalendarAction class have days in the week of the first and last weeks padded out to make a full week. This function will shrink this range to only one month.
 	 */
 	protected TimeRange shrinkTimeRangeToCurrentMonth(TimeRange expandedTimeRange)
 	{
@@ -5725,10 +5903,15 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Calculate the number of days in a range of time given two dates.
-	 * @param startMonth (zero based, 0-11)
-	 * @param startDay (one based, 1-31)
-	 * @param endYear (one based, 1-31)
-	 * @param endMonth (zero based, 0-11
+	 * 
+	 * @param startMonth
+	 *        (zero based, 0-11)
+	 * @param startDay
+	 *        (one based, 1-31)
+	 * @param endYear
+	 *        (one based, 1-31)
+	 * @param endMonth
+	 *        (zero based, 0-11
 	 */
 	protected long getNumberDaysGivenTwoDates(int startYear, int startMonth, int startDay, int endYear, int endMonth, int endDay)
 	{
@@ -5746,8 +5929,11 @@ public abstract class BaseCalendarService
 
 	/**
 	 * Returns a list of daily time ranges for every day in a range.
-	 * @param timeRange overall time range
-	 * @param dailyTimeRange representative daily time range (start hour/minute, end hour/minute).  If null, this parameter is ignored.
+	 * 
+	 * @param timeRange
+	 *        overall time range
+	 * @param dailyTimeRange
+	 *        representative daily time range (start hour/minute, end hour/minute). If null, this parameter is ignored.
 	 */
 	protected ArrayList splitTimeRangeIntoListOfSingleDayTimeRanges(TimeRange timeRange, TimeRange dailyTimeRange)
 	{
@@ -5826,6 +6012,4 @@ public abstract class BaseCalendarService
 	}
 
 } // BaseCalendarService
-
-
 
