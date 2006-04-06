@@ -47,7 +47,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1001,14 +1000,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public void importEntities(String fromContext, String toContext, List ids)
 	{
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void syncWithSiteChange(Object site, EntityProducer.ChangeType change)
-	{
-		// TODO: move the site azg code here?
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
