@@ -156,7 +156,9 @@
       		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
       		&& ForumTool.selectedMessage.hasChild}"/>--%>
     </sakai:button_bar>
-
+	<div style="width:100%;">
+	  <h:messages styleClass="alertMessage" id="errorMessages"  />
+	</div>
 <%--		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.fullAccess}">--%>
 		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}">
 			<h:outputText style="background-color:#FFF8DF;border:1px solid #B8B88A;color:#663300;font-size:x-small;margin:5px 0px 5px 0px;padding:5px 5px 5px 25px;" 

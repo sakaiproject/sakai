@@ -2851,7 +2851,8 @@ public class DiscussionForumTool
                 selectedAssignName,  
                 UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId(),  
                 new Double(gradePoint),  
-                ""); 
+                "");
+            setErrorMessage("Grade submission successful.");
              
             if(gradeNotify) 
             { 
