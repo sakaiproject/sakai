@@ -46,6 +46,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -1715,14 +1716,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	{
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void syncWithSiteChange(Object site, EntityProducer.ChangeType change)
-	{
-		// we are the site, nothing to do!
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -1749,13 +1742,27 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
-			try
+			if (ep instanceof ContextObserver)
 			{
-				ep.syncWithSiteChange(site, change);
-			}
-			catch (Throwable t)
-			{
-				M_log.warn(" Error encountered while notifying EntityProducer of Site Change", t);
+				try
+				{
+					ContextObserver co = (ContextObserver) ep;
+
+					// collect the site's appropriate tool placements
+					Collection tools = site.getTools(co.myToolIds());
+					if (!tools.isEmpty())
+					{
+						co.startContext(site.getId());
+					}
+					else
+					{
+						co.endContext(site.getId());
+					}
+				}
+				catch (Throwable t)
+				{
+					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+				}
 			}
 		}
 	}
@@ -1778,7 +1785,18 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
-			ep.syncWithSiteChange(site, EntityProducer.ChangeType.REMOVE);
+			if (ep instanceof ContextObserver)
+			{
+				try
+				{
+					ContextObserver co = (ContextObserver) ep;
+					co.endContext(site.getId());
+				}
+				catch (Throwable t)
+				{
+					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+				}
+			}
 		}
 
 		// disable the azgs last, so permissions were in place for the above
