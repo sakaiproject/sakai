@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
     </h:column>
   </h:dataTable>
 
-<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2' }">
   <h:outputLabel value="#{msg.feedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 

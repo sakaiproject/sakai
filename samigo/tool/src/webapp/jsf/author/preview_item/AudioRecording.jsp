@@ -49,7 +49,7 @@ should be included in file importing DeliveryMessages
       </h:dataTable>
     </h:column>
   </h:dataTable>
- <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty}">
+ <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
  <h:outputLabel value="#{msg.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 </h:panelGroup>

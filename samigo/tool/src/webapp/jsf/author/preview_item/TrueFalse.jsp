@@ -48,12 +48,12 @@ should be included in file importing DeliveryMessages
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.correctItemFeedback}: "/>
   <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
-<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty}">
+<h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
   <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>

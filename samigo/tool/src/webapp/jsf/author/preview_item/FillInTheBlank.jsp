@@ -47,10 +47,10 @@ should be included in file importing DeliveryMessages
 
   <h:outputLabel rendered="#{answer.text != null && answer.text ne ''}" value="#{msg.preview_model_short_answer}: "/>
   <h:outputText rendered="#{answer.text != null && answer.text ne ''}" escape="false" value="#{answer.text}" />
-  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}" value="#{msg.correctItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne ''}"
+  <h:outputLabel rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}" value="#{msg.correctItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.correctItemFeedback != null && question.itemData.correctItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}"
     value="#{question.itemData.correctItemFeedback}" escape="false" />
-  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}" value="#{msg.incorrectItemFeedback}: "/>
-  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne ''}"
+  <h:outputLabel rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}" value="#{msg.incorrectItemFeedback}: "/>
+  <h:outputText rendered="#{question.itemData.inCorrectItemFeedback != null && question.itemData.inCorrectItemFeedback ne '' && assessmentSettings.feedbackAuthoring ne '2'}"
     value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGrid>
