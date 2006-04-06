@@ -55,7 +55,7 @@
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
- <div class="indnt2">
+ <div class="tier2">
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
 
@@ -88,7 +88,7 @@
  <span id="num3" class="number"></span>
   <div class="longtext">
   <h:outputLabel value="#{msg.answer} " /></div>
-   <div class="indnt2">
+   <div class="tier2">
 
   <h:selectOneRadio layout="lineDirection" id="TF" border="0"
      value="#{itemauthor.currentItem.corrAnswer}" required="true">
@@ -136,14 +136,15 @@
   </h:selectOneMenu>
   </h:panelGroup>
   </h:panelGrid>
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
 
  <!-- FEEDBACK -->
 
-  <span id="num7" class="number"></span>
-  <div class="longtext">
+  
+  <f:verbatim><span id="num7" class="number"></span><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
-</div>
- <div class="longtext">
+<f:verbatim></div>
+ <div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_answer_opti}" />
   <h:panelGrid>
  
@@ -152,9 +153,9 @@
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
-</h:panelGrid></div>
+</h:panelGrid>
 
- <div class="longtext">
+ <f:verbatim></div><div class="longtext"></f:verbatim>
  <h:outputLabel  value="#{msg.incorrect_answer_op}" />
 
   <!-- WYSIWYG -->
@@ -163,13 +164,13 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
-  </h:panelGrid></div>
-
+  </h:panelGrid><f:verbatim></div></f:verbatim>
+</h:panelGroup>
  <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+<f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
 <h:outputLabel value="#{msg.objective}" />
@@ -186,7 +187,7 @@
 
 
 <%--
-<div class="longtext indnt1">
+<div class="longtext tier1">
   <h:panelGrid columns="3" rendered="#{itemauthor.showMetadata == 'true'}">
   <f:verbatim><span id="num8" class="number"></span></f:verbatim>
   <h:outputLabel for="obj" value="#{msg.objective}" />

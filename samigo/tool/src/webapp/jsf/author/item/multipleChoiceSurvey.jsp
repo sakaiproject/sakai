@@ -58,7 +58,7 @@
   <!-- text for answers are predetermined(in properties file), do not allow users to change -->
 
   <!-- 1 POINTS -->
-  <div class="indnt2">
+  <div class="tier2">
 <span id="num1" class="number"></span>
 <div class="shorttext">
 
@@ -89,7 +89,7 @@
  <span id="num3" class="number"></span>
 <div class="longtext">
     <h:outputLabel value="#{msg.answer} " /> </div>
-   <div class="indnt2">
+   <div class="tier2">
      <h:message for="selectscale" styleClass="validate"/>
     <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale" required="true">
      <f:selectItem itemValue="YES" itemLabel="#{msg.yes_no}" />
@@ -128,10 +128,10 @@
   </h:panelGrid>
 
  <!-- FEEDBACK -->
- <span id="num6" class="number"></span>
-<div class="longtext">
+ <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+ <f:verbatim><span id="num6" class="number"></span><div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.feedback_optional}<br />" />
-<div class="indnt2">
+<f:verbatim><div class="tier2"></f:verbatim>
   <!-- WYSIWYG -->
 
   <h:panelGrid>
@@ -140,13 +140,13 @@
    </samigo:wysiwyg>
 
   </h:panelGrid>
-  </div></div>
-
+ <f:verbatim> </div></div></f:verbatim>
+</h:panelGroup>
 <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt2"></f:verbatim>
+<f:verbatim><div class="tier2"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputText value="#{msg.objective}" />

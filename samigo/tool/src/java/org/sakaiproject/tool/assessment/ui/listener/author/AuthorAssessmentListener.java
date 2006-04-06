@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
@@ -76,6 +77,8 @@ public class AuthorAssessmentListener
     //#0 - permission checking before proceeding - daisyf
     AuthorBean author = (AuthorBean) cu.lookupBean(
                          "author");
+AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
+    lookupBean("assessmentSettings");
     author.setOutcome("createAssessment");
     if (!passAuthz(context)){
       author.setOutcome("author");
@@ -133,6 +136,7 @@ public class AuthorAssessmentListener
       author.setOutcome("author");
       return;
     }
+	assessmentSettings.setAssessment(assessment);
 
     // #3a - goto editAssessment.jsp, so prepare assessmentBean
     assessmentBean.setAssessment(assessment);

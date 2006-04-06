@@ -60,7 +60,7 @@
 <h:form id="itemForm">
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
-  <div class="indnt2">
+  <div class="tier2">
    <span id="num1" class="number"></span>
     <div class="shorttext">  <h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
@@ -113,7 +113,7 @@
   <span id="num5" class="number"></span>
    <div class="longtext">
   <h:outputLabel value="#{msg.answer_provide_a_mo}" />  </div><br/>
-<div class="indnt2">
+<div class="tier2">
 <h:outputText value="#{msg.model_short_answer}" /><br/>
 
  <!-- WYSIWYG -->
@@ -123,7 +123,7 @@
    </samigo:wysiwyg>
 </h:panelGrid>
 <br/>
-
+ <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
   <h:outputText value="#{msg.feedback_optional}" />
  <h:panelGrid>
    <!-- WYSIWYG  -->
@@ -131,6 +131,7 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
+</h:panelGroup>
   </div>
 
 

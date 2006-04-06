@@ -52,7 +52,7 @@
 <h:form id="itemForm">
 <%-- QUESTION PROPERTIES --%>
 <%-- 1 POINTS --%>
-<div class="indnt2">
+<div class="tier2">
   <span id="num1" class="number"></span>
   <div class="shorttext"><h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
   <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
@@ -65,7 +65,7 @@
   <span id="num2" class="number"></span>
   <div class="longtext"> <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
   <br/></div>
-<div class="indnt2">
+<div class="tier2">
   <h:outputText value="#{msg.note_place_curly}" />
   <br/>
   <h:outputText value="#{msg.for_example_curly}" />
@@ -120,10 +120,10 @@
   </h:selectOneMenu>
 </h:panelGrid>
 <%-- FEEDBACK --%>
-<span id="num5" class="number"></span>
-<div class="longtext">
+ <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+<f:verbatim><span id="num5" class="number"></span><div class="longtext"></f:verbatim>
  <h:outputLabel value="#{msg.correct_incorrect_an}" />
- <div class="indnt2">
+<f:verbatim> <div class="tier2"></f:verbatim>
   <h:panelGrid>
    <h:outputText value="#{msg.correct_answer_opti}" />
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
@@ -134,13 +134,13 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
-  </div>
-</div>
+ <f:verbatim> </div></div></f:verbatim>
+</h:panelGroup>
  <%-- METADATA --%>
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num6" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+<f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
 <h:outputText value="#{msg.objective}" />

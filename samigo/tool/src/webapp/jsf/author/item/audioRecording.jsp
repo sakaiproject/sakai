@@ -55,7 +55,7 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 
-<div class="indnt2">
+<div class="tier2">
 
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
@@ -135,9 +135,9 @@
 
 
  <!-- FEEDBACK -->
-
-   <span id="num6" class="number"></span>
-   <div class="longtext">
+ <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
+  <f:verbatim> <span id="num6" class="number"></span>
+   <div class="longtext"></f:verbatim>
    <h:outputLabel value="#{msg.feedback_optional}<br />" />
 
 
@@ -146,13 +146,13 @@
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
-  </div>
-
+ <f:verbatim> </div></f:verbatim>
+</h:panelGroup>
  <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num7" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="indnt3"></f:verbatim>
+<f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
 <h:outputLabel value="#{msg.objective}" />

@@ -60,7 +60,7 @@
   <!-- QUESTION PROPERTIES -->
   <!-- this is for creating multiple choice questions -->
   <!-- 1 POINTS -->
-<div class="indnt2">
+<div class="tier2">
 
  <span id="num1" class="number"></span>
      <div class="shorttext"> <h:outputLabel value="#{msg.answer_point_value}" />
@@ -89,7 +89,7 @@
   <div class="longtext">
     <h:outputLabel value="#{msg.answer} " />  </div>
   <!-- need to add a listener, for the radio button below,to toggle between single and multiple correct-->
-<div class="indnt2">
+<div class="tier2">
     <h:selectOneRadio layout="lineDirection"
 		onclick="this.form.onsubmit();this.form.submit();"
            value="#{itemauthor.currentItem.multipleCorrectString}"
@@ -102,7 +102,7 @@
 </div>
 
 	<!-- dynamicaly generate rows of answers based on number of answers-->
-<div class="indnt2">
+<div class="tier2">
  <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="alignLeft longtext">
 <h:column>
 <h:panelGrid columns="2">
@@ -159,7 +159,7 @@
 
 </div>
 <h:inputHidden id="selectedRadioBtn" value="#{itemauthor.currentItem.corrAnswer}" />
-<div class="shorttext indnt2">
+<div class="shorttext tier2">
   <h:outputText value="#{msg.insert_additional_a}" />
 <h:selectOneMenu  id="insertAdditionalAnswerSelectMenu"  onchange="this.form.onsubmit(); clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
   <f:selectItem itemLabel="#{msg.select_menu}" itemValue="0"/>
@@ -178,7 +178,7 @@
  <span id="num4" class="number"></span>
   <div class="longtext">
     <h:outputLabel value="#{msg.randomize_answers}" />    </div>
-<div class="indnt3">
+<div class="tier3">
     <h:selectOneRadio value="#{itemauthor.currentItem.randomized}" >
      <f:selectItem itemValue="true"
        itemLabel="#{msg.yes}" />
@@ -191,7 +191,7 @@
     <span id="num5" class="number"></span>
    <div class="longtext">
  <h:outputLabel value="#{msg.require_rationale}" /></div>
-<div class="indnt3">
+<div class="tier3">
     <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" >
      <f:selectItem itemValue="true" itemLabel="#{msg.yes}"/>
      <f:selectItem itemValue="false" itemLabel="#{msg.no}" />
@@ -226,7 +226,7 @@
  <f:verbatim> <div class="longtext"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
  <f:verbatim></div> </f:verbatim>
- <f:verbatim><div class="indnt2"> </f:verbatim>
+ <f:verbatim><div class="tier2"> </f:verbatim>
   <h:outputText value="#{msg.correct_answer_opti}" />
 <br/>
   <!-- WYSIWYG -->
