@@ -21,32 +21,8 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>servletapi</groupId>
-			<artifactId>servletapi</artifactId>
-			<version>2.4</version>
-		</dependency>
-
-		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-calendar-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-function</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -58,32 +34,104 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-util</artifactId>
+			<artifactId>sakai-authz-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-text</artifactId>
+			<artifactId>sakai-webapp-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-xml</artifactId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
+			<artifactId>sakai-memory-api</artifactId>
 			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-event-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-db-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-db-storage</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-calendar-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
 		</dependency>
 
 		<!-- fop: fop, avalon-framework, xercesImpl, xmlParserAPIs, batik -->

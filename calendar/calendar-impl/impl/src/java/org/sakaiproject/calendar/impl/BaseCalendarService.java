@@ -108,6 +108,7 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
@@ -509,7 +510,7 @@ public abstract class BaseCalendarService
 	public CalendarEdit addCalendar(String ref) throws IdUsedException, IdInvalidException, PermissionException
 	{
 		// check the name's validity
-		Validator.checkResourceRef(ref);
+		if (!m_entityManager.checkReference(ref)) throw new IdInvalidException(ref);
 
 		// check for existance
 		if (m_storage.checkCalendar(ref))
@@ -1704,8 +1705,10 @@ public abstract class BaseCalendarService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChange(Site site, EntityProducer.ChangeType change)
+	public void syncWithSiteChange(/* Site */Object o, EntityProducer.ChangeType change)
 	{
+		Site site = (Site) o;
+
 		String[] toolIds = {"sakai.schedule"};
 
 		// for a delete, just disable

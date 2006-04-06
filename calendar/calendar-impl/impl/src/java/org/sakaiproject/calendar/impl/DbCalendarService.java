@@ -27,13 +27,15 @@ package org.sakaiproject.calendar.impl;
 // import
 import java.util.List;
 
-import org.sakaiproject.service.legacy.calendar.Calendar;
-import org.sakaiproject.service.legacy.calendar.CalendarEdit;
-import org.sakaiproject.service.legacy.calendar.CalendarEvent;
-import org.sakaiproject.service.legacy.calendar.CalendarEventEdit;
-import org.sakaiproject.service.framework.sql.SqlService;
-import org.sakaiproject.util.storage.BaseDbDoubleStorage;
-import org.sakaiproject.util.storage.StorageUser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.util.BaseDbDoubleStorage;
+import org.sakaiproject.util.StorageUser;
 
 /**
 * <p>DbCalendarService fills out the BaseCalendarService with a database implementation.</p>
@@ -45,6 +47,9 @@ import org.sakaiproject.util.storage.StorageUser;
 public class DbCalendarService
 	extends BaseCalendarService
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(DbCalendarService.class);
+
 	/** The name of the db table holding calendar calendars. */
 	protected String m_cTableName = "CALENDAR_CALENDAR";
 
@@ -132,11 +137,11 @@ public class DbCalendarService
 
 			super.init();
 
-			m_logger.info(this +".init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
+			M_log.info("init(): tables: " + m_cTableName + " " + m_rTableName + " locks-in-db: " + m_locksInDb);
 		}
 		catch (Throwable t)
 		{
-			m_logger.warn(this +".init(): ", t);
+			M_log.warn("init(): ", t);
 		}
 	}
 

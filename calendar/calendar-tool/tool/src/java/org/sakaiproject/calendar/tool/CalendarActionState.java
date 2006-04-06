@@ -30,14 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.api.kernel.session.SessionBindingEvent;
-import org.sakaiproject.api.kernel.session.SessionBindingListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.cheftool.ControllerState;
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.legacy.calendar.CalendarEventEdit;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.webapp.api.SessionBindingEvent;
+import org.sakaiproject.webapp.api.SessionBindingListener;
 
 
 /**
@@ -47,6 +48,9 @@ public class CalendarActionState
 	extends ControllerState
 	implements SessionBindingListener
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(CalendarActionState.class);
+
 	private List wizardImportedEvents;
 
 	private String importWizardType;
@@ -669,8 +673,8 @@ public class CalendarActionState
 
 	public void valueUnbound(SessionBindingEvent event)
 	{
-		if (Logger.isDebugEnabled())
-			Logger.debug(this +".valueUnbound()");
+		if (M_log.isDebugEnabled())
+			M_log.debug("valueUnbound()");
 
 		// pass it on to my edits
 		if ((m_editSite != null) && (m_editSite instanceof SessionBindingListener))

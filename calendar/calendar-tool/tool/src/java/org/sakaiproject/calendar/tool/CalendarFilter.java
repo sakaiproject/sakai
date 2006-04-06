@@ -29,12 +29,12 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.service.legacy.calendar.CalendarEvent;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * This class provides filtering (currently only by date) for use

@@ -31,7 +31,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-util</artifactId>
+			<artifactId>sakai-db-storage</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -40,7 +40,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-text</artifactId>
+			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -49,7 +49,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-xml</artifactId>
+			<artifactId>sakai-calendar-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -58,7 +58,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>

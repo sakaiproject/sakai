@@ -36,10 +36,18 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.calendar.api.cover.CalendarImporterService;
+import org.sakaiproject.calendar.api.cover.CalendarService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -49,46 +57,36 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.calendar.Calendar;
-import org.sakaiproject.service.legacy.calendar.CalendarEdit;
-import org.sakaiproject.service.legacy.calendar.CalendarEvent;
-import org.sakaiproject.service.legacy.calendar.CalendarEventEdit;
-import org.sakaiproject.service.legacy.calendar.CalendarEventVector;
-import org.sakaiproject.service.legacy.calendar.RecurrenceRule;
-import org.sakaiproject.service.legacy.calendar.cover.CalendarImporterService;
-import org.sakaiproject.service.legacy.calendar.cover.CalendarService;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.content.cover.ContentTypeImageService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.TimeRange;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.MergedList;
-import org.sakaiproject.util.MergedListEntryProviderBase;
-import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.util.java.StringUtil;
-import org.sakaiproject.util.text.FormattedText;
+import org.sakaiproject.webapp.api.Placement;
+import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.webapp.cover.ToolManager;
 
 
 /**
@@ -100,6 +98,9 @@ import org.sakaiproject.util.text.FormattedText;
 public class CalendarAction
 extends VelocityPortletStateAction
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(CalendarAction.class);
+
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("calendar");
 	
@@ -1075,8 +1076,7 @@ extends VelocityPortletStateAction
                             .getPrimaryCalendarReference(), portlet
                             .getPortletConfig().getInitParameter(
                                     PORTLET_CONFIG_PARM_MERGED_CALENDARS)),
-                    SecurityService.isSuperUser(), PortalService
-                            .getCurrentSiteId());
+                    SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
 			
 			// Place this object in the context so that the velocity template
 			// can get at it.
@@ -1272,12 +1272,12 @@ extends VelocityPortletStateAction
 				catch (IdUnusedException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.thereis"));
-					Log.debug("chef", this +".buildCustomizeContext(): " + e);
+					M_log.debug(".buildCustomizeContext(): " + e);
 				}
 				catch (PermissionException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.youdont"));
-					Log.debug("chef", this +".buildCustomizeContext(): " + e);
+					M_log.debug(".buildCustomizeContext(): " + e);
 				}
 				
 				// Get a current list of add fields.  This is a comma-delimited string.
@@ -1545,17 +1545,17 @@ extends VelocityPortletStateAction
 				catch (IdUnusedException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.thereisno")); 
-					Log.debug("chef", this + ".doUpdate customize calendar IdUnusedException"+e);
+					M_log.debug(".doUpdate customize calendar IdUnusedException"+e);
 				}
 				catch (PermissionException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.youdonthave"));
-					Log.debug("chef", this + ".doUpdate customize calendar "+e);
+					M_log.debug(".doUpdate customize calendar "+e);
 				}
 				catch (InUseException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.someone")); 
-					Log.debug("chef", this + ".doUpdate() for CustomizeCalendar: " + e);
+					M_log.debug(".doUpdate() for CustomizeCalendar: " + e);
 				}
 				
 				sstate.setAttribute(CalendarAction.SSTATE_ATTRIBUTE_ADDFIELDS_CALENDARS, addfields);
@@ -1699,22 +1699,22 @@ extends VelocityPortletStateAction
 			
 			catch (IdUnusedException e)
 			{
-				org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.getTheCalendar(): ",e);
+				M_log.debug("CalendarPermissions.getTheCalendar(): ",e);
 			}
 			
 			catch (PermissionException e)
 			{
-				org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.getTheCalendar(): " + e);
+				M_log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
 			
 			catch (IdUsedException e)
 			{
-				org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.getTheCalendar(): " + e);
+				M_log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
 			
 			catch (IdInvalidException e)
 			{
-				org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.getTheCalendar(): " + e);
+				M_log.debug("CalendarPermissions.getTheCalendar(): " + e);
 			}
 			
 			return calendarObj;
@@ -1770,11 +1770,11 @@ extends VelocityPortletStateAction
 				}
 				catch (IdUnusedException e)
 				{
-					org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.canDeleteEvent(): " + e);
+					M_log.debug("CalendarPermissions.canDeleteEvent(): " + e);
 				}
 				catch (PermissionException e)
 				{
-					org.sakaiproject.service.framework.log.cover.Log.debug("chef", "CalendarPermissions.canDeleteEvent(): " + e);
+					M_log.debug("CalendarPermissions.canDeleteEvent(): " + e);
 				}
 				
 				if (event == null)
@@ -1956,7 +1956,7 @@ extends VelocityPortletStateAction
 		// TODO: return to this question! -ggolden
 		// return false;
 		// we'll really answer the question - is the current request's site a user site?
-		return SiteService.isUserSite(PortalService.getCurrentSiteId());
+		return SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 	}
 	
 	
@@ -2003,7 +2003,7 @@ extends VelocityPortletStateAction
                                 new CalendarReferenceToChannelConverter()),
 						StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()),
                         channelArray, SecurityService.isSuperUser(),
-                        PortalService.getCurrentSiteId());
+                        ToolManager.getCurrentPlacement().getContext());
 
 		return mergedCalendarList.getReferenceList();
 	}
@@ -2152,7 +2152,7 @@ extends VelocityPortletStateAction
 			if (calendarReference == null)
 			{
 				// form a reference to the default calendar for this request's site
-				calendarReference = CalendarService.calendarReference(PortalService.getCurrentSiteId(), SiteService.MAIN_CONTAINER);
+				calendarReference = CalendarService.calendarReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
 				state.setPrimaryCalendarReference(calendarReference);
 				//CalendarCalendarService.getCalendar(calendarReference));
 			}
@@ -2304,12 +2304,12 @@ extends VelocityPortletStateAction
 				catch(IdUnusedException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.therenoactv"));
-					Log.debug("chef", this + ".buildReviseContext(): " + e);
+					M_log.debug(".buildReviseContext(): " + e);
 				}
 				catch (PermissionException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.younotperm"));
-					Log.debug("chef", this + ".buildReviseContext(): " + e);
+					M_log.debug(".buildReviseContext(): " + e);
 				}
 			}
 		}
@@ -2382,7 +2382,7 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
-		context.put("PortalService", PortalService.getInstance());
+		// TODO: context.put("PortalService", PortalService.getInstance());
                 context.put("CalendarService", CalendarService.getInstance());
                 context.put("SiteService", SiteService.getInstance());
                 
@@ -2429,7 +2429,7 @@ extends VelocityPortletStateAction
 		if ( !CalendarPermissions.allowViewEvents(selectedCalendarReference) )
 		{
 			exceptionMessage.append(rb.getString("java.alert.younotallow")); 
-			Log.debug("chef", "here in buildDescription not showing event");
+			M_log.debug("here in buildDescription not showing event");
 		}
 		else
 		{
@@ -2454,13 +2454,13 @@ extends VelocityPortletStateAction
 			}
 			catch (IdUnusedException  e)
 			{
-				Log.debug("chef", this + ".buildDescriptionContext(): " + e);
+				M_log.debug(".buildDescriptionContext(): " + e);
 				context.put(NO_EVENT_FLAG_CONTEXT_VAR, TRUE_STRING);
 			}
 			catch (PermissionException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.younotpermadd"));
-				Log.debug("chef", this + ".buildDescriptionContext(): " + e);
+				M_log.debug(".buildDescriptionContext(): " + e);
 			}
 		}
 		
@@ -2567,12 +2567,12 @@ extends VelocityPortletStateAction
 			catch(IdUnusedException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.therenoactv"));
-				Log.debug("chef", this + ".buildYearContext(): " + e);
+				M_log.debug(".buildYearContext(): " + e);
 			}
 			catch (PermissionException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.younotperm"));
-				Log.debug("chef", this + ".buildYearContext(): " + e);
+				M_log.debug(".buildYearContext(): " + e);
 			}
 		}
 		
@@ -3010,7 +3010,7 @@ extends VelocityPortletStateAction
 			catch(IdUnusedException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.therenoactv"));
-				Log.debug("chef", this + ".buildDayContext(): " + e);
+				M_log.debug(".buildDayContext(): " + e);
 				
 				for(int i=0; i<20;i++)
 					eventVector.add(i,new Vector());
@@ -3020,7 +3020,7 @@ extends VelocityPortletStateAction
 			catch (PermissionException e)
 			{
 				exceptionMessage.append(rb.getString("java.alert.younotperm"));
-				Log.debug("chef", this + ".buildDayContext(): " + e);
+				M_log.debug(".buildDayContext(): " + e);
 				
 				for(int i=0; i<20;i++)
 					eventVector.add(i,new Vector());
@@ -3158,19 +3158,19 @@ extends VelocityPortletStateAction
 					}
 					catch (PermissionException err)
 					{
-						Log.debug("chef", this + ".buildWeekContext(): " + err);
+						M_log.debug(".buildWeekContext(): " + err);
 					}
 					catch(IdUsedException err)
 					{
-						Log.debug("chef", this + ".buildWeekContext(): " + err);
+						M_log.debug(".buildWeekContext(): " + err);
 					}
 					catch(IdInvalidException err)
 					{
-						Log.debug("chef", this + ".buildWeekContext(): " + err);
+						M_log.debug(".buildWeekContext(): " + err);
 					}
 					catch(IdUnusedException err)
 					{
-						Log.debug("chef", this + ".buildWeekContext(): " + err);
+						M_log.debug(".buildWeekContext(): " + err);
 					}
 				}//end if
 				else
@@ -3180,7 +3180,7 @@ extends VelocityPortletStateAction
 			}
 			catch (PermissionException e)
 			{
-				Log.debug("chef", this + ".buildWeekContext(): " + e);
+				M_log.debug(".buildWeekContext(): " + e);
 				allowed = false;
 			}
 		}
@@ -3382,12 +3382,12 @@ extends VelocityPortletStateAction
 		catch(IdUnusedException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.thereis"));
-			Log.debug("chef", this + ".buildNewContext(): " + e);
+			M_log.debug(".buildNewContext(): " + e);
 		}
 		catch (PermissionException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.youdont"));
-			Log.debug("chef", this + ".buildNewContext(): " + e);
+			M_log.debug(".buildNewContext(): " + e);
 		}
 		
 		// Add any additional fields in the calendar.
@@ -3456,12 +3456,12 @@ extends VelocityPortletStateAction
 		catch (IdUnusedException  e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.noexist"));
-			Log.debug("chef", this + ".buildDeleteContext(): " + e);
+			M_log.debug(".buildDeleteContext(): " + e);
 		}
 		catch (PermissionException  e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.youcreate"));
-			Log.debug("chef", this + ".buildDeleteContext(): " + e);
+			M_log.debug(".buildDeleteContext(): " + e);
 		}		
 	}   // buildDeleteContext
 	
@@ -3722,12 +3722,12 @@ extends VelocityPortletStateAction
 		catch(IdUnusedException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.thereis"));
-			Log.debug("chef", this + ".buildCustomizeContext(): " + e);
+			M_log.debug(".buildCustomizeContext(): " + e);
 		}
 		catch (PermissionException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.youdont")); 
-			Log.debug("chef", this + ".buildCustomizeContext(): " + e);
+			M_log.debug(".buildCustomizeContext(): " + e);
 		}
 		
 		Map addfieldsMap = new HashMap();
@@ -3830,7 +3830,7 @@ extends VelocityPortletStateAction
 				// if this event doesn't exist, let user not go to the detail view
 				// set the state recorded ID as null
 				// show the alert message
-				Log.debug("chef", this + ".IdUnusedException " + err);
+				M_log.debug(".IdUnusedException " + err);
 				//state.setState("returnState");
 				state.setCalendarEventId("", "");
 				String errorCode = rb.getString("java.error");
@@ -3838,7 +3838,7 @@ extends VelocityPortletStateAction
 			}
 			catch (PermissionException err)
 			{
-				Log.debug("chef", this + ".PermissionException " + err);
+				M_log.debug(".PermissionException " + err);
 			}
 		}
 		catch (IdUnusedException  e)
@@ -4008,7 +4008,7 @@ extends VelocityPortletStateAction
 				// set the state recorded ID as null
 				// show the alert message
 				// reset the menu button display, no revise/delete
-				Log.debug("chef", this + ".IdUnusedException " + err);
+				M_log.debug(".IdUnusedException " + err);
 				state.setState("description");
 				state.setCalendarEventId("", "");
 				String errorCode = rb.getString("java.alert.event"); 
@@ -4016,11 +4016,11 @@ extends VelocityPortletStateAction
 			}
 			catch (PermissionException err)
 			{
-				Log.debug("chef", this + ".PermissionException " + err);
+				M_log.debug(".PermissionException " + err);
 			}
 			catch (InUseException err)
 			{
-				Log.debug("chef", this + ".InUseException " + err);
+				M_log.debug(".InUseException " + err);
 				state.setState("description");
 				String errorCode = rb.getString("java.alert.eventbeing");
 				addAlert(sstate, errorCode);
@@ -4236,13 +4236,13 @@ extends VelocityPortletStateAction
 					catch (IdUnusedException e)
 					{
 						addAlert(sstate, e.getMessage());
-						Log.debug("chef", this +".doScheduleContinue(): " + e);
+						M_log.debug(".doScheduleContinue(): " + e);
 						break;
 					}
 					catch (PermissionException e)
 					{
 						addAlert(sstate, e.getMessage());
-						Log.debug("chef", this +".doScheduleContinue(): " + e);
+						M_log.debug(".doScheduleContinue(): " + e);
 						break;
 					}
 				}
@@ -4508,7 +4508,7 @@ extends VelocityPortletStateAction
 				// set the state recorded ID as null
 				// show the alert message
 				// reset the menu button display, no revise/delete
-				Log.debug("chef", this + ".IdUnusedException " + err);
+				M_log.debug(".IdUnusedException " + err);
 				state.setState("description");
 				state.setCalendarEventId("", "");
 				String errorCode = rb.getString("java.alert.event");
@@ -4516,11 +4516,11 @@ extends VelocityPortletStateAction
 			}
 			catch (PermissionException err)
 			{
-				Log.debug("chef", this + ".PermissionException " + err);
+				M_log.debug(".PermissionException " + err);
 			}
 			catch (InUseException err)
 			{
-				Log.debug("chef", this + ".InUseException delete" + err);
+				M_log.debug(".InUseException delete" + err);
 				state.setState("description");
 				String errorCode = rb.getString("java.alert.eventbeing");
 				addAlert(sstate, errorCode);
@@ -4566,12 +4566,12 @@ extends VelocityPortletStateAction
 		catch (IdUnusedException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.noexist"));
-			Log.debug("chef", this + ".doConfirm(): " + e);
+			M_log.debug(".doConfirm(): " + e);
 		}
 		catch (PermissionException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
-			Log.debug("chef", this + ".doConfirm(): " + e);
+			M_log.debug(".doConfirm(): " + e);
 		}
 		
 		String returnState = state.getReturnState();
@@ -4799,12 +4799,12 @@ extends VelocityPortletStateAction
 		catch (IdUnusedException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.noexist"));
-			Log.debug("chef", this + ".doActivityday(): " + e);
+			M_log.debug(".doActivityday(): " + e);
 		}
 		catch (PermissionException  e)
 		{
 			addAlert(sstate, rb.getString("java.alert.youcreate"));
-			Log.debug("chef", this + ".doActivityday(): " + e);
+			M_log.debug(".doActivityday(): " + e);
 		}
 		
 		TimeRange tr = ce.getRange();
@@ -5130,12 +5130,12 @@ extends VelocityPortletStateAction
 		catch(IdUnusedException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.thereisno"));
-			Log.debug("chef", this + ".doAdd(): " + e);
+			M_log.debug(".doAdd(): " + e);
 		}
 		catch (PermissionException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.youdont")); 
-			Log.debug("chef", this + ".doAdd(): " + e);
+			M_log.debug(".doAdd(): " + e);
 		}
 		
 		Map addfieldsMap = new HashMap();
@@ -5317,13 +5317,13 @@ extends VelocityPortletStateAction
 			catch (IdUnusedException  e)
 			{
 				addAlert(sstate, rb.getString("java.alert.noexist"));
-				Log.debug("chef", this + ".doAdd(): " + e);
+				M_log.debug(".doAdd(): " + e);
 			}
 			
 			catch (PermissionException  e)
 			{
 				addAlert(sstate, rb.getString("java.alert.youcreate"));
-				Log.debug("chef", this + ".doAdd(): " + e);
+				M_log.debug(".doAdd(): " + e);
 			}
 		}   // elseif
 	}   // doAdd
@@ -5432,12 +5432,12 @@ extends VelocityPortletStateAction
 				catch (IdUnusedException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.theresisno"));
-					Log.debug("chef", this +".doUpdate() Other: " + e);
+					M_log.debug(".doUpdate() Other: " + e);
 				}
 				catch (PermissionException e)
 				{
 					exceptionMessage.append(rb.getString("java.alert.youdont"));
-					Log.debug("chef", this +".doUpdate() Other: " + e);
+					M_log.debug(".doUpdate() Other: " + e);
 				}
 				
 				Map addfieldsMap = new HashMap();
@@ -5627,12 +5627,12 @@ extends VelocityPortletStateAction
 					catch (IdUnusedException  e)
 					{
 						addAlert(sstate, rb.getString("java.alert.noexist"));
-						Log.debug("chef", this + ".doUpdate(): " + e);
+						M_log.debug(".doUpdate(): " + e);
 					}
 					catch (PermissionException  e)
 					{
 						addAlert(sstate, rb.getString("java.alert.youcreate"));
-						Log.debug("chef", this + ".doUpdate(): " + e);
+						M_log.debug(".doUpdate(): " + e);
 					} // try-catch
 				} // if(title.length()==0)
 			} // if (state.getState().equalsIgnoreCase(STATE_CUSTOMIZE_CALENDAR))
@@ -6233,11 +6233,11 @@ extends VelocityPortletStateAction
 			}
 			catch(IdUnusedException e)
 			{
-				Log.debug("chef", this + ".buildMonthContext(): " + e);
+				M_log.debug(".buildMonthContext(): " + e);
 			}
 			catch (PermissionException e)
 			{
-				Log.debug("chef", this + ".buildMonthContext(): " + e);
+				M_log.debug(".buildMonthContext(): " + e);
 			}
 		}
 		
@@ -6372,7 +6372,7 @@ extends VelocityPortletStateAction
 		// output CalendarService and SiteService
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
-		context.put("PortalService", PortalService.getInstance());
+		// TODO: context.put("PortalService", PortalService.getInstance());
 		
 		buildMenu(
 			portlet,
@@ -6612,7 +6612,7 @@ extends VelocityPortletStateAction
 		bar.add( new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID()) );
 		
 		// add permissions, if allowed
-		if (SiteService.allowUpdateSite(PortalService.getCurrentSiteId()))
+		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 		{
 			bar.add( new MenuEntry(rb.getString("java.permissions"), "doPermissions") );
 		}
@@ -6734,7 +6734,7 @@ extends VelocityPortletStateAction
 					} // try
 					catch(IdUnusedException e)
 					{
-						Log.debug("chef", this + ".doEditfrequency() + calendarObj.getEvent(): " + e);
+						M_log.debug(".doEditfrequency() + calendarObj.getEvent(): " + e);
 					} // try-cath
 				} // if ((eventId == null)||(eventId.equals(""))
 			}
@@ -6745,11 +6745,11 @@ extends VelocityPortletStateAction
 		} // try
 		catch(IdUnusedException e)
 		{
-			Log.debug("chef", this + ".doEditfrequency() + CalendarService.getCalendar(): " + e);
+			M_log.debug(".doEditfrequency() + CalendarService.getCalendar(): " + e);
 		}
 		catch (PermissionException e)
 		{
-			Log.debug("chef", this + ".doEditfrequency() + CalendarService.getCalendar(): " + e);
+			M_log.debug(".doEditfrequency() + CalendarService.getCalendar(): " + e);
 		}
 		
 		
@@ -6817,12 +6817,12 @@ extends VelocityPortletStateAction
 		catch(IdUnusedException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.thereis"));
-			Log.debug("chef", this + ".doEditfrequency(): " + e);
+			M_log.debug(".doEditfrequency(): " + e);
 		}
 		catch (PermissionException e)
 		{
 			exceptionMessage.append(rb.getString("java.alert.youdont"));
-			Log.debug("chef", this + ".doEditfrequency(): " + e);
+			M_log.debug(".doEditfrequency(): " + e);
 		}
 		
 		sstate.setAttribute(STATE_BEFORE_SET_RECURRENCE, state.getState());
@@ -6938,8 +6938,8 @@ extends VelocityPortletStateAction
 //		 */
 //		public void doOptions(RunData runData, Context context)
 //		{
-//			String toolId = PortalService.getCurrentToolId();
-//			String siteId = PortalService.getCurrentSiteId();
+//			String toolId = ToolManager.getCurrentPlacement().getId();
+//			String siteId = ToolManager.getCurrentPlacement().getContext();
 //			SessionState state =
 //			((JetspeedRunData)runData).getPortletSessionState(toolId);
 //			
@@ -7055,8 +7055,7 @@ extends VelocityPortletStateAction
                             channelArray,
                             new CalendarReferenceToChannelConverter()),
 					StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()), channelArray,
-                    SecurityService.isSuperUser(), PortalService
-                            .getCurrentSiteId());
+                    SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
 
 			// make sure the observer is in sync with state
 			updateObservationOfChannel(mergedCalendarList, rundata, state, calState);
@@ -7157,7 +7156,7 @@ extends VelocityPortletStateAction
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", this + ": ", e);
+			M_log.warn(" ", e);
 			return strFromBrowser;
 		}
 	}

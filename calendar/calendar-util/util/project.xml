@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-event-util</name>
+	<name>sakai-calendar-util</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-event-util</id>
+	<id>sakai-calendar-util</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -19,66 +19,6 @@
 	</properties>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-email-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-alias-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>commons-logging</groupId>
