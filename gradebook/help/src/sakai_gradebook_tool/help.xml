@@ -120,7 +120,7 @@
             <list>
                 <bean id="gradebookCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                     <property name="name">
-                        <value>Gradebook Tool</value>
+                        <value>Gradebook</value>
                     </property>
                     <property name="resources">
                         <list>
