@@ -197,7 +197,7 @@
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
-			#if ($calObj.getContext() != $PortalService.CurrentSiteId )
+			#if ($calObj.getContext() != $Context )
 				<tr> 
 					<th>$tlang.getString("gen.fromsite")</th>
 					<td>$SiteService.getSiteDisplay($calObj.getContext())</td>

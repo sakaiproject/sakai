@@ -286,7 +286,7 @@
 																</tr>
 
 																#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
-																#if ($calObj.getContext() != $PortalService.CurrentSiteId )
+																#if ($calObj.getContext() != $Context )
 																<tr>
 																	<td>&nbsp;</td>
 																	#set ($siteDisplay = $SiteService.getSiteDisplay($calObj.getContext()))

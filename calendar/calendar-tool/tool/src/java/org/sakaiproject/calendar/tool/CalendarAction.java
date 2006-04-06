@@ -2385,9 +2385,9 @@ extends VelocityPortletStateAction
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 		context.put("tlang",rb);
-		// TODO: context.put("PortalService", PortalService.getInstance());
-                context.put("CalendarService", CalendarService.getInstance());
-                context.put("SiteService", SiteService.getInstance());
+		context.put("Context", ToolManager.getCurrentPlacement().getContext());
+		context.put("CalendarService", CalendarService.getInstance());
+		context.put("SiteService", SiteService.getInstance());
                 
 		Calendar calendarObj = null;
 		CalendarEvent calEvent = null;
@@ -6375,7 +6375,7 @@ extends VelocityPortletStateAction
 		// output CalendarService and SiteService
 		context.put("CalendarService", CalendarService.getInstance());
 		context.put("SiteService", SiteService.getInstance());
-		// TODO: context.put("PortalService", PortalService.getInstance());
+		context.put("Context", ToolManager.getCurrentPlacement().getContext());
 		
 		buildMenu(
 			portlet,
