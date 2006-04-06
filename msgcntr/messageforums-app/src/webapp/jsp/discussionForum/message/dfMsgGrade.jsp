@@ -131,7 +131,10 @@
             <h:outputText value="Grade (Points Only):"/>
           </td>
           <td align="left" width="85%">
-            <h:inputText value="#{ForumTool.gradePoint}" size="5"/>
+            <h:inputText value="#{ForumTool.gradePoint}" id="dfMsgGradeGradePoint" size="2">
+              <f:validateLongRange minimum="0" maximum="99" />
+            </h:inputText>
+            <h:message for="dfMsgGradeGradePoint" errorStyle="color: red; "/> 
           </td>  
         </tr>
         <tr>
