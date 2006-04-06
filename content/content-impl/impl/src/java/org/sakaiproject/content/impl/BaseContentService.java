@@ -63,6 +63,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -70,7 +71,6 @@ import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
@@ -123,7 +123,7 @@ import org.w3c.dom.NodeList;
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
  * </p>
  */
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher
+public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -5089,85 +5089,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChange(Object site, EntityProducer.ChangeType change)
+	public String[] myToolIds()
 	{
-		// handle both resources and dropbox
-		syncWithSiteChangeResources(site, change);
-		syncWithSiteChangeDropbox(site, change);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void syncWithSiteChangeResources(Object o, EntityProducer.ChangeType change)
-	{
-		Site site = (Site) o;
-
-		// TODO: perhaps we should create resources for the site even without the tool? -ggolden
-
 		String[] toolIds = { "sakai.resources" };
-
-		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change)
-		{
-			disableResources(site);
-		}
-
-		// otherwise enable if we now have the tool, disable otherwise
-		else
-		{
-			// collect the tools from the site
-			Collection tools = site.getTools(toolIds);
-
-			// if we have the tool
-			if (!tools.isEmpty())
-			{
-				enableResources(site);
-			}
-
-			// if we do not
-			else
-			{
-				disableResources(site);
-			}
-		}
+		return toolIds;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChangeDropbox(Object o, EntityProducer.ChangeType change)
+	public void startContext(String context)
+	{	
+		enableResources(context);
+		enableDropbox(context);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void endContext(String context)
 	{
-		Site site = (Site) o;
-
-		// TODO: perhaps we should create resources for the site even without the tool? -ggolden
-
-		String[] toolIds = { "sakai.dropbox" };
-
-		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change)
-		{
-			disableDropbox(site);
-		}
-
-		// otherwise enable if we now have the tool, disable otherwise
-		else
-		{
-			// collect the tools from the site
-			Collection tools = site.getTools(toolIds);
-
-			// if we have the tool
-			if (!tools.isEmpty())
-			{
-				enableDropbox(site);
-			}
-
-			// if we do not
-			else
-			{
-				disableDropbox(site);
-			}
-		}
+		disableResources(context);
+		disableDropbox(context);
 	}
 
 	/**
@@ -5176,26 +5119,56 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param site
 	 *        The site.
 	 */
-	protected void enableResources(Site site)
+	protected void enableResources(String context)
 	{
 		// it would be called
-		String id = getSiteCollection(site.getId());
+		String id = getSiteCollection(context);
 
 		// does it exist?
 		try
 		{
-			ContentCollection collection = getCollection(id);
-
-			// do we need to update the title?
-			if (!site.getTitle().equals(collection.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)))
+			Site site = m_siteService.getSite(context);
+			try
 			{
+				ContentCollection collection = getCollection(id);
+	
+				// do we need to update the title?
+				if (!site.getTitle().equals(collection.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)))
+				{
+					try
+					{
+						ContentCollectionEdit edit = editCollection(id);
+						edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
+						commitCollection(edit);
+					}
+					catch (IdUnusedException e)
+					{
+						M_log.warn("enableResources: " + e);
+					}
+					catch (PermissionException e)
+					{
+						M_log.warn("enableResources: " + e);
+					}
+					catch (InUseException e)
+					{
+						M_log.warn("enableResources: " + e);
+					}
+				}
+			}
+			catch (IdUnusedException un)
+			{
+				// make it
 				try
 				{
-					ContentCollectionEdit edit = editCollection(id);
-					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
-					commitCollection(edit);
+					ContentCollectionEdit collection = addCollection(id);
+					collection.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
+					commitCollection(collection);
 				}
-				catch (IdUnusedException e)
+				catch (IdUsedException e)
+				{
+					M_log.warn("enableResources: " + e);
+				}
+				catch (IdInvalidException e)
 				{
 					M_log.warn("enableResources: " + e);
 				}
@@ -5203,26 +5176,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					M_log.warn("enableResources: " + e);
 				}
-				catch (InUseException e)
+				catch (InconsistentException e)
 				{
 					M_log.warn("enableResources: " + e);
 				}
 			}
-		}
-		catch (IdUnusedException un)
-		{
-			// make it
-			try
-			{
-				ContentCollectionEdit collection = addCollection(id);
-				collection.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, site.getTitle());
-				commitCollection(collection);
-			}
-			catch (IdUsedException e)
-			{
-				M_log.warn("enableResources: " + e);
-			}
-			catch (IdInvalidException e)
+			catch (TypeException e)
 			{
 				M_log.warn("enableResources: " + e);
 			}
@@ -5230,18 +5189,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				M_log.warn("enableResources: " + e);
 			}
-			catch (InconsistentException e)
-			{
-				M_log.warn("enableResources: " + e);
-			}
 		}
-		catch (TypeException e)
+		catch (IdUnusedException e)
 		{
-			M_log.warn("enableResources: " + e);
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn("enableResources: " + e);
+			// TODO: -ggolden
 		}
 	}
 
@@ -5251,7 +5202,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param site
 	 *        The site.
 	 */
-	protected void disableResources(Site site)
+	protected void disableResources(String context)
 	{
 		// TODO: we do nothing now - resources hang around after the tool is removed from the site or the site is deleted -ggolden
 	}
@@ -5262,10 +5213,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param site
 	 *        The site.
 	 */
-	protected void enableDropbox(Site site)
+	protected void enableDropbox(String context)
 	{
 		// create it and the user folders within
-		createDropboxCollection(site.getId());
+		createDropboxCollection(context);
 	}
 
 	/**
@@ -5274,7 +5225,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param site
 	 *        The site.
 	 */
-	protected void disableDropbox(Site site)
+	protected void disableDropbox(String context)
 	{
 		// TODO: we do nothing now - dropbox resources hang around after the tool is removed from the site or the site is deleted -ggolden
 	}
