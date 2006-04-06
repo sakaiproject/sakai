@@ -261,7 +261,6 @@ public class ItemHelper12Impl extends ItemHelperBase
     if (isInsert)
     {
       itemXml.insertElement(nextNode, xpath, "itemfeedback");
-// System.out.println(itemXml.stringValue());
       itemXml.add(
         xpath + "/itemfeedback[" + responseNo + "]", "flow_mat/material/mattext");
 
@@ -280,6 +279,7 @@ public class ItemHelper12Impl extends ItemHelperBase
       {
         value = "";
       }
+      value =  "<![CDATA[" + value + "]]>";
       itemXml.update(xpath + "/itemfeedback[" + responseNo +
                      "]/flow_mat/material/mattext",
                      value);
@@ -395,7 +395,7 @@ public class ItemHelper12Impl extends ItemHelperBase
         String respIdent = "MT-" + randomNumber + "-" + label;
 
         String respCondNo = "" + respCondCount;
-
+        responseFeedback =  "<![CDATA[" + responseFeedback + "]]>";
         // add source (addMatchingRespcondition())
         if (Boolean.TRUE.equals(correct))
         {
@@ -995,7 +995,6 @@ public class ItemHelper12Impl extends ItemHelperBase
   public void setAnswers(ArrayList itemTextList, Item itemXml)
   {
 
-    //System.out.println("\n\n\nentered setAnswers()\n\n\n");
     log.debug("entered setAnswers()");
     log.debug("size=" + itemTextList.size());
     // other types either have no answer or include them in their template, or,
@@ -1206,6 +1205,7 @@ public class ItemHelper12Impl extends ItemHelperBase
   {
     log.debug("addAnswerFeedback()");
     log.debug("answer feedback value: " + value);
+    value =  "<![CDATA[" + value + "]]>";
     String respCond = "item/resprocessing/respcondition[" + responseNo + "]";
     updateItemXml(itemXml, respCond + "/setvar", "" + currentPerItemScore);
     updateItemXml(itemXml,

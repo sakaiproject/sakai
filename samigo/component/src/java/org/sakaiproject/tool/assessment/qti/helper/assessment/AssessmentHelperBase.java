@@ -246,6 +246,7 @@ public abstract class AssessmentHelperBase
     List list = assessmentXml.selectNodes(xpath);
     try
     {
+      description =  "<![CDATA[" + description + "]]>";
       assessmentXml.update(xpath, description);
     }
     catch (Exception ex)
