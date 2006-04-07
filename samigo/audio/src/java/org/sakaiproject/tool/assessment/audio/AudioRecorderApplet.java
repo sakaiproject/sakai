@@ -152,6 +152,8 @@ public class AudioRecorderApplet
     AudioRecorderApplet applet = new AudioRecorderApplet();
     applet.isStandalone = true;
     JFrame f = new JFrame(res.getString("Audio_Recorder"));
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    /* old way to exit program when window is closed - daisyf, 04/06/06
     f.addWindowListener(new WindowAdapter()
     {
       public void windowClosing(WindowEvent e)
@@ -159,6 +161,7 @@ public class AudioRecorderApplet
         System.exit(0);
       }
     });
+    */
     f.getContentPane().add(res.getString("Center"), applet);
     f.pack();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

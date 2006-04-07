@@ -56,7 +56,9 @@ public class AudioRecorderParams implements Serializable
   private boolean bigendian = true;
   private boolean stereo = false;
   private int maxSeconds = 60;
-  private int retriesAllowed = 6;
+  private int attemptsAllowed = 5;
+  private int attemptsRemaining = 5;
+  private int currentRecordingLength=0;
 
   /**
    * compression algorithms
@@ -307,12 +309,36 @@ public class AudioRecorderParams implements Serializable
         // leave
       }
     }
-    s = applet.getParameter("retriesAllowed");
+    s = applet.getParameter("attemptsAllowed");
     if (s != null)
     {
       try
       {
-        maxSeconds = Integer.parseInt(s);
+        attemptsAllowed  = Integer.parseInt(s);
+      }
+      catch (NumberFormatException ex1)
+      {
+        // leave
+      }
+    }
+    s = applet.getParameter("attemptsRemaining");
+    if (s != null)
+    {
+      try
+      {
+        attemptsRemaining  = Integer.parseInt(s);
+      }
+      catch (NumberFormatException ex1)
+      {
+        // leave
+      }
+    }
+    s = applet.getParameter("currentRecordingLength");
+    if (s != null)
+    {
+      try
+      {
+        currentRecordingLength  = Integer.parseInt(s);
       }
       catch (NumberFormatException ex1)
       {
@@ -372,9 +398,19 @@ public class AudioRecorderParams implements Serializable
     return maxSeconds;
   }
 
-  public int getRetriesAllowed()
+  public int getCurrentRecordingLength()
   {
-    return retriesAllowed;
+    return currentRecordingLength;
+  }
+
+  public int getAttemptsAllowed()
+  {
+    return attemptsAllowed;
+  }
+
+  public int getAttemptsRemaining()
+  {
+    return attemptsRemaining;
   }
 
   public boolean isSaveAiff()
@@ -457,14 +493,24 @@ public class AudioRecorderParams implements Serializable
     this.saveAiff = saveAiff;
   }
 
-  public void setRetriesAllowed(int retriesAllowed)
+  public void setAttemptsAllowed(int attemptsAllowed)
   {
-    this.retriesAllowed = retriesAllowed;
+    this.attemptsAllowed = attemptsAllowed;
+  }
+
+  public void setAttemptsRemaining(int attemptsRemaining)
+  {
+    this.attemptsRemaining = attemptsRemaining;
   }
 
   public void setMaxSeconds(int maxSeconds)
   {
     this.maxSeconds = maxSeconds;
+  }
+
+  public void setCurrentRecordingLength(int currentRecordingLength)
+  {
+    this.currentRecordingLength = currentRecordingLength;
   }
 
   public void setFrequency(int frequency)

@@ -78,7 +78,9 @@ import javax.sound.sampled.TargetDataLine;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -91,6 +93,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -154,17 +157,18 @@ public class AudioRecorder extends JPanel implements ActionListener,
     p1.add(formatControls);
 
     JPanel p2 = new JPanel();
-    p2.setBorder(sbb);
     p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
-
-    JPanel buttonsPanel = makeAudioButtonPanel();
-    p2.add(buttonsPanel);
+    p2.setPreferredSize(new Dimension(450, 150));
+    p2.add(BorderLayout.WEST, makeAttemptsAllowedLabel());
+    p2.add(makeAudioButtonsPanel());
 
     JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
     JPanel savePanel = new ColorBackgroundPanel(); //new JPanel();
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
+    p2.setPreferredSize(new Dimension(450, 150));
+    p2.add(BorderLayout.WEST, makeAttemptsRemainingLabel());
 
     JPanel saveTFpanel = makeSaveTFPanel();
     savePanel.add(saveTFpanel);
@@ -213,7 +217,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     saveTFpanel.add(flabel);
     saveTFpanel.add(textField = new JTextField(fileName));
     saveTFpanel.add(rlabel);
-    saveTFpanel.add(rtextField = new JTextField(""+params.getRetriesAllowed()));
+    saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
 
     saveTFpanel.setPreferredSize(new Dimension(140, 25));
     rtextField.setEditable(false);
@@ -227,19 +231,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
     return saveTFpanel;
   }
 
-  private JPanel makeAudioButtonPanel()
+  private JPanel makeAudioButtonsPanel()
   {
     JPanel buttonsPanel = new ColorBackgroundPanel();
-
-    loadB = addButton(res.getString("Load_"), buttonsPanel, true,
-                      params.isEnableLoad());
-    pausB = addButton(res.getString("Pause"), buttonsPanel, false,
-                      params.isEnablePause());
-    playB = addButton(res.getString("Play"), buttonsPanel, false,
-                      params.isEnablePlay());
     captB = addButton(res.getString("Record"), buttonsPanel, true,
                       params.isEnableRecord());
-
+    playB = addButton(res.getString("Play"), buttonsPanel, false,
+                      params.isEnablePlay());
     return buttonsPanel;
   }
 
@@ -247,6 +245,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     JPanel samplingPanel = new JPanel(new BorderLayout());
     samplingPanel.setBorder(b);
+    samplingPanel.setPreferredSize(new Dimension(450, 150));
     samplingPanel.add(samplingGraph = new SamplingGraph());
     return samplingPanel;
   }
@@ -297,28 +296,28 @@ public class AudioRecorder extends JPanel implements ActionListener,
       AudioFileFormat.Type type = getTypeFromButton(obj);
       String TEST_LOCATION = "/tmp/test/audio." + type.getExtension();
 
-      int retries = params.getRetriesAllowed();
+      int attempts = params.getAttemptsAllowed();
 
-      if (retries > 0)
+      if (attempts > 0)
       {
         if (params.isSaveToFile() && params.isSaveToUrl())
         {
           saveToFileAndPost(textField.getText().trim(), type, params.getUrl(),
-                            TEST_LOCATION, retries);
+                            TEST_LOCATION, attempts);
         }
         else if (params.isSaveToUrl())
         {
           saveAndPost(audioInputStream, type, params.getUrl(),
-                      TEST_LOCATION, retries);
+                      TEST_LOCATION, attempts);
         }
         else if (params.isSaveToFile())
         {
           saveToFile(textField.getText().trim(), type);
         }
 
-        params.setRetriesAllowed(--retries);
-        rtextField.setText("" + retries);
-        if (retries==0) captB.setEnabled(false); ;
+        params.setAttemptsAllowed(--attempts);
+        rtextField.setText("" + attempts);
+        if (attempts==0) captB.setEnabled(false); ;
 
       }
     }
@@ -340,7 +339,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         playback.stop();
         samplingGraph.stop();
-        if (params.getRetriesAllowed()>0)
+        if (params.getAttemptsAllowed()>0)
         {
           captB.setEnabled(true);
         }
@@ -356,9 +355,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         capture.start();
         fileName = res.getString("default_file_name");
         samplingGraph.start();
-        loadB.setEnabled(false);
+        //loadB.setEnabled(false);
         playB.setEnabled(false);
-        pausB.setEnabled(true);
+        //pausB.setEnabled(true);
         auB.setEnabled(false);
         aiffB.setEnabled(false);
         waveB.setEnabled(false);
@@ -369,9 +368,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         lines.removeAllElements();
         capture.stop();
         samplingGraph.stop();
-        loadB.setEnabled(true);
+        //loadB.setEnabled(true);
         playB.setEnabled(true);
-        pausB.setEnabled(false);
+        //pausB.setEnabled(false);
         auB.setEnabled(true);
         aiffB.setEnabled(true);
         waveB.setEnabled(true);
@@ -411,6 +410,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         pausB.setText(res.getString("Pause"));
       }
     }
+    /*
     else if (obj.equals(loadB))
     {
       try
@@ -458,13 +458,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
         ex.printStackTrace();
       }
     }
+    */
   }
 
-  private void resetRetries(int retries)
+  private void resetAttempts(int attempts)
   {
-    if (retries > 0)
+    if (attempts > 0)
     {
-      rtextField.setText("" + retries);
+      rtextField.setText("" + attempts);
     }
   }
 
@@ -545,13 +546,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
                                 AudioFileFormat.Type audioType,
                                 String urlString,
                                 String filePath,
-                                int retriesLeft)
+                                int attemptsLeft)
   {
     try
     {
       saveToFile(tempFileName, audioType);
       FileInputStream inputStream = new FileInputStream(tempFileName);
-      saveAndPost( inputStream, audioType,  urlString,  filePath, retriesLeft);
+      saveAndPost( inputStream, audioType,  urlString,  filePath, attemptsLeft);
     }
     catch (Exception ex)
     {
@@ -567,13 +568,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
    * @param urlString the url (in applets must use getCodeBase().toString() +
    * same-host relative url)
    * @param inputStream the input stream
-   * @param retriesLeft retries left
+   * @param attemptsLeft attempts left
    */
   public void saveAndPost(InputStream inputStream,
                                 AudioFileFormat.Type audioType,
                                 String urlString,
                                 String filePath,
-                                int retriesLeft)
+                                int attemptsLeft)
   {
     if (audioInputStream == null)
     {
@@ -633,9 +634,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
       String fileName = filePath + "/" + "audio" + "." + mimeExtension;
 
       /**
-       * @todo deal with retriesLeft version later
+       * @todo deal with attemptsLeft version later
        */
-//      urlConn.setRequestProperty("From", fileName + "|" +retriesLeft);
+//      urlConn.setRequestProperty("From", fileName + "|" +attemptsLeft);
       urlConn.setRequestProperty("From", fileName);
 
       // Send binary POST output.
@@ -765,7 +766,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         thread = null;
         samplingGraph.stop();
-        if (params.getRetriesAllowed()>0)
+        if (params.getAttemptsAllowed()>0)
         {
           captB.setEnabled(true);
         }
@@ -909,9 +910,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         thread = null;
         samplingGraph.stop();
-        loadB.setEnabled(true);
+        //loadB.setEnabled(true);
         playB.setEnabled(true);
-        pausB.setEnabled(false);
+        //pausB.setEnabled(false);
         auB.setEnabled(true);
         aiffB.setEnabled(true);
         waveB.setEnabled(true);
@@ -1170,4 +1171,40 @@ public class AudioRecorder extends JPanel implements ActionListener,
     f.setSize(w, h);
     f.show();
   }
+
+  private JPanel makeAttemptsAllowedLabel()
+  {
+    GridLayout grid = new GridLayout(2, 1);
+    JPanel panel = new JPanel(grid);
+    panel.setPreferredSize(new Dimension(400, 50));
+    //panel.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
+    JLabel label1 = new JLabel(res.getString("attempts_allowed")+" "+
+                      params.getAttemptsAllowed(), SwingConstants.LEFT);
+    JLabel label2 = new JLabel(res.getString("time_limit")+" "+
+                      params.getMaxSeconds()+" sec", SwingConstants.LEFT);
+    Font font = new Font("Ariel", Font.PLAIN, 11);
+    label1.setFont(font); 
+    label2.setFont(font); 
+    panel.add(label1);
+    panel.add(label2);
+    return panel;
+  }
+
+  private JPanel makeAttemptsRemainingLabel()
+  {
+    GridLayout grid = new GridLayout(2, 1);
+    JPanel panel = new JPanel(grid);
+    panel.setPreferredSize(new Dimension(400, 50));
+    JLabel label1 = new JLabel(res.getString("time_limit")+" "+
+                      params.getCurrentRecordingLength()+" sec", SwingConstants.LEFT);
+    JLabel label2 = new JLabel(res.getString("attempts_remaining")+" "+
+                      params.getAttemptsRemaining(), SwingConstants.LEFT);
+    Font font = new Font("Ariel", Font.PLAIN, 11);
+    label1.setFont(font); 
+    label2.setFont(font); 
+    panel.add(label1);
+    panel.add(label2);
+    return panel;
+  }
+
 }

@@ -127,7 +127,8 @@ public class AudioPanel
     BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
     CompoundBorder cb = new CompoundBorder(eb, bb);
     JPanel p = new JPanel(new BorderLayout());
-    p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    //p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 0, 0)));
 
     new Thread(this).start();
 
@@ -232,14 +233,16 @@ public class AudioPanel
     BevelBorder bb = new BevelBorder(BevelBorder.LOWERED);
     CompoundBorder cb = new CompoundBorder(eb, bb);
     JPanel p = new JPanel(new BorderLayout());
-    p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    //p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    p.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 0, 0)));
     AudioRecorder recorder = new AudioRecorder(params);
     tabPanels.add(recorder);
     p.add(recorder);
     tabPane.addTab(res.getString("Audio_Recorder"), p);
 
     JPanel fp = new JPanel(new BorderLayout());
-    fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    //fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
+    fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 0, 0)));
     JPanel format = recorder.getFormatControlsPanel();
     tabPanels.add(format);
     fp.add(format);
