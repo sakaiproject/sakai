@@ -1,0 +1,189 @@
+body{width:100%;padding:0;font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;margin:0}
+/*GROUP 1 - top navigation*/
+/*iframe sizes for different states*/
+.sitenav-log{height:6.5em} /*user not logged in*/
+.sitenav-max{height:120px}  /*user logged in*/
+.sitenav-min{height:2em}  /*no logos or banners*/
+/*container for the #tabNavigation ul*/
+.tabHolder{width:100%;height:1.6em;background:#084A87;padding:0}
+.tabHolder table{margin-bottom:0;}
+.tabHolder table td{margin:0;padding:0;}
+.tabHolder table td.tabCell{padding:0}
+.tabHolder table td.selectCell{text-align:left;padding:0 0 0 .3em;}
+.tabHolder table td.selectCell select{display:inline;font-size:.7em;margin:0 0 0 3px;padding:0}
+.tabHolder table td.galleryLogin{font-size:.7em;padding-left:5em}
+.tabHolder table td.galleryLogin a, .tabHolder table td.mast-head-r a:visited  {color:#fff}
+.tabHolder table td.galleryLogin a:hover{color:#1997BB;text-decoration:underline}
+
+/*ul - the li are the tabs*/
+#tabNavigation{
+	background:#084A87;
+	white-space:nowrap;
+	list-style:none inside none;
+	font-size:.8em;
+	height:auto;
+/*	margin:0 0 -2px 3px;*/
+	margin:0;	
+	padding:4px 0;
+	width:100%}
+/*hacks for moz and saf*/	
+html>body #tabNavigation{margin:0 0 -1px 3px;}
+\head+body #tabNavigation{margin:0 0 -1px 3px;}
+
+/*displays a bar on bottom of tabs*/
+
+#tabBottom{display:none}
+/*the tab*/
+#tabNavigation li{display:inline;line-height:.9em;border:1px solid #084A87}
+/*the current tab*/
+#tabNavigation .selectedTab a,#tabNavigation .selectedTab a:link,#tabNavigation .selectedTab a:visited,
+	#tabNavigation .selectedTab a:hover{
+	color:#C4D6F0;
+	cursor: text;
+	font-weight: bold;
+	padding:3px 5px 5px 5px}
+/*various hacks for this and that browser*/
+html>body #tabNavigation .selectedTab a,html>body #tabNavigation .selectedTab a:link,html>body #tabNavigation .selectedTab a:visited{padding:4px 5px 5px 5px;	margin:0 0 -1px 3px;}
+\head+body #tabNavigation .selectedTab a,\head+body #tabNavigation .selectedTab a:link,\head+body #tabNavigation .selectedTab a:visited,\head+body #tabNavigation .selectedTab a:hover{padding:3px 5px 4px 5px;	margin:0 0 -1px 3px;}
+/*the link inside the tab*/
+#tabNavigation a,#tabNavigation a:link,#tabNavigation a:visited{
+	color:#FFF;
+	height:.8em;
+	margin:0;
+	padding:2px 6px;
+/*	font-size: 8pt;*/
+	text-decoration:none;
+	border-right: 1px solid #FFF;}
+/*various hacks for this and that browser*/
+html #tabNavigation a/* */,html #tabNavigation a:link/* */,html #tabNavigation a:visited/* */{border-bottom:none;height:auto;margin:0}
+html>body #tabNavigation a,html>body #tabNavigation a:link,html>body #tabNavigation a:visited{border-bottom:none;padding:4px 6px 4px 6px}
+\head+body #tabNavigation a,\head+body #tabNavigation a:link,\head+body #tabNavigation a:visited{padding:3px 6px 3px 6px}
+/*the hover for the tabs*/
+#tabNavigation a:hover{color:#C4D6F0;
+	}
+.fixTabsIE{visibility:hidden;display:none;border-width:0}
+/*a convenience class - not used in these examples - overrides the color in selected regions*/
+.divColor{background-color:#FFF !important} 
+/*GROUP 2 - masthead - holds logos, banners, login form and links*/
+.mast-head{width:100%;margin:0;font-size:.8em;color:#084A87;
+	background: url(images/headback.gif) repeat-x #084A87; }
+.mast-head td.left{background: url(images/headmid.gif) repeat-x #084A87; }
+.mast-head td.middle{text-align: left; width: 40px; }
+.mast-head td.right{text-align:right;white-space:nowrap;padding-right:15px}
+.mast-head td.right a,.mast-head .right a:visited{color:#084A87}
+.mast-head td.right a:hover{color:#000; text-decoration:none; }
+.mast-head td.right a img {margin-top:1.2em;border:none}
+.mast-head td.right form {margin-top:2.5em}
+/*since this skin is used as default - some definition for the login form elements*/
+input{
+	border:1px solid #90A1C6;
+	background-color:#E9ECF3;
+	padding:3px;
+	margin-left:.3em;
+	color:#084A87
+	}
+#submit{
+	border:1px solid #90A1C6;
+	background-color:#E9ECF3;
+	margin-left:1em;
+	padding:1px;
+	color:#084A87
+}
+#submit:hover{
+	border-width:1px;
+	border-style: solid;
+	border-color: #ABB8D3 #425782 #425782 #ABB8D3;
+}
+/* GROUP 3 - tool menu  */
+
+#divLogo {text-align:center;margin:0 .2em .5em .2em;width:8em;overflow: hidden;}
+#siteType {display: none;}
+#siteStatus{text-transform:capitalize;	background:url(images/warn.gif) 3px 3px no-repeat #fff;
+	border:1px solid  #536377;
+	clear:both;
+	color:#1A506A;
+	font-size:x-small;
+	margin:5px 2px 15px 2px;
+	padding:3px 3px 3px 20px}
+html #siteStatus/* */{background-position:3px center/* - adj for ie - */}
+
+#leftnavlozenge{width:12em;padding:0;margin-bottom:1em;margin-right:0em;margin-left:0px;font-size:70%;color:#000;clear:both; background: #FFF;}
+#leftnavlozenge ul{list-style:none;
+	margin: 0px 0px 0px 5px;
+	padding:0;	border-top: 1px solid #90A1C6;
+	}
+#leftnavlozenge li{margin:0px;
+	width:auto;
+	color: #5A6D95;
+	background: #FFF;
+	padding: 0px;
+	border-right: 1px solid #90A1C6;
+	border-bottom: 1px solid #90A1C6;
+	border-left: 1px solid #90A1C6;
+	}
+#leftnavlozenge li a:link, #leftnavlozenge li a{
+	display: block;
+	text-decoration: none;
+	background: #F0F0F0 url(images/linkoff.gif) no-repeat right;
+	color: #5A6D95;
+	padding: 2px 0px 2px 4px;
+	}
+#leftnavlozenge li a.selected,#leftnavlozenge li a:hover{
+	display: block;
+	text-decoration: none;
+	background: #084A87 url(images/linkover.gif) no-repeat right;
+	color: #FFF;
+	padding: 2px 0px 2px 4px;
+	}
+	
+#leftnavlozenge li a:hover {
+	display: block;
+	text-decoration: none;
+	background: #E7EAF1 url(images/linksel.gif) no-repeat right;
+	color: #5A6D95;
+	padding: 2px 0px 2px 4px;
+	}
+
+#pres_title {
+	font: normal normal 11px Arial, sans-serif;
+	color: #5A6D95;
+	padding-left: 4px;
+	height: 22px;
+	text-transform:  lowercase;
+	}
+#presence {
+	background: #F0F0F0;
+	height: 100px !important;
+	padding: 4px 0px 0px 2px;
+	width: 7.9em;
+	margin: -8px 0px 0px 5px !important;
+	border: 1px solid #90A1C6;
+	}
+
+/* GROUP 4 - content and channels */
+
+.portletTitleWrap{width:98%;margin:.5em .2em 0 .2em;}
+.portletMainWrap{width:98%;border: 1px solid #90A1C6;margin:0;margin:0 .2em .5em .2em;}
+.portletTitleIframe{width:100% !important;margin:0 !important;height:1.3em;}
+.portletMainIframe{text-align:left;width:100%; height:auto;}
+
+/*GROUP 5:tableless layout*/
+#container{ background: #FFF; }
+#content{padding:.3em .3em .3em .3em;margin-left:9.8em;background-color:#fff}
+#sidebar{float:left;width:9.4em;line-height:17px;color:#000;
+	border-right: 1px solid #F0F0F0;
+	}
+#footer{background-color:#084A87;color:#FFF;font-size:xx-small;margin:0px;padding:0;width:auto;clear:both;top:0;
+	border-top: 1px solid #90A1C6;}
+.footerExtNav{padding-top:.5em;padding-bottom:.5em}
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{color:#FFF;text-decoration:none;margin:1em}
+.footerExtNav a:hover{color:#C4D6F0;text-decoration:underline;margin:1em}
+#footerInfo{background-color:#FFF;font-size:xx-small;text-align:center;clear:both}
+#footerInfo img{margin-top:.5em;margin-bottom:.5em}
+.sakaiCopyrightInfo{color:#084984}
+/*GROUP 6:misc.*/
+/*hide the <h1> used for acccessibility*/
+.skip  { 
+	position:absolute; top:-999px;
+	left:-999px; height:0;width:0 
+}

@@ -1,0 +1,123 @@
+ /*NOTE:This file is linked to after the tool_base.css file inside of tools. It provides for skinning.*/
+/*PART 1:GENERIC SELECTORS*/
+body{background:#F0F0F0;font:80% Verdana,Arial,Helvetica,sans-serif}
+a:link{color:#369;text-decoration:none}
+a:visited{color:#9ad;text-decoration:none}
+a:hover{color:#5168D6 !important;text-decoration:underline;background:transparent}
+/*PART 2:TOOL TITLE SELECTORS and other PORTAL THINGS*/
+.toolTitle{width:100%;background:url(images/titleback.gif) repeat-x top  left}
+.toolTitle td.title img{margin:0;vertical-align:text-bottom;width:16px !important}
+.toolTitle td.title{padding:2px 4px 2px 22px;background:url(images/titleleft.gif) top left no-repeat;font-size:1em;color:#5A6D95;text-transform:uppercase}
+.toolTitle td.title h2{font:normal bold .9em Arial,sans-serif;margin:0;padding:0;display:inline}
+.toolTitle td.title a{background:url(images/reload.gif) top left no-repeat}
+.toolTitle td.title a:hover{background:url(images/reload_h.gif) top left no-repeat}
+.toolTitle td.action{background:url(images/titleright.gif) top right no-repeat;padding:3px 22px 2px 2px;text-align:right;vertical-align:middle}
+.toolTitle td.action img{margin:0;vertical-align:text-bottom;width:16px !important}
+.toolTitle td.action a{background:url(images/help.gif) top right no-repeat}
+.toolTitle td.action a:hover{background:url(images/help_h.gif) top right no-repeat}
+.presenceList{font-size:.8em;
+	list-style: none;
+	margin: 0;
+	padding-left: .1em;
+}
+.presenceList li {
+	padding:0 0 0 .7em;
+	margin-bottom:.2em;
+/*	white-space: nowrap;*/
+	}
+
+.presenceList li.inChat {
+	background:url(images/chatpresicon.gif) -.1em center no-repeat;
+	}
+.login td.logo{background:url(../../image/sakai.jpg) no-repeat top left;width:13em}
+/*PART 3:CALENDAR SELECTORS*/
+table.calendar th{font-weight:normal;text-align:center;background:#DDDFE4}
+.bgActivity{border:1px solid #E9ECF3;text-align:right;background:#E9ECF3}
+.bgWithoutActivity{border:1px solid #E9ECF3;text-align:right;background:#fff}
+.borderGrayYear{border:1px solid #E9ECF3;text-align:right;background:#C2CADD}
+.borderGrayDayWeek{border-bottom:none;border-collapse:collapse;border-left:1px solid #E9ECF3;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3}
+.borderGrayBackground{border-bottom:none;border-left:1px solid #E9ECF3;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3;background:#E3EAF4}
+.borderGrayTodayBgCenter{border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #E9ECF3;background:#E9ECF3}
+.borderGrayTodayEmptyMiddleBottom{border:1px solid #E9ECF3;background:white}
+.borderGrayTodayEmptyMiddleCenter{border-left:1px solid #E9ECF3;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3;background:white}
+.borderGrayTodayLeftBottom{border-bottom:1px solid #E9ECF3;border-left:1px solid #000;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3}
+.borderGrayTodayLeftCenter{border-left:1px solid #000;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3}
+.borderGrayTodayMiddleCenter{border-left:1px solid #E9ECF3;border-right:1px solid #E9ECF3;border-top:1px solid #E9ECF3}
+.borderGrayTodayRightBottom{border-bottom:1px solid #E9ECF3;border-left:1px solid #E9ECF3;border-right:1px solid #000;border-top:1px solid #E9ECF3}
+.borderGrayTodayRightCenter{border-left:1px solid #E9ECF3;border-right:1px solid #000;border-top:1px solid #E9ECF3}
+.borderOnlyLeftDay{border-left:1px solid #E9ECF3;background:#E3EAF4}
+.borderOnlyLeft{border-left:1px solid #E9ECF3}
+.borderToday{border:1px solid #000}
+.borderTodayCenter{border-bottom:1px solid #E9ECF3;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #E9ECF3}
+.borderTodayTop{border-bottom:1px solid #E9ECF3;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #000}
+.borderTodayWithActivity{border:1px solid #000;text-align:right;background:#E9ECF3}
+.borderTodayWithoutActivity{border:1px solid #000;text-align:right;background:#FFF}
+.borderTopLeft{border-left:1px solid #E9ECF3;border-right:1px solid  #E9ECF3;border-top:1px solid #E9ECF3;background:#E3EAF4}
+.borderTopLeftWhite{border-left:1px solid #E9ECF3;border-right:1px solid  #E9ECF3;border-top:1px solid #E9ECF3}
+.borderWhiteYear{border:1px solid #fff;text-align:center;background:#E9ECF3}
+.borderWhite{border-bottom:none;border-left:1px solid #fff;border-right:1px solid #fff;border-top:1px solid #fff}
+.borderGrayTodayCenter,.borderOnlyLeftTodayCenter{border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #E9ECF3}
+.borderGrayTodayEmptyRightBottom,.borderGrayTodayEmptyRightCenter{border-left:1px solid #E9ECF3;border-right:1px solid #000;border-top:1px solid #E9ECF3;background:white}
+.borderGrayTodayMiddleBottom,.borderFullGray,.borderGrayMonth{border:1px solid #E9ECF3}
+.borderTodayBottom,.borderGrayTodayBottom,.borderOnlyLeftTodayBottom{border-bottom:1px solid #000;border-left:1px solid #000;border-right:1px solid #000;border-top:1px solid #E9ECF3}
+table.calendar .event{background-color:#E3EAF4}
+/*PART 4:LAYOUT*/
+.portletBody{padding:.3em 2em 1em 2em}
+table{font-size:1em}
+.listHier{font-size:1em}
+.listHier th{text-align:left;background:#DDDFE4}
+.listHier td{vertical-align:top;padding:.4em !important}
+.listHier a:link,.listHier a:visited{color:#369;text-decoration:none}
+.listHier th h3,.listHier th h4,.listHier th h5,.listHier th h6,.listHier td h3,.listHier td h4,.listHier td h5,.listHier td h6{margin:0;padding:0;font-size:1em;background:none;font-weight:normal}
+table.lines{border-collapse:collapse}
+table.lines td{border-bottom:1px solid #D7D7D7;border-top:1px solid #D7D7D7}
+.lines tr:hover{background:#fff}
+.lines tr.exclude:hover{background:transparent}
+tr.selectedCopy{background:#ffe}
+tr.selectedMove{color:#8A8A8A;background:#F8F8F8}
+tr.selectedMove a:link,tr.selectedMove a:visited{color:#8A8A8A}
+tr.highLightRow{background:#DDDFE4}
+.currentSort{font-weight:bold;text-decoration:none}
+.notCurrentSort{font-weight:normal;text-decoration:none}
+.listHier td .itemAction  a{text-decoration:underline !important}
+.chefEditItem,.itemSummaryForm{margin-left:.7em}
+.chefEditItem th,.itemSummaryForm th{color:#000;font-weight:normal !important;font-family:Arial,Helvetica,sans-serif;width:15.3em;text-align:left}
+.chefEditItem td,.itemSummaryForm td{padding:.5em 0;vertical-align:top}
+legend{font-size:110%;color:#000;padding-bottom:.3em;font-weight:normal;margin:.5em 0}
+/*PART 5:HIERARCHY*/
+h2{font-size:130%;color:#52698C;padding:.3em;font-weight:normal;margin:.5em -.3em;background:transparent !important}
+h3{font-size:130%;color:#084A87;padding:.3em;font-weight:normal;margin:.5em -.3em;background:transparent !important}
+h4{font-size:110%;color:#000;padding-bottom:.3em;font-weight:normal;margin:.5em 0}
+h5{font-size:100%;color:#084A87;font-weight:normal;margin:.5em 0;background:transparent}
+h6{font-size:100%;color:#084A87;font-weight:normal;margin:.5em 0;background:transparent}
+/*PART 6:INPUTS*/
+.act{padding:1em 0}
+.act input{border-width:1px;border-color:#90A1C6 #5A6D95 #5A6D95 #90A1C6;border-style:solid;background:#eee}
+.act input:hover{border-width:1px;border-color:#5A6D95 #90A1C6 #90A1C6 #5A6D95;border-style:solid;background:#DDDFE4}
+.act input.active{border-width:2px;border-color:#444;border-style:solid}
+.act input.active:hover{border-width:2px;border-color:#5A6D95 #90A1C6 #90A1C6 #5A6D95;border-style:solid}
+.leftNav{font-size:1em}
+.leftNav form{display:inline}
+.rightNav{font-size:1em}
+.righNav form{display:inline}
+.rightNav span.instruction{display:block;padding-bottom:.5em}
+.rightNav input[type="submit"]{font-size:90%;padding:.3em}
+.rightNav input[type="button"]{font-size:90%;padding:.3em}
+label{color:#000;font-weight:bold;font-family:Arial,Helvetica,sans-serif;margin-top:.3em}
+.shorttext .reqStar{color:#c00;width:auto;margin:0 0 0 -1em;font-weight:bold;font-size:1em;padding:0}
+.labelindnt{font-size:1em;margin:0 0 0 15.5em;border:1px solid #f0f0f0}
+.shorttext input{padding:.1em .3em;border:1px solid #90A1C6}
+textarea{padding:.1em .3em;border:1px solid #90A1C6;font:100% Verdana,Arial,Helvetica,sans-serif}
+label.block{display:block}
+.inlineForm{margin:0px;padding:0px;display:inline}
+.inlineForm a{border:none;background:transparent}
+/*PART 7:TOOLBAR*/
+.navIntraTool{color:#000;padding:.3em;margin:-.3em -2.2em;text-align:center;font-size:.9em;line-height:1.3em;background:#DDDFE4}
+.navIntraTool a:link,.navIntraTool a{border-bottom:1px dashed #90A1C6;background:#DDDFE4;padding:0px 2px 0px 3px;color:#000;text-decoration:none;margin:0 .5em}
+.navIntraTool a:hover{border:none;text-decoration:none !important;color:#084A87 !important;padding:0px 2px 0px 3px;border-bottom:1px solid #FFF !important}
+.navIntraTool a:visited{border-bottom:1px dashed #90A1C6;background:#DDDFE4;padding:0px 2px 0px 3px;color:#000;text-decoration:none}
+.navIntraToolLink input{padding:0;border:none;background:transparent}
+.navIntraToolLink input.disabled{padding-bottom:1px}
+.navIntraToolLink input.enabled{color:#000;border-bottom:1px dashed #90A1C6}
+.navIntraToolLink input.enabled:hover{border-bottom:1px solid #fff;color:#084A87}
+.currentView{font-weight:normal}

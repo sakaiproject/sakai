@@ -1,0 +1,434 @@
+/* tool-default.css 
+ This is the default CSS for all Sakai tools. (Changes to this file should be limited to
+ hi-fi wireframe team: Tim Altom (IU), Marc Brierley (SU), Ben Brophy (MIT), and Gonzalo 
+ Silverio (UMich).  This file was formerly named tool-default.css or sakai_core.css)
+  -to be followed in cascade by tool-<toolname>.css (contains rules that pertain to a specific
+  tool, e.g. tool-sam.css, add-ons/overrides for Samigo)
+  -to be followed in cascade by tool-inst.css (while in generic cvs, this file is the container
+   for proposed classes/rules (e.g. umich-newClass { }). in production, this file can contain 
+   institutional changes for tool rendering)
+*/
+
+/* GENERIC SELECTORS
+ -mB: should these be removed since the wrapper will set these? */
+ 
+body  { 
+	font-family:verdana,arial,helvetica,sans-serif;
+	font-size:.8em; 
+/*	padding:1em 1em 0 1em;*/
+	margin:0;
+
+
+}
+a, a:link  { 
+	color:#44A; 
+}
+a:hover  { 
+	color:#44A; 
+	text-decoration:none 
+}
+a:visited  { 
+    color:#43196F 
+}
+hr  { 
+    height:0 
+}
+h3, h4, h5  { 
+	font-weight:bold; 
+	padding:.2em 
+}
+h4 {
+	background-color: #DDE3EB;
+}
+h5 {
+	background-color: #CCC;
+}
+h3.textList,h4.textList,h5.textList, h6.textList{font-size:1em;}
+/*remove border from images that might be linked. Need this because JSF doesn't allow border="0"
+in <h:graphicImage> */
+img {
+    border:0px;
+}
+fieldset  { 
+    border:none; 
+    margin-top:1em 
+}
+legend  { 
+	font-weight:bold; 
+	color:#000; 
+	font-size:100%;
+	margin-left:0; 
+	padding-left:0 
+} 
+
+/* IE gives forms a top margin unless told not to
+this affects jsf based tools*/
+.portletBody form{margin-top:0}
+/* ITEM SUMMARY VIEW
+ -mB should we rename this view "item detail"? it seems more appropriate, just an idea*/
+
+/*table for displaying the details of an item*/
+.itemSummary  { 
+	margin-top:1em; 
+	margin-bottom:2em; 
+	clear:both;display:block
+}
+table.itemSummary th  { 
+	font-weight:bold; 
+	white-space:nowrap;
+	vertical-align:top; 
+	text-align:left;
+	padding:.3em 1em .3em .3em 
+}
+table.itemSummary td  { 
+	vertical-align:top; 
+	text-align:left;
+/*  font-size:.9em; */
+	padding:.3em 1em .3em .3em;
+	vertical-align:top 
+}
+table.itemSummary caption  { 
+	text-align:left; 
+	font-weight:bold;
+	padding:1em 0 0 0 
+}
+/*within the item summary view, use these classes to list attachment items*/
+ul.attachList  { margin:0; padding:0 }
+ul.attachList img  { 
+	vertical-align:middle; margin:0 1em 0 0 
+}
+ul.attachList li  { 
+	list-style:none; margin:0 0 .3em 0 
+} 
+
+/* FORM VIEW */
+
+/*match a shorttext label and input to get consistent alignment*/
+.shorttext label  { 
+	margin-right:1em; width:180px;
+	font-weight:bold; float:left 
+}
+.shorttext input  { 
+	border:1px solid #333 
+}
+.longtext label  { 
+    font-weight:bold
+}
+textarea  { 
+	margin-top:.5em; border:1px solid #333 
+}
+.checkbox, .shorttext, .longtext  { 
+	margin:1em 
+} 
+.fakelabel  { 
+	margin-right:1em; width:180px;
+	font-weight:bold; clear:both;
+}
+
+/* LIST VIEW(S) */
+
+/*table and cells for displaying a list of hierarchical items*/
+table.listHier{ 
+width:100%; 
+clear:both;
+margin-top:.5em;
+ 
+}
+table.listHier th{ 
+font-weight:normal; 
+text-align:left;
+white-space:nowrap; 
+margin:0px; 
+padding:.2em 
+}
+table.listHier th.row{background:transparent}
+table.listHier td{ 
+
+   padding:.2em 
+}
+table.listHier td img  { 
+margin-right:.2em; 
+vertical-align:text-top 
+}
+table.listHier td a:hover,
+table.listHier th a:hover  { 
+text-decoration:none 
+} 
+/*use this listView in conjunction with listnav; they will float left and right, respectively.
+ listView is the block around a selector for changing the filter applied to a list; use with 
+ <div> tag.*/
+.listView, .leftNav  { 
+	float:left; 
+	vertical-align:bottom;
+    text-align:left; 
+	line-height:2em;
+		 margin-top:1em
+} 
+/*use this listNav in conjunction with listView (see above). listNav is the block element 
+ around the list navigator used to chunk up long lists; use with <div> tag.*/
+.listNav, .rightNav  {
+	 float:right; 
+    vertical-align:bottom;
+    text-align:right; 
+    line-height:2em;
+	 margin-top:1em
+
+} 
+
+/*navigator for items - non-floated */
+.itemNav{vertical-align:bottom;text-align:right;line-height:2em}
+.itemNav input,.rightNav input{padding:0 .3em}
+.itemNav input[type="submit"], .rightNav input[type="submit"]{font-size:90%;padding:.3em .6em}
+.itemNav input[type="button"], .rightNav input[type="button"]{font-size:90%;padding:.3em .6em}
+
+/*action links for list items, use with <a> tag*/
+.itemAction  { 
+	font-size:.9em; 
+}
+
+/*make the currently sorted column header text bold, apply to <th> tag*/
+.currentSort {
+    font-weight:bold !important;
+}
+/*for abc or 123 navigators*/
+span.abc  { 
+	letter-spacing:.2em; 
+	color:#555 
+}
+span.abc a:hover  { 
+	font-weight:bold; 
+	color:maroon;
+	text-decoration:none 
+}
+span.abc a, span.abc a:link  { 
+	font-weight:bold 
+}
+/*these classes supports the SSTree javascript library, use with <a> tag, puts a folder or 
+ document image behind */
+.folder  { 
+/* don't use a relative link like this in Sakai */
+	background:url("../images/folder-closed.gif") no-repeat;
+	float:left; 
+	height:14px; 
+	width:26px;
+	padding-right:3px 
+} 
+.doc { 
+    background: url("../images/doc.gif") no-repeat; 
+	float: left; 
+	height: 14px; 
+	width: 26px; 
+	padding-right: 3px
+}
+.ppt { 
+    background: url("../images/ppt.gif") no-repeat; 
+	float: left; 
+	height: 14px; 
+	width: 26px; 
+	padding-right: 3px
+}
+.word { 
+    background: url("../images/word.gif") no-repeat; 
+	float: left; 
+	height: 14px; 
+	width: 26px; 
+	padding-right: 3px
+}
+/* INDENTING CLASSES: use these classes with <div> blocks to structure layout hierarchically.
+ The 'tier##' classes are the original class names that support the SSTree javascript library. */
+
+.indnt0, .tier0  { 
+	margin-left:0  !important 
+}
+.indnt1, .tier1  { 
+	margin-left:1em  !important 
+}
+.indnt2, .tier2  { 
+	margin-left:2em  !important 
+}
+.indnt3, .tier3  { 
+	margin-left:3em  !important 
+}
+.indnt4, .tier4  { 
+	margin-left:4em  !important 
+}
+.indnt5, .tier5  { 
+	margin-left:5em  !important 
+}
+.indnt6, .tier6  { 
+	margin-left:6em  !important 
+}
+.indnt7, .tier7  { 
+	margin-left:7em  !important 
+}
+.indnt8, .tier8  { 
+	margin-left:8em  !important 
+}
+.indnt9, .tier9  { 
+	margin-left:9em  !important 
+}
+.indnt10, .tier10  { 
+	margin-left:10em  !important 
+}
+.pad0  { 
+	padding-left:0  !important 
+} 
+
+/* MESSAGES */
+
+/*for status text in wizards - note: should really collapse into a generalized box*/
+.step  { 
+	height:1.5em; background-color:#CCC;
+	padding:.3em .5em 
+} 
+/*for instructions*/
+.instruction  { 
+/*	font-size:.8em; */
+	line-height:1.2em;
+	margin:1em 
+} 
+
+/*all purpose clear - add to block that may find an unexpected floated element above it
+	clear:before to deal with FF/SAF */
+
+.clear {
+	margin: 1em 0 ;
+	clear: both;
+}
+.clear:before{
+	padding:.5em 0;
+	 content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden;
+	} 
+
+
+/*validation message - overrides other rules in effect*/
+.validation  { 
+/*	background-color:#FFC  !important;
+	border:1px solid maroon  !important;
+	padding:1em 2em  !important;
+	background-image:url("../images/validation.gif")  !important;
+	background-repeat:no-repeat  !important;
+	background-position:5px 50%  !important */
+}
+p.validation  { 
+	padding:20px 30px 
+} 
+.error{}
+.fatalerror{}
+
+/* UI COMPONENTS */
+
+/*navigation*/
+
+/*navigator to move between sections of a tool, place above View Title*/
+/*.navIntraTool  { 
+	background-color: #dde3eb;
+    font-size:.8em; 
+    text-align:center;
+	padding:.3em; 
+	vertical-align:middle 
+} */
+/*navigator for a view's global actions (i.e. actions not associated with particular items),
+ place below the View Title and above the view. .navModeAction is depricated because "mode" 
+ has been renamed to "view" */
+.navModeAction, .navViewAction  { 
+	background-color:#CCC; 
+	text-align:center;
+    font-size:.8em; 
+    padding:.3em; 
+	vertical-align:middle 
+} 
+/*for navigators flush right when there is just one navigator in same row
+-mB: are we sure we need this if we have leftNav and rightNav */
+.nav  { 
+
+    text-align:right 
+}
+.nav input  { 
+    /*-mB: should we remove this selector if it has no declarations?*/ 
+} 
+ 
+/*for action controls */
+.act  { padding:1em }
+.act input  { 
+    /*-mB: should we remove this selector if it has no declarations?*/ 
+} 
+/*the default action control*/
+.act input.active  { 
+	border:2px solid #000 
+} 
+/*disclosure triangle -mB: this is actually normally a header like an h4 or h5 OR
+ it's used with SSTree. Should we keep this class? I would like to rename it if we
+ do; not very intuitive.*/
+.discTria  { 
+	background-color:#CCC; 
+	padding:.3em 
+} 
+/*list manager - two side by side select items, children of table.sidebyside*/
+.sidebyside{ }
+.sidebyside th{
+	padding:.3em;
+	text-align: left;
+	font-weight: normal;
+}
+.sidebyside td{
+	padding:.3em;
+}
+.sidebyside select{
+	width:18em
+}
+
+/*leftover classes - not used?*/
+hr.itemSeparator  { 
+    /*-mB: should we remove this selector if it has no declarations?*/ 
+}
+.skip  { 
+	display:inline; position:absolute; top:-999px;
+	left:-999px; height:0 
+}
+
+/*added from skins*/
+.instruction  {line-height:1em; color:gray;} 
+p.instruction  {line-height:1.3em;clear:both} 
+.step{font-size: 90%;height:auto}
+.information{background-color:transparent;
+	background-image:url('images/info.gif');
+	background-position: .3em;
+	background-repeat:no-repeat;
+	border:1px solid #444;
+	display:block;width:80%;clear:both;color:#444;font-size:x-small;margin:5px 0px;padding-left:25px; padding-right:5px; padding-top:5px; padding-bottom:5px}
+	.success {background-color:#fff;background-image:url('images/check.gif');background-position: .3em;background-repeat:no-repeat;border:1px solid #4a4;display:block;width:80%;clear:both;color:#000;font-size:x-small;margin:5px 0px;padding-left:25px; padding-right:5px; padding-top:5px; padding-bottom:5px}
+.highlight{color:#C00}
+.validationEmbedded,.validation, .alertMessage{background-color:#fff;background-image:url('images/warn.gif');background-position: .3em;background-repeat:no-repeat;border:1px solid #c00;display:block;width:80%;clear:both;color:#c00;font-size:x-small;margin:5px 0px;padding-left:25px; padding-right:5px; padding-top:5px; padding-bottom:5px}
+.success {background-color:#fff;background-image:url('images/check.gif');background-position: .3em;background-repeat:no-repeat;border:1px solid #4a4;display:block;width:80%;clear:both;color:#000;font-size:x-small;margin:5px 0px;padding-left:25px; padding-right:5px; padding-top:5px; padding-bottom:5px}
+.breadCrumb{clear:both;margin:5px 5px 5px 0px}
+.reqStar{color:#C00;width:auto;margin-left:-1em;font-weight:bold;font-size:1em;padding:0;float:left;}
+.reqStarInline{color:#c00;font-size:1.2em;vertical-align: middle;width:1em;}
+#submitnotif{background-color:#DDDFE4;background-image:url(images/warn.gif);background-position: 3px 3px;background-repeat:no-repeat;border:1px solid #C00;clear:none;color:#C00;font-size:x-small;text-decoration:blink;vertical-align: text-top;margin:0;padding:5px 5px 5px 25px}
+
+/*for blocks of text produced by users - use with a div, as the likely children will be <p>*/
+.textBlock{}
+/*for blocks of metadata text associated with .textBlock <p>*/
+.smaller{font-size: 90%;}
+
+/*ospi*/
+.selectedListBox{
+	padding:1em;
+	background:#ddd;
+	border:1px solid #AAA
+}
+
+/*external login form formatting*/
+.login{margin:5em auto;border:1px solid #666;width:auto;background-color:#fff}
+.login th{background-color:#eee;padding:.5em;border-bottom:1px solid #666}
+.login td.form{padding:.5em}
+.loginform{}
+.loginform td{padding:.3em;}
+.loginform td #eid{width:10.6em}
+.loginform td #pwd{width:10em}
+.loginform td #submit{border:1px solid #666;float:right;background-color:#ddd;padding:.1em}
+.loginform td #submit:hover{border:1px solid #333;background-color:#eee}

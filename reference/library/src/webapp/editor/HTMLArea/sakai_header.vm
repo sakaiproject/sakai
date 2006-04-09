@@ -1,0 +1,11 @@
+<script type="text/javascript" language="JavaScript">
+	var _editor_url = "#libraryLink("editor/$!sakai_editor/")"
+	var _editor_lang = "en";
+</script>
+#if($!twinpeaks)
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/$!sakai_editor/sakai_editor_twinpeaks.js')">
+	</script>
+#else
+	<script type="text/javascript" language="JavaScript" src="#libraryLink('editor/$!sakai_editor/sakai_editor.js')">
+	</script>
+#end

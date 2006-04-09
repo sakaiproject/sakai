@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * 
+ * Licensed under the terms of the GNU Lesser General Public License:
+ * 		http://www.opensource.org/licenses/lgpl-license.php
+ * 
+ * For further information visit:
+ * 		http://www.fckeditor.net/
+ * 
+ * "Support Open Source software. What about a donation today?"
+ * 
+ * File Name: 010.html
+ * 	Test page.
+ * 
+ * File Authors:
+ * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+-->
+<html>
+	<head>
+		<title>FCKeditor - Sample</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="robots" content="noindex, nofollow">
+		<link href="testcases.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="../fckeditor.js"></script>
+		<script>
+
+function SubmitForm()
+{
+	document.forms[0].submit() ;
+}
+
+function SetToolbar( toolbarName )
+{
+	// Get the editor instance that we want to interact with.
+	var oEditor = FCKeditorAPI.GetInstance('FCKeditor1') ;
+	var oToolbarSet = oEditor.ToolbarSet ;
+	
+	// Reset the state of all items in the current toolbar.
+	for ( var i = 0 ; i < oToolbarSet.Toolbars.length ; i++ )
+	{
+		if ( oToolbarSet.Toolbars[i].Items ) 
+		{
+		for ( var j = 0 ; j < oToolbarSet.Toolbars[i].Items.length ; j++ )
+			oToolbarSet.Toolbars[i].Items[j].State = FCK_UNKNOWN ;
+		}
+	}
+
+	// Reset the array of toolbat items that are active only on WYSIWYG mode.
+	oToolbarSet.ItemsWysiwygOnly = new Array() ;
+
+	// Reset the array of toolbar items that are sensitive to the cursor position.
+	oToolbarSet.ItemsContextSensitive = new Array() ;
+
+	// Remove all items from the DOM.
+	oToolbarSet.DOMElement.innerHTML = '' ;
+
+	// Load the new toolbar.
+	oToolbarSet.Name = toolbarName ;
+	oToolbarSet.Load( toolbarName ) ;
+}
+
+		</script>
+	</head>
+	<body>
+		<h1>FCKeditor - Test 010</h1>
+		<P>
+			<STRONG>Expected results</STRONG>: The editor content must be loaded and the 
+			the user must be able to change the toolbar dinamically (without reloading the page).<BR>
+			This is not a supported feature but this page shows how to do the trick.<br>
+			<STRONG>Configurations</STRONG>: Default<BR>
+			<STRONG>Steps to&nbsp;Reproduce</STRONG>:
+		</P>
+		<OL>
+			<LI>
+				Wait the editor to load.</LI>
+			<LI>
+				Select some text and format it.</LI>
+			<LI>
+				Select the "Basic" toolbar.</LI>
+			<LI>
+				Format more text.</LI>
+			<LI>
+				Select the "Default" toolbar.</LI>
+			<LI>
+				Go to "Source" view.</LI>
+			<LI>
+				Select the "Basic" toolbar.</LI>
+				<li>
+				Select the "Default" toolbar.</LI>
+			<LI>
+				Go to "WYSIWYG" view.</LI>
+			<LI>
+				Hit submit button and check the posted data.</LI></OL>
+		<P>
+			<hr>
+		</P>
+		Select the toolbar you want to load:<br>
+		<select onchange="SetToolbar( this.value );">
+			<option value="Default" selected>Default</option>
+			<option value="Basic">Basic</option>
+		</select>
+		<br>
+		<br>
+		<form action="sampleposteddata.asp" method="post" target="_blank">
+			<script type="text/javascript">
+<!--
+// Automatically calculates the editor base path based on the _samples directory.
+// This is usefull only for these samples. A real application should use something like this:
+// oFCKeditor.BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
+var sBasePath = document.location.pathname.substring(0,document.location.pathname.lastIndexOf('_testcases')) ;
+
+var oFCKeditor = new FCKeditor( 'FCKeditor1' ) ;
+oFCKeditor.BasePath	= sBasePath ;
+oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
+oFCKeditor.Create() ;
+//-->
+			</script>
+			<br>
+			<input type="submit" value="Submit">
+		</form>
+	</body>
+</html>

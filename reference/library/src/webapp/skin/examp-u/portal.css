@@ -1,0 +1,201 @@
+body{width:100%;padding:0px;font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;margin:0}
+/*GROUP 1 - top navigation*/
+/*iframe sizes for different states*/
+.sitenav-log{height:5em} /*user not logged in*/
+.sitenav-max{height:120px}  /*user logged in*/
+.sitenav-min{height:2.3em}  /*no logos or banners*/
+/*container for the #tabNavigation ul*/
+.tabHolder{width:100%;height:1.3em;padding:1px 0 0 3px;margin:0;background:#58894D}
+.tabHolder table{margin-bottom:0;}
+.tabHolder table td{margin:0;padding:0}
+.tabHolder table td.tabCell{padding:0;width:auto;}
+.tabHolder table td.selectCell{text-align:left;padding:0 0 0 .3em;}
+.tabHolder table td.selectCell select{display:inline;font-size:.7em;margin:0 0 0 3px;padding:0}
+.tabHolder table td.galleryLogin{font-size:.8em;padding-left:2em}
+.tabHolder table td.galleryLogin a, .tabHolder table td.mast-head-r a:visited  {color:#fff}
+.tabHolder table td.galleryLogin a:hover{color:#fff;text-decoration:underline}
+
+
+
+/*ul - the li are the tabs*/
+#tabNavigation{
+white-space:nowrap;
+list-style:none none none;
+font-size:.8em;
+margin:0 0 0px 3px;
+padding:4px 0 4px 0;
+width:100%;
+height:1.2em;
+vertical-align:bottom;
+float:left;
+
+
+}
+/*displays a bar on bottom of tabs - following a declarations are to be used when the template file allows displaying the tool links horizontally under the tabs*/
+#tabBottom{
+background-color:#FFFFD6;
+color:#fff;
+font-size:2px;
+text-align:right;
+padding:3px;
+margin:0;
+clear:both;
+margin-left:-3px
+}
+#tabBottom a,#tabBottom a:link,#tabBottom a:visited{color:#fff;white-space:nowrap;text-decoration:none}
+#tabBottom  a:hover{color:#fff;text-decoration:underline;white-space:nowrap}
+/*hacks for ie and moz/saf */
+html #tabNavigation/* */{padding:4px 0 0 0;height:1.3em;vertical-align:bottom}
+html>body #tabNavigation{margin:0;padding:4px 0 0px 0;height:1.3em;vertical-align:text-bottom}
+/*the tab*/
+#tabNavigation li{
+display:inline;
+line-height:1.2em;
+background-image:url(images/topright-tab.gif);
+background-position:top right;
+background-repeat:no-repeat;
+background-color:#BBD6B6;
+margin-right:2px;
+padding-right:5px
+}
+/*the current tab*/
+#tabNavigation li.selectedTab{
+display:inline;
+line-height:.9em;
+border-right:0px solid #58894D;
+background-image:url(images/topright-curtab.gif);
+background-position:top right;
+background-repeat:no-repeat;
+background-color:#FFFFD6;
+margin-right:2px
+}
+\head+body #tabNavigation li.selectedTab{border-bottom:1px solid #FFFFD6}
+/*the link inside the tab*/
+#tabNavigation a,#tabNavigation a:link,#tabNavigation a:visited{
+background-image:url(images/topleft-tab.gif);
+background-position:top left;
+background-repeat:no-repeat;
+background-color:#BBD6B6;
+color:#052B32;
+height:.8em;
+margin:0px 5px 0px 0;
+padding:2px 0px 2px 6px;
+text-decoration:none
+}
+/*hack*/
+html #tabNavigation a/* */,html #tabNavigation a:link/* */,html #tabNavigation a:visited/* */{border-bottom:none;height:auto;margin:0}
+/*ie mac hacks*/
+*>html #tabNavigation{vertical-align:text-bottom;padding-bottom:0}
+*>html #tabNavigation li{padding:0 10px 0 0;margin:0 -10px 0 0}
+*>html #tabNavigation a{margin:0;line-height:1.3em}
+html>body #tabNavigation a,html>body #tabNavigation a:link,html>body #tabNavigation a:visited{border-bottom:none;padding:0px 6px 0px 6px}
+\head+body #tabNavigation a,\head+body #tabNavigation a:link,\head+body #tabNavigation a:visited{padding:0px 6px 0px 6px}
+/*the hover for the tabs*/
+#tabNavigation a:hover{text-decoration:underline;color:#052B32}
+/*the link inside the current tab*/
+#tabNavigation .selectedTab a,#tabNavigation .selectedTab a:link,#tabNavigation .selectedTab a:visited,#tabNavigation .selectedTab a:hover{
+background-image:url(images/topleft-curtab.gif);
+background-position:top left;
+background-repeat:no-repeat;
+background-color:#FFFFD6;
+color:#052B32;
+padding:2px 6px 2px 6px;
+text-decoration:none
+}
+html>body #tabNavigation .selectedTab a,html>body #tabNavigation .selectedTab a:link,html>body #tabNavigation .selectedTab a:visited{border-bottom:none;padding:0px 6px 0px 6px}
+\head+body #tabNavigation .selectedTab a,\head+body #tabNavigation .selectedTab a:link,\head+body #tabNavigation .selectedTab a:visited,\head+body #tabNavigation .selectedTab a:hover{padding:0px 6px 0px 6px;border-bottom:3px solid #FFFFD6}
+\head+body #tabNavigation li.selectedTab{border-bottom:3px solid #FFFFD6}
+.fixTabsIE{visibility:hidden;display:none;border-width:0}
+/*a convenience class - not used in these examples - overrides the color in selected regions*/
+.divColor{background-color:#fff}
+/*GROUP 2 - masthead */
+/*the masthead - presnetly a table,soon a box*/
+.mast-head{
+width:100%;
+margin:0px;
+font-size:.8em;
+color:#fff;
+background-color:#010201;
+background-image:url(images/mast-back.gif);
+background-position:left top;
+background-repeat:repeat-x;
+height:3px
+}
+.mast-head td{padding:0 !important}
+.mast-head td img{margin:0 !important}
+/*the masthead - link cell*/
+.mast-head-r{text-align:left;white-space:nowrap;padding-right:15px}
+.mast-head-r a,.mast-head-r a:visited{color:#fff;text-decoration:none;margin-right:3em}
+.mast-head-r a:hover{color:#fff;text-decoration:underline}
+/*in case links need to display as a list*/
+.mast-head-r ul{margin:5px;list-style:none;font-size:.8em}
+.mast-head-r ul li{display:inline;margin:0px}
+/*in case this skin is used as default - some definition for the login form elements*/
+input{
+border:1px solid #58894D;
+background-color:#BBD6B6;
+padding:3px;
+font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
+color:#58894D
+}
+.button{
+border:1px solid #58894D;
+background-color:#BBD6B6;
+margin-left:1em;
+padding:1px;
+color:#58894D
+}
+/* GROUP 3 - content and channels */
+/*the middle layer - tool menu and content*/
+#divLogo img{position:absolute;right:.5em;top:.5em;margin:0;}
+#siteStatus{text-transform:capitalize;	background:url(images/warn.gif) 3px 3px no-repeat #fff;
+	color:#1A506A;
+	font-size:x-small;
+	margin:.3em;
+	padding:3px 3px 3px 20px;
+	width:auto;
+	float:left;
+}
+#siteType{text-transform:capitalize;text-align:right;font-size:.8em;width:auto;float:left;
+	color:#1A506A;
+	margin:.3em 2em;
+	font-weight: bold;
+	font-size:x-small;
+	float:left;
+	padding:3px;
+	display: inline;}
+
+#leftnavlozenge{width:auto;padding:0;margin-bottom:.2em;margin-right:0;margin-left:0;font-size:70%;color:#fff;}
+#leftnavlozenge ul{list-style:none none none;margin:0;padding:0 2em;border:none;text-align: right}
+#leftnavlozenge li{display:inline;line-height:2em;margin:0;width:auto}
+#leftnavlozenge li a{display:inline;padding:0 .3em;text-decoration:none;width:100%;color:#58894D;}
+/*#leftnavlozenge li a:before{content:"|"}
+#leftnavlozenge li a:after{content:"|"}*/
+/*	adjust for moz + safari*/
+html>body #leftnavlozenge li a{width:auto;border-width:1px 0 1px 1px;border-color:transparent;border-style:solid}
+#leftnavlozenge li a.selected,#leftnavlozenge li a:hover{padding:0 .3em;width:100%;background-color:#fff;color:#58894D;text-decoration:underline }
+#presence{position:absolute; top:-200em;width:0;height:0 !important}
+#pres_title{text-align:center;color:#369;font-size:.7em;margin:.2em auto}
+/* GROUP 4 - content and channels */
+.portletTitleWrap{padding:0;width:99.2%}
+.portletTitleIframe{width:100% !important;margin:0 !important;height:1.3em}
+.portletMainWrap{border:1px solid #BBD6B6;background-color:#fff;text-align:left;width:99%;margin-bottom:.5em}
+/*GROUP 5:tableless layout and footer */
+#container{border-top:1px solid #58894D}
+#content{padding:.3em;margin-left:.5em;}
+#sidebar{border-bottom:1px solid #58894D;}
+#sidebar #pres_title{display:none;position:absolute; top:-200em;}
+/*#sidebar{float:left;width:8.4em;line-height:17px;border-right:1px solid #58894D}*/
+#footer{color:#58894D;font-size:xx-small;margin:0px;padding:0;width:auto;clear:both;top:0;}
+.footerExtNav{background-color:#FFFFD6;padding-top:.2em;padding-bottom:.5em;border-top:1px solid #58894D;border-bottom:1px solid #58894D}
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{color:#58894D;text-decoration:none;margin:1em}
+.footerExtNav a:hover{color:#58894D;text-decoration:underline;margin:1em}
+#footerInfo{background-color:#FFF;font-size:xx-small;text-align:center;clear:both}
+#footerInfo img{margin-top:.5em;margin-bottom:.5em}
+.skip  { 
+	position:absolute; top:-999px;
+	left:-999px; height:0;width:0;
+	display:inline
+	
+}
+h1{border:1px solid red}

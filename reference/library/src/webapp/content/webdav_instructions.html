@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>Upload-Download Multiple Resources</title>
+		<script language="JavaScript" type="text/JavaScript">
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").indexOf("portal")));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,(a.getAttribute("href").indexOf("skin") + 5 )));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		</script>
+	</head>
+	<body style="width:97%;padding:1em">
+		<div>
+			<h3>Upload-Download Multiple Resources</h3>
+			<ul class="attachList">
+				<li><a href="#desc">Description</a></li>
+				<li><a href="#site">Your SiteID</a></li>
+				<li><a href="#win">Setting up WebDAV for Windows</a></li>
+				<li><a href="#osx">Setting up WebDAV for Mac (OS 10.0 - 10.3)</a></li>
+				<li><a href="#osxx">Setting up WebDAV for Mac (OS 10.4)</a></li>
+			</ul>
+		
+			<a name="desc"></a>
+			<h4>Description</h4>
+			<p>
+				In Sakai, you can copy a file from your local system to your My Workspace or class resources using the Add button 
+				in the Resources tool. If you want to copy several files or an entire folder all at once, software called WebDAV 
+				can be used to drag files or folders from your local computer to or from the Resources folder in Sakai.
+			</p>
+			<p>
+				Several setup steps are required to make your computer aware of Sakai so it will treat the Sakai Resources folder 
+				as another folder on your computer. Once you have set up a particular Sakai class or group resource folder using 
+				WebDAV, you can drag files and folders to the class or group Resource area from your local computer and vice versa. 
+				Please note that these connections are specific to the computer you are using, so if you change computers you will 
+				have to set up the connection again.
+			</p>
+		
+			
+			<a name="site"></a>
+			<h4>Your SiteID</h4>
+			<p>
+				Each Sakai site has a Site ID. The SiteID for this site is listed above. You need to know the Site ID because it will 
+				be part of the address you will need to connect via WebDAV. Each site must be set up as a separate WebDAV connection, 
+				so the first time you connect to a given site, you will need to follow the directions below.
+			</p>
+			
+			<a name="win"></a>
+		
+			<h4>Setting up WebDAV for Windows</h4>
+			<p>
+				Note: There must be at least one object (file, folder etc.) in the group or class resource area before you begin the 
+				setup procedure. This procedure needs to be done once for each site in Sakai before you can use WebDAV to transfer 
+				files to and from any one site.
+			</p>
+			<ol>
+				<li>Click on the My Network Places icon on your PC desktop to open the Network Places folder</li>
+				<li>Click on the Add Network Place icon</li>
+				<li>Click Next</li>
+		
+				<li>Click on the bottom choice: &quot;Choose another network&quot;</li>
+				<li>Click Next</li>
+				<li>
+					In the &quot;Location of the Network Place&quot; field, type the URL for this site shown above.<br />
+					<img src="netwkplace.jpg" width="423" height="345" style="clear:both;display:block;margin:1em 0 " alt="" />
+				</li>
+				<li>
+					Click Next<br />
+					Note: If you receive an alert such as &quot;The folder you&iacute;ve entered does not appear to be valid,&quot; 
+					it could be there are no resources yet in your site. Go to the site and add a file to initialize the Resources 
+					folder, then return to Step 1.
+				</li>
+				<li>When asked for your username and password, enter your Sakai username and your password</li>
+				<li>
+					Enter a name for the project or class resources you are adding. This name is used on your computer when 
+					referencing the class or project resource folder.
+				</li>
+				<li>Click &quot;Finish&quot; to complete the set up.</li>
+				<li>
+					When the setup is complete, the class or project resources folder will appear in your My Workplaces as a folder. 
+					It will also show up under My Network Places in Windows Explorer, where it will act just like any other folder 
+					in Windows Explorer.
+					<img src="name.jpg" width="423" height="345" alt="" style="clear:both;display:block;margin:1em 0" />
+				</li>
+				<li>You can now drag files and folders to and from your computer and the Sakai Resources folder.</li>
+				<li>
+					Enter a name for the group or class resources you are adding. This name is used on your system when referencing 
+					the class or group resource folder.
+				</li>
+				<li>Click the button to complete the setup.</li>
+			</ol>
+		
+			<a name="osx"></a>
+			<h4>Setting up WebDAV for Mac (OS 10.0 - 10.3)</h4>
+			<p>
+				Note 1: These instructions include the download of a program named Goliath. Users have reported errors using this 
+				program with Sakai, including the inability to create new folders or download folders to their local computer.
+			</p>
+			<p>
+				Note 2: There must be at least one object (file, folder etc.) in the group or class resource area before you begin 
+				the setup procedure. This procedure needs to be done once for each site in Sakai before you can use WebDAV to 
+				transfer files to and from any one site.
+			</p>
+		
+			<ol>
+				<li>
+					Download the Goliath WebDav client at:<br />
+					<a href="http://www.webdav.org/goliath/#download" target="_blank">
+						<code>http://www.webdav.org/goliath/#download</code>
+					</a>
+				</li>
+				<li>
+					Decompress the file and double-click on the .dmg file. (Depending on your version and configuration of Stuffit, 
+					the disk image may automatically mount.)
+				</li>
+				<li>
+					A disk image named "Goliath 1.0" should now be available. Simply drag and drop the Goliath folder contained 
+					within in the disk image to your hard disk.
+					<img src="goliath.jpg" width="241" height="311" alt="" style="clear:both;display:block;margin:1em 0" />
+				</li>
+				  
+				<li>Open the Goliath application.  It will probably be in your Applications folder.</li>
+				<li>In the WebDav Connection dialog box, type in the path as shown above.</li>
+				<li>Type in you username and password.</li>
+				<li>Click the Advance settings tab and check the box next to "Disable Encoding of Macintosh Recourse."</li>
+				<li>Click "OK"</li>
+				<li>
+					You will now see a window on your Mac screen that represents the resources are in your Sakai site. You can now 
+					drag and drop files into this window or use the "Web" menu to upload and download files.
+				</li>
+			</ol>
+		
+			<a name="osxx"></a>
+			<h4>Setting up WebDAV for Mac (OS 10.4)</h4>
+			<p>
+				Note: There must be at least one object (file, folder etc.) in the group or class resource area before you begin 
+				the setup procedure. This procedure needs to be done once for each site in Sakai before you can use WebDAV to transfer 
+				files to and from any one site.
+			</p>
+			<ol>
+		
+				<li>From the Finder, select "Go" from the menu bar and then select "Connect to Server..."</li>
+				<li>In the resulting dialog box, type in the path as shown above.</li>
+				<li>Press the "+" button to save this path for future use.</li>
+				<li>Click "Connect"</li>
+		
+				<li>Type in your username and password and click "OK"</li>
+				<li>
+					You will now see a window on your Macintosh screen that represents the resources in your CTools site. 
+					You can now drag and drop files into this window and delete files by dragging them to the Trash.
+				</li>
+			</ol>
+		
+			
+		</div>
+		
+	</body>
+</html>

@@ -1,0 +1,152 @@
+body{width:100%;padding:0px;font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;margin:0}
+/*GROUP 1 - top navigation*/
+/*container for the #tabNavigation ul*/
+.tabHolder{width:100%;margin:0;padding:0;background:#7F9FC0;line-height:1.4em}
+.tabHolder table{margin-bottom:0;}
+.tabHolder table td{margin:0;padding:0;}
+.tabHolder table td.tabCell{padding:0}
+.tabHolder table td.selectCell{text-align:left;padding:0 0 0 .3em;}
+.tabHolder table td.selectCell select{display:inline;font-size:.7em;margin:0 0 0 3px;padding:0}
+.tabHolder table td.galleryLogin{font-size:.8em;padding-left:2em}
+.tabHolder table td.galleryLogin a, .tabHolder table td.mast-head-r a:visited  {color:#fff}
+.tabHolder table td.galleryLogin a:hover{color:#1997BB;text-decoration:underline}
+
+/*ie mac hack - to set height and padding for tab container */
+/*\*//*/
+.tabHolder{height:1.4em;padding-top:2px !important}
+/**/ 
+/*ul - the li are the tabs*/
+#tabNavigation{
+background:#7F9FC0;
+white-space:nowrap;
+list-style:none none none;
+font-size:.8em;
+margin:0 0 -1px 0;
+padding:0;
+width:100%
+}
+/*displays a bar on bottom of tabs - following a declarations are to be used when the template file allows displaying the tool links horizontally under the tabs*/
+#tabBottom{
+color:#fff;
+font-size:.7em;
+text-align:right;
+padding:3px 12px 3px 3px;
+clear:both;
+border-top:1px solid #336699
+}
+#tabBottom a,#tabBottom a:link,#tabBottom a:visited{color:#fff;white-space:nowrap;text-decoration:none}
+#tabBottom  a:hover{color:#fff;text-decoration:underline;white-space:nowrap}
+/*hacks for ie and moz/saf */
+html #tabNavigation/* */{padding:3px}
+html>body #tabNavigation{margin:2px;padding:1px}
+/*the tab*/
+#tabNavigation li{display:inline;background-color:#7F9FC0}
+/*hack hack*/
+html>body #tabNavigation li{line-height:1em}
+/*the current tab*/
+#tabNavigation li.selectedTab{display:inline;line-height:1em;background-color:#7F9FC0;padding:0}
+/*the link inside the tab*/
+#tabNavigation a,#tabNavigation a:link,#tabNavigation a:visited{
+background-color:#EBF0F5;
+color:#336699;
+margin:0 6px 0 0;
+padding:2px 6px 2px 10px;
+text-decoration:none
+}
+html #tabNavigation a/* */,html #tabNavigation a:link/* */,html #tabNavigation a:visited/* */{border-bottom:none;height:auto;margin:0}
+/*hack*/
+html>body #tabNavigation a,html>body #tabNavigation a:link,html>body #tabNavigation a:visited{padding:2px 6px 2px 10px;margin:0}
+\head+body #tabNavigation a,\head+body #tabNavigation a:link,\head+body #tabNavigation a:visited{padding:2px 6px 2px 10px;top:0}
+/*the hover for the tabs*/
+#tabNavigation a:hover{color:#fff;background-color:#336699}
+/*the link inside the current tab*/
+#tabNavigation .selectedTab a,#tabNavigation .selectedTab a:link,#tabNavigation .selectedTab a:visited,#tabNavigation .selectedTab a:hover{color:#fff;background-color:#336699}
+html>body #tabNavigation .selectedTab a,html>body #tabNavigation .selectedTab a:link,html>body #tabNavigation .selectedTab a:visited{padding:2px 6px 2px 10px}
+\head+body #tabNavigation .selectedTab a,\head+body #tabNavigation .selectedTab a:link,\head+body #tabNavigation .selectedTab a:visited,\head+body #tabNavigation .selectedTab a:hover{}
+.fixTabsIE{visibility:hidden;display:none;border-width:0}
+/*a convenience class - not used in these examples - overrides the color in selected regions*/
+.divColor{background-color:#fff !important}
+/*GROUP 2 - masthead */
+/*the masthead - presently a table,soon a box*/
+.mast-head{
+width:100%;
+background-color:#336699;
+margin:0px;
+font-size:.8em;
+color:#fff;
+height:66px;
+background-image:url(images/mast-back.gif);
+background-position:top left;
+background-repeat:no-repeat
+}
+.mast-head td{padding:4px}
+/*the masthead - link cell*/
+.mast-head-r{text-align:right;white-space:nowrap;padding-right:30px}
+.mast-head-r a,.mast-head-r a:visited{color:#fff;margin-right:22px;text-decoration:none}
+.mast-head-r a:hover{color:#fff;text-decoration:underline}
+/*in case links need to display as a list*/
+.mast-head-r ul{margin:5px;list-style:none;font-size:.8em}
+.mast-head-r ul li{display:inline;margin:0px}
+/*in case this skin is used as default - some definition for the login form elements*/
+input{
+border:1px solid #24496F;
+background-color:#EBF0F5;
+padding:3px;
+font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
+color:#24496F
+}
+.button{
+border:1px solid #24496F;
+background-color:#EBF0F5;
+margin-left:1em;
+padding:1px;
+color:#24496F
+}
+/* GROUP 3 - content and channels */
+/*the middle layer - tool menu and content*/
+#divLogo {text-align:center;margin:0 .2em .5em .2em;width:8em;overflow: hidden;}
+#siteType{text-transform:capitalize;font-size:normal}
+#siteStatus{text-transform:capitalize;	background:url(images/warn.gif) 3px 3px no-repeat #fff;
+	border:1px solid  #536377;
+	clear:both;
+	color:#1A506A;
+	font-size:x-small;
+	margin:5px 2px 15px 2px;
+	padding:3px 3px 3px 20px}
+html #siteStatus/* */{background-position:3px center/* - adj for ie - */}
+
+
+#leftnavlozenge{width:11em;padding:0;margin:1em .3em 2em 0;font-size:70%;color:#fff;clear:both;color:#369}
+#leftnavlozenge ul{list-style:none;margin:0;padding:0;border:none}
+#leftnavlozenge li{margin:0;width:auto}
+#leftnavlozenge li a{display:block;text-decoration:underline;width:100%;color:#369;padding:5px 8px 5px 0.5em;}
+#presence{width:100%;border-top:1px solid #369;border-bottom:1px solid #369;}
+#pres_title{text-align:center;color:#368;font-size:.7em;margin:.2em auto}
+/* GROUP 4 - content and channels */
+.portletTitleWrap{padding:0;width:99.2%}
+.portletTitleIframe{width:100% !important;margin:0 !important;height:1.3em}
+.portletMainWrap{border:1px solid #7F9FC0;background-color:#fff;text-align:left;width:99%;margin-bottom:.5em}
+/*GROUP 5:tableless layout*/
+#container{}
+#content{padding:.3em .3em .3em .5em;margin-left:8.7em;background-color:#fff;}
+#sidebar{float:left;width:8.4em;line-height:17px;text-align:right;border-right:1px solid #369;color:#369}
+#footer{color:#369;font-size:xx-small;margin:1em 0 0 0;padding:0;width:auto;clear:both;top:0;}
+.footerExtNav{background-color:#fff;padding-top:.2em;padding-bottom:.5em;border-top:1px solid #369;}
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{color:#369;text-decoration:none;margin:1em}
+.footerExtNav a:hover{color:#369;text-decoration:underline;margin:1em}
+#footerInfo{background-color:#FFF;font-size:xx-small;text-align:center;clear:both;color:#000}
+#footerInfo img{margin-top:.5em;margin-bottom:.5em}
+#leftnavlozenge li a.selected,#leftnavlozenge li a:hover{
+background-color:#fff;
+color:#49724;
+text-decoration:none;
+background-image:url(images/loz-ind.gif);
+background-position:center right;
+background-repeat:no-repeat;
+padding:5px 8px 5px 0.5em;}
+/*	adjust for moz + safari*/
+html>body #leftnavlozenge li a{width:auto;border-width:1px 0 1px 1px;border-color:transparent;border-style:solid;}
+.skip  { 
+	position:absolute; top:-999px;
+	left:-999px; height:0;width:0 
+}
