@@ -31,7 +31,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.webapp.api.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * <p>

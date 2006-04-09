@@ -14,7 +14,7 @@
 		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
 		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
-		<lookup-method name="sessionManager" bean="org.sakaiproject.webapp.api.SessionManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
@@ -49,7 +49,7 @@
 		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
 		<lookup-method name="functionManager" bean="org.sakaiproject.authz.api.FunctionManager" />
-		<lookup-method name="sessionManager" bean="org.sakaiproject.webapp.api.SessionManager" />
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
 
