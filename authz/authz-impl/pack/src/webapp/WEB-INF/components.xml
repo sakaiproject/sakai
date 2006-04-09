@@ -17,7 +17,7 @@
 		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
 		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
- 		<lookup-method name="sessionManager" bean="org.sakaiproject.webapp.api.SessionManager" />
+ 		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
  
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>

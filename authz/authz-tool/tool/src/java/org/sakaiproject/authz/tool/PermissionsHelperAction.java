@@ -33,11 +33,11 @@ import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolException;
-import org.sakaiproject.webapp.api.ToolSession;
-import org.sakaiproject.webapp.cover.SessionManager;
-import org.sakaiproject.webapp.cover.ToolManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * This is a helper interface to the Permissions tool.
