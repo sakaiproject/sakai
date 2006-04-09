@@ -1,27 +1,25 @@
 /**********************************************************************************
  * $URL$
  * $Id$
- **********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.login;
+package org.sakaiproject.login.tool;
 
 import java.io.IOException;
 
@@ -33,23 +31,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.authentication.Authentication;
-import org.sakaiproject.api.common.authentication.AuthenticationException;
-import org.sakaiproject.api.common.authentication.Evidence;
-import org.sakaiproject.api.common.authentication.cover.AuthenticationManager;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Tool;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.LoginUtil;
 
 /**
  * <p>
- * Login servlet that checks the container remote user - used in conjunction with the LoginTool.
+ * ContainerLogin ...
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class ContainerLogin extends HttpServlet
 {
@@ -117,14 +112,14 @@ public class ContainerLogin extends HttpServlet
 			{
 				// get the return URL
 				String url = (String) session.getAttribute(Tool.HELPER_DONE_URL);
-	
+
 				// cleanup session
 				session.removeAttribute(Tool.HELPER_MESSAGE);
 				session.removeAttribute(Tool.HELPER_DONE_URL);
-	
+
 				// redirect to the done URL
 				res.sendRedirect(res.encodeRedirectURL(url));
-				
+
 				return;
 			}
 		}
@@ -137,6 +132,3 @@ public class ContainerLogin extends HttpServlet
 		res.sendRedirect(res.encodeRedirectURL((String) session.getAttribute(LoginTool.ATTR_RETURN_URL)));
 	}
 }
-
-
-

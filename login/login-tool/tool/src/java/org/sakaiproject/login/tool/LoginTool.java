@@ -1,31 +1,28 @@
 /**********************************************************************************
  * $URL$
  * $Id$
- **********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.login;
+package org.sakaiproject.login.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,17 +32,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.authentication.Authentication;
-import org.sakaiproject.api.common.authentication.AuthenticationException;
-import org.sakaiproject.api.common.authentication.Evidence;
-import org.sakaiproject.api.common.authentication.cover.AuthenticationManager;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.LoginUtil;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -54,9 +52,6 @@ import org.sakaiproject.util.web.Web;
  * <p>
  * This "tool", being login, is not placed, instead each user can interact with only one login at a time. The Sakai Session is used for attributes.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class LoginTool extends HttpServlet
 {
@@ -72,8 +67,8 @@ public class LoginTool extends HttpServlet
 	/** Session attribute set and shared with ContainerLoginTool: if set we have failed container and need to check internal. */
 	public static final String ATTR_CONTAINER_CHECKED = "sakai.login.container.checked";
 
-	private static ResourceBundle rb = ResourceBundle.getBundle("auth");
-   
+	private static ResourceLoader rb = new ResourceLoader("auth");
+
 	/**
 	 * Access the Servlet's information display.
 	 * 
@@ -137,7 +132,7 @@ public class LoginTool extends HttpServlet
 		{
 			option = "/login";
 		}
-		
+
 		// look for the extreme login (i.e. to skip container checks)
 		else if ("/xlogin".equals(option))
 		{
@@ -176,9 +171,8 @@ public class LoginTool extends HttpServlet
 
 					// support query parms in url for container auth
 					String queryString = req.getQueryString();
-					if (queryString != null)
-						 containerCheckUrl = containerCheckUrl + "?" + queryString;
-						
+					if (queryString != null) containerCheckUrl = containerCheckUrl + "?" + queryString;
+
 					res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
 					return;
 				}
@@ -215,45 +209,18 @@ public class LoginTool extends HttpServlet
 
 		final String tailHtml = "</body></html>";
 
-		final String loginHtml = "<table class=\"login\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">"
-				+ "		<tr>"
-				+ "			<th colspan=\"2\">"
-				+ "				Login Required"
-				+ "			</th>"
-				+ "		</tr>"
-				+ "		<tr>"
-				+ "			<td class=\"logo\">"
-				+ "			</td>"
-				+ "			<td class=\"form\">"
+		final String loginHtml = "<table class=\"login\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">" + "		<tr>"
+				+ "			<th colspan=\"2\">" + "				Login Required" + "			</th>" + "		</tr>" + "		<tr>" + "			<td class=\"logo\">"
+				+ "			</td>" + "			<td class=\"form\">"
 				+ "				<form method=\"post\" action=\"ACTION\" enctype=\"application/x-www-form-urlencoded\">"
-				+ "                                        MSG"
-				+ "							<table border=\"0\" class=\"loginform\">"
-				+ "								<tr>"
-				+ "									<td>"
-				+ "										<label for=\"eid\">EID</label>"
-				+ "									</td>"
-				+ "									<td>"
-				+ "										<input name=\"eid\" id=\"eid\"  type=\"text\"/>"
-				+ "									</td>"
-				+ "								</tr>"
-				+ "								<tr>"
-				+ "									<td>"
-				+ "										<label for=\"pw\">PW</label>"
-				+ "									</td>"
-				+ "									<td>"
-				+ "										<input name=\"pw\" id=\"pw\"  type=\"password\"/>"
-				+ "									</td>"
-				+ "								</tr>"
-				+ "								<tr>"
-				+ "									<td colspan=\"2\">"
-				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>"
-				+ "									</td>"
-				+ "								</tr>"
-				+ "							</table>"
-				+ "						</form>"
-				+ "					</td>"
-				+ "				</tr>"
-				+ "			</table>";
+				+ "                                        MSG" + "							<table border=\"0\" class=\"loginform\">"
+				+ "								<tr>" + "									<td>" + "										<label for=\"eid\">EID</label>" + "									</td>"
+				+ "									<td>" + "										<input name=\"eid\" id=\"eid\"  type=\"text\"/>" + "									</td>"
+				+ "								</tr>" + "								<tr>" + "									<td>" + "										<label for=\"pw\">PW</label>" + "									</td>"
+				+ "									<td>" + "										<input name=\"pw\" id=\"pw\"  type=\"password\"/>" + "									</td>"
+				+ "								</tr>" + "								<tr>" + "									<td colspan=\"2\">"
+				+ "										<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"LoginSubmit\"/>" + "									</td>"
+				+ "								</tr>" + "							</table>" + "						</form>" + "					</td>" + "				</tr>" + "			</table>";
 
 		// get the Sakai session
 		Session session = SessionManager.getCurrentSession();
@@ -389,13 +356,13 @@ public class LoginTool extends HttpServlet
 				{
 					// get the session info complete needs, since the logout will invalidate and clear the session
 					String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
-		
+
 					complete(returnUrl, session, tool, res);
 				}
 				else
 				{
 					session.setAttribute(ATTR_MSG, rb.getString("log.tryagain"));
-					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, null)));					
+					res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, null)));
 				}
 			}
 			catch (AuthenticationException ex)

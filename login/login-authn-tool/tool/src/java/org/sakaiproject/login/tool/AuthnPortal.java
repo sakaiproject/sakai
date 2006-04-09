@@ -1,31 +1,28 @@
 /**********************************************************************************
  * $URL$
  * $Id$
- **********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-package org.sakaiproject.portal.authn;
+package org.sakaiproject.login.tool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -35,15 +32,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.ActiveTool;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
-import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -59,7 +57,7 @@ public class AuthnPortal extends HttpServlet
 	private static Log M_log = LogFactory.getLog(AuthnPortal.class);
 
 	/** messages. */
-	private static ResourceBundle rb = ResourceBundle.getBundle("sitenav");
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	/** Session attribute root for storing a site's last page visited - just append the site id. */
 	protected static final String ATTR_SITE_PAGE = "sakai.portal.site.";
@@ -142,7 +140,8 @@ public class AuthnPortal extends HttpServlet
 		}
 	}
 
-	protected void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException
+	protected void doLogin(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath)
+			throws ToolException
 	{
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
 		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
@@ -161,7 +160,8 @@ public class AuthnPortal extends HttpServlet
 		tool.help(req, res, context, null);
 	}
 
-	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath) throws ToolException
+	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session, String returnPath)
+			throws ToolException
 	{
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
 		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
@@ -231,8 +231,10 @@ public class AuthnPortal extends HttpServlet
 		if (skin == null || skin.length() == 0) skin = ServerConfigurationService.getString("skin.default");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
-		String headCssToolBase = "<link href=\"" + skinRepo + "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolBase = "<link href=\"" + skinRepo
+				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
+				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
@@ -305,8 +307,8 @@ public class AuthnPortal extends HttpServlet
 		// pick the one full portal skin
 		if (skin == null) skin = ServerConfigurationService.getString("skin.default");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
-			out.println("    <link href=\"" + skinRepo + "/" + skin
-					+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+		out.println("    <link href=\"" + skinRepo + "/" + skin
+				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />" + "    <title>" + title + "</title>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath()
@@ -324,6 +326,3 @@ public class AuthnPortal extends HttpServlet
 		return libPath + "/js/";
 	}
 }
-
-
-

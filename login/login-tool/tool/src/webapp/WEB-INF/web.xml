@@ -39,7 +39,7 @@
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>
-        <servlet-class>org.sakaiproject.tool.login.LoginTool</servlet-class>
+        <servlet-class>org.sakaiproject.login.tool.LoginTool</servlet-class>
         <init-param>
             <param-name>container</param-name>
             <param-value>/sakai-login/container</param-value>
@@ -49,7 +49,7 @@
 
     <servlet>
         <servlet-name>sakai.login.container</servlet-name>
-        <servlet-class>org.sakaiproject.tool.login.ContainerLogin</servlet-class>
+        <servlet-class>org.sakaiproject.login.tool.ContainerLogin</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
