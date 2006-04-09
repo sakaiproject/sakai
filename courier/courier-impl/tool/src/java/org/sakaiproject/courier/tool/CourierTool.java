@@ -41,8 +41,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.Delivery;
 import org.sakaiproject.courier.cover.CourierService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.webapp.api.Session;
-import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
