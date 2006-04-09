@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.tool.cover.SessionManager;
 
 public class CollectionUtil
 {

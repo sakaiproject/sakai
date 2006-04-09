@@ -26,7 +26,7 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.content.api.ResourceEditingHelper;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.tool.api.ToolSession;
 
 public class ResourceEditHelperAction extends FilePickerAction
 {
