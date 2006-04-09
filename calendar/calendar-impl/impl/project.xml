@@ -170,14 +170,7 @@
 			<resource>
 				<directory>${basedir}/src/config</directory>
 				<includes>
-					<include>**/*.xml</include>
-				</includes>
-			</resource>
-
-			<resource>
-				<directory>${basedir}/src/config</directory>
-				<includes>
-					<include>**/*.properties</include>
+					<include>**/*.xsl</include>
 				</includes>
 			</resource>
 
