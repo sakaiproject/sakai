@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.impl;
+package org.sakaiproject.tool.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,14 +43,14 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.webapp.api.ActiveTool;
-import org.sakaiproject.webapp.api.ActiveToolManager;
-import org.sakaiproject.webapp.api.Placement;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolException;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.ActiveToolManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.webapp.api.SessionManager;
-import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -298,7 +298,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		/**
 		 * Construct from a Tool
 		 */
-		public MyActiveTool(org.sakaiproject.webapp.api.Tool t)
+		public MyActiveTool(org.sakaiproject.tool.api.Tool t)
 		{
 			super();
 			this.m_categories.addAll(t.getCategories());

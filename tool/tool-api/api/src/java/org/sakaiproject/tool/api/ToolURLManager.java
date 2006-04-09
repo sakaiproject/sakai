@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.api;
+package org.sakaiproject.tool.api;
 
 /**
  * The ToolURLManager interface allows creation of ToolURL that reference the portlet itself. Sakai tools assume the servlet APIs as the basis for generating markup and <br />

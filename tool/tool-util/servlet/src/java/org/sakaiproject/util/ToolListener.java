@@ -29,7 +29,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.webapp.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.ActiveToolManager;
 
 /**
  * <p>

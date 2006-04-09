@@ -31,7 +31,7 @@ import java.util.Set;
  * Tool is a utility class that implements the Tool interface.
  * </p>
  */
-public class Tool implements org.sakaiproject.webapp.api.Tool, Comparable
+public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 {
 	/** The set of categories. */
 	protected Set m_categories = new HashSet();
@@ -70,7 +70,7 @@ public class Tool implements org.sakaiproject.webapp.api.Tool, Comparable
 	public int compareTo(Object obj)
 	{
 		// let it throw a class case exception if the obj is not some sort of Tool
-		org.sakaiproject.webapp.api.Tool tool = (org.sakaiproject.webapp.api.Tool) obj;
+		org.sakaiproject.tool.api.Tool tool = (org.sakaiproject.tool.api.Tool) obj;
 
 		// do an id based
 		return getId().compareTo(tool.getId());

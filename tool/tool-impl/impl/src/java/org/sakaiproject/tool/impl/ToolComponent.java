@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.impl;
+package org.sakaiproject.tool.impl;
 
 import java.io.File;
 import java.io.InputStream;
@@ -33,9 +33,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.webapp.api.Placement;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -56,10 +56,10 @@ public abstract class ToolComponent implements ToolManager
 	private static Log M_log = LogFactory.getLog(ToolComponent.class);
 
 	/** Key in the ThreadLocalManager for binding our current placement. */
-	protected final static String CURRENT_PLACEMENT = "org.sakaiproject.api.kernel.webapp.current.placement";
+	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
 	/** Key in the ThreadLocalManager for binding our current tool. */
-	protected final static String CURRENT_TOOL = "org.sakaiproject.api.kernel.webapp.current.tool";
+	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
 	/** The registered tools. */
 	protected Map m_tools = new ConcurrentReaderHashMap();

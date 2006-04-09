@@ -23,14 +23,14 @@ package org.sakaiproject.util;
 
 import java.util.Properties;
 
-import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.tool.api.Tool;
 
 /**
  * <p>
  * Placement is a utility class that implements the Placement interface.
  * </p>
  */
-public class Placement implements org.sakaiproject.webapp.api.Placement
+public class Placement implements org.sakaiproject.tool.api.Placement
 {
 
 	/** Placement configuration Properties (mutable). */

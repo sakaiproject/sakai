@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.api;
+package org.sakaiproject.tool.api;
 
 import java.io.File;
 import java.io.InputStream;

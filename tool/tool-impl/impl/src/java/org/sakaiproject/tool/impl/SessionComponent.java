@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.impl;
+package org.sakaiproject.tool.impl;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,12 +38,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.util.IteratorEnumeration;
-import org.sakaiproject.webapp.api.ContextSession;
-import org.sakaiproject.webapp.api.Session;
-import org.sakaiproject.webapp.api.SessionBindingEvent;
-import org.sakaiproject.webapp.api.SessionBindingListener;
-import org.sakaiproject.webapp.api.SessionManager;
-import org.sakaiproject.webapp.api.ToolSession;
+import org.sakaiproject.tool.api.ContextSession;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 

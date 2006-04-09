@@ -52,10 +52,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.webapp.api.Session;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolSession;
-import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the end user's browser storing the user's session id.

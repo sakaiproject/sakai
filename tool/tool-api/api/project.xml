@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-webapp-api</name>
+	<name>sakai-tool-api</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-webapp-api</id>
+	<id>sakai-tool-api</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>The Sakai Foundation</name>

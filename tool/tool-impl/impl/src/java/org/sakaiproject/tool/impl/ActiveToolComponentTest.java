@@ -19,11 +19,11 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.impl;
+package org.sakaiproject.tool.impl;
 
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.webapp.api.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * <p>

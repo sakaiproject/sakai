@@ -19,44 +19,44 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.cover;
+package org.sakaiproject.tool.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
- * ActiveToolManager is a static Cover for the {@link org.sakaiproject.webapp.api.ActiveToolManager ActiveToolManager}; see that interface for usage details.
+ * ActiveToolManager is a static Cover for the {@link org.sakaiproject.tool.api.ActiveToolManager ActiveToolManager}; see that interface for usage details.
  * </p>
  */
 public class ActiveToolManager
 {
 	/** Possibly cached component instance. */
-	private static org.sakaiproject.webapp.api.ActiveToolManager m_instance = null;
+	private static org.sakaiproject.tool.api.ActiveToolManager m_instance = null;
 
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
 	 * @return the component instance.
 	 */
-	public static org.sakaiproject.webapp.api.ActiveToolManager getInstance()
+	public static org.sakaiproject.tool.api.ActiveToolManager getInstance()
 	{
 		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null)
-				m_instance = (org.sakaiproject.webapp.api.ActiveToolManager) ComponentManager
-						.get(org.sakaiproject.webapp.api.ActiveToolManager.class);
+				m_instance = (org.sakaiproject.tool.api.ActiveToolManager) ComponentManager
+						.get(org.sakaiproject.tool.api.ActiveToolManager.class);
 			return m_instance;
 		}
 		else
 		{
-			return (org.sakaiproject.webapp.api.ActiveToolManager) ComponentManager
-					.get(org.sakaiproject.webapp.api.ActiveToolManager.class);
+			return (org.sakaiproject.tool.api.ActiveToolManager) ComponentManager
+					.get(org.sakaiproject.tool.api.ActiveToolManager.class);
 		}
 	}
 
-	public static void register(org.sakaiproject.webapp.api.Tool param0)
+	public static void register(org.sakaiproject.tool.api.Tool param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0);
@@ -64,7 +64,7 @@ public class ActiveToolManager
 
 	public static void register(org.w3c.dom.Document param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0);
@@ -72,7 +72,7 @@ public class ActiveToolManager
 
 	public static void register(java.io.InputStream param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0);
@@ -80,15 +80,15 @@ public class ActiveToolManager
 
 	public static void register(java.io.File param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0);
 	}
 
-	public static org.sakaiproject.webapp.api.Tool getTool(java.lang.String param0)
+	public static org.sakaiproject.tool.api.Tool getTool(java.lang.String param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getTool(param0);
@@ -96,15 +96,15 @@ public class ActiveToolManager
 
 	public static java.util.Set findTools(java.util.Set param0, java.util.Set param1)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.findTools(param0, param1);
 	}
 
-	public static void register(org.sakaiproject.webapp.api.Tool param0, javax.servlet.ServletContext param1)
+	public static void register(org.sakaiproject.tool.api.Tool param0, javax.servlet.ServletContext param1)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0, param1);
@@ -112,7 +112,7 @@ public class ActiveToolManager
 
 	public static void register(org.w3c.dom.Document param0, javax.servlet.ServletContext param1)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0, param1);
@@ -120,7 +120,7 @@ public class ActiveToolManager
 
 	public static void register(java.io.InputStream param0, javax.servlet.ServletContext param1)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0, param1);
@@ -128,15 +128,15 @@ public class ActiveToolManager
 
 	public static void register(java.io.File param0, javax.servlet.ServletContext param1)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.register(param0, param1);
 	}
 
-	public static org.sakaiproject.webapp.api.ActiveTool getActiveTool(java.lang.String param0)
+	public static org.sakaiproject.tool.api.ActiveTool getActiveTool(java.lang.String param0)
 	{
-		org.sakaiproject.webapp.api.ActiveToolManager manager = getInstance();
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getActiveTool(param0);

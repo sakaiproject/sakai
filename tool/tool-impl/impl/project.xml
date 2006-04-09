@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-webapp-impl</name>
+	<name>sakai-tool-impl</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-webapp-impl</id>
+	<id>sakai-tool-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -28,7 +28,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-api</artifactId>
+			<artifactId>sakai-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -58,7 +58,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-util</artifactId>
+			<artifactId>sakai-tool-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

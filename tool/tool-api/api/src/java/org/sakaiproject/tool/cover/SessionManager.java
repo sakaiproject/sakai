@@ -19,73 +19,73 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.webapp.cover;
+package org.sakaiproject.tool.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
- * SessionManager is a static Cover for the {@link org.sakaiproject.webapp.api.SessionManager SessionManager}; see that interface for usage details.
+ * SessionManager is a static Cover for the {@link org.sakaiproject.tool.api.SessionManager SessionManager}; see that interface for usage details.
  * </p>
  */
 public class SessionManager
 {
 	/** Possibly cached component instance. */
-	private static org.sakaiproject.webapp.api.SessionManager m_instance = null;
+	private static org.sakaiproject.tool.api.SessionManager m_instance = null;
 
 	/** Key in the ThreadLocalManager for the case where a session requested was invalid, and we started a new one. */
-	public final static String CURRENT_INVALID_SESSION = org.sakaiproject.webapp.api.SessionManager.CURRENT_INVALID_SESSION;
+	public final static String CURRENT_INVALID_SESSION = org.sakaiproject.tool.api.SessionManager.CURRENT_INVALID_SESSION;
 
 	/**
 	 * Access the component instance: special cover only method.
 	 * 
 	 * @return the component instance.
 	 */
-	public static org.sakaiproject.webapp.api.SessionManager getInstance()
+	public static org.sakaiproject.tool.api.SessionManager getInstance()
 	{
 		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null)
 			{
-				m_instance = (org.sakaiproject.webapp.api.SessionManager) ComponentManager
-						.get(org.sakaiproject.webapp.api.SessionManager.class);
+				m_instance = (org.sakaiproject.tool.api.SessionManager) ComponentManager
+						.get(org.sakaiproject.tool.api.SessionManager.class);
 			}
 			return m_instance;
 		}
 		else
 		{
-			return (org.sakaiproject.webapp.api.SessionManager) ComponentManager
-					.get(org.sakaiproject.webapp.api.SessionManager.class);
+			return (org.sakaiproject.tool.api.SessionManager) ComponentManager
+					.get(org.sakaiproject.tool.api.SessionManager.class);
 		}
 	}
 
-	public static org.sakaiproject.webapp.api.Session startSession()
+	public static org.sakaiproject.tool.api.Session startSession()
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.startSession();
 	}
 
-	public static org.sakaiproject.webapp.api.Session startSession(java.lang.String param0)
+	public static org.sakaiproject.tool.api.Session startSession(java.lang.String param0)
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.startSession(param0);
 	}
 
-	public static org.sakaiproject.webapp.api.Session getSession(java.lang.String param0)
+	public static org.sakaiproject.tool.api.Session getSession(java.lang.String param0)
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getSession(param0);
 	}
 
-	public static org.sakaiproject.webapp.api.Session getCurrentSession()
+	public static org.sakaiproject.tool.api.Session getCurrentSession()
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getCurrentSession();
@@ -93,31 +93,31 @@ public class SessionManager
 
 	public static java.lang.String getCurrentSessionUserId()
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getCurrentSessionUserId();
 	}
 
-	public static org.sakaiproject.webapp.api.ToolSession getCurrentToolSession()
+	public static org.sakaiproject.tool.api.ToolSession getCurrentToolSession()
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return null;
 
 		return manager.getCurrentToolSession();
 	}
 
-	public static void setCurrentSession(org.sakaiproject.webapp.api.Session param0)
+	public static void setCurrentSession(org.sakaiproject.tool.api.Session param0)
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.setCurrentSession(param0);
 	}
 
-	public static void setCurrentToolSession(org.sakaiproject.webapp.api.ToolSession param0)
+	public static void setCurrentToolSession(org.sakaiproject.tool.api.ToolSession param0)
 	{
-		org.sakaiproject.webapp.api.SessionManager manager = getInstance();
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
 		if (manager == null) return;
 
 		manager.setCurrentToolSession(param0);
