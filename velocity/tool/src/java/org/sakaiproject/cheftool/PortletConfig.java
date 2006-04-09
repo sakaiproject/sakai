@@ -31,7 +31,7 @@ import java.util.Set;
 
 import javax.servlet.ServletConfig;
 
-import org.sakaiproject.webapp.api.Placement;
+import org.sakaiproject.tool.api.Placement;
 
 /** Provides read access to tool parameters, which are (name, value) pairs.  
  * Write access is not allowed.  This provides

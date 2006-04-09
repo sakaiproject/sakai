@@ -28,8 +28,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.webapp.api.ToolURL;
-import org.sakaiproject.webapp.api.ToolURLManager;
+import org.sakaiproject.tool.api.ToolURL;
+import org.sakaiproject.tool.api.ToolURLManager;
 
 /**
  * <p>

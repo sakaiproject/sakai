@@ -37,14 +37,14 @@ import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.webapp.api.ActiveTool;
-import org.sakaiproject.webapp.api.Session;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolException;
-import org.sakaiproject.webapp.api.ToolSession;
-import org.sakaiproject.webapp.cover.ActiveToolManager;
-import org.sakaiproject.webapp.cover.SessionManager;
-import org.sakaiproject.webapp.cover.ToolManager;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>
