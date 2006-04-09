@@ -31,7 +31,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.webapp.api.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * <p>
