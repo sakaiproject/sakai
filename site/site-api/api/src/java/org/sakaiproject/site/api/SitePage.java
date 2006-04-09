@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.tool.api.Tool;
 
 /**
  * <p>

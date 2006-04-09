@@ -46,7 +46,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-api</artifactId>
+			<artifactId>sakai-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -94,7 +94,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-util</artifactId>
+			<artifactId>sakai-tool-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

@@ -39,7 +39,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.webapp.api.Tool;
+import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

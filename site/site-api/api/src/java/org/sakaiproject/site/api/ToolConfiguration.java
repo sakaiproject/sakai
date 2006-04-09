@@ -23,7 +23,7 @@ package org.sakaiproject.site.api;
 
 import java.io.Serializable;
 
-import org.sakaiproject.webapp.api.Placement;
+import org.sakaiproject.tool.api.Placement;
 
 /**
  * <p>
