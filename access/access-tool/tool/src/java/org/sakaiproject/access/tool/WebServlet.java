@@ -19,10 +19,9 @@
  *
  **********************************************************************************/
 
-// package
-package org.sakaiproject.tool.access;
+package org.sakaiproject.access.tool;
 
-// imports
+// importimport java.io.IOException;
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -30,27 +29,27 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.service.legacy.content.ContentCollection;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.ContentResourceEdit;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FileItem;
 
 /**
  * <p>
@@ -90,7 +89,7 @@ public class WebServlet extends AccessServlet
 		{
 			postUpload(req, res);
 		}
-		
+
 		else
 		{
 			sendError(res, HttpServletResponse.SC_NOT_FOUND);
@@ -143,12 +142,13 @@ public class WebServlet extends AccessServlet
 			{
 				FileItem fi = (FileItem) o;
 				// System.out.println("found file " + fi.getName());
-				if (!writeFile(fi.getName(), fi.getContentType(), fi.get(), path, req, res, true)) return;
+				if (!writeFile(fi.getFileName(), fi.getContentType(), fi.get(), path, req, res, true)) return;
 			}
 		}
 	}
 
-	protected boolean writeFile(String name, String type, byte[] data, String dir, HttpServletRequest req, HttpServletResponse resp, boolean mkdir)
+	protected boolean writeFile(String name, String type, byte[] data, String dir, HttpServletRequest req,
+			HttpServletResponse resp, boolean mkdir)
 	{
 		try
 		{
@@ -164,7 +164,7 @@ public class WebServlet extends AccessServlet
 
 			// do our web thing with the path
 			dir = preProcessPath(dir, req);
-			
+
 			// make sure there's a trailing separator
 			if (!dir.endsWith(Entity.SEPARATOR)) dir = dir + Entity.SEPARATOR;
 
@@ -173,7 +173,7 @@ public class WebServlet extends AccessServlet
 
 			// the reference id replaces the dir - as a fully qualified path (no alias, no short ref)
 			dir = ref.getId();
-			
+
 			String path = dir + name;
 
 			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();

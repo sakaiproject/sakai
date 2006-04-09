@@ -3,28 +3,24 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-// package
-package org.sakaiproject.tool.access;
+package org.sakaiproject.access.tool;
 
-// imports
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -38,32 +34,31 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.ActiveTool;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.ToolException;
-import org.sakaiproject.api.kernel.tool.cover.ActiveToolManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.VmServlet;
-import org.sakaiproject.exception.CopyrightException;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityAccessOverloadException;
+import org.sakaiproject.entity.api.EntityCopyrightException;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.service.legacy.content.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.entity.HttpAccess;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.SecurityAdvisor;
-import org.sakaiproject.service.legacy.security.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.util.resource.BaseResourceProperties;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -98,10 +93,10 @@ public class AccessServlet extends VmServlet
 	/** copyright path -- MUST have same value as ResourcesAction.COPYRIGHT_PATH */
 	protected static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 
-	/** Path used when forcing the user to accept the copyright agreement .*/
+	/** Path used when forcing the user to accept the copyright agreement . */
 	protected static final String COPYRIGHT_REQUIRE = Entity.SEPARATOR + "require";
 
-	/** Path used when the user has accepted the copyright agreement .*/
+	/** Path used when the user has accepted the copyright agreement . */
 	protected static final String COPYRIGHT_ACCEPT = Entity.SEPARATOR + "accept";
 
 	/** Ref accepted, request parameter for COPYRIGHT_ACCEPT request. */
@@ -248,13 +243,19 @@ public class AccessServlet extends VmServlet
 			String returnPath = req.getParameter(COPYRIGHT_ACCEPT_URL);
 
 			Reference aRef = EntityManager.newReference(acceptedRef);
-			
-			// add a simple security adviser to allow this user read access to the resource.
-			String userId = SessionManager.getCurrentSessionUserId();
-			SecurityService.pushAdvisor(new SimpleSecurityAdvisor(userId, ContentHostingService.EVENT_RESOURCE_READ, aRef.getId()));
+
+			// get the properties - but use a security advisor to avoid needing end-user permission to the resource
+			SecurityService.pushAdvisor(new SecurityAdvisor()
+			{
+				public SecurityAdvice isAllowed(String userId, String function, String reference)
+				{
+					return SecurityAdvice.ALLOWED;
+				}
+			});
+			ResourceProperties props = aRef.getProperties();
+			SecurityService.clearAdvisors();
 
 			// send the copyright agreement interface
-			ResourceProperties props = aRef.getProperties();
 			if (props == null)
 			{
 				sendError(res, HttpServletResponse.SC_NOT_FOUND);
@@ -262,15 +263,15 @@ public class AccessServlet extends VmServlet
 
 			setVmReference("validator", new Validator(), req);
 			setVmReference("props", props, req);
-			setVmReference("tlang",rb,req);
+			setVmReference("tlang", rb, req);
 
-			String acceptPath = Web.returnUrl(req, COPYRIGHT_ACCEPT + "?" + COPYRIGHT_ACCEPT_REF + "=" + aRef.getReference()
-							+ "&" + COPYRIGHT_ACCEPT_URL + "=" + returnPath);
+			String acceptPath = Web.returnUrl(req, COPYRIGHT_ACCEPT + "?" + COPYRIGHT_ACCEPT_REF + "=" + aRef.getReference() + "&"
+					+ COPYRIGHT_ACCEPT_URL + "=" + returnPath);
 
 			setVmReference("accept", acceptPath, req);
 			res.setContentType("text/html; charset=UTF-8");
 			includeVm("/vm/access/copyrightAlert.vm", req, res);
-			return;		
+			return;
 		}
 
 		// make sure we have a collection for accepted copyright agreements
@@ -289,7 +290,7 @@ public class AccessServlet extends VmServlet
 
 			// save this with the session's other accepted refs
 			accepted.add(aRef.getReference());
-			
+
 			// redirect to the original URL
 			String returnPath = req.getParameter(COPYRIGHT_ACCEPT_URL);
 
@@ -297,10 +298,12 @@ public class AccessServlet extends VmServlet
 			{
 				res.sendRedirect(Web.returnUrl(req, returnPath));
 			}
-			catch (IOException e){}
+			catch (IOException e)
+			{
+			}
 			return;
 		}
-		
+
 		// pre-process the path
 		String origPath = path;
 		path = preProcessPath(path, req);
@@ -325,14 +328,14 @@ public class AccessServlet extends VmServlet
 			// let the helper do the work
 			access.handleAccess(req, res, ref, accepted);
 		}
-		catch (IdUnusedException e)
+		catch (EntityNotDefinedException e)
 		{
 			// the request was not valid in some way
 			sendError(res, HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		catch (PermissionException e)
+		catch (EntityPermissionException e)
 		{
 			// the end user does not have permission - offer a login if there is no user id yet established
 			// if not permitted, and the user is the anon user, let them login
@@ -346,31 +349,33 @@ public class AccessServlet extends VmServlet
 			sendError(res, HttpServletResponse.SC_FORBIDDEN);
 		}
 
-		catch (ServerOverloadException e)
+		catch (EntityAccessOverloadException e)
 		{
 			M_log.info("dispatch(): ref: " + ref.getReference() + e);
 			sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		}
-		
-		catch (CopyrightException e)
+
+		catch (EntityCopyrightException e)
 		{
 			// redirect to the copyright agreement interface for this entity
 			try
 			{
 				// TODO: send back using a form of the request URL, encoding the real reference, and the requested reference
 				// Note: refs / requests with servlet parameters (?x=y...) are NOT supported -ggolden
-				String redirPath = COPYRIGHT_REQUIRE + "?" + COPYRIGHT_ACCEPT_REF + "=" + e.getReference()
-								+ "&" + COPYRIGHT_ACCEPT_URL + "=" + req.getPathInfo();
+				String redirPath = COPYRIGHT_REQUIRE + "?" + COPYRIGHT_ACCEPT_REF + "=" + e.getReference() + "&" + COPYRIGHT_ACCEPT_URL
+						+ "=" + req.getPathInfo();
 				res.sendRedirect(Web.returnUrl(req, redirPath));
 			}
-			catch (IOException ee){}
+			catch (IOException ee)
+			{
+			}
 			return;
 		}
 
 		catch (Throwable e)
 		{
 			M_log.warn("dispatch(): exception: ", e);
-			sendError(res,HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			sendError(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 
 		finally
@@ -407,8 +412,8 @@ public class AccessServlet extends VmServlet
 	{
 		// the context wraps our real vm attribute set
 		ResourceProperties props = new BaseResourceProperties();
-		setVmReference("props", props, req)
-;		setVmReference("validator", new Validator(), req);
+		setVmReference("props", props, req);
+		setVmReference("validator", new Validator(), req);
 		setVmReference("sample", Boolean.TRUE.toString(), req);
 		setVmReference("tlang", rb, req);
 		res.setContentType("text/html; charset=UTF-8");
@@ -540,28 +545,29 @@ public class AccessServlet extends VmServlet
 			return buf.toString();
 		}
 	}
-	
-	/** 
-	 * A simple SecurityAdviser that can be used to override permissions on one reference string  
-	 * for one user for one function.
+
+	/**
+	 * A simple SecurityAdviser that can be used to override permissions on one reference string for one user for one function.
 	 */
 	public class SimpleSecurityAdvisor implements SecurityAdvisor
 	{
-		protected String m_userId; 
-		protected String m_function; 
+		protected String m_userId;
+
+		protected String m_function;
+
 		protected String m_reference;
-		
+
 		public SimpleSecurityAdvisor(String userId, String function, String reference)
 		{
 			m_userId = userId;
 			m_function = function;
 			m_reference = reference;
 		}
-		
+
 		public SecurityAdvice isAllowed(String userId, String function, String reference)
 		{
 			SecurityAdvice rv = SecurityAdvice.PASS;
-			if(m_userId.equals(userId) && m_function.equals(function) && m_reference.equals(reference))
+			if (m_userId.equals(userId) && m_function.equals(function) && m_reference.equals(reference))
 			{
 				rv = SecurityAdvice.ALLOWED;
 			}
