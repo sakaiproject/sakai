@@ -37,8 +37,8 @@ import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.CalendarUtil;
-import org.sakaiproject.webapp.api.SessionBindingEvent;
-import org.sakaiproject.webapp.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
 
 
 /**

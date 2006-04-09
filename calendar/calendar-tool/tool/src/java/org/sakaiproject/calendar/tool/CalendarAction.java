@@ -87,9 +87,9 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.webapp.api.Placement;
-import org.sakaiproject.webapp.cover.SessionManager;
-import org.sakaiproject.webapp.cover.ToolManager;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 
 /**
