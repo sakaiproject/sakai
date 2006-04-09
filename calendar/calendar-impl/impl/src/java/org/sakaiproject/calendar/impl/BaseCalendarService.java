@@ -5763,11 +5763,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		if (goodScheduleType)
 		{
-			// this is the setup for finding the actual files in the components package.
-			// NOTE: this assumes that this is in the legacy-components package.
-			// If it's moved, or the package's name is changed, this will break if not modified -ggolden
+			// TODO: note the hard coding of the components package name -ggolden
 			String componentsRoot = System.getProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP);
-			fullPath = componentsRoot + "sakai-legacy-components/WEB-INF/calendar/" + baseFileName;
+			fullPath = componentsRoot + "sakai-calendar-pack/WEB-INF/calendar/" + baseFileName;
 		}
 
 		return fullPath;
