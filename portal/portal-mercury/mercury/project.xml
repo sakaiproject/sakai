@@ -28,7 +28,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-api</artifactId>
+			<artifactId>sakai-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -49,7 +49,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-util</artifactId>
+			<artifactId>sakai-tool-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -58,7 +58,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-webapp-servlet</artifactId>
+			<artifactId>sakai-tool-servlet</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>

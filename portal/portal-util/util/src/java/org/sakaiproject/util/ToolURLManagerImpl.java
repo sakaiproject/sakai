@@ -9,8 +9,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.webapp.api.ToolURL;
-import org.sakaiproject.webapp.api.ToolURLManager;
+import org.sakaiproject.tool.api.ToolURL;
+import org.sakaiproject.tool.api.ToolURLManager;
 
 /**
  * This is a default implementation of the ToolURLManager and it comes with a default implementation

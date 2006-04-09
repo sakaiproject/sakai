@@ -50,16 +50,16 @@ import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.ToolURLManagerImpl;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.webapp.api.ActiveTool;
-import org.sakaiproject.webapp.api.Placement;
-import org.sakaiproject.webapp.api.Session;
-import org.sakaiproject.webapp.api.Tool;
-import org.sakaiproject.webapp.api.ToolException;
-import org.sakaiproject.webapp.api.ToolSession;
-import org.sakaiproject.webapp.api.ToolURL;
-import org.sakaiproject.webapp.cover.ActiveToolManager;
-import org.sakaiproject.webapp.cover.SessionManager;
-import org.sakaiproject.webapp.cover.ToolManager;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ToolURL;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>

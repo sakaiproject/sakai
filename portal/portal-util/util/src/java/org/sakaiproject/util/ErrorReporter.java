@@ -34,7 +34,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.webapp.cover.SessionManager;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
