@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -39,7 +40,6 @@ import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.ExternalTrustedEvidence;
-import org.sakaiproject.util.LoginUtil;
 
 /**
  * <p>
@@ -108,7 +108,7 @@ public class ContainerLogin extends HttpServlet
 			Authentication a = AuthenticationManager.authenticate(e);
 
 			// login the user
-			if (LoginUtil.login(a, req))
+			if (UsageSessionService.login(a, req))
 			{
 				// get the return URL
 				String url = (String) session.getAttribute(Tool.HELPER_DONE_URL);

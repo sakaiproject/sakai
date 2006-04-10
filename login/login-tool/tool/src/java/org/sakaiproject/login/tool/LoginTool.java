@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -41,7 +42,6 @@ import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.util.IdPwEvidence;
-import org.sakaiproject.util.LoginUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 
@@ -149,7 +149,7 @@ public class LoginTool extends HttpServlet
 			String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 
 			// logout the user
-			LoginUtil.logout();
+			UsageSessionService.logout();
 
 			complete(returnUrl, null, tool, res);
 			return;
@@ -352,7 +352,7 @@ public class LoginTool extends HttpServlet
 				Authentication a = AuthenticationManager.authenticate(e);
 
 				// login the user
-				if (LoginUtil.login(a, req))
+				if (UsageSessionService.login(a, req))
 				{
 					// get the session info complete needs, since the logout will invalidate and clear the session
 					String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
