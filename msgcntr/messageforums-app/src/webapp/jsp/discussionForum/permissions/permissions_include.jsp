@@ -91,5 +91,13 @@
       </h:panelGroup>
     </h:column>
   </h:dataTable>  
+  <h:outputText value="#{msgs.choose_assignment}" rendered="#{ ForumTool.permissionMode == 'forum'}"/>
+  <h:selectOneMenu value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
+   <f:selectItems value="#{ForumTool.assignments}" />
+  </h:selectOneMenu>
+  <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
+   <f:selectItems value="#{ForumTool.assignments}" />
+  </h:selectOneMenu>
+  
   <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_footer.js"/>	 	
 </mf:forumHideDivision>

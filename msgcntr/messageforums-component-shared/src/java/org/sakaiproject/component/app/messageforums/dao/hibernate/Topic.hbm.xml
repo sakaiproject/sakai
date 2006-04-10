@@ -33,6 +33,7 @@
     <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
     <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+	<property name="defaultAssignName" column="DEFAULTASSIGNNAME" type="string" not-null="false"/>	
 
     <!-- Topic fields -->
     <property name="title">

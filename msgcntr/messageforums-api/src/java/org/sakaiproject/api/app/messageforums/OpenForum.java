@@ -33,4 +33,9 @@ public interface OpenForum extends BaseForum {
     public Boolean getDraft();
     
     public void setDraft(Boolean draft);
+    
+    public String getDefaultAssignName();
+
+    public void setDefaultAssignName(String defaultAssignName);
+
 }

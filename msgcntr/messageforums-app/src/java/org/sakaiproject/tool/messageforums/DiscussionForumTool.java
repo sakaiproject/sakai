@@ -234,8 +234,49 @@ public class DiscussionForumTool
   public List getForums()
   {
     LOG.debug("getForums()");
+
     if (forums == null || forums.size() < 1)
     {
+      try 
+      { 
+        GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+        ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
+        List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+        List gradeAssignments = new ArrayList();
+        for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
+        {
+          Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+          if(!thisAssign.isExternallyMaintained())
+          {
+            gradeAssignments.add(thisAssign);
+          }
+        }
+        assignments = new ArrayList(); 
+        SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
+        assignments.add(item); 
+        for(int i=0; i<gradeAssignments.size(); i++) 
+        { 
+          try 
+          { 
+            Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
+            
+            String assignName = thisAssign.getName(); 
+            
+            item = new SelectItem((new Integer(i+1)).toString(), assignName); 
+            assignments.add(item); 
+          } 
+          catch(Exception e) 
+          { 
+            LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
+            e.printStackTrace(); 
+          } 
+        } 
+      } 
+      catch(Exception e1) 
+      { 
+        LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
+        e1.printStackTrace(); 
+      }
       forums = new ArrayList();
       List tempForum = forumManager.getDiscussionForums();
       if (tempForum == null)
@@ -263,8 +304,17 @@ public class DiscussionForumTool
             SessionManager.getCurrentSessionUserId()))
         { 
           DiscussionForumBean decoForum = getDecoratedForum(forum);
+          decoForum.setGradeAssign("Default_0");
+          for(int i=0; i<assignments.size(); i++)
+          {
+            if(((String)((SelectItem)assignments.get(i)).getLabel()).equals(forum.getDefaultAssignName()))
+            {
+              decoForum.setGradeAssign(new Integer(i).toString());
+              break;
+            }
+          }
           forums.add(decoForum);
-        }        
+        } 
       }
     }
     return forums;
@@ -500,6 +550,8 @@ public class DiscussionForumTool
       DiscussionForum forum = forumManager.createForum();
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+      setNewForumBeanAssign();
+      
       return FORUM_SETTING_REVISE;
     }
     else
@@ -530,7 +582,9 @@ public class DiscussionForumTool
       setErrorMessage("Insufficient privileges to change forum settings");
       return MAIN;
     }
-    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);    
+    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    setForumBeanAssign();
+    
     return FORUM_SETTING;
 
   }
@@ -695,6 +749,7 @@ public class DiscussionForumTool
       return null;
     }
     
+    saveForumSelectedAssignment(forum);
     saveForumAttach(forum);  
     setObjectPermissions(forum);
     if (draft)
@@ -740,6 +795,7 @@ public class DiscussionForumTool
     setPermissionMode(PERMISSION_MODE_TOPIC);
          
     selectedTopic = createTopic();
+    setNewTopicBeanAssign();
     if (selectedTopic == null)
     {
       setErrorMessage("Create New Topic Failed!");
@@ -784,6 +840,8 @@ public class DiscussionForumTool
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
+    setTopicBeanAssign();
+    
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
       setErrorMessage("Insufficient privileges to change topic settings");
@@ -916,6 +974,7 @@ public class DiscussionForumTool
       if (selectedForum != null)
       {
         topic.setBaseForum(selectedForum.getForum());
+        saveTopicSelectedAssignment(topic);
         saveTopicAttach(topic);
         setObjectPermissions(topic);
         if (draft)
@@ -1000,6 +1059,7 @@ public class DiscussionForumTool
     }
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
+    setTopicBeanAssign();
     
     return TOPIC_SETTING;
   }
@@ -1150,6 +1210,7 @@ public class DiscussionForumTool
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
         uiPermissionsManager, forumManager);
+    setTopicBeanAssign();
     String currentForumId = getExternalParameterByKey(FORUM_ID);
     if (currentForumId != null && (!currentForumId.trim().equals(""))
         && (!currentForumId.trim().equals("null")))
@@ -1157,10 +1218,12 @@ public class DiscussionForumTool
       DiscussionForum forum = forumManager
           .getForumById(new Long(currentForumId));
       selectedForum = getDecoratedForum(forum);
+      setForumBeanAssign();
       selectedTopic.getTopic().setBaseForum(forum);
     }
     selectedTopic = getDecoratedTopic(forumManager.getTopicById(new Long(
         getExternalParameterByKey(TOPIC_ID))));
+    setTopicBeanAssign();
     getSelectedTopic();
     List tempMsgs = selectedTopic.getMessages();
     if(tempMsgs != null)
@@ -1553,6 +1616,7 @@ public class DiscussionForumTool
     this.siteMembers=null;   
     attachments.clear();
     prepareRemoveAttach.clear();
+    assignments.clear();
   
   }
 
@@ -1588,6 +1652,8 @@ public class DiscussionForumTool
       return null;
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    setForumBeanAssign();
+    
     DiscussionTopic topic = forumManager.createTopic(forum);
     if (topic == null)
     {
@@ -1595,7 +1661,12 @@ public class DiscussionForumTool
       return null;
     }
     selectedTopic = new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
-    return new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
+    setNewTopicBeanAssign();
+    
+    DiscussionTopicBean thisDTB = new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
+    setNewTopicBeanAssign(selectedForum, thisDTB);
+    return thisDTB;
+    //return new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
   }
 
   // compose
@@ -1896,46 +1967,58 @@ public class DiscussionForumTool
 
   public String processDfMsgGrd()
   {
-    try 
-    { 
+    selectedAssign = "Default_0"; 
+    gradebookScore = ""; 
+    gradeComment = "";
+
+    try
+    {
       GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
       ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-      List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-      List gradeAssignments = new ArrayList();
-      for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
+      if(selectedMessage.getMessage().getGradeAssignmentName() !=null && 
+          selectedMessage.getMessage().getGradeAssignmentName().trim().length()>0)
       {
-        Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-        if(!thisAssign.isExternallyMaintained())
-        {
-          gradeAssignments.add(thisAssign);
-        }
+        if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+            selectedMessage.getMessage().getGradeAssignmentName(),  
+            UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
+        { 
+          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+              selectedMessage.getMessage().getGradeAssignmentName(),  
+              UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
+          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          gradeComment = selectedMessage.getMessage().getGradeComment();
+          String thisGradeAssign = selectedMessage.getMessage().getGradeAssignmentName();
+          setSelectedAssignForMessage(thisGradeAssign);
+        } 
       }
-      assignments = new ArrayList(); 
-      SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
-      assignments.add(item); 
-      for(int i=0; i<gradeAssignments.size(); i++) 
-      { 
-        try 
-        { 
-          Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
-          
-          String assignName = thisAssign.getName(); 
-          
-          item = new SelectItem((new Integer(i+1)).toString(), assignName); 
-          assignments.add(item); 
-        } 
-        catch(Exception e) 
-        { 
-          LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
-          e.printStackTrace(); 
-        } 
-      } 
-    } 
-    catch(Exception e1) 
+      else if(selectedTopic.getTopic().getDefaultAssignName() != null &&
+          selectedTopic.getTopic().getDefaultAssignName().trim().length() > 0)
+      {
+        gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+            selectedTopic.getTopic().getDefaultAssignName(),
+            UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
+        gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+        String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
+        setSelectedAssignForMessage(thisGradeAssign);
+      }
+      else if(selectedForum.getForum().getDefaultAssignName() != null &&
+          selectedForum.getForum().getDefaultAssignName().trim().length() > 0)
+      {
+        gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+            selectedForum.getForum().getDefaultAssignName(),  
+            UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
+        gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+        String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
+        setSelectedAssignForMessage(thisGradeAssign);
+      }
+    }
+    catch(Exception e) 
     { 
-      LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
-      e1.printStackTrace(); 
+      LOG.error("processDfMsgGrd in DiscussionFOrumTool - " + e); 
+      e.printStackTrace(); 
+      return null; 
     } 
+    
     return "dfMsgGrade"; 
   }
 
@@ -2451,6 +2534,74 @@ public class DiscussionForumTool
     return null;
   }
 
+  public void setNewForumBeanAssign()
+  {
+    selectedForum.setGradeAssign("Default_0");
+  }
+  
+  public void setNewTopicBeanAssign()
+  {
+    if(selectedForum !=null && selectedForum.getGradeAssign() != null && selectedForum.getForum() != null)
+    {
+      selectedTopic.setGradeAssign(selectedForum.getGradeAssign());
+      selectedTopic.getTopic().setDefaultAssignName(selectedForum.getForum().getDefaultAssignName());
+    }
+  }
+
+  public void setNewTopicBeanAssign(DiscussionForumBean dfb, DiscussionTopicBean dtb)
+  {
+    if(dfb !=null && dfb.getGradeAssign() != null && dfb.getForum() != null)
+    {
+      dtb.setGradeAssign(dfb.getGradeAssign());
+      dtb.getTopic().setDefaultAssignName(dfb.getForum().getDefaultAssignName());
+    }
+  }
+
+  public void setForumBeanAssign()
+  {
+    for(int i=0; i<assignments.size(); i++)
+    {
+      if(((SelectItem)assignments.get(i)).getLabel().equals(selectedForum.getForum().getDefaultAssignName()))
+      {
+        selectedForum.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
+        break;
+      }
+    }
+  }
+  
+  public void setTopicBeanAssign()
+  {
+    for(int i=0; i<assignments.size(); i++)
+    {
+      if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
+      {
+        selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
+        break;
+      }
+    }
+  }
+  
+  public void setSelectedAssignForMessage(String assignName)
+  {
+    for(int i=0; i<assignments.size(); i++)
+    {
+      if(((SelectItem)assignments.get(i)).getLabel().equals(assignName))
+      {
+        this.selectedAssign = (String)((SelectItem)assignments.get(i)).getValue();
+        break;
+      }
+    }
+
+  }
+
+  public void saveForumSelectedAssignment(DiscussionForum forum)
+  {
+    if(selectedForum.getGradeAssign() != null && !selectedForum.getGradeAssign().equals("Default_0"))
+    {
+      forum.setDefaultAssignName( ((SelectItem)assignments.get( new Integer(selectedForum.getGradeAssign()).intValue())).getLabel());
+    }
+  }
+  
   public void saveForumAttach(DiscussionForum forum)
   {
     for (int i = 0; i < prepareRemoveAttach.size(); i++)
@@ -2497,6 +2648,14 @@ public class DiscussionForumTool
     attachments.clear();
   }
 
+  public void saveTopicSelectedAssignment(DiscussionTopic topic)
+  {
+    if(selectedTopic.getGradeAssign() != null && !selectedTopic.getGradeAssign().equals("Default_0"))
+    {
+      topic.setDefaultAssignName( ((SelectItem)assignments.get( new Integer(selectedTopic.getGradeAssign()).intValue())).getLabel());
+    }
+  }
+  
   public void saveTopicAttach(DiscussionTopic topic)
   {
     for (int i = 0; i < prepareRemoveAttach.size(); i++)
@@ -2767,7 +2926,6 @@ public class DiscussionForumTool
   { 
      
     gradeNotify = false; 
-    assignments.clear(); 
     selectedAssign = "Default_0"; 
     gradePoint = ""; 
     gradebookScore = ""; 
@@ -2853,6 +3011,9 @@ public class DiscussionForumTool
                 new Double(gradePoint),  
                 "");
             setErrorMessage("Grade submission successful.");
+            selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
+            selectedMessage.getMessage().setGradeComment(gradeComment);
+            forumManager.saveMessage(selectedMessage.getMessage());
              
             if(gradeNotify) 
             { 
@@ -2896,7 +3057,6 @@ public class DiscussionForumTool
     } 
      
     gradeNotify = false; 
-    assignments.clear(); 
     selectedAssign = "Default_0"; 
     gradePoint = ""; 
     gradebookScore = ""; 
@@ -3292,6 +3452,7 @@ public class DiscussionForumTool
       }
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+    setForumBeanAssign();
   }
 
   /**

@@ -45,7 +45,8 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Boolean draft;
   private Topic topic;
   private Boolean hasAttachments = Boolean.FALSE;
-  
+  private String gradeComment;
+  private String gradeAssignmentName; 
 
   public static Comparator ATTACHMENT_COMPARATOR;
   public static Comparator SUBJECT_COMPARATOR;
@@ -418,6 +419,26 @@ public class MessageImpl extends MutableEntityImpl implements Message
 
     };
 
+  }
+
+  public String getGradeComment()
+  {
+    return gradeComment;
+  }
+
+  public void setGradeComment(String gradeComment)
+  {
+    this.gradeComment = gradeComment;
+  }
+
+  public String getGradeAssignmentName()
+  {
+    return gradeAssignmentName;
+  }
+
+  public void setGradeAssignmentName(String gradeAssignmentName)
+  {
+    this.gradeAssignmentName = gradeAssignmentName;
   }
 
 }

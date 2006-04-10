@@ -27,6 +27,7 @@ public class DiscussionForumBean
   private boolean readFullDesciption; 
   private ArrayList contributorsList = new ArrayList();
   private ArrayList accessorList = new ArrayList();
+  private String gradeAssign;
    
    
   /**
@@ -246,6 +247,16 @@ public class DiscussionForumBean
        LOG.debug("setForumManager(DiscussionForumManager"+ forumManager+")");
     }
     this.forumManager = forumManager;
+  }
+
+  public String getGradeAssign()
+  {
+    return gradeAssign;
+  }
+
+  public void setGradeAssign(String gradeAssign)
+  {
+    this.gradeAssign = gradeAssign;
   }
 
  

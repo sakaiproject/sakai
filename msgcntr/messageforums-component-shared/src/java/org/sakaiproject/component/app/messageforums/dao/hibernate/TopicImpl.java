@@ -54,6 +54,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private BaseForum baseForum;
     private Set messagesSet;// = new HashSet();
     private Set membershipItemSet;
+    private String defaultAssignName;
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
@@ -305,6 +306,16 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
       }
           
       membershipItemSet.remove(item);
+    }
+
+    public String getDefaultAssignName()
+    {
+      return defaultAssignName;
+    }
+
+    public void setDefaultAssignName(String defaultAssignName)
+    {
+      this.defaultAssignName = defaultAssignName;
     }		
 
 }

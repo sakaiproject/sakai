@@ -89,4 +89,8 @@ public interface Topic extends MutableEntity {
 
     public void removeMembershipItem(DBMembershipItem item);      
 
+    public String getDefaultAssignName();
+    
+    public void setDefaultAssignName(String defaultAssignName);
+
 }

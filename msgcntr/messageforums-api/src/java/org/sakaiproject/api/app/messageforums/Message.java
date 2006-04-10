@@ -64,5 +64,9 @@ public interface Message extends MutableEntity {
     public Topic getTopic();
     public void addAttachment(Attachment attachment);
     public void removeAttachment(Attachment attachment);
-
+    public String getGradeComment();
+    public void setGradeComment(String gradeComment);
+    public String getGradeAssignmentName();
+    public void setGradeAssignmentName(String gradeAssignmentName);
+    
 }

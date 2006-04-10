@@ -46,6 +46,10 @@
     <property name="hasAttachments">
       <column name="HAS_ATTACHMENTS" not-null="true" index="MFR_MESSAGE_HAS_ATTACHMENTS_I"/>
     </property>
+    <property name="gradeComment" type="text">
+      <column name="GRADECOMMENT" not-null="false" />
+    </property>
+	<property name="gradeAssignmentName" column="GRADEASSIGNMENTNAME" type="string" not-null="false"/>
     
     <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan">
         <key column="m_surrogateKey"/>                        

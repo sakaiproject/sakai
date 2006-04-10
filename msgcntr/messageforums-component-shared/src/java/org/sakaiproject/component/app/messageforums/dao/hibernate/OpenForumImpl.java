@@ -33,6 +33,7 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
     
     private Boolean draft;
     private Boolean locked;
+    private String defaultAssignName;
     
     // indecies for hibernate
     //protected int areaindex;
@@ -63,6 +64,16 @@ public class OpenForumImpl extends BaseForumImpl implements OpenForum {
 
     public void setDraft(Boolean draft) {
         this.draft = draft;
+    }
+
+    public String getDefaultAssignName()
+    {
+      return defaultAssignName;
+    }
+
+    public void setDefaultAssignName(String defaultAssignName)
+    {
+      this.defaultAssignName = defaultAssignName;
     }
 
 }

@@ -32,6 +32,7 @@ public class DiscussionTopicBean
   private DiscussionForumManager forumManager;
   private ArrayList contributorsList = new ArrayList();
   private ArrayList accessorList = new ArrayList();
+  private String gradeAssign;
   
 
   private List messages = new ArrayList();
@@ -528,6 +529,16 @@ public class DiscussionTopicBean
        LOG.debug("setContributorsList(List"+ contributorsList+")");
     }    
     topic.getActorPermissions().setContributors(forumManager.decodeContributorsList(contributorsList));
+  }
+
+  public String getGradeAssign()
+  {
+    return gradeAssign;
+  }
+
+  public void setGradeAssign(String gradeAssign)
+  {
+    this.gradeAssign = gradeAssign;
   }
   
 }
