@@ -4912,10 +4912,14 @@ public class ResourcesAction
 
 		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		Map current_stack_frame = peekAtStack(state);
-		current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
+		if(!isStackEmpty(state))
+		{
+			Map current_stack_frame = peekAtStack(state);
+			current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
 
-		popFromStack(state);
+			popFromStack(state);
+		}
+
 		resetCurrentMode(state);
 
 	}	// doCancel
@@ -4994,8 +4998,8 @@ public class ResourcesAction
 						{
 							// paste the cutted resource to the new collection - no notification
 							ContentResource newResource = ContentHostingService.addResource (id, resource.getContentType (), resource.getContent (), resourceProperties, NotificationService.NOTI_NONE);
-                     String uuid = ContentHostingService.getUuid(resource.getId());
-                     ContentHostingService.setUuid(id, uuid);
+							String uuid = ContentHostingService.getUuid(resource.getId());
+							ContentHostingService.setUuid(id, uuid);
 						}
 						catch (InconsistentException e)
 						{
@@ -6401,7 +6405,7 @@ public class ResourcesAction
 			}
 		}
 
-		int noti = NotificationService.NOTI_OPTIONAL;
+		int noti = NotificationService.NOTI_NONE;
 		// %%STATE_MODE_RESOURCES%%
 		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
@@ -6416,9 +6420,9 @@ public class ResourcesAction
 			{
 				noti = NotificationService.NOTI_REQUIRED;
 			}
-			else if ("n".equals(notification))
+			else if ("o".equals(notification))
 			{
-				noti = NotificationService.NOTI_NONE;
+				noti = NotificationService.NOTI_OPTIONAL;
 			}
 		}
 		item.setNotification(noti);
@@ -6790,7 +6794,7 @@ public class ResourcesAction
 			}
 		}
 
-		int noti = NotificationService.NOTI_OPTIONAL;
+		int noti = NotificationService.NOTI_NONE;
 		// %%STATE_MODE_RESOURCES%%
 		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
@@ -6805,9 +6809,9 @@ public class ResourcesAction
 			{
 				noti = NotificationService.NOTI_REQUIRED;
 			}
-			else if ("n".equals(notification))
+			else if ("o".equals(notification))
 			{
-				noti = NotificationService.NOTI_NONE;
+				noti = NotificationService.NOTI_OPTIONAL;
 			}
 		}
 		item.setNotification(noti);
@@ -9144,23 +9148,28 @@ public class ResourcesAction
 
 	}	// getBrowseItems
 
-   protected static boolean checkItemFilter(ContentResource resource, BrowseItem newItem, SessionState state) {
-      ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_RESOURCE_FILTER);
+	protected static boolean checkItemFilter(ContentResource resource, BrowseItem newItem, SessionState state) 
+	{
+		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_RESOURCE_FILTER);
+	
+	      if (filter != null) 
+	      {
+	    	  	if (newItem != null) 
+	    	  	{
+	    	  		newItem.setCanSelect(filter.allowSelect(resource));
+	    	  	}
+	    	  	return filter.allowView(resource);
+	      }
+	      else if (newItem != null) 
+	      {
+	    	  	newItem.setCanSelect(true);
+	      }
 
-      if (filter != null) {
-         if (newItem != null) {
-            newItem.setCanSelect(filter.allowSelect(resource));
-         }
-         return filter.allowView(resource);
-      }
-      else if (newItem != null) {
-         newItem.setCanSelect(true);
-      }
+	      return true;
+	}
 
-      return true;
-   }
-
-   protected static boolean checkSelctItemFilter(ContentResource resource, SessionState state) {
+   protected static boolean checkSelctItemFilter(ContentResource resource, SessionState state) 
+   {
       ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_RESOURCE_FILTER);
 
       if (filter != null) {
@@ -9883,7 +9892,7 @@ public class ResourcesAction
 		protected boolean m_isCopied;
 		protected boolean m_canAddItem;
 		protected boolean m_canAddFolder;
-      protected boolean m_canSelect;
+		protected boolean m_canSelect;
 
 		protected List m_members;
 		protected boolean m_isEmpty;
@@ -9931,7 +9940,7 @@ public class ResourcesAction
 			m_isCopied = false;
 			m_isMoved = false;
 			m_isAttached = false;
-         m_canSelect = true; // default is true.
+			m_canSelect = true; // default is true.
 			m_hasDeletableChildren = false;
 			m_hasCopyableChildren = false;
 			m_createdBy = "";
