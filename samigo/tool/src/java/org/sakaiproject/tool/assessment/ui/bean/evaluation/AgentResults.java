@@ -120,7 +120,8 @@ public class AgentResults
   }
 
   public String getIdString() {
-    return Validator.check(idString, "N/A");
+    String escapedIdString =  ContextUtil.escapeApostrophe(idString);
+    return Validator.check(escapedIdString, "N/A");
   }
 
   public void setIdString(String id) {
