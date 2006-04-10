@@ -16,48 +16,48 @@
 		<!-- clear the deploy area -->
 		<delete dir="${basedir}/target/demo/"/>
 		
-		<!-- expand the tomcat 5.5.9 zip from the repo into the target -->
-		<ant:unzip src="${maven.repo.local}/tomcat/zips/jakarta-tomcat-5.5.9.zip"
+		<!-- expand the tomcat 5.5.16 zip from the repo into the target -->
+		<ant:unzip src="${maven.repo.local}/tomcat/zips/apache-tomcat-5.5.16.zip"
 					dest="${basedir}/target/demo/"
 					overwrite="true" />
 
-		<!-- expand the tomcat 5.5.9 compat into the target -->
-		<ant:unzip src="${maven.repo.local}/tomcat/zips/jakarta-tomcat-compat-5.5.9.zip"
+		<!-- expand the tomcat 5.5.16 compat into the target -->
+		<ant:unzip src="${maven.repo.local}/tomcat/zips/apache-tomcat-compat-5.5.16.zip"
 					dest="${basedir}/target/demo/"
 					overwrite="true" />
 
 		<!-- deploy sakai to this area -->
-		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/jakarta-tomcat-5.5.9/" />
+		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.16/" />
 		<attainGoal name="sakai:deploy" />
 
 		<!-- add in demo stuff -->
-		<copy file="${basedir}/demo/sakai.properties" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai/sakai.properties" />
-		<copy file="${basedir}/demo/toolOrder.xml" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai/toolOrder.xml" />
-		<copy file="${basedir}/demo/readme.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/demo_readme.txt" />
-		<copy file="${basedir}/docs/readme_2-1-0.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_readme.txt" />
-		<copy todir="${basedir}/target/demo/jakarta-tomcat-5.5.9/licenses/">
+		<copy file="${basedir}/demo/sakai.properties" tofile="${maven.tomcat.home}sakai/sakai.properties" />
+		<copy file="${basedir}/demo/toolOrder.xml" tofile="${maven.tomcat.home}sakai/toolOrder.xml" />
+		<copy file="${basedir}/demo/readme.txt" tofile="${maven.tomcat.home}demo_readme.txt" />
+		<copy file="${basedir}/docs/readme_2-1-0.txt" tofile="${maven.tomcat.home}sakai_readme.txt" />
+		<copy todir="${maven.tomcat.home}licenses/">
 			<fileset dir="${basedir}/licenses">
 				<exclude name="CVS/**"/>
 			</fileset>
 		</copy>
 
-		<copy file="${basedir}/demo/bin/start-sakai.bat" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/start-sakai.bat" />
-		<copy file="${basedir}/demo/bin/start-sakai.sh" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/start-sakai.sh" />
-		<copy file="${basedir}/demo/bin/stop-sakai.bat" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/stop-sakai.bat" />
-		<copy file="${basedir}/demo/bin/stop-sakai.sh" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/stop-sakai.sh" />
+		<copy file="${basedir}/demo/bin/start-sakai.bat" tofile="${maven.tomcat.home}start-sakai.bat" />
+		<copy file="${basedir}/demo/bin/start-sakai.sh" tofile="${maven.tomcat.home}start-sakai.sh" />
+		<copy file="${basedir}/demo/bin/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
+		<copy file="${basedir}/demo/bin/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
 
-		<delete file="${basedir}/target/demo/jakarta-tomcat-5.5.9/licenses/.project" />
-		<ant:copy file="${basedir}/sakai_license_1_0.txt" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_license_1_0.txt" overwrite="true" />
-		<ant:copy file="${basedir}/sakai_license_1_0.html" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/sakai_license_1_0.html" overwrite="true" />
+		<delete file="${maven.tomcat.home}licenses/.project" />
+		<ant:copy file="${basedir}/sakai_license_1_0.txt" tofile="${maven.tomcat.home}sakai_license_1_0.txt" overwrite="true" />
+		<ant:copy file="${basedir}/sakai_license_1_0.html" tofile="${maven.tomcat.home}sakai_license_1_0.html" overwrite="true" />
 
 		<!-- custom Tomcat mods -->
-		<copy file="${basedir}/demo/index.html" tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/webapps/ROOT/index.html" />
+		<copy file="${basedir}/demo/index.html" tofile="${maven.tomcat.home}webapps/ROOT/index.html" />
 		<copy overwrite="true"
-				file="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server.xml"
-				tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server-orig.xml" />
+				file="${maven.tomcat.home}conf/server.xml"
+				tofile="${maven.tomcat.home}conf/server-orig.xml" />
 		<copy overwrite="true"
-				file="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server-orig.xml"
-				tofile="${basedir}/target/demo/jakarta-tomcat-5.5.9/conf/server.xml" >
+				file="${maven.tomcat.home}conf/server-orig.xml"
+				tofile="${maven.tomcat.home}conf/server.xml" >
 			<filterset
 					begintoken="maxHttpHeaderSize"
 					endtoken="&quot;8192&quot;">

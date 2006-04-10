@@ -18,14 +18,14 @@
 		<!-- these two used only for packaging the demo (pack-demo target) -->
 		<dependency>
 			<groupId>tomcat</groupId>
-			<artifactId>jakarta-tomcat</artifactId>
-			<version>5.5.9</version>
+			<artifactId>apache-tomcat</artifactId>
+			<version>5.5.16</version>
 			<type>zip</type>
 		</dependency>
 		<dependency>
 			<groupId>tomcat</groupId>
-			<artifactId>jakarta-tomcat-compat</artifactId>
-			<version>5.5.9</version>
+			<artifactId>apache-tomcat-compat</artifactId>
+			<version>5.5.16</version>
 			<type>zip</type>
 		</dependency>
 
