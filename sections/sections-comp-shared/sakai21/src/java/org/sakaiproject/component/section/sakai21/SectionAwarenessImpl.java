@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -279,8 +280,8 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	public List getSectionMembers(final String sectionUuid) {
 		Group group = siteService.findGroup(sectionUuid);
 		CourseSection section = new CourseSectionImpl(group);
-		String taRole = getSectionTaRole(group);
-		String studentRole = getSectionStudentRole(group);
+		Set taRoles = getSectionTaRoles(group);
+		Set studentRoles = getSectionStudentRoles(group);
 		Set members = group.getMembers();
 		
 		List sectionMembershipRecords = new ArrayList();
@@ -289,10 +290,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			String roleString = member.getRole().getId();
 			User user = SakaiUtil.getUserFromSakai(member.getUserId());
 			ParticipationRecord record = null;
-			if(roleString.equals(studentRole)) {
-				record = new EnrollmentRecordImpl(section, null, user);
-			} else if(roleString.equals(taRole)) {
+			if(taRoles.contains(roleString)) {
 				record = new TeachingAssistantRecordImpl(section, user);
+			} else if(studentRoles.contains(roleString)) {
+				record = new EnrollmentRecordImpl(section, null, user);
 			}
 			if(record != null) {
 				sectionMembershipRecords.add(record);
@@ -307,15 +308,8 @@ public class SectionAwarenessImpl implements SectionAwareness {
      * @param group The authzGroup
      * @return The role id, or null if there is not role with the student marker.
      */
-	private String getSectionStudentRole(AuthzGroup group) {
-    	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
-    	if(roleStrings.size() != 1) {
-    		if(log.isDebugEnabled()) log.debug("Group " + group +
-    				" must have one and only one role with permission "
-    				+ SectionAwareness.STUDENT_MARKER);
-    		return null;
-    	}
-    	return (String)roleStrings.iterator().next();
+	private Set getSectionStudentRoles(AuthzGroup group) {
+    	return group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
     }
 
     /**
@@ -324,15 +318,8 @@ public class SectionAwarenessImpl implements SectionAwareness {
      * @param group The authzGroup
      * @return The role id, or null if there is not role with the TA marker.
      */
-    private String getSectionTaRole(Group group) {
-    	Set roleStrings = group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
-    	if(roleStrings.size() != 1) {
-    		if(log.isDebugEnabled()) log.debug("Group " + group +
-    				" must have one and only one role with permission "
-    				+ SectionAwareness.TA_MARKER);
-    		return null;
-    	}
-    	return (String)roleStrings.iterator().next();
+    private Set getSectionTaRoles(Group group) {
+    	return group.getRolesIsAllowed(SectionAwareness.TA_MARKER);
     }
 
 	/**
@@ -356,11 +343,15 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		String studentRole = getSectionStudentRole(group);
-		if(studentRole == null) {
+		Set studentRoles = getSectionStudentRoles(group);
+		if(studentRoles == null || studentRoles.isEmpty()) {
 			return new ArrayList();
 		}
-		Set sakaiUserUids = group.getUsersHasRole(studentRole);
+		Set sakaiUserUids = new HashSet();
+		for(Iterator iter = studentRoles.iterator(); iter.hasNext();) {
+			String role = (String)iter.next();
+			sakaiUserUids.addAll(group.getUsersHasRole(role));
+		}
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();
@@ -379,12 +370,16 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			return new ArrayList();
 		}
 		if(log.isDebugEnabled()) log.debug("Getting section enrollments in " + sectionUuid);
-		String taRole = getSectionTaRole(group);
-		if(taRole == null) {
+		Set taRoles = getSectionTaRoles(group);
+		if(taRoles == null || taRoles.isEmpty()) {
 			if(log.isDebugEnabled()) log.debug("There is no role for TAs in this site... returning an empty list");
 			return new ArrayList();
 		}
-		Set sakaiUserUids = group.getUsersHasRole(taRole);
+		Set sakaiUserUids = new HashSet();
+		for(Iterator iter = taRoles.iterator(); iter.hasNext();) {
+			String role = (String)iter.next();
+			sakaiUserUids.addAll(group.getUsersHasRole(role));
+		}
 		List sakaiUsers = userDirectoryService.getUsers(sakaiUserUids);
 
         List membersList = new ArrayList();
