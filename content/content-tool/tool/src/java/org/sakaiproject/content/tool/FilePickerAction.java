@@ -70,6 +70,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				{
 					// get the original list
 					Collection original = (Collection) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+					if(original == null)
+					{
+						original = EntityManager.newReferenceList();
+					}
 
 					// replace its contents with the edited attachments
 					original.clear();

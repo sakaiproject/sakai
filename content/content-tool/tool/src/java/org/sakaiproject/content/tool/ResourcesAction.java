@@ -1570,21 +1570,46 @@ public class ResourcesAction
 			try
 			{
 				contentService.checkCollection (collectionId);
-				// context.put ("collectionFlag", Boolean.TRUE.toString());
-
+				context.put ("collectionFlag", Boolean.TRUE.toString());
 			}
-			catch(IdUnusedException e)
+			catch(IdUnusedException ex)
 			{
+				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
 				try
 				{
-					contentService.addCollection(collectionId);
+					ContentCollectionEdit coll = contentService.addCollection(collectionId);
+					contentService.commitCollection(coll);
 				}
-				catch(Exception ignore)
+				catch(IdUsedException inner)
 				{
+					// how can this happen??
+					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
+					throw ex;
 				}
-				contentService.checkCollection (collectionId);
+				catch(IdInvalidException inner)
+				{
+					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+				catch(InconsistentException inner)
+				{
+					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
+					// what now?
+					throw ex;
+				}
 			}
-
+			catch(TypeException ex)
+			{
+				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : TypeException.");
+				throw ex;				
+			}
+			catch(PermissionException ex)
+			{
+				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : PermissionException.");
+				throw ex;
+			}
+		
 			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			ContentCollection coll = contentService.getCollection(collectionId);
 			expandedCollections.put(collectionId, coll);
