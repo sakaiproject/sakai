@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<questestinterop>
+
+<assessment title="RespondusFIB" ident="A1001">
+<section title="Main" ident="S1002">
+
+<item title="My Little FIB" ident="QUE_1003">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[If I am good and true, I will become a _____ ______.]]></mattext>
+</material>
+<response_str ident="QUE_1004_RS">
+<render_fib fibtype="String" prompt="Box">
+<response_label ident="QUE_1005_ANS">
+</response_label>
+</render_fib>
+</response_str>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Decimal" defaultval="0" varname="que_score" maxvalue="1.00" minvalue="0"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RS">real</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">1.00</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RS">boy</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">1.00</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+
+</section>
+</assessment>
+
+</questestinterop>

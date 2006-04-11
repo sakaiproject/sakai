@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<questestinterop>
+
+<assessment title="RespondusMatch" ident="A1001">
+<section title="Main" ident="S1002">
+
+<item title="MTCH" ident="QUE_1003">
+<itemmetadata>
+<qmd_itemtype>Matching</qmd_itemtype>
+</itemmetadata>
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Match the anatomy.]]></mattext>
+</material>
+<response_lid ident="QUE_1004_RL">
+<material>
+<mattext texttype="text/html"><![CDATA[shoe]]></mattext>
+</material>
+<render_choice shuffle="Yes">
+<response_label ident="QUE_1005_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[foot]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1006_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[hand]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+<response_lid ident="QUE_1007_RL">
+<material>
+<mattext texttype="text/html"><![CDATA[glove]]></mattext>
+</material>
+<render_choice shuffle="Yes">
+<response_label ident="QUE_1005_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[foot]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1006_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[hand]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+<decvar vartype="Integer" defaultval="0" varname="Respondus_Correct" minvalue="0" maxvalue="2"/>
+<decvar vartype="Integer" defaultval="0" varname="Respondus_Incorrect" minvalue="0" maxvalue="2"/>
+<decvar vartype="Decimal" defaultval="0" varname="que_score" minvalue="0" maxvalue="1.00"/>
+</outcomes>
+<respcondition title="Matching QUE_1004_RL Resp Condition 1">
+<conditionvar>
+<varequal respident="QUE_1004_RL">QUE_1005_A1</varequal>
+</conditionvar>
+<setvar varname="Respondus_Correct" action="Add">0.50</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1004_RL Resp Condition 2">
+<conditionvar>
+<varequal respident="QUE_1004_RL">QUE_1006_A2</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">0.50</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1007_RL Resp Condition 1">
+<conditionvar>
+<varequal respident="QUE_1007_RL">QUE_1005_A1</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">0.50</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1007_RL Resp Condition 2">
+<conditionvar>
+<varequal respident="QUE_1007_RL">QUE_1006_A2</varequal>
+</conditionvar>
+<setvar varname="Respondus_Correct" action="Add">0.50</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+<and> <other/> <not><other/></not> </and>
+</conditionvar>
+<setvar varname="que_score" action="Set">0</setvar>
+<setvar varname="que_score" action="Add">Respondus_Correct</setvar>
+<setvar varname="que_score" action="Divide">2</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+
+</section>
+</assessment>
+
+</questestinterop>

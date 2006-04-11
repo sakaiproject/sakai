@@ -1,0 +1,545 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type="text/xml"
+href="..\..\..\webapp.war\xml\xsl\dataTransform\import\v1p2\extractSection.xsl"?>
+<section ident="37" title="Weird questions">
+<qtimetadata>
+<qtimetadatafield>
+<fieldlabel>
+SECTION_OBJECTIVE</fieldlabel>
+
+<fieldentry>
+weird questions</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+SECTION_KEYWORD</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+SECTION_RUBRIC</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+</qtimetadata>
+
+<presentation_material>
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</presentation_material>
+
+<selection_ordering sequence_type="Normal">
+<selection>
+<sourcebank_ref>
+</sourcebank_ref>
+
+<selection_number>
+</selection_number>
+
+</selection>
+
+<order order_type="Sequential">
+</order>
+
+</selection_ordering>
+
+<item ident="122" title="Audio Recording">
+<duration>
+</duration>
+
+<itemmetadata>
+<qtimetadata>
+<qtimetadatafield>
+<fieldlabel>
+qmd_itemtype</fieldlabel>
+
+<fieldentry>
+Audio Recording</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TEXT_FORMAT</fieldlabel>
+
+<fieldentry>
+HTML</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_OBJECTIVE</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_KEYWORD</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_RUBRIC</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TIMEALLOWED</fieldlabel>
+
+<fieldentry>
+30</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+NUM_OF_ATTEMPTS</fieldlabel>
+
+<fieldentry>
+9999</fieldentry>
+
+</qtimetadatafield>
+
+</qtimetadata>
+
+</itemmetadata>
+
+<rubric view="All">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</rubric>
+
+<presentation label="Resp005">
+<flow class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+Recite a short poem.</mattext>
+
+</material>
+
+<material>
+<mat_extension>
+jsp/aam/applet/soundRecorder_captured.jsp</mat_extension>
+
+</material>
+
+<response_str ident="audio" rcardinality="Single" rtiming="No">
+<material_ref>
+</material_ref>
+
+</response_str>
+
+</flow>
+
+</presentation>
+
+<resprocessing>
+<outcomes>
+<decvar defaultval="0" maxvalue="5.0" minvalue="0" varname="SCORE" vartype="Integer">
+</decvar>
+
+</outcomes>
+
+</resprocessing>
+
+<itemfeedback ident="Correct1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+</item>
+
+<item ident="123" title="Essay Question">
+<qticomment>
+</qticomment>
+
+<duration>
+</duration>
+
+<itemmetadata>
+<qtimetadata>
+<qtimetadatafield>
+<fieldlabel>
+qmd_itemtype</fieldlabel>
+
+<fieldentry>
+Essay</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TEXT_FORMAT</fieldlabel>
+
+<fieldentry>
+HTML</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_OBJECTIVE</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_KEYWORD</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_RUBRIC</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+</qtimetadata>
+
+</itemmetadata>
+
+<rubric view="All">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</rubric>
+
+<presentation label="Resp002">
+<flow class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+<p align="center"><img hspace="0" src="http://www.idiom.com/~marith/images/4petal-work.gif" align="baseline" border="0" /></p><p align="left">Analyze this image from an aesthetic and historical perspective. </p></mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+<response_str ident="FIB91" rcardinality="Single" rtiming="No">
+<render_fib charset="ascii-us" columns="80" encoding="UTF_8" fibtype="String" prompt="Box" rows="20">
+<response_label ident="A" rarea="Ellipse" rrange="Exact" rshuffle="Yes">
+</response_label>
+
+</render_fib>
+
+</response_str>
+
+</flow>
+
+</presentation>
+
+<resprocessing>
+<outcomes>
+<decvar defaultval="0" maxvalue="3.0" minvalue="0" varname="SCORE" vartype="Integer">
+</decvar>
+
+</outcomes>
+
+</resprocessing>
+
+<itemfeedback ident="A" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="Correct1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="Correct" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+</item>
+
+<item ident="124" title="File Upload">
+<duration>
+</duration>
+
+<itemmetadata>
+<qtimetadata>
+<qtimetadatafield>
+<fieldlabel>
+qmd_itemtype</fieldlabel>
+
+<fieldentry>
+File Upload</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+TEXT_FORMAT</fieldlabel>
+
+<fieldentry>
+HTML</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_OBJECTIVE</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_KEYWORD</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+<qtimetadatafield>
+<fieldlabel>
+ITEM_RUBRIC</fieldlabel>
+
+<fieldentry>
+</fieldentry>
+
+</qtimetadatafield>
+
+</qtimetadata>
+
+</itemmetadata>
+
+<rubric view="All">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</rubric>
+
+<presentation label="Resp004">
+<flow class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+Upload a graphic.</mattext>
+
+</material>
+
+<material>
+<mat_extension>
+htmlarea/navigo_popups/file_upload.jsp</mat_extension>
+
+</material>
+
+<response_str ident="upload" rcardinality="Single" rtiming="No">
+<material_ref>
+</material_ref>
+
+</response_str>
+
+</flow>
+
+</presentation>
+
+<resprocessing>
+<outcomes>
+<decvar defaultval="0" maxvalue="1.0" minvalue="0" varname="SCORE" vartype="Integer">
+</decvar>
+
+</outcomes>
+
+</resprocessing>
+
+<itemfeedback ident="Correct1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect1" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+<itemfeedback ident="InCorrect" view="All">
+<flow_mat class="Block">
+<material>
+<mattext charset="ascii-us" texttype="text/plain" xml:space="default">
+</mattext>
+
+</material>
+
+<material>
+<matimage embedded="base64" imagtype="text/html" uri="">
+</matimage>
+
+</material>
+
+</flow_mat>
+
+</itemfeedback>
+
+</item>
+
+</section>
