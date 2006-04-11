@@ -14,8 +14,10 @@ alias			https://source.sakaiproject.org/svn/alias/trunk
 site			https://source.sakaiproject.org/svn/site/trunk
 master			https://source.sakaiproject.org/svn/master/trunk
 reference		https://source.sakaiproject.org/svn/reference/trunk
+login			https://source.sakaiproject.org/svn/login/trunk
 access			https://source.sakaiproject.org/svn/access/trunk
 content			https://source.sakaiproject.org/svn/content/trunk
 metaobj			https://source.sakaiproject.org/svn/metaobj/trunk
 calendar		https://source.sakaiproject.org/svn/calendar/trunk
 portal			https://source.sakaiproject.org/svn/portal/trunk
+test-harness	https://source.sakaiproject.org/svn/test-harness/trunk
