@@ -1574,7 +1574,7 @@ public class ResourcesAction
 			}
 			catch(IdUnusedException ex)
 			{
-				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
+				logger.error("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
 				try
 				{
 					ContentCollectionEdit coll = contentService.addCollection(collectionId);
@@ -1583,30 +1583,30 @@ public class ResourcesAction
 				catch(IdUsedException inner)
 				{
 					// how can this happen??
-					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
+					logger.error("ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
 					throw ex;
 				}
 				catch(IdInvalidException inner)
 				{
-					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
+					logger.error("ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 				catch(InconsistentException inner)
 				{
-					Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
+					logger.error("ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 			}
 			catch(TypeException ex)
 			{
-				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : TypeException.");
+				logger.error("ResourcesAction.buildSelectAttachment (static) : TypeException.");
 				throw ex;				
 			}
 			catch(PermissionException ex)
 			{
-				Log.error("chef", "ResourcesAction.buildSelectAttachment (static) : PermissionException.");
+				logger.error("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
 				throw ex;
 			}
 		
