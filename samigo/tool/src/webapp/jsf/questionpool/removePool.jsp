@@ -48,7 +48,7 @@
          <h:outputText value="#{msg.remove_sure_p}" />
        <f:verbatim></div></f:verbatim>
      </h:panelGroup>
-     <div class="indnt1">
+     <div class="tier1">
        <h3><h:outputText value="#{msg.p_names}"/></h3>
        <h:dataTable id ="table" value="#{questionpool.poolsToDelete}"
     var="pool" >

@@ -46,13 +46,13 @@
 
 <h:messages styleClass="validation"/>
 
- <div align="left">
+ <div class="navView">
     <h3>
         <h:outputText value="#{assessmentBean.title}" />
     </h3>
  </div>
 
-<h:dataTable border="1" styleClass="listHier" id="parts" width="100%" headerClass="regHeading" value="#{assessmentBean.sections}" var="partBean">
+<h:dataTable border="1" cellpadding="0" cellspacing="0" styleClass="listHier" id="parts" headerClass="regHeading" value="#{assessmentBean.sections}" var="partBean">
   <%-- note that partBean is ui/delivery/SectionContentBean not ui/author/SectionBean --%>
   <h:column>
     <h:panelGrid columns="2" width="100%">
@@ -68,7 +68,7 @@
 
     </h:panelGrid>
 
-    <h:dataTable border="1" styleClass="listHier" id="parts" width="100%" headerClass="regHeading" value="#{partBean.itemContents}" var="question">
+    <h:dataTable border="1" cellpadding="0" cellspacing="0" styleClass="listHier" id="parts" width="100%" headerClass="regHeading" value="#{partBean.itemContents}" var="question">
 
       <h:column>
         <h:panelGrid columns="2" border="1" width="100%">

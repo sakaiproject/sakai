@@ -21,7 +21,7 @@
 **********************************************************************************/
 --%>
 -->
- <h:dataTable headerClass="regHeading" value="#{questionpool.allItems}" var="question" styleClass="listHier">
+ <h:dataTable cellpadding="0" cellspacing="0" headerClass="regHeading" value="#{questionpool.allItems}" var="question" styleClass="listHier">
 
 
     <h:column>

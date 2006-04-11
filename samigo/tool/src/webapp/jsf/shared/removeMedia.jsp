@@ -44,7 +44,7 @@
  <h:form>
    <h:inputHidden id="mediaId" value="#{mediaBean.mediaId}"/>
    <h3> <h:outputText  value="#{msg.remove_media_conf}" /></h3>
-   <div class="validation indnt1">
+   <div class="validation tier1">
           <h:outputText value="#{msg.cert_rem_media}" />
    </div>
    <p>

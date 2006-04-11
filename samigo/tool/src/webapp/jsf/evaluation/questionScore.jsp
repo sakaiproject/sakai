@@ -57,7 +57,7 @@ $Id$
    
   <h:outputText value="#{msg.part} #{questionScores.partName}#{msg.comma} #{msg.question} #{questionScores.itemName} (#{totalScores.assessmentName}) "/>
   </h3>
-  <p class="navModeAction">
+  <p class="navViewAction">
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -97,7 +97,9 @@ $Id$
     </h:column>
   </h:dataTable>
 
-<h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%">
+<!--h:panelGrid styleClass="navModeQuestion" columns="2" columnClasses="alignLeft,alignCenter" width="100%" -->
+
+<h:panelGrid styleClass="navModeAction" columns="2" columnClasses="navView,navList" width="100%">
 
      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
          <h:outputText value="#{msg.q_aud}"/>
@@ -183,12 +185,12 @@ $Id$
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
  
- <div class="indnt1">
+ <div class="tier1">
      <!-- h:outputText value="#{msg.max_score_poss}" style="instruction"/-->
      <!-- h:outputText value="#{questionScores.maxScore}" style="instruction"/-->
 
-     <h:outputText value="#{msg.view}" />
-      <h:outputText value=" : " />
+     <h:outputText value="#{msg.view}:" />
+
 
      <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker"
         required="true" onchange="document.forms[0].submit();" >
@@ -229,9 +231,9 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<p class="indnt1">
-  <h:dataTable id="questionScoreTable" value="#{questionScores.agents}"
-    var="description" style="listHier indnt2" columnClasses="textTable">
+<p class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable" value="#{questionScores.agents}"
+    var="description" styleClass="listHier" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'lastName'}">

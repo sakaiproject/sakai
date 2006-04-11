@@ -65,7 +65,7 @@ $Id$
   <h3>
     <h:outputText value="#{studentScores.studentName} "/>
   </h3>
-  <p class="navModeAction">
+  <p class="navViewAction">
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -138,7 +138,7 @@ $Id$
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{dmsg.ans_q}, " / -->
       <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{dmsg.pt}" / -->
-      <f:verbatim></h4><div class="indnt1"></f:verbatim>
+      <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.text}" escape="false" rendered="#{part.numParts ne '1'}" />
       <f:verbatim></div></f:verbatim>
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
@@ -160,7 +160,7 @@ $Id$
 <h:message for="adjustedScore" style="color:red"/>
           <f:verbatim></h4></f:verbatim>
 
-          <f:verbatim><div class="indnt3"></f:verbatim>
+          <f:verbatim><div class="tier3"></f:verbatim>
             <h:outputText value="#{question.itemData.description}" escape="false"/>
 
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">

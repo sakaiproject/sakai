@@ -56,7 +56,7 @@
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{msg.mv_q}"/>
 </h3>
 
-<div class="indnt1">
+<div class="tier1">
 <h:outputText value="#{msg.sel_dest_move} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
@@ -71,7 +71,7 @@
 --%>
 
 
-<div class="longtext indnt2">
+<div class="longtext tier2">
 <%@ include file="/jsf/questionpool/movePoolTree.jsp" %>
 
 <h:inputHidden id="selectedRadioBtn" value="#{questionpool.destPool}"/>

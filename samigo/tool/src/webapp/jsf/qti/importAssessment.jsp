@@ -46,13 +46,13 @@
 
    <h:inputHidden value="#{xmlImport.importType}" />
    <h3><h:outputText  value="#{msg.import_a}" /></h3>
-    <div class="indnt1">
+    <div class="tier1">
      <div class="form_label">
       <h:messages styleClass="validation" />
       <h:outputText value="#{msg.import_instructions}"/>
     </div>
     <br />
-   <div class="indnt2">
+   <div class="tier2">
    <h:outputLabel  styleClass="form_label" value="#{msg.choose_file}"/>
     <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>

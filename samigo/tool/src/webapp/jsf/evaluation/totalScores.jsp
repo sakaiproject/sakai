@@ -56,7 +56,7 @@
     <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
-  <p class="navModeAction">
+  <p class="navViewAction">
     <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
       <h:outputText value="#{msg.sub_status}" />
@@ -90,14 +90,14 @@
 
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
   <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
-  <span class="indnt1">
+  <span class="tier1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
      <f:verbatim><br /></f:verbatim> </span>
   </h:panelGroup>
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-  <span class="indnt1">
+  <span class="tier1">
      <h:outputText value="#{msg.view}" />
      <h:outputText value="#{msg.column} " />
      <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
@@ -143,8 +143,9 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-  <h:dataTable id="totalScoreTable" value="#{totalScores.agents}"
-    var="description" style="listHier indnt2" columnClasses="textTable">
+<p class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" id="totalScoreTable" value="#{totalScores.agents}"
+    var="description" styleClass="listHier" columnClasses="textTable">
     <!-- NAME/SUBMISSION ID -->
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName'}">
@@ -189,7 +190,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="lastName" />
         </h:commandLink>
      </f:facet>
-     <h:panelGroup> <span class="indnt2">
+     <h:panelGroup> <span class="tier2">
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -483,7 +484,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
 <h:outputText value="#{msg.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'}"/>
 <h:outputText value="#{msg.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2'}"/>
-
+</p>
 <p class="act">
 
    <%-- <h:commandButton value="#{msg.save_exit}" action="author"/> --%>

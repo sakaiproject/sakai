@@ -45,7 +45,7 @@
    <h:outputText value="#{assessment.assessmentId}"/>
    <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
    <h3><h:outputText  value="#{msg.remove_assessment_co}" /></h3>
-   <div class="validation indnt1">
+   <div class="validation tier1">
           <h:outputText value="#{msg.cert_rem_assmt} \"#{assessmentBean.title}\" ?" />
   </div>
 <p class="act">

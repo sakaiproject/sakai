@@ -21,8 +21,8 @@
 **********************************************************************************/
 --%>
 -->
-<h:dataTable id="TreeTable" value="#{questionpool.qpools}"
-    var="pool" styleClass="listHier" width="100%" >
+<h:dataTable cellpadding="0" cellspacing="0" id="TreeTable" value="#{questionpool.qpools}"
+    var="pool" styleClass="listHier" >
 
     <h:column id="col1">
 
@@ -46,7 +46,7 @@
       </h:commandLink>
      </h:panelGroup>
      </f:facet>
-<h:panelGroup styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+<h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 <h:outputLink id="parenttogglelink"  onclick="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
 <h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
@@ -69,7 +69,7 @@
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" width="30" height="14" value="/images/delivery/spacer.gif" />
  <f:verbatim><span class="itemAction"></f:verbatim>
-<h:commandLink title="#{msg.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool}"  styleClass="treetier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+<h:commandLink title="#{msg.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText id="add" value="#{msg.add}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>

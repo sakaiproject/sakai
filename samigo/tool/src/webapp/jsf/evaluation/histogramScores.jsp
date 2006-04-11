@@ -59,7 +59,7 @@ $Id$
     <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{histogramScores.assessmentName} "/>
   </h3>
-<h:outputText value=" <p class=\"navModeAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+<h:outputText value=" <p class=\"navViewAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
  
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -134,7 +134,7 @@ $Id$
 
     </h:panelGroup>
 
-<h:panelGrid columns="2" columnClasses="alignLeft,aligntRight">
+<h:panelGrid columns="2" columnClasses="navView,navList">
 
 <h:outputLabel value="#{msg.sub_view}"/>
 <h:outputLabel value="#{histogramScores.numResponses}" />
@@ -208,7 +208,7 @@ $Id$
 
         <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching -->
 
-        <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}" columnClasses="alignLeft,aligntRight">
+        <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}" columnClasses="navView,navList">
 
           <h:outputLabel for="responses" value="#{msg.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
@@ -221,11 +221,11 @@ $Id$
           <h:outputLabel for="mode" value="#{msg.mode}" />
           <h:outputText id="mode" value="#{item.mode}" />
         </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '3'}" columnClasses="alignLeft,aligntRight">
+        <h:panelGrid columns="2" rendered="#{item.questionType == '3'}" columnClasses="navView,navList">
           <h:outputLabel for="responses1" value="#{msg.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
         </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9'}" columnClasses="alignLeft,aligntRight">
+        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9'}" columnClasses="navView,navList">
           <h:outputLabel for="responses2" value="#{msg.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{msg.percentCorrect}" />

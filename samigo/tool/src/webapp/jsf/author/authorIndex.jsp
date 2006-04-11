@@ -65,12 +65,12 @@
 <h:message for="authorIndexForm:edit_assessment_denied" styleClass="validate"/>
 <h:message for="authorIndexForm:grade_assessment_denied" styleClass="validate"/>
 
-<div class="indnt1">
+<div class="tier1">
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h4>"/>	
 <h:outputText value="#{msg.assessment_new}" rendered="#{authorization.createAssessment}" />
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h4>"/>
- <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div class=\"indnt2\">"/>
-<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h5 class=\"plain\">"/>
+ <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<div class=\"tier2\">"/>
+<h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h5>"/>
     <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
    <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h5>"/>
    <div class="shorttext">
@@ -114,8 +114,8 @@
   <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="<h4>"/>
 <h:outputText value="#{msg.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/>
  <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="</h4>"/>
-<div class="indnt2">
-  <h:dataTable styleClass="listHier" id="coreAssessments" value="#{author.assessments}" 
+<div class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" 
      var="coreAssessment" rendered="#{authorization.adminCoreAssessment}">
     <h:column>
       <f:facet name="header">
@@ -226,11 +226,11 @@
   </span>
   </p>
 -->
-<div class="indnt2">
-<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h5 class=\"plain\">"/>
+<div class="tier2">
+<h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="<h5>"/>
   <h:outputText value="#{msg.assessment_active}" rendered="#{authorization.adminPublishedAssessment}"/>
 <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h5>"/>
-  <h:dataTable  styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
     value="#{author.publishedAssessments}" var="publishedAssessment">
     <h:column>
       <f:facet name="header">
@@ -379,10 +379,10 @@
 -->
   </p>
 
-<h5 class="plain">
+<h5>
   <h:outputText value="#{msg.assessment_inactive}" rendered="#{authorization.adminPublishedAssessment}"/>
 </h5>
-  <h:dataTable  styleClass="listHier" headerClass="regHeading" 
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" headerClass="regHeading" 
      rendered="#{authorization.adminPublishedAssessment}"
      value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" 
      id="inactivePublishedAssessments">

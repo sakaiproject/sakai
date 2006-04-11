@@ -47,7 +47,7 @@
 <h:form>
 
 <!-- CHANGE TYPE -->
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputText styleClass="number" value="1" />
 
 <h:outputText value="#{qpmsg.sel_q_type}"/>
@@ -56,7 +56,7 @@
 </h:selectOneMenu>
 <h:message for="selType" styleClass="validate"/>
 </div>
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputText styleClass="number" value="2" />
 </div>
 

@@ -60,7 +60,7 @@ $Id$
     <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
-  <p class="navModeAction">
+  <p class="navViewAction">
     <h:outputText value="#{msg.sub_status}" />
     <h:outputText value=" #{msg.separator} " />
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
@@ -87,7 +87,7 @@ $Id$
 
   <h:messages styleClass="validation"/>
 
-  <span class="indnt1">
+  <span class="tier1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
      <f:verbatim><br /></f:verbatim>
@@ -110,7 +110,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-  <h:dataTable styleClass="listHier" id="totalScoreTable" value="#{submissionStatus.agents}"
+<p class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="totalScoreTable" value="#{submissionStatus.agents}"
     var="description">
     <!-- NAME/SUBMISSION ID -->
 
@@ -215,7 +216,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
 
   </h:dataTable>
-
+</p>
 </h:form>
 </div>
   <!-- end content -->

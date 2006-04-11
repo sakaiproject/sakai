@@ -62,7 +62,7 @@
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
       <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" / -->
-      <f:verbatim></h4><div class="indnt1"></f:verbatim>
+      <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
       <f:verbatim></div></f:verbatim>
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"

@@ -44,7 +44,7 @@
 
  <h:form>
   <h3><h:outputText  value="#{msg.remove_q_conf}" /></h3>
-  <div class="validation indnt1">
+  <div class="validation tier1">
       <h:outputText value="#{msg.sure_rem_q}" />
   </div>
 

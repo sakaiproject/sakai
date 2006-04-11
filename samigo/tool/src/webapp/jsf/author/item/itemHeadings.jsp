@@ -110,7 +110,7 @@ document.links[newindex].onclick();
    <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}"/>
 </h3>
 <!-- CHANGE TYPE -->
-<div class="indnt1">
+<div class="tier1">
 <div class=" shorttext"><h:outputLabel value="#{msg.change_q_type}"/>
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute
@@ -173,7 +173,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 
   <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{msg.separator} " />
 --%>
-  <h:commandLink title="#{msg.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="alignRight" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+  <h:commandLink title="#{msg.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
                 <h:outputText value="#{msg.button_remove}" />
                 <f:param name="itemid" value="#{itemauthor.currentItem.itemId}"/>
               </h:commandLink>

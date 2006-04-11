@@ -60,11 +60,11 @@
      <h:outputText id="x1" value="#{msg.settings} #{msg.dash} #{publishedSettings.title}" />
     </h3>
 
-<div class="indnt1">
+<div class="tier1">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
   <samigo:hideDivision id="div1" title="#{msg.t_assessmentIntroduction}" >
-<div class="indnt2">
+<div class="tier2">
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{summary_msg.enter_template_info_section}">
         <h:outputLabel value="#{msg.assessment_title}"/>
@@ -91,7 +91,7 @@
 
   <!-- *** DELIVERY DATES *** -->
   <samigo:hideDivision id="div2" title="#{msg.t_deliveryDates}" >
-    <div class="indnt2">
+    <div class="tier2">
     <h:panelGrid columns="3" columnClasses="shorttext"
       summary="#{summary_msg.delivery_dates_sec}">
 
@@ -116,7 +116,7 @@
   <!-- *** RELEASED TO *** -->
 
   <samigo:hideDivision title="#{msg.t_releasedTo}" id="div3">
-<div class="indnt2">
+<div class="tier2">
     <h:panelGrid   summary="#{summary_msg.released_to_info_sec}">
 <%--
       <h:selectManyCheckbox disabled="true" layout="pagedirection" value="#{publishedSettings.targetSelected}">
@@ -145,7 +145,7 @@
 
   <!-- *** HIGH SECURITY *** -->
   <samigo:hideDivision title="#{msg.t_highSecurity}" id="div4">
-<div class="indnt2">
+<div class="tier2">
     <h:panelGrid border="0" columns="3" columnClasses="longtext"
         summary="#{summary_msg.high_security_sec}">
       <h:selectBooleanCheckbox value="#{assessmentSettings.valueMap.hasSpecificIP}"
@@ -172,7 +172,7 @@
 
   <!-- *** TIMED *** -->
   <samigo:hideDivision id="div5" title="#{msg.t_timedAssessment}">
-<div class="indnt2">
+<div class="tier2">
 <%--DEBUGGING:
      Time Limit= <h:outputText value="#{publishedSettings.timeLimit}" /> ;
      Hours= <h:outputText value="#{publishedSettings.timedHours}" /> ;
@@ -218,8 +218,8 @@
      numbering= <h:outputText value="#{publishedSettings.itemNumbering}" />
 --%>
     <!-- NAVIGATION -->
-   <div class="indnt2">
-    <div class="longtext"><h:outputLabel value="#{msg.navigation}" /></div><div class="indnt3">
+   <div class="tier2">
+    <div class="longtext"><h:outputLabel value="#{msg.navigation}" /></div><div class="tier3">
 
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="itemNavigation"  disabled="true"
@@ -230,7 +230,7 @@
       </h:panelGrid>
    </div>
     <!-- QUESTION LAYOUT -->
-    <div class="longtext"><h:outputLabel value="#{msg.question_layout}" /></div><div class="indnt3">
+    <div class="longtext"><h:outputLabel value="#{msg.question_layout}" /></div><div class="tier3">
 
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="assessmentFormat"  disabled="true"
@@ -243,7 +243,7 @@
     </div>
 
     <!-- NUMBERING -->
-    <div class="longtext"><h:outputLabel value="#{msg.numbering}" /></div><div class="indnt3">
+    <div class="longtext"><h:outputLabel value="#{msg.numbering}" /></div><div class="tier3">
 
        <h:panelGrid columns="2"  >
          <h:selectOneRadio id="itemNumbering"  disabled="true"
@@ -262,9 +262,9 @@
      Submissions= <h:outputText value="#{publishedSettings.submissionsAllowed}" /> ;
      lateHandling= <h:outputText value="#{publishedSettings.lateHandling}" />
 --%>
-<div class="indnt2">
+<div class="tier2">
     <!-- NUMBER OF SUBMISSIONS -->
-     <div class="longtext"><h:outputLabel value="#{msg.submissions}" /></div> <div class="indnt3"><f:verbatim><table><tr><td></f:verbatim>
+     <div class="longtext"><h:outputLabel value="#{msg.submissions}" /></div> <div class="tier3"><f:verbatim><table><tr><td></f:verbatim>
 
         <h:selectOneRadio id="unlimitedSubmissions"  disabled="true"
             value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
@@ -282,7 +282,7 @@
      </div>
     <!-- LATE HANDLING -->
 
-   <div class="longtext"><h:outputLabel value="#{msg.late_handling}" /></div><div class="indnt3">
+   <div class="longtext"><h:outputLabel value="#{msg.late_handling}" /></div><div class="tier3">
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="lateHandling"  disabled="true"
             value="#{publishedSettings.lateHandling}"  layout="pageDirection">
@@ -295,7 +295,7 @@
     <!-- AUTOSAVE -->
 <%-- hide for 1.5 release SAM-148
     <div class="longtext"><h:outputLabel value="#{msg.auto_save}" /></div>
-    <div class="indnt3">
+    <div class="tier3">
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="autoSave"  disabled="true"
             value="#{publishedSettings.submissionsSaved}"  layout="pageDirection">
@@ -310,7 +310,7 @@
 
   <!-- *** SUBMISSION MESSAGE *** -->
   <samigo:hideDivision id="div8" title="#{msg.t_submissionMessage}" >
-    <div class="indnt2"><div class="longtext">
+    <div class="tier2"><div class="longtext">
       <h:outputLabel value="#{msg.submission_message}" />
       <br/>
       <h:panelGrid width="630" border="1">
@@ -335,8 +335,8 @@
   <samigo:hideDivision id="div9" title="#{msg.t_feedback}" >
  
  <!-- FEEDBACK AUTHORING -->
-  <div class="indnt2">
-    <div class="longtext"><h:outputLabel value="#{msg.feedback_authoring}" /></div><div class="indnt3">
+  <div class="tier2">
+    <div class="longtext"><h:outputLabel value="#{msg.feedback_authoring}" /></div><div class="tier3">
     <h:panelGroup>
       <h:panelGrid columns="1"  >
         <h:selectOneRadio id="feedbackAuthoring"  disabled="true"
@@ -350,7 +350,7 @@
    </h:panelGroup>
   </div>
 
-    <div class="longtext"><h:outputLabel value="#{msg.feedback_delivery}" /></div><div class="indnt3">
+    <div class="longtext"><h:outputLabel value="#{msg.feedback_delivery}" /></div><div class="tier3">
     <h:panelGroup>
       <h:panelGrid columns="1"  >
         <h:selectOneRadio id="feedbackDelivery"  disabled="true"
@@ -371,7 +371,7 @@
       </h:panelGrid>
     </h:panelGroup>
 </div><div class="longtext">
-   <h:outputLabel value="#{summary_msg.select_feedback_comp}" /></div><div class="indnt3">
+   <h:outputLabel value="#{summary_msg.select_feedback_comp}" /></div><div class="tier3">
     <h:panelGroup>
       <h:panelGrid columns="2"  >
        <h:panelGroup>
@@ -427,8 +427,8 @@
 
   <!-- *** GRADING *** -->
   <samigo:hideDivision id="div10" title="#{msg.t_grading}" >
-<div class="indnt2">
-    <div class="longtext"><h:outputLabel value="#{msg.student_identity}" /></div><div class="indnt3">
+<div class="tier2">
+    <div class="longtext"><h:outputLabel value="#{msg.student_identity}" /></div><div class="tier3">
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="anonymousGrading"  disabled="true"
             value="#{publishedSettings.anonymousGrading}"  layout="pageDirection">
@@ -438,7 +438,7 @@
       </h:panelGrid>
 </div>
     <!-- GRADEBOOK OPTIONS -->
-    <div class="longtext"><h:outputLabel value="#{msg.gradebook_options}" /></div><div class="indnt3">
+    <div class="longtext"><h:outputLabel value="#{msg.gradebook_options}" /></div><div class="tier3">
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="toDefaultGradebook"
             value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection">
@@ -448,7 +448,7 @@
       </h:panelGrid>
 </div>
     <!-- RECORDED SCORE AND MULTIPLES -->
-    <div class="longtext"><h:outputLabel value="#{msg.recorded_score}" /></div><div class="indnt3">
+    <div class="longtext"><h:outputLabel value="#{msg.recorded_score}" /></div><div class="tier3">
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="scoringType"  disabled="true"
             value="#{publishedSettings.scoringType}"  layout="pageDirection">
@@ -461,7 +461,7 @@
 
   <!-- *** COLORS AND GRAPHICS	*** -->
   <samigo:hideDivision id="div11" title="#{msg.t_graphics}" >
-<div class="indnt2">
+<div class="tier2">
     <h:panelGrid columns="2" columnClasses="shorttext" >
       <h:outputLabel value="#{msg.background_color}" />
       <h:inputText size="80" value="#{publishedSettings.bgColor}"
@@ -477,7 +477,7 @@
   <!-- *** META *** -->
 
   <samigo:hideDivision title="#{msg.t_metadata}" id="div13">
-   <div class="indnt2"><div class="longtext"> <h:outputLabel value="#{msg.assessment_metadata}" /> </div><div class="indnt3">
+   <div class="tier2"><div class="longtext"> <h:outputLabel value="#{msg.assessment_metadata}" /> </div><div class="tier3">
     <h:panelGrid columns="2" columnClasses="shorttext">
       <h:outputLabel value="#{msg.metadata_keywords}"/>
       <h:inputText size="80" value="#{publishedSettings.keywords}"  disabled="true"/>
@@ -488,7 +488,7 @@
       <h:outputLabel value="#{msg.metadata_rubrics}"/>
       <h:inputText size="80" value="#{publishedSettings.rubrics}"  disabled="true"/>
     </h:panelGrid></div>
-    <div class="longtext"> <h:outputLabel value="#{msg.record_metadata}" /></div><div class="indnt3">
+    <div class="longtext"> <h:outputLabel value="#{msg.record_metadata}" /></div><div class="tier3">
     <h:panelGrid columns="2"  >
 <%-- see bug# SAM-117 -- no longer required in Samigo
      <h:selectBooleanCheckbox  disabled="true"

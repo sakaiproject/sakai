@@ -55,7 +55,7 @@
   <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>
 
 
-  <div class="indnt1">
+  <div class="tier1">
   <div class="shorttext">
 <h:panelGrid columns="2" columnClasses="shorttext">
    <h:outputLabel value="#{msg.title}" />
@@ -104,7 +104,7 @@
      </h:selectOneRadio>
 --%>
 
-  <div class="indnt2">
+  <div class="tier2">
 
 <%--
 <h:panelGrid rendered="#{sectionBean.hideRandom eq 'false'}" columns="2" columnClasses="longtext" >

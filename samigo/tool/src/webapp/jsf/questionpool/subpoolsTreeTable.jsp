@@ -22,8 +22,8 @@
 **********************************************************************************/
 --%>
 -->
-<h:dataTable id="TreeTable" value="#{questionpool.sortedSubqpools}"
-	 var="pool" width="100%" styleClass="listHier" >
+<h:dataTable id="TreeTable" cellpadding="0" cellspacing="0" value="#{questionpool.sortedSubqpools}"
+	 var="pool" styleClass="listHier" >
 
     <h:column id="col1">
      <f:facet name="header">
@@ -47,7 +47,7 @@
      </h:panelGroup>
      </f:facet>
 
-<h:panelGroup styleClass="treetier#{questionpool.tree.currentLevel-questionpool.parentPoolSize-1}"  id="firstcolumn">
+<h:panelGroup styleClass="tier#{questionpool.tree.currentLevel-questionpool.parentPoolSize-1}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
 <h:outputLink title="" id="parenttogglelink"  onclick="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >

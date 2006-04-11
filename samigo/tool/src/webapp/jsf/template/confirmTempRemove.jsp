@@ -46,7 +46,7 @@
  <h:form id="removeTemplateForm">
    <h:inputHidden id="templateId" value="#{template.idString}"/>
 
-     <div class="validation indnt1">
+     <div class="validation tier1">
        <h:outputText value="#{msg.remove_fer_sure}" />
        <h:outputText value=" &quot;" />
        <h:outputText value="#{template.templateName}"/>

@@ -51,7 +51,7 @@
 <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}; background-image: url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)>;'" escape="false"/-->
  <!-- content... -->
 <h3><h:outputText value="#{msg.submission}" /></h3>
-<div class="indnt1">
+<div class="tier1">
 <h4>
   <h:outputText value="#{delivery.assessmentTitle} " />
   <h:outputText value="#{msg.submission_info}" />

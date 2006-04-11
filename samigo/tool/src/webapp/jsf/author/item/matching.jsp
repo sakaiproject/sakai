@@ -111,7 +111,7 @@
 <div class="tier2">
   <!-- display existing pairs -->
 
-<h:dataTable styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
       
       <h:column>
         <f:facet name="header">

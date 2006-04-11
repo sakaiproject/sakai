@@ -49,7 +49,7 @@
     <h:outputText value="#{msg.page_heading}"/>
   </h3>
   <!-- SELECT -->
- <div class="indnt1">
+ <div class="tier1">
   <h4><h:outputText value="#{msg.take_assessment}" /></h4>
   <p class="tier2">
     <h:outputText rendered="#{select.isThereAssessmentToTake eq 'true'}" value="#{msg.take_assessment_notes}" />
@@ -77,8 +77,8 @@ sorting actions for table:
 * Sort by: Date Due
 --%>
   <!-- SELECT TABLE -->
-  <div class="indnt2">
-  <h:dataTable id="selectTable" value="#{select.takeableAssessments}"
+  <div class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" id="selectTable" value="#{select.takeableAssessments}"
     var="takeable" styleClass="listHier">
     <h:column>
       <f:facet name="header">
@@ -147,7 +147,7 @@ sorting actions for table:
   </h:dataTable>
   </div></div>
   <!-- SUBMITTED ASSESMENTS -->
-<div class="indnt1">
+<div class="tier1">
 
 <h4> <h:outputText value="#{msg.submitted_assessments}" /></h4>
   <p class="tier2">
@@ -181,8 +181,8 @@ sorting actions for table:
 * Sort by: Time
 * Sort by: Title
 --%>
-  <div class="indnt2">
-  <h:dataTable styleClass="listHier" id="reviewTable" value="#{select.reviewableAssessments}"
+  <div class="tier2">
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="reviewTable" value="#{select.reviewableAssessments}"
        var="reviewable">
 
 <%-- TITLE --%>

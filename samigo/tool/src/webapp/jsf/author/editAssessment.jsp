@@ -93,18 +93,18 @@ document.links[newindex].onclick();
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
-  <div align="left">
+  <div class="navList">
     <h3>
        <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h3>
-  </div><div align="right">
+  </div><div class="navView">
     <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " />
     <h:outputText value="#{assessmentBean.totalScore}">
   <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
     <h:outputText value="#{msg.total_pt}" />
  </div>
-  <p class="navModeAction">
+  <p class="navViewAction">
     <h:commandLink title="#{msg.t_addPart}" id="addPart" action="editPart" immediate="true">
       <h:outputText value="#{msg.subnav_add_part}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
@@ -138,14 +138,14 @@ document.links[newindex].onclick();
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 </h:commandLink>
 
-<div class="indnt1">
+<div class="tier1">
 <h:dataTable id="parts" width="95%" headerClass="regHeading"
       value="#{assessmentBean.sections}" var="partBean">
 
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
 <f:verbatim><h4></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="alignLeft,alignRight" width="95%">
+    <h:panelGrid columns="2" columnClasses="navList,navView" width="95%">
       <h:panelGroup>
        <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p}" /> <f:verbatim></b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
@@ -175,7 +175,7 @@ document.links[newindex].onclick();
       </h:panelGroup>
         <h:outputText escape="false" value="#{partBean.description}" />
     </h:panelGrid>
-<f:verbatim></h4><div class="indnt2"></f:verbatim>
+<f:verbatim></h4><div class="tier2"></f:verbatim>
 
 
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
@@ -205,7 +205,7 @@ document.links[newindex].onclick();
 
       <h:column>
 <f:verbatim><h5></f:verbatim>
-        <h:panelGrid columns="2" columnClasses="alignLeft,alignRight" width="95%">
+        <h:panelGrid columns="2" columnClasses="navList,navView" width="95%">
           <h:panelGroup>
            <f:verbatim><b></f:verbatim>   <h:outputText value="#{msg.q} " /> <f:verbatim></b></f:verbatim>
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
@@ -233,7 +233,7 @@ document.links[newindex].onclick();
 
         </h:panelGrid>
 <f:verbatim></h5></f:verbatim>
-     <f:verbatim> <div class="indnt3"></f:verbatim>
+     <f:verbatim> <div class="tier3"></f:verbatim>
           <h:panelGroup rendered="#{question.itemData.typeId == 9}">
             <%@ include file="/jsf/author/preview_item/Matching.jsp" %>
           </h:panelGroup>

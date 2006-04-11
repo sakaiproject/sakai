@@ -121,7 +121,7 @@ function saveTime()
       <!-- h:outputText value="#{msg.ans_q}, " / -->
       <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{msg.pt}" 
          rendered="#{delivery.actionString=='reviewAssessment'}"/>
-      <f:verbatim></h4><div class="indnt1"></f:verbatim>
+      <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
       <f:verbatim></div></f:verbatim>
       <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
@@ -133,7 +133,7 @@ function saveTime()
         <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.pointsDisplayString} #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
         <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
 
-          <f:verbatim></h4><div class="indnt3"></f:verbatim>
+          <f:verbatim></h4><div class="tier3"></f:verbatim>
 <%--
           <h:outputText value="#{question.itemData.description}" escape="false"/>
 --%>

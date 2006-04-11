@@ -42,7 +42,7 @@
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
- <div class="indnt1">
+ <div class="tier1">
  <h:form id="exportItemForm">
   <h:outputText escape="false"
       value="<input type='hidden' name='itemId' value='#{param.exportItemId}'" />

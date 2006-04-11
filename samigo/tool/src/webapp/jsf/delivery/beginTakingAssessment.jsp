@@ -61,9 +61,9 @@
 </h:panelGroup>
 
 <h3><h:outputText value="#{msg.begin_assessment_}" /></h3>
-<div class="indnt1">
+<div class="tier1">
  <h4> <h:outputText value="#{delivery.assessmentTitle} #{msg.info} " /></h4>
-<div class="indnt2">
+<div class="tier2">
 <h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
 <h:panelGrid columns="2" cellpadding="2">

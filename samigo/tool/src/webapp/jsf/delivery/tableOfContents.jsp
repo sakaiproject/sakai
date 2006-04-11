@@ -117,12 +117,12 @@ function clickSubmitForGrade(){
 </h:panelGroup>
 
 
-<div class="indnt1">
+<div class="tier1">
   <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}#{msg.column} "/><f:verbatim></b></f:verbatim>
   <h:outputText value="#{msg.instruction_submitGrading}" />
 </div>
 
-<div class="indnt1">
+<div class="tier1">
   <h4>
     <h:outputText value="#{msg.table_of_contents} " />
     <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
@@ -134,8 +134,8 @@ function clickSubmitForGrade(){
  
 </div>
 
-<div class="indnt2">
-  <h5 class="plain">
+<div class="tier2">
+  <h5>
     <h:outputLabel value="#{msg.key}"/>
   </h5>
   <h:graphicImage  alt="#{msg.alt_unans_q}" url="/images/tree/blank.gif" />
@@ -157,7 +157,7 @@ function clickSubmitForGrade(){
        #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.roundedMaxPoints} #{msg.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
-            <f:verbatim><div class="indnt3"></f:verbatim>
+            <f:verbatim><div class="tier3"></f:verbatim>
             <h:panelGroup>
             <h:graphicImage alt="#{msg.alt_unans_q}" 
                url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>

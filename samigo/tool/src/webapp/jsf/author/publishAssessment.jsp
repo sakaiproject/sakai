@@ -47,7 +47,7 @@
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
    <h3><h:outputText  value="#{msg.publish_assessment_confirmation}" /></h3>
-<div class="indnt1">
+<div class="tier1">
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" styleClass="validation" />

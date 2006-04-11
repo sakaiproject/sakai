@@ -32,7 +32,7 @@
 
 
 <h:dataTable id="TreeTable" value="#{questionpool.copyQpools}"
-     var="pool" width="100%" styleClass="listHier"  >
+     var="pool" cellpadding="0" cellspacing="0" styleClass="listHier" >
 
 
     <h:column  id="radiocol" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
@@ -69,7 +69,7 @@
      </f:facet>
 
 
-<h:panelGroup rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+<h:panelGroup rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
 <h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >

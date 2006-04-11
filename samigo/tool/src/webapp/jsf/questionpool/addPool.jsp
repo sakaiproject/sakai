@@ -49,33 +49,33 @@
 <h:messages styleClass="validation"/>
 <h:outputText value="#{msg.add_p_required}"/>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="namefield" value="#{msg.p_name}#{msg.star}"/>
   <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
 <h:message for="namefield" styleClass="validate"/>
  </div>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
  </div>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="orgfield" value="#{msg.dept} "/>
   <h:inputText id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}"/>
  </div>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="descfield" value="#{msg.desc}"/>
   <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
  </div>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="objfield" value="#{msg.obj} "/>
   <h:inputText id="objfield" size="30" value="#{questionpool.currentPool.objectives}"/>
  </div>
 
- <div class="shorttext indnt1">
+ <div class="shorttext tier1">
   <h:outputLabel for="keyfield" value="#{msg.keywords} "/>
   <h:inputText id="keyfield" size="30" value="#{questionpool.currentPool.keywords}"/>
  </div>

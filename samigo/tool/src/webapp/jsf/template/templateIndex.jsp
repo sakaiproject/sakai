@@ -54,12 +54,12 @@
    <h:outputText value="#{msg.index_templates}"/>
  </h3>
 
-<div class="indnt1">
+<div class="tier1">
    <h4>
    <h:outputText value="#{msg.index_new}"  rendered="#{authorization.createTemplate}"/>
    </h4>
-<div class="indnt2">
-  <h5 class="plain">
+<div class="tier2">
+  <h5>
    <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
   </h5>
     <div class="shorttext">
@@ -83,15 +83,15 @@
 <br/><h:message for="tempName" styleClass="validate"/>
 
  <h:form id="templateListForm">
- <div class="indnt1">
+ <div class="tier1">
  <h4>
    <h:outputText value="#{msg.index_saved}"/>
  </h4>
- <div class="indnt2">
+ <div class="tier2">
 
   <!-- controller buttons for invisible pager control -->
   <!-- samigo:pagerButtonControl controlId="templates" formId="editOrRemoveTemplateForm" / -->
-  <h:dataTable id="editDataTable" value="#{templateIndex.sortTemplateList}"
+  <h:dataTable cellpadding="0" cellspacing="0" id="editDataTable" value="#{templateIndex.sortTemplateList}"
     var="templateListItem" styleClass="listHier">
     <h:column>
      <f:facet name="header">
@@ -186,8 +186,7 @@
 </div>
  </h:form>
 
- <p align="center">&#160;</p>
- <p align="center">&#160;</p>
+ 
 <!-- end content -->
 </div>
       </body>

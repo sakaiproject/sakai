@@ -30,8 +30,8 @@
 	<h:outputText value="#{msg.q_mgr}"/>
 </h:panelGrid>
 
-<h:dataTable id="TreeTable" value="#{questionpool.moveQpools}"
-   var="pool"  width="100%" styleClass="listHier" >
+<h:dataTable cellpadding="0" cellspacing="0" id="TreeTable" value="#{questionpool.moveQpools}"
+   var="pool" styleClass="listHier" >
 
 
     <h:column  id="radiocol" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
@@ -65,10 +65,10 @@
      </f:facet>
 
 
-<h:panelGroup rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+<h:panelGroup rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 
 <%--
-<h:panelGroup styleClass="treetier#{questionpool.tree.currentLevel}"  id="firstcolumn">
+<h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 --%>
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 

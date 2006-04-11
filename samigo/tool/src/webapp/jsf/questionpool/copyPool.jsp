@@ -56,13 +56,13 @@
 </h3>
 
 
-<div class="indnt1">
+<div class="tier1">
 <h:outputText value="#{msg.sel_dest_copy} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
 <h:outputText  rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
 
 </div>
-<div class="longtext indnt2">
+<div class="longtext tier2">
 <%--
 <h:outputText styleClass="number" value="1"/>
 <h:outputLabel rendered="#{questionpool.actionType == 'pool'}" value="#{msg.copy_p_to}"/>

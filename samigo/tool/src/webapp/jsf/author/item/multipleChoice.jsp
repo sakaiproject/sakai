@@ -103,7 +103,7 @@
 
 	<!-- dynamicaly generate rows of answers based on number of answers-->
 <div class="tier2">
- <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="alignLeft longtext">
+ <h:dataTable id="mcchoices" value="#{itemauthor.currentItem.multipleChoiceAnswers}" var="answer" headerClass="navView longtext">
 <h:column>
 <h:panelGrid columns="2">
 <h:panelGroup>

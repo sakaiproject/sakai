@@ -75,41 +75,41 @@
 </h3>
 <h:messages styleClass="validation" />
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
 <h:message for="namefield" styleClass="validate"/>
  </div>
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
   <h:outputText id="ownerfield"  value="#{questionpool.currentPool.owner}"/>
  </div>
 
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
  </div>
 
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{msg.desc}" />
   <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
  </div>
 
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel for="objfield" value="#{msg.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
  </div>
 
- <div class="shorttext indnt2">
+ <div class="shorttext tier2">
   <h:outputLabel for="keyfield" value="#{msg.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
  </div>
 
 
 <!-- display subpools  -->
-<div class="indnt1">
+<div class="tier1">
 <h4>
-<h:panelGrid width="100%" columns="2" columnClasses="h3text,alignRight">
+<h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfSubpools}"/>
 <h:outputText rendered="#{questionpool.currentPool.numberOfSubpools > 1}" value=" #{msg.subps}"/>
@@ -123,7 +123,7 @@
 </h:commandLink>
 </h:panelGrid>
 </h4>
-<div class="indnt2">
+<div class="tier2">
 <h:panelGrid rendered="#{questionpool.currentPool.numberOfSubpools > 0 }" width="100%" >
 <h:panelGroup>
 <%@ include file="/jsf/questionpool/subpoolsTreeTable.jsp" %>
@@ -135,9 +135,9 @@
 <!-- dispaly questions-->
 
 
- <div class="indnt1">
+ <div class="tier1">
  <h4>
-<h:panelGrid width="100%" columns="2" columnClasses="h3text,alignRight">
+<h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfQuestions}"/>
 <h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}"value=" #{msg.qs}"/>
@@ -150,7 +150,7 @@
 </h:commandLink>
 </h:panelGrid>
 </h4>
-  <div class="indnt2">
+  <div class="tier2">
 <h:panelGrid rendered="#{questionpool.currentPool.numberOfQuestions > 0 }" width="100%">
 <h:panelGroup>
 <%@ include file="/jsf/questionpool/questionTreeTable.jsp" %>
@@ -169,7 +169,7 @@
   </h:panelGroup>
   </h:panelGrid>
 
-<div class="indnt1">
+<div class="tier1">
 <!-- for normal pool operations -->
   <h:commandButton accesskey="#{msg.a_update}" id="submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
         value="#{msg.update}">
