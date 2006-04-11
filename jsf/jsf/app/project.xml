@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Sakai JSF Extensions</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-jsf-app</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+	<package>org.sakaiproject</package>
+
+	<properties>
+		<!-- build as a jar -->
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-web</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jsf</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>1.1.01</version>
+		</dependency>
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4-20040521</version>
+		</dependency>
+
+		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${sakai.spring.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src</directory>
+				<includes>
+					<include>META-INF/*.tld</include>
+					<include>META-INF/*.xml</include>
+				</includes>
+			</resource>
+
+		</resources>
+
+	</build>
+
+</project>

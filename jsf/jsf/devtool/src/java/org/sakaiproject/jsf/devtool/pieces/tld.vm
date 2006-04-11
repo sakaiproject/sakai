@@ -1,0 +1,33 @@
+  <tag>
+    <name>${tag}</name>
+    <tag-class>${tagClass}</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+      <![CDATA[
+        $!description
+      ]]>
+    </description>
+
+#foreach ($attr in $attrs)
+    <attribute>
+      <name>${attr}</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      #if ($attrdescriptions.getProperty($attr))
+          $attrdescriptions.getProperty($attr)
+      #else
+           Description
+      #end
+      </description>
+    </attribute>
+#end
+    <example>
+    <![CDATA[
+     $!example
+    ]]>
+    </example>
+  </tag>
+
+
+  
