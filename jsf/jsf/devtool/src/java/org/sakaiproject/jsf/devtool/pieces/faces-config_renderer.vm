@@ -1,0 +1,9 @@
+
+
+    <renderer>
+      <component-family>${componentFamily}</component-family>
+      <renderer-type>${rendererType}</renderer-type>
+      <renderer-class>${rendererClass}</renderer-class>
+    </renderer>
+    
+    

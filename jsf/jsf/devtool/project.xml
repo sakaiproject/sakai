@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Sakai JSF DevTools</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-jsf-devtool</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>University of Michigan</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+	<description>
+		This is the place for JSF developer tools.  This is not 
+		for end-user developers, rather, this is for the developers of 
+		Sakai JSF to store tools (and for now documentation) that helps
+		them create Sakai JSF.
+	</description>
+	<properties>
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>velocity</groupId>
+			<artifactId>velocity-dep</artifactId>
+			<version>1.3.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src</directory>
+				<includes>
+					<include>META-INF/*.tld</include>
+					<include>META-INF/*.xml</include>
+				</includes>
+			</resource>
+
+		</resources>
+
+	</build>
+
+</project>

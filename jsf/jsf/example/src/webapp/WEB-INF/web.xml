@@ -1,0 +1,253 @@
+<?xml version="1.0"?>
+
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <display-name>sakai-jsf-example</display-name>
+    <description>Example Sakai 2.0 JSF Widgets Webapp</description>
+
+    <!-- MyFaces JSF - Listener, that does all the startup work (configuration, init). -->
+    <!-- (Comment this out for Sun JSF) -->
+    <listener>
+        <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+    </listener>
+	
+	<!-- Listener which registers Sakai tools -->
+	<!-- 
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+    -->
+   
+
+    <!-- Sakai request filter, mapped to anything that goes to the faces servlet -->
+	<!-- You can set upload.enabled for Sakai to handle file uploads, or upload.enabled=false and use a custom non-Sakai filter -->
+	<filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <init-param>
+        	<param-name>upload.enabled</param-name>
+        	<param-value>true</param-value>
+        </init-param>
+        <init-param>
+        	<param-name>http.session</param-name>
+        	<param-value>container</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+    
+    
+	<!-- Sakai JSF Tool Servlet -->
+	<!-- 
+    <servlet>
+        <servlet-name>sakai.sample.jsf.widgets-2</servlet-name>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>index</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup> 1 </load-on-startup>
+    </servlet>
+    -->
+    <jsp-config>
+        <!--
+	      Prelude and coda for standalone web application.
+	      To eliminate "head" and "body" tags, making the application output suitable
+	      as a portlet or for embedding, replace prelude with "link" tags
+	      for any required CSS or JavaScript files and remove the coda.
+        -->
+	    <jsp-property-group>
+          <url-pattern>*.jsp</url-pattern>
+          <include-prelude>/include/head.inc</include-prelude>
+          <include-coda>/include/foot.inc</include-coda>
+        </jsp-property-group>
+    </jsp-config>
+
+    <!-- Faces Servlet -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup> 2 </load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>View Source Servlet</servlet-name>
+        <servlet-class>example.ViewSourceServlet</servlet-class>
+    </servlet>
+    
+    <!-- Faces Servlet Mapping -->
+    <!--
+
+         This mapping identifies a jsp page as having JSF content.  If a
+         request comes to the server for foo.jsf, the container will
+         send the request to the FacesServlet, which will expect a
+         corresponding foo.jsp page to exist containing the content.
+
+    -->
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.faces</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>View Source Servlet</servlet-name>
+        <url-pattern>*.source</url-pattern>
+    </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.jsf</welcome-file>
+  </welcome-file-list>
+
+  <!--  Boiler-plate JSF configuration below -->
+    <!-- 
+    <context-param>
+        <param-name>javax.faces.CONFIG_FILES</param-name>
+        <param-value>
+            /WEB-INF/examples-config.xml
+        </param-value>
+        <description>
+            Comma separated list of URIs of (additional) faces config files.
+            (e.g. /WEB-INF/my-config.xml)
+            See JSF 1.0 PRD2, 10.3.2
+        </description>
+    </context-param>
+    -->
+    
+    <context-param>
+        <description>
+            State saving method: "client" or "server" (= default)
+            See JSF Specification 2.5.2
+        </description>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
+            This parameter tells MyFaces if javascript code should be allowed in the
+            rendered HTML output.
+            If javascript is allowed, command_link anchors will have javascript code
+            that submits the corresponding form.
+            If javascript is not allowed, the state saving info and nested parameters
+            will be added as url parameters.
+            Default: "true"
+        </description>
+        <param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <context-param>
+        <description>
+            This parameter tells MyFaces if javascript code should be allowed in the
+            rendered HTML output.
+            If javascript is allowed, command_link anchors will have javascript code
+            that submits the corresponding form.
+            If javascript is not allowed, the state saving info and nested parameters
+            will be added as url parameters.
+            Default: "false"
+
+            Setting this param to true should be combined with STATE_SAVING_METHOD "server" for
+            best results.
+
+            This is an EXPERIMENTAL feature. You also have to enable the detector filter/filter mapping below to get
+            JavaScript detection working.
+        </description>
+        <param-name>org.apache.myfaces.DETECT_JAVASCRIPT</param-name>
+        <param-value>false</param-value>
+    </context-param>
+
+    <context-param>
+        <description>
+            If true, rendered HTML code will be formatted, so that it is "human readable".
+            i.e. additional line separators and whitespace will be written, that do not
+            influence the HTML code.
+            Default: "true"
+        </description>
+        <param-name>org.apache.myfaces.PRETTY_HTML</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <context-param>
+       <description>
+            If true, a javascript function will be rendered that is able to restore the
+            former vertical scroll on every request. Convenient feature if you have pages
+            with long lists and you do not want the browser page to always jump to the top
+            if you trigger a link or button action that stays on the same page.
+            Default: "false"
+       </description>
+       <param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
+        <param-value>true</param-value>
+     </context-param>
+
+
+
+    <!-- MyFaces custom file upload filter  - usable with the Sakai JSF inputFileUpload tag! -->
+    <!-- Extensions Filter -->
+	<!--
+    <filter>
+        <filter-name>extensionsFilter</filter-name>
+        <filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class>
+        <init-param>
+            <param-name>uploadMaxFileSize</param-name>
+            <param-value>1m</param-value>
+            <description>Set the size limit for uploaded files.
+                Format: 10 - 10 bytes
+                        10k - 10 KB
+                        10m - 10 MB
+                        1g - 1 GB
+            </description>
+        </init-param>
+        <init-param>
+            <param-name>uploadThresholdSize</param-name>
+            <param-value>100k</param-value>
+            <description>Set the threshold size - files
+                    below this limit are stored in memory, files above
+                    this limit are stored on disk.
+
+                Format: 10 - 10 bytes
+                        10k - 10 KB
+                        10m - 10 MB
+                        1g - 1 GB
+            </description>
+        </init-param>
+        <init-param>
+            <param-name>uploadRepositoryPath</param-name>
+            <param-value>/temp</param-value>
+            <description>Set the path where the intermediary files will be stored.
+            </description>
+        </init-param>
+    </filter>
+
+
+     <filter-mapping>
+        <filter-name>extensionsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
+	-->
+	
+</web-app>

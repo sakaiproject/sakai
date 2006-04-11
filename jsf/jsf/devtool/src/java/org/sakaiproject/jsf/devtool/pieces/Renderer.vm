@@ -1,0 +1,154 @@
+/**********************************************************************************
+* $URL$
+* $Id$
+***********************************************************************************
+*
+* Copyright (c) 2003, 2004 The Regents of the University of Michigan, Trustees of Indiana University,
+*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* 
+* Licensed under the Educational Community License Version 1.0 (the "License");
+* By obtaining, using and/or copying this Original Work, you agree that you have read,
+* understand, and will comply with the terms and conditions of the Educational Community License.
+* You may obtain a copy of the License at:
+* 
+*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+**********************************************************************************/
+
+package org.sakaiproject.jsf.renderer;
+
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import javax.faces.component.EditableValueHolder;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.context.ResponseWriter;
+import javax.faces.render.Renderer;
+
+import org.sakaiproject.jsf.util.RendererUtil;
+
+/** 
+ * Auto-generated renderer for ${tag} tag.
+ */
+public class ${rendererClassName} extends Renderer
+{	
+	
+	public void encodeBegin(FacesContext context, UIComponent component) throws IOException
+	{
+		if (!component.isRendered()) return;
+		
+		// get state
+		ResponseWriter out = context.getResponseWriter();
+		String clientId = component.getClientId(context);
+		
+##		#foreach( $attr in $attrs )
+##		String ${attr) = getString(context, component, "${attr}", "");
+##		#end
+		
+		// Output HTML
+		#foreach ($line in $rendered )
+		out.write("${line}");
+		#end
+	}
+	
+	public void encodeEnd(FacesContext context, UIComponent component) throws IOException
+	{
+	
+	}
+	
+	public void decode(FacesContext context, UIComponent component)
+	{
+		Map req = context.getExternalContext().getRequestParameterMap();
+		
+		// TODO: write decode()!
+	}
+	
+	/** 
+	 * Retrieve an integer value from the component (or widget's
+	 * resource bundle if not set on the component).
+	 */
+	private static int getInt(FacesContext context, UIComponent component, String attrName, int def)
+	{
+		Object ret = getFromAttributeOrBundle(context, component, attrName);
+		
+		if (ret instanceof Integer) return ((Integer)ret).intValue();
+		if (ret instanceof String) return Integer.valueOf((String) ret).intValue();
+		return def;
+	}
+	
+	/** 
+	 * Retrieve an boolean value from the component (or widget's
+	 * resource bundle if not set on the component).
+	 */
+	private static boolean getBoolean(FacesContext context, UIComponent component, String attrName, boolean def)
+	{
+		Object ret = getFromAttributeOrBundle(context, component, attrName);
+		if (ret instanceof Boolean) return ((Boolean)ret).booleanValue();
+		if (ret instanceof String) return Boolean.valueOf((String) ret).booleanValue();
+		return def;
+	}
+	
+	/** 
+	 * Get a named attribute from the component or the widget resource bundle.
+	 * @return The attribute value if it exists in the given component,
+	 * or the attribute value from this widget's resource bundle, or 
+	 * the default if none of those exists.
+	 */
+	private static String getString(FacesContext context, UIComponent component, String attrName, String def)
+	{
+		String ret = (String) getFromAttributeOrBundle(context, component, attrName);
+		if (ret != null) return ret;
+		
+		// otherwise, return the default
+		return def;
+	}
+		
+	/**
+	 * Return the attribute value; whether from plain attributes,
+	 * ValueBinding, or the widget resource bundle.
+	 */
+	private static Object getFromAttributeOrBundle(FacesContext context, UIComponent component, String name)
+	{
+		// first try the attributes and value bindings
+		Object ret = RendererUtil.getAttribute(context, component, name);
+		if (ret != null) return ret;
+		
+		// next try the widget resource bundle
+		String str = getFromBundle(context, "${tag}_"+name);
+		if (str != null && str.length() > 0) return str;
+		
+		return null;
+	}
+	
+	//private static final String BUNDLE_NAME = "org.sakaiproject.jsf.bundle.${tag}";
+	private static final String BUNDLE_NAME = "org.sakaiproject.jsf.Configuration";
+	
+	/** Return a string gotten from this widget's resource bundle */ 
+	private static String getFromBundle(FacesContext context, String name)
+	{
+		try
+		{
+			return ResourceBundle.getBundle(BUNDLE_NAME, RendererUtil.getLocale(context)).getString(name);
+		}
+		catch (MissingResourceException e)
+		{
+			// ignore this since there may not be a default in the bundle
+			return null;
+		}
+	}
+}
+
+/**********************************************************************************
+* $URL$
+* $Id$
+**********************************************************************************/

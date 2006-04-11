@@ -1,0 +1,7 @@
+
+  <component>
+    <component-type>${componentType}</component-type>
+    <component-class>${componentClass}</component-class>
+  </component>
+
+    

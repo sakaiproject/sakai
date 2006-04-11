@@ -1,0 +1,96 @@
+# A list of attribute descriptions, used to populate the tag library definition file
+# (sakai_jsf.tld)
+
+accept
+				Pass-through attribute. Will be output as-is on the
+				underlying input element.
+
+accesskey 
+          Access key that, when pressed, transfers focus
+          to this element.
+
+action
+				MethodBinding representing the application action to
+				invoke when this component is activated by the user. The
+				expression must evaluate to a public method that takes
+				no parameters, and returns a String (the logical
+				outcome) which is passed to the NavigationHandler for
+				this application.
+
+align
+				Pass-through attribute. Will be output as-is on the
+				underlying input element.
+          
+binding 
+          Component reference expression for this component.
+
+id 
+          Component id of this component.
+
+disabled
+				Flag indicating that this element must never receive
+				focus or be included in a subsequent submit.
+
+immediate 
+          Flag indicating that this component's value must be
+          converted and validated immediately (that is, during
+          Apply Request Values phase), rather than waiting
+          until Process Validations phase.
+
+lang
+				Code describing the language used in the generated
+				markup for this component.
+
+maxlength
+				Pass-through attribute. Will be output as-is on the
+				underlying input element.
+
+readonly
+				Flag indicating that this component will prohibit
+				changes by the user. The element may receive focus
+				unless it has also been disabled.
+
+style
+				CSS style(s) to be applied to the underlying textarea
+				when it is rendered.
+
+styleClass
+				Space-separated list of CSS style class(es) to be
+				applied when the underlying textarea is rendered. This
+				value must be passed through as the "class" attribute on
+				generated markup.
+
+tabindex
+				Position of the underlying textarea element in the
+				tabbing order for the current document. This value must
+				be an integer between 0 and 32767.
+
+
+rendered 
+          Flag indicating whether or not this component should be rendered
+          (during Render Response Phase), or processed on any subsequent
+          form submit.
+          
+required 
+          Flag indicating that the user is required to provide a submitted
+          value for this input component.
+          
+          
+valueChangeListener 
+          MethodBinding representing a value change listener method that will be
+          notified when a new value has been set for this input component.  The
+          expression must evaluate to a public method that takes a
+          ValueChangeEvent parameter, with a return type of void.
+         
+validator
+				MethodBinding representing a validator method that will
+				be called during Process Validations to perform
+				correctness checks on the value of this component. The
+				expression must evaluate to a public method that takes
+				FacesContext, UIComponent, and Object parameters, with a
+				return type of void.
+
+value
+				The current value of this component.
+         
+# FOOTER - leave this here!
