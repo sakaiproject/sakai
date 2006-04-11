@@ -65,8 +65,6 @@ import org.springframework.orm.hibernate.HibernateCallback;
 public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
     private static final Log log = LogFactory.getLog(GradebookServiceHibernateImpl.class);
 
-    private GradebookManager gradebookManager;
-    private GradeManager gradeManager;
     private Authz authz;
 
 	public void addGradebook(final String uid, final String name) {
@@ -115,7 +113,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void deleteGradebook(final String uid)
 		throws GradebookNotFoundException {
         if (log.isInfoEnabled()) log.info("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
-        final Long gradebookId = gradebookManager.getGradebook(uid).getId();
+        final Long gradebookId = getGradebook(uid).getId();
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// This should be much more efficient in Hibernate 3, which
@@ -181,8 +179,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new ConflictingAssignmentNameException("An assignment with that name already exists in gradebook uid=" + gradebookUid);
         }
 
-
-
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Ensure that the externalId is unique within this gradebook
@@ -196,7 +192,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				// Get the gradebook
-				Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+				Gradebook gradebook = getGradebook(gradebookUid);
 
 				// Create the external assignment
 				Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
@@ -236,8 +232,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new RuntimeException("ExternalId, and title must not be empty");
         }
 
-
-
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 boolean updateCourseGradeSortScore = false;
@@ -269,7 +263,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             final String externalId) throws GradebookNotFoundException, AssessmentNotFoundException {
 
         // Make sure the gradebook uid is valid.  This throws a gradebook not found exception.
-        Gradebook gb = gradebookManager.getGradebook(gradebookUid);
+        Gradebook gb = getGradebook(gradebookUid);
 
         // Get the external assignment
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
@@ -307,7 +301,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
     private Assignment getExternalAssignment(final String gradebookUid, final String externalId) throws GradebookNotFoundException {
-        final Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+        final Gradebook gradebook = getGradebook(gradebookUid);
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -385,9 +379,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	public List getAssignments(String gradebookUid)
 		throws GradebookNotFoundException {
-		Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
+		final Long gradebookId = getGradebook(gradebookUid).getId();
+
+        List internalAssignments = (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                return getAssignments(gradebookId, session);
+            }
+        });
+
 		List assignments = new ArrayList();
-		List internalAssignments = gradeManager.getAssignments(gradebook.getId());
 		for (Iterator iter = internalAssignments.iterator(); iter.hasNext(); ) {
 			Assignment assignment = (Assignment)iter.next();
 			assignments.add(new AssignmentImpl(assignment));
@@ -470,18 +470,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentName=" + assignmentName + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
 
-	public GradebookManager getGradebookManager() {
-		return gradebookManager;
-	}
-	public void setGradebookManager(GradebookManager gradebookManager) {
-		this.gradebookManager = gradebookManager;
-	}
-	public GradeManager getGradeManager() {
-		return gradeManager;
-	}
-	public void setGradeManager(GradeManager gradeManager) {
-		this.gradeManager = gradeManager;
-	}
     public Authz getAuthz() {
         return authz;
     }

@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -56,6 +57,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
+
+    public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
+    	Gradebook gradebook = null;
+    	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
+    		uid, Hibernate.STRING);
+		if (list.size() == 1) {
+			return (Gradebook)list.get(0);
+		} else {
+            throw new GradebookNotFoundException("Could not find gradebook uid=" + uid);
+        }
+    }
 
     protected List getAssignments(Long gradebookId, Session session) throws HibernateException {
         String hql = "from Assignment as asn where asn.gradebook.id=? and asn.removed=false";

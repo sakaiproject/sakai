@@ -33,7 +33,6 @@ import net.sf.hibernate.StaleObjectStateException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -53,17 +52,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private static final Log log = LogFactory.getLog(GradebookManagerHibernateImpl.class);
 
     private GradeManager gradeManager;
-
-    public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
-    	Gradebook gradebook = null;
-    	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
-    		uid, Hibernate.STRING);
-		if (list.size() == 1) {
-			return (Gradebook)list.get(0);
-		} else {
-            throw new GradebookNotFoundException("Could not find gradebook uid=" + uid);
-        }
-    }
 
 	public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {

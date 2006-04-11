@@ -12,12 +12,6 @@
 		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
 		name="org.sakaiproject.service.gradebook.GradebookService">
 		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
-		<property name="gradebookManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager" />
-		</property>
-		<property name="gradeManager">
-			<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
-		</property>
 		<property name="sectionAwareness">
 			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
 		</property>
