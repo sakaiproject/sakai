@@ -114,6 +114,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -703,9 +706,49 @@ public class ResourcesAction
 
 		try
 		{
-			contentService.checkCollection (collectionId);
-			context.put ("collectionFlag", Boolean.TRUE.toString());
-
+			try
+			{
+				contentService.checkCollection (collectionId);
+				context.put ("collectionFlag", Boolean.TRUE.toString());
+			}
+			catch(IdUnusedException ex)
+			{
+				Log.error("chef", this + "IdUnusedException: " + collectionId);
+				try
+				{
+					ContentCollectionEdit coll = contentService.addCollection(collectionId);
+					contentService.commitCollection(coll);
+				}
+				catch(IdUsedException inner)
+				{
+					// how can this happen??
+					Log.error("chef", this + "IdUsedException: " + collectionId);
+					throw ex;
+				}
+				catch(IdInvalidException inner)
+				{
+					Log.error("chef", this + "IdInvalidException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+				catch(InconsistentException inner)
+				{
+					Log.error("chef", this + "InconsistentException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+			}
+			catch(TypeException ex)
+			{
+				Log.error("chef", this + "TypeException.");
+				throw ex;				
+			}
+			catch(PermissionException ex)
+			{
+				Log.error("chef", this + "PermissionException.");
+				throw ex;
+			}
+			
 			String copyFlag = (String) state.getAttribute (STATE_COPY_FLAG);
 			if (copyFlag.equals (Boolean.TRUE.toString()))
 			{
@@ -727,6 +770,7 @@ public class ResourcesAction
 			}
 
 			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			
 			ContentCollection coll = contentService.getCollection(collectionId);
 			expandedCollections.put(collectionId, coll);
 
@@ -1822,6 +1866,9 @@ public class ResourcesAction
 		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		context.put("webdav_instructions" ,webdav_instructions);
 
+		// TODO: get browser id from somewhere.
+		//Session session = SessionManager.getCurrentSession();
+		//String browserId = session.;
 		String browserID = UsageSessionService.getSession().getBrowserId();
 		if(browserID.equals(UsageSession.WIN_IE))
 		{
