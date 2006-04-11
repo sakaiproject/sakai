@@ -289,7 +289,7 @@ public class SettingsDeliveryBean
 
   public String getBgcolor()
   {
-    return checkColor(bgcolor,"bgcolor=#F0F0F0");
+    return checkColor(bgcolor,"bgcolor=transparent");
   }
 
   public void setBgcolor(String color)
