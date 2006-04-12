@@ -20,4 +20,5 @@ content			https://source.sakaiproject.org/svn/content/trunk
 metaobj			https://source.sakaiproject.org/svn/metaobj/trunk
 calendar		https://source.sakaiproject.org/svn/calendar/trunk
 portal			https://source.sakaiproject.org/svn/portal/trunk
+jsf				https://source.sakaiproject.org/svn/jsf/trunk
 test-harness	https://source.sakaiproject.org/svn/test-harness/trunk
