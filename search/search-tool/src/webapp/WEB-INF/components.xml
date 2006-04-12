@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <!-- Logger for Search  -->
+    <bean id="search-logger"
+        parent="org.sakaiproject.service.framework.log.Logger">
+    </bean>
+    
+    <bean id="search-searchBeanFactory"
+        class="org.sakaiproject.search.tool.SearchBeanFactoryImpl">
+        <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService"/></property>
+        <property name="siteService" ><ref bean="org.sakaiproject.service.legacy.site.SiteService"/></property>
+        <property name="portalService" ><ref bean="org.sakaiproject.service.framework.portal.PortalService"/></property>           
+    </bean>
+</beans>

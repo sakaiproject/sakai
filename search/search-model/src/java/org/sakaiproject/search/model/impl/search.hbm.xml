@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+  "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+  <!-- 
+      /**********************************************************************************
+      *
+      * $Header$
+      *
+      ***********************************************************************************
+      *
+      * Copyright (c) 2005 University of Cambridge
+      * 
+      * Licensed under the Educational Community License Version 1.0 (the "License");
+      * By obtaining, using and/or copying this Original Work, you agree that you have read,
+      * understand, and will comply with the terms and conditions of the Educational Community License.
+      * You may obtain a copy of the License at:
+      * 
+      *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+      * 
+      * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+      * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+      * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+      * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+      *
+      **********************************************************************************/
+  -->
+  <hibernate-mapping package="org.sakaiproject.search.model.impl">
+      
+      <class name="org.sakaiproject.search.model.impl.SearchBuilderItemImpl"
+          table="searchbuilderitem" 
+          optimistic-lock="version">
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <!-- the last update to the record used for optimistic locks -->    
+          <version name="version" type="timestamp" unsaved-value="null"/>
+          <!-- this is the resource string -->
+          <property 
+              name="name" 
+              column="name" 
+              not-null="true" 
+              index="true" 
+              type="string" 
+              unique="true" 
+              length="255" />
+          <!-- the action to perform add, update, delete -->
+          <property name="searchaction" 
+              column="searchaction" 
+              type="int" />
+          <!-- the state of the record, pending, completed -->
+          <property name="searchstate" 
+              column="searchstate" 
+              type="int" />
+      </class>
+      
+      <class name="org.sakaiproject.search.model.impl.SearchWriterLockImpl"
+          table="searchwriterlock" 
+          optimistic-lock="version">
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <!-- the last update to the record used for optimistic locks -->    
+          <version name="version" type="timestamp" unsaved-value="null"/>
+          
+          <!-- this is the lock name -->
+          <property 
+              name="lockkey" 
+              column="lockkey" 
+              not-null="true" 
+              index="true" 
+              type="string" 
+              unique="true" 
+              length="64" />
+          <!-- this is uuid of the node that holds the lock -->
+          <property name="nodename" 
+              column="nodename"
+              type="string"
+              length="64" />
+      </class>
+          
+      
+  </hibernate-mapping>
+  
