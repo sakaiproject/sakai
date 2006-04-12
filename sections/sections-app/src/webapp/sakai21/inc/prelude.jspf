@@ -1,0 +1,23 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/extensions" prefix="x"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<f:loadBundle basename="org.sakaiproject.tool.section.bundle.Messages" var="msgs"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
+		<title>Sections</title>
+		<%= request.getAttribute("sakai.html.head.css.base") %>
+		<!-- Insert local css here -->
+		<link href="${pageContext.request.contextPath}/css/sections.css" type="text/css" rel="stylesheet" media="all" />
+		<%= request.getAttribute("sakai.html.head.css.skin") %>
+		<%= request.getAttribute("sakai.html.head.js") %>
+		<!-- Insert local js here -->
+		<script
+			language="JavaScript"
+			type="text/javascript"
+			src="${pageContext.request.contextPath}/js/sections.js">
+		</script>
+	</head>
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepMemberForm()">

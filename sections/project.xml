@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+    <extend>../master/project.xml</extend>
+	<name>Sakai Sections Project</name>
+	<groupId>sakaiproject</groupId>
+    <id>sakai-sections</id>
+	<currentVersion>${sakai.version}</currentVersion>
+
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+
+	<dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+	</dependencies>
+
+	<developers>
+		<developer>
+			<id>jholtzman</id>
+			<name>Josh Holtzman</name>
+			<email>jholtzman@berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Lead Developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+		<developer>
+			<id>oheyer</id>
+			<name>Oliver Heyer</name>
+			<email>oliver@media.berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Project Manager</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+		<developer>
+			<id>rdavis</id>
+			<name>Ray Davis</name>
+			<email>ray@media.berkeley.edu</email>
+			<organization>UC Berkeley</organization>
+			<organizationUrl>http://media.berkeley.edy</organizationUrl>
+			<roles>
+				<role>Developer</role>
+			</roles>
+			<timezone>-8</timezone>
+		</developer>
+		<developer>
+			<id>dogle</id>
+			<name>Daphne Ogle</name>
+			<email>dogle@umich.edu</email>
+			<organization>University of Michigan</organization>
+			<organizationUrl>http://www.umich.edu</organizationUrl>
+			<roles>
+				<role>UI Designer</role>
+			</roles>
+			<timezone>-5</timezone>
+		</developer>
+	</developers>
+
+	<reports/>
+
+	<build>
+		<nagEmailAddress>jholtzman@berkeley.edu</nagEmailAddress>
+	</build>
+</project>

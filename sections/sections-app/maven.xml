@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+The build uses the sakai 2.1-based service layer by default.  To use another
+service implementation, specify -Dmode=<service layer name>.
+
+service layer names include 'standalone' and 'sakai20'.
+
+-->
+
+<project default="sakai:build"
+	xmlns:j="jelly:core"
+	xmlns:ant="jelly:ant"
+	xmlns:maven="jelly:maven"
+	xmlns:u="jelly:util">
+
+	<preGoal name="war:webapp">
+		<attainGoal name="war:clean"/>
+
+		<!-- Files common to both standalone and embedded builds -->
+		<ant:copy todir="${maven.war.webapp.dir}">
+			<ant:fileset dir="${maven.src.dir}/webapp/common" />
+		</ant:copy>
+
+		<!-- Copy build specific files -->
+			<j:if test="${mode.equals('standalone')}">
+				<ant:echo message="Copying standalone resources into webapp"/>
+
+				<!-- Standalone webapp files -->
+				<ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
+					<ant:fileset dir="${maven.src.dir}/webapp/standalone/">
+						<ant:include name="**/*"/>
+					</ant:fileset>
+				</ant:copy>
+
+				<!-- Standalone dependencies -->
+				<j:forEach var="lib" items="${pom.artifacts}">
+					<j:set var="dep" value="${lib.dependency}"/>
+					<j:if test="${dep.getProperty('war.bundle')!='false'}">
+						<ant:copy todir="${maven.war.webapp.dir}/WEB-INF/lib" file="${lib.path}" overwrite="true" />
+					</j:if>
+				</j:forEach>
+
+				<!-- Standalone webapp resources -->
+                <ant:echo message="Copying ${basedir}/log4j.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
+				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
+                <ant:echo message="Copying ${basedir}/ehcache.xml to ${maven.war.webapp.dir}/WEB-INF/classes"/>
+                <ant:copy file="${basedir}/ehcache.xml" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+
+				<ant:echo message="Copying ${hibernate.properties.dir}/hibernate.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
+				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+			</j:if>
+            
+            <j:if test="${mode.equals('sakai21') || empty(mode)}">
+                <ant:echo message="Copying sakai 2.1 dependent resources into webapp"/>
+
+                <ant:copy todir="${maven.war.webapp.dir}" overwrite="true">
+                    <ant:fileset dir="${maven.src.dir}/webapp/sakai21/">
+                        <ant:include name="**/*"/>
+                    </ant:fileset>
+                </ant:copy>
+            </j:if>
+	</preGoal>
+
+		<!-- Copy the war into the tomcat webapps dir -->
+	<postGoal name="war:war">
+		<j:if test="${mode.equals('standalone')}">
+			<ant:echo message="Copying standalone webapp to deployment directory '${standalone.deploy.dir}'"/>
+			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}"/>
+		</j:if>
+	</postGoal>
+
+	<!-- Allow different Hibernate setups for testing. -->
+	<postGoal name="test:test-resources">
+		<j:choose>
+			<j:when test="${mem.equals('false')}">
+				<!-- Use the main build's Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${hibernate.properties.dir}"/>
+			</j:when>
+			<j:otherwise>
+				<!-- Use the default in-memory Hibernate settings. -->
+				<j:set var="maven.test.hibernate.properties.dir" value="${basedir}/src/test"/>
+			</j:otherwise>
+		</j:choose>
+		<ant:echo message="Copying ${maven.test.hibernate.properties.dir}/hibernate.properties to ${maven.test.dest}"/>
+		<ant:copy file="${maven.test.hibernate.properties.dir}/hibernate.properties" todir="${maven.test.dest}" overwrite="true"/>
+	</postGoal>
+
+
+    <goal name="loadData">
+        <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+        <ant:echo message="Remember to call this goal with -Dmode=standalone to load standalone data!"/>
+
+        <attainGoal name="schema"/>
+
+        <j:set var="testcase" value="org.sakaiproject.test.section.dataload.DataLoadTest" />
+        <attainGoal name="test:single" />
+    </goal>
+
+    <goal name="loadGradebookData">
+        <ant:echo message="Remember to call this goal with -Dmem=false to load data into your configured db!"/>
+        <ant:echo message="Remember to call this goal with -Dmode=standalone to load standalone data!"/>
+
+        <attainGoal name="schema"/>
+
+        <j:set var="testcase" value="org.sakaiproject.test.section.dataload.GradebookDataLoader" />
+        <attainGoal name="test:single" />
+    </goal>
+
+    <goal name="schema">
+        <j:choose>
+            <j:when test="${mem.equals('false')}">
+                <!-- Use the main build's Hibernate settings. -->
+                <j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties"/>
+            </j:when>
+            <j:otherwise>
+                <!-- Use the default in-memory Hibernate settings. -->
+                <j:set var="maven.hibernate.properties" value="${basedir}/src/test/hibernate.properties"/>
+            </j:otherwise>
+        </j:choose>
+        
+        <!--  Just output to a text file? -->
+        <j:if test="${text.equals('true')}">
+            <j:set var="maven.hibernate.text" value="on"/>
+        </j:if>
+        
+        <j:set var="hibernate.hbm2ddl.auto" value="create" />
+        <j:set var="maven.hibernate.delimiter" value=";" />
+        <j:set var="maven.hibernate.quiet" value="false" />
+        <j:if test="${mode.equals('standalone')}">
+            <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/standalone/src/hibernate" />
+        </j:if>
+        <j:if test="${mode.equals('sakai20') || empty(mode)}">
+            <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai20/data-components/src/hibernate/org/sakaiproject/component/section/sakai20" />
+        </j:if>
+        <j:if test="${mode.equals('sakai21')}">
+            <j:set var="maven.hibernate.input.dir" value="${basedir}/../sections-comp-shared/sakai21/data-components/src/hibernate/org/sakaiproject/component/section/sakai21" />
+        </j:if>
+        <j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />
+        <attainGoal name="hibernate:schema-export" />
+    </goal>
+
+</project>

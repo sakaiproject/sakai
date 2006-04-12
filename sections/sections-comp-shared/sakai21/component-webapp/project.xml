@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../../../master/project.xml</extend>
+    <name>Sakai Sections Components</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-sections-comp-shared-sakai21-web-package</id>
+	<currentVersion>${sakai.version}</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+<!-- Do not deploy this components package yet -->
+<!-- If this is uncommented, you must comment the equivalent in ../../sakai20/component-webapp -->
+
+	<properties>
+		<deploy.type>components</deploy.type>
+	</properties>
+
+    <dependencies>
+    	<dependency>
+        	<groupId>sakaiproject</groupId>
+	        <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
+			<version>${sakai.version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+    	</dependency>
+    </dependencies>
+
+    <build/>
+
+</project>

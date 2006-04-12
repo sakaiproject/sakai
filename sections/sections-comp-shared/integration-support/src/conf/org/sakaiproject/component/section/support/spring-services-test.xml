@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="org.sakaiproject.api.section.facade.manager.Context"
+        class="org.sakaiproject.component.section.facade.impl.standalone.ContextTestImpl"/>
+    <bean id="org.sakaiproject.api.section.facade.manager.Authn"
+        class="org.sakaiproject.component.section.facade.impl.standalone.AuthnTestImpl"/>
+
+    <bean id="org.sakaiproject.api.section.facade.manager.Authz"
+        class="org.sakaiproject.component.section.facade.impl.standalone.AuthzStandaloneImpl">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.common.uuid.UuidManager"
+        class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
+</beans>

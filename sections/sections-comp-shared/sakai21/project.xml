@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <extend>${basedir}/../project.xml</extend>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Sections Shared Components: Sakai 2.1</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-sections-comp-shared-sakai21</id>
+    <currentVersion>${sakai.version}</currentVersion>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+
+    <properties>
+        <deploy.type>jar</deploy.type>
+    </properties>
+
+    <dependencies>
+        
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-comp-shared-data-sakai21</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <!-- Sakai 2.1 Dependencies -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-legacy-service</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-session</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-session-component</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-function</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <reports/>
+
+    <build>
+        <sourceDirectory>src/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

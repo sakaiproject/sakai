@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Sakai Sectioning Tool">
+  <title>Sakai Sectioning Tool</title>
+  <body>
+
+    <links>
+      <item name="Maven" href="http://maven.apache.org/"/>
+      <item name="Sakai" href="http://www.sakaiproject.org/"/>
+    </links>
+
+    <menu name="Docs">
+      <item name="Specs and Functional Requirements" href="/specs/index.html" />
+      <item name="Sectioning Tool Test Coverage" href="../../sections-app/target/docs/jcoverage/index.html" />
+	</menu>
+
+  </body>
+</project>

@@ -1,0 +1,30 @@
+<x:div styleClass="navIntraTool">
+    <h:commandLink action="overview" immediate="true" rendered="#{viewName ne 'overview'}">
+        <h:outputText value="#{msgs.nav_overview}"/>
+    </h:commandLink>
+    <h:outputText value="#{msgs.nav_overview}" rendered="#{viewName eq 'overview'}" styleClass="currentView" />
+    
+    <h:outputText value=" | "/>
+    
+    <h:panelGroup rendered="#{navMenuBean.sectionManagementEnabled}">
+        <h:commandLink action="addSections" immediate="true" rendered="#{viewName ne 'addSections'}">
+            <h:outputText value="#{msgs.nav_add_sections}"/>
+        </h:commandLink>
+        <h:outputText value="#{msgs.nav_add_sections}" rendered="#{viewName eq 'addSections'}" styleClass="currentView" />
+        
+        <h:outputText value=" | "/>
+    </h:panelGroup>
+    
+    <h:commandLink action="roster" immediate="true" rendered="#{viewName ne 'roster'}">
+        <h:outputText value="#{msgs.nav_roster}"/>
+    </h:commandLink>
+    <h:outputText value="#{msgs.nav_roster}" rendered="#{viewName eq 'roster'}" styleClass="currentView" />
+    
+    
+    <h:outputText value=" | "/>
+
+    <h:commandLink action="options" immediate="true" rendered="#{viewName ne 'options'}">
+        <h:outputText value="#{msgs.nav_options}"/>
+    </h:commandLink>
+    <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" styleClass="currentView" />
+</x:div>
