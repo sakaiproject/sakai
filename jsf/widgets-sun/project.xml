@@ -21,7 +21,7 @@
   </properties>
 
   <dependencies>
-  
+
 	<!-- Sakai plugin -->
 	<dependency>
 		<groupId>sakaiproject</groupId>
@@ -37,7 +37,7 @@
       <url>http://java.sun.com/j2ee/javaserverfaces/</url>
     </dependency>
 
-     
+
     <dependency>
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
@@ -48,15 +48,15 @@
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
-      <version>2.4-20040521</version>
+      <version>2.4</version>
     </dependency>
 
     <dependency>
       <groupId>jspapi</groupId>
       <artifactId>jsp-api</artifactId>
-      <version>2.0-20040521</version>
+      <version>2.0</version>
     </dependency>
-    
+
     <dependency>
 		<groupId>commons-logging</groupId>
 		<artifactId>commons-logging</artifactId>

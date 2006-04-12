@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
