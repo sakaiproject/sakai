@@ -40,8 +40,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.site.Group;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Group;
 
 public class CourseSectionImpl implements CourseSection, Comparable, Serializable {
 

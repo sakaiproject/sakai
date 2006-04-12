@@ -57,7 +57,7 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-tool</artifactId>
+            <artifactId>sakai-tool-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
@@ -78,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-util-web</artifactId>
+            <artifactId>sakai-util</artifactId>
             <version>${sakai.version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
@@ -89,12 +89,12 @@
 		<!-- Uuid generator -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-common-uuid-component</artifactId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-common-uuid-api</artifactId>
+			<artifactId>sakai-util-impl</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 	    <dependency>

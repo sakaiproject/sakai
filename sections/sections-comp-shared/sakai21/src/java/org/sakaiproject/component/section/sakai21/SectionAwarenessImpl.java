@@ -37,24 +37,25 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.function.FunctionManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.api.section.facade.Role;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.entity.EntityManager;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.security.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
-import org.sakaiproject.service.legacy.user.UserDirectoryService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * A sakai 2.1 based implementation of the Section Awareness API, using the
@@ -158,7 +159,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
         		course.getUuid());
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		InstructorRecordImpl record = new InstructorRecordImpl(course, user);
     		membersList.add(record);
@@ -176,7 +177,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
         if(log.isDebugEnabled()) log.debug("Site students size = " + sakaiMembers.size());
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
     		membersList.add(record);
@@ -194,7 +195,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(course, user);
     		membersList.add(record);
@@ -249,10 +250,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
 	 * @return
 	 */
 	private boolean isUserInRole(String userUid, Role role, String authzRef) {
-		org.sakaiproject.service.legacy.user.User user;
+		org.sakaiproject.user.api.User user;
 		try {
 			user = userDirectoryService.getUser(userUid);
-		} catch (IdUnusedException ide) {
+		} catch (UserNotDefinedException ide) {
 			log.error("Could not find user with id " + userUid);
 			return false;
 		}
@@ -356,7 +357,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 
         List membersList = new ArrayList();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+        	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
     		membersList.add(record);
         }
@@ -384,7 +385,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 
         List membersList = new ArrayList();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+        	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
     		membersList.add(record);
         }
@@ -469,7 +470,7 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			CourseSection section = (CourseSection)sectionIter.next();
 			List sectionUsers = securityService.unlockUsers(getLock(role), section.getUuid());
 			for(Iterator userIter = sectionUsers.iterator(); userIter.hasNext();) {
-				org.sakaiproject.service.legacy.user.User user = (org.sakaiproject.service.legacy.user.User)userIter.next();
+				org.sakaiproject.user.api.User user = (org.sakaiproject.user.api.User)userIter.next();
 				sectionedUserUids.add(user.getId());
 			}
 		}

@@ -24,7 +24,7 @@
 
 package org.sakaiproject.component.section.cover;
 
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 
 /**

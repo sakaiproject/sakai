@@ -11,7 +11,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -59,7 +59,7 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 	private CourseManager courseManager;
 	private SectionManager sectionManager;
 	private UserManager userManager;
-	private UuidManager uuidManager;
+	private IdManager uuidManager;
 	
 	public Course createCourse(String siteContext, String title, boolean externallyManaged,
 			boolean selfRegistrationAllowed, boolean selfSwitchingAllowed) {
@@ -171,7 +171,7 @@ public class IntegrationSupportImpl extends HibernateDaoSupport implements Integ
 		this.userManager = userManager;
 	}
 
-	public void setUuidManager(UuidManager uuidManager) {
+	public void setUuidManager(IdManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
 }

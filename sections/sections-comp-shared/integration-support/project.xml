@@ -40,13 +40,13 @@
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-uuid-component</artifactId>
+            <artifactId>sakai-util-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-uuid-api</artifactId>
+            <artifactId>sakai-util-impl</artifactId>
             <version>${sakai.version}</version>
         </dependency>
 

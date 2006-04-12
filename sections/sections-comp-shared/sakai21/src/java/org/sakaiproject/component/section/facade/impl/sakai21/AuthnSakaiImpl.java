@@ -26,9 +26,9 @@ package org.sakaiproject.component.section.facade.impl.sakai21;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.api.section.facade.manager.Authn;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * Uses Sakai's SessionManager to determine the current user's uuid.

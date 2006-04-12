@@ -26,13 +26,14 @@ package org.sakaiproject.component.section.facade.impl.sakai21;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.component.section.sakai21.UserImpl;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class SakaiUtil {
 	private static final Log log = LogFactory.getLog(SakaiUtil.class);
@@ -44,10 +45,10 @@ public class SakaiUtil {
 	 * @return
 	 */
 	public static final User getUserFromSakai(String userUid) {
-		final org.sakaiproject.service.legacy.user.User sakaiUser;
+		final org.sakaiproject.user.api.User sakaiUser;
 		try {
 			sakaiUser = UserDirectoryService.getUser(userUid);
-		} catch (IdUnusedException e) {
+		} catch (UserNotDefinedException e) {
 			log.error("User not found: " + userUid);
 			e.printStackTrace();
 			return null;
@@ -63,7 +64,7 @@ public class SakaiUtil {
 	 * 
 	 * @return
 	 */
-	public static final User convertUser(final org.sakaiproject.service.legacy.user.User sakaiUser) {
+	public static final User convertUser(final org.sakaiproject.user.api.User sakaiUser) {
 		UserImpl user = new UserImpl(sakaiUser.getId(), sakaiUser.getDisplayName(),
 				sakaiUser.getSortName(), sakaiUser.getId());
 		return user;

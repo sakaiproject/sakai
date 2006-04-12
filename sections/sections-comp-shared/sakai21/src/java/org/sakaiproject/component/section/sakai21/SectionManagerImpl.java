@@ -39,7 +39,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.session.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -54,19 +54,22 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.facade.impl.sakai21.SakaiUtil;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.entity.EntityManager;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.event.EventTrackingService;
-import org.sakaiproject.service.legacy.security.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
-import org.sakaiproject.service.legacy.user.UserDirectoryService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * A sakai 2.1 based implementation of the Section Management API, using the
@@ -169,7 +172,7 @@ public class SectionManagerImpl implements SectionManager {
         List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		InstructorRecordImpl record = new InstructorRecordImpl(course, user);
     		membersList.add(record);
@@ -190,7 +193,7 @@ public class SectionManagerImpl implements SectionManager {
         List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(course, user);
     		membersList.add(record);
@@ -211,7 +214,7 @@ public class SectionManagerImpl implements SectionManager {
         List sakaiMembers = userDirectoryService.getUsers(sakaiUserIds);
         List membersList = new ArrayList();
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
-        	org.sakaiproject.service.legacy.user.User sakaiUser = (org.sakaiproject.service.legacy.user.User)iter.next();
+        	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
     		membersList.add(record);
@@ -240,7 +243,7 @@ public class SectionManagerImpl implements SectionManager {
 
         List membersList = new ArrayList();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+        	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
     		membersList.add(record);
         }
@@ -270,7 +273,7 @@ public class SectionManagerImpl implements SectionManager {
 
         List membersList = new ArrayList();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
-        	User user = SakaiUtil.convertUser((org.sakaiproject.service.legacy.user.User) iter.next());
+        	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
     		EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
     		membersList.add(record);
         }
@@ -386,14 +389,14 @@ public class SectionManagerImpl implements SectionManager {
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
 			postEvent("section.join", sectionUuid);
-		} catch (PermissionException e) {
+		} catch (AuthzPermissionException e) {
 			log.error("access denied while attempting to join authz group: ", e);
 			return null;
-		} catch (IdUnusedException e) {
+		} catch (GroupNotDefinedException e) {
 			log.error("can not find group while attempting to join authz group: ", e);
 			return null;
 		}
-
+		
 		// Return the membership record that the app understands
 		String userUid = sessionManager.getCurrentSessionUserId();
 		User user = SakaiUtil.getUserFromSakai(userUid);
@@ -442,9 +445,9 @@ public class SectionManagerImpl implements SectionManager {
 			}
 			try {
 				authzGroupService.unjoinGroup(section.getUuid());
-			} catch (IdUnusedException e) {
+			} catch (GroupNotDefinedException e) {
 				log.error("There is not authzGroup with id " + section.getUuid());
-			} catch (PermissionException e) {
+			} catch (AuthzPermissionException e) {
 				String userUid = sessionManager.getCurrentSessionUserId();
 				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + section.getUuid());
 			}
@@ -633,7 +636,7 @@ public class SectionManagerImpl implements SectionManager {
 		AuthzGroup authzGroup;
 		try {
 			authzGroup = authzGroupService.getAuthzGroup(learningContextUuid);
-		} catch (IdUnusedException e) {
+		} catch (GroupNotDefinedException e) {
 			log.error("learning context " + learningContextUuid + " is neither a site nor a section");
 			return 0;
 		}
@@ -874,10 +877,10 @@ public class SectionManagerImpl implements SectionManager {
 	 */
 	public Set getSectionEnrollments(String userUid, String courseUuid) {
 		// Get the user
-		org.sakaiproject.service.legacy.user.User sakaiUser;
+		org.sakaiproject.user.api.User sakaiUser;
 		try {
 			sakaiUser = userDirectoryService.getUser(userUid); 
-		} catch (IdUnusedException ide) {
+		} catch (UserNotDefinedException ide) {
 			log.error("Can not find user with id " + userUid);
 			return new HashSet();
 		}

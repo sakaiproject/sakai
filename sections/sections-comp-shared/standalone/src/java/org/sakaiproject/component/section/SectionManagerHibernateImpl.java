@@ -41,7 +41,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
@@ -69,7 +69,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	private static final Log log = LogFactory.getLog(SectionManagerHibernateImpl.class);
 	
 	// Fields configured via dep. injection
-	protected UuidManager uuidManager;
+	protected IdManager uuidManager;
     protected Authn authn;
     protected Context context;
 
@@ -780,7 +780,7 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         this.authn = authn;
     }
 
-	public void setUuidManager(UuidManager uuidManager) {
+	public void setUuidManager(IdManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
 	

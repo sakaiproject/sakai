@@ -35,7 +35,7 @@ import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.common.uuid.UuidManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.api.section.CourseManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.ParticipationRecord;
@@ -54,7 +54,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 	private static final Log log = LogFactory.getLog(CourseManagerHibernateImpl.class);
 
-	protected UuidManager uuidManager;
+	protected IdManager uuidManager;
 
 	public Course createCourse(final String siteContext, final String title,
 			final boolean selfRegAllowed, final boolean selfSwitchingAllowed,
@@ -196,7 +196,7 @@ public class CourseManagerHibernateImpl extends HibernateDaoSupport
 
 	// Dependency injection
 
-	public void setUuidManager(UuidManager uuidManager) {
+	public void setUuidManager(IdManager uuidManager) {
 		this.uuidManager = uuidManager;
 	}
 

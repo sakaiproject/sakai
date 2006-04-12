@@ -11,6 +11,6 @@
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
 
-    <bean id="org.sakaiproject.api.common.uuid.UuidManager"
-        class="org.sakaiproject.component.common.uuid.UuidManagerCommonsImpl"/>
+    <bean id="org.sakaiproject.id.api.IdManager"
+        class="org.sakaiproject.id.impl.UuidV4IdComponent"/>
 </beans>

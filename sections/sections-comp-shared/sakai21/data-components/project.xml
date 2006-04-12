@@ -24,20 +24,30 @@
             </properties>
         </dependency>
 
-        <!-- Sakai2 Dependencies -->
+        <!-- Sakai 2.2 Dependencies -->
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-service</artifactId>
+            <artifactId>sakai-tool-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-session</artifactId>
+            <artifactId>sakai-util-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-session-component</artifactId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-site-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
     </dependencies>

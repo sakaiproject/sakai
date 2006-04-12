@@ -27,7 +27,7 @@ package org.sakaiproject.component.section.cover;
 import java.util.List;
 import java.util.Locale;
 
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.facade.Role;
 

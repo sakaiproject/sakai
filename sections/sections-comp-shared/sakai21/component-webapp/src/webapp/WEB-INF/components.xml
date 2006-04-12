@@ -9,19 +9,19 @@
         class="org.sakaiproject.component.section.sakai21.SectionAwarenessImpl"
         init-method="init">
         <property name="siteService">
-            <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
         </property>
         <property name="functionManager">
-            <ref bean="org.sakaiproject.api.kernel.function.FunctionManager"/>
+            <ref bean="org.sakaiproject.authz.api.FunctionManager"/>
         </property>
         <property name="securityService">
-            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
         </property>
         <property name="userDirectoryService">
-            <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+            <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
         </property>
         <property name="entityManager">
-            <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
         </property>
     </bean>
 
@@ -55,26 +55,27 @@
 <!-- 
     <bean id="org.sakaiproject.api.section.SectionManager"
         class="org.sakaiproject.component.section.sakai21.SectionManagerImpl">
+
         <property name="siteService">
-            <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
         </property>
         <property name="authzGroupService">
-            <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
         <property name="securityService">
-            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
         </property>
         <property name="userDirectoryService">
-            <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
-        </property>
-        <property name="sessionManager">
-            <ref bean="org.sakaiproject.api.kernel.session.SessionManager"/>
+            <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
         </property>
         <property name="entityManager">
-            <ref bean="org.sakaiproject.service.legacy.entity.EntityManager"/>
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="sessionManager">
+            <ref bean="org.sakaiproject.tool.api.SessionManager"/>
         </property>
         <property name="eventTrackingService">
-            <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+            <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
         </property>
     </bean>
 -->

@@ -28,8 +28,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.api.section.coursemanagement.Course;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Site;
 
 public class CourseImpl implements Course, Serializable {
 	private static final long serialVersionUID = 1L;
