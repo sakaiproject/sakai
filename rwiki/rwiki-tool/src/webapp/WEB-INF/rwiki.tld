@@ -1,0 +1,32 @@
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN" "web-jsptaglib_1_1.dtd">
+<taglib>
+  <tlibversion>1.0</tlibversion>
+  <jspversion>1.2</jspversion>
+  <shortname>rwiki</shortname>
+  <info>
+	This tag library contains tag and function extensions useful for the rwiki. 
+  </info>
+  
+  <tag-file>
+  	<name>formatDisplayName</name>
+  	<attribute>
+  	  <name>name</name>
+  	  <required>true</required>
+    </attribute>
+  	<path>/WEB-INF/tags/FormatDisplayName.tag</path>
+  </tag-file>
+  
+  <tag-file>
+  	<name>granted</name>
+  	<attribute>
+  	  <name>granted</name>
+  	  <required>true</required>
+    </attribute>
+  	<attribute>
+  	  <name>span</name>
+  	  <required>false</required>
+    </attribute>
+  	<path>/WEB-INF/tags/InfoPageGranted.tag</path>
+  </tag-file>
+  
+ </taglib>

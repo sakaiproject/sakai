@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <!-- tool context -->
+
+  <!-- A Wrapper for the Render Component used at tool level -->
+  <bean id="toolRenderService"
+    class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.ToolRenderServiceImpl">
+    <property name="log"><ref bean="rwiki-logger"/></property>
+    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
+  </bean>
+</beans>	
+

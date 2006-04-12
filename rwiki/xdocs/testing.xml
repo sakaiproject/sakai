@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <title>RWiki Acceptance Test Cases</title>
+    </properties>
+    <body>
+        <section name="Acceptance Test Matrix" >
+            <p>
+                The Acceptance test matrix can be found <a href="tc-matrix-rwiki.xls" >here</a>.
+            </p>
+        </section>
+        <section name="Local Test Servers" >
+            <p>
+                We have 3 test servers at Caret, being build with trunk head from source.sakaiproject.org and the 
+                head of our local Sakai 2.1 branch from saffron.caret.cam.ac.uk for the Sakai RWiki tool. </p>
+            <p>If you need to 
+                test on the <b>Sakai Project nightly servers or the QA Build servers Do not use these servers</b> 
+            </p>
+            <p>
+                Note, these servers are rebuilt every night, and data on these servers may not be kept between
+                rebuilds.    
+            </p>
+                <ul>
+                    <li><a href="http://borrage.caret.cam.ac.uk:9085/portal/">MySQL</a></li>
+                    <li><a href="http://borrage.caret.cam.ac.uk:9082/portal/">HSQLDB</a></li>
+                    <li><a href="http://borrage.caret.cam.ac.uk:9090/portal/">Oracle</a></li>
+                </ul>
+        </section>
+    </body>
+   </document>

@@ -1,0 +1,6 @@
+h2 About this Project
+
+Some information about this Project
+
+{recent-changes}
+

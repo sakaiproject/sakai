@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <title>RWiki Software Requirements Specification</title>
+    </properties>
+    <body>
+        <section name="Sakai Wiki Tool Use Cases" >
+            
+        <subsection name="VRE" >
+            <ul>
+                <li>
+                    <a href="usecase1.html" >
+                    Creating a Grant Proposal
+                    </a>
+                </li>
+            </ul>
+            
+        </subsection>
+        <subsection name="VLE" >
+            <ul>
+                <li>
+                    <a href="usecase2.html" >
+                    Collaborative writing exercise in an undergraduate course
+                    </a>
+                </li>
+            </ul>
+        </subsection>
+        <subsection name="Collaboration" >
+            <ul>
+                <li>
+                    <a href="usecase3.html" >
+                        Needs use case                        
+                    </a>
+                </li>
+            </ul>
+        </subsection>
+            <subsection name="Role playing" >
+                <ul>
+                    <li>
+                        <a href="usecase4.html" >
+                            Role playing in an undergraduate course 
+                        </a>
+                    </li>
+                </ul>
+            </subsection>
+        </section>
+        
+    </body>
+    <!--    
+        <body>
+        <section name="Actors">
+        </section>
+        <section name="Use Case">
+        </section>
+        </body>
+    -->
+</document>

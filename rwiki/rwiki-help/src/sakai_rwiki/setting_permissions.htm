@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html version="-//W3C//DTD HTML 3.2//EN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Wiki Tool</title>
+<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet">
+<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet">
+</head>
+<body>
+<h2>Setting Permissions</h2>
+<p>Wiki has two levels of permissions at site level and at page level. 
+    Site level permissions are the default permissions for all pages. However, 
+    permissions can be changed for individual pages. For example, you can alter 
+    permissions so that wiki is editable by everyone, apart from one page which 
+    can only be edited by maintainers. </p>
+<p>There are 5 levels of permission within Wiki:</p>
+<ul type="disc">
+<li>Wiki read (read pages)</li>
+    <li>Wiki create (create new pages; update must be enabled to allow this)</li>
+    <li>Wiki update (edit pages)</li>
+    <li>Wiki admin (alter site permissions)</li>
+    <li>Wiki super-admin </li>
+  </ul>
+<p>Remember that permissions cascade downwards  you cannot update a page 
+    if you cannot read it, so it makes no sense to enable 'update' but dis-enable 
+    'read'. If you enabled 'create' or 'update', Wiki will assume that you want 
+    'read' permission enabled as well. </p>
+<p>Sakai roles are not automatically mapped to Wiki roles in order to allow 
+    the tool to be used in a more flexible way.</p>
+<p>We recommend the following ways of mapping Sakai permissions onto Wiki permissions.</p>
+<p><i>Default - using Wiki as a traditional wiki tool </i></p>
+<p>With these permissions, all users can edit the wiki. This would allow collaborative 
+    drafting of documents, for example. This is the default setting for permissions.</p>
+<table>
+<tr>
+<td>&nbsp;</td>
+<th>Read</th>
+<th>Create</th>
+<th>Update</th>
+<th>Admin</th>
+<th>Super</th>
+</tr>
+<tr>
+<th>Access</th>
+<td> yes </td>
+<td>	yes   </td>
+<td>	yes	</td>
+<td>&nbsp;</td>
+<td>&nbsp;	</td>
+</tr>
+<tr>
+<th>Maintain </th>
+<td>yes</td>
+<td> yes   </td>
+<td>	yes	</td>
+<td>yes	</td>	<td>	yes		</td>	</tr>
+</table>
+<p><i>Using Wiki as a simple content management system</i></p>
+<p>With these permissions, only maintain users can edit the wiki. Access users 
+    can only read pages. This allows it to be used as a simple content management 
+    system.</p>
+<table>
+<tr>
+<td>&nbsp;</td>
+<th>Read</th>
+<th>Create</th>
+<th>Update</th>
+<th>Admin</th>
+<th>Super</th>
+</tr>
+<tr>
+<th>Access</th>
+<td> yes </td>
+<td>&nbsp;</td>
+<td>&nbsp;	</td>
+<td>&nbsp;</td>
+<td>&nbsp;	</td>
+</tr>
+<tr>
+<th>Maintain </th>
+<td>yes</td>
+<td> yes   </td>
+<td>	yes	</td>
+<td>yes	</td>	<td>	yes		</td>	</tr>
+</table>
+<h3>Page-level permissions</h3>
+<p>Page-level permissions apply to that page only. For example, you can alter 
+    permissions so that wiki is editable by everyone, apart from one page which 
+    can only be edited by maintainers.</p>
+<p>To alter page-level permissions, select 'info'. Tick and un-tick the boxes 
+    below the permissions to alter the permissions settings. Because permissions 
+    cascade downwards, this may not always have the effect that you imagine. For 
+    example, if 'update' is enabled for a role, you cannot dis-enable 'read' for 
+    that role, because users must be able to read a page to update it. </p>
+<p>The 'create' permission is not applicable to page-level permissions and can 
+    only be altered at site level. </p>
+<h3>Site-level permissions</h3>
+<p>Site level permissions are the default permissions for all pages. </p>
+<p>To alter site-level permissions, select 'info' and then select 'edit site 
+    permissions'. Tick and un-tick the boxes to switch permissions on and off. 
+  </p>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <!--JBuilder Library Definition File-->
+  <fullname>Jakarta ORO</fullname>
+  <class>
+    <path>[lib/jakarta-oro-2.0.6.jar]</path>
+  </class>
+  <lastmodsaved>1051548299719</lastmodsaved>
+</library>

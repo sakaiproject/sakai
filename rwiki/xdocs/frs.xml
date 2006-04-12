@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <author email="john@caret.cam.ac.uk">John Norman</author>
+        <author email="harriet@caret.cam.ac.uk">Harriet Truscott</author>
+        <title>RWiki Functional Requirements Specification</title>
+    </properties>
+    <body>
+        <section name="Sakai 2.0 RWiki Functional Requirements and Specification"> 
+            <p>
+                Contents
+                </p>
+                <ul>
+                    <li>I.	Introduction</li>
+                    <li>II.	Summary</li>
+                    <li>III.	Functional Requirements</li>
+                    <li>IV.	Roles and Groups</li>
+                    <li>V.	Non-functional Requirements</li>
+                    <li>VI.	Wireframes / Functional Specification</li>
+                    <li>VII.	Functional Roadmap</li>
+                </ul>
+            
+        </section>
+        <section name="I. Introduction" >
+            <p>
+                RWiki is an open-source Wiki tool for Sakai that gives worksite 
+                members the ability to create and update wiki pages within the 
+                worksite. RWiki is designed and developed at the Centre for Applied 
+                Research into Educational Technology (CARET) at Cambridge Univeristy.
+                  Plans for further development of RWiki are outlined in Section VII.
+            </p>
+        </section>
+        <section name="II. Summary">
+            <p>
+                RWiki will allow worksite members to
+                </p>
+                <ol>
+                    <li>View wiki pages</li>
+                    <li>Update wiki pages</li>
+                    <li>Create new wiki pages</li>
+                    <li>Link to document resources in Sakai</li>
+                    <li>Include images in pages</li>
+                    <li>Link to external pages</li>
+                    <li>Use UTF8 character sets</li>
+                    <li>Use TeX mathematical notation</li>
+                </ol>                
+           
+        </section>
+        <section name="III. Functional Requirements">
+            <subsection name="Viewing content">
+                <ol>
+                    <li>View Wiki pages within Sakai</li>
+                    <li>Follow links to internal pages</li>
+                    <li>Follow links to documents and resources within Sakai</li>
+                    <li>Follow links to external content</li>
+                    <li>Increase or decrease text size</li>
+                </ol>                
+            </subsection>
+        
+            <subsection name="Editing content">
+                <ol>
+                    <li>Edit existing content.</li>
+                    <li>Add a variety of headings, bulleted lists, tables, and text formatting</li>
+                    <li>Link to other RWiki pages, under page aliases if desired</li>
+                    <li>Link to external pages</li>
+                    <li>Incorporate images uploaded into Sakai Resources.</li>
+                    <li>Incorporate maths notation using TeX</li>
+                    <li>Use UTF8 character sets, allowing content in a number of different languages</li>
+                    <li>Preview your changes</li>
+                    <li>Cancel your changes</li>
+                    <li>Save your changes</li>
+                    <li>Receive notification if the page has been changed by someone 
+                    else while you are editing it, allowing you to choose which version
+                        to save.</li>
+                </ol>                
+            </subsection>
+            
+            <subsection name="Alter document permissions">
+                <p>                    
+            Allows the owner of a page (usually the page’s creator) to make it 
+            available for public viewing within Sakai.
+            </p>   
+                    <ol>
+                    <li>Apparently this is going to change?</li>
+                   <li>Edit the conten</li>
+                        <li>At bottom of the page, a ‘show document permissions’ button appears.</li>
+                    </ol>                
+               
+            </subsection>
+            
+            <subsection name="Information on content">
+                <ol>
+                    <li>Lists all pages the page references</li>
+                    <li>Lists all pages that reference the page</li>
+                    <li>Gives the page owner (usually the person who created it)</li>
+                    <li>Gives the global page name, to allow linking to it from outside the RWiki</li>
+                    <li>Gives the page permission detail (the site you need to be a member of to see it)</li>
+                    <li>Gives details of when the page was last edited</li>
+                </ol>                
+            </subsection>
+            
+            <subsection name="History of content">
+                    <ol>
+                        <li>Gives a list of all previous versions of that page,
+                            with the name of the user who altered it, the date.</li>
+                            <li>Allows you to view any previous version.</li>
+                        <li>Compare the contents of any version with the current version</li>
+                        <li>Compare the contents of any version with the version immediately previous.</li>
+                        <li>Allows you to revert to any previous version.</li>
+                    </ol>                
+            </subsection>
+            
+            <subsection name="Search">
+                    <ol>
+                        <li>View list of titles of  pages including search content</li>
+                        <li>Use ‘and’ operator (but not ‘not’ or ‘or’)</li>
+                    </ol>                
+            </subsection>
+            </section>
+        <section name="IV. Roles and Groups" >
+            <p>
+                 A number of use cases that have been suggested for RWiki require page-level
+                permissions to be set and represent behaviour that is atypical of a ‘standard’
+                 wiki. These page-level permissions are hidden by default. Sakai Admin should 
+                 have RWiki superadmin permission in order to reveal page permissions to 
+                 sites that wish to experiment.
+            </p>
+            <subsection name="Standard Wiki" >
+                <p>                    
+                  There are 5 permission within RWiki:
+                </p>
+                <ul>
+                        <li>RWiki read</li>
+                        <li>RWiki create</li>
+                        <li>RWiki update</li>
+                        <li>RWiki admin</li>
+                        <li>RWiki superadmin</li>           
+                    </ul>
+                <p>
+                At the time of writing, new worksites are created with the access 
+                and maintain roles only. When the RWiki tool is added to a site 
+                the site access and maintain roles receive the following permissions 
+                by default:
+                </p>
+                <p>
+                    In !site.template and !group.template these are the standard permissions as deployed in 2.1
+                </p>
+                    <table>
+                        <tr>
+                            <th>Role </th>
+                            <th>Read</th>
+                            <th>Create</th>
+                            <th>Update</th>
+                            <th>Admin</th>
+                            <th>Super</th>
+                        </tr>
+                        <tr>
+                            <th>Access</th>
+                            <td>yes</td>
+                            <td>yes</td>
+                            <td>yes</td>
+                            <td> </td>
+                            <td> </td>
+                        </tr>
+                        <tr>
+                            <th>Maintain</th>
+                            <td>yes</td>
+                            <td>yes</td>
+                            <td>yes</td>
+                            <td>yes</td>
+                            <td> </td>
+                        </tr>
+                    </table>
+                <p>
+                    In !site.template.course and !group.template.course these are the standard permissions as deployed in 2.1
+                </p>
+                <table>
+                    <tr>
+                        <th>Role </th>
+                        <th>Read</th>
+                        <th>Create</th>
+                        <th>Update</th>
+                        <th>Admin</th>
+                        <th>Super</th>
+                    </tr>
+                    <tr>
+                        <th>student</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                    <tr>
+                        <th>instructor</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td> </td>
+                    </tr>
+                    <tr>
+                        <th>ta</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td> </td>
+                    </tr>
+                </table>
+                <p>
+                    Note: the absence of superadmin permission for the Site/Maintain role is 
+                    one of the reasons for encouraging Sakai Admin to setup superadmin permission 
+                    for the Sakai Admin user.                    
+                </p>        
+                <p>
+                    The default permissions above are felt to be appropriate for typical use. 
+                    Default permissions can be changed by editing components.xml and redeploying 
+                    Sakai. After this has been done, the realm permissions of existing sites will
+                     not have changed, but new sites will have the new permission sets defined in
+                      components.xml as default settings on adding the RWiki tool to a site. If 
+                      the tool is removed and then added back the permissions sets current in 
+                      components.xml will be created and the previous realm/site permissions will
+                    be lost.
+                    
+                </p>    
+                </subsection>
+            <subsection name="RWiki with page-level permissions" >
+                <p>
+                     In order to activate page-level permissions, Sakai Admin should grant RWiki
+                      admin to the site ‘Maintain’ role. With the default settings recommended
+                       in this document, this will result in the permissions option becoming 
+                       visible to site members with the ‘Maintain’ role. Maintain users will 
+                       then be able to edit page permissions as required. A typical change may 
+                       be to allow the Page Owner to control the page permissions, or simply to
+                        make the page visible to the Public (users with the .anon role)
+                </p>
+                <p><b>RWiki page-level roles (permission sets)</b></p>
+                <p>
+                            In order to allow flexible use cases to be supported, some internal 
+                            roles (permission sets) are defined in addition to the Sakai 
+                            Site/Role permission sets above. The Page/Role permission sets 
+                            implemented in RWiki are: 
+                    <ul>
+                        <li>Page Owner</li>
+                        <li>Sitewide</li>
+                        <li>Anonymous (Public)</li>
+                    </ul>
+                            
+                </p>
+                <p>
+                    When a RWiki is added to a site, 3 document/page is created by default 
+                    (Help, Recent Changes, and Edit_right). The RWiki internal permissions 
+                    for these pages are configured in components.xml. In addition, when the
+                     tool is first accessed, a page named ‘Home’ is created. The permissions
+                      for Home are set by the page creation code and are currently hard-coded,
+                       but a request has been made for them to be moved to components.xml. 
+                       The initial permissions set by code for new pages and thus ‘Home’ are:
+                    
+                </p>
+                <table>
+                    <tr>
+                        <th>Home/page create</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Admin</th>
+                    </tr>
+                    <tr>
+                        <th>Page/Owner</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Sitewide</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>yes</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Public (.anon)</th>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>n/a</td>
+                    </tr>
+                </table>
+                <p>
+                    The default settings for RWiki internal page permissions in components.xml are: 
+                </p>
+                <table>
+                    <tr>
+                        <th>Recent Changes</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Admin</th>
+                    </tr>
+                    <tr>
+                        <th>Page/Owner</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Sitewide</th>
+                        <td>yes</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Public (.anon)</th>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>n/a</td>
+                    </tr>
+                </table>
+                            
+                <table>
+                    <tr>
+                        <th>Recent Changes</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Admin</th>
+                    </tr>
+                    <tr>
+                        <th>Help</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Sitewide</th>
+                        <td>yes</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Public (.anon)</th>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>n/a</td>
+                    </tr>
+                </table>
+                            
+                         
+                <table>
+                    <tr>
+                        <th>Edit_right</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>Read</th>
+                        <th>Write</th>
+                        <th>Admin</th>
+                    </tr>
+                    <tr>
+                        <th>Help</th>
+                        <td>yes</td>
+                        <td>yes</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Sitewide</th>
+                        <td>yes</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th>Page/Public (.anon)</th>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>n/a</td>
+                    </tr>
+                </table>
+                <p>
+                    Note: the logged-in user who adds the RWiki tool to the worksite 
+                    will be the initial Page Owner for these pages.                    
+                </p>
+                            
+                <p><b>What do RWiki page-level permissions do?</b></p>
+                <ul>
+                    <li>The Page/Read permission allows the page to be viewed.</li>
+                    <li>The Page/Write permission allows the page to be edited</li>
+                    <li>The Page/Admin permission determines whether the page permissions can be changed. 
+                    If a user does not have Page/Admin permission granted, the page permissions will 
+                    not be visible to that user.</li>
+                </ul>
+                <p>
+                    Note for Page/Write permission: While a link to a new page can be created in the page,
+                     a user who first follows that link will trigger a page creation (normal wiki behaviour).
+                      This will result in a ‘permission denied’ error if they do not have RWiki 
+                      update permission in their site role (access, maintain). However, another 
+                      user with RWiki update could follow the link to create the page and then the
+                      link would work for the first user because now only RWiki Read permission is
+                      required to view the page.
+                </p> 
+                
+                <p><b>Who’s on top?</b></p>
+                <ul>
+                    <li>RWiki Page/Owner internal permissions override RWiki permissions granted 
+                        in with the site role (access, maintain)</li>
+                    <li>RWiki Page/Sitewide internal permissions are overridden by 
+                        the site role (access, maintain) permissions.</li>
+                    <li>RWiki Page/Public internal permissions override Sakai.anon 
+                        RWiki permissions.</li>
+                </ul>
+                <p>
+                    Thus, page-level permissions will usually behave in an intuitive fashion. 
+                    With page-level permission activated, if you own the page or if the page has 
+                    been set for Public read or write access, this will be allowed regardless of 
+                    other permissions set elsewhere. But granting Page/Sitewide the ‘Read’ permission 
+                    will allow only allow a member of the worksite to view the page if they have a 
+                    role that has also been granted RWiki Read permission.
+                </p>
+                </subsection>
+                </section>
+        <section name="V. Non-functional requirements" >
+            <ul>
+                <li>RWiki uses the Sakai 2.0 build mechanism</li>
+                <li>RWiki can be deployed into Sakai 2.0.0 or 2.0.1</li>
+                <li>RWiki typically serves pages in &lt; 50ms on a low end PowerBook (eg 1.3GHz G4).</li>
+                <li>The implemented markup is based on Radeox. All of the standard markup 
+                    (linking and formatting) is present.</li>
+                <li>Each RWiki space within the worksite should manage its own subfolder in sakai 
+                resources that contains attachments. RWiki should reuse the sakai resources functionality 
+                to enable a use to upload content on the page. It should provide a list of uploaded the
+                 contents, for that page, on the pages (e.g. there are 5 attachments to this page). 
+                 Should investigate what happens when a resource is moved, and how be might handle it.
+                  Is there an event in Resources we can watch ?</li>
+            </ul>
+        </section>
+        <section name="VI. Wireframes/Functional Specification" >
+            <p><img src="images/frs1.png" /></p>
+            <p>Users with create / update permissions see the menu and search box displayed at the top 
+            of the page.</p> 
+            <p><img src="images/frs2.png" /></p>
+            <p>Users without create / update permissions see the full page and the navigation trail, 
+                but without the menu. Note that they also lose the search functionality.</p> 
+             <p><img src="images/frs3.png" /></p>
+             <p>Images uploaded as resources within Sakai can be shown within RWiki pages.</p> 
+            <p>Links to external sites are marked with a ‘world’ icon.</p> 
+            <p>Links to resources within Sakai are also marked with a ‘world’ icon.</p> 
+            <p><img src="images/frs4.png" /></p>
+            <p>Tables are shown with highlighted headers</p> 
+            <p><img src="images/frs5.png" /></p>
+            <p>Images can be incorporated within tables</p> 
+            <p><img src="images/frs6.png" /></p>
+            <p>The search page shows a list of all pages containing the separated by ::</p> 
+            <p>The word searched for (here ‘page’) is displayed at the top.</p> 
+            <p>The search page shows only the ‘home’ button from the menu.</p> 
+            <p>That search is added to the breadcrumb trail and can be returned to at any time.</p> 
+            <p><img src="images/frs7.png" /></p>
+            <p>When editing, help tips are displayed in a column to the right.</p> 
+            <p><img src="images/frs8.png" /></p>
+            <p>When editing pages, the changes can be previewed below the editing box.</p> 
+            <p><img src="images/frs9.png" /></p>         
+            <p>The info page displays the relevant information for each page.</p>
+         </section>
+        <section name="VII. Roadmap Features" >
+            <subsection name="Comments" >
+                <p>To make RWiki useful in a educational environment, we will add
+                 the facility for users to add comments to pages. This will probably
+                  be a sequence of Wiki pages, probably with a different set of
+                   permissions, that are associated with the main page.
+                   </p>
+                   </subsection>
+            <subsection name="RSS feed" >
+                <p>Feed of recent changes as RSS, but also other features.
+                 If these events are RWiki specific they should be RWiki 
+                    standalone, otherwise they should integrate with Sakai Events.
+                </p>
+            </subsection>
+            <subsection name="Helpers" >
+                <p>Expose the pages of the Wiki as undecorated content so that other tools can use the content.
+                </p>
+            </subsection>
+            <subsection name="Courier / Event Integration" >
+                <p>Every transaction in RWiki should cause an event to register. 
+                This will allow users to be notified when another user starts to edit a page
+                </p>
+            </subsection>
+            <subsection name="Rename page" >
+                <p>Add the functionality to rename pages
+                </p>
+            </subsection>
+            <subsection name="Spelling" >
+                <p>A non intrusive spell checker that checks spelling as the user types (using Ajax).
+                </p>
+            </subsection>
+            <subsection name="Search" >
+                <p>Improved search functionality, including ‘or’ and ‘phrase’ operators
+                </p>
+            </subsection>
+            </section>
+         </body>
+
+</document>

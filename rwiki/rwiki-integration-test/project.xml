@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../test-harness/project.xml</extend>
+    <name>RWiki Integration Tests</name>
+    <groupId>sakaiproject</groupId>
+    <id>sakai-rwiki-integration-test</id>
+    <currentVersion>${sakai.version}</currentVersion>
+
+    <dependencies>
+        <!--  Sakai plugin -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${sakai.plugin.version}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <!-- Test harness -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-test-harness</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-rwiki-service</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-rwiki-service-impl</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-legacy-service</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-legacy-component</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-xml</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-rwiki-utils</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>springframework</groupId>
+            <artifactId>spring-mock</artifactId>
+            <version>${sakai.spring.version}</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/testBundle</directory>
+                    <includes>
+                        <include>**/*.*</include>
+                    </includes>
+                    <filtering>false</filtering>
+                </resource>
+            </resources>            
+        </unitTest>
+    </build>
+</project>

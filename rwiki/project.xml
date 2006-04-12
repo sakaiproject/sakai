@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <name>Sakai RWiki</name>
+    <extend>../master/project.xml</extend>
+
+    <groupId>sakaiproject</groupId>
+    <artifactId>sakai-rwiki-multiproject</artifactId>
+    <currentVersion>${sakai.version}</currentVersion>
+    <shortDescription>Sakai RWiki is an embedded Wiki Tool for Sakai</shortDescription>
+    <description>This is the base project for the Sakai RWiki project. The project currently
+    uses three child projects in a multiproject fashion.</description>
+    <url>http://saffron.caret.cam.ac.uk/projects/sakai-rwiki</url>
+    <issueTrackingUrl>http://bugs.sakaiproject.org/jira/browse/RWIKI</issueTrackingUrl>
+    <inceptionYear>2005</inceptionYear>
+    <versions>
+        <version>
+            <id>1.0.0</id>
+            <name>V1.0</name>
+            <tag>VERSION0_1</tag>
+        </version>
+        <version>
+            <id>2.0.0</id>
+            <name>V2.0RC1</name>
+            <tag>rc1-20050902</tag>
+        </version>
+    </versions>
+    <mailingLists>
+        <mailingList>
+            <name>Sakai Developers List</name>
+            <subscribe>http://collab.sakaiproject.org/portal/</subscribe>
+            <unsubscribe>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</unsubscribe>
+            <archive>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</archive>
+        </mailingList>
+    </mailingLists>
+    <contributors>
+        <contributor>
+            <name>John Norman</name>
+            <email>john@caret.cam.ac.uk</email>
+            <organization>CARET</organization>
+            <url>http://www.caret.cam.ac.uk/people/index.html</url>
+            <timezone>0</timezone>
+        </contributor>
+          <contributor>
+            <name>Stephen Marquard</name>
+            <email>marquard@ched.uct.ac.za</email>
+            <organization>Centre for Higher Education Development, University of Cape Town</organization>
+            <url>http://www.ched.uct.ac.za/</url>
+            <timezone>0</timezone>
+        </contributor>
+          <contributor>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@umich.edu</email>
+            <organization>Sakai Project, University of Michigan</organization>
+            <url>http://www.sakaiproject.org/</url>
+            <timezone>+6</timezone>
+        </contributor>
+    </contributors>
+    <reports>
+        <report>maven-jdepend-plugin</report>
+        <report>maven-changelog-plugin</report>
+        <report>maven-changes-plugin</report>
+        <report>maven-checkstyle-plugin</report>
+        <report>maven-dashboard-plugin</report>
+        <report>maven-developer-activity-plugin</report>
+        <report>maven-file-activity-plugin</report>
+        <report>maven-javadoc-plugin</report>
+        <report>maven-license-plugin</report>
+        <report>maven-linkcheck-plugin</report>
+        <report>maven-faq-plugin</report>
+        <report>maven-multiproject-plugin</report>
+        <report>maven-multichanges-plugin</report>
+        <report>maven-tasklist-plugin</report>
+    </reports>
+    <gumpRepositoryId>caret-saffron-svn</gumpRepositoryId>
+    <siteAddress>saffron.caret.cam.ac.uk</siteAddress>
+    <siteDirectory>/home/gump/project-websites/sakai-rwiki/</siteDirectory>
+    <distributionSite>saffron.caret.cam.ac.uk</distributionSite>
+    <distributionDirectory>/home/gump/project-downloads/sakai-rwiki</distributionDirectory>
+    <mailingList>
+        <name>Sakai Developers List</name>
+        <subscribe>http://collab.sakaiproject.org/portal/</subscribe>
+        <unsubscribe>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</unsubscribe>
+        <post>sakai-dev@sakaiproject.org</post>
+        <archive>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</archive>
+    </mailingList>
+    <developers>
+        <developer>
+            <id>ieb</id>
+            <name>Ian Boston</name>
+            <email>ian@caret.cam.ac.uk</email>
+            <url>http://www.caret.cam.ac.uk/contact/people/index.html</url>
+            <organization>CARET</organization>
+            <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+            <roles>
+                <role>Developer</role>
+                <role>Project Manager</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+        <developer>
+            <id>andrew</id>
+            <name>Andrew Thornton</name>
+            <email>andrew@caret.cam.ac.uk</email>
+            <url>http://www.caret.cam.ac.uk/contact/people/index.html</url>
+            <organization>CARET</organization>
+            <organizationUrl>http://www.caret.cam.ac.uk/</organizationUrl>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>0</timezone>
+            <properties />
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>Educational Community License Version 1.0</name>
+            <url>http://cvs.sakaiproject.org/licenses/license_1_0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <repository>
+        <connection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk</connection>
+        <developerConnection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk</developerConnection>
+        <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>
+    </repository>
+    <organization>
+        <name>CARET, University of Cambridge</name>
+        <url>http://www.caret.cam.ac.uk/</url>
+    </organization>
+    <build>
+        <nagEmailAddress>andrew@caret.cam.ac.uk</nagEmailAddress>
+        <defaultGoal>sakai</defaultGoal>
+    </build>
+    <dependencies>
+        <!-- our plugin -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${sakai.plugin.version}</version>
+            <type>plugin</type>
+        </dependency>
+    </dependencies>
+</project>
+

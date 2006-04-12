@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archive date="Fri Feb 24 22:48:17 GMT 2006" server="Integration Test"
+    source="site-uk.ac.cam.caret.sakai.rwiki.component.test.ComponentIntegrationTest-88491.0" system="SAKAI Integration Test">
+    <uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService>
+        <wikipage eid="4028f394099e3ef401099e3f4bb80015"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/changedurl" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGJiODAwMTU=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGJiODAwMTU=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="NjJGOEU4M0QzM0YyMjZCMTRCNTU5NTA5MTIwRTkyNTJGMzUzQUQ5Qw==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvY2hhbmdlZHVybA==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[e3JlY2VudC1jaGFuZ2VzfQ==
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f4bb90016"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/changedurl" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGJiODAwMTU=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGJiOTAwMTY=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvY2hhbmdlZHVybA==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f875d0023"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpage2archive" revision="2">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NzAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="Mg==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODc1ZDAwMjM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODc1ZDAwMjM=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="NTg1MkE3MzkxQTVGMUZCNzE2QTlBRDM4RDNCNEVGMEFGQkRFQUI3MA==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlMmFyY2hpdmU=&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[SGVyZSBpcyBhIApoMS4gSGVhZGluZyB0eXBlMQoK
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f875d0024"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpage2archive" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NjAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODc1ZDAwMjM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODc1ZDAwMjQ=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlMmFyY2hpdmU=&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f87ee0027"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpage2archive" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NjAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODc1ZDAwMjM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODdlZTAwMjc=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="OUFFMENFOTk1ODk5MzIxRkE3RTlDOTA1MUI3NTcwNUJBNDM1MTFBQQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlMmFyY2hpdmU=&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[U29tZSBfX1NpbXBsZV9fIENvbnRlbnQ=
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f4aaa000d"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpage2url" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGFhYTAwMGQ=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGFhYTAwMGQ=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="NTg1MkE3MzkxQTVGMUZCNzE2QTlBRDM4RDNCNEVGMEFGQkRFQUI3MA==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlMnVybA==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[SGVyZSBpcyBhIApoMS4gSGVhZGluZyB0eXBlMQoK
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f4aaa000e"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpage2url" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGFhYTAwMGQ=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGFhYTAwMGU=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlMnVybA==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f864a001d"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagearchive" revision="2">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NjAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="Mg==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODY0YTAwMWQ=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODY0YTAwMWQ=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="NTg1MkE3MzkxQTVGMUZCNzE2QTlBRDM4RDNCNEVGMEFGQkRFQUI3MA==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlYXJjaGl2ZQ==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[SGVyZSBpcyBhIApoMS4gSGVhZGluZyB0eXBlMQoK
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f864a001e"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagearchive" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NjAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODY0YTAwMWQ=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODY0YTAwMWU=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlYXJjaGl2ZQ==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f86f70021"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagearchive" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NjAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODY0YTAwMWQ=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODZmNzAwMjE=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="OUFFMENFOTk1ODk5MzIxRkE3RTlDOTA1MUI3NTcwNUJBNDM1MTFBQQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlYXJjaGl2ZQ==&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[U29tZSBfX1NpbXBsZV9fIENvbnRlbnQ=
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f844d0019"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpageentity" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODQ0ZDAwMTk=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODQ0ZDAwMTk=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="OUFFMENFOTk1ODk5MzIxRkE3RTlDOTA1MUI3NTcwNUJBNDM1MTFBQQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlZW50aXR5&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[U29tZSBfX1NpbXBsZV9fIENvbnRlbnQ=
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f844d001a"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpageentity" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI5NTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODQ0ZDAwMTk=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmODQ0ZDAwMWE=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlZW50aXR5&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f45d60003"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagerender" revision="2">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MDAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="Mg==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDVkNjAwMDM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDVkNjAwMDM=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="NTg1MkE3MzkxQTVGMUZCNzE2QTlBRDM4RDNCNEVGMEFGQkRFQUI3MA==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlcmVuZGVy&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[SGVyZSBpcyBhIApoMS4gSGVhZGluZyB0eXBlMQoK
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f45dd0004"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagerender" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI3OTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDVkNjAwMDM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDVkZDAwMDQ=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlcmVuZGVy&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f47b30007"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpagerender" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI3OTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDVkNjAwMDM=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDdiMzAwMDc=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="OUFFMENFOTk1ODk5MzIxRkE3RTlDOTA1MUI3NTcwNUJBNDM1MTFBQQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdlcmVuZGVy&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[U29tZSBfX1NpbXBsZV9fIENvbnRlbnQ=
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f497e0009"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpageurl" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDk3ZTAwMDk=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDk3ZTAwMDk=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="OUFFMENFOTk1ODk5MzIxRkE3RTlDOTA1MUI3NTcwNUJBNDM1MTFBQQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdldXJs&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[U29tZSBfX1NpbXBsZV9fIENvbnRlbnQ=
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f497e000a"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/hometestpageurl" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDk3ZTAwMDk=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNDk3ZTAwMGE=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaG9tZXRlc3RwYWdldXJs&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f4b1b0011"
+            last-edited-by="admin" owner="admin"
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/indexurl" revision="1">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value="Ojo=&#xa;"/>
+                <property enc="BASE64" name="revision" value="MQ==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGIxYjAwMTE=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGIxYjAwMTE=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="MENCMTkyQUQzMzI5QUI3NjFDODczMDY4NTAxMTlGREYzMDUzNkQ1NQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value="YWRtaW4=&#xa;"/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaW5kZXh1cmw=&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[e2luZGV4fQ==
+]]></wikicontent>
+        </wikipage>
+        <wikipage eid="4028f394099e3ef401099e3f4b1d0012"
+            last-edited-by="" owner=""
+            page-name="/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-88491.0/indexurl" revision="0">
+            <properties>
+                <property enc="BASE64" name="owner-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="owner" value=""/>
+                <property enc="BASE64" name="group-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="version" value="MTE0MDgyMTI4MTAwMA==&#xa;"/>
+                <property enc="BASE64" name="public-read" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="group-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="public-write" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="referenced" value=""/>
+                <property enc="BASE64" name="revision" value="MA==&#xa;"/>
+                <property enc="BASE64" name="rwid" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGIxYjAwMTE=&#xa;"/>
+                <property enc="BASE64" name="realm" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuQ29t&#xa;cG9uZW50SW50ZWdyYXRpb25UZXN0LTg4NDkxLjA=&#xa;"/>
+                <property enc="BASE64" name="container" value="ZmFsc2U=&#xa;"/>
+                <property enc="BASE64" name="owner-read" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="id" value="NDAyOGYzOTQwOTllM2VmNDAxMDk5ZTNmNGIxZDAwMTI=&#xa;"/>
+                <property enc="BASE64" name="owner-admin" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="sha1" value="M0NDQjFERTUwQzFBODNDRUMwREI0RTJDMTVCNkIxRTFDQjY4QzVCNQ==&#xa;"/>
+                <property enc="BASE64" name="group-write" value="dHJ1ZQ==&#xa;"/>
+                <property enc="BASE64" name="user" value=""/>
+                <property enc="BASE64" name="name" value="L3NpdGUvc2l0ZS11ay5hYy5jYW0uY2FyZXQuc2FrYWkucndpa2kuY29tcG9uZW50LnRlc3QuY29t&#xa;cG9uZW50aW50ZWdyYXRpb250ZXN0LTg4NDkxLjAvaW5kZXh1cmw=&#xa;"/>
+            </properties>
+            <wikicontent enc="BASE64"><![CDATA[Tm8gcGFnZSBjb250ZW50IGV4aXN0cyBmb3IgdGhpcyBwYWdlLCBwbGVhc2UgY3JlYXRl
+]]></wikicontent>
+        </wikipage>
+    </uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService>
+</archive>

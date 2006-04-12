@@ -1,0 +1,23 @@
+SnipSnap Radeox
+(c) 2000-2003 Matthias L. Jugel, Stephan J. Schmidt
+
+SnipSnap Radeox is a rendering engine that renders text markup like
+__bold__ and ~~italic~~ to XHTML. It is used in wiki engines and 
+applications  to render wiki markup.
+
+Radeox is available under the terms and conditions of the Apache License (see license.txt).
+
+To try radeox type (you need to have the jakarta-oro.jar and
+commons-logging.jar in the same directory for this to work)
+
+> java -jar radeox.jar
+
+And then enter
+
+> __Radeox__
+
+The latest version and information on how to use it is always available here:
+
+http://radeox.org/
+
+Enjoy Radeox.

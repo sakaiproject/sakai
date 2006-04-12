@@ -1,0 +1,848 @@
+/**
+ * Wiki text stylesheet definitions.
+ * @author Matthias L. Jugel
+ * @version $Id$
+ */
+#rwiki_container {
+  width: 100%;
+}
+
+.publicview {
+  padding: 10px 10px 10px 30px;
+}
+
+#rwiki_content {
+  margin-right: 220px;
+  border-right: 1px dashed #e9e9e9;
+  padding: 5px 10px 5px 5px;
+}
+
+
+.nosidebar#rwiki_content {
+  margin-right: 0px;
+  border-right: 0px;
+  padding: 5px 10px 0px 0px;
+}
+
+#rwiki_content_nosidebar{
+  margin-right: 0px;
+  border-right: 0px;
+  padding: 5px 10px 0px 0px;
+} 
+
+#rwiki_container textarea {
+  border: 1px solid #cccccc;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  width: 100%;
+  margin-right: 10px;
+  font-size: 100%;
+}
+
+#textarea_outer_sizing_div {
+  width: 90%;
+}
+
+#textarea_inner_sizing_div {
+  width: 100%;
+}
+
+#rwiki_sidebar {
+	float: right;
+	width: 190px;
+	\width: 200px;
+	w\idth: 190px;
+	margin: 0;
+	margin-left: 5px;
+	padding: 10px 5px 5px 0px;
+}
+
+.rwiki_previousContent {
+	width: 90%;
+	overflow: auto;
+}
+
+.rwiki_create_sidebar .instruction {
+   font-size: 20%;
+}
+#rwiki_container p.breadcrumb {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.rwiki_info ul{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rwiki_info li{
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rwiki_info{
+	text-align: left;
+	vertical-align: text-top;
+}
+
+.rwiki_info{
+	border-top: 1px dashed #ccc;
+}
+
+.rwiki_info td{
+    font-size: x-small;
+	border-bottom: 1px dashed #ccc;
+	padding-bottom: 3px;
+	padding-top: 3px;
+	padding-left: 5px;
+}
+
+.rwiki_info th{
+    font-size: x-small;
+	text-align: left;
+	border-bottom: 1px dashed #ccc;
+	border-right: 1px dashed #ccc;
+	padding-top: 3px;
+	padding-right: 10px;
+	vertical-align: text-top;
+}
+.rwiki_info #incommingStart th{
+    padding-top: 10px;
+	border-top: 1px dashed #ccc;
+	padding-bottom: 10px;
+}
+
+.rwiki_info #incommingStart td{
+    padding-top: 10px;
+	border-top: 1px dashed #ccc;
+	padding-bottom: 10px;
+}
+
+.rwiki_info #permissions td{
+    font-size: small;
+	border-bottom: 0px dashed #ccc;
+	padding-bottom: 10px;
+}
+.rwiki_info #permissions th{
+    font-size: small;
+	border-bottom: 0px dashed #ccc;
+}
+.rwiki_info #permissionsOwner td{
+    font-size: small;
+  border-bottom: 0px;
+}
+.rwiki_info #permissionsOwner th{
+    font-size: small;
+	border-bottom: 0px dashed #ccc;
+	padding-left: 5px;
+}
+
+.rwiki_info #permissionsOwner td{
+  font-size: small;
+  border-bottom: 0px;
+}
+.rwiki_info #permissionsAdditional td{
+  font-size: small;
+  border-bottom: 0px;
+}
+.rwiki_info #permissionsAdditional th {
+  font-size: small;
+  border-bottom: 0px dashed #ccc;
+}
+.rwiki_info .permissionsGroupRole td{
+    font-size: small;
+  border-bottom: 0px;
+}
+.rwiki_info .permissionsGroupRole th{
+    font-size: small;
+	border-bottom: 0px dashed #ccc;
+	padding-left: 10px;
+}
+.rwiki_info #permissionsGroup td{
+    font-size: small;
+}
+.rwiki_info #permissionsGroup th{
+    font-size: small;
+	padding-left: 5px;
+}
+.rwiki_info #permissionsPublic td{
+    font-size: small;
+}
+.rwiki_info #permissionsPublic th{
+    font-size: small;
+	padding-left: 5px;
+}
+a.rwiki_help_popup_link, a:visited.rwiki_help_popup_link {
+  font-size: xx-small;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 1px 1px 1px 1px;
+  color: inherit;
+  line-height: 100%;
+}
+a:hover.rwiki_help_popup_link, a:active.rwiki_help_popup_link    {
+  font-size: xx-small;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 1px 1px 1px 1px;
+  color: inherit;
+  background-color: #ffffcc;
+  line-height: 100%;
+}
+
+.rwiki_help_popup {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 5px 5px 5px 5px;
+  color: inherit;
+  background-color: #ffffcc;
+  border: 1px dotted #003366;
+  line-height: 100%;
+}
+
+
+.rwikicommentbody_1{
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	margin: .25em;
+	margin-left: 10px;
+}
+
+.rwikicommentbody_2{
+	margin: .25em;
+	margin-left: 30px;
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+.rwikicommentbody_3{
+	margin: .25em;
+	margin-left: 50px;
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+.rwikicommentbody_4{
+	margin: .25em;
+	margin-left: 70px;
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+.rwikicommentbody_5{
+	margin: .25em;
+	margin-left: 90px;
+	font-size: 85%;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
+
+.rwikicommentheader{
+	border-bottom: 1px solid #ccc;
+	font-size: 75%;
+	padding: .5em;
+	background-color: #FFFFCC;
+	-moz-border-radius-topleft: 10px;
+}
+
+.rwikicommenttext{
+	padding: .5em;
+	background-color: #FFFFEC;
+}
+
+.rwiki_comments {
+/*   background-color: #FFFFCC; */
+   border-top: 1px solid #ccc;
+   border-bottom: 1px solid #ccc;
+/*   border-left: 1px solid #ccc;
+   border-right: 1px solid #ccc; */
+}
+/*#rwiki_comments_sidebar {    
+    font-size: 75%;
+	float: right;
+	width: 190px;
+	\width: 200px;
+	w\idth: 190px;
+	margin: 0;
+	margin-left: 5px;
+	padding: 10px 5px 5px 0px;
+}*/
+
+.rwiki_info_page_granted {
+}
+.rwiki_info_page_denied {
+}
+.rwiki_info_secure_granted {
+    color: inherit;
+}
+.rwiki_info_secure_denied {
+    color: #cccccc;
+}
+
+
+.rwiki_history th {
+  border-top: 1px solid #e9e9e9;
+  border-bottom: 1px dashed #e9e9e9;
+  color: #333333;
+}
+
+.rwiki_history td {
+  border-bottom: 1px dashed #e9e9e9;
+  padding: 5px;
+  font-size: 85%;
+}
+
+.rwiki_history a {
+	background-color: #F5F5F5;
+	text-decoration: none;
+	/* padding: 2px;*/
+	color: #666666;
+	border: 1px solid #F4F4F4;
+	-moz-border-radius: 5px;
+}
+
+.rwiki_searchForm {
+	/* SAK-2380: Mozilla sticks a margin on the bottom of a form, IE does it to both! */
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.rwiki_collapse img {
+  width: 12px;
+  height: 12px;
+}
+
+.rwiki_expand img {
+  width: 12px;
+  height: 12px;
+}
+
+.rwiki_permissionsblock table {
+	text-align: left;
+	padding-left: 20px;
+	font-size: 85%;
+}
+
+.rwiki_docdetails {
+	font-size: 85%;	
+}
+
+.rwiki_permissionsblock {
+	font-size: 85%;	
+}
+
+.rwiki_docdetails table {
+	text-align: left;
+	padding-left: 20px;
+}
+
+.listNav .rwiki_renderedContent {
+  width: 150px;
+  font-size: 80%;	
+}
+
+.differences .unchanged {
+  border-left: 2px solid black;
+}
+
+.differences .original {
+  border-left: 2px solid red;
+  background-color: #FF8080;	
+}
+
+.differences .changed {
+  border-left: 2px solid green;
+  background-color: #80FF80;
+}
+
+.differences .deleted {
+  border-left: 2px solid red;
+  background-color: #FF8080;
+}
+
+.differences .added {
+  border-left: 2px solid green;
+  background-color: #80FF80;
+
+}
+
+.keytable{
+	border: 1px solid #666;
+	margin-top: 15px;
+}
+
+.keytablehead{
+	padding: 5px;
+	font-weight: bold;
+	border-bottom: 1px solid #666;
+}
+
+.colordiff {
+  border: 1px solid #666;
+}
+
+.pageleft{
+	padding: 5px;
+	border-bottom: 1px solid #666;
+}
+
+.pageright{
+	padding: 5px;
+	border-bottom: 1px solid #666;
+	border-left: 1px dashed #666;
+}
+
+.tablecolordiff{
+	line-height: 120%;
+	border: 1px solid #666;
+	padding: 5px;
+}
+
+
+.unchangedLeft{
+	background-color: White;
+	padding: 5px;
+}
+
+.unchangedRight{
+	background-color: White;
+	padding: 5px;
+	border-left: 1px dashed #666;
+}
+
+.deletedLeft{
+	background-color: #FFAABB;
+	padding: 5px;
+
+}
+
+.deletedRight{
+	background-color: #F5F5F5;
+	padding: 5px;
+	border-left: 1px dashed #666;
+}
+
+.addedLeft{
+	background-color: #F5F5F5;
+	padding: 5px;
+
+}
+
+.addedRight{
+	background-color: #ADFF2F;
+	padding: 5px;
+	border-left: 1px dashed #666;
+}
+
+.changedLeft{
+	background-color: #FFFACD;
+	padding: 5px;
+
+}
+
+.changedRight{
+	background-color: #FFFACD;
+	padding: 5px;
+	border-left: 1px dashed #666;
+}
+
+.bold { font-weight: bold; }
+.italic { font-style: italic; }
+
+/************************************************/
+/* image positioning                            */
+img {
+  padding-top: 2px;
+  padding-bottom: 1px;
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+img.left {
+  display: block;
+  left: 0px;
+}
+
+img.right {
+  display: block;
+  right: 0px;
+}
+
+img.center {
+  text-align: center;
+}
+
+img.float-left {
+  float: left;
+  margin-top: 3px;
+  margin-right: 3px;
+  margin-bottom: 3px;
+}
+
+img.float-right {
+  float: right;
+  margin-top: 3px;
+  margin-left: 3px;
+  margin-bottom: 3px;
+}
+
+/*****************************************/
+/*          Div positioning              */
+div.float-right {
+	float: right;
+	border-left: 1px solid #ccc;
+	padding-left: 10px;
+	margin-bottom: 5px;
+	margin-left: 5px;
+	width: 150px;
+	font-size: 80%;
+	text-align: left;
+	color: #006699;
+	overflow-y: auto;
+}
+
+.heading-1, .heading-h1, .heading-h2 {
+  color: #000000;
+  background-color: inherit;
+  font-weight: bold;
+  font-size: 120%;
+  font-variant: small-caps;
+}
+
+.heading-1-1, .heading-h3, .heading-h4 {
+  color: #000000;
+  background-color: inherit;
+  font-size: 115%;
+  font-variant: small-caps;
+}
+
+.heading-1-1-1, .heading-h6, .heading-h5 {
+  color: #000000;
+  background-color: inherit;
+  font-size: 110%;
+  font-variant: small-caps;		
+}
+
+.quote {
+  font-style: italic;
+  color: inherit;
+  background-color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/************************************************/
+/* code formatting */
+.code {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 5px 5px 5px 5px;
+  color: inherit;
+  background-color: #eeeeee;
+  border: 1px dotted #003366;
+  font-family: courier, courier new, monospace;
+  font-size: 12px;
+  line-height: 100%;
+  white-space: pre;
+  overflow: -moz-scrollbars-horizontal;
+  overflow-x: auto;
+  width: 98%;
+}
+
+
+.java-keyword {
+  font-weight: bold;
+  color: #0000aa;
+  background-color: inherit;
+}
+
+.java-object {
+  color: #000088;
+  background-color: inherit;
+}
+
+.java-quote {
+  color: #00aa00;
+  background-color: inherit;
+}
+
+.xml-keyword {
+  font-weight: bold;
+}
+
+.xml-tag {
+  color: #0000aa;
+  background-color: inherit;
+}
+
+/* weblog formatting */
+.blog-date {
+  font-size: 16px;
+  color: #000000;
+  text-transform: none;
+  margin-bottom: 10px;
+  padding: 3px;
+  border: 1px solid #5B5B5B;
+}
+
+/* special formatting of a wiki table */
+.wiki-table {
+  empty-cells: show;
+  width: 100%;
+  max-width: 100%;
+}
+
+.wiki-table td {
+  border-top: 1px solid #5b5b5b;
+  padding: 4px 4px 4px 4px;
+}
+
+.wiki-table th {
+  border-top: 1px solid #5b5b5b;
+  text-align: left;
+  color: inherit;
+  font-weight: bold;
+  /* background-color: #DDEEFF; */
+  background: #FFFF66;
+  color: #000000;
+}
+
+.wiki-table .table-odd {
+}
+
+.wiki-table .table-even {
+}
+
+
+/************************************************/
+/* list formatting                              */
+
+.list {
+}
+
+.list-title {
+  font-weight: bold;
+}
+
+.list ul {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  padding-left: 0px;
+  list-style-type: none;
+}
+
+/* wiki lists */
+
+ul.minus { list-style-type: square; }
+ul.star { list-style-type: circle; }
+ol.roman { list-style-type: lower-roman; }
+ol.ROMAN { list-style-type: upper-roman; }
+ol.alpha { list-style-type: lower-alpha; }
+ol.ALPHA { list-style-type: upper-alpha; }
+ol.greek { list-style-type: lower-greek; }
+ol.GREEK { list-style-type: upper-greek; }
+ol.hiragana { list-style-type: hiragana; }
+ol.HIRAGANA { list-style-type: hiragana-iroha; }
+ol.katakana { list-style-type: katakana; }
+ol.KATAKANA { list-style-type: katakana-iroha; }
+ol.HEBREW { list-style-type: hebrew; }
+
+/************************************************/
+/* index formatting                             */
+.index-top {
+  border-top: 1px solid #003366;
+  margin-bottom: 5px;
+}
+
+.index-top th {
+  padding: 1px 1px 1px 1px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.index {
+}
+
+.index td {
+  padding: 1px 1px 1px 1px;
+}
+
+.index th {
+  margin-top: 5px;
+  padding: 1px 1px 1px 1px;
+  text-align: left;
+  font-weight: bold;
+  border-top: 1px solid #003366;
+  border-bottom: 1px solid #003366;
+}
+
+/************************************************/
+/* calendar display                             */
+.calendar {
+  border-spacing: 0px;
+}
+
+.calendar th {
+  font-size: 0.8em;
+}
+
+.calendar td {
+  text-align: right;
+}
+
+.calendar caption {
+  text-align: left;
+  font-weight: bold;
+}
+
+.calendar .today {
+  border: 3px solid #aaaaaa;
+}
+
+.typeset img {
+	padding: 0px;	
+}
+
+/*
+ * CSS for Standard tree layout
+ * Copyright (C) 2005 SilverStripe Limited
+ * Feel free to use this on your websites, but please leave this message in the fies
+ * http://www.silverstripe.com/blog
+ */
+ 
+ul.tree{
+	width: auto;
+	padding-left : 0px;
+	margin-left : 0px;
+}
+
+ul.tree img{
+ 	border : none;
+}
+ 
+
+ul.tree, ul.tree ul {
+	padding-left: 0;
+}
+
+ul.tree ul {
+	margin-left: 16px;
+		
+}
+ul.tree li.closed ul {
+	display: none;
+}
+
+
+ul.tree li {
+	list-style: none;
+	background: url(../images/i-repeater.gif) 0 0 repeat-y;
+	display: block;
+	width: auto;
+	/* background-color:#FFFFFF; */
+}
+
+
+
+ul.tree li.last {
+	list-style: none;
+	background-image: none;
+}
+
+
+
+/* Span-A: I/L/I glpyhs */
+ul.tree span.a {
+	background: url(../images/t.gif) 0 50% no-repeat;
+	display: block;
+}
+ul.tree span.a.last {
+	background: url(../images/l.gif) 0 50% no-repeat;
+}
+
+/* Span-B: Plus/Minus icon */
+ul.tree span.b {
+}
+ul.tree span.a.children span.b {
+	background: url(../images/minus.gif) 0 50% no-repeat;
+	cursor: pointer;
+}
+ul.tree li.closed span.a.children span.b {
+	background: url(../images/plus.gif) 0 50% no-repeat;
+	cursor: pointer;
+}
+
+/* Span-C: Spacing and extending tree line below the icon */
+ul.tree span.c {
+	margin-left: 16px;
+}
+ul.tree span.a.children span.c {
+	background: url(../images/i-bottom.gif) 0 50% no-repeat;
+}
+ul.tree span.a.spanClosed span.c {
+	background-image: none;
+}
+
+
+/* Anchor tag: Page icon */
+ul.tree a  {
+	white-space: nowrap;
+	overflow: hidden;
+	
+	padding: 0px 0px 0px 18px;
+	line-height: 16px;
+
+	background: url(../images/page-file.png) 0 50% no-repeat;
+}
+ul.tree span.a.children a {
+	background: url(../images/page-openfoldericon.png) 0 50% no-repeat;
+	/* background-image: url(../images/page-openfoldericon.png);*/
+}
+ul.tree span.a.children.spanClosed a {
+	background: url(../images/page-foldericon.png) 0 50% no-repeat;
+	/* background-image: url(../images/page-foldericon.png); */
+}
+
+/* Unformatted tree */
+ul.tree.unformatted li {
+	background-image: none;
+	padding-left: 16px;
+}
+ul.tree.unformatted li li {
+	background-image: none;
+	padding-left: 0px;
+}
+
+/*
+ * Divs, by default store vertically aligned data
+ */
+
+ul.tree li div {
+	float: right;
+	clear: right;
+	height: 1em;
+	margin-top: -26px;
+}
+/* As inside DIVs should be treated normally */
+ul.tree div a  {
+	padding: 0;
+	background-image: none;
+	min-height: auto;
+	height: auto;
+}
+
+ul.tree li A:link, ul.tree li A:hover, ul.tree li A:visited {
+	color : #111111;
+}
+
+
+ul.tree li .over{
+	background-color : pink;
+}

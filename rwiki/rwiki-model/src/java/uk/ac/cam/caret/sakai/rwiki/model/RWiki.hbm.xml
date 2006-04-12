@@ -1,0 +1,170 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+  "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<!-- 
+	/**********************************************************************************
+	*
+	* $Header$
+	*
+	***********************************************************************************
+	*
+	* Copyright (c) 2005 University of Cambridge
+	* 
+	* Licensed under the Educational Community License Version 1.0 (the "License");
+	* By obtaining, using and/or copying this Original Work, you agree that you have read,
+	* understand, and will comply with the terms and conditions of the Educational Community License.
+	* You may obtain a copy of the License at:
+	* 
+	*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+	* 
+	* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+	* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+	* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+	* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	*
+	**********************************************************************************/
+ -->
+<hibernate-mapping package="uk.ac.cam.caret.sakai.rwiki.component">
+	
+	<!--
+	Version 2 schema,
+	contains persistant properties of the database, including
+	the version of the schema 
+	 --> 
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl"
+		table="rwikiproperties" >
+		<id name="id" unsaved-value="null" >
+			<column name="id" length="36" not-null="true"/>
+			<generator class="uuid.hex" />
+		</id>
+		<property name="name" column="name" not-null="true" index="true" type="string" unique="true" length="255" />
+		<property name="value" column="value" type="string" length="4000" />
+	</class>
+	
+	<!--
+	Version 2 schema
+	contains content of the current object
+	-->
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectContentImpl"
+		table="rwikicurrentcontent" >
+		<id name="id" unsaved-value="null" >
+			<column name="id" length="36" not-null="true"/>
+			<generator class="uuid.hex" />
+		</id>
+		<property name="rwikiid" length="36" not-null="true"/>
+		<property name="content" not-null="false" type="text" />		
+	</class>
+	<!--
+	Version 2 schema 
+	contains content of history objects.
+	-->
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectContentImpl"
+		table="rwikihistorycontent">
+		<id name="id" unsaved-value="null" >
+			<column name="id" length="36" not-null="true"/>
+			<generator class="uuid.hex" />
+		</id>
+		<property name="rwikiid" length="36" not-null="true"/>
+		<property name="content" not-null="false" type="text" />		
+	</class>
+	
+	<!-- 
+	Version 2 schema, refactoed from version 1, 
+	contains detached historical versions
+	-->
+	<class 
+		name="uk.ac.cam.caret.sakai.rwiki.model.RWikiHistoryObjectImpl" 
+		table="rwikihistory" >
+<!--  		<cache usage="nonstrict-read-write" />  remove for the moment, until we know if acceptable -->
+		<id name="id" unsaved-value="null">
+			<column name="id" length="36" not-null="true"/>
+			<generator class="uuid.hex"/>
+		</id>
+		
+		<property name="version" type="timestamp" not-null="false"/>		
+		<!-- this is the name of the page -->
+		<property name="name" column="name" not-null="true" index="true" type="string"  length="255"/>
+		<!-- this is the realm that the page belongs to -->
+		<property name="realm" not-null="false" type="string" index="true" length="255" />
+		<!-- this is the content of the wiki -->
+		<!-- MOVED to seperate conten ovject
+		<property name="content" not-null="false" type="text" />
+		-->
+		<!-- enough for about 400 pages, dont want to use a clob here -->
+		<property name="referenced" not-null="false" length="4000" index="true" />
+		<!-- the user that edited this page. -->
+		<!-- when versioning is on, the last entry is the last updated -->
+		<!-- the first entry is the creator -->
+		<property name="user"  column="userid" not-null="false" length="64" />
+		<property name="owner" not-null="false" length="64" />
+		<!-- access: this is a simple access control list on a page by page basis -->
+		<!-- it specifies read and or write for user, group, and public -->
+		<property name="ownerRead" type="boolean"  />
+		<property name="ownerWrite" type="boolean" />
+		<property name="ownerAdmin" type="boolean" />
+		<property name="groupRead" type="boolean" />
+		<property name="groupWrite" type="boolean" />
+		<property name="groupAdmin" type="boolean" />
+		<property name="publicRead" type="boolean" />
+		<property name="publicWrite" type="boolean" />
+
+		<property name="sha1" length="64" />
+		
+		
+		<property name="revision"  type="int"/>
+
+		<!-- additional properties not in RWiki Object -->		
+		<property name="rwikiobjectid" length="36" not-null="true"/>
+
+	</class>
+
+	<class name="uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl" 
+			table="rwikiobject"
+			optimistic-lock="version">
+<!--		<cache usage="read-write" /> -->
+		<id name="id" unsaved-value="null">
+		<column name="id" length="36" not-null="true"/>
+		<generator class="uuid.hex"/>
+	</id>
+
+	<version name="version" type="timestamp" unsaved-value="null"/>
+
+    <!-- this is the name of the page -->
+    <property name="name" column="name" not-null="true" index="true" type="string" unique="true" length="255"/>
+	<!-- this is the realm that the page belongs to -->
+	<property name="realm" not-null="false" type="string" index="true" length="255" />
+	
+	<!-- this is the content of the wiki -->
+	<!-- MOVED TO SEPERATE CONTENT OBJECT
+	<property name="content" not-null="false" type="text" />
+	-->
+
+    <!-- enough for about 400 pages, dont want to use a clob here -->
+	<property name="referenced" not-null="false" length="4000" index="true" />
+
+	<!-- the user that edited this page. -->
+	<!-- when versioning is on, the last entry is the last updated -->
+	<!-- the first entry is the creator -->
+	<property name="user" column="userid" not-null="false" length="64" />
+	<property name="owner" not-null="false" length="64" />
+	<!-- access: this is a simple access control list on a page by page basis -->
+	<!-- it specifies read and or write for user, group, and public -->
+	<property name="ownerRead" type="boolean"  />
+	<property name="ownerWrite" type="boolean" />
+	<property name="ownerAdmin" type="boolean" />
+	<property name="groupRead" type="boolean" />
+	<property name="groupWrite" type="boolean" />
+	<property name="groupAdmin" type="boolean" />
+	<property name="publicRead" type="boolean" />
+	<property name="publicWrite" type="boolean" />
+
+	<property name="sha1" length="64" />
+		
+	<property name="revision"  type="int"/>
+		
+  </class>
+
+    
+</hibernate-mapping>

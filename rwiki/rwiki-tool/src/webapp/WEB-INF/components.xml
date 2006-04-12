@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <!-- +
+  + Core request processing components
+  + -->
+  <import resource="commandComponents.xml"/>	
+  <!-- +
+  + Tool level components
+  + -->
+  <import resource="toolComponents.xml" />
+  <!-- +
+  + Page pre-population population
+  + -->
+  <import resource="prepopulateComponents.xml" />
+  
+  <!-- Logger for RWiki  -->
+  <bean id="rwiki-logger"
+    parent="org.sakaiproject.service.framework.log.Logger">
+  </bean>
+
+</beans>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <!-- +
+  + Core data access components
+  + -->
+  <import resource="coreDaoComponents.xml" />
+  <!-- +
+  + Core Service components
+  + -->
+  <import resource="coreServiceComponents.xml" />	
+  
+  <!-- +
+  + Data migration
+  + -->
+  <import resource="datamigrationComponents.xml" />
+  <!-- +
+  + Data migration
+  + -->
+  <import resource="messagingComponents.xml" />
+ 
+ 
+  <!-- Logger for RWiki  -->
+  <bean id="rwiki-logger"
+    parent="org.sakaiproject.service.framework.log.Logger">
+  </bean>
+
+  <!-- each transaction manager, and therefore session factory must have its own data source,
+  so overload here to avoid getting the central one -->
+  <!--<bean id="sakai-rwiki.javax.sql.DataSource" parent="javax.sql.DataSource">
+  </bean>-->
+
+  <!-- extend the  sakai base session factory -->
+  <!--
+  class="org.springframework.orm.hibernate.LocalSessionFactoryBean"
+  -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"
+    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+
+    <property name="dataSource">
+      <ref bean="javax.sql.DataSource"/>
+    </property>
+    <property name="mappingResources">
+      <list>
+	<value>uk/ac/cam/caret/sakai/rwiki/model/RWiki.hbm.xml</value>
+	<value>uk/ac/cam/caret/sakai/rwiki/message/model/message.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+</beans>

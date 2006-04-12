@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="marquard@ched.uct.ac.za">Stephen Marquard</author>
+        <title>Collaborative writing exercise in an undergraduate course</title>
+    </properties>
+    <body>
+        <section name="Actors">
+            <ul>
+                <li> Actor 1</li>
+                <li> Actor 2</li>
+                <li> Actor 3</li>
+            </ul>
+        </section>
+        <section name="Use Case">
+            <subsection name="Task" >
+                <p>
+                </p>
+                <p>
+                </p>
+            </subsection>
+            <subsection name="Setup" >
+                <p>
+                    
+                </p>
+                <p>
+                </p>
+                <p>
+                </p>
+                <p>
+                </p>
+            </subsection>
+            <subsection name="Collaboration" >
+                <p>
+                </p>
+            </subsection>
+            <subsection name="Assesment" >
+                <p>
+                    
+                </p>
+            </subsection>
+        </section>
+        <section name="Comments" >
+            <p>
+                
+            </p>
+         </section>
+    </body>
+    <!--    
+        <body>
+        <section name="Actors">
+        </section>
+        <section name="Use Case">
+        </section>
+        </body>
+    -->
+</document>

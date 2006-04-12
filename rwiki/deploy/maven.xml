@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+      xmlns:j="jelly:core"
+      xmlns:license="license"
+      xmlns:util="jelly:util"
+      xmlns:ant="jelly:ant"
+      xmlns:artifact="artifact"
+      xmlns:maven="jelly:maven"
+      xmlns:gump="jelly:gump"
+      default="sakai:build">
+
+	<goal name="deploy-war">
+	  <ant:echo>Copying ${sakaiRwiki.deploy.local} to ${sakaiRwiki.deploy.upload}</ant:echo>
+	    <ant:exec executable="/usr/bin/scp" failonerror="true"> 
+	      <arg file="${sakaiRwiki.deploy.local}"/>
+		<arg value="${sakaiRwiki.deploy.uploadhost}:${sakaiRwiki.deploy.upload}"/>
+	    </ant:exec>
+	    <ant:echo>SCP copy compressed file: successful.</ant:echo>
+	</goal>
+
+
+</project>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Sakai RWiki">
+    <title>Sakai RWiki Tool</title>
+    <body>
+        <breadcrumbs>
+            <item name="Sakai Project" href="http://www.sakaiproject.org"/>
+            <item name="Sakai RWiki" href="../../index.html"/>
+            <item name="Sakai RWiki Tool" href="index.html"/>
+        </breadcrumbs>
+        <menu name="Overview">
+                <item name="Sakai Project" href="http://www.sakaiproject.org"/>
+                <item name="Sakai RWiki" href="../../index.html">                    
+                    <item name="RWiki Tool" href="../sakai-rwiki/index.html"/>
+                    <item name="RWiki Service" href="../sakai-rwiki-service/index.html"/>
+                    <item name="Radeox Library" href="../sakai-radeox/index.html"/>
+                    <item name="FAQ" href="../../faq.html"/>
+                </item>
+        </menu>
+        <menu name="Specification" >
+            <item name="Specification" href="../../srs.html" />
+            <item name="Use Cases" href="../../usecases.html" >
+                <item name="Creating a Grant Proposal" href="../../usecase1.html"/>
+                <item name="Collaborative writing exercise in an undergraduate course" href="../../usecase2.html"/>
+                <item name="Role playing in an undergraduate course" href="../../usecase4.html" />
+            </item>
+        </menu>        
+    </body>
+</project>

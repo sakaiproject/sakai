@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <!-- components context -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.PreferenceServiceImpl">
+    <property name="log"><ref bean="rwiki-logger"/></property>
+    <property name="preferenceDao"><ref bean="preferenceDao"/></property>
+  </bean>
+
+  <!-- Service for creating commands in URL Processing -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.MessageService"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.MessageServiceImpl">
+    <property name="log"><ref bean="rwiki-logger"/></property>
+    <property name="messageDao"><ref bean="messageDao" /></property>
+    <property name="pagePresenceDao"><ref bean="pagePresenceDao"/></property>
+  </bean>
+  <!-- Triggers fired on actions -->
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerService"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.TriggerServiceImpl">
+    <property name="log"><ref bean="rwiki-logger"/></property>
+    <property name="triggerDao"><ref bean="triggerDao"/></property>
+    <property name="triggerHandlers">
+      <map>
+	<entry key="xxx" ><value>yyy</value></entry>
+      </map>
+    </property>
+  </bean>
+
+  <!-- +
+  + DAO's
+  + -->
+
+  <!-- Message Proxy -->
+  <bean id="messageDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<prop key="remove*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="messageDaoImpl"/></property>
+  </bean>
+
+  <!-- Message DAO  -->
+  <bean id="messageDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.MessageDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+    </property>
+    <property name="log"><ref bean="rwiki-logger"/></property>
+  </bean>
+
+  <!-- Page Presence Proxy -->
+  <bean id="pagePresenceDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<prop key="remove*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="pagePresenceDaoImpl"/></property>
+  </bean>
+
+  <!-- PagePresence DAO  -->
+  <bean id="pagePresenceDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PagePresenceDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+    </property>
+    <property name="log"><ref bean="rwiki-logger"/></property>
+  </bean>
+
+  <!-- Preference Proxy -->
+  <bean id="preferenceDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<prop key="remove*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="preferenceDaoImpl"/></property>
+  </bean>
+
+  <!-- Prefernce DAO  -->
+  <bean id="preferenceDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.PreferenceDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+    </property>
+    <property name="log"><ref bean="rwiki-logger"/></property>
+  </bean>
+
+  <!-- Trigger Proxy -->
+  <bean id="triggerDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<prop key="remove*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="triggerDaoImpl"/></property>
+  </bean>
+
+  <!-- Trigger DAO  -->
+  <bean id="triggerDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl.TriggerDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+    </property>
+    <property name="log"><ref bean="rwiki-logger"/></property>
+  </bean>
+
+
+</beans>    

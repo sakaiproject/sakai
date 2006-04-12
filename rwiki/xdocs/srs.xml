@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <title>RWiki Software Requirements Specification</title>
+    </properties>
+    <body>
+        <section name="Introduction"> 
+            <p>
+                Please note, this document is in draft and constantly evolving. The current release in 2.0. 
+                The next release will be 2.1. You should look to JIRA to see which of the features in the 
+                roadmap will be in the 2.1 release.
+            </p>
+        </section>
+        <section name="1.5 Requirements" >
+            <p>
+                <i>Cut and paste required</i>
+            </p>
+        </section>
+        <section name="Features">
+            <subsection name="1.5 Release Feature List">
+            <p>
+                <ol>
+                    <li>Wiki Markup<ol>
+                            <li> Radeox wiki markup (as in SnipSnap)</li>
+                            <li> Radeox Macros ( eg image, rss etc) extensible</li>
+                        </ol>
+                    </li>
+                    <li> Sakai integration<ol>
+                            <li> knows about user, realm and site.</li>
+                            <li> will access sakai resources</li>
+                        </ol></li>
+                    <li> Spaces, like Snips in SnipSnap<ol>
+                            <li> automatic default space is created named by SiteID</li>
+                            <li> all pages with no specific space id, are assumed to be in the same
+                                space as the parent page</li>
+                            <li> Subspaces may be generated</li>
+                            <li> Cross worksite spaces may be generated</li>
+                            <li> pages may be shared between worksites.</li>
+                        </ol></li>
+                    <li> Permissions<ol>
+                            <li> Space persmissions derived from Site Realms and Roles.</li>
+                            <li> Addition per page permissions on each page.</li>
+                            <li> Allows complete public anon view of pages if selected.</li>
+                        </ol></li>
+                    <li> Sakai Tool integration<ol>
+                            <li> Resources may be included into pages (images are rendered)</li>
+                            <li>Rendered output of any tool in work site ( to be implemented)</li>
+                        </ol></li>
+                    
+                    <li> Wikipage navigation<ol>
+                            <li> Current tool generates breadcrumbs as a stack of pages you have
+                                recently seen. A page can only appear once in this list, and hence
+                                if you go back to a previous page it is removed from the list and
+                                re-inserted at the end.</li>
+                            <li> Breadcrumbs contain links to previous searches.</li>
+                            <li> Searches are performed on page name and on full-text search.</li>
+                            <li> Searches should be restricted to only pages that you can see.</li>
+                        </ol></li>
+                    
+                </ol>
+                </p>
+            </subsection>
+            <section name="2.0 Requirements" >
+                <p>
+                   This section outlines the requirements that were addressed by the 2.0 release. 
+                </p>
+                <subsection name="Sakai 2.0.x" >
+                    <p>
+                        Must use a Sakai 2.0.x build mechanism and deploy into sakai 2.0.0 or 2.0.1. 
+                    </p>
+                </subsection>
+                <subsection name="Architecture" >
+                    <p>
+                        The archtetecture needs to be reviewed to achieve a lower memory overhead with a 
+                        higher page serving performance. Pages should typically be served in &lt; 50ms on 
+                        a low end PowerBook (eg 1.3GHz G4). The architecture should be structured in a service
+                        oriented way to eliminate heavy object consumption as part of the request cycle.
+                    </p>
+                </subsection>
+                <subsection name="Markup" >
+                    <p>
+                        The implemented markup is based on Radeox, which a simplified version of the 
+                        markup found in SnipSnap. Most of the complex macros seen in SnipSnap are not present (eg Blogs).
+                        All of the standard markup (linking and formatting) is present.
+                    </p>
+                </subsection>
+                <subsection name="Optimistic Locking" >
+                    <p>
+                        The aim of optimistic locking is to allow users to edit a page without
+                        unduley risking overwriting someone elses work. If user A starts editing a 
+                        page, then user B edits and saves the same page, user A, when they save their 
+                        changes could overwrite user B's edits. With optimistic locking user A is notified that
+                        user B has made changes whilst user A was editing, and user A get the option to 
+                        decide what action to take.
+                    </p>
+                    <p>    
+                        Optimistic 
+                        Locking has been achieved by maintaining a version field with each page, however
+                        we are not relying on the optimistic locking features of Hibernate to determine
+                        when an optimistic lock has been violated. This is performed by the code and the user
+                        is given the opertunity to either overwrite the interceeding content or accept that content.
+                        We found using Hibernates own optimistic locking mechanisms did not give the user enough control
+                        over the operation. 
+                    </p>
+                </subsection>
+                <subsection name="Version Control">
+                    <p>
+                        As pages are edited, each edit results in a new version of the page. The time of the edit and its
+                        entire content are stored in the database. We are not using an RCS based version control.
+                    </p>
+                </subsection>
+                <subsection name="Diff View" >
+                    <p>
+                        With Version Control a Diff view is required. The Diff view should allow the user to view the
+                        differences between two versions, that the user can select. It should enable the user to clearly
+                        identify what has changed between to the two versions. We are not, at this stage looking to 
+                        see a complete change history in a single page (as with Track Changes in Microsoft Word) as this is 
+                        probably to complicated to implement at this stage.
+                    </p>
+                </subsection>
+                <subsection name="Preview" >
+                    <p>
+                        To avoid forcing he user to save their changes just to see if they have formatted the changes correctly
+                        we need to have a preview function on the edit page. This should maintain the edit state of the edit page
+                        and without saving the edits, allow the user to preview their wiki markup as it will appear on the final
+                        page. The user should not be asked to navigate back and forward to see the preview.
+                    </p>
+                </subsection>
+                <subsection name="Attachement Support" >
+                    <p>
+                       Each RWiki space within the worksite should manage its own subfolder in sakai
+                        resources that contains attachments. RWiki should reuse the sakai resources 
+                        functionality to enable a use to upload content on the page. It should provide
+                         a list of uploaded the contents, for that page, on the pages (e.g. there are
+                          5 attachments to this page). Should investigate what happens when a resource
+                           is moved, and how be might handle it. Is their an event in Resources we can watch ?
+                    </p>
+                </subsection>
+                <subsection name="Image Support" >
+                    <p>
+                        It should be possible to reference any file in resources inside RWiki.
+                         If the source can be rendered as an image, a img tag should be used, 
+                         otherwise a link should be used. This is probably implemented in the 
+                         properties file that implements the mark-up.
+                    </p>
+                </subsection>
+                <subsection name="Maths Support" >
+                    <p>
+                        It should be possible to insert Latex mark-up into the page (suitably delimited).
+                         Where that mark-up us present, a plug-in should use a Latex-rendering engine to 
+                         emit wither MathML or a gif to represent the math, see MediaWiki for examples.
+                    </p>
+                </subsection>
+                <subsection name="Prepopulated Pages" >
+                    <p>
+                        The existing blank pages that are deployed on install need to be expanded.
+                         Their should be some basic structure setup and some help on the 
+                         available mark-up.
+                    </p>
+                </subsection>
+            </section>
+            <subsection name="2.0 Release Feature List">
+            <p>
+                <ol>
+                    <li>Move to Sakai 2.0 <b class="bold">done</b></li>
+                    <li>Rewrite request archetecture <b>done</b></li>
+                    <li>Check functionality with Sakai 1.5 <b>postponed pending demand</b></li>
+                    <li>Implement version control <b>done</b></li>
+                    <li>Implement complete robust optimistic locking <b>done</b></li>
+                    <li>Implement usable preview support <b>done</b></li>
+                    <li>QA Rewritten archetecture <b>done</b></li>
+                    <li>Implement Visual Diff of versions <b>done</b></li>
+                    <li>Implement Prepopulated pages, sidebars, help, howto's <b>done</b></li>
+                    <li>Implement Export support <b>postponed pending more requirements</b></li>
+                    <ol>
+                        <li>Needs to take account of Helpers and Archiving</li>
+                    </ol>
+                    <li>Review markup <b>done</b></li>
+                    <li>Implement attachement support <b>postponed, using Sakai Resources</b></li>
+                    <ol>
+                        <li>Need to make it easier to put attachements in</li>
+                    </ol>
+                    <li>Implement Navigation support <b>done</b></li>
+                    <li>Implement Image Support <b>done</b></li>
+                    <li>Reskin UI layout <b>done</b></li>
+                    <li>Implement Maths Support <b>done</b></li>
+                </ol>
+                </p>
+            </subsection>
+        </section>
+        <section name="Future Requirements">
+        <p>
+            <ol>
+                <li>Comment Support<ol>
+                        <li> We would like to scope the requirements for adding comment support.
+                            There are several issues to be resolved:<ol>
+                                <li> What sort of permission structure should be added?</li>
+                                <li> Do we want comments on comments?</li>
+                                <li> Any other thoughts?</li>
+                            </ol></li>
+                    </ol></li>
+            </ol>
+            </p>
+        </section>
+        <section name="Roadmap Requirements">
+            <ol>
+                <li>Performance of History</li>
+                <li>Comments</li>
+                <li>Event integration</li>
+                <li>Navigation Persistance</li>
+                <li>RSS feed of recent changes</li>
+                <li>Helpers</li>
+                <li>Integration of Events into Courier</li>
+                <li>Rename a page <i class="italic">needs discussion</i></li>
+                <li>Spelling</li>
+            </ol>
+            <subsection name="Improving the performance of History" >
+                            <ol>
+                                <li> In our current model we use an attached List of RWikiHistoryObjects for
+                                    storing the history of a page.</li>
+                                <li> This link is currently a hard-link and thus when the number of
+                                    revisions gets large there will be a definite slow down in performance.</li>
+                                <li> There are two options to solve this problem: <ol>
+                                    <li> Use Lazy Initialization and inherit all of the difficulties
+                                        associated with that</li>
+                                    <li> Separate the link, and break ORM.</li>
+                                </ol>
+                                </li>
+                            </ol>
+            </subsection>
+            <subsection name="Comments"> 
+                <p>To make the wiki usefull in a educational environment, we
+                would need comments on a page. This is probably a sequence of wiki pages, probably
+                    with a different set of permissions, that a associated with the main page.</p> </subsection>
+              
+            <subsection name="Event  Integration">
+                <p>
+               RWiki should register events, navigation from
+                page to page, when an edit is started, every transaction with RWiki should cause an
+                event to register. 
+                </p>
+            </subsection>
+            <subsection name="Navigation Persistance"> 
+                <p>At the moment there is no navigational
+                persistance. When you switch between tools, you loose the state of the RWiki tool.
+                We want to provide Navigational persistance without locking anything. There are a
+                few options. <ol>
+                    <li>Client Side</li>
+                    <ol>
+                        <li>The tools stores its state in client side cookies so that when the user
+                            returns to the start page, the tool moves to the last state page, by
+                            refresshing the page. This is a minimal impact approach.... however it
+                            will only work relyably for gets. If applied to POSTs and editing page,
+                            we probably will not be able to store all state in cookies.</li>
+                    </ol>
+                    <li>Server Side</li>
+                    <ol>
+                        <li>As we move via each page we maintain a client state in the server
+                            session. This means that all copies of the Wiki tool within the Same
+                            worksite, Same session are tied, when on the home page. It may be
+                            possible to track new Windows, same session, and/or new tab same
+                            session. In addition we have to track editing content, so, periodically
+                            as the use types, their state is saved to the server. Then when the
+                            switch tools/worksite and come back to the edit window, their edits are
+                            not lost.</li>
+                    </ol>
+                    <li>Issues</li>
+                    <ol>
+                        <li>Both mechanisms must track windows in the same session and not tie them
+                            together.</li>
+                        <li>Both mechanisms must only restore state on the Home page, since that is
+                            the one where state will be reconstituted from.</li>
+                        <li>Should consider enclosed view state as exists in .NET (only as a
+                            informative model, not as an example of good implementation)</li>
+                    </ol>
+                </ol>
+                </p>
+            </subsection>
+            <subsection name="RSS feed"> 
+                <p>
+                    
+                Feed of recient changes as RSS, but also other features. If
+                these events are RWiki specific they should be RWiki standalone, otherwise they
+                should integrate with Sakai Events. </p></subsection>
+            <subsection name="Helpers"> <p>At the moment we have a rendering service for RWiki. We also
+                need to expose the pages of the wiki as undecorated content so that other tools can
+                use the content. If RWiki becomes fragment capable via its helper, then its content
+                will become available via JSR-168 provider. That is why this is important. </p></subsection>
+            <subsection name="Courier"> <p>With events in place, these should flow to the UI, so that a
+                user is notified when annother user starts to edit a page. This might include all
+                activities in the wiki space for the worksite. </p></subsection>
+            <subsection name="Rename page"> <p>Need to rename a page, however this creates and issue
+                for references. Perhapse we need a permlink to avoid external 404's </p></subsection>
+            <subsection name="Spelling">
+            <p>
+                <ol>
+                    <li>A non intrusive spell checker that cheked spelling as typing (using ajax),
+                        as you might have noticed, my speling is bad!</li>
+                </ol></p>
+            </subsection>
+        </section>
+    </body>
+</document>

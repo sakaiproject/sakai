@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<registration>
+
+<!--
+	<function name="rwiki.create" />
+	<function name="rwiki.read" />
+	<function name="rwiki.update" />
+	<function name="rwiki.delete" />
+	<function name="rwiki.admin" />
+	<function name="rwiki.superadmin" />
+-->
+	<tool
+			id="sakai.rwiki"
+			title="Wiki"
+		description="For collaborative editing of pages and content">
+			
+		<category name="course" />
+         <category name="project" />
+         <category name="myworkspace" />
+		
+
+	</tool>
+
+</registration>

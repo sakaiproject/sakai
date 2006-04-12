@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<web-app id="RWikiTool" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-rwiki</display-name>
+	<description>Sakai Radeox Wiki</description>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/components.xml</param-value>
+	</context-param>
+	
+	<!--
+	<context-param>
+	<param-name>contextSharedLocation</param-name>
+	<param-value>/WEB-INF/shared.xml</param-value>
+	</context-param>
+	-->
+	
+	<!-- 
+	Tool registration, 
+	requires that the tool definition in in tool
+	-->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.ContextLoaderListener</listener-class>
+	</listener>
+	
+	<listener>
+		<listener-class>uk.ac.cam.caret.sakai.rwiki.tool.ModelMigrationContextListener</listener-class>
+	</listener>
+	
+	<!-- 
+	The Sakai Request Hander 
+	-->
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	</filter>
+	
+	<!--
+	Mapped onto the RWiki Handler
+	-->
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+	
+	<!--
+	The RWiki Controller 
+	-->
+	<servlet>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<servlet-class>
+			uk.ac.cam.caret.sakai.rwiki.tool.RWikiServlet</servlet-class>
+		<init-param>
+			<param-name>headerPreContent</param-name>
+			<param-value>
+				<![CDATA[
+				<link href="/sakai-rwiki/styles/wikiStyle.css" type="text/css" rel="stylesheet" media="all" />
+				<script type="text/javascript" src="/sakai-rwiki/scripts/stateswitcher.js"> </script>
+				<script type="text/javascript" src="/sakai-rwiki/scripts/ajaxpopup.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki/scripts/asyncload.js" > </script>
+				<script type="text/javascript" src="/sakai-rwiki/scripts/logger.js" > </script>
+				]]>
+				
+				
+			</param-value>
+			
+		</init-param>
+		<init-param>
+			<!-- this turns on page timer at info -->
+			<param-name>log-response</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<!-- this turns on detail timing at the info level of logger -->
+			<param-name>log-full-response</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>headerScriptSource</param-name>
+			<param-value></param-value>
+			<!-- 
+			-->
+			<!-- Uncomment this if you want jsmath
+			<param-value>/library/jsMath/jsMath.js</param-value>
+			-->
+		</init-param>
+		<init-param>
+			
+			<param-name>footerScript</param-name>
+			<!--
+			-->
+			<param-value> </param-value>
+			<!-- Uncomment this if you want jsmath
+			<param-value>if (typeof(jsMath) == "undefined" ) { alert("Maths support has been enabled, \nbut I cant find the jsMath javascript library.\n Please check web.xml "); } else { if  (jsMath.Process) { jsMath.Process(); }}</param-value>
+			-->
+			
+		</init-param>
+	
+		<load-on-startup>100</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>sakai.rwiki</servlet-name>
+		<url-pattern>/rwiki/*</url-pattern>
+	</servlet-mapping>
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/WEB-INF/command-pages/errorpage.jsp</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.RuntimeException</exception-type>
+		<location>/WEB-INF/command-pages/errorpage.jsp</location>
+	</error-page>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	
+</web-app>

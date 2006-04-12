@@ -1,0 +1,9 @@
+h2 Page Does not exist.
+The page you just accessed does not exist, and so has been created for you. 
+You may now edit this page to change its content
+
+
+h3 Default Template
+This page [default_template] is used as a template for new pages. You may:
+* Change it on a worksite basis by editing [default_template]
+* Change it on a installation wide basis by changing DefaultPage.txt referenced in components.xml 
