@@ -25,22 +25,24 @@
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-rwiki-service</artifactId>
+            <artifactId>sakai-rwiki-api</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-rwiki-service-impl</artifactId>
+            <artifactId>sakai-rwiki-impl</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
+<!-- OLDDEP
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-legacy-service</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
+-->
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-legacy-component</artifactId>

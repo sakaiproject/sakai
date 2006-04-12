@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>${basedir}/../project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Tool</name>
   <groupId>sakaiproject</groupId>
@@ -10,44 +10,6 @@
   <description>
     This project creates a WAR containing the RWiki Tool for Sakai.
   </description>
-  <!-- Current version should be inherited -->
-  <url>http://saffron.caret.cam.ac.uk/projects/sakai-rwiki/sakai-rwiki</url>
-  <siteDirectory>/home/gump/project-websites/sakai-rwiki//sakai-rwiki/</siteDirectory>
-  <distributionDirectory>/home/gump/project-downloads/sakai-rwiki</distributionDirectory>
-  <versions>
-    <version>
-      <id>1.0.0</id>
-      <name>V1.0</name>
-      <tag>VERSION0_1</tag>
-    </version>
-    <version>
-      <id>2.0.0</id>
-      <name>V2.0RC1</name>
-      <tag>rc1-20050902</tag>
-    </version>
-  </versions>
-  <mailingLists>
-    <mailingList>
-      <name>Sakai Developers List</name>
-      <subscribe>http://collab.sakaiproject.org/portal/</subscribe>
-      <unsubscribe>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</unsubscribe>
-      <archive>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</archive>
-    </mailingList>
-  </mailingLists>
-  <!-- leave at default for now -->
-  <!--<reports>
-    <report>jdepend</report>
-    <report>checkstyle</report>
-    <report>changelog</report>
-    <report>changes</report>
-    <report></report>
-
-  </reports>-->
-  <repository>
-    <connection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/rwiki</connection>
-    <developerConnection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/rwiki</developerConnection>
-    <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>    
-  </repository>
   <properties>
     <deploy.type>war</deploy.type>
   </properties>
@@ -144,12 +106,14 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+<!-- OLDDEP
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-legacy-service</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+-->
     
     <dependency>
       <groupId>sakaiproject</groupId>
@@ -163,20 +127,9 @@
       <version>${sakai.spring.version}</version>
       <type>jar</type>
     </dependency>
-<!--
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-radeox</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-      <properties>
-	<war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
--->    
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-service</artifactId>
+      <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -190,14 +143,6 @@
       </properties>
     </dependency>
     
-<!--
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-service-impl</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-  -->
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-rwiki-diff</artifactId>

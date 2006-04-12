@@ -1,42 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-  <extend>${basedir}/../project.xml</extend>
+    <extend>../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Radeox Library</name>
   <artifactId>sakai-radeox</artifactId>
   <currentVersion>${sakai.version}</currentVersion>
-  <versions>
-    <version>
-      <id>1.0.0</id>
-      <name>V1.0</name>
-      <tag>VERSION0_1</tag>
-    </version>
-    <version>
-      <id>2.0.0</id>
-      <name>V2.0RC1</name>
-      <tag>rc1-20050902</tag>
-    </version>
-  </versions>
-  <mailingLists>
-    <mailingList>
-      <name>Sakai Developers List</name>
-      <subscribe>http://collab.sakaiproject.org/portal/</subscribe>
-      <unsubscribe>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</unsubscribe>
-      <archive>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</archive>
-    </mailingList>
-  </mailingLists>
   <shortDescription>Radeox Library for RWiki</shortDescription>
   <description>
     This project generates and creates an appropriate radeox jar for the Sakai RWiki tool.
     The code here was developed by the Radeox project. 
   </description>
-  <siteDirectory>/home/gump/project-websites/sakai-rwiki/radeox/</siteDirectory>
-  <distributionDirectory>/home/gump/project-downloads/sakai-rwiki</distributionDirectory>
-  <repository>
-    <connection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/radeox</connection>
-    <developerConnection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/radeox</developerConnection>
-    <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>    
-  </repository>
   <properties>
     <deploy.type>jar</deploy.type>
   </properties>

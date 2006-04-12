@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>${basedir}/../project.xml</extend>
+  <extend>../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Utils</name>
   <groupId>sakaiproject</groupId>
@@ -10,7 +10,6 @@
     <deploy.type>jar</deploy.type>
   </properties>
   <build>
-    <nagEmailAddress>andrew@caret.cam.ac.uk</nagEmailAddress>
     <!-- java source -->
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -47,12 +46,14 @@
     </resources>
   </build>
   <dependencies>
+<!-- OLDDEP
       <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-legacy-service</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+-->
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

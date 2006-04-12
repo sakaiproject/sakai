@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>${basedir}/../project.xml</extend>
+    <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Service</name>
   <groupId>sakaiproject</groupId>
@@ -10,41 +10,11 @@
   <description>
     This project creates the general APIs used by the Sakai RWiki Tool
   </description>
-  <url>http://saffron.caret.cam.ac.uk/projects/sakai-rwiki/sakai-rwiki-service</url>
-  <siteDirectory>/home/gump/project-websites/sakai-rwiki/sakai-rwiki-service</siteDirectory>
-  <distributionDirectory>/home/gump/project-downloads/sakai-rwiki/sakai-rwiki-service</distributionDirectory>
-  <versions>
-    <version>
-      <id>1.0.0</id>
-      <name>V1.0</name>
-      <tag>VERSION0_1</tag>
-    </version>
-    <version>
-      <id>2.0.0</id>
-      <name>V2.0RC1</name>
-      <tag>rc1-20050902</tag>
-    </version>
-  </versions>
-  <mailingLists>
-    <mailingList>
-      <name>Sakai Developers List</name>
-      <subscribe>http://collab.sakaiproject.org/portal/</subscribe>
-      <unsubscribe>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</unsubscribe>
-      <archive>http://collab.sakaiproject.org/portal/site/1097928811887-22636/page/1097928812081-22647</archive>
-    </mailingList>
-  </mailingLists>
-  <repository>
-    <connection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/rwiki-service</connection>
-    <developerConnection>scm:svn:https://saffron.caret.cam.ac.uk/svn/projects/rwiki/trunk/rwiki-service</developerConnection>
-    <url>https://saffron.caret.cam.ac.uk/cgi-bin/viewcvs.cgi/</url>    
-  </repository>
   <properties>
     <deploy.type>jar</deploy.type>
 	<deploy.target>shared</deploy.target>
   </properties>
   <build>
-    <nagEmailAddress>andrew@caret.cam.ac.uk</nagEmailAddress>
-    <!-- java source -->
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
     <unitTest>
@@ -84,12 +54,6 @@
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-radeox</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>servletapi</groupId>
