@@ -178,12 +178,6 @@ public class MercuryPortal extends HttpServlet
 			{
 				doLogin(req, res, session);
 			}
-	
-			// recognize and dispatch the 'logadmin' option
-			else if ((parts.length == 2) && (parts[1].equals("logadmin")))
-			{
-				doLoginAdmin(req, res, session);
-			}
 
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
@@ -247,9 +241,6 @@ public class MercuryPortal extends HttpServlet
 
 		// login
 		out.println("<p><a href=\"" + Web.returnUrl(req, "/login") + "\">login</a></p>");
-
-		// login as  admin
-		out.println("<p><a href=\"" + Web.returnUrl(req, "/logadmin") + "\">login as admin</a></p>");
 
 		// Show session information
 		out.println("<H2>Session</H2>");
@@ -360,15 +351,6 @@ public class MercuryPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, null);
-	}
-
-	protected void doLoginAdmin(HttpServletRequest req, HttpServletResponse res, Session session) throws ToolException, IOException
-	{
-		// TODO: login as admin/admin
-		session.setUserEid("admin");
-		session.setUserId("admin");
-		
-		doHome(req, res, session);
 	}
 
 	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context,
