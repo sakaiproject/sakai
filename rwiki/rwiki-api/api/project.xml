@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Service</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>sakai-rwiki-service</artifactId>
+  <artifactId>sakai-rwiki-api</artifactId>
     <currentVersion>${sakai.version}</currentVersion>
   <shortDescription>The general APIs used by the Sakai RWiki Tool</shortDescription>
   <description>

@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Tool</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>sakai-rwiki</artifactId>
+  <artifactId>sakai-rwiki-tool</artifactId>
   <shortDescription>The Sakai RWiki Tool</shortDescription>
     <currentVersion>${sakai.version}</currentVersion>
   <description>
