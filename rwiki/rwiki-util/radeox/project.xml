@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-    <extend>../../master/project.xml</extend>
+    <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Radeox Library</name>
   <artifactId>sakai-radeox</artifactId>

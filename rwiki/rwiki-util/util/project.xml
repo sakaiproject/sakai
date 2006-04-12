@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>Sakai RWiki Utils</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>sakai-rwiki-utils</artifactId>
+  <artifactId>sakai-rwiki-util</artifactId>
   <currentVersion>${sakai.version}</currentVersion>
   <properties>
     <deploy.type>jar</deploy.type>
