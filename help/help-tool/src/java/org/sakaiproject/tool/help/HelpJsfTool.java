@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.JsfTool;
-import org.sakaiproject.util.web.Web;
+import org.sakaiproject.util.Web;
 
 /**
  * HelpJsfTool extends JsfTool to support placement in the help frameset. 

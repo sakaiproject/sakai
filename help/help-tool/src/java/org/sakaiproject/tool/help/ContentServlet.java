@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * Content Servlet serves help documents to document frame.

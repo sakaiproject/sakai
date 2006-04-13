@@ -19,10 +19,10 @@
 	</properties>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

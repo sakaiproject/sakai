@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.api.app.help.HelpManager;
-import org.sakaiproject.util.java.ResourceLoader;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * search tool

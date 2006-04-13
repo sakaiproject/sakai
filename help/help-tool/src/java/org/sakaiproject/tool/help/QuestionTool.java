@@ -21,12 +21,13 @@
 
 package org.sakaiproject.tool.help;
 
+import org.apache.commons.logging.Log;
+
 import org.sakaiproject.api.app.help.HelpManager;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.email.EmailService;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.cover.UsageSessionService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * question tool
@@ -44,7 +45,7 @@ public class QuestionTool
 
   private String toEmailAddress;
   private EmailService emailService;
-  private Logger logger;
+  private Log logger;
   private HelpManager helpManager;
 
   /**
@@ -225,7 +226,7 @@ public class QuestionTool
         + serverName + "\n" + "Comments or questions: \n" + this.getContent()
         + "\n\n" + "Sender's (reply-to) email: " + emailAddress + "\n\n"
         + "Site: Help Tool" + "\n" + "Site Id: "
-        + PortalService.getCurrentSiteId() + "\n";
+        + ToolManager.getCurrentPlacement().getContext() + "\n";
 
     return detailedContent;
 
@@ -308,7 +309,7 @@ public class QuestionTool
    * get logger
    * @return Returns the logger.
    */
-  public Logger getLogger()
+  public Log getLogger()
   {
     return logger;
   }
@@ -317,7 +318,7 @@ public class QuestionTool
    * set logger
    * @param logger The logger to set.
    */
-  public void setLogger(Logger logger)
+  public void setLogger(Log logger)
   {
     this.logger = logger;
   }

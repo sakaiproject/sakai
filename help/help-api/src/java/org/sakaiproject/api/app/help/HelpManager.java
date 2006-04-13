@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.service.framework.config.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Help Manager for the Sakai Help Tool.

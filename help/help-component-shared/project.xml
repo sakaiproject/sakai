@@ -25,13 +25,19 @@
 			<artifactId>sakai-help-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

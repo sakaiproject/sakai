@@ -22,6 +22,12 @@
 /**
  * @version $Id$
  */
+
+package org.sakaiproject.api.app.help;
+
+import java.util.Map;
+import java.util.Set;
+
 public interface Source
 {
   /**

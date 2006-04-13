@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.api.app.help.Category;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * category bean

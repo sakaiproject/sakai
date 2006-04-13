@@ -33,7 +33,7 @@ import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * render help frame set 
