@@ -55,9 +55,12 @@
  </h3>
 
 <div class="tier1">
+ <h:outputText value="#{msg.index_desc}"  rendered="#{authorization.createTemplate}"/>
+
    <h4>
    <h:outputText value="#{msg.index_new}"  rendered="#{authorization.createTemplate}"/>
    </h4>
+
 <div class="tier2">
   <h5>
    <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
