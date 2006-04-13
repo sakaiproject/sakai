@@ -586,8 +586,8 @@
 					#end
 			#end
 		
-			#if (!$dropboxMode)
-				## not show the public view in dropbox
+			#if (!$dropboxMode && !$preventPublicDisplay)
+				## do not show the public view option in dropbox or when public view is not allowed
 				<table border="0">
 					<tr>
 						<td style="width:180px;padding-left:1em;vertical-align:top">

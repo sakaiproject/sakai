@@ -87,7 +87,8 @@
 				</td>
 			</tr>
 		#end
-		#if (!$dropboxMode)
+		#if (!$dropboxMode && !$preventPublicDisplay)
+			## do not show the public view option in dropbox or when public view is not allowed
 			<tr> 
 				<th> 
 					$tlang.getString("edit.access1")

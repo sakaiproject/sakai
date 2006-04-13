@@ -158,6 +158,9 @@ public class ResourcesAction
 
 	/** state attribute for the maximum size for file upload */
 	private static final String STATE_FILE_UPLOAD_MAX_SIZE = "resources.file_upload_max_size";
+	
+	/** state attribute indicating whether users in current site should be denied option of making resources public */
+	private static final String STATE_PREVENT_PUBLIC_DISPLAY = "resources.prevent_public_display";
 
 	/** The name of a state attribute indicating whether the resources tool/helper is allowed to show all sites the user has access to */
 	public static final String STATE_SHOW_ALL_SITES = "resources.allow_user_to_see_all_sites";
@@ -2052,22 +2055,33 @@ public class ResourcesAction
 		{
 			context.put("notExistFlag", new Boolean(false));
 		}
-
-		// %%STATE_MODE_RESOURCES%%
-		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			context.put("dropboxMode", Boolean.FALSE);
-
-			// find out about pubview
-			boolean pubview = ContentHostingService.isInheritingPubView(id);
-			if (!pubview) pubview = ContentHostingService.isPubView(id);
-			context.put("pubview", new Boolean(pubview));
-		}
-		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
 			// notshow the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
 		}
+		else
+		{
+			context.put("dropboxMode", Boolean.FALSE);
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			context.put("preventPublicDisplay", preventPublicDisplay);
+			if(preventPublicDisplay.equals(Boolean.FALSE))
+			{
+				// find out about pubview
+				boolean pubview = ContentHostingService.isInheritingPubView(id);
+				if (!pubview) pubview = ContentHostingService.isPubView(id);
+				context.put("pubview", new Boolean(pubview));
+			}
+
+		}
+		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
 		if (state.getAttribute(COPYRIGHT_TYPES) != null)
@@ -2983,13 +2997,22 @@ public class ResourcesAction
 																					resourceProperties,
 																					item.getNotification());
 
-						// %%STATE_MODE_RESOURCES%%
-						if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+
+						Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+						if(preventPublicDisplay == null)
 						{
-							// deal with pubview when in resource mode//%%%
-							if (! item.isPubviewset())
+							preventPublicDisplay = Boolean.FALSE;
+							state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+						}
+						
+						if(preventPublicDisplay.equals(Boolean.FALSE))
+						{
+							if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 							{
-								ContentHostingService.setPubView(resource.getId(), item.isPubview());
+								if (!item.isPubviewset())
+								{
+									ContentHostingService.setPubView(resource.getId(), item.isPubview());
+								}
 							}
 						}
 
@@ -3359,14 +3382,22 @@ public class ResourcesAction
 				saveMetadata(resourceProperties, metadataGroups, item);
 
 				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties);
-
-				if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
 				{
-					// deal with pubview in resource mode//%%%
-					// boolean pubviewset = ContentHostingService.isInheritingPubView(collection.getId());
-					if (!item.isPubviewset())
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				if(preventPublicDisplay.equals(Boolean.FALSE))
+				{
+					if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 					{
-						ContentHostingService.setPubView(collection.getId(), item.isPubview());
+						if (!item.isPubviewset())
+						{
+							ContentHostingService.setPubView(collection.getId(), item.isPubview());
+						}
 					}
 				}
 			}
@@ -3528,13 +3559,21 @@ public class ResourcesAction
 
 				item.setAdded(true);
 
-
-				if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
 				{
-					// deal with pubview when in resource mode//%%%
-					if (! item.isPubviewset())
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				if(preventPublicDisplay.equals(Boolean.FALSE))
+				{
+					if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 					{
-						ContentHostingService.setPubView(resource.getId(), item.isPubview());
+						if (!item.isPubviewset())
+						{
+							ContentHostingService.setPubView(resource.getId(), item.isPubview());
+						}
 					}
 				}
 
@@ -4445,14 +4484,21 @@ public class ResourcesAction
 
 				item.setAdded(true);
 
-
-				// %%STATE_MODE_RESOURCES%%
-				if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
 				{
-					// deal with pubview when in resource mode//%%%
-					if (! item.isPubviewset())
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				if(preventPublicDisplay.equals(Boolean.FALSE))
+				{
+					if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 					{
-						ContentHostingService.setPubView(resource.getId(), item.isPubview());
+						if (!item.isPubviewset())
+						{
+							ContentHostingService.setPubView(resource.getId(), item.isPubview());
+						}
 					}
 				}
 
@@ -6466,14 +6512,24 @@ public class ResourcesAction
 			item.setCopyrightAlert(copyrightAlert != null);
 		}
 
-		boolean pubviewset = item.isPubviewset();
-		boolean pubview = false;
-		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
 		{
-			if (!pubviewset)
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
+		if(preventPublicDisplay.equals(Boolean.FALSE))
+		{
+			boolean pubviewset = item.isPubviewset();
+			boolean pubview = false;
+			if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 			{
-				pubview = params.getBoolean("pubview");
-				item.setPubview(pubview);
+				if (!pubviewset)
+				{
+					pubview = params.getBoolean("pubview");
+					item.setPubview(pubview);
+				}
 			}
 		}
 
@@ -6855,14 +6911,24 @@ public class ResourcesAction
 
 		}
 
-		boolean pubviewset = item.isPubviewset();
-		boolean pubview = false;
-		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
 		{
-			if (!pubviewset)
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
+		if(preventPublicDisplay.equals(Boolean.FALSE))
+		{
+			boolean pubviewset = item.isPubviewset();
+			boolean pubview = false;
+			if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 			{
-				pubview = params.getBoolean("pubview" + index);
-				item.setPubview(pubview);
+				if (!pubviewset)
+				{
+					pubview = params.getBoolean("pubview");
+					item.setPubview(pubview);
+				}
 			}
 		}
 
@@ -7387,13 +7453,21 @@ public class ResourcesAction
 
 				current_stack_frame.put(STATE_STACK_EDIT_INTENT, INTENT_REVISE_FILE);
 
-				// %%STATE_MODE_RESOURCES%%
-				if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
 				{
-					// when in resource mode
-					if (!item.isPubviewset())
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				if(preventPublicDisplay.equals(Boolean.FALSE))
+				{
+					if (! RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 					{
-						ContentHostingService.setPubView(item.getId(), item.isPubview());
+						if (!item.isPubviewset())
+						{
+							ContentHostingService.setPubView(item.getId(), item.isPubview());
+						}
 					}
 				}
 
@@ -8434,6 +8508,32 @@ public class ResourcesAction
 		if(optional_properties != null && "true".equalsIgnoreCase(optional_properties))
 		{
 			initMetadataContext(state);
+		}
+		
+		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
+		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
+		if(siteTypes != null)
+		{
+			Site site;
+			try
+			{
+				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				for(int i = 0; i < siteTypes.length; i++)
+				{
+					if ((StringUtil.trimToNull(siteTypes[i])).equals(site.getType()))
+					{
+						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
+					}
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				// allow public display
+			}
+			catch(NullPointerException e)
+			{
+				// allow public display
+			}
 		}
 
 		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
@@ -9857,7 +9957,15 @@ public class ResourcesAction
 			context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
 			context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
 		}
-
+		
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		context.put("preventPublicDisplay", preventPublicDisplay);
+		
 	}	// copyrightChoicesIntoContext
 
 	/**
@@ -10604,6 +10712,8 @@ public class ResourcesAction
 			m_properties = new Vector();
 			m_isBlank = true;
 			m_instruction = "";
+			m_pubview = false;
+			m_pubviewset = false;
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 
 		}
