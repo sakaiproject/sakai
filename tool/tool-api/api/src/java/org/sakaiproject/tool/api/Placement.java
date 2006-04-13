@@ -27,7 +27,7 @@ import java.util.Properties;
  * <p>
  * Tool Placement models a particular tool places in a particular place within a Sakai navigation or portal location.
  * </p>
-*/
+ */
 public interface Placement
 {
 	/**
@@ -66,11 +66,18 @@ public interface Placement
 	String getTitle();
 
 	/**
-	 * Access the tool placeed with this placement.
+	 * Access the tool placed with this placement.
 	 * 
 	 * @return The tool placed with this placement.
 	 */
 	Tool getTool();
+
+	/**
+	 * Access the well-known tool-id of the tool associated with this placement.
+	 * 
+	 * @return The tool id associated with this placement.
+	 */
+	String getToolId();
 
 	/**
 	 * Set the title for this tool placement. Non-null values override the tool registration title.
@@ -83,16 +90,15 @@ public interface Placement
 	/**
 	 * Set the tool for this tool placement.
 	 * 
+	 * @param toolId
+	 *        The tool's well-known tool-id.
 	 * @param tool
 	 *        The tool.
 	 */
-	void setTool(Tool tool);
-	
+	void setTool(String toolId, Tool tool);
+
 	/**
 	 * Save any changes to the placement.
 	 */
 	void save();
 }
-
-
-

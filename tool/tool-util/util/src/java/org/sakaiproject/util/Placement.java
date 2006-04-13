@@ -48,6 +48,9 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	/** Tool placed. */
 	protected Tool m_tool = null;
 
+	/** The placed tool's id - use if the tool is null. */
+	protected String m_toolId = null;
+
 	/**
 	 * Construct
 	 */
@@ -60,6 +63,8 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	 * 
 	 * @param id
 	 *        The placement id.
+	 * @param toolId
+	 *        The well-known tool id associated with this placement.
 	 * @param tool
 	 *        The tool to place.
 	 * @param config
@@ -69,9 +74,10 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	 * @param title
 	 *        The tool placement title.
 	 */
-	public Placement(String id, Tool tool, Properties config, String context, String title)
+	public Placement(String id, String toolId, Tool tool, Properties config, String context, String title)
 	{
 		m_id = id;
+		m_toolId = toolId;
 		m_tool = tool;
 		if (config != null)
 		{
@@ -165,6 +171,18 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public String getToolId()
+	{
+		// if we really have a tool, use this id
+		if (m_tool != null) return m_tool.getId();
+
+		// otherwise use the id we are holding
+		return m_toolId;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public int hashCode()
@@ -205,8 +223,9 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setTool(Tool tool)
+	public void setTool(String toolId, Tool tool)
 	{
+		m_toolId = toolId;
 		m_tool = tool;
 	}
 
