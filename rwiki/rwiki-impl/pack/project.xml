@@ -60,7 +60,7 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-utils</artifactId>
+      <artifactId>sakai-rwiki-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
  <properties>
@@ -69,7 +69,7 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-util</artifactId>
+      <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
       <properties>
@@ -78,25 +78,7 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-java</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-text</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-xml</artifactId>
+      <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
       <properties>

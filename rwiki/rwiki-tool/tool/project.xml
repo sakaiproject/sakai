@@ -50,84 +50,8 @@
     </resources>
   </build>
   <dependencies>
-    <!-- to be able to access the Sakai component manager -->
-    <!-- to be able to use the Sakai Service APIs -->
-    <!-- for our Faces based tools -->
-    <!-- for our Faces based tools -->
-    <!-- for our Faces based tools -->
-    <!-- Hibernate / Spring -->
-<!--
-    <dependency>
-      <groupId>hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>2.1.8</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>1.1</version>
-      <type>jar</type>
-    </dependency>
-
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-function</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-tool</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-active-tool</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-thread_local</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-session</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-<!-- OLDDEP
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
--->
-    
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-search-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring</artifactId>
-      <version>${sakai.spring.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
+  
+      <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
@@ -135,14 +59,13 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-utils</artifactId>
+      <artifactId>sakai-rwiki-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
        <properties>
 	<war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-rwiki-diff</artifactId>
@@ -152,6 +75,76 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    
+  
+  
+  
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>    
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-content-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+      <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+  
+  
+  
+    
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-search-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>${sakai.spring.version}</version>
+      <type>jar</type>
+    </dependency>
+    
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
@@ -175,6 +168,12 @@
       <properties>
 	<war.bundle>true</war.bundle>
       </properties>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>easymock</groupId>

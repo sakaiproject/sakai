@@ -23,6 +23,7 @@
             <artifactId>sakai-test-harness</artifactId>
             <version>${sakai.version}</version>
         </dependency>
+        
         <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-rwiki-api</artifactId>
@@ -35,32 +36,54 @@
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
-<!-- OLDDEP
-        <dependency>
+                <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-service</artifactId>
+            <artifactId>sakai-rwiki-util</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
--->
+        
+        
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-component</artifactId>
-            <version>${sakai.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-util-xml</artifactId>
+            <artifactId>sakai-user-api</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-rwiki-utils</artifactId>
+            <artifactId>sakai-site-api</artifactId>
             <version>${sakai.version}</version>
             <type>jar</type>
         </dependency>
+                <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+                <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+                <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+                <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util</artifactId>
+            <version>${sakai.version}</version>
+            <type>jar</type>
+        </dependency>
+        
+        
+        
+        
         
         <dependency>
             <groupId>springframework</groupId>
