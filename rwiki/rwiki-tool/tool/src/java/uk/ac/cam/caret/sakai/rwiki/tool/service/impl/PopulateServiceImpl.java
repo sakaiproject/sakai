@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
@@ -62,7 +63,6 @@ public class PopulateServiceImpl implements PopulateService
 
 	private SiteService siteService = null;
 
-	private PortalService portalService = null;
 
 	public void init() throws IOException
 	{
@@ -104,7 +104,7 @@ public class PopulateServiceImpl implements PopulateService
 				Site s = null;
 				try
 				{
-					s = siteService.getSite(portalService.getCurrentSiteId());
+					s = siteService.getSite(ToolManager.getCurrentPlacement().getContext());
 					owner = s.getCreatedBy().getId();
 				}
 				catch (Exception e)
@@ -352,21 +352,5 @@ public class PopulateServiceImpl implements PopulateService
 		this.siteService = siteService;
 	}
 
-	/**
-	 * @return Returns the portalService.
-	 */
-	public PortalService getPortalService()
-	{
-		return portalService;
-	}
-
-	/**
-	 * @param portalService
-	 *        The portalService to set.
-	 */
-	public void setPortalService(PortalService portalService)
-	{
-		this.portalService = portalService;
-	}
 
 }

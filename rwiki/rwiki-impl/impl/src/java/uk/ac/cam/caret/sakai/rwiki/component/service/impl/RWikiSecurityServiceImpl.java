@@ -27,13 +27,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -51,26 +52,32 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 {
 	private static Log log = LogFactory.getLog(RWikiSecurityServiceImpl.class);
 
+	private FunctionManager functionManager;
+
 	public void init()
 	{
-		List l = FunctionManager.getRegisteredFunctions("rwiki.");
+		List l = functionManager.getRegisteredFunctions("rwiki.");
 		if (!l.contains(SECURE_READ))
-			FunctionManager.registerFunction(SECURE_READ);
+			functionManager.registerFunction(SECURE_READ);
 		if (!l.contains(SECURE_UPDATE))
-			FunctionManager.registerFunction(SECURE_UPDATE);
+			functionManager.registerFunction(SECURE_UPDATE);
 		if (!l.contains(SECURE_CREATE))
-			FunctionManager.registerFunction(SECURE_CREATE);
+			functionManager.registerFunction(SECURE_CREATE);
 		if (!l.contains(SECURE_SUPER_ADMIN))
-			FunctionManager.registerFunction(SECURE_SUPER_ADMIN);
+			functionManager.registerFunction(SECURE_SUPER_ADMIN);
 		if (!l.contains(SECURE_ADMIN))
-			FunctionManager.registerFunction(SECURE_ADMIN);
+			functionManager.registerFunction(SECURE_ADMIN);
 	}
-
-	private PortalService portalService;
 
 	private SecurityService securityService;
 
 	private SiteService siteService;
+
+	private ToolManager toolManager;
+
+	private EntityManager entityManager;
+
+	private SessionManager sessionManager;
 
 	/**
 	 * {@inheritDoc}
@@ -81,8 +88,8 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 	{
 		try
 		{
-			Site currentSite = siteService.getSite(portalService
-					.getCurrentSiteId());
+			Site currentSite = siteService.getSite(toolManager
+					.getCurrentPlacement().getContext());
 			return currentSite.getReference();
 		}
 		catch (IdUnusedException e)
@@ -94,7 +101,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 	public String getSiteId()
 	{
-		return portalService.getCurrentSiteId();
+		return toolManager.getCurrentPlacement().getContext();
 	}
 
 	public boolean checkGetPermission(String reference)
@@ -127,16 +134,6 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		return securityService.unlock(SECURE_READ, reference);
 	}
 
-	public PortalService getPortalService()
-	{
-		return portalService;
-	}
-
-	public void setPortalService(PortalService portalService)
-	{
-		this.portalService = portalService;
-	}
-
 	public SecurityService getSecurityService()
 	{
 		return securityService;
@@ -161,7 +158,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 	{
 		// Page space is assumed to be a ppage space reference
 		// Turn into an entity and then get a reference
-		Reference ref = EntityManager
+		Reference ref = entityManager
 				.newReference(RWikiObjectService.REFERENCE_ROOT + pageSpace
 						+ ".");
 		return ref.getReference();
@@ -175,7 +172,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		try
 		{
 
-			String user = SessionManager.getCurrentSessionUserId();
+			String user = sessionManager.getCurrentSessionUserId();
 
 			if (log.isDebugEnabled())
 			{
@@ -246,7 +243,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 	public boolean checkUpdate(RWikiEntity rwe)
 	{
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		RWikiObject rwo = rwe.getRWikiObject();
 		if (log.isDebugEnabled())
 		{
@@ -303,7 +300,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 	public boolean checkAdmin(RWikiEntity rwe)
 	{
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		RWikiObject rwo = rwe.getRWikiObject();
 
 		if (log.isDebugEnabled())
@@ -345,6 +342,74 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 					+ " by user: " + user);
 		}
 		return false;
+	}
+
+	/**
+	 * @return Returns the entityManager.
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager
+	 *        The entityManager to set.
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+	/**
+	 * @return Returns the functionManager.
+	 */
+	public FunctionManager getFunctionManager()
+	{
+		return functionManager;
+	}
+
+	/**
+	 * @param functionManager
+	 *        The functionManager to set.
+	 */
+	public void setFunctionManager(FunctionManager functionManager)
+	{
+		this.functionManager = functionManager;
+	}
+
+	/**
+	 * @return Returns the sessionManager.
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager
+	 *        The sessionManager to set.
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @return Returns the toolManager.
+	 */
+	public ToolManager getToolManager()
+	{
+		return toolManager;
+	}
+
+	/**
+	 * @param toolManager
+	 *        The toolManager to set.
+	 */
+	public void setToolManager(ToolManager toolManager)
+	{
+		this.toolManager = toolManager;
 	}
 
 }

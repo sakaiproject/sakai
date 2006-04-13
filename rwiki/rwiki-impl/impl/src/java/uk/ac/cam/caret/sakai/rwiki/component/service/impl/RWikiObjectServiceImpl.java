@@ -37,20 +37,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.NotificationEdit;
-import org.sakaiproject.event.cover.EventTrackingService;
-import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -96,7 +100,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private RWikiHistoryObjectDao hdao;
 
-	private RWikiSecurityService securityService;
+	private RWikiSecurityService wikiSecurityService;
 
 	private RenderService renderService;
 
@@ -110,6 +114,24 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	public String createTemplatePageName = "default_template";
 
+	private EntityManager entityManager;
+
+	private NotificationService notificationService;
+
+	private SessionManager sessionManager;
+
+	private EventTrackingService eventTrackingService;
+
+	private SiteService siteService;
+
+	private ThreadLocalManager threadLocalManager;
+
+	private TimeService timeService;
+
+	private DigestService digestService;
+
+	private SecurityService securityService;
+
 	/**
 	 * Register this as an EntityProducer
 	 */
@@ -117,13 +139,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		log.debug("init start");
 
-		EntityManager.registerEntityProducer(this,
+		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
 		if (ServerConfigurationService.getBoolean("wiki.notification", false))
 		{
 			// Email notification
 			// register a transient notification for resources
-			NotificationEdit edit = NotificationService
+			NotificationEdit edit = notificationService
 					.addTransientNotification();
 
 			// set functions
@@ -136,7 +158,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 			// set the action
 			edit.setAction(new SiteEmailNotificationRWiki(this,
-					this.renderService, this.preferenceService));
+					this.renderService, this.preferenceService,
+					 this.siteService,  this.securityService, 
+					 this.entityManager,  this.threadLocalManager,
+					 this.timeService,  this.digestService));
 		}
 
 		log.debug("init end");
@@ -165,7 +190,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			RWikiObject ignore, String templatePage) throws PermissionException
 	{
 		long start = System.currentTimeMillis();
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		try
 		{
 
@@ -194,10 +219,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			if (returnable == null)
 			{
 
-				String permissionsReference = securityService
+				String permissionsReference = wikiSecurityService
 						.createPermissionsReference(realm);
 
-				if (!securityService
+				if (!wikiSecurityService
 						.checkCreatePermission(permissionsReference))
 				{
 					throw new CreatePermissionException("User: " + user
@@ -222,7 +247,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				}
 				return returnable;
 			}
-			else if (securityService
+			else if (wikiSecurityService
 					.checkRead((RWikiEntity) getEntity(returnable)))
 			{
 				// Allowed to read this object
@@ -251,11 +276,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			throws PermissionException
 	{
 
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 
-		String permissionsReference = securityService
+		String permissionsReference = wikiSecurityService
 				.createPermissionsReference(realm);
-		if (!securityService.checkSearchPermission(permissionsReference))
+		if (!wikiSecurityService.checkSearchPermission(permissionsReference))
 		{
 			throw new ReadPermissionException(user, realm);
 		}
@@ -283,14 +308,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		this.hdao = hdao;
 	}
 
-	public RWikiSecurityService getSecurityService()
+	public RWikiSecurityService getRWikiSecurityService()
 	{
-		return securityService;
+		return wikiSecurityService;
 	}
 
-	public void setSecurityService(RWikiSecurityService securityService)
+	public void setRWikiSecurityService(RWikiSecurityService securityService)
 	{
-		this.securityService = securityService;
+		this.wikiSecurityService = securityService;
 	}
 
 	public RenderService getRenderService()
@@ -318,7 +343,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			VersionException
 	{
 
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 		update(name, user, realm, version, content, permissions);
 	}
 
@@ -348,7 +373,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 		RWikiHistoryObject rwho = null;
 
-		if (securityService.checkUpdate((RWikiEntity) getEntity(rwo)))
+		if (wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo)))
 		{
 			rwho = updateContent(rwo, content, version);
 		}
@@ -360,7 +385,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		if (permissions != null)
 		{
-			if (securityService.checkAdmin((RWikiEntity) getEntity(rwo)))
+			if (wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo)))
 			{
 				rwo.setPermissions(permissions);
 			}
@@ -381,7 +406,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			cdao.update(rwo, rwho);
 			Entity e = getEntity(rwo);
-			EventTrackingService.post(EventTrackingService.newEvent(
+			eventTrackingService.post(eventTrackingService.newEvent(
 					EVENT_RESOURCE_WRITE, e.getReference(), true,
 					NotificationService.PREF_IMMEDIATE));
 		}
@@ -407,11 +432,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			throw new IllegalArgumentException("permissions must not be null");
 		}
-		String user = SessionManager.getCurrentSessionUserId();
+		String user = sessionManager.getCurrentSessionUserId();
 
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 
-		if (securityService.checkAdmin((RWikiEntity) getEntity(rwo)))
+		if (wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo)))
 		{
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
 			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
@@ -422,7 +447,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				cdao.update(rwo, rwho);
 				// track it
 				Entity e = getEntity(rwo);
-				EventTrackingService.post(EventTrackingService.newEvent(
+				eventTrackingService.post(eventTrackingService.newEvent(
 						EVENT_RESOURCE_WRITE, e.getReference(), true,
 						NotificationService.PREF_IMMEDIATE));
 			}
@@ -811,9 +836,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 		try
 		{
-			String defaultRealm = SiteService.getSite(siteId).getReference();
+			String defaultRealm = siteService.getSite(siteId).getReference();
 
-			securityService
+			wikiSecurityService
 					.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
 							+ defaultRealm);
 			// start with an element with our very own name
@@ -902,9 +927,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		int npages_errors = 0;
 		try
 		{
-			String defaultRealm = SiteService.getSite(siteId).getReference();
+			String defaultRealm = siteService.getSite(siteId).getReference();
 
-			securityService
+			wikiSecurityService
 					.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
 							+ defaultRealm);
 
@@ -1083,7 +1108,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		{
 			RWikiObject rwo = (RWikiObject) i.next();
 			RWikiEntity rwe = (RWikiEntity) getEntity(rwo);
-			securityService.checkAdmin(rwe);
+			wikiSecurityService.checkAdmin(rwe);
 			// might want to check admin on source and target site ?
 			boolean transfer = true;
 			// if the list exists, is this id in the list ?
@@ -1223,7 +1248,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						if (!rwe.isContainer())
 						{
 							RWikiObject rwo = rwe.getRWikiObject();
-							if (securityService
+							if (wikiSecurityService
 									.checkRead((RWikiEntity) getEntity(rwo)))
 							{
 								eh.outputContent(entity, req, res);
@@ -1238,7 +1263,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 						else
 						{
 							// this is a container, read on the site
-							if (securityService.checkGetPermission(ref
+							if (wikiSecurityService.checkGetPermission(ref
 									.getReference()))
 							{
 								eh.outputContent(entity, req, res);
@@ -1371,7 +1396,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public Reference getReference(RWikiObject rwo)
 	{
-		return EntityManager.newReference(getEntity(rwo).getReference());
+		return entityManager.newReference(getEntity(rwo).getReference());
 	}
 
 	/**
@@ -1425,7 +1450,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public boolean checkRead(RWikiObject rwo)
 	{
-		return securityService.checkRead((RWikiEntity) getEntity(rwo));
+		return wikiSecurityService.checkRead((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
@@ -1433,7 +1458,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public boolean checkUpdate(RWikiObject rwo)
 	{
-		return securityService.checkUpdate((RWikiEntity) getEntity(rwo));
+		return wikiSecurityService.checkUpdate((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
@@ -1441,7 +1466,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	public boolean checkAdmin(RWikiObject rwo)
 	{
-		return securityService.checkAdmin((RWikiEntity) getEntity(rwo));
+		return wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
@@ -1466,6 +1491,172 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public PageLinkRenderer getComponentPageLinkRender(String pageSpace)
 	{
 		return new ComponentPageLinkRenderImpl(pageSpace);
+	}
+
+	/**
+	 * @return Returns the entityManager.
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager
+	 *        The entityManager to set.
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
+	}
+
+	/**
+	 * @return Returns the eventTrackingService.
+	 */
+	public EventTrackingService getEventTrackingService()
+	{
+		return eventTrackingService;
+	}
+
+	/**
+	 * @param eventTrackingService
+	 *        The eventTrackingService to set.
+	 */
+	public void setEventTrackingService(
+			EventTrackingService eventTrackingService)
+	{
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	/**
+	 * @return Returns the notificationService.
+	 */
+	public NotificationService getNotificationService()
+	{
+		return notificationService;
+	}
+
+	/**
+	 * @param notificationService
+	 *        The notificationService to set.
+	 */
+	public void setNotificationService(NotificationService notificationService)
+	{
+		this.notificationService = notificationService;
+	}
+
+	/**
+	 * @return Returns the sessionManager.
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager
+	 *        The sessionManager to set.
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @return Returns the siteService.
+	 */
+	public SiteService getSiteService()
+	{
+		return siteService;
+	}
+
+	/**
+	 * @param siteService
+	 *        The siteService to set.
+	 */
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
+	}
+
+	/**
+	 * @return Returns the digestService.
+	 */
+	public DigestService getDigestService()
+	{
+		return digestService;
+	}
+
+	/**
+	 * @param digestService The digestService to set.
+	 */
+	public void setDigestService(DigestService digestService)
+	{
+		this.digestService = digestService;
+	}
+
+	/**
+	 * @return Returns the threadLocalManager.
+	 */
+	public ThreadLocalManager getThreadLocalManager()
+	{
+		return threadLocalManager;
+	}
+
+	/**
+	 * @param threadLocalManager The threadLocalManager to set.
+	 */
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
+	{
+		this.threadLocalManager = threadLocalManager;
+	}
+
+	/**
+	 * @return Returns the timeService.
+	 */
+	public TimeService getTimeService()
+	{
+		return timeService;
+	}
+
+	/**
+	 * @param timeService The timeService to set.
+	 */
+	public void setTimeService(TimeService timeService)
+	{
+		this.timeService = timeService;
+	}
+
+	/**
+	 * @return Returns the wikiSecurityService.
+	 */
+	public RWikiSecurityService getWikiSecurityService()
+	{
+		return wikiSecurityService;
+	}
+
+	/**
+	 * @param wikiSecurityService The wikiSecurityService to set.
+	 */
+	public void setWikiSecurityService(RWikiSecurityService wikiSecurityService)
+	{
+		this.wikiSecurityService = wikiSecurityService;
+	}
+
+	/**
+	 * @param securityService The securityService to set.
+	 */
+	public void setSecurityService(SecurityService securityService)
+	{
+		this.securityService = securityService;
+	}
+
+	/**
+	 * @return Returns the securityService.
+	 */
+	public SecurityService getSecurityService()
+	{
+		return securityService;
 	}
 
 }

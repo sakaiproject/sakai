@@ -35,6 +35,7 @@ import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.util.BaseResourceProperties;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;

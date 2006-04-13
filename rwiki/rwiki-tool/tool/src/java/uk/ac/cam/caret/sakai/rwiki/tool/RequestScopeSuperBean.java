@@ -35,6 +35,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.context.ApplicationContext;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -292,7 +293,7 @@ public class RequestScopeSuperBean
 	{
 		try
 		{
-			Site s = SiteService.getSite(PortalService.getCurrentSiteId());
+			Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 			return s.getCreatedBy().getId();
 		}
 		catch (IdUnusedException e)

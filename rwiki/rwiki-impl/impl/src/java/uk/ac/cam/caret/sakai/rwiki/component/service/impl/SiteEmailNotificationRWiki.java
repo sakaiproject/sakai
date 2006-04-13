@@ -32,22 +32,22 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.email.cover.DigestService;
-import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.api.DigestService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.SiteEmailNotification;
 
@@ -79,15 +79,41 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 	private PreferenceService preferenceService = null;
 
+	private SiteService siteService;
+
+	private SecurityService securityService;
+
+	private EntityManager entityManager;
+	
+	private ThreadLocalManager threadLocalManager;
+
+	private TimeService timeService;
+
+	private DigestService digestService;
+
+	protected Thread senderThread = null;
+
+	protected Vector sendList = new Vector();
+
+
 	/**
 	 * Construct.
 	 */
 	public SiteEmailNotificationRWiki(RWikiObjectService rwikiObjectService,
-			RenderService renderService, PreferenceService preferenceService)
+			RenderService renderService, PreferenceService preferenceService,
+			SiteService siteService, SecurityService securityService, 
+			EntityManager entityManager, ThreadLocalManager threadLocalManager,
+			TimeService timeService, DigestService digestService)
 	{
 		this.renderService = renderService;
 		this.rwikiObjectService = rwikiObjectService;
 		this.preferenceService = preferenceService;
+		this.siteService  = siteService;
+		this.securityService  = securityService; 
+		this.entityManager = entityManager;
+		this.threadLocalManager  = threadLocalManager;
+		this.timeService  = timeService;
+		this.digestService = digestService;
 	}
 
 	/**
@@ -95,12 +121,22 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	 */
 	public SiteEmailNotificationRWiki(RWikiObjectService rwikiObjectService,
 			RenderService renderService, PreferenceService preferenceService,
+			SiteService siteService, SecurityService securityService, 
+			EntityManager entityManager, ThreadLocalManager threadLocalManager,
+			TimeService timeService, DigestService digestService,
 			String siteId)
 	{
 		super(siteId);
 		this.renderService = renderService;
 		this.rwikiObjectService = rwikiObjectService;
 		this.preferenceService = preferenceService;
+		this.siteService  = siteService;
+		this.securityService  = securityService; 
+		this.entityManager = entityManager;
+		this.threadLocalManager  = threadLocalManager;
+		this.timeService  = timeService;
+		this.digestService = digestService;
+
 	}
 
 	/**
@@ -109,7 +145,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	protected List getRecipients(Event event)
 	{
 		// get the resource reference
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 
 		// use either the configured site, or if not configured, the site
 		// (context) of the resource
@@ -131,7 +167,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		// else use the list of users who can SITE_VISIT_UNP the site.
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			String ability = SiteService.SITE_VISIT;
 			if (!site.isPublished())
 			{
@@ -139,7 +175,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			}
 
 			// get the list of users
-			List users = SecurityService.unlockUsers(ability, SiteService
+			List users = securityService.unlockUsers(ability, siteService
 					.siteReference(siteId));
 			log.info("Got " + users.size() + " for site " + siteId);
 
@@ -147,7 +183,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			// resource
 			if (getResourceAbility() != null)
 			{
-				List users2 = SecurityService.unlockUsers(getResourceAbility(),
+				List users2 = securityService.unlockUsers(getResourceAbility(),
 						ref.getReference());
 
 				// find intersection of users and user2
@@ -181,7 +217,9 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	public NotificationAction getClone()
 	{
 		SiteEmailNotificationRWiki clone = new SiteEmailNotificationRWiki(
-				rwikiObjectService, renderService, preferenceService);
+				rwikiObjectService, renderService, preferenceService, siteService, securityService, 
+				 entityManager,  threadLocalManager,
+				 timeService,  digestService );
 		clone.set(this);
 
 		return clone;
@@ -207,7 +245,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	protected String getMessage(Event event)
 	{
 		// get the content & properties
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		ResourceProperties props = ref.getProperties();
 
 		// get the function
@@ -222,7 +260,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -281,7 +319,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 	protected List getHeaders(Event e)
 	{
 		List rv = new ArrayList(1);
-		Reference ref = EntityManager.newReference(e.getResource());
+		Reference ref = entityManager.newReference(e.getResource());
 		ResourceProperties props = ref.getProperties();
 
 		String pageName = props.getProperty(RWikiEntity.RP_NAME);
@@ -321,9 +359,6 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		return rv;
 	}
 
-	protected Thread senderThread = null;
-
-	protected Vector sendList = new Vector();
 
 	public class EmailMessage
 	{
@@ -341,6 +376,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		private String replyTo = null;
 
+		private EmailService emailService;
+
 		public EmailMessage(String from, String email, String subject,
 				String message, String sendTo, String replyTo, List headers)
 		{
@@ -355,7 +392,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		public void send()
 		{
-			EmailService.send(from, email, subject, message, sendTo, replyTo,
+			emailService.send(from, email, subject, message, sendTo, replyTo,
 					headers);
 		}
 
@@ -435,7 +472,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 		// ignore events marked for no notification
 		if (event.getPriority() == NotificationService.NOTI_NONE) return;
 
-		if (ThreadLocalManager.get(RWikiObjectService.SMALL_CHANGE_IN_THREAD) != null)
+		if (threadLocalManager.get(RWikiObjectService.SMALL_CHANGE_IN_THREAD) != null)
 			return;
 
 		// get the list of potential recipients
@@ -477,14 +514,14 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			// get a site title
 			// use either the configured site, or if not configured, the site
 			// (context) of the resource
-			Reference ref = EntityManager.newReference(event.getResource());
+			Reference ref = entityManager.newReference(event.getResource());
 			// Entity r = ref.getEntity();
 			String title = (getSite() != null) ? getSite() : getSiteId(ref
 					.getContext());
 
 			try
 			{
-				Site site = SiteService.getSite(title);
+				Site site = siteService.getSite(title);
 				title = site.getTitle();
 			}
 			catch (Exception ignore)
@@ -535,7 +572,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			else
 			{
 				messageForDigest += "Date: "
-						+ TimeService.newTime().toStringLocalFullZ() + "\n";
+						+ timeService.newTime().toStringLocalFullZ() + "\n";
 			}
 
 			item = findHeader("To", headers);
@@ -554,7 +591,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 				User user = (User) iDigests.next();
 
 				// digest the message
-				DigestService.digest(user.getId(), findHeaderValue("Subject",
+				digestService.digest(user.getId(), findHeaderValue("Subject",
 						headers), messageForDigest);
 			}
 		}

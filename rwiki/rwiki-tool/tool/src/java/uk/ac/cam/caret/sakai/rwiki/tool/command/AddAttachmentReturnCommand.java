@@ -20,6 +20,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
@@ -294,7 +295,7 @@ public class AddAttachmentReturnCommand implements HttpCommand
 		templateArguments[4] = referenceString;
 
 		// Interpret url as either worksite:/ or sakai:/ or http:/
-		String currentSiteId = PortalService.getCurrentSiteId();
+		String currentSiteId = ToolManager.getCurrentPlacement().getContext();
 		if (referenceString.startsWith("/content/group/"))
 		{
 			url = referenceString.substring("/content/group/".length());

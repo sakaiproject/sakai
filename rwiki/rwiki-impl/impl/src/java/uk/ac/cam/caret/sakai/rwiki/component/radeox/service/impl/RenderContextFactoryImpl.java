@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -44,6 +45,8 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 
 	private RWikiSecurityService securityService;
 
+	private SiteService siteService;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -55,7 +58,7 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 	{
 
 		SpecializedRenderContext context = new SpecializedRenderContext(rwo,
-				objectService, securityService);
+				objectService, securityService, siteService);
 		context.setRenderEngine(renderEngine);
 		return context;
 	}
@@ -78,6 +81,22 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 	public void setSecurityService(RWikiSecurityService securityService)
 	{
 		this.securityService = securityService;
+	}
+
+	/**
+	 * @return Returns the siteService.
+	 */
+	public SiteService getSiteService()
+	{
+		return siteService;
+	}
+
+	/**
+	 * @param siteService The siteService to set.
+	 */
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
 	}
 
 }

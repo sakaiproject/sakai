@@ -31,8 +31,11 @@ import java.util.List;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.component.section.cover.SectionAwareness;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
@@ -82,7 +85,7 @@ public class SectionsMacro extends BaseMacro
 		String useids = params.get("useids", 0);
 		String categories = params.get("categories", 1);
 
-		String siteId = PortalService.getCurrentSiteId();
+		String siteId = ToolManager.getCurrentPlacement().getContext();
 		Site s = null;
 		try
 		{

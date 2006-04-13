@@ -40,10 +40,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.component.section.cover.SectionAwareness;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -134,6 +136,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * A map containing SAX Serializer properties
 	 */
 	private Map outputProperties;
+
+	private EntityManager entityManager;
 
 	/**
 	 * {@inheritDoc}
@@ -615,7 +619,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				if (!isuuid)
 				{
 					// could be a section name
-					Reference siteRef = EntityManager.newReference(ref
+					Reference siteRef = entityManager.newReference(ref
 							.getContext());
 					List l = SectionAwareness.getSections(siteRef.getId());
 					for (Iterator is = l.iterator(); is.hasNext();)
@@ -1018,5 +1022,21 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 		ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_REQUEST_PARAMS,
 				SchemaNames.EL_REQUEST_PARAMS);
+	}
+
+	/**
+	 * @return Returns the entityManager.
+	 */
+	public EntityManager getEntityManager()
+	{
+		return entityManager;
+	}
+
+	/**
+	 * @param entityManager The entityManager to set.
+	 */
+	public void setEntityManager(EntityManager entityManager)
+	{
+		this.entityManager = entityManager;
 	}
 }

@@ -25,7 +25,7 @@ package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 import org.radeox.engine.context.BaseRenderContext;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -56,14 +56,18 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 
 	private RWikiSecurityService securityService;
 
+	private SiteService siteService;
+
 	public SpecializedRenderContext(RWikiObject rwikiObject,
 			RWikiObjectService objectService,
-			RWikiSecurityService securityService)
+			RWikiSecurityService securityService,
+			SiteService siteService)
 	{
 		this.rwikiObject = rwikiObject;
 
 		this.objectService = objectService;
 		this.securityService = securityService;
+		this.siteService = siteService;
 	}
 
 	public RWikiObject getRWikiObject()
@@ -120,7 +124,7 @@ public class SpecializedRenderContext extends BaseRenderContext implements
 		{
 			try
 			{
-				s = SiteService.getSite(siteId);
+				s = siteService.getSite(siteId);
 			}
 			catch (Exception ex)
 			{
