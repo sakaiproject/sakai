@@ -29,26 +29,27 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * @author ieb
- *
  */
-public interface SearchBuilderItemDao {
-
+public interface SearchBuilderItemDao
+{
 
 	/**
 	 * create a new item
+	 * 
 	 * @return
 	 */
 	SearchBuilderItem create();
 
 	/**
 	 * Update a single item
+	 * 
 	 * @param sb
 	 */
 	void update(SearchBuilderItem sb);
 
-
 	/**
 	 * Locate the resource entry
+	 * 
 	 * @param resourceName
 	 * @return
 	 */
@@ -56,14 +57,11 @@ public interface SearchBuilderItemDao {
 
 	/**
 	 * count the number of entries pending
+	 * 
 	 * @return
 	 */
 	int countPending();
 
 	List getAll();
-
-
-
-
 
 }

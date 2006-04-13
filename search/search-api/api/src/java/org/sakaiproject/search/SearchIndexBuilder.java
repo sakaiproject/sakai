@@ -25,17 +25,17 @@ package org.sakaiproject.search;
 
 import java.util.List;
 
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.Notification;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 
 /**
  * A SearchIndexBuilder builds a search index, it must manage its own list of
  * pending documents and should probably do this in a seperate thread
  * 
  * @author ieb
- * 
  */
-public interface SearchIndexBuilder {
+public interface SearchIndexBuilder
+{
 
 	/**
 	 * Adds a resource to the index builder
@@ -55,13 +55,11 @@ public interface SearchIndexBuilder {
 
 	/**
 	 * Refresh the index based on the registered entities
-	 * 
 	 */
 	void refreshIndex();
 
 	/**
 	 * rebuild the index completely from scratch
-	 * 
 	 */
 	void rebuildIndex();
 
@@ -79,7 +77,7 @@ public interface SearchIndexBuilder {
 	 * @return
 	 */
 	List getContentProducers();
-	
+
 	/**
 	 * Close down the entire search infrastructure
 	 */
@@ -87,6 +85,7 @@ public interface SearchIndexBuilder {
 
 	/**
 	 * get the number of pending documents
+	 * 
 	 * @return
 	 */
 	int getPendingDocuments();

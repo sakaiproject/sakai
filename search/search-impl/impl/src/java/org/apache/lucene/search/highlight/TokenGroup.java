@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -17,55 +18,59 @@ package org.apache.lucene.search.highlight;
 import org.apache.lucene.analysis.Token;
 
 /**
- * One, or several overlapping tokens, along with the score(s) and the
- * scope of the original text
+ * One, or several overlapping tokens, along with the score(s) and the scope of
+ * the original text
+ * 
  * @author MAHarwood
  */
 public class TokenGroup
 {
-	
-	private static final int MAX_NUM_TOKENS_PER_GROUP=50;
-	Token [] tokens=new Token[MAX_NUM_TOKENS_PER_GROUP];
-	float [] scores=new float[MAX_NUM_TOKENS_PER_GROUP];
-	int numTokens=0;
-	int startOffset=0;
-	int endOffset=0;
-	
+
+	private static final int MAX_NUM_TOKENS_PER_GROUP = 50;
+
+	Token[] tokens = new Token[MAX_NUM_TOKENS_PER_GROUP];
+
+	float[] scores = new float[MAX_NUM_TOKENS_PER_GROUP];
+
+	int numTokens = 0;
+
+	int startOffset = 0;
+
+	int endOffset = 0;
 
 	void addToken(Token token, float score)
 	{
-	    if(numTokens < MAX_NUM_TOKENS_PER_GROUP)
-        {	    
-			if(numTokens==0)
+		if (numTokens < MAX_NUM_TOKENS_PER_GROUP)
+		{
+			if (numTokens == 0)
 			{
-				startOffset=token.startOffset();		
-				endOffset=token.endOffset();		
+				startOffset = token.startOffset();
+				endOffset = token.endOffset();
 			}
 			else
 			{
-				startOffset=Math.min(startOffset,token.startOffset());		
-				endOffset=Math.max(endOffset,token.endOffset());		
+				startOffset = Math.min(startOffset, token.startOffset());
+				endOffset = Math.max(endOffset, token.endOffset());
 			}
-			tokens[numTokens]=token;
-			scores[numTokens]=score;
+			tokens[numTokens] = token;
+			scores[numTokens] = score;
 			numTokens++;
-        }
+		}
 	}
-	
+
 	boolean isDistinct(Token token)
 	{
-		return token.startOffset()>=endOffset;
+		return token.startOffset() >= endOffset;
 	}
-	
-	
+
 	void clear()
 	{
-		numTokens=0;
+		numTokens = 0;
 	}
-	
+
 	/**
-	 * 
-	 * @param index a value between 0 and numTokens -1
+	 * @param index
+	 *        a value between 0 and numTokens -1
 	 * @return the "n"th token
 	 */
 	public Token getToken(int index)
@@ -74,8 +79,8 @@ public class TokenGroup
 	}
 
 	/**
-	 * 
-	 * @param index a value between 0 and numTokens -1
+	 * @param index
+	 *        a value between 0 and numTokens -1
 	 * @return the "n"th score
 	 */
 	public float getScore(int index)
@@ -112,10 +117,10 @@ public class TokenGroup
 	 */
 	public float getTotalScore()
 	{
-		float total=0;
+		float total = 0;
 		for (int i = 0; i < numTokens; i++)
 		{
-			total+=scores[i];
+			total += scores[i];
 		}
 		return total;
 	}

@@ -28,19 +28,19 @@ import java.util.List;
 
 /**
  * @author ieb
- *
  */
-public interface SearchList extends List {
+public interface SearchList extends List
+{
 
 	/**
 	 * get an Iterator starting at
+	 * 
 	 * @param startAt
 	 * @return
 	 */
 	Iterator iterator(int startAt);
 
 	/**
-	 * 
 	 * @return
 	 */
 	int getFullSize();

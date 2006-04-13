@@ -36,16 +36,17 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.SearchList;
 import org.sakaiproject.search.SearchResult;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.framework.portal.PortalService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * Implementation of the search bean backing bean
- * @author ieb
  * 
+ * @author ieb
  */
-public class SearchBeanImpl implements SearchBean {
+public class SearchBeanImpl implements SearchBean
+{
 
 	/**
 	 * The searhc string parameter name
@@ -66,8 +67,6 @@ public class SearchBeanImpl implements SearchBean {
 	 * The Search Service to use
 	 */
 	private SearchService searchService;
-
-	private PortalService portalService;
 
 	private SiteService siteService;
 
@@ -96,30 +95,46 @@ public class SearchBeanImpl implements SearchBean {
 	 */
 	private SearchList searchResults;
 
+	private String placementId;
+
+	private String toolId;
+
+	private String siteId;
+
 	/**
 	 * Creates a searchBean
 	 * 
-	 * @param request The HTTP request
-	 * @param searchService The search service to use
-	 * @param siteService the site service
-	 * @param portalService the portal service
-	 * @throws IdUnusedException if there is no current worksite
+	 * @param request
+	 *        The HTTP request
+	 * @param searchService
+	 *        The search service to use
+	 * @param siteService
+	 *        the site service
+	 * @param portalService
+	 *        the portal service
+	 * @throws IdUnusedException
+	 *         if there is no current worksite
 	 */
 	public SearchBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
-			PortalService portalService) throws IdUnusedException {
+			ToolManager toolManager) throws IdUnusedException
+	{
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
 		this.siteService = siteService;
-		this.portalService = portalService;
-		try {
+		this.placementId = toolManager.getCurrentPlacement().getId();
+		this.toolId = toolManager.getCurrentTool().getId();
+		this.siteId = toolManager.getCurrentPlacement().getContext();
+		try
+		{
 			this.requestPage = Integer.parseInt(request
 					.getParameter(SEARCH_PAGE));
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 
 		}
-		Site currentSite = this.siteService.getSite(this.portalService
-				.getCurrentSiteId());
+		Site currentSite = this.siteService.getSite(this.siteId);
 		String siteCheck = currentSite.getReference();
 
 	}
@@ -127,11 +142,14 @@ public class SearchBeanImpl implements SearchBean {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getSearchResults(String searchItemFormat) {
+	public String getSearchResults(String searchItemFormat)
+	{
 		StringBuffer sb = new StringBuffer();
 		List searchResults = search();
-		if (searchResults != null) {
-			for (Iterator i = searchResults.iterator(); i.hasNext();) {
+		if (searchResults != null)
+		{
+			for (Iterator i = searchResults.iterator(); i.hasNext();)
+			{
 				SearchResult sr = (SearchResult) i.next();
 				sb.append(MessageFormat.format(searchItemFormat, new Object[] {
 						String.valueOf(sr.getIndex()), sr.getUrl(),
@@ -145,31 +163,34 @@ public class SearchBeanImpl implements SearchBean {
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
 	public String getPager(String pagerFormat)
-			throws UnsupportedEncodingException {
+			throws UnsupportedEncodingException
+	{
 		SearchList sr = (SearchList) search();
-		if (sr == null)
-			return "";
+		if (sr == null) return "";
 		int npages = sr.getFullSize() / pagesize;
 		int cpage = requestPage - (nlistPages / 2);
-		if (cpage < 0) {
+		if (cpage < 0)
+		{
 			cpage = 0;
 		}
 		StringBuffer sb = new StringBuffer();
 
 		int lastPage = Math.min(cpage + nlistPages, npages);
 		boolean first = true;
-		while (cpage <= lastPage) {
+		while (cpage <= lastPage)
+		{
 			String searchURL = "?search=" + URLEncoder.encode(search, "UTF-8")
 					+ "&page=" + String.valueOf(cpage);
 			String cssInd = "1";
-			if (first) {
+			if (first)
+			{
 				cssInd = "0";
 				first = false;
 			}
-			if (cpage == lastPage - 1) {
+			if (cpage == lastPage - 1)
+			{
 				cssInd = "2";
 			}
 
@@ -180,19 +201,20 @@ public class SearchBeanImpl implements SearchBean {
 
 		return sb.toString();
 	}
+
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
 
-	public String getHeader(String headerFormat) {
+	public String getHeader(String headerFormat)
+	{
 		SearchList sr = (SearchList) search();
-		if (sr == null)
-			return "";
+		if (sr == null) return "";
 		int total = sr.getFullSize();
 		int start = 0;
 		int end = 0;
-		if (total > 0) {
+		if (total > 0)
+		{
 			start = ((SearchResult) sr.get(0)).getIndex();
 			end = start + sr.size();
 			start++;
@@ -207,17 +229,19 @@ public class SearchBeanImpl implements SearchBean {
 	 * 
 	 * @return current search request
 	 */
-	public String getSearch() {
-		if (search == null)
-			return "";
+	public String getSearch()
+	{
+		if (search == null) return "";
 		return search;
 	}
 
 	/**
 	 * The time taken to perform the search only, not including rendering
+	 * 
 	 * @return
 	 */
-	public String getTimeTaken() {
+	public String getTimeTaken()
+	{
 		int tt = (int) timeTaken;
 		return String.valueOf(tt);
 	}
@@ -227,11 +251,14 @@ public class SearchBeanImpl implements SearchBean {
 	 * 
 	 * @return a list of page names that match the search criteria
 	 */
-	public List search() {
-		if (searchResults == null) {
-			if (search != null && search.trim().length() > 0) {
+	public List search()
+	{
+		if (searchResults == null)
+		{
+			if (search != null && search.trim().length() > 0)
+			{
 				List l = new ArrayList();
-				l.add(portalService.getCurrentSiteId());
+				l.add(this.siteId);
 				long start = System.currentTimeMillis();
 				int searchStart = requestPage * pagesize;
 				int searchEnd = searchStart + pagesize;
@@ -247,79 +274,86 @@ public class SearchBeanImpl implements SearchBean {
 	/**
 	 * @return Returns the nlistPages.
 	 */
-	public int getNlistPages() {
+	public int getNlistPages()
+	{
 		return nlistPages;
 	}
 
 	/**
 	 * @param nlistPages
-	 *            The nlistPages to set.
+	 *        The nlistPages to set.
 	 */
-	public void setNlistPages(int nlistPages) {
+	public void setNlistPages(int nlistPages)
+	{
 		this.nlistPages = nlistPages;
 	}
 
 	/**
 	 * @return Returns the pagesize.
 	 */
-	public int getPagesize() {
+	public int getPagesize()
+	{
 		return pagesize;
 	}
 
 	/**
 	 * @param pagesize
-	 *            The pagesize to set.
+	 *        The pagesize to set.
 	 */
-	public void setPagesize(int pagesize) {
+	public void setPagesize(int pagesize)
+	{
 		this.pagesize = pagesize;
 	}
 
 	/**
 	 * @return Returns the requestPage.
 	 */
-	public int getRequestPage() {
+	public int getRequestPage()
+	{
 		return requestPage;
 	}
 
 	/**
 	 * @param requestPage
-	 *            The requestPage to set.
+	 *        The requestPage to set.
 	 */
-	public void setRequestPage(int requestPage) {
+	public void setRequestPage(int requestPage)
+	{
 		this.requestPage = requestPage;
 	}
 
 	/**
 	 * The Total number of results
+	 * 
 	 * @return
 	 */
-	public int getNresults() {
+	public int getNresults()
+	{
 		return searchResults.getFullSize();
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public String getSearchTitle() {
+	public String getSearchTitle()
+	{
 		return "Search results for:" + getSearch();
 	}
+
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public boolean hasAdmin() {
-		String siteId = portalService.getCurrentSiteId();
+	public boolean hasAdmin()
+	{
 		return siteService.allowUpdateSite(siteId);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public String getToolUrl() {
-		String portalId = portalService.getCurrentToolId();
-		return "/portal/tool/" + portalId;
+	public String getToolUrl()
+	{
+		return "/portal/tool/" + toolId;
 	}
 
 }

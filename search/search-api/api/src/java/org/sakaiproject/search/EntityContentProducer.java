@@ -26,22 +26,24 @@ package org.sakaiproject.search;
 import java.io.Reader;
 import java.util.List;
 
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.event.Event;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
 
 /**
- * This is a special class than handles ContentResources for the purposes of search.
- * This must be impelented in a thread safe way. The aim is to map the content handler to 
- * the mime type
+ * This is a special class than handles ContentResources for the purposes of
+ * search. This must be impelented in a thread safe way. The aim is to map the
+ * content handler to the mime type
+ * 
  * @author ieb
- *
  */
-public interface EntityContentProducer {
+public interface EntityContentProducer
+{
 
-	
 	/**
-	 * Should the consumer use the reader or is it Ok to use a memory copy of the content
+	 * Should the consumer use the reader or is it Ok to use a memory copy of
+	 * the content
+	 * 
 	 * @param cr
 	 * @return
 	 */
@@ -49,6 +51,7 @@ public interface EntityContentProducer {
 
 	/**
 	 * Get a reader for the supplied content resource
+	 * 
 	 * @param cr
 	 * @return
 	 */
@@ -56,6 +59,7 @@ public interface EntityContentProducer {
 
 	/**
 	 * Get the content as a string
+	 * 
 	 * @param cr
 	 * @return
 	 */
@@ -63,12 +67,15 @@ public interface EntityContentProducer {
 
 	/**
 	 * get the title for the content
+	 * 
 	 * @param cr
 	 * @return
 	 */
 	String getTitle(Entity cr);
+
 	/**
 	 * Gets the url that displays the entity
+	 * 
 	 * @param entity
 	 * @return
 	 */
@@ -76,13 +83,16 @@ public interface EntityContentProducer {
 
 	/**
 	 * If the reference matches this EntityContentProducer return true
+	 * 
 	 * @param ref
 	 * @return
 	 */
 	boolean matches(Reference ref);
 
 	/**
-	 * Gets a list of Entity resource as a String to represent all indexable content
+	 * Gets a list of Entity resource as a String to represent all indexable
+	 * content
+	 * 
 	 * @return
 	 */
 	List getAllContent();
@@ -92,8 +102,7 @@ public interface EntityContentProducer {
 	boolean matches(Event event);
 
 	String getTool();
-	
-	String getSiteId(Reference  ref);
 
+	String getSiteId(Reference ref);
 
 }

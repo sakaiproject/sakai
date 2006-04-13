@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>${basedir}/../project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Sakai Search Tool</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>sakai-search</artifactId>
+  <artifactId>sakai-search-tool</artifactId>
   <shortDescription>The Sakai Search Tool</shortDescription>
     <currentVersion>${sakai.version}</currentVersion>
   <description>
@@ -51,37 +51,7 @@
   <dependencies>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-tool</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-active-tool</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-thread_local</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-session</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-search-service</artifactId>
+      <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -91,13 +61,6 @@
       <version>${sakai.spring.version}</version>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-search-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>

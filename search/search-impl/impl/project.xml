@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
-  <extend>${basedir}/../project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>Sakai Search Service Impl</name>
   <groupId>sakaiproject</groupId>
-  <artifactId>sakai-search-service-impl</artifactId>
+  <artifactId>sakai-search-impl</artifactId>
   <currentVersion>${sakai.version}</currentVersion>
   <properties>
     <deploy.type>jar</deploy.type>
@@ -47,23 +47,9 @@
     </resources>
   </build>
   <dependencies>
-    <!--
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-function</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-search-service</artifactId>
+      <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -76,13 +62,7 @@
     
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-service</artifactId>
+      <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -93,12 +73,6 @@
       <type>jar</type>
     </dependency>
     
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-session</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
     <dependency>
       <groupId>hibernate</groupId>
       <artifactId>hibernate</artifactId>

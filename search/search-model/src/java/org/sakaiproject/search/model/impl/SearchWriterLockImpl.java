@@ -29,57 +29,77 @@ import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * @author ieb
- *
  */
-public class SearchWriterLockImpl implements SearchWriterLock {
+public class SearchWriterLockImpl implements SearchWriterLock
+{
 	private String nodename = null;
+
 	private Date version = null;
+
 	private String id = null;
+
 	private String lockkey = null;
-	
+
 	/**
 	 * @return Returns the id.
 	 */
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
+
 	/**
-	 * @param id The id to set.
+	 * @param id
+	 *        The id to set.
 	 */
-	public void setId(String id) {
+	public void setId(String id)
+	{
 		this.id = id;
 	}
+
 	/**
 	 * @return Returns the lastUpdate.
 	 */
-	public Date getVersion() {
+	public Date getVersion()
+	{
 		return version;
 	}
+
 	/**
-	 * @param lastUpdate The lastUpdate to set.
+	 * @param lastUpdate
+	 *        The lastUpdate to set.
 	 */
-	public void setVersion(Date version) {
+	public void setVersion(Date version)
+	{
 		this.version = version;
 	}
+
 	/**
 	 * @return Returns the nodeName.
 	 */
-	public String getNodename() {
+	public String getNodename()
+	{
 		return nodename;
 	}
+
 	/**
-	 * @param nodeName The nodeName to set.
+	 * @param nodeName
+	 *        The nodeName to set.
 	 */
-	public void setNodename(String nodename) {
+	public void setNodename(String nodename)
+	{
 		this.nodename = nodename;
 	}
-	public void setLockkey(String lockkey) {
-		this.lockkey  = lockkey;
-		
+
+	public void setLockkey(String lockkey)
+	{
+		this.lockkey = lockkey;
+
 	}
-	public String getLockkey() {
+
+	public String getLockkey()
+	{
 		return lockkey;
 	}
-	
 
 }

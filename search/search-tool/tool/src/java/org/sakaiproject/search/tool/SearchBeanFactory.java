@@ -28,30 +28,38 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.exception.PermissionException;
 
 /**
- * A factory bean to construct backing beans efficiently on a request basis. This is normally injected into the 
- * request attributes for each individual page to construct the backing beans that they require.
- * Ideally there should be a one to one mapping between backing beans and pages, and the page should be as simple as possible
+ * A factory bean to construct backing beans efficiently on a request basis.
+ * This is normally injected into the request attributes for each individual
+ * page to construct the backing beans that they require. Ideally there should
+ * be a one to one mapping between backing beans and pages, and the page should
+ * be as simple as possible
+ * 
  * @author ieb
- *
  */
-public interface SearchBeanFactory {
+public interface SearchBeanFactory
+{
 
-	public final static String SEARCH_BEAN_FACTORY_ATTR = SearchBean.class.getName();
+	public final static String SEARCH_BEAN_FACTORY_ATTR = SearchBean.class
+			.getName();
 
 	/**
 	 * create a search bean based on the request
+	 * 
 	 * @param request
 	 * @return
-	 * @throws PermissionException 
+	 * @throws PermissionException
 	 */
-	SearchBean newSearchBean(HttpServletRequest request) throws PermissionException;
+	SearchBean newSearchBean(HttpServletRequest request)
+			throws PermissionException;
 
 	/**
 	 * Create a search admin bean based ont he request
+	 * 
 	 * @param request
 	 * @return
-	 * @throws PermissionException 
+	 * @throws PermissionException
 	 */
-	SearchAdminBean newSearchAdminBean(HttpServletRequest request) throws PermissionException;
+	SearchAdminBean newSearchAdminBean(HttpServletRequest request)
+			throws PermissionException;
 
 }

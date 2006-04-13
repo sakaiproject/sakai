@@ -38,147 +38,212 @@ import org.sakaiproject.search.SearchResult;
 
 /**
  * @author ieb
- *
  */
-public class SearchListImpl implements SearchList {
-	
+public class SearchListImpl implements SearchList
+{
+
 	private static Log dlog = LogFactory.getLog(SearchListImpl.class);
 
 	private Hits h;
 
 	private Query query;
-	
+
 	private int start = 0;
+
 	private int end = 500;
-	
-	public SearchListImpl( Hits h, Query query, int start, int end) {
+
+	public SearchListImpl(Hits h, Query query, int start, int end)
+	{
 		this.h = h;
 		this.query = query;
-		this.start  = start;
+		this.start = start;
 		this.end = end;
-		
-		
+
 	}
+
 	/**
 	 * @{inheritDoc}
 	 */
-	public Iterator iterator(final int startAt) {
-		return new Iterator() {
-			int counter = Math.max(startAt,start);
-			
+	public Iterator iterator(final int startAt)
+	{
+		return new Iterator()
+		{
+			int counter = Math.max(startAt, start);
 
-			public boolean hasNext() {
-				return counter < Math.min(h.length(),end);
+			public boolean hasNext()
+			{
+				return counter < Math.min(h.length(), end);
 			}
 
-			public Object next() {
-				
-				try {
+			public Object next()
+			{
+
+				try
+				{
 					final int thisHit = counter;
 					counter++;
-					return new SearchResultImpl(h,thisHit,query);
-				} catch (IOException e) {
-					throw new RuntimeException("Cant get Hit for some reason ",e);
+					return new SearchResultImpl(h, thisHit, query);
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException("Cant get Hit for some reason ",
+							e);
 				}
 			}
 
-			public void remove() {
+			public void remove()
+			{
 				throw new UnsupportedOperationException("Not Implemented");
 			}
-			
+
 		};
 	}
-	public int size() {
-		return Math.min(h.length(),end-start);
+
+	public int size()
+	{
+		return Math.min(h.length(), end - start);
 	}
-	
-	public int getFullSize() {
+
+	public int getFullSize()
+	{
 		return h.length();
 	}
-	public boolean isEmpty() {
+
+	public boolean isEmpty()
+	{
 		return (size() == 0);
 	}
-	public boolean contains(Object arg0) {
+
+	public boolean contains(Object arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public Iterator iterator() {
+
+	public Iterator iterator()
+	{
 		return iterator(0);
 	}
-	public Object[] toArray() {
+
+	public Object[] toArray()
+	{
 		Object[] o;
-		try {
+		try
+		{
 			o = new Object[size()];
-			for ( int i = 0; i < o.length; i++ ) {
-				
-				o[i+start] = new SearchResultImpl(h,i+start,query);
+			for (int i = 0; i < o.length; i++)
+			{
+
+				o[i + start] = new SearchResultImpl(h, i + start, query);
 			}
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to load all results ",e);
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException("Failed to load all results ", e);
 		}
 		return o;
 	}
-	public Object[] toArray(Object[] arg0) {
-		if ( arg0 instanceof SearchResult[]) {
+
+	public Object[] toArray(Object[] arg0)
+	{
+		if (arg0 instanceof SearchResult[])
+		{
 			return toArray();
 		}
 		return null;
 	}
-	public boolean add(Object arg0) {
+
+	public boolean add(Object arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean remove(Object arg0) {
+
+	public boolean remove(Object arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean containsAll(Collection arg0) {
+
+	public boolean containsAll(Collection arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean addAll(Collection arg0) {
+
+	public boolean addAll(Collection arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean addAll(int arg0, Collection arg1) {
+
+	public boolean addAll(int arg0, Collection arg1)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean removeAll(Collection arg0) {
+
+	public boolean removeAll(Collection arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public boolean retainAll(Collection arg0) {
+
+	public boolean retainAll(Collection arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public void clear() {
+
+	public void clear()
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public Object get(int arg0) {
-		try {
-			return new SearchResultImpl(h,arg0,query);
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to retrieve result ",e);
+
+	public Object get(int arg0)
+	{
+		try
+		{
+			return new SearchResultImpl(h, arg0, query);
 		}
-		
+		catch (IOException e)
+		{
+			throw new RuntimeException("Failed to retrieve result ", e);
+		}
+
 	}
-	public Object set(int arg0, Object arg1) {
+
+	public Object set(int arg0, Object arg1)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public void add(int arg0, Object arg1) {
+
+	public void add(int arg0, Object arg1)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
-		
+
 	}
-	public Object remove(int arg0) {
-		throw new UnsupportedOperationException("Not Implemented");
-	}
-	public int indexOf(Object arg0) {
-		throw new UnsupportedOperationException("Not Implemented");
-	}
-	public int lastIndexOf(Object arg0) {
+
+	public Object remove(int arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public ListIterator listIterator() {
+
+	public int indexOf(Object arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public ListIterator listIterator(int arg0) {
+
+	public int lastIndexOf(Object arg0)
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	public List subList(int arg0, int arg1) {
+
+	public ListIterator listIterator()
+	{
 		throw new UnsupportedOperationException("Not Implemented");
 	}
-	
+
+	public ListIterator listIterator(int arg0)
+	{
+		throw new UnsupportedOperationException("Not Implemented");
+	}
+
+	public List subList(int arg0, int arg1)
+	{
+		throw new UnsupportedOperationException("Not Implemented");
+	}
+
 }

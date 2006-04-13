@@ -25,36 +25,41 @@ package org.sakaiproject.search.component.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.search.SearchIndexBuilder;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.Notification;
-import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.w3c.dom.Element;
 
 /**
- * This action pushes the Event and Notification to the SearchIndexBuilder
- * That manages the update of the search indexes.
+ * This action pushes the Event and Notification to the SearchIndexBuilder That
+ * manages the update of the search indexes.
+ * 
  * @author ieb
- *
  */
-public class SearchNotificationAction implements NotificationAction {
+public class SearchNotificationAction implements NotificationAction
+{
 
 	private static Log dlog = LogFactory.getLog(SearchNotificationAction.class);
-	
+
 	private SearchIndexBuilder searchIndexBuilder;
-	
-	public SearchNotificationAction() {
-	  dlog.debug("Constructor()");	
+
+	public SearchNotificationAction()
+	{
+		dlog.debug("Constructor()");
 	}
-	public SearchNotificationAction(SearchIndexBuilder searchIndexBuilder) {
-		dlog.debug("Constructory()"+searchIndexBuilder);
+
+	public SearchNotificationAction(SearchIndexBuilder searchIndexBuilder)
+	{
+		dlog.debug("Constructory()" + searchIndexBuilder);
 		this.searchIndexBuilder = searchIndexBuilder;
 	}
+
 	/**
 	 * @{inheritDoc}
-	 * 
 	 */
-	public void set(Element arg0) {
+	public void set(Element arg0)
+	{
 		dlog.debug("set element");
 		// copy the element contents to this action
 
@@ -63,7 +68,8 @@ public class SearchNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public void set(NotificationAction arg0) {
+	public void set(NotificationAction arg0)
+	{
 		dlog.debug("set action");
 		// copy the notifiation action to this notification action
 
@@ -72,11 +78,12 @@ public class SearchNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public NotificationAction getClone() {
+	public NotificationAction getClone()
+	{
 		dlog.debug("Clone");
-		SearchNotificationAction clone = new SearchNotificationAction(searchIndexBuilder);
+		SearchNotificationAction clone = new SearchNotificationAction(
+				searchIndexBuilder);
 		clone.set(this);
-		
 
 		return clone;
 	}
@@ -84,21 +91,24 @@ public class SearchNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public void toXml(Element arg0) {
+	public void toXml(Element arg0)
+	{
 		// Serialise to XML
 
 	}
 
 	/**
-	 * The notify operation will come in with an event that we are
-	 * registerd to recieve, and  notification.
+	 * The notify operation will come in with an event that we are registerd to
+	 * recieve, and notification.
+	 * 
 	 * @{inheritDoc}
 	 */
-	public void notify(Notification notification, Event event) {
-		dlog.debug("Notify "+event.getEvent());
+	public void notify(Notification notification, Event event)
+	{
+		dlog.debug("Notify " + event.getEvent());
 		// This is done so that we can persist the Actions if we want without
 		// having to keep a reference to the SearchIndexBuilder
-		searchIndexBuilder.addResource(notification,event);		
+		searchIndexBuilder.addResource(notification, event);
 	}
 
 }

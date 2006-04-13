@@ -25,35 +25,41 @@ package org.sakaiproject.search.component.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.Notification;
-import org.sakaiproject.service.legacy.notification.NotificationAction;
 import org.w3c.dom.Element;
 
 /**
  * @author ieb
- *
  */
-public class SearchReloadNotificationAction implements NotificationAction {
+public class SearchReloadNotificationAction implements NotificationAction
+{
 
-	private static Log dlog = LogFactory.getLog(SearchReloadNotificationAction.class);
+	private static Log dlog = LogFactory
+			.getLog(SearchReloadNotificationAction.class);
 
 	private SearchService searchService;
 
-	private SearchReloadNotificationAction() {
+	private SearchReloadNotificationAction()
+	{
 		dlog.debug("Constructor()");
-		
+
 	}
-	public SearchReloadNotificationAction(SearchService searchService) {
-		dlog.debug("Constructor() "+searchService);
+
+	public SearchReloadNotificationAction(SearchService searchService)
+	{
+		dlog.debug("Constructor() " + searchService);
 		this.searchService = searchService;
-		
+
 	}
+
 	/**
 	 * @{inheritDoc}
 	 */
-	public void set(Element arg0) {
+	public void set(Element arg0)
+	{
 		dlog.debug("set Element");
 
 	}
@@ -61,7 +67,8 @@ public class SearchReloadNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public void set(NotificationAction arg0) {
+	public void set(NotificationAction arg0)
+	{
 		dlog.debug("set Action");
 
 	}
@@ -69,10 +76,12 @@ public class SearchReloadNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public NotificationAction getClone() {
+	public NotificationAction getClone()
+	{
 		dlog.debug("Clone");
 
-		SearchReloadNotificationAction clone = new SearchReloadNotificationAction(searchService);
+		SearchReloadNotificationAction clone = new SearchReloadNotificationAction(
+				searchService);
 		clone.set(this);
 		return clone;
 	}
@@ -80,19 +89,23 @@ public class SearchReloadNotificationAction implements NotificationAction {
 	/**
 	 * @{inheritDoc}
 	 */
-	public void toXml(Element arg0) {
+	public void toXml(Element arg0)
+	{
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public void notify(Notification arg0, Event event) {
+	public void notify(Notification arg0, Event event)
+	{
 		dlog.debug("notify");
 
-		if ( !event.getEvent().equals(SearchService.EVENT_TRIGGER_INDEX_RELOAD) ) {
+		if (!event.getEvent().equals(SearchService.EVENT_TRIGGER_INDEX_RELOAD))
+		{
 			return;
 		}
-		// this is done so that if we want to persist the events, we can do so without
+		// this is done so that if we want to persist the events, we can do so
+		// without
 		// being forced to keep a reference to the SearchService
 		searchService.reload();
 	}

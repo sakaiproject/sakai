@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2005 The Apache Software Foundation
  *
@@ -15,16 +16,17 @@ package org.apache.lucene.search.highlight;
  * limitations under the License.
  */
 
-
 /**
- * Encodes original text. The Encoder works with the Formatter to generate the output.
- *
+ * Encodes original text. The Encoder works with the Formatter to generate the
+ * output.
+ * 
  * @author Nicko Cadell
  */
 public interface Encoder
 {
 	/**
-	 * @param originalText The section of text being output
+	 * @param originalText
+	 *        The section of text being output
 	 */
 	String encodeText(String originalText);
 }

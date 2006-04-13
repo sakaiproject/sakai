@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -16,15 +17,16 @@ package org.apache.lucene.search.highlight;
  */
 
 /**
- * Simple {@link Formatter} implementation to highlight terms with a pre and post tag
+ * Simple {@link Formatter} implementation to highlight terms with a pre and
+ * post tag
+ * 
  * @author MAHarwood
- *
  */
 public class SimpleHTMLFormatter implements Formatter
 {
 	String preTag;
+
 	String postTag;
-	
 
 	public SimpleHTMLFormatter(String preTag, String postTag)
 	{
@@ -34,23 +36,25 @@ public class SimpleHTMLFormatter implements Formatter
 
 	/**
 	 * Default constructor uses HTML: &lt;B&gt; tags to markup terms
-	 * 
-	 **/
+	 */
 	public SimpleHTMLFormatter()
 	{
 		this.preTag = "<B>";
 		this.postTag = "</B>";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.apache.lucene.search.highlight.Formatter#highlightTerm(java.lang.String, org.apache.lucene.search.highlight.TokenGroup)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.lucene.search.highlight.Formatter#highlightTerm(java.lang.String,
+	 *      org.apache.lucene.search.highlight.TokenGroup)
 	 */
 	public String highlightTerm(String originalText, TokenGroup tokenGroup)
 	{
 		StringBuffer returnBuffer;
-		if(tokenGroup.getTotalScore()>0)
+		if (tokenGroup.getTotalScore() > 0)
 		{
-			returnBuffer=new StringBuffer();
+			returnBuffer = new StringBuffer();
 			returnBuffer.append(preTag);
 			returnBuffer.append(originalText);
 			returnBuffer.append(postTag);

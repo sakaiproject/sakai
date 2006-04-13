@@ -45,11 +45,11 @@ import org.sakaiproject.search.SearchResult;
 
 /**
  * @author ieb
- * 
  */
-public class SearchResultImpl implements SearchResult {
+public class SearchResultImpl implements SearchResult
+{
 
-	private static Log dlog = LogFactory.getLog(SearchResultImpl.class);
+	private static Log log = LogFactory.getLog(SearchResultImpl.class);
 
 	private Hits h;
 
@@ -61,84 +61,105 @@ public class SearchResultImpl implements SearchResult {
 
 	private Query query = null;
 
-	public SearchResultImpl(Hits h, int index, Query query) throws IOException {
+	public SearchResultImpl(Hits h, int index, Query query) throws IOException
+	{
 		this.h = h;
 		this.index = index;
 		this.doc = h.doc(index);
 		this.query = query;
 	}
 
-	public float getScore() {
-		try {
+	public float getScore()
+	{
+		try
+		{
 			return h.score(index);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			throw new RuntimeException("Cant determine score ", e);
 		}
 	}
 
-	public String getId() {
+	public String getId()
+	{
 		return doc.get("id");
 	}
 
-	public String[] getFieldNames() {
-		if (fieldNames != null) {
+	public String[] getFieldNames()
+	{
+		if (fieldNames != null)
+		{
 			return fieldNames;
 		}
 		HashMap al = new HashMap();
-		for (Enumeration e = doc.fields(); e.hasMoreElements();) {
+		for (Enumeration e = doc.fields(); e.hasMoreElements();)
+		{
 			Field f = (Field) e.nextElement();
 			al.put(f.name(), f);
 		}
 		fieldNames = new String[al.size()];
 		int ii = 0;
-		for (Iterator i = al.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = al.keySet().iterator(); i.hasNext();)
+		{
 			fieldNames[ii++] = (String) i.next();
 		}
 		return fieldNames;
 	}
 
-	public String[] getValues(String fieldName) {
+	public String[] getValues(String fieldName)
+	{
 		return doc.getValues(fieldName);
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public Map getValueMap() {
+	public Map getValueMap()
+	{
 		HashMap hm = new HashMap();
 		String[] fieldNames = getFieldNames();
-		for (int i = 0; i < fieldNames.length; i++) {
+		for (int i = 0; i < fieldNames.length; i++)
+		{
 			hm.put(fieldNames[i], doc.getValues(fieldNames[i]));
 		}
 		return hm;
 	}
-	
-	public String getUrl() {
+
+	public String getUrl()
+	{
 		return doc.get("url");
 	}
-	public String getTitle() {
-		return doc.get("tool")+": "+doc.get("title");
+
+	public String getTitle()
+	{
+		return doc.get("tool") + ": " + doc.get("title");
 	}
-	
-	public int getIndex() {
+
+	public int getIndex()
+	{
 		return index;
 	}
 
-	public String getSearchResult() {
-		try {
+	public String getSearchResult()
+	{
+		try
+		{
 			Scorer scorer = new QueryScorer(query);
 			Highlighter hightlighter = new Highlighter(scorer);
 			StringBuffer sb = new StringBuffer();
 			String[] contents = doc.getValues("contents");
-			for (int i = 0; i < contents.length; i++) {
+			for (int i = 0; i < contents.length; i++)
+			{
 				sb.append(contents[i]);
 			}
 			String text = sb.toString();
 			TokenStream tokenStream = new SimpleAnalyzer().tokenStream(
 					"contents", new StringReader(text));
 			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			return "Error: " + e.getMessage();
 		}
 	}

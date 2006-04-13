@@ -32,20 +32,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * @author andrew
- * 
  */
 // FIXME: Tool
-public class ControllerServlet extends HttpServlet {
-	public static Logger log;
+public class ControllerServlet extends HttpServlet
+{
+	public static Log log = LogFactory.getLog(ControllerServlet.class);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a
@@ -65,72 +66,91 @@ public class ControllerServlet extends HttpServlet {
 
 	private SearchBeanFactory searchBeanFactory = null;
 
-	public void init(ServletConfig servletConfig) throws ServletException {
+	private SessionManager sessionManager;
+
+	public void init(ServletConfig servletConfig) throws ServletException
+	{
 
 		super.init(servletConfig);
 
 		ServletContext sc = servletConfig.getServletContext();
 
 		wac = WebApplicationContextUtils.getWebApplicationContext(sc);
-		try {
-			log = (Logger) wac.getBean("search-logger");
+		try
+		{
 			searchBeanFactory = (SearchBeanFactory) wac
 					.getBean("search-searchBeanFactory");
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 		}
 
 	}
 
 	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		execute(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		execute(request, response);
 	}
 
 	public void execute(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+			throws ServletException, IOException
+	{
 
-		if (wac == null) {
+		if (wac == null)
+		{
 			wac = WebApplicationContextUtils
 					.getRequiredWebApplicationContext(this.getServletContext());
-			if (wac == null) {
+			if (wac == null)
+			{
 				response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
 						"Cannot get WebApplicationContext");
 				return;
 			}
 
 		}
-		if (log == null) {
-			log = (Logger) wac.getBean("search-logger");
-		}
-		if (searchBeanFactory == null) {
+		if (searchBeanFactory == null)
+		{
 			searchBeanFactory = (SearchBeanFactory) wac
 					.getBean("search-searchBeanFactory");
+		}
+		if (sessionManager == null)
+		{
+			sessionManager = (SessionManager) wac.getBean(SessionManager.class
+					.getName());
 		}
 
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
 		String targetURL = persistState(request);
-		if (targetURL != null && targetURL.trim().length() > 0) {
+		if (targetURL != null && targetURL.trim().length() > 0)
+		{
 			response.sendRedirect(targetURL);
 			return;
 		}
-		if (TITLE_PANEL.equals(request.getParameter(PANEL))) {
+		if (TITLE_PANEL.equals(request.getParameter(PANEL)))
+		{
 
 			String targetPage = "/WEB-INF/pages/title.jsp";
 			RequestDispatcher rd = request.getRequestDispatcher(targetPage);
 			rd.forward(request, response);
 
-		} else {
+		}
+		else
+		{
 			String path = request.getPathInfo();
-			if ( path == null || path.length() == 0) {
+			if (path == null || path.length() == 0)
+			{
 				path = "/index";
 			}
-			if ( !path.startsWith("/") ) {
+			if (!path.startsWith("/"))
+			{
 				path = "/" + path;
 			}
 			String targetPage = "/WEB-INF/pages" + path + ".jsp";
@@ -144,7 +164,8 @@ public class ControllerServlet extends HttpServlet {
 		request.removeAttribute(Tool.NATIVE_URL);
 	}
 
-	public void addWikiStylesheet(HttpServletRequest request) {
+	public void addWikiStylesheet(HttpServletRequest request)
+	{
 		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
 		request.setAttribute("sakai.html.head", headerPreContent + sakaiHeader);
 	}
@@ -160,15 +181,18 @@ public class ControllerServlet extends HttpServlet {
 	 * @param request
 	 * @return
 	 */
-	private String persistState(HttpServletRequest request) {
-		ToolSession ts = SessionManager.getCurrentToolSession();
-		if (isPageToolDefault(request)) {
+	private String persistState(HttpServletRequest request)
+	{
+		ToolSession ts = sessionManager.getCurrentToolSession();
+		if (isPageToolDefault(request))
+		{
 			log.debug("Incomming URL is " + request.getRequestURL().toString()
 					+ "?" + request.getQueryString());
 			log.debug("Restore " + ts.getAttribute(SAVED_REQUEST_URL));
 			return (String) ts.getAttribute(SAVED_REQUEST_URL);
 		}
-		if (isPageRestorable(request)) {
+		if (isPageRestorable(request))
+		{
 			ts.setAttribute(SAVED_REQUEST_URL, request.getRequestURL()
 					.toString()
 					+ "?" + request.getQueryString());
@@ -185,15 +209,15 @@ public class ControllerServlet extends HttpServlet {
 	 * @param request
 	 * @return true if the page is the Tool default page
 	 */
-	private boolean isPageToolDefault(HttpServletRequest request) {
-		if (TITLE_PANEL.equals(request.getParameter(PANEL)))
-			return false;
+	private boolean isPageToolDefault(HttpServletRequest request)
+	{
+		if (TITLE_PANEL.equals(request.getParameter(PANEL))) return false;
 		String pathInfo = request.getPathInfo();
 		String queryString = request.getQueryString();
 		String method = request.getMethod();
 		return ("GET".equalsIgnoreCase(method)
-				&& (pathInfo == null || request.getPathInfo().length() == 0) 
-				&& (queryString == null || queryString.length() == 0));
+				&& (pathInfo == null || request.getPathInfo().length() == 0) && (queryString == null || queryString
+				.length() == 0));
 	}
 
 	/**
@@ -203,12 +227,11 @@ public class ControllerServlet extends HttpServlet {
 	 * @param request
 	 * @return true if it is possible to restore to this point.
 	 */
-	private boolean isPageRestorable(HttpServletRequest request) {
-		if (TITLE_PANEL.equals(request.getParameter(PANEL)))
-			return false;
+	private boolean isPageRestorable(HttpServletRequest request)
+	{
+		if (TITLE_PANEL.equals(request.getParameter(PANEL))) return false;
 
-		if ("GET".equalsIgnoreCase(request.getMethod()))
-			return true;
+		if ("GET".equalsIgnoreCase(request.getMethod())) return true;
 
 		return false;
 	}

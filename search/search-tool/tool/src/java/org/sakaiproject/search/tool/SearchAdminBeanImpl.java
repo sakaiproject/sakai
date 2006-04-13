@@ -30,15 +30,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.framework.portal.PortalService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * @author ieb
- * 
  */
-public class SearchAdminBeanImpl implements SearchAdminBean {
+public class SearchAdminBeanImpl implements SearchAdminBean
+{
 
 	private static final String COMMAND = "command";
 
@@ -71,9 +72,9 @@ public class SearchAdminBeanImpl implements SearchAdminBean {
 
 	private SiteService siteService = null;
 
-	private PortalService portalService = null;
-
 	private String internCommand = null;
+
+	private String siteId;
 
 	/**
 	 * Construct a SearchAdminBean, checking permissions first
@@ -87,40 +88,50 @@ public class SearchAdminBeanImpl implements SearchAdminBean {
 	 */
 	public SearchAdminBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
-			PortalService portalService) throws IdUnusedException,
-			PermissionException {
-		String siteId = portalService.getCurrentSiteId();
+			ToolManager toolManager, SessionManager sessionManager)
+			throws IdUnusedException, PermissionException
+	{
+		siteId = toolManager.getCurrentPlacement().getContext();
 		Site currentSite = siteService.getSite(siteId);
 		String siteCheck = currentSite.getReference();
-		if (!siteService.allowUpdateSite(siteId)) {
-			throw new PermissionException(
-					"You dont have permission to administer search on this worksite ",
-					"site.update");
+		if (!siteService.allowUpdateSite(siteId))
+		{
+			String userName = sessionManager.getCurrentSessionUserId();
+			throw new PermissionException(userName, "site.update", siteCheck);
 		}
 		this.searchService = searchService;
 		this.siteService = siteService;
-		this.portalService = portalService;
 
 		// process any commands
 		String command = request.getParameter(COMMAND);
-		if ( command != null ) {
+		if (command != null)
+		{
 			internCommand = command.intern();
 		}
 
 	}
 
-	private void doCommand() {
-		if (internCommand == null)
-			return;
-		if (internCommand == REBUILDSITE) {
+	private void doCommand()
+	{
+		if (internCommand == null) return;
+		if (internCommand == REBUILDSITE)
+		{
 			doRebuildSite();
-		} else if (internCommand == REFRESHSITE) {
+		}
+		else if (internCommand == REFRESHSITE)
+		{
 			doRefreshSite();
-		} else if (internCommand == REBUILDINSTANCE) {
+		}
+		else if (internCommand == REBUILDINSTANCE)
+		{
 			doRebuildInstance();
-		} else if (internCommand == REFRESHINSTNACE) {
+		}
+		else if (internCommand == REFRESHINSTNACE)
+		{
 			doRefreshInstance();
-		} else if (internCommand == REFRESHSTATUS) {
+		}
+		else if (internCommand == REFRESHSTATUS)
+		{
 			doRefreshStatus();
 
 		}
@@ -130,57 +141,59 @@ public class SearchAdminBeanImpl implements SearchAdminBean {
 
 	/**
 	 * Refresh the status of the search engine index, does nothing
-	 * 
 	 */
-	private void doRefreshStatus() {
+	private void doRefreshStatus()
+	{
 		// TODO Auto-generated method stub
 
 	}
 
 	/**
 	 * Refresh all the documents in the index
-	 * 
 	 */
-	private void doRefreshInstance() {
+	private void doRefreshInstance()
+	{
 		searchService.refreshInstance();
 	}
 
 	/**
 	 * Rebuild the index from scratch, this dumps the existing index and reloads
 	 * all entities from the EntityContentProviders
-	 * 
 	 */
-	private void doRebuildInstance() {
+	private void doRebuildInstance()
+	{
 		searchService.rebuildInstance();
 	}
 
 	/**
 	 * Refresh just this suite
-	 * 
 	 */
-	private void doRefreshSite() {
-		searchService.refreshSite(portalService.getCurrentSiteId());
+	private void doRefreshSite()
+	{
+		searchService.refreshSite(siteId);
 	}
 
 	/**
 	 * rebuild just this site
-	 * 
 	 */
-	private void doRebuildSite() {
-		searchService.rebuildSite(portalService.getCurrentSiteId());
+	private void doRebuildSite()
+	{
+		searchService.rebuildSite(siteId);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getTitle() {
+	public String getTitle()
+	{
 		return "Search Administration";
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getIndexStatus(String statusFormat) {
+	public String getIndexStatus(String statusFormat)
+	{
 		doCommand();
 		return MessageFormat.format(statusFormat, new Object[] {
 				searchService.getStatus(),
@@ -189,10 +202,10 @@ public class SearchAdminBeanImpl implements SearchAdminBean {
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public String getAdminOptions(String adminOptionsFormat) {
+	public String getAdminOptions(String adminOptionsFormat)
+	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REBUILDSITE, "Rebuild Site Index" }));

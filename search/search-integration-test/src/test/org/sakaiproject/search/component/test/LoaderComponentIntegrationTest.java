@@ -33,16 +33,16 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.search.SearchIndexBuilder;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
-import org.sakaiproject.service.legacy.security.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
-import org.sakaiproject.service.legacy.user.UserDirectoryService;
-import org.sakaiproject.service.legacy.user.UserEdit;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTestBase;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -51,9 +51,9 @@ import uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService;
 
 /**
  * @author ieb
- * 
  */
-public class LoaderComponentIntegrationTest extends SakaiTestBase {
+public class LoaderComponentIntegrationTest extends SakaiTestBase
+{
 	private static Log logger = LogFactory
 			.getLog(LoaderComponentIntegrationTest.class);
 
@@ -92,10 +92,13 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase {
 
 	private static final String loaderDirectory = "/Users/ieb/Caret/testdataset";
 
-	public static Test suite() {
+	public static Test suite()
+	{
 		TestSetup setup = new TestSetup(new TestSuite(
-				LoaderComponentIntegrationTest.class)) {
-			protected void setUp() throws Exception {
+				LoaderComponentIntegrationTest.class))
+		{
+			protected void setUp() throws Exception
+			{
 				oneTimeSetup();
 			}
 		};
@@ -105,7 +108,8 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase {
 	/**
 	 * Setup test fixture (runs once for each test method called)
 	 */
-	public void setUp() throws Exception {
+	public void setUp() throws Exception
+	{
 
 		// Get the services we need for the tests
 		siteService = (SiteService) getService("org.sakaiproject.service.legacy.site.SiteService");
@@ -211,114 +215,145 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase {
 	 * Remove the newly created objects, so we can run more tests with a clean
 	 * slate.
 	 */
-	public void tearDown() throws Exception {
+	public void tearDown() throws Exception
+	{
 		setUser("admin");
-		try {
+		try
+		{
 			// Remove the site (along with its groups)
 			siteService.removeSite(site);
 
-		} catch (Throwable t) {
 		}
-		try {
+		catch (Throwable t)
+		{
+		}
+		try
+		{
 			// Remove the site (along with its groups)
 			siteService.removeSite(targetSite);
 
-		} catch (Throwable t) {
 		}
-		try {
+		catch (Throwable t)
+		{
+		}
+		try
+		{
 			// Remove the users
 			UserEdit user1 = userDirService.editUser("test.user.1");
 			userDirService.removeUser(user1);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 
 		}
 
-		try {
+		try
+		{
 			UserEdit user2 = userDirService.editUser("test.user.2");
 			userDirService.removeUser(user2);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 		}
-		try {
+		try
+		{
 			// Remove the users
 			UserEdit user1 = userDirService.editUser("test.ta.1");
 			userDirService.removeUser(user1);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 		}
 	}
 
-	public void testLoadFromDisk() throws Exception {
+	public void testLoadFromDisk() throws Exception
+	{
 		File d = new File(loaderDirectory);
-		if (!d.exists()) {
+		if (!d.exists())
+		{
 			d.mkdirs();
 			logger
 					.error("Directory for loader information does not exist so it has been created at "
 							+ d.getAbsolutePath());
 		}
 		File[] files = d.listFiles();
-		for (int i = 0; i < files.length; i++) {
+		for (int i = 0; i < files.length; i++)
+		{
 			File f = files[i];
 			String pageName = f.getName();
 			int li = pageName.lastIndexOf(".");
-			if (li > -1) {
+			if (li > -1)
+			{
 				pageName = pageName.substring(0, li);
 			}
 			FileReader fr = new FileReader(f);
 			char[] c = new char[4096];
 			StringBuffer contents = new StringBuffer();
 			int ci = -1;
-			while ((ci = fr.read(c)) != -1) {
+			while ((ci = fr.read(c)) != -1)
+			{
 				contents.append(c, 0, ci);
 			}
-			try {
-				logger.info("Adding "+pageName);
-			rwikiObjectservice.update(pageName, site.getReference(),
-					new Date(), contents.toString());
-				logger.info("Added "+pageName);
-			} catch ( Exception ex ) {
-				logger.error("Problem ",ex);
+			try
+			{
+				logger.info("Adding " + pageName);
+				rwikiObjectservice.update(pageName, site.getReference(),
+						new Date(), contents.toString());
+				logger.info("Added " + pageName);
+			}
+			catch (Exception ex)
+			{
+				logger.error("Problem ", ex);
 			}
 		}
-		while ( !searchIndexBuilder.isBuildQueueEmpty() ) {
+		while (!searchIndexBuilder.isBuildQueueEmpty())
+		{
 			Thread.sleep(5000);
 		}
 		searchIndexBuilder.destroy();
 		Thread.sleep(15000);
 	}
 
-	public void testRefreshIndex() throws Exception {
+	public void testRefreshIndex() throws Exception
+	{
 		searchIndexBuilder.refreshIndex();
-		while ( !searchIndexBuilder.isBuildQueueEmpty() ) {
+		while (!searchIndexBuilder.isBuildQueueEmpty())
+		{
 			Thread.sleep(5000);
 		}
 		searchIndexBuilder.destroy();
 		Thread.sleep(15000);
 	}
 
-	public void testRebuildIndex() throws Exception {
+	public void testRebuildIndex() throws Exception
+	{
 		searchIndexBuilder.rebuildIndex();
-		while ( !searchIndexBuilder.isBuildQueueEmpty() ) {
-			Thread.sleep(5000);
-		}
-		searchIndexBuilder.destroy();
-		Thread.sleep(15000);
-	}
-	public void testRebuildIndexAndWait() throws Exception {
-		searchIndexBuilder.refreshIndex();
-		searchIndexBuilder.rebuildIndex();
-		searchIndexBuilder.refreshIndex();
-		Thread.sleep(15000);
-		while ( !searchIndexBuilder.isBuildQueueEmpty() ) {
+		while (!searchIndexBuilder.isBuildQueueEmpty())
+		{
 			Thread.sleep(5000);
 		}
 		searchIndexBuilder.destroy();
 		Thread.sleep(15000);
 	}
 
+	public void testRebuildIndexAndWait() throws Exception
+	{
+		searchIndexBuilder.refreshIndex();
+		searchIndexBuilder.rebuildIndex();
+		searchIndexBuilder.refreshIndex();
+		Thread.sleep(15000);
+		while (!searchIndexBuilder.isBuildQueueEmpty())
+		{
+			Thread.sleep(5000);
+		}
+		searchIndexBuilder.destroy();
+		Thread.sleep(15000);
+	}
 
 }

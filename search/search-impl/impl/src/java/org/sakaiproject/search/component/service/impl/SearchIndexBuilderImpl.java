@@ -29,6 +29,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
@@ -36,32 +39,24 @@ import org.sakaiproject.search.EntityContentProducer;
 import org.sakaiproject.search.SearchIndexBuilder;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.Notification;
 
 /**
  * Search index builder is expected to be registered in spring as
- * org.sakaiproject.search.SearchIndexBuilder as a singleton.
- * 
- * It receives resources which it adds to its list of pending documents to be
- * indexed. A seperate thread then runs thtough the list of entities to be
- * indexed, updating the index. Each time the index is updates an event is
- * posted to force the Search components that are using the index to reload.
- * 
- * Incremental updates to the Lucene index require that the searchers reload the
- * index once the idex writer has been built.
+ * org.sakaiproject.search.SearchIndexBuilder as a singleton. It receives
+ * resources which it adds to its list of pending documents to be indexed. A
+ * seperate thread then runs thtough the list of entities to be indexed,
+ * updating the index. Each time the index is updates an event is posted to
+ * force the Search components that are using the index to reload. Incremental
+ * updates to the Lucene index require that the searchers reload the index once
+ * the idex writer has been built.
  * 
  * @author ieb
- * 
  */
 
-public class SearchIndexBuilderImpl implements SearchIndexBuilder {
+public class SearchIndexBuilderImpl implements SearchIndexBuilder
+{
 
-	private static Log dlog = LogFactory.getLog(SearchIndexBuilderImpl.class);
-
-	private Logger logger = null;
+	private static Log log = LogFactory.getLog(SearchIndexBuilderImpl.class);
 
 	private SearchBuilderItemDao searchBuilderItemDao = null;
 
@@ -69,11 +64,15 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 
 	private List producers = new ArrayList();
 
-	public void init() {
-		try {
+	public void init()
+	{
+		try
+		{
 
-		} catch (Throwable t) {
-			dlog.error("Failed to init ", t);
+		}
+		catch (Throwable t)
+		{
+			log.error("Failed to init ", t);
 		}
 	}
 
@@ -81,48 +80,58 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * register an entity content producer to provide content to the search
 	 * engine {@inheritDoc}
 	 */
-	public void registerEntityContentProducer(EntityContentProducer ecp) {
-		dlog.debug("register " + ecp);
+	public void registerEntityContentProducer(EntityContentProducer ecp)
+	{
+		log.debug("register " + ecp);
 		producers.add(ecp);
 	}
 
 	/**
 	 * Add a resource to the indexing queue {@inheritDoc}
 	 */
-	public void addResource(Notification notification, Event event) {
-		dlog.debug("Add resource " + notification + "::" + event);
+	public void addResource(Notification notification, Event event)
+	{
+		log.debug("Add resource " + notification + "::" + event);
 		String resourceName = event.getResource();
 		EntityContentProducer ecp = newEntityContentProducer(event);
 		Integer action = ecp.getAction(event);
 		int retries = 5;
-		while (retries > 0) {
-			try {
+		while (retries > 0)
+		{
+			try
+			{
 				SearchBuilderItem sb = searchBuilderItemDao
 						.findByName(resourceName);
-				if (sb == null) {
+				if (sb == null)
+				{
 					// new
 					sb = searchBuilderItemDao.create();
 					sb.setSearchaction(action);
 					sb.setName(resourceName);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
-					dlog.debug(" Didnt Find Resource, created new ");
-				} else {
+					log.debug(" Didnt Find Resource, created new ");
+				}
+				else
+				{
 					sb.setSearchaction(action);
 					sb.setName(resourceName);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 				}
 				searchBuilderItemDao.update(sb);
 				sb = searchBuilderItemDao.findByName(resourceName);
-				dlog.debug(" Added Resource "+action+" "+sb.getName());
+				log.debug(" Added Resource " + action + " " + sb.getName());
 				break;
-			} catch (Throwable t) {
-				logger.warn("Retrying to register " + resourceName
-						+ " with the search engine ",t);
+			}
+			catch (Throwable t)
+			{
+				log.warn("Retrying to register " + resourceName
+						+ " with the search engine ", t);
 				retries--;
 			}
 		}
-		if (retries == 0) {
-			logger.warn("In trying to register resource " + resourceName
+		if (retries == 0)
+		{
+			log.warn("In trying to register resource " + resourceName
 					+ " in search engine, I failed after"
 					+ " 5 attempts, this resource will"
 					+ " not be indexed untill it is modified");
@@ -133,14 +142,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	/**
 	 * refresh the index from the current stored state {@inheritDoc}
 	 */
-	public void refreshIndex() {
+	public void refreshIndex()
+	{
 		SearchBuilderItem sb = searchBuilderItemDao
 				.findByName(SearchBuilderItem.INDEX_MASTER);
-		if (sb == null) {
-			dlog.debug("Created NEW " + SearchBuilderItem.INDEX_MASTER);
+		if (sb == null)
+		{
+			log.debug("Created NEW " + SearchBuilderItem.INDEX_MASTER);
 			sb = searchBuilderItemDao.create();
 		}
-		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction())) {
+		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()))
+		{
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
 			sb.setName(SearchBuilderItem.INDEX_MASTER);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
@@ -148,45 +160,49 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 			restartBuilder();
 		}
 	}
-	
-	public void destroy() {
+
+	public void destroy()
+	{
 		searchIndexBuilderWorker.destroy();
 	}
 
 	/*
-	 * List l = searchBuilderItemDao.getAll();
-	 * 
-	 * for (Iterator i = l.iterator(); i.hasNext();) { SearchBuilderItemImpl sbi =
-	 * (SearchBuilderItemImpl) i.next();
-	 * sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD); try { dlog.info("
+	 * List l = searchBuilderItemDao.getAll(); for (Iterator i = l.iterator();
+	 * i.hasNext();) { SearchBuilderItemImpl sbi = (SearchBuilderItemImpl)
+	 * i.next(); sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD); try { log.info("
 	 * Updating " + sbi.getName()); searchBuilderItemDao.update(sbi); } catch
 	 * (Exception ex) { try { sbi = (SearchBuilderItemImpl) searchBuilderItemDao
 	 * .findByName(sbi.getName()); if (sbi != null) {
 	 * sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
 	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 	 * searchBuilderItemDao.update(sbi); } } catch (Exception e) {
-	 * dlog.warn("Failed to update on second attempt " + e.getMessage()); }
-	 *  } } restartBuilder(); }
+	 * log.warn("Failed to update on second attempt " + e.getMessage()); } } }
+	 * restartBuilder(); }
 	 */
 	/**
 	 * Rebuild the index from the entities own stored state {@inheritDoc}
 	 */
-	public void rebuildIndex() {
+	public void rebuildIndex()
+	{
 
-		try {
-		SearchBuilderItem sb = searchBuilderItemDao
-				.findByName(SearchBuilderItem.INDEX_MASTER);
-		if (sb == null) {
-			dlog.info("Created NEW " + SearchBuilderItem.INDEX_MASTER);
-			sb = searchBuilderItemDao.create();
+		try
+		{
+			SearchBuilderItem sb = searchBuilderItemDao
+					.findByName(SearchBuilderItem.INDEX_MASTER);
+			if (sb == null)
+			{
+				log.info("Created NEW " + SearchBuilderItem.INDEX_MASTER);
+				sb = searchBuilderItemDao.create();
+			}
+			sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
+			sb.setName(SearchBuilderItem.INDEX_MASTER);
+			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			searchBuilderItemDao.update(sb);
 		}
-		sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
-		sb.setName(SearchBuilderItem.INDEX_MASTER);
-		sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
-		searchBuilderItemDao.update(sb);
-		} catch ( Exception ex) {
-			dlog.warn(" rebuild index encountered a problme "+ex.getMessage());
+		catch (Exception ex)
+		{
+			log.warn(" rebuild index encountered a problme " + ex.getMessage());
 		}
 		restartBuilder();
 	}
@@ -204,7 +220,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * 
 	 * @param e
 	 */
-	private void restartBuilder() {
+	private void restartBuilder()
+	{
 		searchIndexBuilderWorker.checkRunning();
 	}
 
@@ -217,11 +234,14 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * @throws IdUnusedException
 	 * @throws TypeException
 	 */
-	protected EntityContentProducer newEntityContentProducer(Reference ref) {
-		dlog.debug(" new entitycontent producer");
-		for (Iterator i = producers.iterator(); i.hasNext();) {
+	protected EntityContentProducer newEntityContentProducer(Reference ref)
+	{
+		log.debug(" new entitycontent producer");
+		for (Iterator i = producers.iterator(); i.hasNext();)
+		{
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
-			if (ecp.matches(ref)) {
+			if (ecp.matches(ref))
+			{
 				return ecp;
 			}
 		}
@@ -234,11 +254,14 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * @param event
 	 * @return
 	 */
-	protected EntityContentProducer newEntityContentProducer(Event event) {
-		dlog.debug(" new entitycontent producer");
-		for (Iterator i = producers.iterator(); i.hasNext();) {
+	protected EntityContentProducer newEntityContentProducer(Event event)
+	{
+		log.debug(" new entitycontent producer");
+		for (Iterator i = producers.iterator(); i.hasNext();)
+		{
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
-			if (ecp.matches(event)) {
+			if (ecp.matches(event))
+			{
 				return ecp;
 			}
 		}
@@ -246,33 +269,20 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	}
 
 	/**
-	 * @return Returns the logger.
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	/**
-	 * @param logger
-	 *            The logger to set.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/**
 	 * @return Returns the searchBuilderItemDao.
 	 */
-	public SearchBuilderItemDao getSearchBuilderItemDao() {
+	public SearchBuilderItemDao getSearchBuilderItemDao()
+	{
 		return searchBuilderItemDao;
 	}
 
 	/**
 	 * @param searchBuilderItemDao
-	 *            The searchBuilderItemDao to set.
+	 *        The searchBuilderItemDao to set.
 	 */
 	public void setSearchBuilderItemDao(
-			SearchBuilderItemDao searchBuilderItemDao) {
+			SearchBuilderItemDao searchBuilderItemDao)
+	{
 		this.searchBuilderItemDao = searchBuilderItemDao;
 	}
 
@@ -281,25 +291,28 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * 
 	 * @{inheritDoc}
 	 */
-	public boolean isBuildQueueEmpty() {
+	public boolean isBuildQueueEmpty()
+	{
 		int n = searchBuilderItemDao.countPending();
-		dlog.debug("Queue has "+n);
+		log.debug("Queue has " + n);
 		return (n == 0);
 	}
 
 	/**
 	 * @return Returns the searchIndexBuilderWorker.
 	 */
-	public SearchIndexBuilderWorker getSearchIndexBuilderWorker() {
+	public SearchIndexBuilderWorker getSearchIndexBuilderWorker()
+	{
 		return searchIndexBuilderWorker;
 	}
 
 	/**
 	 * @param searchIndexBuilderWorker
-	 *            The searchIndexBuilderWorker to set.
+	 *        The searchIndexBuilderWorker to set.
 	 */
 	public void setSearchIndexBuilderWorker(
-			SearchIndexBuilderWorker searchIndexBuilderWorker) {
+			SearchIndexBuilderWorker searchIndexBuilderWorker)
+	{
 		this.searchIndexBuilderWorker = searchIndexBuilderWorker;
 	}
 
@@ -309,11 +322,13 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder {
 	 * 
 	 * @return
 	 */
-	public List getContentProducers() {
+	public List getContentProducers()
+	{
 		return new ArrayList(producers);
 	}
 
-	public int getPendingDocuments() {
+	public int getPendingDocuments()
+	{
 		return searchBuilderItemDao.countPending();
 	}
 

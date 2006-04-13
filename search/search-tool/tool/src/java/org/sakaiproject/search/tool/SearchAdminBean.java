@@ -28,9 +28,9 @@ package org.sakaiproject.search.tool;
  * should enfoce any authz that is required.
  * 
  * @author ieb
- * 
  */
-public interface SearchAdminBean {
+public interface SearchAdminBean
+{
 
 	/**
 	 * Get the Title of the index
@@ -40,16 +40,20 @@ public interface SearchAdminBean {
 	String getTitle();
 
 	/**
-	 * 
 	 * get an HTML fragment representing the status of the index
-	 * @param statusFormatString a format string for the status {0} is the status, {1} is the number of docs, {2} is the number waiting to be indexed
+	 * 
+	 * @param statusFormatString
+	 *        a format string for the status {0} is the status, {1} is the
+	 *        number of docs, {2} is the number waiting to be indexed
 	 * @return
 	 */
 	String getIndexStatus(String statusFormatString);
-	
+
 	/**
 	 * Get admin options formatted according to pattern
-	 * @param adminOptionsFormat format pattern {0} is the URL, {1} is the text
+	 * 
+	 * @param adminOptionsFormat
+	 *        format pattern {0} is the URL, {1} is the text
 	 * @return
 	 */
 	String getAdminOptions(String adminOptionsFormat);

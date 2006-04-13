@@ -36,16 +36,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
-import org.sakaiproject.service.framework.log.Logger;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * @author ieb
- * 
  */
 public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
-		SearchBuilderItemDao {
+		SearchBuilderItemDao
+{
 
 	/**
 	 * debug logger
@@ -53,29 +52,10 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	private static Log dlog = LogFactory.getLog(SearchBuilderItemDaoImpl.class);
 
 	/**
-	 * The official sakai logger
-	 */
-	private Logger log = null;
-
-	/**
-	 * @return Returns the log.
-	 */
-	public Logger getLog() {
-		return log;
-	}
-
-	/**
-	 * @param log
-	 *            The log to set.
-	 */
-	public void setLog(Logger log) {
-		this.log = log;
-	}
-
-	/**
 	 * create a new search builder item {@inheritDoc}
 	 */
-	public SearchBuilderItem create() {
+	public SearchBuilderItem create()
+	{
 		return new SearchBuilderItemImpl();
 	}
 
@@ -84,9 +64,10 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 * 
 	 * @{inheritDoc}
 	 */
-	public void update(SearchBuilderItem sb) {
+	public void update(SearchBuilderItem sb)
+	{
 		getHibernateTemplate().saveOrUpdate(sb);
-		
+
 	}
 
 	/**
@@ -94,16 +75,19 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 * 
 	 * @{inheritDoc}
 	 */
-	public List getAll() {
-		HibernateCallback callback = new HibernateCallback() {
+	public List getAll()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
 			public Object doInHibernate(Session session)
-					throws HibernateException {
+					throws HibernateException
+			{
 				return session.createCriteria(SearchBuilderItemImpl.class)
 						.list();
 			}
 		};
-		
-		return (List)getHibernateTemplate().execute(callback);
+
+		return (List) getHibernateTemplate().execute(callback);
 	}
 
 	/**
@@ -111,40 +95,56 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 * 
 	 * @{inheritDoc}
 	 */
-	public SearchBuilderItem findByName(final String resourceName) {
-		HibernateCallback callback = new HibernateCallback() {
+	public SearchBuilderItem findByName(final String resourceName)
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
 			public Object doInHibernate(Session session)
-					throws HibernateException {
+					throws HibernateException
+			{
 				return session.createCriteria(SearchBuilderItemImpl.class).add(
 						Expression.eq("name", resourceName)).list();
 			}
 
 		};
 		List l = (List) getHibernateTemplate().execute(callback);
-		if (l.size() == 0) {
+		if (l.size() == 0)
+		{
 			return null;
-		} else {
+		}
+		else
+		{
 			return (SearchBuilderItem) l.get(0);
 		}
 
 	}
 
-	public int countPending() {
+	public int countPending()
+	{
 
-		HibernateCallback callback = new HibernateCallback() {
+		HibernateCallback callback = new HibernateCallback()
+		{
 			public Object doInHibernate(Session session)
-					throws HibernateException {
+					throws HibernateException
+			{
 				// first try and get and lock the writer mutex
 
-				List l = session.find("select count(*) from "
-						+ SearchBuilderItemImpl.class.getName()
-						+ " where name <> ? and searchstate = ? and searchaction <> ?",
-						new Object[] { SearchBuilderItem.INDEX_MASTER, SearchBuilderItem.STATE_PENDING,
-								SearchBuilderItem.ACTION_UNKNOWN }, new Type[] {
-								Hibernate.STRING, Hibernate.INTEGER, Hibernate.INTEGER });
-				if (l == null || l.size() == 0) {
+				List l = session
+						.find(
+								"select count(*) from "
+										+ SearchBuilderItemImpl.class.getName()
+										+ " where name <> ? and searchstate = ? and searchaction <> ?",
+								new Object[] { SearchBuilderItem.INDEX_MASTER,
+										SearchBuilderItem.STATE_PENDING,
+										SearchBuilderItem.ACTION_UNKNOWN },
+								new Type[] { Hibernate.STRING,
+										Hibernate.INTEGER, Hibernate.INTEGER });
+				if (l == null || l.size() == 0)
+				{
 					return new Integer(0);
-				} else {
+				}
+				else
+				{
 					dlog.debug("Found " + l.get(0) + " Pending Documents ");
 					return l.get(0);
 				}

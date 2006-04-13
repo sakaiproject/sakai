@@ -28,94 +28,133 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.framework.portal.PortalService;
-import org.sakaiproject.service.legacy.site.SiteService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * @author ieb
- * 
  */
-public class SearchBeanFactoryImpl implements SearchBeanFactory {
+public class SearchBeanFactoryImpl implements SearchBeanFactory
+{
 
 	private SearchService searchService;
 
 	private SiteService siteService;
 
-	private PortalService portalService;
+	private ToolManager toolManager;
+
+	private SessionManager sessionManager;
 
 	/**
 	 * {@inheritDoc}
-	 * @throws PermissionException 
+	 * 
+	 * @throws PermissionException
 	 */
-	public SearchBean newSearchBean(HttpServletRequest request) throws PermissionException {
-		try {
+	public SearchBean newSearchBean(HttpServletRequest request)
+	{
+		try
+		{
 			SearchBeanImpl searchBean = new SearchBeanImpl(request,
-					searchService, siteService, portalService);
+					searchService, siteService, toolManager);
+
 			return searchBean;
-		} catch (IdUnusedException e) {
-			throw new PermissionException(
-					"You must access the Search through a woksite","");
+		}
+		catch (IdUnusedException e)
+		{
+			throw new RuntimeException(
+					"You must access the Search through a woksite");
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws PermissionException 
+	 * 
+	 * @throws PermissionException
 	 */
-	public SearchAdminBean newSearchAdminBean(HttpServletRequest request) throws PermissionException {
-		try {
-				SearchAdminBeanImpl searchAdminBean = new SearchAdminBeanImpl(
-						request, searchService, siteService, portalService);
-				return searchAdminBean;
-		} catch (IdUnusedException e) {
-			throw new PermissionException(
-					"You must access the Search through a woksite","");
+	public SearchAdminBean newSearchAdminBean(HttpServletRequest request)
+			throws PermissionException
+	{
+		try
+		{
+			SearchAdminBeanImpl searchAdminBean = new SearchAdminBeanImpl(
+					request, searchService, siteService, toolManager,
+					sessionManager);
+			return searchAdminBean;
+		}
+		catch (IdUnusedException e)
+		{
+			throw new RuntimeException(
+					"You must access the Search through a woksite");
 		}
 	}
 
 	/**
 	 * @return Returns the searchService.
 	 */
-	public SearchService getSearchService() {
+	public SearchService getSearchService()
+	{
 		return searchService;
 	}
 
 	/**
 	 * @param searchService
-	 *            The searchService to set.
+	 *        The searchService to set.
 	 */
-	public void setSearchService(SearchService searchService) {
+	public void setSearchService(SearchService searchService)
+	{
 		this.searchService = searchService;
 	}
 
 	/**
 	 * @return Returns the portalService.
 	 */
-	public PortalService getPortalService() {
-		return portalService;
+	public ToolManager getToolManager()
+	{
+		return toolManager;
 	}
 
 	/**
 	 * @param portalService
-	 *            The portalService to set.
+	 *        The portalService to set.
 	 */
-	public void setPortalService(PortalService portalService) {
-		this.portalService = portalService;
+	public void setToolManager(ToolManager toolManager)
+	{
+		this.toolManager = toolManager;
 	}
 
 	/**
 	 * @return Returns the siteService.
 	 */
-	public SiteService getSiteService() {
+	public SiteService getSiteService()
+	{
 		return siteService;
 	}
 
 	/**
 	 * @param siteService
-	 *            The siteService to set.
+	 *        The siteService to set.
 	 */
-	public void setSiteService(SiteService siteService) {
+	public void setSiteService(SiteService siteService)
+	{
 		this.siteService = siteService;
+	}
+
+	/**
+	 * @return Returns the sessionManager.
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager
+	 *        The sessionManager to set.
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
 	}
 
 }

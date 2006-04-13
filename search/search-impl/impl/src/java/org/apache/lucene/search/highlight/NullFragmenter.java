@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2005 The Apache Software Foundation
  *
@@ -18,14 +19,17 @@ package org.apache.lucene.search.highlight;
 import org.apache.lucene.analysis.Token;
 
 /**
- * {@link Fragmenter} implementation which does not fragment the text.
- * This is useful for highlighting the entire content of a document or field.
+ * {@link Fragmenter} implementation which does not fragment the text. This is
+ * useful for highlighting the entire content of a document or field.
  */
-public class NullFragmenter implements Fragmenter {
-  public void start(String s) {
-  }
+public class NullFragmenter implements Fragmenter
+{
+	public void start(String s)
+	{
+	}
 
-  public boolean isNewFragment(Token token) {
-    return false;
-  }
+	public boolean isNewFragment(Token token)
+	{
+		return false;
+	}
 }

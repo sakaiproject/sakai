@@ -27,40 +27,53 @@ import java.util.Date;
 
 /**
  * @author ieb
- *
  */
-public interface SearchWriterLock {
+public interface SearchWriterLock
+{
 	String getId();
+
 	void setId(String id);
+
 	/**
 	 * Optimistic locking version
+	 * 
 	 * @return
 	 */
 	Date getVersion();
+
 	/**
 	 * the name of the node holding the lock
+	 * 
 	 * @return
 	 */
 	String getNodename();
+
 	/**
 	 * the name of the node holding the lock
+	 * 
 	 * @param nodeName
 	 */
 	void setNodename(String nodeName);
+
 	/**
 	 * The name of the lock
+	 * 
 	 * @param lockkey
 	 */
 	void setLockkey(String lockkey);
+
 	/**
 	 * The name of the lock
+	 * 
 	 * @return
 	 */
 	String getLockkey();
+
 	/**
 	 * Version
+	 * 
 	 * @param date
 	 */
 	void setVersion(Date date);
-	
+
 }

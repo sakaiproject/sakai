@@ -40,24 +40,21 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.SearchIndexBuilder;
 import org.sakaiproject.search.SearchList;
 import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.notification.NotificationEdit;
-import org.sakaiproject.service.legacy.notification.cover.NotificationService;
 
 /**
  * The search service
  * 
  * @author ieb
- * 
  */
-public class SearchServiceImpl implements SearchService {
+public class SearchServiceImpl implements SearchService
+{
 
-	private static Log dlog = LogFactory.getLog(SearchServiceImpl.class);
-
-	private Logger logger = null;
+	private static Log log = LogFactory.getLog(SearchServiceImpl.class);
 
 	/**
 	 * Optional dependencies
@@ -93,40 +90,45 @@ public class SearchServiceImpl implements SearchService {
 
 	private long reloadEnd;
 
+	private NotificationService notificationService;
+
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
-	 * 
 	 */
-	public void init() {
-		try {
-			dlog.debug("init start");
-			
+	public void init()
+	{
+		try
+		{
+			log.debug("init start");
 
-			dlog.debug("checking setup");
-			if (indexDirectory == null) {
-				logger.error(" indexDirectory must be set");
+			log.debug("checking setup");
+			if (indexDirectory == null)
+			{
+				log.error(" indexDirectory must be set");
 				throw new RuntimeException("Must set indexDirectory");
 
 			}
-			if (searchIndexBuilder == null) {
-				logger.error(" searchIndexBuilder must be set");
+			if (searchIndexBuilder == null)
+			{
+				log.error(" searchIndexBuilder must be set");
 				throw new RuntimeException("Must set searchIndexBuilder");
 			}
-			
 
 			// register a transient notification for resources
-			notification = NotificationService.addTransientNotification();
+			notification = notificationService.addTransientNotification();
 
 			// add all the functions that are registered to trigger search index
 			// modification
 
 			notification.setFunction(SearchService.EVENT_TRIGGER_SEARCH);
-			if (triggerFunctions != null) {
-				for (Iterator ifn = triggerFunctions.iterator(); ifn.hasNext();) {
+			if (triggerFunctions != null)
+			{
+				for (Iterator ifn = triggerFunctions.iterator(); ifn.hasNext();)
+				{
 					String function = (String) ifn.next();
 					notification.addFunction(function);
-					dlog.debug("Adding Search Register "+function);
+					log.debug("Adding Search Register " + function);
 				}
 			}
 
@@ -137,25 +139,25 @@ public class SearchServiceImpl implements SearchService {
 			notification.setAction(new SearchNotificationAction(
 					searchIndexBuilder));
 
-						
-
 			// register a transient notification for resources
-			NotificationEdit sbnotification = NotificationService
+			NotificationEdit sbnotification = notificationService
 					.addTransientNotification();
 
 			// add all the functions that are registered to trigger search index
 			// modification
 
-			sbnotification.setFunction(SearchService.EVENT_TRIGGER_INDEX_RELOAD);
+			sbnotification
+					.setFunction(SearchService.EVENT_TRIGGER_INDEX_RELOAD);
 
 			// set the action
-			sbnotification.setAction(new SearchReloadNotificationAction(
-					this));
+			sbnotification.setAction(new SearchReloadNotificationAction(this));
 
 			initComplete = true;
-			dlog.debug("init end");
-		} catch (Throwable t) {
-			dlog.error("Failed to start ", t);
+			log.debug("init end");
+		}
+		catch (Throwable t)
+		{
+			log.error("Failed to start ", t);
 		}
 
 	}
@@ -163,15 +165,17 @@ public class SearchServiceImpl implements SearchService {
 	/**
 	 * @return Returns the triggerFunctions.
 	 */
-	public List getTriggerFunctions() {
+	public List getTriggerFunctions()
+	{
 		return triggerFunctions;
 	}
 
 	/**
 	 * @param triggerFunctions
-	 *            The triggerFunctions to set.
+	 *        The triggerFunctions to set.
 	 */
-	public void setTriggerFunctions(List triggerFunctions) {
+	public void setTriggerFunctions(List triggerFunctions)
+	{
 		if (initComplete)
 			throw new RuntimeException(
 					" use register function at runtime, setTriggerFucntions is for Spring IoC only");
@@ -179,22 +183,26 @@ public class SearchServiceImpl implements SearchService {
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public void registerFunction(String function) {
+	public void registerFunction(String function)
+	{
 		notification.addFunction(function);
-		dlog.debug("Adding Function "+function);
+		log.debug("Adding Function " + function);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public SearchList search(String searchTerms, List contexts, int start, int end) {
-		try {
+	public SearchList search(String searchTerms, List contexts, int start,
+			int end)
+	{
+		try
+		{
 			BooleanQuery query = new BooleanQuery();
 			BooleanQuery contextQuery = new BooleanQuery();
-			for (Iterator i = contexts.iterator(); i.hasNext();) {
+			for (Iterator i = contexts.iterator(); i.hasNext();)
+			{
 				contextQuery.add(new TermQuery(new Term("siteid", (String) i
 						.next())), true, false);
 			}
@@ -203,48 +211,60 @@ public class SearchServiceImpl implements SearchService {
 					new StandardAnalyzer());
 			query.add(contextQuery, true, false);
 			query.add(textQuery, true, false);
-			logger.info("Query is " + query.toString());
-			if (runningIndexSearcher == null) {
+			log.info("Query is " + query.toString());
+			if (runningIndexSearcher == null)
+			{
 				reload();
 			}
-			if (runningIndexSearcher != null) {
+			if (runningIndexSearcher != null)
+			{
 				Hits h = runningIndexSearcher.search(query);
-				logger.info("Got " + h.length() + " hits");
+				log.info("Got " + h.length() + " hits");
 
-				return new SearchListImpl(h,textQuery, start, end);
-			} else {
+				return new SearchListImpl(h, textQuery, start, end);
+			}
+			else
+			{
 				throw new RuntimeException(
 						"Failed to start the Lucene Searche Engine");
 			}
 
-		} catch (ParseException e) {
+		}
+		catch (ParseException e)
+		{
 			throw new RuntimeException("Failed to parse Query ", e);
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			throw new RuntimeException("Failed to run Search ", e);
 		}
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public void reload() {
-		dlog.info("Reload");
+	public void reload()
+	{
+		log.info("Reload");
 
 		reloadStart = System.currentTimeMillis();
-		try {
+		try
+		{
 			File indexDirectoryFile = new File(indexDirectory);
 			indexDirectoryFile.mkdirs();
-			
+
 			IndexSearcher indexSearcher = new IndexSearcher(indexDirectory);
-			if (indexSearcher != null) {
+			if (indexSearcher != null)
+			{
 				runningIndexSearcher = indexSearcher;
 			}
 			reloadEnd = System.currentTimeMillis();
-			dlog.info("Reload Complete " + indexSearcher.maxDoc() + " in "
+			log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
 					+ (reloadEnd - reloadStart));
 
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 
@@ -255,7 +275,8 @@ public class SearchServiceImpl implements SearchService {
 	 * 
 	 * @return Returns the indexDirectory.
 	 */
-	public String getIndexDirectory() {
+	public String getIndexDirectory()
+	{
 		return indexDirectory;
 	}
 
@@ -263,80 +284,91 @@ public class SearchServiceImpl implements SearchService {
 	 * required dependency
 	 * 
 	 * @param indexDirectory
-	 *            The indexDirectory to set.
+	 *        The indexDirectory to set.
 	 */
-	public void setIndexDirectory(String indexDirectory) {
+	public void setIndexDirectory(String indexDirectory)
+	{
 		this.indexDirectory = indexDirectory;
-	}
-
-	/**
-	 * required dependency
-	 * 
-	 * @return Returns the logger.
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	/**
-	 * required dependency
-	 * 
-	 * @param logger
-	 *            The logger to set.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
 	}
 
 	/**
 	 * @return Returns the searchIndexBuilder.
 	 */
-	public SearchIndexBuilder getSearchIndexBuilder() {
+	public SearchIndexBuilder getSearchIndexBuilder()
+	{
 		return searchIndexBuilder;
 	}
 
 	/**
 	 * @param searchIndexBuilder
-	 *            The searchIndexBuilder to set.
+	 *        The searchIndexBuilder to set.
 	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
+	{
 		this.searchIndexBuilder = searchIndexBuilder;
 	}
 
-	public void refreshInstance() {
+	public void refreshInstance()
+	{
 		searchIndexBuilder.refreshIndex();
-		
+
 	}
 
-	public void rebuildInstance() {
+	public void rebuildInstance()
+	{
 		searchIndexBuilder.rebuildIndex();
 	}
 
-	public void refreshSite(String currentSiteId) {
-		searchIndexBuilder.refreshIndex();		
+	public void refreshSite(String currentSiteId)
+	{
+		searchIndexBuilder.refreshIndex();
 	}
 
-	public void rebuildSite(String currentSiteId) {
+	public void rebuildSite(String currentSiteId)
+	{
 		searchIndexBuilder.rebuildIndex();
-		
+
 	}
 
-	public String getStatus() {
+	public String getStatus()
+	{
 		String lastLoad = (new Date(reloadEnd)).toString();
-		String loadTime = String.valueOf((double)(0.001*(reloadEnd-reloadStart)));
-		return "Index Last Loaded "+lastLoad+" in "+loadTime + " seconds";
+		String loadTime = String
+				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+		return "Index Last Loaded " + lastLoad + " in " + loadTime + " seconds";
 	}
 
-	public int getNDocs() {
-		try {
+	public int getNDocs()
+	{
+		try
+		{
 			return runningIndexSearcher.maxDoc();
-		} catch (IOException e) {
+		}
+		catch (IOException e)
+		{
 			return -1;
 		}
 	}
 
-	public int getPendingDocs() {
+	public int getPendingDocs()
+	{
 		return searchIndexBuilder.getPendingDocuments();
+	}
+
+	/**
+	 * @return Returns the notificationService.
+	 */
+	public NotificationService getNotificationService()
+	{
+		return notificationService;
+	}
+
+	/**
+	 * @param notificationService The notificationService to set.
+	 */
+	public void setNotificationService(NotificationService notificationService)
+	{
+		this.notificationService = notificationService;
 	}
 
 }

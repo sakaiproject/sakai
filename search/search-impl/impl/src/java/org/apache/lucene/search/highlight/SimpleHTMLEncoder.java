@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2005 The Apache Software Foundation
  *
@@ -17,8 +18,8 @@ package org.apache.lucene.search.highlight;
 
 /**
  * Simple {@link Encoder} implementation to escape text for HTML output
+ * 
  * @author Nicko Cadell
- *
  */
 public class SimpleHTMLEncoder implements Encoder
 {
@@ -30,11 +31,11 @@ public class SimpleHTMLEncoder implements Encoder
 	{
 		return htmlEncode(originalText);
 	}
-	
+
 	/**
 	 * Encode string into HTML
 	 */
-	public final static String htmlEncode(String plainText) 
+	public final static String htmlEncode(String plainText)
 	{
 		if (plainText == null || plainText.length() == 0)
 		{
@@ -43,37 +44,37 @@ public class SimpleHTMLEncoder implements Encoder
 
 		StringBuffer result = new StringBuffer(plainText.length());
 
-		for (int index=0; index<plainText.length(); index++) 
+		for (int index = 0; index < plainText.length(); index++)
 		{
 			char ch = plainText.charAt(index);
 
-			switch (ch) 
+			switch (ch)
 			{
-			case '"':
-				result.append("&quot;");
-				break;
+				case '"':
+					result.append("&quot;");
+					break;
 
-			case '&':
-				result.append("&amp;");
-				break;
+				case '&':
+					result.append("&amp;");
+					break;
 
-			case '<':
-				result.append("&lt;");
-				break;
+				case '<':
+					result.append("&lt;");
+					break;
 
-			case '>':
-				result.append("&gt;");
-				break;
+				case '>':
+					result.append("&gt;");
+					break;
 
-			default:
-				   if (ch < 128) 
-				   {
-			           result.append(ch);
-			       } 
-				   else 
-			       {
-			           result.append("&#").append((int)ch).append(";");
-			       }
+				default:
+					if (ch < 128)
+					{
+						result.append(ch);
+					}
+					else
+					{
+						result.append("&#").append((int) ch).append(";");
+					}
 			}
 		}
 

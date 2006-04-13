@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -15,20 +16,23 @@ package org.apache.lucene.search.highlight;
  * limitations under the License.
  */
 
-/** Lightweight class to hold term and a weight value used for scoring this term 
+/**
+ * Lightweight class to hold term and a weight value used for scoring this term
+ * 
  * @author Mark Harwood
  */
 public class WeightedTerm
 {
 	float weight; // multiplier
-	String term; //stemmed form
-	public WeightedTerm (float weight,String term)
+
+	String term; // stemmed form
+
+	public WeightedTerm(float weight, String term)
 	{
-		this.weight=weight;
-		this.term=term;
+		this.weight = weight;
+		this.term = term;
 	}
-	
-	
+
 	/**
 	 * @return the term value (stemmed)
 	 */
@@ -46,7 +50,8 @@ public class WeightedTerm
 	}
 
 	/**
-	 * @param term the term value (stemmed)
+	 * @param term
+	 *        the term value (stemmed)
 	 */
 	public void setTerm(String term)
 	{
@@ -54,7 +59,8 @@ public class WeightedTerm
 	}
 
 	/**
-	 * @param weight the weight associated with this term
+	 * @param weight
+	 *        the weight associated with this term
 	 */
 	public void setWeight(float weight)
 	{

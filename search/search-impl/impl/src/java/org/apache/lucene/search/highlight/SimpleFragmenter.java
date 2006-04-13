@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -18,47 +19,52 @@ package org.apache.lucene.search.highlight;
 import org.apache.lucene.analysis.Token;
 
 /**
- * {@link Fragmenter} implementation which breaks text up into same-size 
+ * {@link Fragmenter} implementation which breaks text up into same-size
  * fragments with no concerns over spotting sentence boundaries.
+ * 
  * @author mark@searcharea.co.uk
  */
 public class SimpleFragmenter implements Fragmenter
 {
-	private static final int DEFAULT_FRAGMENT_SIZE =100;
-	private int currentNumFrags;
-	private int fragmentSize;
+	private static final int DEFAULT_FRAGMENT_SIZE = 100;
 
+	private int currentNumFrags;
+
+	private int fragmentSize;
 
 	public SimpleFragmenter()
 	{
 		this(DEFAULT_FRAGMENT_SIZE);
 	}
 
-
 	/**
-	 * 
-	 * @param fragmentSize size in bytes of each fragment
+	 * @param fragmentSize
+	 *        size in bytes of each fragment
 	 */
 	public SimpleFragmenter(int fragmentSize)
 	{
-		this.fragmentSize=fragmentSize;
+		this.fragmentSize = fragmentSize;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.apache.lucene.search.highlight.TextFragmenter#start(java.lang.String)
 	 */
 	public void start(String originalText)
 	{
-		currentNumFrags=1;
+		currentNumFrags = 1;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.apache.lucene.search.highlight.TextFragmenter#isNewFragment(org.apache.lucene.analysis.Token)
 	 */
 	public boolean isNewFragment(Token token)
 	{
-		boolean isNewFrag= token.endOffset()>=(fragmentSize*currentNumFrags);
-		if(isNewFrag)
+		boolean isNewFrag = token.endOffset() >= (fragmentSize * currentNumFrags);
+		if (isNewFrag)
 		{
 			currentNumFrags++;
 		}
@@ -74,7 +80,8 @@ public class SimpleFragmenter implements Fragmenter
 	}
 
 	/**
-	 * @param size size in bytes of each fragment
+	 * @param size
+	 *        size in bytes of each fragment
 	 */
 	public void setFragmentSize(int size)
 	{

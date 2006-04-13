@@ -27,63 +27,71 @@ import java.util.Map;
 
 /**
  * @author ieb
- *
  */
-public interface SearchResult {
+public interface SearchResult
+{
 
 	/**
 	 * the result score
+	 * 
 	 * @return
 	 */
 	float getScore();
 
 	/**
 	 * The result ID (entity id)
+	 * 
 	 * @return
 	 */
 	String getId();
 
 	/**
 	 * All field names in the search record
+	 * 
 	 * @return
 	 */
 	String[] getFieldNames();
 
 	/**
 	 * All values in a search field
+	 * 
 	 * @param string
 	 * @return
 	 */
 	String[] getValues(String string);
-	
+
 	/**
 	 * Get a map of values in the result
+	 * 
 	 * @return
 	 */
 	Map getValueMap();
-	
+
 	/**
 	 * An absolute URL to the resource (no host, protocol or port)
+	 * 
 	 * @return
 	 */
 	String getUrl();
-	
+
 	/**
-	 * The title of the resource, usually including the type (eg Wiki Page, Resource)
+	 * The title of the resource, usually including the type (eg Wiki Page,
+	 * Resource)
+	 * 
 	 * @return
 	 */
 	String getTitle();
-	
+
 	/**
 	 * get the index of the search entry over the whole change set
+	 * 
 	 * @return
 	 */
 	int getIndex();
+
 	/**
 	 * get the search result content for display
 	 */
 	String getSearchResult();
-	
-	
 
 }

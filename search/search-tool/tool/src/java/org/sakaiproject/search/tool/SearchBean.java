@@ -26,18 +26,19 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * An interface describing the backing bean to the search page
+ * 
  * @author ieb
- *
  */
-public interface SearchBean {
+public interface SearchBean
+{
 
 	/**
 	 * get an html fragmnent representing the search results
 	 * 
 	 * @param searchItemFormat
-	 *            A Message format string {0} is the result index, {1} is the
-	 *            item UR, {2} is the item title, {3} is the content fragment,
-	 *            {4} is the score
+	 *        A Message format string {0} is the result index, {1} is the item
+	 *        UR, {2} is the item title, {3} is the content fragment, {4} is the
+	 *        score
 	 * @return
 	 */
 	String getSearchResults(String searchItemFormat);
@@ -46,9 +47,8 @@ public interface SearchBean {
 	 * get an html fragment representing a pager the
 	 * 
 	 * @param pagerFormat
-	 *            A MessageFormat format string {0} is the page URL, {1} is the
-	 *            page text, {2} is a css class id, 0 for first, 1 for middle, 2
-	 *            for end
+	 *        A MessageFormat format string {0} is the page URL, {1} is the page
+	 *        text, {2} is a css class id, 0 for first, 1 for middle, 2 for end
 	 * @return
 	 */
 	String getPager(String pagerFormat) throws UnsupportedEncodingException;

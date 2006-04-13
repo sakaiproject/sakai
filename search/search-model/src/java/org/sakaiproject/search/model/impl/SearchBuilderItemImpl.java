@@ -29,72 +29,101 @@ import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * @author ieb
- *
  */
-public class SearchBuilderItemImpl implements SearchBuilderItem {
+public class SearchBuilderItemImpl implements SearchBuilderItem
+{
 	private String id = null;
+
 	private String name = null;
+
 	private Integer searchaction = SearchBuilderItem.ACTION_UNKNOWN;
+
 	private Integer searchstate = SearchBuilderItem.STATE_UNKNOWN;
+
 	private Date version = null;
+
 	/**
 	 * @return Returns the action.
 	 */
-	public Integer getSearchaction() {
+	public Integer getSearchaction()
+	{
 		return searchaction;
 	}
+
 	/**
-	 * @param action The action to set.
+	 * @param action
+	 *        The action to set.
 	 */
-	public void setSearchaction(Integer searchaction) {
+	public void setSearchaction(Integer searchaction)
+	{
 		this.searchaction = searchaction;
 	}
+
 	/**
 	 * @return Returns the id.
 	 */
-	public String getId() {
+	public String getId()
+	{
 		return id;
 	}
+
 	/**
-	 * @param id The id to set.
+	 * @param id
+	 *        The id to set.
 	 */
-	public void setId(String id) {
+	public void setId(String id)
+	{
 		this.id = id;
 	}
+
 	/**
 	 * @return Returns the version.
 	 */
-	public Date getVersion() {
+	public Date getVersion()
+	{
 		return version;
 	}
+
 	/**
-	 * @param version The version to set.
+	 * @param version
+	 *        The version to set.
 	 */
-	public void setVersion(Date version) {
+	public void setVersion(Date version)
+	{
 		this.version = version;
 	}
+
 	/**
 	 * @return Returns the state.
 	 */
-	public Integer getSearchstate() {
+	public Integer getSearchstate()
+	{
 		return searchstate;
 	}
+
 	/**
-	 * @param state The state to set.
+	 * @param state
+	 *        The state to set.
 	 */
-	public void setSearchstate(Integer searchstate) {
+	public void setSearchstate(Integer searchstate)
+	{
 		this.searchstate = searchstate;
 	}
+
 	/**
 	 * @return Returns the name.
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
+
 	/**
-	 * @param name The name to set.
+	 * @param name
+	 *        The name to set.
 	 */
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 }

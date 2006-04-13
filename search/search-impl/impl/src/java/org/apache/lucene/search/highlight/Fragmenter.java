@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -18,21 +19,26 @@ package org.apache.lucene.search.highlight;
 import org.apache.lucene.analysis.Token;
 
 /**
- * Implements the policy for breaking text into multiple fragments for consideration
- * by the {@link Highlighter} class. A sophisticated implementation may do this on the basis
- * of detecting end of sentences in the text. 
+ * Implements the policy for breaking text into multiple fragments for
+ * consideration by the {@link Highlighter} class. A sophisticated
+ * implementation may do this on the basis of detecting end of sentences in the
+ * text.
+ * 
  * @author mark@searcharea.co.uk
  */
 public interface Fragmenter
 {
 	/**
 	 * Initializes the Fragmenter
+	 * 
 	 * @param originalText
 	 */
 	public void start(String originalText);
 
 	/**
-	 * Test to see if this token from the stream should be held in a new TextFragment
+	 * Test to see if this token from the stream should be held in a new
+	 * TextFragment
+	 * 
 	 * @param nextToken
 	 */
 	public boolean isNewFragment(Token nextToken);

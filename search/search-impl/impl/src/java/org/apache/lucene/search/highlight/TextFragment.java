@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -15,46 +16,53 @@ package org.apache.lucene.search.highlight;
  * limitations under the License.
  */
 
-
 /**
- * Low-level class used to record information about a section of a document 
- * with a score.
- * @author MAHarwood
- *
+ * Low-level class used to record information about a section of a document with
+ * a score.
  * 
+ * @author MAHarwood
  */
 public class TextFragment
 {
 	StringBuffer markedUpText;
+
 	int fragNum;
+
 	int textStartPos;
+
 	int textEndPos;
+
 	float score;
 
-	public TextFragment(StringBuffer markedUpText,int textStartPos, int fragNum)
+	public TextFragment(StringBuffer markedUpText, int textStartPos, int fragNum)
 	{
-		this.markedUpText=markedUpText;
+		this.markedUpText = markedUpText;
 		this.textStartPos = textStartPos;
 		this.fragNum = fragNum;
 	}
+
 	void setScore(float score)
 	{
-		this.score=score;
+		this.score = score;
 	}
+
 	public float getScore()
 	{
 		return score;
 	}
+
 	/**
-	 * @param frag2 Fragment to be merged into this one
+	 * @param frag2
+	 *        Fragment to be merged into this one
 	 */
-  public void merge(TextFragment frag2)
-  {
-    textEndPos = frag2.textEndPos;
-    score=Math.max(score,frag2.score);
-  }
-  /**
-	 * @param fragment 
+	public void merge(TextFragment frag2)
+	{
+		textEndPos = frag2.textEndPos;
+		score = Math.max(score, frag2.score);
+	}
+
+	/**
+	 * @param fragment
 	 * @return true if this fragment follows the one passed
 	 */
 	public boolean follows(TextFragment fragment)
@@ -70,9 +78,11 @@ public class TextFragment
 		return fragNum;
 	}
 
-	/* Returns the marked-up text for this text fragment 
+	/*
+	 * Returns the marked-up text for this text fragment
 	 */
-	public String toString() {
+	public String toString()
+	{
 		return markedUpText.substring(textStartPos, textEndPos);
 	}
 

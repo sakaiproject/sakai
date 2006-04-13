@@ -1,4 +1,5 @@
 package org.apache.lucene.search.highlight;
+
 /**
  * Copyright 2002-2004 The Apache Software Foundation
  *
@@ -19,31 +20,34 @@ import org.apache.lucene.analysis.Token;
 
 /**
  * Adds to the score for a fragment based on its tokens
+ * 
  * @author mark@searcharea.co.uk
  */
 public interface Scorer
 {
 	/**
 	 * called when a new fragment is started for consideration
+	 * 
 	 * @param newFragment
 	 */
 	public void startFragment(TextFragment newFragment);
 
 	/**
 	 * Called for each token in the current fragment
-	 * @param token The token to be scored
-	 * @return a score which is passed to the Highlighter class to influence the mark-up of the text
-	 * (this return value is NOT used to score the fragment)
+	 * 
+	 * @param token
+	 *        The token to be scored
+	 * @return a score which is passed to the Highlighter class to influence the
+	 *         mark-up of the text (this return value is NOT used to score the
+	 *         fragment)
 	 */
 	public float getTokenScore(Token token);
-	
 
 	/**
-	 * Called when the highlighter has no more tokens for the current fragment - the scorer returns
-	 * the weighting it has derived for the most recent fragment, typically based on the tokens
-	 * passed to getTokenScore(). 
-	 *
-	 */	
+	 * Called when the highlighter has no more tokens for the current fragment -
+	 * the scorer returns the weighting it has derived for the most recent
+	 * fragment, typically based on the tokens passed to getTokenScore().
+	 */
 	public float getFragmentScore();
 
 }
