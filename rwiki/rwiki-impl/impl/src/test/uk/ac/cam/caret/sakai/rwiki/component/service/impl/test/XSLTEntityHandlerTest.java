@@ -954,7 +954,11 @@ public class XSLTEntityHandlerTest extends TestCase
 		}
 		finally
 		{
+			try {
 			out.close();
+			} catch ( Exception ex ) {
+				
+			}
 		}
 
 	}
