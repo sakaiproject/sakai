@@ -12,6 +12,23 @@
  width: 26px;
 }
 
+.actionHeader{ 
+  overflow: hidden;
+  width=100%;
+  background:#eec;
+  padding:0
+
+ }
+.actionHeader h3 h4 h5{ 
+  float:left;
+  margin:.3em
+ }
+
+.actionHeader div{ 
+  float:right;
+  padding:.3em
+}
+
 /*
 .navModeQuestion
 {background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
