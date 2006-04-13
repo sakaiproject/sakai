@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
+	<class name="org.sakaiproject.tool.gradebook.AbstractGradeRecord" table="GB_GRADE_RECORD_T" discriminator-value="0">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_GRADE_RECORD_S</param>
+			</generator>
+		</id>
+
+		<discriminator type="integer" column="OBJECT_TYPE_ID" />
+
+		<version name="version" type="integer" column="VERSION"/>
+
+		<many-to-one name="gradableObject">
+			<column name="GRADABLE_OBJECT_ID" not-null="true"
+				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_G_O_IDX" />
+		</many-to-one>
+		<property name="studentId" type="string">
+			<column name="STUDENT_ID" not-null="true"
+				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_STUDENT_ID_IDX" />
+		</property>
+
+		<property name="graderId" column="GRADER_ID" type="string" not-null="true" />
+
+		<property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true" />
+
+		<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
+
+		<subclass name="org.sakaiproject.tool.gradebook.AssignmentGradeRecord"  discriminator-value="1">
+		</subclass>
+
+		<subclass name="org.sakaiproject.tool.gradebook.CourseGradeRecord" discriminator-value="2">
+			<property name="enteredGrade" column="ENTERED_GRADE" type="string" not-null="false" />
+			<property name="sortGrade" column="SORT_GRADE" type="double" />
+		</subclass>
+
+	</class>
+</hibernate-mapping>

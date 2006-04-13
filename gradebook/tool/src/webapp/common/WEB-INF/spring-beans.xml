@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file sets up the shared business logic of the application.
+
+	-->
+
+	<!-- Gradebook Manager -->
+	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookManagerHibernateImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+				<property name="gradeManager">
+					<ref bean="org_sakaiproject_tool_gradebook_business_GradeManager" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Grade Manager -->
+	<bean id="org_sakaiproject_tool_gradebook_business_GradeManager" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradeManagerHibernateImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!--
+		UI authorization filtering. Handled here instead of in Faces configuration files
+		because Faces won't necessarily be loaded on the first authorization check.
+	-->
+	<bean id="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean" class="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean">
+		<property name="userAbleToEditPages">
+			<list>
+				<value>addAssignment</value>
+				<value>editAssignment</value>
+				<value>removeAssignment</value>
+				<value>gradeOptions</value>
+			</list>
+		</property>
+		<property name="userAbleToGradePages">
+			<list>
+				<value>assignmentDetails</value>
+				<value>courseGradeDetails</value>
+				<value>overview</value>
+				<value>roster</value>
+			</list>
+		</property>
+		<property name="userAbleToViewOwnGradesPages">
+			<list>
+				<value>studentView</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

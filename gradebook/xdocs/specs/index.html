@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Gradebook Mini Functional Specs</title>
+<style type="text/css" title="text/css">
+body {
+	font-family: arial, helvetica, sans-serif;
+	font-size: .85em;
+	color: #222;
+	margin: 20px 50px;
+}
+#page {
+	width: 700px;
+	margin: 20px auto;
+	padding: 10px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px 2px 2px 1px;
+	background-color: #ffe;
+}
+h2 {
+    border-top: solid yellow 1px;
+    padding-top: 10px;
+    margin-top: 25px;
+}
+p {
+    margin-left: 20px;
+}
+img {
+    margin-left: 20px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+}
+p.caption {
+    margin: 3px 30px;
+    font-style: italic;
+}
+</style>
+</head>
+<body>
+<div id="page">
+<h1> Wireframes and Functional Specification</h1>
+
+
+<h2>A.  Overview -- View 1</h2>
+
+<h3><img src="1.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of View 1</p>
+
+
+
+<h4>1. <strong>Table Sorting Rules</strong></h4>
+<ol type="a">
+  <li> Initial sort is by due date. </li>
+  <li>If there is no due date, sort to the bottom of the list. </li>
+  <li>The course grade always appears at the bottom of the list, regardless of the active sort. </li>
+  <li>Subsorting for non-default sorts is by student name. </li>
+  <li>The sort order is preserved for the duration of the session.</li>
+</ol>
+<h4>2. Assignment Title Link</h4>
+<ol type="a">
+  <li>If the assignment was created in the gradebook, the title links to the Assignment Detail, View 2.</li>
+  <li>If the assignment was created in Quiz and Test, the title links to the corresponding scoring view in that tool.</li>
+  <li>The assignment name has a maximum character length of 255 and it is displayed in its entirety. Text will wrap according to the display needs of the table. There are currently no limitations on character types in the name. Internationalization requirements TBD.</li>
+  <li>If no assignments have been entered in the gradebook, the message &quot;The gradebook currently has no assignments. The Add Assignments [link to Add Assignments view] link is always available in the gradebook navigation&quot; appears beneath the Assignments table headers.</li>
+</ol>
+<h4>3. Point Display Values</h4>
+
+<ol type="a">
+  <li>Values chop at 2 decimal points and are not rounded up.</li>
+  <li>The Average points is the mean of all values &gt;= 0 that have been entered for the assignment. Blanks are not treated as zeros for purposes of the  calculation.</li>
+  </ol>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>B.  Assignment Detail -- View 2</h2>
+
+<h3><img src="2.gif" alt="Wireframe of View 2.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of View 2</p>
+
+<h4>1. Assignment Summary </h4>
+
+<ol type="a">
+  <li>The assignment title has a maximum character length of 255 and it is displayed in its entirety. Text will wrap according to the display needs of the table. There are currently no limitations on character types in the name. Internationalization requirements TBD.</li>
+  <li>The average score is the mean of all values &gt;= 0 that have been entered for the assignment. Blanks are not treated as zeros for purposes of the calculation.</li>
+  <li>Options links: 'Edit assignment settings' links to View 4.</li>
+  <li>Options links'Remove assignment from gradebook' links to View 6.</li>
+</ol>
+<h4>2. New scores saved message</h4>
+<ol type="a">
+  <li>Example confirmation message.</li>
+</ol>
+<h4>3. <strong>Table Sorting Rules</strong></h4>
+<ol type="a">
+  <li> Initial sort is by student name.</li>
+  <li>Blanks or no scores sort to the top of the list </li>
+  <li>Subsorting for non-default sorts is by student name. </li>
+  <li>The sort order is preserved for the duration of the session.</li>
+  <li>When sorting is changed, paging resets to the first page.</li>
+  </ol>
+<h4>4. Find Rules </h4>
+<ol type="a">
+  <li>Initial value: as in wireframe. When the focus comes to this field, the initial value disappears.</li>
+  <li>If there is no match, the page reloads, there is a note where the listing table would be saying no results found for &quot;[the search term]&quot; The &quot;Find&quot; and &quot;Assignment&quot; values return to the initial values. </li>
+  <li>The last established students per page value is retained and displayed. (Use the style specified for alert messages in the style guide.)</li>
+  <li>For search values, only the last space-or-comma-separated value is treated as a substring:
+    <p>Copp <br />
+  Francis Ford Copp <br />
+  Coppola, Francis F </p>
+    <p>All return <strong>Coppola, Francis Ford</strong><br />
+      <br />
+      Francis F. Coppola<br />
+      <br />
+      Returns an <strong>error</strong></p>
+  </li>
+  <li>Truncation or wild card symbols are not supported</li>
+</ol>
+<h4>5. Save</h4>
+
+<ol type="a">
+  <li>The Save button saves newly entered data and refreshes the view (average score is updated and 'changes saved' message added to top of page). The last executed search and students per page values are retained and displayed upon refresh. </li>
+  <li>The save button is the <strong>only</strong> mechanism for saving score data. If newly entered data is not saved, it will be discarded upon using any of the gradebook's internal (as opposed to the browser's or Sakai framework's) navigation or find/show functionality.</li>
+  <li>If two or more users are simultaneously attempting to edit the same student's score, the second of the scores to be submitted will overwrite the first. [Ideally, an optimistic lock would be placed on all of the scoring objects. In that case, user two's attempt to submit changes would generate a message indicating that the same record had been accessed and modified by someone else. This is functionality that will be be added if time permits.] </li>
+</ol>
+<h4>6. Cancel button</h4>
+
+<ol type="a">
+  <li>Any new form data is discarded and the user returns to the Overview page. </li>
+</ol>
+<h4>7. Point Entry</h4>
+<ol type="a">
+  <li> Values must be &gt;= 0. Decimal values are accepted. Commas and other non-numerical characters are not accepted. Thier inclusion will throw an error message: &quot;Please enter numbers only into the points field.&quot;</li>
+  <li>After values are saved, the maximum number of visible characters in text box = 3; these are right aligned. Values &gt; 3 characters are scrollable.</li>
+  <li>Scores submitted via Samigo cannot be edited in the gradebook. </li>
+</ol>
+<h4>8. Export </h4>
+<ol type="a">
+  <li>Files are exported in .xls and .csv format</li>
+  <li>The file name format is &quot;assignment_name_[courseID]_date.*&quot;.   If the class number is not available  use 'assignment_name_050611.Date format should follow the style guide.</li>
+  <li>Exported fields and the names of the Excel column headers are Student Name, Student ID, [assignment name]. The full student display names and complete assignment names are exported. Point values are chopped at 2 decimal places.</li>
+  <li>Scores are listed in the assignment name column</li>
+  <li>Point values are chopped at 2 decimal places.</li>
+  <li>Exported data is for the currently displayed assignment only</li>
+  <li>All available roster data is exported. Filtering the view by student does not affect the output.</li>
+  <li>There is no navigation state change after clicking these buttons</li>
+</ol>
+<p>&nbsp;</p>
+<h2>C.  Final Grade detail -- View 2a</h2>
+
+<p>This view is similar to view 2. UI components  not in View 2 are noted.</p>
+
+<h3><img src="2a.gif" alt="Wireframe of View 2a.gif" width="441" height="500" /></h3>
+
+<p class="caption">Wireframe of View 2a</p>
+
+<h3>&nbsp;</h3>
+
+<h4>1. Course Summary </h4>
+<ol type="a">
+  <li>Points: Total possible points of  all assignments currently entered into the gradebook directly and/or via SAMigo.</li>
+  <li>Average Score: The mean of all possible score values for all assignments. Blank scores are treated as zeros for calculation purposes.</li>
+</ol>
+<h4>2. Calculated Grade </h4>
+<ol type="a">
+  <li>The calculated grade field is by default filled with the grade calculated by the gradebook (A, B . . .or A-, B+ . . . or P/NP) and the percentage the grade is based on. </li>
+  <li>The grade is always calculated as the current percentage of points scored out of the total possible points of all assignments entered in the gradebook. Consequently, the grades that the instructors  see are unlikely to reflect students' current performance in the class, unless or until all of the assignments have been scored.</li>
+  <li>For purposes of calculating the course grade, a student's cumulative average percentage is never rounded up. For example, a student who achieves an overall pecentage of 79.99 would receive a course grade of C+, if the lower threshold for a B- is 80%. </li>
+</ol>
+<h4>3. Grade Override</h4>
+<ol type="a">
+  <li> Override values must be of the appropriate grade type (A, B . . . or A-, B+ . . .or P/NP) or an error is generated: &quot;The gradebook uses the grade type [pass/not pass|simple letter grade|letter grade +/-]. Please enter only values that correspond to the grade type X.&quot;</li>
+  <li>Error messages are also generated next to each of the fields with bad values: &quot;Please enter valid grade.&quot;</li>
+  <li>If a bad value is entered for an autocalculated grade, upon save the Use Calculated button is <strong>not</strong> rendered with the error messages; if a saved overridden value is replaced with a bad value, upon save the Use Calculated button is rendered with the error messages.</li>
+  <li>Saved overrides appear in the entry field as editable values.</li>
+  <li>Values identical to the calculated course grade are treated as legitimate entries and do not generate an error.</li>
+  <li>Deleting a saved overridden value, leaving the entry field blank and executing a save returns the course grade to the calculated value.</li>
+  </ol>
+<h4> 4. 'Use Calculated' button</h4>
+<ol type="a">
+  <li>The 'Use Calculated' button appears next to any grade that has been overridden</li>
+  <li>Activating the 'Use Calculated' button refreshes the page, leaves the grade entry field blank and returns the current grade to the calculated value.</li>
+</ol>
+<h4>5. Export </h4>
+<ol type="a">
+  <li>Files are exported in .xls and .csv format</li>
+  <li>The file name format is &quot;course_grade_[courseID]__date.*&quot;.  If the class number is not available  use 'course_grade_050611. Date format should follow the style guide.</li>
+  <li>Exported fields and the names of the Excel column headers are Student Name, Student ID, Course Grade. The full student display names and complete assignment names are exported. Point values are chopped at 2 decimal places.</li>
+  <li>Scores are listed in the assignment name column</li>
+  <li>Point values are chopped at 2 decimal places.</li>
+  <li>Exported data is for the course grade only</li>
+  <li>All available roster data is exported. Filtering the view by student does not affect the output.</li>
+  <li>There is no navigation state change after clicking these buttons</li>
+</ol>
+<p>&nbsp;</p>
+<!--<p>***************[Ben, I think we need to change the points column in this view to percent or add it as a separate column. If, as in the example above, someone has a 79.99 percent, we should probably make this explicit to the grader.]</p>-->
+
+<!-- New View -->
+<h2> D. Student Roster -- View 3</h2>
+
+<h3><img src="3.gif" alt="Wireframe of View 3.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of View 3</p>
+
+<h4>&nbsp;</h4>
+
+<h4>1. Export buttons</h4>
+<ol type="a">
+  <li>Files are exported in .xls and .csv format</li>
+  <li>The file name format is &quot;gradebook_[courseID]_assignment_name_date.*&quot;. If the class number is not available  use 'gradebook-050611.Date format should follow the style guide.</li>
+  <li>Exported fields and the names of the Excel column headers are Student Name, Student ID, [assignment name].</li>
+  <li>The full student display names and complete assignment names are exported. </li>
+  <li>Point values are chopped at 2 decimal places.</li>
+  <li>Scores are listed in the assignment name column</li>
+  <li>All available class data is exported. Filtering the view by student  does not affect the output.</li>
+  <li>There is no navigation state change after clicking these buttons</li>
+</ol>
+<h4>2. Point Display Values</h4>
+<ol type="a">
+  <li>Values chop at  2 decimal points; they are not rounded up.</li>
+</ol>
+<h4>3. Student Display</h4>
+<ol type="a">
+  <li>Limit display of the student name to the first 50 characters  (use ellipses to indicate truncated name)</li>
+  <li>If there is no roster data, the message &quot;No students have been added to this course&quot; appears beneath the Student and Student ID Roster table headers.</li>
+  </ol>
+<h4>
+  <!-- New View -->
+</h4>
+
+<h2>E.  Add/Edit Assignment -- View 4</h2>
+
+<h3><img src="4.gif" alt="Wireframe of View 4.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of View 4</p>
+
+<h4>1. Title field</h4>
+<ol type="a">
+  <li>This is a required field.</li>
+  <li>The assignment title has a maximum character length of 255 and it is displayed in its entirety.  There are currently no limitations on character types in the name. Internationalization requirements TBD.</li>
+</ol>
+<h4>2. Assignment point value field</h4>
+<ol type="a">
+  <li>This is a required field.</li>
+  <li>Value must be &gt; 0. </li>
+  <li>Decimals are permitted. Values beyond 2 decimal places are chopped for all other point displays in the gradebook. </li>
+  <li>If the entry  is invalid, any values entered or selected in title or date are retained with the error message: &quot;Please only enter  numbers in the Assignment Point Value. The point value must be &gt;0.&quot;</li>
+</ol>
+<h4>3. Due date date-picker</h4>
+<ol type="a">
+  <li>This field is optional.</li>
+  <li>If  any one date value is added (month, day or year), all must be present for a valid submission.</li>
+</ol>
+<p>[<strong>Note</strong>: The date picker is highly specified in the style guide. We need to watch consistency with Sakai here. A request to change the SG to make it possible to clear the date using the date picker has been submitted.]</p>
+<h4>4. Submit button</h4>
+<ol type="a">
+  <li> If the submit validates, the user is returned to the add/edit page with a success message </li>
+  <li>For new assignments, a message is generated: &quot;You have successfuly added  assignment X&quot;</li>
+  <li>For edited assignments, a message is generated &quot;You have successfuly updated assignment Y&quot; </li>
+</ol>
+<h4>5. Cancel button</h4>
+<ol type="a">
+  <li>The form is not submited,  the user is returned to the Assignment Overview page.</li>
+</ol>
+<!-- New View -->
+<h2>F.  Student Feedback Options -- View 5</h2>
+
+<h3><img src="5.gif" alt="Wireframe of View 5.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of View 5</p>
+
+<h4>1. Grade Display </h4>
+
+<ol type="a">
+  <li> The Display Assignment Grades checkbox is checked by default </li>
+  <li>The Display Course Grade checkbox is unchecked by default </li>
+  <li>Display final grade 'what's this' link Opens the help window with information explaining why you shouldn't display the final grade until all of the assignments have been added or unless assignments are added to the gradebook incrementally as they are scored. </li>
+</ol>
+<h4>2. Grade Conversion </h4>
+<p><strong>Grade Type dropdownChoices</strong>: Letters grade +/- (default choice), Simple letter grade, Pass/Fail</p>
+<p><strong>Change grade type button</strong>: Refreshes the page with the percent table matching the scheme chosen in the dropdown. Other changes to the page are retained.</p>
+<p><strong>Validation</strong>: If course grades have been manually entered and the instructor attempts to change the grade type, the application will throw an error message: &quot;You have manually entered course grades of the grade type X. To change the course grade type, you must first undo all manually overwritten course grades.&quot; </p>
+
+<h4>&nbsp;</h4>
+<p>Reset to default values linkRefreshes the page. The minimum % values are returned to the institution default. Grade type remains the same. </p>
+
+<h4>3. Grade/percent table</h4>
+<p>If the values are changed, then the instructor changes to a different scheme, then switches back, the GB remembers the instructors previously entered scheme.</p>
+<p>Manually overwriiten course grades are unaffected by changes to the Grade/percent table. If there are manually entered course grades, the application throws a warning message: &quot;You have changed the grading scheme. All manually overwritten course grades remain unaffected.&quot;</p>
+<p><strong>Minimum Percent text boxValidation</strong>: Values must be &gt;= 0. Decimal values are accepted. Commas and other non-numerical characters, including % are not accepted. Their inclusion will throw an error message: &quot;Please only enter numbers in the Minimum Percent Value. The percent value must be greater than 0.&quot;</p>
+
+<p><strong>Display</strong>After values are saved, maximum number of visible characters in text box = 3; these are right aligned. Values &gt; 3 characters are scrollable. </p>
+<h4>4. Save button</h4>
+<p>Returns the user to the page they came from, with a confirmation message saying "Student Feedback Options Saved"</p>
+
+<h4>5. Cancel button</h4>
+<p>Returns the user to the page they came from, with no confirmation message.</p>
+
+
+<!-- New View -->
+
+<h2>G.  Remove assignment -- View 6 </h2>
+
+<h3>&nbsp;</h3>
+<img src="6.gif" alt="Wireframe of View 6.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 6</p>
+
+<h4>1. Remove this assignment checkbox </h4>
+<p><strong>Default value</strong>: unchecked</p>
+
+<p><strong>Validation</strong>: The form can't submit unless this button is checked. </p>
+
+<h4>2. Remove button</h4>
+<p><strong>Marks the assignment as 'removed' in the database. It no longer appears in the database, but in an emergency could be recovered by an administrator. The tool then returns view 1 (overview) with a confirmation message </strong>: "Assignment deleted"</p>
+
+<p>If the checkbox above has not been selected when submit is pressed, a validation message should appear: "You must confirm this deletion by checking the box below before removing."</p>
+
+
+<!-- New View -->
+<h4>3. Cancel </h4>
+<h2>H. Student View -- View 7 </h2>
+
+<h3><img src="sv.gif" alt="Wireframe of View 6.gif" width="441" height="500" /></h3>
+<p class="caption">Wireframe of Student View</p>
+
+<h3>&nbsp;</h3>
+
+<h4>1. Cumulative Score</h4>
+
+<p><strong>Visibility</strong>: This is visible if the instructor has checked the 'Display Assignment Grades' checkbox in view 5.</p>
+<p><strong>Calculation</strong>: The points taken equals the total of available points for assignments the instructional staff has scored for this assignment. </p>
+
+<h4>2. Course Grade</h4>
+
+<p><strong>Visibility</strong>: This is visible if the instructor has checked the 'Display Final Grade' checkbox in view 5.</p>
+<p><strong>Calculation</strong>: The final grade display is always based on the percentage of points scored out of the total possible points of all assignments entered in the gradebook. If the instructor releases the course grade before all of the assignments have been scored, the grades that the students see at any one time are unlikely to reflect their current performance in the class.</p>
+
+<h4>3. Assignment Title link</h4>
+
+<p>Links are only for assignments created in Samigo. </p>
+<p>If the assignment was created in Samigo, this links to the view in Samigo where students receive detailed feedback.</p>
+
+</div>
+<p>&nbsp;</p>
+
+</body>
+</html>
+

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.gradebook.testservice" title="Gradebook Service Test"
+		description="Check Gradebook service">
+		<category name="sakai.test" />
+	</tool>
+</registration>

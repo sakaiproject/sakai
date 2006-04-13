@@ -1,0 +1,29 @@
+<%/*
+	Search filter and paging controls for enrollment tables.
+	Accessed via <x:aliasBean alias="#{bean}" value="#{realPageBean}">...</x:aliasBean> .
+*/%>
+<h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
+	<x:div>
+		<x:div styleClass="gbListView">
+			<h:outputText value="#{msgs.search_sections_filter} "/>
+			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="this.form.submit()">
+				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
+			</h:selectOneMenu>
+		</x:div>
+		<x:div>
+			<h:inputText
+				id="searchString"
+				value="#{bean.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msgs.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'gbForm:searchSubmitButton');"
+			/><f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.search}" value="#{msgs.search_find}" id="searchSubmitButton" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.clear}" value="#{msgs.search_clear}"/>
+		</x:div>
+	</x:div>
+
+	<x:div>
+	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+	</x:div>
+</h:panelGrid>

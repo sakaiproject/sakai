@@ -1,0 +1,28 @@
+
+div.dhtmlPopup {
+	position:absolute;
+	z-index:+999;
+	background-color:white;
+	border:1px solid black;
+	left:100px; top:100px;
+}
+
+div.dhtmlPopup table tr td table tr {
+	background-color:#666;
+}
+
+div.dhtmlPopupTitleBar {
+	background-color:#666;
+	color:#fff;
+	padding:5px;
+	cursor:move;
+}
+
+div.dhtmlPopupClose {
+	background-color:#666;
+	padding-right:5px;
+}
+
+tr.dhtmlPopupDataRow td {
+	border-top: 1px solid black; padding:5px;
+}

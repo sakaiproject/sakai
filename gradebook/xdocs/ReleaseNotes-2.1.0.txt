@@ -1,0 +1,99 @@
+GRADEBOOK RELEASE NOTES
+
+Changes in Sakai 2.1
+====================
+
+New features
+------------
+
+* Group awareness - If sections or user teams have been defined for a site, the
+group names will be displayed in a filtering menu on the Assignment Detail,
+Course Grade, and Roster screens. "All" will always be the first choice on the
+menu. When a group is selected, only students who are members of that group
+will be displayed. The filter choice does not effect any export functionality.
+
+* Grader role - In the first release of the Gradebook, only two types of user
+were supported: "instructors" (who could do anything) and "students" (who could
+at most view their own grades). In 2.1, the Gradebook supports more finely
+grained permissions, allowing creation of grader roles who can view and change
+scores for students but not add or modify assignments. The Section Info
+application can be used to assign sections to "teaching assistants", who can
+view and change scores only for the students in their assigned sections.
+
+* Grading history log UI - On the Assignment Details and Course Grade screens,
+there is a new column, "Log", to let instructors and graders view the history
+of changes to a student's assignment score or course grade. The log history
+itself is displayed when the log icon is clicked, and hidden when the icon is
+re-clicked or when the log window's close icon is clicked. The log display is
+user draggable and should adjust automatically to font size changes.
+
+* "Not Counted" assignments - Assignments can optionally be set to not count
+towards the final course grade. By default, they are. On the Overview, Roster,
+and Student View screens, scores for not-counted assignments are displayed in
+parentheses and with an explanatory HTML "title" attribute. On the Assignment
+Details screen, their special status is noted in the "Options" area.
+
+* In the Sakai integration, Gradebook storage is now deleted when the Site is
+deleted.
+
+
+Changed features
+----------------
+
+* Raw scores displayed to students - In 2.01, the Student View screen displayed
+assignment scores both as percentages and as a letter grade based on the
+percentage. In 2.1, the redundant percentage column is replaced with the raw
+score entered for the assignment.
+
+* A summary of the current grade feedback options now appears on the Overview
+page, so that instructors who are new to the Gradebook application will know
+what their students are seeing.
+
+
+Database changes
+----------------
+
+* A new column was added to the GB_GRADABLE_OBJECT_T table to support "Not
+Counted" assignments. The SQL table definitions for supported databases have
+been updated. For existing installations, the following script may be used to
+update the table:
+
+  gradebook/component/src/sql/*/sakai_gradebook_2.0.1_to_2.1.sql
+
+
+Sakai permissions changes
+-------------------------
+
+* In Sakai 2.01, the Gradebook integration relied on coarse-grained
+permissions:
+
+  - gradebook.access : Equivalent to a "student" role
+  - gradebook.maintain : Equivalent to an "instructor" role
+
+Instead, the 2.1 Gradebook permissions are:
+
+  - gradebook.gradeAll : Able to grade all students in the course.
+  - gradebook.gradeSection : Able to grade students in assigned sections.
+  - gradebook.editAssignments : Able to add, delete, and edit assignments; able
+  to change gradebook settings.
+  - gradebook.viewOwnGrades : Able to view their own scores and course grade in
+  the Student View, if allowed by gradebook feedback options.
+
+For existing installations, the translation is:
+
+  gradebook.access -> gradebook.viewOwnGrades
+  gradebook.maintain -> gradebook.gradeAll + gradebook.editAssignments
+
+Any existing realms with roles that include the "gradebook.access" or
+"gradebook.maintain" functions need to be changed to map to the new functions
+instead.
+
+
+Standalone changes
+------------------
+
+* The standalone Gradebook is now dependent on the SectionAwareness service to
+determine permissions, enrollments, and sections. (Or, speaking more
+generically, to determine site memberships and groups.) As a result, some
+implementation of SectionAwareness must be built before the standalone
+Gradebook can run. See the standalone documentation for more information.

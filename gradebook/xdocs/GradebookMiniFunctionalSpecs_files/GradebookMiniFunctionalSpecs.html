@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Gradebook Mini Functional Specs</title>
+<style type="text/css" title="text/css">
+body {
+	font-family: arial, helvetica, sans-serif;
+	font-size: .85em;
+	color: #222;
+	margin: 20px 50px;
+}
+#page {
+	width: 700px;
+	margin: 20px auto;
+	padding: 10px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px 2px 2px 1px;
+	background-color: #ffe;
+}
+h2 {
+    border-top: solid yellow 1px;
+    padding-top: 10px;
+    margin-top: 25px;
+}
+p {
+    margin-left: 20px;
+}
+img {
+    margin-left: 20px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+}
+p.caption {
+    margin: 3px 30px;
+    font-style: italic;
+}
+</style>
+</head>
+<body>
+<div id="page">
+<h1>Gradebook Mini Functional Specs</h1>
+
+
+<!-- New View -->
+<h2>View 1 Overview</h2>
+
+<h3>View Authorization</h3>
+<p>Limited to instructor and admin roles </p>
+
+<h3>Wireframe</h3>
+<img src="1.gif" alt="Wireframe of View 1.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 1</p>
+
+<h3>UI Components</h3>
+
+<h4>Assignment Table</h4>
+
+<p><strong>Sorting</strong>: initial sort is by due date. If there's no date, sort to the bottom of the list. The course grade always appears at the bottom of the list, regardless of sort. The sort order is preserved for the duration of the session. </p>
+
+<h4>Assignment Title link</h4>
+<p>If the assignment was created in the GB, this links to View 2.</p>
+<p>If the assignment was created in Samigo, this links to the view in Samigo where you score.</p>
+<p>The assignment name has a maximum character length of 50. We may want to adjust this number as we see how it looks on screen.</p>
+
+<!-- New View -->
+<h4>Point Display Values</h4>
+
+<p>Values chop at at 2 decimal points; they are not rounded up.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h2>View 2 Assignment Detail</h2>
+
+<h3>View Authorization</h3>
+
+<p>Limited to instructor and admin roles</p>
+
+<h3>Wireframe</h3>
+<img src="2.gif" alt="Wireframe of View 2.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 2</p>
+
+<h3>UI Components</h3>
+
+<p><strong>Note</strong>: Using the next and previous buttons, the return to roster button, the page navigation and the search all save scores entered before executing. More info about what these buttons do is in the style guide.</p>
+
+<h4>Options links</h4>
+
+<p>'Edit assignment settings' links to View 4.</p>
+<p>'Remove assignment from gradebook' links to View 6.</p>
+
+<h4>New scores saved message</h4>
+
+<p>I added this as an example confirmation message.</p>
+
+<h4>Student table</h4>
+<p><strong>Sorting</strong>: initial sort is by student name. Non-default sorts are retained for the session. </p>
+
+<h4>Save button</h4>
+
+<p>Save the data and refreshes the view (average score is updated and 'changes saved' message added to top of page). The last executed search and students per page values are retained and displayed upon refresh. </p>
+
+<h4>Cancel button</h4>
+
+<p>Don't submit form, return the user to the referring page. In the current view this is always View 1.</p>
+
+<h4>Point Entry</h4>
+<p><strong>Validation</strong>: Values must be &gt;= 0. Decimal values are accepted. Commas and other non-numerical characters are not accepted. Thier inclusion will throw an error message: &quot;Please enter numbers only into the points field.&quot;</p>
+<p>After values are saved, maximum number of visible characters in text box = 3; these are right aligned. Values &gt; 3 characters are scrollable. </p>
+
+<!-- New View -->
+<h2>View 2a Final Grade detail</h2>
+
+<p>This view is similar to view 2. UI components  not in View 2 are noted.</p>
+
+<h3>Wireframe</h3>
+
+<img src="2a.gif" alt="Wireframe of View 2a.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 2a</p>
+
+<h3>UI Components</h3>
+
+<h4>Grade field &amp; 'Use Calculated' button</h4>
+
+<p>The grade field is by default filled with the grade calculated by the gradebook. If the field is edited and saved, the next time it is viewed the 'Use Calculated' button is there.</p>
+
+<p>Pressing the 'Use Calculated' button refreshes the page and returns the grade to the calculated value.</p>
+<p>For purposes of calculating the course grade, a student's cumulative average percentage is never rounded up. For example, a student who achieves an overall pecentage of 79.99 would receive a course grade of C+, if the lower threshold for a B- is 80%. </p>
+<!--<p>***************[Ben, I think we need to change the points column in this view to percent or add it as a separate column. If, as in the example above, someone has a 79.99 percent, we should probably make this explicit to the grader.]</p>-->
+
+<!-- New View -->
+<h2>View 3 Student roster</h2>
+
+<h3>View Authorization</h3>
+<p>Limited to instructor and admin roles</p>
+
+<h3>Wireframe</h3>
+<img src="3.gif" alt="Wireframe of View 3.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 3</p>
+
+<h3>UI Components</h3>
+
+<h4>Find field</h4>
+<p><strong>Initial value</strong>: as in wireframe. When the focus comes to this field, the initial value should disappear.</p>
+
+<p><strong>Validation</strong>: It should ignore the default value. If there is no match, the page reloads, there is a note where the listing table would be saying no results found for &quot;[the search term]&quot; The &quot;Find&quot; and &quot;Assignment&quot; values return to the initial values. The last executed students per page value is retained and displayed. Use the style specified for alert messages in the style guide.</p>
+
+<p><strong>Action</strong>: It is searching the beginning of the first name, last name and id. So 'hol' will return 'Josh Holtzman' but 'tzm' or 'man' will not.</p>
+
+<h4>Assignment dropdown</h4>
+<p><strong>Choices</strong>: All assignments (the default value) then each assignment in the grade book.</p>
+
+<h4>Student table</h4>
+<p><strong>Sorting</strong>: Default sort is by student name. All other columns can sort as well. Alphabetic sorting is not case sensitive. Numbers are sorted numerically.</p>
+
+<h4>Export buttons</h4>
+
+<p>Make sure the CSV is downloaded, not opened in the window. The exported files are named gradebook-[classnumber]-050611.csv and .xls (the number is the date). If the class number is not available b/c the course management API has not been implemented, just use 'gradebook-050611.' </p>
+<p>All available class data is exported. Filtering the view by student or assignment does not affect the output. The full student display names and complete assignment names are exported. Point values are chopped at 2 decimal places.</p>
+<p>There is no navigation state change after clicking these buttons</p>
+
+
+<h4>Point Display Values</h4>
+<p>Values chop at  2 decimal points; they are not rounded up.</p>
+<h4>Student Sort Name Display</h4>
+<p>Display the first 50 charachters of the student name (uses elipsis if the name is more than 50 charachters)</p>
+<h4>Assignment Name Display</h4>
+
+<p>Display the first 10 charachters of the assignemnt name. Show full assignment name in the sort mouseover (using 'title' attribute). </p>
+
+
+<!-- New View -->
+<h2>View 4 Add/Edit Assignment</h2>
+
+<h3>View Authorization</h3>
+<p>Limited to instructor and admin roles.</p>
+
+<h3>Wireframe</h3>
+<img src="4.gif" alt="Wireframe of View 4.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 4</p>
+
+<h3>UI Components</h3>
+
+<h4>Title field</h4>
+<p><strong>Validation</strong>: This is a required field.</p>
+
+<h4>Assignment point value field</h4>
+<p><strong>Validation</strong>: Value must be &gt; 0. Decimals are permitted. If the entry is point entry is invalid, any values entered or selected in title or date are retained with the error message: &quot;Please only enter  numbers in the Assignment Point Value. The point value must be &gt;0.&quot;</p>
+
+<h4>Due date date-picker</h4>
+<p><strong>Note</strong>: The date picker is highly specified in the style guide. We need to watch consistency with Sakai here. I have requested a change to the SG to make it possible to clear the date using the date picker.</p>
+
+<p><strong>Validation</strong>: Check for a valid date. (month, day and year selected).</p>
+
+<h4>Submit button</h4>
+<p><strong>Add</strong>: If the submit validates, the user is returned to the Assignment summary page for this new assignment  (View 2). </p>
+<p><strong>Edit</strong>: If the submit validates, the user is returned to the referring page (this is always View 2 in the 605 UI) </p>
+
+<h4>Cancel button</h4>
+<p>Don't submit form, return the user to the referring page. If the user was on the "roster' page when they clicked 'Add assignment' they return there. </p>
+
+
+<!-- New View -->
+<h2>View 5 Feedback options</h2>
+
+<h3>View Authorization</h3>
+<p>Limited to instructor and admin roles.</p>
+
+<h3>Wireframe</h3>
+
+<img src="5.gif" alt="Wireframe of View 5.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 5</p>
+
+<h3>UI Components</h3>
+
+<h4>Display Assignment Grades checkbox </h4>
+
+<p><strong>Default value</strong>: checked</p>
+
+<h4>Display course grade checkbox </h4>
+<p><strong>Default value</strong>: unchecked</p>
+
+<h4>Display final grade 'what's this' link </h4>
+<p>Opens the help window with information explaining why you shouldn't display the final grade until all of the assignments have been added or . It's OK to display it if the scores haven't been added, but the total points won't be accurate until all assignments are listed.</p>
+
+<h4>Grade Type dropdown</h4>
+<p><strong>Choices</strong>: Letters grade +/- (default choice), Simple letter grade, Pass/Fail</p>
+<h4>Change grade type button</h4>
+<p><strong>Action</strong>: Refreshes the page with the percent table matching the scheme chosen in the dropdown.</p>
+<p><strong>Validation</strong>: If course grades have been manually entered and the instructor attempts to change the grade type, the application will throw an error message: &quot;You have manually entered course grades of the grade type X. To change the course grade type, you must first undo all manually overwritten course grades.&quot; </p>
+
+<h4>Reset to default values link</h4>
+<p>Refreshes the page. The minimum % values are returned to the institution default. Grade type remains the same. </p>
+
+<h4>Grade/percent table</h4>
+<p>If the values are changed, then the instructor changes to a different scheme, then switches back, the GB remembers the instructors previously entered scheme.</p>
+<p>Manually overwriiten course grades are unaffected by changes to the Grade/percent table. If there are manually entered course grades, the application throws a warning message: &quot;You have changed the grading scheme. All manually overwritten course grades remain unaffected.&quot;</p>
+<h4>Minimum Percent text box</h4>
+<p><strong>Validation</strong>: Values must be &gt;= 0. Decimal values are accepted. Commas and other non-numerical characters, including % are not accepted. Their inclusion will throw an error message: &quot;Please only enter numbers in the Minimum Percent Value. The percent value must be greater than 0.&quot;</p>
+
+<p><strong>Display</strong>After values are saved, maximum number of visible characters in text box = 3; these are right aligned. Values &gt; 3 characters are scrollable. </p>
+<h4>Save button</h4>
+<p>Returns the user to the page they came from, with a confirmation message saying "Student Feedback Options Saved"</p>
+
+<h4>Cancel button</h4>
+<p>Returns the user to the page they came from, with no confirmation message.</p>
+
+
+<!-- New View -->
+
+<h2>View 6 Remove assignment</h2>
+
+<h3>View Authorization</h3>
+
+<p>Limited to instructor and admin roles.</p>
+
+<h3>Wireframe</h3>
+<img src="6.gif" alt="Wireframe of View 6.gif" width="441" height="500" />
+<p class="caption">Wireframe of View 6</p>
+
+<h3>UI Components</h3>
+
+<h4>Remove this assignment checkbox </h4>
+<p><strong>Default value</strong>: unchecked</p>
+
+<p><strong>Validation</strong>: The form can't submit unless this button is checked. </p>
+
+<h4>Remove button</h4>
+<p><strong>Marks the assignment as 'removed' in the database. It no longer appears in the database, but in an emergency could be recovered by an administrator. The tool then returns view 1 (overview) with a confirmation message </strong>: "Assignment deleted"</p>
+
+<p>If the checkbox above has not been selected when submit is pressed, a validation message should appear: "You must confirm this deletion by checking the box below before removing."</p>
+
+
+<!-- New View -->
+<h2>Student View</h2>
+
+<h3>View Authorization</h3>
+<p>Open to Student</p>
+
+<h3>Wireframe</h3>
+<img src="sv.gif" alt="Wireframe of View 6.gif" width="441" height="500" />
+
+<p class="caption">Wireframe of Student View</p>
+
+<h3>UI Components</h3>
+
+<h4>Cumulative score</h4>
+
+<p><strong>Visibility</strong>: This is visible if the instructor has checked the 'Display Assignment Grades' checkbox in view 5.</p>
+<p><strong>Calculation</strong>: The points taken equals the total of available points for assignments the instructional staff has scored for this assignment. </p>
+
+<h4>Final grade</h4>
+
+<p><strong>Visibility</strong>: This is visible if the instructor has checked the 'Display Final Grade' checkbox in view 5.</p>
+<p><strong>Calculation</strong>: If any assignments have not been graded, the feedback indicates only how many points remain before the final grade. if all assignments have been scored, the final grade is given, e.g.: "B+ (805 out of 900 points)"</p>
+
+<h4>Assignment Title link</h4>
+
+<p>Links are only for assignments created in Samigo. </p>
+<p>If the assignment was created in Samigo, this links to the view in Samigo where students receive detailed feedback.</p>
+
+</div>
+<p>&nbsp;</p>
+
+</body>
+</html>
+

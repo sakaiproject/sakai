@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-gradebook-tool</display-name>
+	<description>Sakai Gradebook Tool Integration</description>
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+	<context-param>
+		<param-name>contextSharedLocation</param-name>
+		<param-value>
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-db.xml
+			/WEB-INF/spring-facades.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-service.xml
+		</param-value>
+	</context-param>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Initialize external services -->
+    <servlet>
+        <servlet-name>sakai.gradebook.services</servlet-name>
+        <servlet-class>org.sakaiproject.tool.gradebook.ui.InitializeServicesServlet</servlet-class>
+        <init-param>
+        	<param-name>services</param-name>
+ 			<param-value>
+ 				org.sakaiproject.service.gradebook.GradebookService
+ 				org_sakaiproject_service_gradebook_EntityProducer
+ 			</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Register jsf tool with sakai -->
+    <servlet>
+        <servlet-name>sakai.gradebook.tool</servlet-name>
+        <servlet-class>org.sakaiproject.tool.gradebook.facades.sakai2impl.JsfTool</servlet-class>
+        <init-param>
+            <param-name>default</param-name>
+            <param-value>overview</param-value>
+        </init-param>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+	<!-- MyFaces support -->
+	<listener>
+		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+	</listener>
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	<context-param>
+    	<param-name>javax.faces.CONFIG_FILES</param-name>
+    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-gb-jsf.xml</param-value>
+  	</context-param>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+	<!--  Sakai filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+	<filter>
+		<filter-name>GradebookAuthzFilter</filter-name>
+		<filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
+		<init-param>
+			<param-name>authorizationFilterConfigurationBean</param-name>
+			<param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
+		</init-param>
+		<init-param>
+			<param-name>authnServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
+		</init-param>
+		<init-param>
+			<param-name>authzServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
+		</init-param>
+		<init-param>
+			<param-name>contextManagementServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>GradebookAuthzFilter</filter-name>
+		<url-pattern>*.jsf</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<!--
+		Prelude and coda for standalone web application.
+		To eliminate "head" and "body" tags, making the application output suitable
+		as a portlet or for embedding, replace "preludeStandalone" with "link" tags
+		for any required CSS or JavaScript files and remove the coda.
+	-->
+
+		<jsp-config>
+			<jsp-property-group>
+				<url-pattern>*.jsp</url-pattern>
+				<include-prelude>/inc/preludeEmbedded.jspf</include-prelude>
+				<!-- Or, for the original standalone look... -->
+				<!-- <include-prelude>/inc/preludeEmbeddedClassic.jspf</include-prelude> -->
+				<include-coda>/inc/codaEmbedded.jspf</include-coda>
+			</jsp-property-group>
+		</jsp-config>
+
+</web-app>
