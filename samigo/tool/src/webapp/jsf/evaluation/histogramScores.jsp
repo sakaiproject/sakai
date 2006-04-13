@@ -78,7 +78,7 @@ $Id$
 
   <h:messages styleClass="validation" />
 
-<div class="indent2">
+<div class="tier1">
 
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
@@ -133,8 +133,8 @@ $Id$
   </h:dataTable>
 
     </h:panelGroup>
-
-<h:panelGrid columns="2" columnClasses="navView,navList">
+<div class="tier2">
+<h:panelGrid columns="2">
 
 <h:outputLabel value="#{msg.sub_view}"/>
 <h:outputLabel value="#{histogramScores.numResponses}" />
@@ -163,6 +163,7 @@ $Id$
 <h:outputLabel value="#{msg.std_dev}" />
 <h:outputText value="#{histogramScores.standDev}"/>
 </h:panelGrid>
+</div>
 
   <h:dataTable value="#{histogramScores.info}" var="item">
 
@@ -207,8 +208,8 @@ $Id$
         </h:dataTable>
 
         <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching -->
-
-        <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}" columnClasses="navView,navList">
+<f:verbatim><div class="tier2"></f:verbatim>
+        <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
 
           <h:outputLabel for="responses" value="#{msg.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
@@ -221,11 +222,11 @@ $Id$
           <h:outputLabel for="mode" value="#{msg.mode}" />
           <h:outputText id="mode" value="#{item.mode}" />
         </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '3'}" columnClasses="navView,navList">
+       <h:panelGrid columns="2" rendered="#{item.questionType == '3'}">
           <h:outputLabel for="responses1" value="#{msg.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
         </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9'}" columnClasses="navView,navList">
+        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9'}">
           <h:outputLabel for="responses2" value="#{msg.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{msg.percentCorrect}" />
@@ -234,12 +235,13 @@ $Id$
 
 
       </h:panelGroup>
+<f:verbatim></div></f:verbatim> 
     </h:column>
   </h:dataTable>
-</div>
+
 
 <h:commandButton accesskey="#{msg.a_return}"value="#{msg.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
-
+</div>
 </h:form>
 </div>
   <!-- end content -->

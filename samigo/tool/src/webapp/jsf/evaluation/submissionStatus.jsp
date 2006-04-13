@@ -87,10 +87,10 @@ $Id$
 
   <h:messages styleClass="validation"/>
 
-  <span class="tier1">
+  <div class="tier1">
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
-     <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
-     <f:verbatim><br /></f:verbatim>
+     <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
+     <br />
 
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
@@ -110,7 +110,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<p class="tier2">
+<div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="totalScoreTable" value="#{submissionStatus.agents}"
     var="description">
     <!-- NAME/SUBMISSION ID -->
@@ -216,7 +216,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     </h:column>
 
   </h:dataTable>
-</p>
+</div>
+</div>
 </h:form>
 </div>
   <!-- end content -->

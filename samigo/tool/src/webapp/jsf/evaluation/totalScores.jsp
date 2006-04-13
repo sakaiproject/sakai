@@ -56,6 +56,8 @@
     <h:outputText value="#{msg.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
+
+
   <p class="navViewAction">
     <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
@@ -85,19 +87,19 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
   </p>
-
+<div class="tier1">
   <h:messages styleClass="validation"/>
 
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
   <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
-  <span class="tier1">
+
      <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/></span>
-     <f:verbatim><br /></f:verbatim> </span>
+     <f:verbatim><br /></f:verbatim>
   </h:panelGroup>
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
-  <span class="tier1">
+  
      <h:outputText value="#{msg.view}" />
      <h:outputText value="#{msg.column} " />
      <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
@@ -123,7 +125,7 @@
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
      </h:selectOneMenu>
 
-  </span>
+  
 
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
@@ -143,7 +145,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<p class="tier2">
+<div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" id="totalScoreTable" value="#{totalScores.agents}"
     var="description" styleClass="listHier" columnClasses="textTable">
     <!-- NAME/SUBMISSION ID -->
@@ -484,7 +486,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
 <h:outputText value="#{msg.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'}"/>
 <h:outputText value="#{msg.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2'}"/>
-</p>
+</div>
 <p class="act">
 
    <%-- <h:commandButton value="#{msg.save_exit}" action="author"/> --%>
@@ -499,7 +501,9 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <h:commandButton value="#{msg.cancel}" action="author" immediate="true"/>
 
 </p>
+</div>
 </h:form>
+
 </div>
   <!-- end content -->
       </body>

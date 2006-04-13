@@ -73,7 +73,7 @@ $Id$
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
   </p>
-
+<div class="tier1">
   <h:messages styleClass="validation"/>
 
   <h:dataTable value="#{questionScores.sections}" var="partinit">
@@ -184,8 +184,7 @@ $Id$
 </p>
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
- 
- <div class="tier1">
+
      <!-- h:outputText value="#{msg.max_score_poss}" style="instruction"/-->
      <!-- h:outputText value="#{questionScores.maxScore}" style="instruction"/-->
 
@@ -214,8 +213,7 @@ $Id$
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
- 
-  </div>
+
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
   <span class="rightNav">
@@ -231,7 +229,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
-<p class="tier2">
+<div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" id="questionScoreTable" value="#{questionScores.agents}"
     var="description" styleClass="listHier" columnClasses="textTable">
 
@@ -526,7 +524,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 --%>
     </h:column>
   </h:dataTable>
-</p>
+</div>
 <p class="act">
    <%-- <h:commandButton value="#{msg.save_exit}" action="author"/> --%>
    <h:commandButton accesskey="#{msg.a_update}" styleClass="active" value="#{msg.save_cont}" action="questionScores" type="submit" >
@@ -536,7 +534,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
    </h:commandButton>
    <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="totalScores" immediate="true"/>
-</p>
+</div>
 </h:form>
 </div>
   <!-- end content -->

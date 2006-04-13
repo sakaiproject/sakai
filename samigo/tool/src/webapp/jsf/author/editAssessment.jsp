@@ -93,11 +93,11 @@ document.links[newindex].onclick();
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
-  <div class="navList">
+  <div class="navView">
     <h3>
        <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
     </h3>
-  </div><div class="navView">
+  </div><div class="navList">
     <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " />
     <h:outputText value="#{assessmentBean.totalScore}">
   <f:convertNumber maxFractionDigits="2"/>
@@ -145,14 +145,14 @@ document.links[newindex].onclick();
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
 <f:verbatim><h4></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="navList,navView" width="95%">
+    <h:panelGrid columns="2" columnClasses="navView,navList" width="100%">
       <h:panelGroup>
-       <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p}" /> <f:verbatim></b></f:verbatim>
+       <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
           <f:selectItems value="#{assessmentBean.partNumbers}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
         </h:selectOneMenu>
-
+ <f:verbatim>&nbsp; </f:verbatim>
         <h:outputText rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1'}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_s_lower_case}" />
         <h:outputText rendered="#{partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_s_lower_case}" />
       </h:panelGroup>
