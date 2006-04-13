@@ -138,16 +138,15 @@ document.links[newindex].onclick();
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
 </h:commandLink>
 
+
 <div class="tier1">
-<h:dataTable id="parts" width="95%" headerClass="regHeading"
+<h:dataTable id="parts" width="100%"
       value="#{assessmentBean.sections}" var="partBean">
 
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
-<f:verbatim><h4></f:verbatim>
-    <h:panelGrid columns="2" columnClasses="navView,navList" width="100%">
-      <h:panelGroup>
-       <f:verbatim><b></f:verbatim> <h:outputText value="#{msg.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
+<f:verbatim><div class="actionHeader"><h4></f:verbatim>
+<h:outputText value="#{msg.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
           <f:selectItems value="#{assessmentBean.partNumbers}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
@@ -155,9 +154,8 @@ document.links[newindex].onclick();
  <f:verbatim>&nbsp; </f:verbatim>
         <h:outputText rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1'}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_s_lower_case}" />
         <h:outputText rendered="#{partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_s_lower_case}" />
-      </h:panelGroup>
-      <h:panelGroup>
-
+     <f:verbatim></h4><div></f:verbatim>
+    
         <h:commandLink title="#{msg.t_removeP}" action="confirmRemovePart" immediate="true"
           rendered="#{partBean.number ne 1}">
           <h:outputText value="#{msg.remove_part}" />
@@ -172,10 +170,11 @@ document.links[newindex].onclick();
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
-      </h:panelGroup>
+<f:verbatim></div></div></f:verbatim>
+      
         <h:outputText escape="false" value="#{partBean.description}" />
-    </h:panelGrid>
-<f:verbatim></h4><div class="tier2"></f:verbatim>
+    
+<f:verbatim><div class="tier2"></f:verbatim>
 
 
         <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
@@ -200,23 +199,20 @@ document.links[newindex].onclick();
 </h:panelGroup>
 
 
-  <h:dataTable id="parts" width="100%" headerClass="regHeading"
+  <h:dataTable id="parts" width="100%"
         value="#{partBean.itemContents}" var="question" rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString ==  '1'}" >
 
       <h:column>
-<f:verbatim><h5></f:verbatim>
-        <h:panelGrid columns="2" columnClasses="navList,navView" width="95%">
-          <h:panelGroup>
-           <f:verbatim><b></f:verbatim>   <h:outputText value="#{msg.q} " /> <f:verbatim></b></f:verbatim>
+<f:verbatim><div class="actionHeader"><h5></f:verbatim>
+        
+          <h:outputText value="#{msg.q} " />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
             <h:selectOneMenu id="number" onchange="document.forms[0].submit();" value="#{question.number}">
               <f:selectItems value="#{partBean.questionNumbers}" />
               <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderQuestionsListener" />
             </h:selectOneMenu>
             <h:outputText value=" #{question.itemData.type.keyword} #{msg.dash} #{question.itemData.score} #{msg.points_lower_case}" />
-          </h:panelGroup>
-
-          <h:panelGroup>
+        <f:verbatim></h5><div></f:verbatim>
             <h:commandLink title="#{msg.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
               <h:outputText value="#{msg.button_remove}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
@@ -229,10 +225,9 @@ document.links[newindex].onclick();
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
               <f:param name="target" value="assessment"/>
             </h:commandLink>
-          </h:panelGroup>
+        
 
-        </h:panelGrid>
-<f:verbatim></h5></f:verbatim>
+<f:verbatim></div></div></f:verbatim>
      <f:verbatim> <div class="tier3"></f:verbatim>
           <h:panelGroup rendered="#{question.itemData.typeId == 9}">
             <%@ include file="/jsf/author/preview_item/Matching.jsp" %>
