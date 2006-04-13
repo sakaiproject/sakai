@@ -92,7 +92,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(SitePage page, String id, String toolId, String title, String layoutHints, int pageOrder)
 	{
-		super(id, ToolManager.getTool(toolId), null, null, title);
+		super(id, toolId, ToolManager.getTool(toolId), null, null, title);
 
 		m_page = page;
 		m_layoutHints = layoutHints;
@@ -124,7 +124,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	protected BaseToolConfiguration(String id, String toolId, String title, String layoutHints, String pageId, String siteId,
 			String skin, int pageOrder)
 	{
-		super(id, ToolManager.getTool(toolId), null, null, title);
+		super(id, toolId, ToolManager.getTool(toolId), null, null, title);
 
 		m_page = null;
 
@@ -160,6 +160,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		{
 			m_id = IdManager.createUuid();
 		}
+		m_toolId = other.getToolId();
 		m_tool = other.getTool();
 		m_title = other.getTitle();
 		m_layoutHints = other.getLayoutHints();
@@ -182,7 +183,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(SitePage page)
 	{
-		super(IdManager.createUuid(), null, null, null, null);
+		super(IdManager.createUuid(), null, null, null, null, null);
 
 		m_page = page;
 	}
@@ -197,7 +198,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 */
 	protected BaseToolConfiguration(Tool reg, SitePage page)
 	{
-		super(IdManager.createUuid(), reg, null, null, null);
+		super(IdManager.createUuid(), reg.getId(), reg, null, null, null);
 
 		m_page = page;
 	}
@@ -217,10 +218,10 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_page = page;
 
 		m_id = el.getAttribute("id");
-		String toolId = StringUtil.trimToNull(el.getAttribute("toolId"));
-		if (toolId != null)
+		m_toolId = StringUtil.trimToNull(el.getAttribute("toolId"));
+		if (m_toolId != null)
 		{
-			m_tool = ToolManager.getTool(toolId);
+			m_tool = ToolManager.getTool(m_toolId);
 		}
 		m_title = StringUtil.trimToNull(el.getAttribute("title"));
 		m_layoutHints = StringUtil.trimToNull(el.getAttribute("layoutHints"));
@@ -408,7 +409,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		stack.push(element);
 
 		element.setAttribute("id", getId());
-		if (m_tool != null) element.setAttribute("toolId", m_tool.getId());
+		String toolId = getToolId();
+		if (toolId != null) element.setAttribute("toolId", toolId);
 		if (m_title != null) element.setAttribute("title", m_title);
 		if (m_layoutHints != null) element.setAttribute("layoutHints", m_layoutHints);
 
