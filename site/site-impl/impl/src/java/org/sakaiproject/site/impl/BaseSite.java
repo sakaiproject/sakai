@@ -843,7 +843,7 @@ public class BaseSite implements Site
 				for (Iterator t = tools.iterator(); t.hasNext();)
 				{
 					ToolConfiguration tool = (ToolConfiguration) t.next();
-					if (tool.getTool().getId().equals(toolId))
+					if (tool.getToolId().equals(toolId))
 					{
 						// this page has this tool, so move it from the pages to the newOrder
 						newOrder.add(page);

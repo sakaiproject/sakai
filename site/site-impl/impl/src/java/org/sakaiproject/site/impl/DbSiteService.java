@@ -314,7 +314,7 @@ public abstract class DbSiteService extends BaseSiteService
 						fields[0] = tool.getId();
 						fields[1] = page.getId();
 						fields[2] = caseId(edit.getId());
-						fields[3] = tool.getTool().getId();
+						fields[3] = tool.getToolId();
 						fields[4] = new Integer(toolOrder++);
 						fields[5] = tool.getTitle();
 						fields[6] = tool.getLayoutHints();
@@ -443,7 +443,7 @@ public abstract class DbSiteService extends BaseSiteService
 				fields[0] = tool.getId();
 				fields[1] = tool.getPageId();
 				fields[2] = caseId(tool.getSiteId());
-				fields[3] = tool.getTool().getId();
+				fields[3] = tool.getToolId();
 				fields[4] = new Integer(tool.getPageOrder());
 				fields[5] = tool.getTitle();
 				fields[6] = tool.getLayoutHints();
