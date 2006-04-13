@@ -24,24 +24,28 @@
 package org.radeox.test.macro;
 
 import junit.framework.TestCase;
-import org.radeox.engine.context.BaseRenderContext;
+
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.engine.context.BaseRenderContext;
 
 /**
- * 
- * @author 
- * @version $Id$
+ * @author
+ * @version $Id: MacroTestSupport.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class MacroTestSupport extends TestCase {
-  protected RenderContext context;
+public class MacroTestSupport extends TestCase
+{
+	protected RenderContext context;
 
-  public MacroTestSupport(String s) {
-    super(s);
-  }
+	public MacroTestSupport(String s)
+	{
+		super(s);
+	}
 
-  protected void setUp() throws Exception {
-    context = new BaseRenderContext();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		context = new BaseRenderContext();
+		super.setUp();
+	}
 }

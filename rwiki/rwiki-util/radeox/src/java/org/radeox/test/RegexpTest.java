@@ -33,41 +33,51 @@ import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.context.BaseRenderContext;
 
-public class RegexpTest {
-  public static void main(String[] args) {
-    //System.out.print("Press enter ...");
-//    try {
-//      new BufferedReader(new InputStreamReader(System.in)).readLine();
-//    } catch (IOException e) {
-//      // ignore errors
-//    }
+public class RegexpTest
+{
+	public static void main(String[] args)
+	{
+		// System.out.print("Press enter ...");
+		// try {
+		// new BufferedReader(new InputStreamReader(System.in)).readLine();
+		// } catch (IOException e) {
+		// // ignore errors
+		// }
 
-    String file = args.length > 0 ? args[0] : "conf/wiki.txt";
-    try {
-      System.setOut(new PrintStream(System.out, true, "UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      // this should never happen
-    }
+		String file = args.length > 0 ? args[0] : "conf/wiki.txt";
+		try
+		{
+			System.setOut(new PrintStream(System.out, true, "UTF-8"));
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			// this should never happen
+		}
 
-    StringBuffer tmp = new StringBuffer();
-    try {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-      char[] buffer = new char[1024];
-      int n = 0;
-      while ((n = reader.read(buffer)) != -1) {
-        tmp.append(buffer, 0, n);
-      }
-    } catch (Exception e) {
-      System.err.println("File not found: "+e.getMessage());
-    }
+		StringBuffer tmp = new StringBuffer();
+		try
+		{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(file), "UTF-8"));
+			char[] buffer = new char[1024];
+			int n = 0;
+			while ((n = reader.read(buffer)) != -1)
+			{
+				tmp.append(buffer, 0, n);
+			}
+		}
+		catch (Exception e)
+		{
+			System.err.println("File not found: " + e.getMessage());
+		}
 
-    String content = tmp.toString();
+		String content = tmp.toString();
 
-    System.out.println(content);
+		System.out.println(content);
 
-    RenderContext context = new BaseRenderContext();
-    RenderEngine engine = EngineManager.getInstance();
+		RenderContext context = new BaseRenderContext();
+		RenderEngine engine = EngineManager.getInstance();
 
-    System.out.println(engine.render(content, context));
-  }
+		System.out.println(engine.render(content, context));
+	}
 }

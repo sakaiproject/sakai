@@ -30,28 +30,31 @@ import java.util.List;
  * controller.
  * 
  * @author andrew
- * 
  */
 
-//FIXME: Tool
+// FIXME: Tool
+public class ErrorBean
+{
+	private List errors = new ArrayList();
 
-public class ErrorBean {
-    private List errors = new ArrayList();
+	public String getError(int i)
+	{
+		return (String) errors.get(i);
+	}
 
-    public String getError(int i) {
-        return (String) errors.get(i);
-    }
+	public void addError(String errorMessage)
+	{
+		errors.add(errorMessage);
+	}
 
-    public void addError(String errorMessage) {
-        errors.add(errorMessage);
-    }
+	public List getErrors()
+	{
+		return errors;
+	}
 
-    public List getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List errors) {
-        this.errors = errors;
-    }
+	public void setErrors(List errors)
+	{
+		this.errors = errors;
+	}
 
 }

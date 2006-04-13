@@ -24,7 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
 import javax.servlet.ServletRequest;
 
-import org.sakaiproject.service.framework.current.cover.CurrentService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -38,325 +38,382 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
  * 
  * @author andrew
  */
-//FIXME: Tool
+// FIXME: Tool
+public class ViewParamsHelperBean
+{
 
-public class ViewParamsHelperBean {
-
-    private static final String SMALL_CHANGE_PARAM = "smallchange";
+	private static final String SMALL_CHANGE_PARAM = "smallchange";
 
 	private static final Object SMALL_CHANGE = "smallchange";
 
 	/**
-     * the requested global page name
-     */
-    private String globalName;
+	 * the requested global page name
+	 */
+	private String globalName;
 
-    /**
-     * the local space
-     */
-    private String localSpace;
-    
-    /**
-     * the requested search criteria
-     */
-    private String search;
-    
-    /**
-     * The search Page
-     */
-    private String searchPage = "0";
+	/**
+	 * the local space
+	 */
+	private String localSpace;
 
-    /**
-     * the current servlet request
-     */
-    private ServletRequest request;
+	/**
+	 * the requested search criteria
+	 */
+	private String search;
 
-    /**
-     * the RWikiSecurityService
-     */
-    private RWikiSecurityService securityService;
-    
-    /**
-     * the default realm
-     */
-    private String defaultRealm;
-    
-    /**
-     * the submitted content
-     */
-    private String content;
+	/**
+	 * The search Page
+	 */
+	private String searchPage = "0";
 
-    /**
-     * the submitted previous content
-     */
-    private String submittedContent;
-    
-    /**
-     * the submitted version
-     */
-    private String submittedVersion;
+	/**
+	 * the current servlet request
+	 */
+	private ServletRequest request;
 
-    /**
-     * the submitted save type
-     */
-    private String saveType;
-    
-    /**
-     * breadcrumbs
-     */
-    private String withBreadcrumbs;
+	/**
+	 * the RWikiSecurityService
+	 */
+	private RWikiSecurityService securityService;
 
-    /**
-     * Initializes the bean, gets the parameters out of the request
-     */
-    public void init() {
-        String pageName = request.getParameter(ViewBean.PAGE_NAME_PARAM);
-        
-        localSpace = request.getParameter(SearchBean.REALM_PARAM);
-        
-        defaultRealm = securityService.getSiteReference();
+	/**
+	 * the default realm
+	 */
+	private String defaultRealm;
 
-        if (localSpace == null || localSpace.equals("")) {
-            localSpace = defaultRealm;
-        }
-        
-        globalName = NameHelper.globaliseName(pageName, localSpace);
-        
-        search = request.getParameter(SearchBean.SEARCH_PARAM);
-        
-        	searchPage = request.getParameter(SearchBean.PAGE_PARAM);
-        
-        content = request.getParameter(EditBean.CONTENT_PARAM);
-        
-        submittedContent = request.getParameter(EditBean.SUBMITTED_CONTENT_PARAM);
-        
-        submittedVersion = request.getParameter(EditBean.VERSION_PARAM);
-        
-        saveType = request.getParameter(EditBean.SAVE_PARAM);
-        
-        String smallChange = request.getParameter(SMALL_CHANGE_PARAM);
-        if ( smallChange != null && smallChange.equals(SMALL_CHANGE) ) {
-        		CurrentService.setInThread(RWikiObjectService.SMALL_CHANGE_IN_THREAD,RWikiObjectService.SMALL_CHANGE_IN_THREAD);
-        }
+	/**
+	 * the submitted content
+	 */
+	private String content;
 
-        if (saveType != null) {
-            saveType = saveType.toLowerCase();
-        }
-        
-        withBreadcrumbs = request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME);
-        
-        
-    }
+	/**
+	 * the submitted previous content
+	 */
+	private String submittedContent;
 
-    /**
-     * Get the globalised page name
-     * @return the requested globalised page name
-     */
-    public String getGlobalName() {
-        return globalName;
-    }
+	/**
+	 * the submitted version
+	 */
+	private String submittedVersion;
 
-    /**
-     * Set the globalised page name
-     * @param globalName
-     */
-    public void setGlobalName(String globalName) {
-        this.globalName = globalName;
-    }
+	/**
+	 * the submitted save type
+	 */
+	private String saveType;
 
-    /**
-     * Get the local space  
-     * @return local space
-     */
-    public String getLocalSpace() {
-        return localSpace;
-    }
-    
-    /**
-     * Set the local space
-     * @param localSpace
-     */
-    public void setLocalSpace(String localSpace) {
-        this.localSpace = localSpace;
-        
-    }
+	/**
+	 * breadcrumbs
+	 */
+	private String withBreadcrumbs;
 
-    /**
-     * Get the current page's space
-     * @return space relating to globalName
-     */
-    public String getPageSpace() {
-        return NameHelper.localizeSpace(globalName, localSpace);
-    }
+	/**
+	 * Initializes the bean, gets the parameters out of the request
+	 */
+	public void init()
+	{
+		String pageName = request.getParameter(ViewBean.PAGE_NAME_PARAM);
 
-    /**
-     * Get the localised name relating to globalName and localSpace
-     * @return the localised name
-     */
-    public String getLocalName() {
-        return NameHelper.localizeName(globalName, localSpace);
-    }
-    
-    /**
-     * Get the submitted search criteria
-     * @return search criteria
-     */
-    public String getSearch() {
-        return search;
-    }
+		localSpace = request.getParameter(SearchBean.REALM_PARAM);
 
-    /**
-     * Set the search criteria
-     * @param search criteria to set
-     */
-    public void setSearch(String search) {
-        this.search = search;
-    }
+		defaultRealm = securityService.getSiteReference();
 
-    /**
-     * Get the current servlet request
-     * @return current servlet request
-     */
-    public ServletRequest getServletRequest() {
-        return request;
-    }
+		if (localSpace == null || localSpace.equals(""))
+		{
+			localSpace = defaultRealm;
+		}
 
-    /**
-     * Set the current servlet request
-     * @param request 
-     */
-    public void setServletRequest(ServletRequest request) {
-        this.request = request;
-    }
+		globalName = NameHelper.globaliseName(pageName, localSpace);
 
-    /**
-     * Get the RWikiSecurityService
-     * @return the rwikiSecurityService
-     */
-    public RWikiSecurityService getSecurityService() {
-        return securityService;
-    }
+		search = request.getParameter(SearchBean.SEARCH_PARAM);
 
-    /**
-     * Set the RWikiSecurityService to be used in init
-     * @param securityService
-     */
-    public void setSecurityService(RWikiSecurityService securityService) {
-        this.securityService = securityService;
-    }
+		searchPage = request.getParameter(SearchBean.PAGE_PARAM);
 
-    /**
-     * Get the default realm
-     * @return default realm for the current request
-     */
-    public String getDefaultRealm() {
-        return defaultRealm;
-    }
+		content = request.getParameter(EditBean.CONTENT_PARAM);
 
-    /**
-     * Set the default realm
-     * @param defaultRealm
-     */
-    public void setDefaultRealm(String defaultRealm) {
-        this.defaultRealm = defaultRealm;
-    }
+		submittedContent = request
+				.getParameter(EditBean.SUBMITTED_CONTENT_PARAM);
 
-    /**
-     * Get the submitted content
-     * @return content
-     */
-    public String getContent() {
-        return content;
-    }
+		submittedVersion = request.getParameter(EditBean.VERSION_PARAM);
 
-    /**
-     * Set the content
-     * @param content
-     */
-    public void setContent(String content) {
-        this.content = content;
-    }
+		saveType = request.getParameter(EditBean.SAVE_PARAM);
 
-    /**
-     * Get the previously submitted content
-     * @return content as a String
-     */
-    public String getSubmittedContent() {
-        return submittedContent;
-    }
+		String smallChange = request.getParameter(SMALL_CHANGE_PARAM);
+		if (smallChange != null && smallChange.equals(SMALL_CHANGE))
+		{
+			ThreadLocalManager.set(RWikiObjectService.SMALL_CHANGE_IN_THREAD,
+					RWikiObjectService.SMALL_CHANGE_IN_THREAD);
+		}
 
-    /**
-     * Set the previously submitted content
-     * @param submittedContent
-     */
-    public void setSubmittedContent(String submittedContent) {
-        this.submittedContent = submittedContent;
-    }
+		if (saveType != null)
+		{
+			saveType = saveType.toLowerCase();
+		}
 
-    /**
-     * Get the submitted version number
-     * @return version as string
-     */
-    public String getSubmittedVersion() {
-        return submittedVersion;
-    }
+		withBreadcrumbs = request.getParameter(ViewBean.PARAM_BREADCRUMB_NAME);
 
-    /**
-     * Set the submitted version number
-     * @param submittedVersion
-     */
-    public void setSubmittedVersion(String submittedVersion) {
-        this.submittedVersion = submittedVersion;
-    }
+	}
 
-    /**
-     * Get the requested save type 
-     * @return save type as string
-     */
-    public String getSaveType() {
-        return saveType;
-    }
+	/**
+	 * Get the globalised page name
+	 * 
+	 * @return the requested globalised page name
+	 */
+	public String getGlobalName()
+	{
+		return globalName;
+	}
 
-    /**
-     * Set the save type
-     * @param saveType
-     */
-    public void setSaveType(String saveType) {
-        if (saveType != null) {
-            this.saveType = saveType.toLowerCase();    
-        } else {
-            this.saveType = null;
-        }
-    }
+	/**
+	 * Set the globalised page name
+	 * 
+	 * @param globalName
+	 */
+	public void setGlobalName(String globalName)
+	{
+		this.globalName = globalName;
+	}
 
-    /**
-     * @return Returns the withBreadcrumbs.
-     */
-    public String getWithBreadcrumbs() {
-        return withBreadcrumbs;
-    }
+	/**
+	 * Get the local space
+	 * 
+	 * @return local space
+	 */
+	public String getLocalSpace()
+	{
+		return localSpace;
+	}
 
-    /**
-     * @param withBreadcrumbs The withBreadcrumbs to set.
-     */
-    public void setWithBreadcrumbs(String withBreadcrumbs) {
-        this.withBreadcrumbs = withBreadcrumbs;
-    }
+	/**
+	 * Set the local space
+	 * 
+	 * @param localSpace
+	 */
+	public void setLocalSpace(String localSpace)
+	{
+		this.localSpace = localSpace;
+
+	}
+
+	/**
+	 * Get the current page's space
+	 * 
+	 * @return space relating to globalName
+	 */
+	public String getPageSpace()
+	{
+		return NameHelper.localizeSpace(globalName, localSpace);
+	}
+
+	/**
+	 * Get the localised name relating to globalName and localSpace
+	 * 
+	 * @return the localised name
+	 */
+	public String getLocalName()
+	{
+		return NameHelper.localizeName(globalName, localSpace);
+	}
+
+	/**
+	 * Get the submitted search criteria
+	 * 
+	 * @return search criteria
+	 */
+	public String getSearch()
+	{
+		return search;
+	}
+
+	/**
+	 * Set the search criteria
+	 * 
+	 * @param search
+	 *        criteria to set
+	 */
+	public void setSearch(String search)
+	{
+		this.search = search;
+	}
+
+	/**
+	 * Get the current servlet request
+	 * 
+	 * @return current servlet request
+	 */
+	public ServletRequest getServletRequest()
+	{
+		return request;
+	}
+
+	/**
+	 * Set the current servlet request
+	 * 
+	 * @param request
+	 */
+	public void setServletRequest(ServletRequest request)
+	{
+		this.request = request;
+	}
+
+	/**
+	 * Get the RWikiSecurityService
+	 * 
+	 * @return the rwikiSecurityService
+	 */
+	public RWikiSecurityService getSecurityService()
+	{
+		return securityService;
+	}
+
+	/**
+	 * Set the RWikiSecurityService to be used in init
+	 * 
+	 * @param securityService
+	 */
+	public void setSecurityService(RWikiSecurityService securityService)
+	{
+		this.securityService = securityService;
+	}
+
+	/**
+	 * Get the default realm
+	 * 
+	 * @return default realm for the current request
+	 */
+	public String getDefaultRealm()
+	{
+		return defaultRealm;
+	}
+
+	/**
+	 * Set the default realm
+	 * 
+	 * @param defaultRealm
+	 */
+	public void setDefaultRealm(String defaultRealm)
+	{
+		this.defaultRealm = defaultRealm;
+	}
+
+	/**
+	 * Get the submitted content
+	 * 
+	 * @return content
+	 */
+	public String getContent()
+	{
+		return content;
+	}
+
+	/**
+	 * Set the content
+	 * 
+	 * @param content
+	 */
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+
+	/**
+	 * Get the previously submitted content
+	 * 
+	 * @return content as a String
+	 */
+	public String getSubmittedContent()
+	{
+		return submittedContent;
+	}
+
+	/**
+	 * Set the previously submitted content
+	 * 
+	 * @param submittedContent
+	 */
+	public void setSubmittedContent(String submittedContent)
+	{
+		this.submittedContent = submittedContent;
+	}
+
+	/**
+	 * Get the submitted version number
+	 * 
+	 * @return version as string
+	 */
+	public String getSubmittedVersion()
+	{
+		return submittedVersion;
+	}
+
+	/**
+	 * Set the submitted version number
+	 * 
+	 * @param submittedVersion
+	 */
+	public void setSubmittedVersion(String submittedVersion)
+	{
+		this.submittedVersion = submittedVersion;
+	}
+
+	/**
+	 * Get the requested save type
+	 * 
+	 * @return save type as string
+	 */
+	public String getSaveType()
+	{
+		return saveType;
+	}
+
+	/**
+	 * Set the save type
+	 * 
+	 * @param saveType
+	 */
+	public void setSaveType(String saveType)
+	{
+		if (saveType != null)
+		{
+			this.saveType = saveType.toLowerCase();
+		}
+		else
+		{
+			this.saveType = null;
+		}
+	}
+
+	/**
+	 * @return Returns the withBreadcrumbs.
+	 */
+	public String getWithBreadcrumbs()
+	{
+		return withBreadcrumbs;
+	}
+
+	/**
+	 * @param withBreadcrumbs
+	 *        The withBreadcrumbs to set.
+	 */
+	public void setWithBreadcrumbs(String withBreadcrumbs)
+	{
+		this.withBreadcrumbs = withBreadcrumbs;
+	}
 
 	/**
 	 * @return Returns the searchPage.
 	 */
-	public String getSearchPage() {
+	public String getSearchPage()
+	{
 		return searchPage;
 	}
 
 	/**
-	 * @param searchPage The searchPage to set.
+	 * @param searchPage
+	 *        The searchPage to set.
 	 */
-	public void setSearchPage(String searchPage) {
+	public void setSearchPage(String searchPage)
+	{
 		this.searchPage = searchPage;
 	}
 
-
-    
 }

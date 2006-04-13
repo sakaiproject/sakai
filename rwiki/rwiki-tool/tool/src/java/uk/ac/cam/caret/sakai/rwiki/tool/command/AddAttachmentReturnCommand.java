@@ -14,13 +14,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.SessionManager;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
@@ -32,282 +31,335 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 
 /**
  * @author andrew
- * 
  */
-public class AddAttachmentReturnCommand implements HttpCommand {
+public class AddAttachmentReturnCommand implements HttpCommand
+{
 
-    private static final String MULTIPLE_ATTACHMENT_HEADER_START = "__";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_START = "__";
 
-    private static final String MULTIPLE_ATTACHMENT_HEADER_BODY = "see attachments:";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_BODY = "see attachments:";
 
-    private static final String MULTIPLE_ATTACHMENT_HEADER_END = "__";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_END = "__";
 
-    private static final String MULTIPLE_ATTACHMENT_ITEM = "\n* ";
+	private static final String MULTIPLE_ATTACHMENT_ITEM = "\n* ";
 
-    private static final String MULTIPLE_ATTACHMENT_ITEMS_END = "\n";
+	private static final String MULTIPLE_ATTACHMENT_ITEMS_END = "\n";
 
-    private SessionManager sessionManager;
+	private SessionManager sessionManager;
 
-    private Map wikiMarkupTemplates;
+	private Map wikiMarkupTemplates;
 
-    private String editPath;
+	private String editPath;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
-     */
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse)
+	 */
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
 
-        RequestScopeSuperBean rssb = RequestScopeSuperBean
-                .getFromRequest(request);
-        ToolSession session = sessionManager.getCurrentToolSession();
+		RequestScopeSuperBean rssb = RequestScopeSuperBean
+				.getFromRequest(request);
+		ToolSession session = sessionManager.getCurrentToolSession();
 
-        // TODO EEK! constantise this
-        Map storedParameters = (Map) session.getAttribute("STORED_PARAMETERS");
+		// TODO EEK! constantise this
+		Map storedParameters = (Map) session.getAttribute("STORED_PARAMETERS");
 
-        String content = retrieveString(storedParameters.get(EditBean.CONTENT_PARAM));
-        content = content.replaceAll("\r\n?","\n");
-        String caretPosition = retrieveString(storedParameters
-                .get(EditBean.STORED_CARET_POSITION));
-        String pageName = retrieveString(storedParameters
-                .get(ViewBean.PAGE_NAME_PARAM));
-        
-        
-        List refs = (List) session
-                .getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-        
-        if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null && refs != null && refs.size() > 0) {
-        	// File Picking was successful.
-            content = generateNewContent(refs, content, caretPosition);
-        } else {
-            ErrorBean errorBean = rssb.getErrorBean();
-            // FIXME internationalise this!
-            errorBean.addError("Cancelled add attachment");
-        }
-        
-        // Eek! I think we need a better way of doing this...
-        ViewParamsHelperBean vphb = rssb.getNameHelperBean();
-        
-        vphb.setContent(content);
-        vphb.setGlobalName(pageName);
-        vphb.setLocalSpace(retrieveString(storedParameters.get(SearchBean.REALM_PARAM)));
-        vphb.setSaveType(retrieveString(storedParameters.get(EditBean.SAVE_PARAM)));
-        vphb.setWithBreadcrumbs(retrieveString(storedParameters.get(ViewBean.PARAM_BREADCRUMB_NAME)));
-        vphb.setSubmittedVersion(retrieveString(storedParameters.get(EditBean.VERSION_PARAM)));
-        vphb.setSubmittedContent(retrieveString(storedParameters.get(EditBean.SUBMITTED_CONTENT_PARAM)));
-        // FIXME sort out caretPosition
-        
-        session.removeAttribute(Tool.HELPER_DONE_URL);
-        session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
-        session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
+		String content = retrieveString(storedParameters
+				.get(EditBean.CONTENT_PARAM));
+		content = content.replaceAll("\r\n?", "\n");
+		String caretPosition = retrieveString(storedParameters
+				.get(EditBean.STORED_CARET_POSITION));
+		String pageName = retrieveString(storedParameters
+				.get(ViewBean.PAGE_NAME_PARAM));
 
-        //finally dispatch to edit
-        RequestDispatcher rd = request.getRequestDispatcher(editPath);
-        rd.forward(request, response);
-        
-    }
+		List refs = (List) session
+				.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 
-    private String generateNewContent(List refs, String content, String caretPosition) {
-        char[] charContent = content.toCharArray();            
-        
-        int startPos = charContent.length;
-        int endPos = charContent.length;
+		if (session.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null
+				&& refs != null && refs.size() > 0)
+		{
+			// File Picking was successful.
+			content = generateNewContent(refs, content, caretPosition);
+		}
+		else
+		{
+			ErrorBean errorBean = rssb.getErrorBean();
+			// FIXME internationalise this!
+			errorBean.addError("Cancelled add attachment");
+		}
 
-        if (caretPosition == null) {
-          caretPosition = "";  
-        } 
-        
-        String[] caretPositions = caretPosition.split(":");
+		// Eek! I think we need a better way of doing this...
+		ViewParamsHelperBean vphb = rssb.getNameHelperBean();
 
-        if (caretPositions.length > 0) {
-            try {
-                startPos = Integer.parseInt(caretPositions[0]);
-            } catch (NumberFormatException e) {
-                startPos = charContent.length;
-            }
-        }
+		vphb.setContent(content);
+		vphb.setGlobalName(pageName);
+		vphb.setLocalSpace(retrieveString(storedParameters
+				.get(SearchBean.REALM_PARAM)));
+		vphb.setSaveType(retrieveString(storedParameters
+				.get(EditBean.SAVE_PARAM)));
+		vphb.setWithBreadcrumbs(retrieveString(storedParameters
+				.get(ViewBean.PARAM_BREADCRUMB_NAME)));
+		vphb.setSubmittedVersion(retrieveString(storedParameters
+				.get(EditBean.VERSION_PARAM)));
+		vphb.setSubmittedContent(retrieveString(storedParameters
+				.get(EditBean.SUBMITTED_CONTENT_PARAM)));
+		// FIXME sort out caretPosition
 
-        if (caretPositions.length > 1) {
-            try {
-                endPos = Integer.parseInt(caretPositions[1]);
-            } catch (NumberFormatException e) {
-                endPos = startPos;
-            }
-        } else {
-            endPos = startPos;
-        }
+		session.removeAttribute(Tool.HELPER_DONE_URL);
+		session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+		session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 
-        if (startPos > charContent.length || startPos < 0) {
-            startPos = charContent.length;
-        }
+		// finally dispatch to edit
+		RequestDispatcher rd = request.getRequestDispatcher(editPath);
+		rd.forward(request, response);
 
-        if (endPos > charContent.length || endPos < 0) {
-            endPos = charContent.length;
-        }
+	}
 
-        if (endPos < startPos) {
-            // I did have the XOR trick here, but I'm sure that's the JIT's job.
-            int temp = startPos;
-            startPos = endPos;
-            endPos = temp;
-        }
+	private String generateNewContent(List refs, String content,
+			String caretPosition)
+	{
+		char[] charContent = content.toCharArray();
 
-        
+		int startPos = charContent.length;
+		int endPos = charContent.length;
 
-        if (refs.size() > 1) {
-            return multipleRefsContent(charContent, startPos, endPos, refs);
-        } else {
-            return singleRefContent(charContent, startPos, endPos, (Reference) refs.get(0));
-        }
-        
-    }
+		if (caretPosition == null)
+		{
+			caretPosition = "";
+		}
 
-    private String retrieveString(Object fromMap) {
-        if (fromMap == null) {
-            return null;
-        }
-        if (fromMap instanceof String[]) {
-            String[] array = (String[]) fromMap;
+		String[] caretPositions = caretPosition.split(":");
 
-                return array[0];
+		if (caretPositions.length > 0)
+		{
+			try
+			{
+				startPos = Integer.parseInt(caretPositions[0]);
+			}
+			catch (NumberFormatException e)
+			{
+				startPos = charContent.length;
+			}
+		}
 
-        } 
-        return fromMap.toString();
-    }
-    
-    private String singleRefContent(char[] charContent, int startPos, int endPos, Reference ref) {
-        ResourceProperties refProps = ref.getProperties();
-        String contentType = refProps.getProperty(refProps
-                .getNamePropContentType());
-        String template = getTemplate(contentType);
-        Object[] args = getTemplateArgs(ref);
+		if (caretPositions.length > 1)
+		{
+			try
+			{
+				endPos = Integer.parseInt(caretPositions[1]);
+			}
+			catch (NumberFormatException e)
+			{
+				endPos = startPos;
+			}
+		}
+		else
+		{
+			endPos = startPos;
+		}
 
-        if (startPos != endPos) {
-            // We have to use a different name for the "link"
-            args[2] = new String(charContent, startPos, endPos
-                    - startPos);
-        }
+		if (startPos > charContent.length || startPos < 0)
+		{
+			startPos = charContent.length;
+		}
 
-        // Work out length properly
-        StringBuffer newContent = new StringBuffer(charContent.length
-                + template.length());
+		if (endPos > charContent.length || endPos < 0)
+		{
+			endPos = charContent.length;
+		}
 
-        newContent.append(charContent, 0, startPos);
+		if (endPos < startPos)
+		{
+			// I did have the XOR trick here, but I'm sure that's the JIT's job.
+			int temp = startPos;
+			startPos = endPos;
+			endPos = temp;
+		}
 
-        (new MessageFormat(template)).format(args, newContent, null);
+		if (refs.size() > 1)
+		{
+			return multipleRefsContent(charContent, startPos, endPos, refs);
+		}
+		else
+		{
+			return singleRefContent(charContent, startPos, endPos,
+					(Reference) refs.get(0));
+		}
 
-        if (endPos < charContent.length) {
-            newContent.append(charContent, endPos, charContent.length
-                    - endPos);
-        }
-        return newContent.toString();
-    }
+	}
 
-    private String multipleRefsContent(char[] charContent, int startPos, int endPos, List refs) {
-        StringBuffer newContent = new StringBuffer(charContent.length);
-        newContent.append(charContent, 0, startPos);
-        
-        newContent.append(MULTIPLE_ATTACHMENT_HEADER_START);
-        if (startPos != endPos) {
-            newContent.append(charContent, startPos, endPos - startPos);
-        } else {
-            newContent.append(MULTIPLE_ATTACHMENT_HEADER_BODY);
-        }
-        newContent.append(MULTIPLE_ATTACHMENT_HEADER_END);
-        
-        for (Iterator it = refs.iterator(); it.hasNext();) {
-            Reference ref = (Reference) it.next();
-            ResourceProperties refProps = ref.getProperties();
-            String contentType = refProps.getProperty(refProps
-                    .getNamePropContentType());
-            String template = getTemplate(contentType);
-            Object[] args = getTemplateArgs(ref);
-            newContent.append(MULTIPLE_ATTACHMENT_ITEM);
-            (new MessageFormat(template)).format(args, newContent, null);
-            
-        }
-        newContent.append(MULTIPLE_ATTACHMENT_ITEMS_END);
+	private String retrieveString(Object fromMap)
+	{
+		if (fromMap == null)
+		{
+			return null;
+		}
+		if (fromMap instanceof String[])
+		{
+			String[] array = (String[]) fromMap;
 
-        if (endPos < charContent.length) {
-            newContent.append(charContent, endPos, charContent.length - endPos);
-        }
-        
-        return newContent.toString();
-    }
-    
-    
+			return array[0];
 
-    private Object[] getTemplateArgs(Reference ref) {
-        ResourceProperties refProps = ref.getProperties();
+		}
+		return fromMap.toString();
+	}
 
-        String name = refProps.getProperty(refProps.getNamePropDisplayName());
-        String contentType = refProps.getProperty(refProps
-                .getNamePropContentType());
-        String referenceString = ref.getReference();
-        String url = ref.getUrl();
+	private String singleRefContent(char[] charContent, int startPos,
+			int endPos, Reference ref)
+	{
+		ResourceProperties refProps = ref.getProperties();
+		String contentType = refProps.getProperty(refProps
+				.getNamePropContentType());
+		String template = getTemplate(contentType);
+		Object[] args = getTemplateArgs(ref);
 
-        Object[] templateArguments = new Object[5];
-        templateArguments[0] = url;
-        templateArguments[2] = name;
-        templateArguments[3] = contentType;
-        templateArguments[4] = referenceString;
+		if (startPos != endPos)
+		{
+			// We have to use a different name for the "link"
+			args[2] = new String(charContent, startPos, endPos - startPos);
+		}
 
-        // Interpret url as either worksite:/ or sakai:/ or http:/
-        String currentSiteId = PortalService.getCurrentSiteId();
-        if (referenceString.startsWith("/content/group/")) {
-            url = referenceString.substring("/content/group/".length());
-            if (url.startsWith(currentSiteId)) {
-                url = "worksite:/" + url.substring(currentSiteId.length());
-            } else {
-                url = "sakai:/" + url;
-            }
-        }
+		// Work out length properly
+		StringBuffer newContent = new StringBuffer(charContent.length
+				+ template.length());
 
-        templateArguments[1] = url;
-        return templateArguments;
-    }
+		newContent.append(charContent, 0, startPos);
 
-    public String getTemplate(String contentType) {
-        if (wikiMarkupTemplates.containsKey(contentType)) {
-            return (String) wikiMarkupTemplates.get(contentType);
-        }
-        int slash = contentType.indexOf('/');
-        if (slash > -1) {
-            String key = contentType.substring(0, slash) + "/*";
+		(new MessageFormat(template)).format(args, newContent, null);
 
-            if (wikiMarkupTemplates.containsKey(key)) {
-                return (String) wikiMarkupTemplates.get(key);
-            }
-        }
+		if (endPos < charContent.length)
+		{
+			newContent.append(charContent, endPos, charContent.length - endPos);
+		}
+		return newContent.toString();
+	}
 
-        return (String) wikiMarkupTemplates.get("*/*");
-    }
+	private String multipleRefsContent(char[] charContent, int startPos,
+			int endPos, List refs)
+	{
+		StringBuffer newContent = new StringBuffer(charContent.length);
+		newContent.append(charContent, 0, startPos);
 
-    public Map getWikiMarkupTemplates() {
-        return wikiMarkupTemplates;
-    }
+		newContent.append(MULTIPLE_ATTACHMENT_HEADER_START);
+		if (startPos != endPos)
+		{
+			newContent.append(charContent, startPos, endPos - startPos);
+		}
+		else
+		{
+			newContent.append(MULTIPLE_ATTACHMENT_HEADER_BODY);
+		}
+		newContent.append(MULTIPLE_ATTACHMENT_HEADER_END);
 
-    public void setWikiMarkupTemplates(Map wikiMarkupTemplates) {
-        this.wikiMarkupTemplates = wikiMarkupTemplates;
-    }
+		for (Iterator it = refs.iterator(); it.hasNext();)
+		{
+			Reference ref = (Reference) it.next();
+			ResourceProperties refProps = ref.getProperties();
+			String contentType = refProps.getProperty(refProps
+					.getNamePropContentType());
+			String template = getTemplate(contentType);
+			Object[] args = getTemplateArgs(ref);
+			newContent.append(MULTIPLE_ATTACHMENT_ITEM);
+			(new MessageFormat(template)).format(args, newContent, null);
 
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
+		}
+		newContent.append(MULTIPLE_ATTACHMENT_ITEMS_END);
 
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
+		if (endPos < charContent.length)
+		{
+			newContent.append(charContent, endPos, charContent.length - endPos);
+		}
 
-    public String getEditPath() {
-        return editPath;
-    }
+		return newContent.toString();
+	}
 
-    public void setEditPath(String editPath) {
-        this.editPath = editPath;
-    }    
-    
+	private Object[] getTemplateArgs(Reference ref)
+	{
+		ResourceProperties refProps = ref.getProperties();
+
+		String name = refProps.getProperty(refProps.getNamePropDisplayName());
+		String contentType = refProps.getProperty(refProps
+				.getNamePropContentType());
+		String referenceString = ref.getReference();
+		String url = ref.getUrl();
+
+		Object[] templateArguments = new Object[5];
+		templateArguments[0] = url;
+		templateArguments[2] = name;
+		templateArguments[3] = contentType;
+		templateArguments[4] = referenceString;
+
+		// Interpret url as either worksite:/ or sakai:/ or http:/
+		String currentSiteId = PortalService.getCurrentSiteId();
+		if (referenceString.startsWith("/content/group/"))
+		{
+			url = referenceString.substring("/content/group/".length());
+			if (url.startsWith(currentSiteId))
+			{
+				url = "worksite:/" + url.substring(currentSiteId.length());
+			}
+			else
+			{
+				url = "sakai:/" + url;
+			}
+		}
+
+		templateArguments[1] = url;
+		return templateArguments;
+	}
+
+	public String getTemplate(String contentType)
+	{
+		if (wikiMarkupTemplates.containsKey(contentType))
+		{
+			return (String) wikiMarkupTemplates.get(contentType);
+		}
+		int slash = contentType.indexOf('/');
+		if (slash > -1)
+		{
+			String key = contentType.substring(0, slash) + "/*";
+
+			if (wikiMarkupTemplates.containsKey(key))
+			{
+				return (String) wikiMarkupTemplates.get(key);
+			}
+		}
+
+		return (String) wikiMarkupTemplates.get("*/*");
+	}
+
+	public Map getWikiMarkupTemplates()
+	{
+		return wikiMarkupTemplates;
+	}
+
+	public void setWikiMarkupTemplates(Map wikiMarkupTemplates)
+	{
+		this.wikiMarkupTemplates = wikiMarkupTemplates;
+	}
+
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	public String getEditPath()
+	{
+		return editPath;
+	}
+
+	public void setEditPath(String editPath)
+	{
+		this.editPath = editPath;
+	}
+
 }

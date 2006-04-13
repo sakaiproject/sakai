@@ -28,47 +28,63 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A function that finds the max of table cells
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class MinFunction implements Function {
-  private static Log log = LogFactory.getLog(MinFunction.class);
+public class MinFunction implements Function
+{
+	private static Log log = LogFactory.getLog(MinFunction.class);
 
+	public String getName()
+	{
+		return "MIN";
+	}
 
-  public String getName() {
-    return "MIN";
-  }
-
-  public void execute(Table table, int posx, int posy, int startX, int startY, int endX, int endY) {
-    float min = Float.MAX_VALUE;
-    boolean floating = false;
-    for (int x = startX; x <= endX; x++) {
-      for (int y = startY; y <= endY; y++) {
-        //Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
-        float value = 0;
-        try {
-          value += Integer.parseInt((String) table.getXY(x, y));
-        } catch (Exception e) {
-          try {
-            value += Float.parseFloat((String) table.getXY(x, y));
-            floating = true;
-          } catch (NumberFormatException e1) {
-            log.debug("SumFunction: unable to parse " + table.getXY(x, y));
-          }
-        }
-        if (min > value) {
-          min = value;
-        }
-      }
-    }
-    //Logger.debug("Sum="+sum);
-    if (floating) {
-      table.setXY(posx, posy, "" + min);
-    } else {
-      table.setXY(posx, posy, "" + (int) min);
-    }
-  }
+	public void execute(Table table, int posx, int posy, int startX,
+			int startY, int endX, int endY)
+	{
+		float min = Float.MAX_VALUE;
+		boolean floating = false;
+		for (int x = startX; x <= endX; x++)
+		{
+			for (int y = startY; y <= endY; y++)
+			{
+				// Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
+				float value = 0;
+				try
+				{
+					value += Integer.parseInt((String) table.getXY(x, y));
+				}
+				catch (Exception e)
+				{
+					try
+					{
+						value += Float.parseFloat((String) table.getXY(x, y));
+						floating = true;
+					}
+					catch (NumberFormatException e1)
+					{
+						log.debug("SumFunction: unable to parse "
+								+ table.getXY(x, y));
+					}
+				}
+				if (min > value)
+				{
+					min = value;
+				}
+			}
+		}
+		// Logger.debug("Sum="+sum);
+		if (floating)
+		{
+			table.setXY(posx, posy, "" + min);
+		}
+		else
+		{
+			table.setXY(posx, posy, "" + (int) min);
+		}
+	}
 
 }

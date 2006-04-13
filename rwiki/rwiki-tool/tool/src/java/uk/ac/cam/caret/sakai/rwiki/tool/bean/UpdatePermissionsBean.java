@@ -24,100 +24,110 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
 
-//FIXME: Tool
+// FIXME: Tool
 
-public class UpdatePermissionsBean {
+public class UpdatePermissionsBean
+{
 
-    public static final String OWNER_READ_PARAM = "ownerRead";
+	public static final String OWNER_READ_PARAM = "ownerRead";
 
-    public static final String OWNER_WRITE_PARAM = "ownerWrite";
+	public static final String OWNER_WRITE_PARAM = "ownerWrite";
 
-    public static final String OWNER_ADMIN_PARAM = "ownerAdmin";
+	public static final String OWNER_ADMIN_PARAM = "ownerAdmin";
 
-    public static final String GROUP_READ_PARAM = "groupRead";
+	public static final String GROUP_READ_PARAM = "groupRead";
 
-    public static final String GROUP_WRITE_PARAM = "groupWrite";
+	public static final String GROUP_WRITE_PARAM = "groupWrite";
 
-    public static final String GROUP_ADMIN_PARAM = "groupAdmin";
+	public static final String GROUP_ADMIN_PARAM = "groupAdmin";
 
-    public static final String PUBLIC_READ_PARAM = "publicRead";
+	public static final String PUBLIC_READ_PARAM = "publicRead";
 
-    public static final String PUBLIC_WRITE_PARAM = "publicWrite";
+	public static final String PUBLIC_WRITE_PARAM = "publicWrite";
 
-    public static final String OVERWRITE_OWNER_READ_PARAM = "overwriteOwnerRead";
+	public static final String OVERWRITE_OWNER_READ_PARAM = "overwriteOwnerRead";
 
-    public static final String OVERWRITE_OWNER_WRITE_PARAM = "overwriteOwnerWrite";
+	public static final String OVERWRITE_OWNER_WRITE_PARAM = "overwriteOwnerWrite";
 
-    public static final String OVERWRITE_OWNER_ADMIN_PARAM = "overwriteOwnerAdmin";
+	public static final String OVERWRITE_OWNER_ADMIN_PARAM = "overwriteOwnerAdmin";
 
-    public static final String OVERWRITE_GROUP_READ_PARAM = "overwriteGroupRead";
+	public static final String OVERWRITE_GROUP_READ_PARAM = "overwriteGroupRead";
 
-    public static final String OVERWRITE_GROUP_WRITE_PARAM = "overwriteGroupWrite";
+	public static final String OVERWRITE_GROUP_WRITE_PARAM = "overwriteGroupWrite";
 
-    public static final String OVERWRITE_GROUP_ADMIN_PARAM = "overwriteGroupAdmin";
+	public static final String OVERWRITE_GROUP_ADMIN_PARAM = "overwriteGroupAdmin";
 
-    public static final String OVERWRITE_PUBLIC_READ_PARAM = "overwritePublicRead";
+	public static final String OVERWRITE_PUBLIC_READ_PARAM = "overwritePublicRead";
 
-    public static final String OVERWRITE_PUBLIC_WRITE_PARAM = "overwritePublicWrite";
+	public static final String OVERWRITE_PUBLIC_WRITE_PARAM = "overwritePublicWrite";
 
-    public static final String NEW_OWNER_PARAM = "newOwner";
+	public static final String NEW_OWNER_PARAM = "newOwner";
 
-    public static final String NEW_REALM_PARAM = "newRealm";
+	public static final String NEW_REALM_PARAM = "newRealm";
 
-    public static final String UPDATE_PERMISSIONS_PARAM = "updatePermissions";
+	public static final String UPDATE_PERMISSIONS_PARAM = "updatePermissions";
 
-    public static final String UPDATE_VALUE = "update";
+	public static final String UPDATE_VALUE = "update";
 
-    public static final String OVERWRITE_VALUE = "overwrite";
+	public static final String OVERWRITE_VALUE = "overwrite";
 
-    private String owner, realm, updatePermissionsMethod;
+	private String owner, realm, updatePermissionsMethod;
 
-    private RWikiPermissions permissions, overwritePermissions;
-    
-    public UpdatePermissionsBean() {
-        // EMPTY
-    }
-    
-    public RWikiPermissions getOverwritePermissions() {
-        return overwritePermissions;
-    }
+	private RWikiPermissions permissions, overwritePermissions;
 
-    public void setOverwritePermissions(
-            RWikiPermissions overwritePermissions) {
-        this.overwritePermissions = overwritePermissions;
-    }
+	public UpdatePermissionsBean()
+	{
+		// EMPTY
+	}
 
-    public RWikiPermissions getPermissions() {
-        return permissions;
-    }
+	public RWikiPermissions getOverwritePermissions()
+	{
+		return overwritePermissions;
+	}
 
-    public void setPermissions(RWikiPermissions permissions) {
-        this.permissions = permissions;
-    }
+	public void setOverwritePermissions(RWikiPermissions overwritePermissions)
+	{
+		this.overwritePermissions = overwritePermissions;
+	}
 
-    public String getOwner() {
-        return owner;
-    }
+	public RWikiPermissions getPermissions()
+	{
+		return permissions;
+	}
 
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
+	public void setPermissions(RWikiPermissions permissions)
+	{
+		this.permissions = permissions;
+	}
 
+	public String getOwner()
+	{
+		return owner;
+	}
 
-    public String getRealm() {
-        return realm;
-    }
+	public void setOwner(String owner)
+	{
+		this.owner = owner;
+	}
 
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
+	public String getRealm()
+	{
+		return realm;
+	}
 
-    public String getUpdatePermissionsMethod() {
-        return updatePermissionsMethod;
-    }
+	public void setRealm(String realm)
+	{
+		this.realm = realm;
+	}
 
-    public void setUpdatePermissionsMethod(String updatePermissionsMethod) {
-        this.updatePermissionsMethod = updatePermissionsMethod;
-    }
+	public String getUpdatePermissionsMethod()
+	{
+		return updatePermissionsMethod;
+	}
+
+	public void setUpdatePermissionsMethod(String updatePermissionsMethod)
+	{
+		this.updatePermissionsMethod = updatePermissionsMethod;
+	}
 
 }

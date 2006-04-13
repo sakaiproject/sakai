@@ -24,18 +24,20 @@
 package org.radeox.filter;
 
 /*
- * HtmlRemoveFilter removes HTML tags, e.g. foo <bar>foo</bar> will
- * become "foo foo"
- *
- * @author Stephan J. Schmidt
- * @version $Id$
+ * HtmlRemoveFilter removes HTML tags, e.g. foo <bar>foo</bar> will become "foo
+ * foo" @author Stephan J. Schmidt
+ * 
+ * @version $Id: HtmlRemoveFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
 import org.radeox.filter.regex.RegexReplaceFilter;
 
-public class HtmlRemoveFilter extends RegexReplaceFilter implements CacheFilter {
+public class HtmlRemoveFilter extends RegexReplaceFilter implements CacheFilter
+{
 
-  public HtmlRemoveFilter() {
-    super("<[^>\"]*(\"[^\"]*\"[^>\"]*)*>", "");
-  };
+	public HtmlRemoveFilter()
+	{
+		super("<[^>\"]*(\"[^\"]*\"[^>\"]*)*>", "");
+	};
 }

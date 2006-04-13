@@ -28,7 +28,7 @@ import java.io.Writer;
 
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
-import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.site.api.Site;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
@@ -37,9 +37,9 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  * Provides access to worksite information
  * 
  * @author ieb
- * 
  */
-public class WorksiteInfoMacro extends BaseMacro {
+public class WorksiteInfoMacro extends BaseMacro
+{
 	private static final String DESCRIPTION = "description";
 
 	private static final String SHORTDESCRIPTION = "shortdescription";
@@ -55,7 +55,8 @@ public class WorksiteInfoMacro extends BaseMacro {
 
 	private static String description = "Generates worksite information";
 
-	public String[] getParamDescription() {
+	public String[] getParamDescription()
+	{
 		return paramDescription;
 	}
 
@@ -64,36 +65,48 @@ public class WorksiteInfoMacro extends BaseMacro {
 	 * 
 	 * @see org.radeox.macro.Macro#getDescription()
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return "worksiteinfo";
 	}
 
-
 	public void execute(Writer writer, MacroParameter params)
-			throws IllegalArgumentException, IOException {
+			throws IllegalArgumentException, IOException
+	{
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
 		SpecializedRenderEngine spRe = (SpecializedRenderEngine) context
 				.getRenderEngine();
-		
+
 		String infotype = params.get("info", 0);
 		Site s = context.getSite();
-		if ( s != null ) {
-			if (DESCRIPTION.equals(infotype)) {
+		if (s != null)
+		{
+			if (DESCRIPTION.equals(infotype))
+			{
 				writer.write(s.getDescription());
-			} else if (SHORTDESCRIPTION.equals(infotype)) {
+			}
+			else if (SHORTDESCRIPTION.equals(infotype))
+			{
 				writer.write(s.getShortDescription());
-			} else if (WIKISPACE.equals(infotype)) {
+			}
+			else if (WIKISPACE.equals(infotype))
+			{
 				writer.write(spRe.getSpace());
-			} else {
+			}
+			else
+			{
 				writer.write(s.getTitle());
 			}
-		} else {
+		}
+		else
+		{
 			writer.write("No Site Found for page");
 		}
 	}

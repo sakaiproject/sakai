@@ -26,9 +26,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
@@ -38,20 +38,20 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.VersionException;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RWikiObjectService extends EntityProducer {
+public interface RWikiObjectService extends EntityProducer
+{
 
-	
 	/** This string can be used to find the service in the service manager. */
 	static final String SERVICE_NAME = RWikiObjectService.class.getName();
 
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "wiki";
-	
+
 	/** This string starts the references to resources in this service. */
-	static final String REFERENCE_LABEL =  "wiki";
-	
+	static final String REFERENCE_LABEL = "wiki";
+
 	/** Name of the event when creating a resource. */
 	public static final String EVENT_RESOURCE_ADD = "wiki.new";
 
@@ -66,7 +66,6 @@ public interface RWikiObjectService extends EntityProducer {
 
 	public static final String SMALL_CHANGE_IN_THREAD = "wiki.smallchange.request";
 
-	
 	/**
 	 * Gets the current object
 	 * 
@@ -77,23 +76,26 @@ public interface RWikiObjectService extends EntityProducer {
 	 */
 	RWikiCurrentObject getRWikiObject(String name, String realm)
 			throws PermissionException;
-    /**
-     * Gets the current object using a named template if it does not exist
-     * 
-     * @param name
-     * @param realm the page space the page is in, used to localise and globalise the name
-     * @param templateName
-     * @return
-     * @throws PermissionException
-     */
-    RWikiCurrentObject getRWikiObject(String name, String realm, RWikiObject ignore,  String templateName)
-            throws PermissionException;
+
+	/**
+	 * Gets the current object using a named template if it does not exist
+	 * 
+	 * @param name
+	 * @param realm
+	 *        the page space the page is in, used to localise and globalise the
+	 *        name
+	 * @param templateName
+	 * @return
+	 * @throws PermissionException
+	 */
+	RWikiCurrentObject getRWikiObject(String name, String realm,
+			RWikiObject ignore, String templateName) throws PermissionException;
 
 	/**
 	 * Gets the object based on the ID. This
 	 * 
 	 * @param reference
-	 *            the reference object
+	 *        the reference object
 	 * @return
 	 */
 	RWikiCurrentObject getRWikiObject(RWikiObject reference);
@@ -106,10 +108,8 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @return
 	 * @throws PermissionException
 	 */
-	List search(String criteria, String realm)
-			throws PermissionException;
+	List search(String criteria, String realm) throws PermissionException;
 
-	
 	/**
 	 * Update the named page, with permissions
 	 * 
@@ -121,9 +121,9 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @throws PermissionException
 	 * @throws VersionException
 	 */
-	void update(String name, String realm, Date version,
-			String content, RWikiPermissions permissions)
-			throws PermissionException, VersionException;
+	void update(String name, String realm, Date version, String content,
+			RWikiPermissions permissions) throws PermissionException,
+			VersionException;
 
 	/**
 	 * Update the name page, no permissions
@@ -135,10 +135,9 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @throws PermissionException
 	 * @throws VersionException
 	 */
-	void update(String name, String realm, Date version,
-			String content) throws PermissionException, VersionException;
+	void update(String name, String realm, Date version, String content)
+			throws PermissionException, VersionException;
 
-    
 	/**
 	 * Update the name page's permissions
 	 * 
@@ -156,12 +155,15 @@ public interface RWikiObjectService extends EntityProducer {
 	/**
 	 * Does the page exist
 	 * 
-	 * @param name A possibly non-globalised page name
-	 * @param space Default space to globalise to
+	 * @param name
+	 *        A possibly non-globalised page name
+	 * @param space
+	 *        Default space to globalise to
 	 * @return
 	 */
 	boolean exists(String name, String space);
-    // SAK-2519
+
+	// SAK-2519
 	/**
 	 * A list of pages that have changed since (current versions)
 	 * 
@@ -169,7 +171,7 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @param realm
 	 * @return a list containing RWikiCurrentObjects
 	 */
-	List findChangedSince(Date since,  String realm);
+	List findChangedSince(Date since, String realm);
 
 	/**
 	 * Finds pages that reference the given page name
@@ -187,15 +189,14 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @param version
 	 * @param revision
 	 */
-	void revert(String name,  String realm, Date version,
-			int revision);
+	void revert(String name, String realm, Date version, int revision);
 
 	/**
 	 * Get a previous version
 	 * 
 	 * @param referenceObject
-	 *            the Rwiki object whore rwikiobjectid field will be used to
-	 *            locate the revision
+	 *        the Rwiki object whore rwikiobjectid field will be used to locate
+	 *        the revision
 	 * @param revision
 	 * @return
 	 */
@@ -209,77 +210,99 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @return
 	 */
 	List findRWikiHistoryObjects(RWikiObject reference);
+
 	/**
 	 * Finds the history objects sorted in reverse order
+	 * 
 	 * @param rwo
 	 * @return
 	 */
 	List findRWikiHistoryObjectsInReverse(RWikiObject rwo);
-    
-    /**
-     * get list of subpages of the supplied page. The list will be alphabetiallcy sorted
-     * @param globalParentPageName is the page on which we want to find sub pages. THIS IS A GLOBAL NAME. DONT CONFUSE WITH A LOCAL NAME
-     * @return a list of pages sorted by name alphabetically.
-     */
-    List findRWikiSubPages(String globalParentPageName);
-    
-    /**
-     * Updates and creates a new comment on the page
-     * 
-     * @param name
-     * @param realm
-     * @param version
-     * @param content
-     * @throws PermissionException
-     * @throws VersionException
-     */
-    void updateNewComment(String name, String realm, Date version,
-            String content) throws PermissionException, VersionException;
+
+	/**
+	 * get list of subpages of the supplied page. The list will be
+	 * alphabetiallcy sorted
+	 * 
+	 * @param globalParentPageName
+	 *        is the page on which we want to find sub pages. THIS IS A GLOBAL
+	 *        NAME. DONT CONFUSE WITH A LOCAL NAME
+	 * @return a list of pages sorted by name alphabetically.
+	 */
+	List findRWikiSubPages(String globalParentPageName);
+
+	/**
+	 * Updates and creates a new comment on the page
+	 * 
+	 * @param name
+	 * @param realm
+	 * @param version
+	 * @param content
+	 * @throws PermissionException
+	 * @throws VersionException
+	 */
+	void updateNewComment(String name, String realm, Date version,
+			String content) throws PermissionException, VersionException;
+
 	/**
 	 * Create a list proxy based on the List and Object Proxy
+	 * 
 	 * @param commentsList
 	 * @param lop
 	 * @return
 	 */
 	List createListProxy(List commentsList, ObjectProxy lop);
+
 	/**
 	 * Creates a new rwiki Current Object according to the implementation
+	 * 
 	 * @return
 	 */
 	RWikiObject createNewRWikiCurrentObject();
+
 	/**
 	 * Creates a new RWiki Permissions Bean
+	 * 
 	 * @return
 	 */
 	RWikiPermissions createNewRWikiPermissionsImpl();
 
 	/**
 	 * fetches the entity based on the RWikiObject
+	 * 
 	 * @param rwo
 	 * @return
 	 */
 	Entity getEntity(RWikiObject rwo);
-	
+
 	/**
-	 * Fetches the Reference Object from the Entity manager based on the RWikiObject
+	 * Fetches the Reference Object from the Entity manager based on the
+	 * RWikiObject
+	 * 
 	 * @param rwo
 	 * @return
 	 */
-	Reference getReference(RWikiObject rwo );
+	Reference getReference(RWikiObject rwo);
+
 	/**
-	 * A Map containing EntityHandlers for the Service, Each entity handler handles a subtype
+	 * A Map containing EntityHandlers for the Service, Each entity handler
+	 * handles a subtype
+	 * 
 	 * @return
 	 */
 	Map getHandlers();
+
 	/**
 	 * Find all the changes under this point and under since the time specified
-	 * @param time the time after which to consider changes
-	 * @param basepath the base path
+	 * 
+	 * @param time
+	 *        the time after which to consider changes
+	 * @param basepath
+	 *        the base path
 	 * @return a list of RWikiCurrentObjects
 	 */
-	List findAllChangedSince(Date time,  String basepath);
+	List findAllChangedSince(Date time, String basepath);
 
-	 /**
+	/**
 	 * Check for read permission
 	 * 
 	 * @param rwo
@@ -302,23 +325,28 @@ public interface RWikiObjectService extends EntityProducer {
 	 * @return
 	 */
 	boolean checkAdmin(RWikiObject rwo);
-	
+
 	/**
 	 * Find all pages in the database just reture
+	 * 
 	 * @return
 	 */
 	List findAllPageNames();
+
 	/**
 	 * generates a valid entity reference from the page name
+	 * 
 	 * @param pageName
 	 * @return
 	 */
 	String createReference(String pageName);
+
 	/**
 	 * gets a component page link renderer
+	 * 
 	 * @param pageSpace
 	 * @return
 	 */
 	PageLinkRenderer getComponentPageLinkRender(String pageSpace);
-    
+
 }

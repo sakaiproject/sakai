@@ -58,16 +58,16 @@
 package org.apache.commons.jrcs.diff;
 
 /**
- * Definition of a Visitor interface for {@link Revision Revisions}
- * See "Design Patterns" by the Gang of Four
+ * Definition of a Visitor interface for {@link Revision Revisions} See "Design
+ * Patterns" by the Gang of Four
  */
 public interface RevisionVisitor
 {
-    public void visit(Revision revision);
+	public void visit(Revision revision);
 
-    public void visit(DeleteDelta delta);
+	public void visit(DeleteDelta delta);
 
-    public void visit(ChangeDelta delta);
+	public void visit(ChangeDelta delta);
 
-    public void visit(AddDelta delta);
+	public void visit(AddDelta delta);
 }

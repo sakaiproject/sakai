@@ -27,36 +27,39 @@ package org.radeox.filter;
 import org.radeox.api.engine.context.InitialRenderContext;
 
 /*
- * Abstract Filter Class that supplies the
- * Filter interface. Concrete Filters should
- * inherit from Filter. Filters transform a
- * String (usually snip content) to another String
- * (usually HTML).
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Abstract Filter Class that supplies the Filter interface. Concrete Filters
+ * should inherit from Filter. Filters transform a String (usually snip content)
+ * to another String (usually HTML). @author stephan @team sonicteam
+ * 
+ * @version $Id: FilterSupport.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public abstract class FilterSupport implements Filter {
-  protected InitialRenderContext initialContext;
+public abstract class FilterSupport implements Filter
+{
+	protected InitialRenderContext initialContext;
 
-  public FilterSupport() {
-  }
+	public FilterSupport()
+	{
+	}
 
-  public String[] replaces() {
-    return FilterPipe.NO_REPLACES;
-  }
+	public String[] replaces()
+	{
+		return FilterPipe.NO_REPLACES;
+	}
 
-  public String[] before() {
-    return FilterPipe.EMPTY_BEFORE;
-  }
+	public String[] before()
+	{
+		return FilterPipe.EMPTY_BEFORE;
+	}
 
-  public void setInitialContext(InitialRenderContext context) {
-     this.initialContext = context;
-  }
+	public void setInitialContext(InitialRenderContext context)
+	{
+		this.initialContext = context;
+	}
 
-  public String getDescription() {
-    return "";
-  }
+	public String getDescription()
+	{
+		return "";
+	}
 }

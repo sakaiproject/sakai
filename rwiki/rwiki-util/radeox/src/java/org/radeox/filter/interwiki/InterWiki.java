@@ -23,102 +23,124 @@
 
 package org.radeox.filter.interwiki;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.radeox.util.Encoder;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.radeox.util.Encoder;
+
 /**
- * Stores information and links to other wikis forming a
- * InterWiki
- *
+ * Stores information and links to other wikis forming a InterWiki
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public class InterWiki {
-  private static Log log = LogFactory.getLog(InterWiki.class);
+public class InterWiki
+{
+	private static Log log = LogFactory.getLog(InterWiki.class);
 
-  private static InterWiki instance;
-  private Map interWiki;
+	private static InterWiki instance;
 
-  public static synchronized InterWiki getInstance() {
-    if (null == instance) {
-      instance = new InterWiki();
-    }
-    return instance;
-  }
+	private Map interWiki;
 
-  public InterWiki() {
-    interWiki = new HashMap();
-    interWiki.put("LCOM", "http://www.langreiter.com/space/");
-    interWiki.put("ESA", "http://earl.strain.at/space/");
-    interWiki.put("C2", "http://www.c2.com/cgi/wiki?");
-    interWiki.put("WeblogKitchen", "http://www.weblogkitchen.com/wiki.cgi?");
-    interWiki.put("Meatball", "http://www.usemod.com/cgi-bin/mb.pl?");
-    interWiki.put("SnipSnap", "http://snipsnap.org/space/");
+	public static synchronized InterWiki getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new InterWiki();
+		}
+		return instance;
+	}
 
-    try {
-      BufferedReader br = new BufferedReader(
-          new InputStreamReader(
-              new FileInputStream("conf/intermap.txt")));
-      addInterMap(br);
-    } catch (IOException e) {
-      log.warn("Unable to read conf/intermap.txt");
-    }
-  }
+	public InterWiki()
+	{
+		interWiki = new HashMap();
+		interWiki.put("LCOM", "http://www.langreiter.com/space/");
+		interWiki.put("ESA", "http://earl.strain.at/space/");
+		interWiki.put("C2", "http://www.c2.com/cgi/wiki?");
+		interWiki
+				.put("WeblogKitchen", "http://www.weblogkitchen.com/wiki.cgi?");
+		interWiki.put("Meatball", "http://www.usemod.com/cgi-bin/mb.pl?");
+		interWiki.put("SnipSnap", "http://snipsnap.org/space/");
 
-  public void addInterMap(BufferedReader reader) throws IOException {
-    String line;
-    while ((line = reader.readLine()) != null) {
-      int index = line.indexOf(" ");
-      interWiki.put(line.substring(0, index), Encoder.escape(line.substring(index + 1)));
-    }
-    ;
-  }
+		try
+		{
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream("conf/intermap.txt")));
+			addInterMap(br);
+		}
+		catch (IOException e)
+		{
+			log.warn("Unable to read conf/intermap.txt");
+		}
+	}
 
-  public Writer appendTo(Writer writer) throws IOException {
-    Iterator iterator = interWiki.entrySet().iterator();
-    writer.write("{table}\n");
-    writer.write("Wiki|Url\n");
-    while (iterator.hasNext()) {
-      Map.Entry entry = (Map.Entry) iterator.next();
-      writer.write((String) entry.getKey());
-      writer.write("|");
-      writer.write((String) entry.getValue());
-      writer.write("\n");
-    }
-    writer.write("{table}");
-    return writer;
-  }
+	public void addInterMap(BufferedReader reader) throws IOException
+	{
+		String line;
+		while ((line = reader.readLine()) != null)
+		{
+			int index = line.indexOf(" ");
+			interWiki.put(line.substring(0, index), Encoder.escape(line
+					.substring(index + 1)));
+		};
+	}
 
-  public boolean contains(String external) {
-    return interWiki.containsKey(external);
-  }
+	public Writer appendTo(Writer writer) throws IOException
+	{
+		Iterator iterator = interWiki.entrySet().iterator();
+		writer.write("{table}\n");
+		writer.write("Wiki|Url\n");
+		while (iterator.hasNext())
+		{
+			Map.Entry entry = (Map.Entry) iterator.next();
+			writer.write((String) entry.getKey());
+			writer.write("|");
+			writer.write((String) entry.getValue());
+			writer.write("\n");
+		}
+		writer.write("{table}");
+		return writer;
+	}
 
-  public String getWikiUrl(String wiki, String name) {
-    return ((String) interWiki.get(wiki)) + name;
-  }
+	public boolean contains(String external)
+	{
+		return interWiki.containsKey(external);
+	}
 
-  public Writer expand(Writer writer, String wiki, String name, String view, String anchor) throws IOException  {
-    writer.write("<a href=\"");
-    writer.write((String) interWiki.get(wiki));
-    writer.write(name);
-    if (!"".equals(anchor)) {
-       writer.write("#");
-       writer.write(anchor);
-    }
-    writer.write("\">");
-    writer.write(view);
-    writer.write("</a>");
-    return writer;
-  }
+	public String getWikiUrl(String wiki, String name)
+	{
+		return ((String) interWiki.get(wiki)) + name;
+	}
 
-  public Writer expand(Writer writer, String wiki, String name, String view) throws IOException {
-     return expand(writer, wiki, name, view, "");
-  }
+	public Writer expand(Writer writer, String wiki, String name, String view,
+			String anchor) throws IOException
+	{
+		writer.write("<a href=\"");
+		writer.write((String) interWiki.get(wiki));
+		writer.write(name);
+		if (!"".equals(anchor))
+		{
+			writer.write("#");
+			writer.write(anchor);
+		}
+		writer.write("\">");
+		writer.write(view);
+		writer.write("</a>");
+		return writer;
+	}
+
+	public Writer expand(Writer writer, String wiki, String name, String view)
+			throws IOException
+	{
+		return expand(writer, wiki, name, view, "");
+	}
 }

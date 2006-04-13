@@ -27,18 +27,21 @@ import org.radeox.api.engine.context.RenderContext;
 import org.radeox.macro.parameter.MacroParameter;
 
 /**
- * FilterContext stores basic data for the context
- * filters are called in. FilterContext is used to allow
- * filters be called in different enviroments, inside
- * SnipSnap or outside. Special enviroments should
- * implement FilterContext
- *
+ * FilterContext stores basic data for the context filters are called in.
+ * FilterContext is used to allow filters be called in different enviroments,
+ * inside SnipSnap or outside. Special enviroments should implement
+ * FilterContext
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: FilterContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface FilterContext {
-  public MacroParameter getMacroParameter();
-  public void setRenderContext(RenderContext context);
-  public RenderContext getRenderContext();
+public interface FilterContext
+{
+	public MacroParameter getMacroParameter();
+
+	public void setRenderContext(RenderContext context);
+
+	public RenderContext getRenderContext();
 }

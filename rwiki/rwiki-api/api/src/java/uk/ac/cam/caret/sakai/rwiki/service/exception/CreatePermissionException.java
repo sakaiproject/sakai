@@ -22,20 +22,23 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.service.exception;
 
-//FIXME: Service
+// FIXME: Service
 
-public class CreatePermissionException extends PermissionException {
+public class CreatePermissionException extends PermissionException
+{
 
-    /**
-     * @see java.io.ObjectInputStream.resolveClass()
-     */
-    private static final long serialVersionUID = 8800005454550911402L;
+	/**
+	 * @see java.io.ObjectInputStream.resolveClass()
+	 */
+	private static final long serialVersionUID = 8800005454550911402L;
 
-    public CreatePermissionException(String message) {
-        super(message);
-    }
+	public CreatePermissionException(String message)
+	{
+		super(message);
+	}
 
-    public CreatePermissionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public CreatePermissionException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
 }

@@ -28,23 +28,28 @@ import java.io.Writer;
 
 /**
  * Base class for API converters, stores a base URL
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: BaseApiConverter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public abstract class BaseApiConverter implements ApiConverter {
-  protected String baseUrl;
+public abstract class BaseApiConverter implements ApiConverter
+{
+	protected String baseUrl;
 
-  public abstract void appendUrl(Writer writer, String className) throws IOException ;
+	public abstract void appendUrl(Writer writer, String className)
+			throws IOException;
 
-  public void setBaseUrl(String baseUrl) {
-    this.baseUrl = baseUrl;
-  }
+	public void setBaseUrl(String baseUrl)
+	{
+		this.baseUrl = baseUrl;
+	}
 
-  public String getBaseUrl() {
-    return this.baseUrl;
-  }
+	public String getBaseUrl()
+	{
+		return this.baseUrl;
+	}
 
-  public abstract String getName();
+	public abstract String getName();
 }

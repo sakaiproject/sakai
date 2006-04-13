@@ -23,65 +23,73 @@
 
 package org.radeox.test.filter;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.radeox.filter.ParagraphFilter;
 import org.radeox.filter.XHTMLFilter;
 
 /**
  * @author ieb
- * 
  */
-public class XHTMLFilterTest extends FilterTestSupport {
+public class XHTMLFilterTest extends FilterTestSupport
+{
 
-	public XHTMLFilterTest(String s) {
+	public XHTMLFilterTest(String s)
+	{
 		super(s);
 		// TODO Auto-generated constructor stub
 	}
 
-	protected void setUp() throws Exception {
+	protected void setUp() throws Exception
+	{
 		filter = new XHTMLFilter();
 		super.setUp();
 	}
 
-	public static Test suite() {
+	public static Test suite()
+	{
 		return new TestSuite(XHTMLFilterTest.class);
 	}
 
-	public void testXHTMLFilter() {
+	public void testXHTMLFilter()
+	{
 
-		for (int i = 0;; i++) {
+		for (int i = 0;; i++)
+		{
 			String teststring = getTestPattern("/testpatterns/xhtmltest" + i
 					+ "_in.xml");
-			if (teststring == null)
-				break;
+			if (teststring == null) break;
 			String resultstring = getTestPattern("/testpatterns/xhtmltest" + i
 					+ "_out.xml");
 			String result = filter.filter(teststring, context);
 			System.err.println(":" + result + ":");
-			if (resultstring != null) {
+			if (resultstring != null)
+			{
 				assertEquals(resultstring, result);
 			}
 		}
 	}
 
-	private String getTestPattern(String path) {
-		try {
+	private String getTestPattern(String path)
+	{
+		try
+		{
 			BufferedReader bis = new BufferedReader(new InputStreamReader(
 					getClass().getResourceAsStream(path)));
 			StringBuffer sb = new StringBuffer();
 			String line = bis.readLine();
-			while (line != null) {
+			while (line != null)
+			{
 				sb.append(line).append("\n");
 				line = bis.readLine();
 			}
 			return sb.toString();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 
 		}
 		return null;

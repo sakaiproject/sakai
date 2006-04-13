@@ -42,9 +42,11 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
  * @version $Revision$
  */
 // FIXME: Component
-public abstract class RWikiObjectImpl implements RWikiObject {
+public abstract class RWikiObjectImpl implements RWikiObject
+{
 
-	public RWikiObjectImpl() {
+	public RWikiObjectImpl()
+	{
 		// EMPTY
 	}
 
@@ -106,7 +108,7 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 */
 	/**
 	 * @param history
-	 *            The history to set.
+	 *        The history to set.
 	 */
 	/*
 	 * iebdelete public void setXHistory(List history) { this.m_history =
@@ -115,7 +117,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getId() {
+	public String getId()
+	{
 		return m_id;
 	}
 
@@ -123,16 +126,18 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * Set the id - should be used only by the storage layer, not by end users!
 	 * 
 	 * @param id
-	 *            The object id.
+	 *        The object id.
 	 */
-	public void setId(String id) {
+	public void setId(String id)
+	{
 		m_id = id;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public Date getVersion() {
+	public Date getVersion()
+	{
 		return m_version;
 	}
 
@@ -141,42 +146,45 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * users!
 	 * 
 	 * @param version
-	 *            The object version.
+	 *        The object version.
 	 */
-	public void setVersion(Date version) {
+	public void setVersion(Date version)
+	{
 		m_version = version;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return m_name;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		m_name = name;
-		if (m_name == null)
-			m_name = "";
+		if (m_name == null) m_name = "";
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getRealm() {
+	public String getRealm()
+	{
 		return m_realm;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void setRealm(String realm) {
+	public void setRealm(String realm)
+	{
 		m_realm = realm;
-		if (m_realm == null)
-			m_realm = "";
+		if (m_realm == null) m_realm = "";
 	}
 
 	/**
@@ -198,26 +206,28 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int compareTo(Object o) {
-		if (!(o instanceof RWikiObject))
-			throw new ClassCastException();
+	public int compareTo(Object o)
+	{
+		if (!(o instanceof RWikiObject)) throw new ClassCastException();
 
 		// if the object are the same, say so
-		if (o == this)
-			return 0;
+		if (o == this) return 0;
 
 		// start the compare by comparing their names
 		int compare = getName().compareTo(((RWikiObject) o).getName());
 
 		// if these are the same
-		if (compare == 0) {
+		if (compare == 0)
+		{
 			// compare rank
 			compare = getRealm().compareTo(((RWikiObject) o).getRealm());
 
-			if (compare == 0) {
+			if (compare == 0)
+			{
 				compare = (getRevision().compareTo(((RWikiObject) o)
 						.getRevision()));
-				if (compare == 0) {
+				if (compare == 0)
+				{
 					// compare serial number
 					compare = getContent().compareTo(
 							((RWikiObject) o).getContent());
@@ -232,9 +242,9 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean equals(Object obj) {
-		if (!(obj instanceof RWikiObject))
-			return false;
+	public boolean equals(Object obj)
+	{
+		if (!(obj instanceof RWikiObject)) return false;
 
 		return ((RWikiObject) obj).getId().equals(getId());
 	}
@@ -242,7 +252,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	/**
 	 * {@inheritDoc}
 	 */
-	public int hashCode() {
+	public int hashCode()
+	{
 		return getId().hashCode();
 	}
 
@@ -251,7 +262,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getReferenced()
 	 */
-	public String getReferenced() {
+	public String getReferenced()
+	{
 		return m_referenced;
 	}
 
@@ -260,11 +272,11 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setReferenced()
 	 */
-	public void setReferenced(String referenced) {
+	public void setReferenced(String referenced)
+	{
 		m_referenced = referenced;
 		// SAK-2470
-		if (m_referenced == null)
-			m_referenced = "";
+		if (m_referenced == null) m_referenced = "";
 	}
 
 	/*
@@ -272,7 +284,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getUser()
 	 */
-	public String getUser() {
+	public String getUser()
+	{
 		return m_user;
 	}
 
@@ -281,7 +294,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getUser()
 	 */
-	public String getOwner() {
+	public String getOwner()
+	{
 		return m_owner;
 	}
 
@@ -290,7 +304,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getGroupadmin()
 	 */
-	public boolean getGroupAdmin() {
+	public boolean getGroupAdmin()
+	{
 		return m_groupadmin;
 	}
 
@@ -299,7 +314,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getGroupread()
 	 */
-	public boolean getGroupRead() {
+	public boolean getGroupRead()
+	{
 		return m_groupread;
 	}
 
@@ -308,7 +324,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getGroupwrite()
 	 */
-	public boolean getGroupWrite() {
+	public boolean getGroupWrite()
+	{
 		return m_groupwrite;
 	}
 
@@ -317,7 +334,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getPublicread()
 	 */
-	public boolean getPublicRead() {
+	public boolean getPublicRead()
+	{
 		return m_publicread;
 	}
 
@@ -326,7 +344,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getPublicwrite()
 	 */
-	public boolean getPublicWrite() {
+	public boolean getPublicWrite()
+	{
 		return m_publicwrite;
 	}
 
@@ -335,7 +354,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getUseradmin()
 	 */
-	public boolean getOwnerAdmin() {
+	public boolean getOwnerAdmin()
+	{
 		return m_owneradmin;
 	}
 
@@ -344,7 +364,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getUserread()
 	 */
-	public boolean getOwnerRead() {
+	public boolean getOwnerRead()
+	{
 		return m_ownerread;
 	}
 
@@ -353,7 +374,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#getUserwrite()
 	 */
-	public boolean getOwnerWrite() {
+	public boolean getOwnerWrite()
+	{
 		return m_ownerwrite;
 	}
 
@@ -362,7 +384,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setGroupadmin(boolean)
 	 */
-	public void setGroupAdmin(boolean groupadmin) {
+	public void setGroupAdmin(boolean groupadmin)
+	{
 		m_groupadmin = groupadmin;
 	}
 
@@ -371,7 +394,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setGroupread(boolean)
 	 */
-	public void setGroupRead(boolean groupread) {
+	public void setGroupRead(boolean groupread)
+	{
 		m_groupread = groupread;
 	}
 
@@ -380,7 +404,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setGroupwrite(boolean)
 	 */
-	public void setGroupWrite(boolean groupwrite) {
+	public void setGroupWrite(boolean groupwrite)
+	{
 		m_groupwrite = groupwrite;
 	}
 
@@ -389,7 +414,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setPublicread(boolean)
 	 */
-	public void setPublicRead(boolean publicread) {
+	public void setPublicRead(boolean publicread)
+	{
 		m_publicread = publicread;
 	}
 
@@ -398,7 +424,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setPublicwrite(boolean)
 	 */
-	public void setPublicWrite(boolean publicwrite) {
+	public void setPublicWrite(boolean publicwrite)
+	{
 		m_publicwrite = publicwrite;
 	}
 
@@ -407,7 +434,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setUser(java.lang.String)
 	 */
-	public void setUser(String user) {
+	public void setUser(String user)
+	{
 		m_user = user;
 	}
 
@@ -416,7 +444,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setUser(java.lang.String)
 	 */
-	public void setOwner(String owner) {
+	public void setOwner(String owner)
+	{
 		m_owner = owner;
 	}
 
@@ -425,7 +454,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setUseradmin(boolean)
 	 */
-	public void setOwnerAdmin(boolean useradmin) {
+	public void setOwnerAdmin(boolean useradmin)
+	{
 		m_owneradmin = useradmin;
 	}
 
@@ -434,7 +464,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setUserread(boolean)
 	 */
-	public void setOwnerRead(boolean userread) {
+	public void setOwnerRead(boolean userread)
+	{
 		m_ownerread = userread;
 	}
 
@@ -443,12 +474,14 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.RWikiObject#setUserwrite(boolean)
 	 */
-	public void setOwnerWrite(boolean userwrite) {
+	public void setOwnerWrite(boolean userwrite)
+	{
 		m_ownerwrite = userwrite;
 
 	}
 
-	public void copyAllTo(RWikiObject rwo) {
+	public void copyAllTo(RWikiObject rwo)
+	{
 		rwo.setName(this.getName());
 		rwo.setOwner(this.getOwner());
 		rwo.setRealm(this.getRealm());
@@ -469,7 +502,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 		rwo.setOwnerWrite(this.getOwnerWrite());
 	}
 
-	public void copyTo(RWikiObject rwo) {
+	public void copyTo(RWikiObject rwo)
+	{
 		rwo.setContent(this.getContent());
 		rwo.setGroupAdmin(this.getGroupAdmin());
 		rwo.setGroupRead(this.getGroupRead());
@@ -492,15 +526,18 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * 
 	 * @param source
 	 */
-	public void setSource(String source) {
+	public void setSource(String source)
+	{
 		m_source = source;
 	}
 
-	public String getSource() {
+	public String getSource()
+	{
 		return m_source;
 	}
 
-	public String toString() {
+	public String toString()
+	{
 		return this.getClass().toString() + " ID:" + this.getId() + " Name: "
 				+ this.getName();
 	}
@@ -515,22 +552,19 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * to History. RWikiHistoryObject newHistoryObject = new
 	 * RWikiHistoryObjectImpl(); newHistoryObject.setContent(this.getContent());
 	 * newHistoryObject.setVersion(this.getVersion());
-	 * newHistoryObject.setUser(this.getUser());
-	 * 
-	 * 
-	 * List list = this.getHistory(); if (list == null) { list = new
-	 * ArrayList(); this.setHistory(list); } list.add(newHistoryObject); //
-	 * finally set the new content this.setContent(content); return true; }
+	 * newHistoryObject.setUser(this.getUser()); List list = this.getHistory();
+	 * if (list == null) { list = new ArrayList(); this.setHistory(list); }
+	 * list.add(newHistoryObject); // finally set the new content
+	 * this.setContent(content); return true; }
 	 */
 
 	/*
 	 * public RWikiHistoryObject getRevision(int revision) { int
-	 * numberOfRevisions = this.getNumberOfRevisions();
-	 * 
-	 * if (revision >= 0 && revision < numberOfRevisions) { // This needs to be
-	 * a finder return ((RWikiHistoryObject) this.getHistory().get(revision)); }
-	 * else if (revision == numberOfRevisions) { RWikiHistoryObjectImpl mock =
-	 * new RWikiHistoryObjectImpl(); mock.setContent(this.getContent());
+	 * numberOfRevisions = this.getNumberOfRevisions(); if (revision >= 0 &&
+	 * revision < numberOfRevisions) { // This needs to be a finder return
+	 * ((RWikiHistoryObject) this.getHistory().get(revision)); } else if
+	 * (revision == numberOfRevisions) { RWikiHistoryObjectImpl mock = new
+	 * RWikiHistoryObjectImpl(); mock.setContent(this.getContent());
 	 * mock.setRevision(numberOfRevisions); mock.setUser(this.getUser());
 	 * mock.setVersion(this.getVersion()); return mock; } else { throw new
 	 * IllegalArgumentException( "Invalid version number: " + revision); } }
@@ -540,8 +574,10 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 	 * (this.getHistory() != null) return this.getHistory().size(); return 0; }
 	 */
 
-	public void setPermissions(boolean[] permissions) {
-		if (permissions.length != 8) {
+	public void setPermissions(boolean[] permissions)
+	{
+		if (permissions.length != 8)
+		{
 			// yuck
 			throw new IllegalArgumentException(
 					"Must be given an array of length 8");
@@ -557,7 +593,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 
 	}
 
-	public void setPermissions(RWikiPermissions permissions) {
+	public void setPermissions(RWikiPermissions permissions)
+	{
 		setOwnerRead(permissions.isOwnerRead());
 		setOwnerWrite(permissions.isOwnerWrite());
 		setOwnerAdmin(permissions.isOwnerAdmin());
@@ -568,7 +605,8 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 		setPublicWrite(permissions.isPublicWrite());
 	}
 
-	public RWikiPermissions getPermissions() {
+	public RWikiPermissions getPermissions()
+	{
 		RWikiPermissions permissions = new RWikiPermissionsImpl();
 		permissions.setOwnerRead(getOwnerRead());
 		permissions.setOwnerWrite(getOwnerWrite());
@@ -581,39 +619,46 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 		return permissions;
 	}
 
-	public Integer getRevision() {
+	public Integer getRevision()
+	{
 		return m_revision;
 	}
 
-	public void setRevision(Integer revision) {
+	public void setRevision(Integer revision)
+	{
 		this.m_revision = revision;
 		// SAK-2470
-		if (m_revision == null)
-			m_revision = new Integer(0);
+		if (m_revision == null) m_revision = new Integer(0);
 	}
 
 	/*
 	 * Lazy loading of content.
 	 */
-	private RWikiObjectContentDao getRwikiObjectContentDao() {
+	private RWikiObjectContentDao getRwikiObjectContentDao()
+	{
 		return codao;
 	}
 
-	public void setRwikiObjectContentDao(RWikiObjectContentDao codao) {
+	public void setRwikiObjectContentDao(RWikiObjectContentDao codao)
+	{
 		this.codao = codao;
 	}
 
-	public RWikiObjectContent getRWikiObjectContent() {
+	public RWikiObjectContent getRWikiObjectContent()
+	{
 		lazyLoadContentObject();
 		return co;
 	}
 
-	public void setRWikiObjectContent(RWikiObjectContent co) {
+	public void setRWikiObjectContent(RWikiObjectContent co)
+	{
 		this.co = co;
 	}
 
-	private void lazyLoadContentObject() {
-		if (codao == null) {
+	private void lazyLoadContentObject()
+	{
+		if (codao == null)
+		{
 			// Exception ex = new RuntimeException("TRACE: Content Object DAO is
 			// null");
 			// System.err.println("Problem with loading Lazy Content, this is
@@ -621,9 +666,11 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 			// ex.printStackTrace();
 			return;
 		}
-		if (co == null) {
+		if (co == null)
+		{
 			co = codao.getContentObject(this);
-			if (co == null) {
+			if (co == null)
+			{
 				co = codao.createContentObject(this);
 			}
 			// this will cause the Sha1 to be recomputed if its is not present
@@ -631,43 +678,50 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 		}
 	}
 
-	
-	public void setContent(String content) {
+	public void setContent(String content)
+	{
 		lazyLoadContentObject();
-		if (content == null)
-			content = "";
-		if (co != null) { // could be null if triggered during a hibernate
+		if (content == null) content = "";
+		if (co != null)
+		{ // could be null if triggered during a hibernate
 			// template load
 			co.setContent(content);
-		// recompute the Sha1
-		} else {
+			// recompute the Sha1
+		}
+		else
+		{
 			// only for testing content
 			testContent = content;
 		}
 		sha1 = computeSha1(content);
 	}
 
-	public String getContent() {
+	public String getContent()
+	{
 		lazyLoadContentObject();
 
 		String content = null;
-		if (co != null) {
+		if (co != null)
+		{
 			content = co.getContent(); // could be null if triggerd during a
-		} else {
+		}
+		else
+		{
 			// only for testing
 			content = testContent;
 		}
 		// template load
-		if (content == null)
-			content = "";
+		if (content == null) content = "";
 		return content;
 	}
 
-	public void setSha1(String sha1) {
+	public void setSha1(String sha1)
+	{
 		this.sha1 = sha1;
 	}
 
-	public String getSha1() {
+	public String getSha1()
+	{
 		return sha1;
 	}
 
@@ -675,28 +729,35 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 
 	private static MessageDigest shatemplate = null;
 
-	public static String computeSha1(String content) {
+	public static String computeSha1(String content)
+	{
 		String digest = "";
-		try {
-			if (shatemplate == null) {
+		try
+		{
+			if (shatemplate == null)
+			{
 				shatemplate = MessageDigest.getInstance("SHA");
 			}
 
 			MessageDigest shadigest = (MessageDigest) shatemplate.clone();
 			byte[] bytedigest = shadigest.digest(content.getBytes("UTF8"));
 			digest = byteArrayToHexStr(bytedigest);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			System.err.println("Unable to create SHA hash of content");
 			ex.printStackTrace();
 		}
 		return digest;
 	}
 
-	private static String byteArrayToHexStr(byte[] data) {
+	private static String byteArrayToHexStr(byte[] data)
+	{
 		String output = "";
 		String tempStr = "";
 		int tempInt = 0;
-		for (int cnt = 0; cnt < data.length; cnt++) {
+		for (int cnt = 0; cnt < data.length; cnt++)
+		{
 			// Deposit a byte into the 8 lsb of an int.
 			tempInt = data[cnt] & 0xFF;
 			// Get hex representation of the int as a
@@ -705,8 +766,7 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 			// Append a leading 0 if necessary so that
 			// each hex string will contain two
 			// characters.
-			if (tempStr.length() == 1)
-				tempStr = "0" + tempStr;
+			if (tempStr.length() == 1) tempStr = "0" + tempStr;
 			// Concatenate the two characters to the
 			// output string.
 			output = output + tempStr;
@@ -716,7 +776,5 @@ public abstract class RWikiObjectImpl implements RWikiObject {
 }
 
 /*******************************************************************************
- * 
  * $Header$
- * 
  ******************************************************************************/

@@ -22,31 +22,37 @@
  */
 package org.radeox.test.filter;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.radeox.filter.ParamFilter;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParamFilterTest extends FilterTestSupport {
-  public ParamFilterTest(String name) {
-    super(name);
-  }
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-  protected void setUp() throws Exception {
-    filter = new ParamFilter();
-    super.setUp();
-  }
+import org.radeox.filter.ParamFilter;
 
-  public static Test suite() {
-    return new TestSuite(ParamFilterTest.class);
-  }
+public class ParamFilterTest extends FilterTestSupport
+{
+	public ParamFilterTest(String name)
+	{
+		super(name);
+	}
 
-  public void testParam() {
-    Map params = new HashMap();
-    params.put("var1","test");
-    context.getRenderContext().setParameters(params);
-    assertEquals("test", filter.filter("{$var1}", context));
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new ParamFilter();
+		super.setUp();
+	}
+
+	public static Test suite()
+	{
+		return new TestSuite(ParamFilterTest.class);
+	}
+
+	public void testParam()
+	{
+		Map params = new HashMap();
+		params.put("var1", "test");
+		context.getRenderContext().setParameters(params);
+		assertEquals("test", filter.filter("{$var1}", context));
+	}
 }

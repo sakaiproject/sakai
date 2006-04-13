@@ -23,42 +23,51 @@
 
 package org.radeox.macro.table;
 
-import org.radeox.macro.PluginRepository;
-import org.radeox.macro.Repository;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.radeox.macro.PluginRepository;
+import org.radeox.macro.Repository;
+
 /**
  * Repository for functions
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: FunctionRepository.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class FunctionRepository extends PluginRepository {
-  protected static Repository instance;
-  protected List loaders;
+public class FunctionRepository extends PluginRepository
+{
+	protected static Repository instance;
 
-  public synchronized  static Repository getInstance() {
-    if (null == instance) {
-      instance = new FunctionRepository();
-    }
-    return instance;
-  }
+	protected List loaders;
 
- private void load() {
-    Iterator iterator = loaders.iterator();
-    while (iterator.hasNext()) {
-      FunctionLoader loader = (FunctionLoader) iterator.next();
-      loader.loadPlugins(this);
-    }
-  }
-  private FunctionRepository() {
-    loaders = new ArrayList();
-    loaders.add(new FunctionLoader());
+	public synchronized static Repository getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new FunctionRepository();
+		}
+		return instance;
+	}
 
-    load();
-  }
+	private void load()
+	{
+		Iterator iterator = loaders.iterator();
+		while (iterator.hasNext())
+		{
+			FunctionLoader loader = (FunctionLoader) iterator.next();
+			loader.loadPlugins(this);
+		}
+	}
+
+	private FunctionRepository()
+	{
+		loaders = new ArrayList();
+		loaders.add(new FunctionLoader());
+
+		load();
+	}
 }

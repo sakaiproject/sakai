@@ -26,7 +26,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
 
@@ -35,102 +36,99 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
  * 
  * @author andrew
  */
-//FIXME: Tool
+// FIXME: Tool
+public class RecentlyVisitedHelperBean
+{
 
-public class RecentlyVisitedHelperBean {
+	private static Log log = LogFactory.getLog(RecentlyVisitedHelperBean.class);
 
-    /**
-     * Session attribute to save the recentlyVisitedBean
-     */
-    public static final String RECENT_VISIT_ATTR = "recentlyVisitedBean";
+	/**
+	 * Session attribute to save the recentlyVisitedBean
+	 */
+	public static final String RECENT_VISIT_ATTR = "recentlyVisitedBean";
 
-    private ServletRequest request;
+	private ServletRequest request;
 
-    private RecentlyVisitedBean recentBean;
+	private RecentlyVisitedBean recentBean;
 
-    private Logger log;
+	private String defaultSpace;
 
-    private String defaultSpace;
+	/**
+	 * Sets the recently visited bean using the set request and logger and
+	 * default space.
+	 */
+	public void init()
+	{
+		recentBean = RecentlyVisitedHelperBean.getRecentlyVisitedBean(
+				(HttpServletRequest) request, defaultSpace);
+	}
 
-    /**
-     * Sets the recently visited bean using the set request and logger and
-     * default space.
-     */
-    public void init() {
-        recentBean = RecentlyVisitedHelperBean.getRecentlyVisitedBean(
-                (HttpServletRequest) request, log, defaultSpace);
-    }
+	/**
+	 * Set the current request
+	 * 
+	 * @param servletRequest
+	 */
+	public void setServletRequest(ServletRequest servletRequest)
+	{
+		this.request = servletRequest;
+	}
 
-    /**
-     * Set the current request
-     * 
-     * @param servletRequest
-     */
-    public void setServletRequest(ServletRequest servletRequest) {
-        this.request = servletRequest;
-    }
+	/**
+	 * Set the default space
+	 * 
+	 * @param defaultSpace
+	 */
+	public void setDefaultSpace(String defaultSpace)
+	{
+		this.defaultSpace = defaultSpace;
+	}
 
-    /**
-     * Set the default space
-     * 
-     * @param defaultSpace
-     */
-    public void setDefaultSpace(String defaultSpace) {
-        this.defaultSpace = defaultSpace;
-    }
+	/**
+	 * Retrieve the current <code>RecentlyVisitedBean</code> from the passed
+	 * in <code>ServletRequest</code> or create one in the default space.
+	 * 
+	 * @param request
+	 *        current servlet request
+	 * @param log
+	 *        current logger
+	 * @param defaultSpace
+	 *        defaultSpace to for the RecentlyVisitedBean
+	 * @return RecentlyVisitedBean
+	 */
+	public static RecentlyVisitedBean getRecentlyVisitedBean(
+			HttpServletRequest request, String defaultSpace)
+	{
+		HttpSession session = request.getSession();
+		RecentlyVisitedBean bean = null;
+		try
+		{
+			bean = (RecentlyVisitedBean) session
+					.getAttribute(RECENT_VISIT_ATTR);
+		}
+		catch (ClassCastException e)
+		{
+			log.warn("Session contains object at " + RECENT_VISIT_ATTR
+					+ " which is not a valid breadcrumb bean\n" + "Object is: "
+					+ session.getAttribute(RECENT_VISIT_ATTR).toString());
+		}
 
-    /**
-     * Retrieve the current <code>RecentlyVisitedBean</code> from the passed
-     * in <code>ServletRequest</code> or create one in the default space.
-     * 
-     * @param request current servlet request
-     * @param log current logger
-     * @param defaultSpace defaultSpace to for the RecentlyVisitedBean
-     * @return RecentlyVisitedBean
-     */
-    public static RecentlyVisitedBean getRecentlyVisitedBean(
-            HttpServletRequest request, Logger log, String defaultSpace) {
-        HttpSession session = request.getSession();
-        RecentlyVisitedBean bean = null;
-        try {
-            bean = (RecentlyVisitedBean) session
-                    .getAttribute(RECENT_VISIT_ATTR);
-        } catch (ClassCastException e) {
-            log.warn("Session contains object at " + RECENT_VISIT_ATTR
-                    + " which is not a valid breadcrumb bean\n" + "Object is: "
-                    + session.getAttribute(RECENT_VISIT_ATTR).toString());
-        }
+		if (bean == null)
+		{
+			bean = new RecentlyVisitedBean(defaultSpace);
+			session.setAttribute(RECENT_VISIT_ATTR, bean);
+		}
 
-        if (bean == null) {
-            bean = new RecentlyVisitedBean(defaultSpace);
-            session.setAttribute(RECENT_VISIT_ATTR, bean);
-        }
+		return bean;
+	}
 
-        return bean;
-    }
-
-    /**
-     * Get current logger
-     * @return logger
-     */
-    public Logger getLog() {
-        return log;
-    }
-
-    /**
-     * Set the current logger
-     * @param log
-     */
-    public void setLog(Logger log) {
-        this.log = log;
-    }
-
-    /**
-     * Get the retrieved recently visited bean
-     * @return recentlyVisitedBean
-     */ 
-    public RecentlyVisitedBean getRecentlyVisitedBean() {
-        return recentBean;
-    }
+	/**
+	 * Get the retrieved recently visited bean
+	 * 
+	 * @return recentlyVisitedBean
+	 */
+	public RecentlyVisitedBean getRecentlyVisitedBean()
+	{
+		return recentBean;
+	}
 
 }

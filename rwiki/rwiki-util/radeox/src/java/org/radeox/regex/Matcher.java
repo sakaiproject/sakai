@@ -24,54 +24,59 @@
 package org.radeox.regex;
 
 /*
- * Matcher matches regular expressions (Pattern) to input
- *
- * @author stephan
- * @team sonicteam
+ * Matcher matches regular expressions (Pattern) to input @author stephan @team
+ * sonicteam
+ * 
  * @version $Id$
  */
 
-public abstract class Matcher {
+public abstract class Matcher
+{
 
-  /**
-   * Create a new matcher object, depending on the implementation
-   *
-   * @param input Input to match regular expressions agains
-   * @param pattern Regular expression pattern
-   * @return A Matcher implementation
-   */
-  public static Matcher create(String input, Pattern pattern) {
-    return new JdkMatcher(input, pattern);
-  }
+	/**
+	 * Create a new matcher object, depending on the implementation
+	 * 
+	 * @param input
+	 *        Input to match regular expressions agains
+	 * @param pattern
+	 *        Regular expression pattern
+	 * @return A Matcher implementation
+	 */
+	public static Matcher create(String input, Pattern pattern)
+	{
+		return new JdkMatcher(input, pattern);
+	}
 
-  /**
-   * Replace all matches in the input with a substitution. For
-   * every match substition.handleMatch is called.
-   *
-   * @param substitution Code which handles every substitution
-   * @return String with all matches substituted
-   */
-  public abstract String substitute(Substitution substitution);
+	/**
+	 * Replace all matches in the input with a substitution. For every match
+	 * substition.handleMatch is called.
+	 * 
+	 * @param substitution
+	 *        Code which handles every substitution
+	 * @return String with all matches substituted
+	 */
+	public abstract String substitute(Substitution substitution);
 
-  /**
-   * Replace all matches in the input with a string substitution.
-   *
-   * @param substitution String to replace all matches
-   * @return String with all matches substituted
-   */
-  public abstract String substitute(String substitution);
+	/**
+	 * Replace all matches in the input with a string substitution.
+	 * 
+	 * @param substitution
+	 *        String to replace all matches
+	 * @return String with all matches substituted
+	 */
+	public abstract String substitute(String substitution);
 
-  /**
-   * Test if a regular expression matches the complete input
-   *
-   * @return True if the regex matches the complete input
-   */
-  public abstract boolean matches();
+	/**
+	 * Test if a regular expression matches the complete input
+	 * 
+	 * @return True if the regex matches the complete input
+	 */
+	public abstract boolean matches();
 
-  /**
-   * Test if a regular expression matches parts of the input
-   *
-   * @return True if the regex matches a part of the input
-   */
-  public abstract boolean contains();
+	/**
+	 * Test if a regular expression matches parts of the input
+	 * 
+	 * @return True if the regex matches a part of the input
+	 */
+	public abstract boolean contains();
 }

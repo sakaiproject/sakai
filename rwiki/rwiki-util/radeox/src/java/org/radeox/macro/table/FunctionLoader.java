@@ -30,38 +30,49 @@ import org.radeox.macro.Repository;
 
 /**
  * Plugin loader for table functions
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: FunctionLoader.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class FunctionLoader extends PluginLoader {
-  private static Log log = LogFactory.getLog(FunctionLoader.class);
+public class FunctionLoader extends PluginLoader
+{
+	private static Log log = LogFactory.getLog(FunctionLoader.class);
 
-  protected static FunctionLoader instance;
+	protected static FunctionLoader instance;
 
-  public static synchronized PluginLoader getInstance() {
-    if (null == instance) {
-      instance = new FunctionLoader();
-    }
-    return instance;
-  }
+	public static synchronized PluginLoader getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new FunctionLoader();
+		}
+		return instance;
+	}
 
-  public Class getLoadClass() {
-    return Function.class;
-  }
+	public Class getLoadClass()
+	{
+		return Function.class;
+	}
 
-  /**
-   * Add a plugin to the known plugin map
-   *
-   * @param plugin Function to add
-   */
-  public void add(Repository repository, Object plugin) {
-    if (plugin instanceof Function) {
-      repository.put(((Function) plugin).getName().toLowerCase(), plugin);
-    } else {
-      log.debug("FunctionLoader: " + plugin.getClass() + " not of Type " + getLoadClass());
-    }
-  }
+	/**
+	 * Add a plugin to the known plugin map
+	 * 
+	 * @param plugin
+	 *        Function to add
+	 */
+	public void add(Repository repository, Object plugin)
+	{
+		if (plugin instanceof Function)
+		{
+			repository.put(((Function) plugin).getName().toLowerCase(), plugin);
+		}
+		else
+		{
+			log.debug("FunctionLoader: " + plugin.getClass() + " not of Type "
+					+ getLoadClass());
+		}
+	}
 
 }

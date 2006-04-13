@@ -24,25 +24,38 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class ApiMacroTest extends MacroTestSupport {
-  public ApiMacroTest(String name) {
-    super(name);
-  }
+public class ApiMacroTest extends MacroTestSupport
+{
+	public ApiMacroTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(ApiMacroTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(ApiMacroTest.class);
+	}
 
-  public void testApi() {
-    String result = EngineManager.getInstance().render("{api:java.lang.object}", context);
-    assertEquals("<a href=\"http://java.sun.com/j2se/1.4.1/docs/api/java/lang/object.html\">java.lang.object</a>", result);
-  }
+	public void testApi()
+	{
+		String result = EngineManager.getInstance().render(
+				"{api:java.lang.object}", context);
+		assertEquals(
+				"<a href=\"http://java.sun.com/j2se/1.4.1/docs/api/java/lang/object.html\">java.lang.object</a>",
+				result);
+	}
 
-  public void testRuby() {
-    String result = EngineManager.getInstance().render("{api:String@Ruby}", context);
-    assertEquals("Ruby namespace is used","<a href=\"http://www.rubycentral.com/book/ref_c_string.html\">String</a>", result);
-  }
+	public void testRuby()
+	{
+		String result = EngineManager.getInstance().render("{api:String@Ruby}",
+				context);
+		assertEquals(
+				"Ruby namespace is used",
+				"<a href=\"http://www.rubycentral.com/book/ref_c_string.html\">String</a>",
+				result);
+	}
 
 }

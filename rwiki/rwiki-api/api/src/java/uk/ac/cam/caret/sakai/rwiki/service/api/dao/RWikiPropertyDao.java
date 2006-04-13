@@ -23,31 +23,37 @@
 package uk.ac.cam.caret.sakai.rwiki.service.api.dao;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
+
 /**
  * The DAO interface for RWikiProperties
+ * 
  * @author ieb
- *
  */
-//FIXME: Service
-
-public interface RWikiPropertyDao {
+// FIXME: Service
+public interface RWikiPropertyDao
+{
 	/**
 	 * get a property by name
+	 * 
 	 * @param name
 	 * @return
 	 */
 	RWikiProperty getProperty(String name);
+
 	/**
 	 * create a property
+	 * 
 	 * @return
 	 */
 	RWikiProperty createProperty();
+
 	/**
 	 * update a property
+	 * 
 	 * @param property
 	 */
 	void update(RWikiProperty property);
-	
+
 	String getSchemaVersion();
 
 }

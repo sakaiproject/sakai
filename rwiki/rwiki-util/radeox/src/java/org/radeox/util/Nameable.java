@@ -25,11 +25,12 @@ package org.radeox.util;
 
 /**
  * Objects with a name
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public interface Nameable {
-  public String getName();
+public interface Nameable
+{
+	public String getName();
 }

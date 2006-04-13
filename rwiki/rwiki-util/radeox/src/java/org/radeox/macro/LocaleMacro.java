@@ -23,6 +23,7 @@ package org.radeox.macro;
  * --LICENSE NOTICE--
  */
 
-public interface LocaleMacro {
-  public String getLocaleKey();
+public interface LocaleMacro
+{
+	public String getLocaleKey();
 }

@@ -24,36 +24,39 @@
 package org.radeox.regex;
 
 /*
- * Class that compiles regular expressions to patterns
- *
- * @author stephan
- * @team sonicteam
+ * Class that compiles regular expressions to patterns @author stephan @team
+ * sonicteam
+ * 
  * @version $Id$
  */
 
-public abstract class Compiler {
-  /**
-   * Create a new Compiler object depending on the used implementation
-   *
-   * @return Compiler object with the used implementation
-   */
-  public static Compiler create() {
-    return new JdkCompiler();
-  }
+public abstract class Compiler
+{
+	/**
+	 * Create a new Compiler object depending on the used implementation
+	 * 
+	 * @return Compiler object with the used implementation
+	 */
+	public static Compiler create()
+	{
+		return new JdkCompiler();
+	}
 
-  /**
-   * Whether the compiler should create multiline patterns
-   * or single line patterns.
-   *
-   * @param multiline True if the pattern is multiline, otherwise false
-   */
-  public abstract void setMultiline(boolean multiline);
+	/**
+	 * Whether the compiler should create multiline patterns or single line
+	 * patterns.
+	 * 
+	 * @param multiline
+	 *        True if the pattern is multiline, otherwise false
+	 */
+	public abstract void setMultiline(boolean multiline);
 
-  /**
-   * Compile a String regular expression to a regex pattern
-   *
-   * @param regex String representation of a regular expression
-   * @return Compiled regular expression
-   */
-  public abstract Pattern compile(String regex);
+	/**
+	 * Compile a String regular expression to a regex pattern
+	 * 
+	 * @param regex
+	 *        String representation of a regular expression
+	 * @return Compiled regular expression
+	 */
+	public abstract Pattern compile(String regex);
 }

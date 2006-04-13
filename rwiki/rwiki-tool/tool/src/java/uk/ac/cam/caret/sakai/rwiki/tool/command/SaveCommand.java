@@ -31,11 +31,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.SessionManager;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
@@ -52,228 +53,260 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 
 /**
  * @author andrew
- * 
  */
 // FIXME: Tool
-public class SaveCommand implements HttpCommand {
+public class SaveCommand implements HttpCommand
+{
+	private static Log log = LogFactory.getLog(SaveCommand.class);
 
-    private static final String ATTACHMENT_HELPER = "sakai.filepicker";
-    
-    protected RWikiObjectService objectService;
+	private static final String ATTACHMENT_HELPER = "sakai.filepicker";
 
-    private Logger log;
+	protected RWikiObjectService objectService;
 
-    private String contentChangedPath;
+	private String contentChangedPath;
 
-    private String noUpdatePath;
+	private String noUpdatePath;
 
-    private String successfulPath;
+	private String successfulPath;
 
-    private String previewPath;
+	private String previewPath;
 
-    private String cancelPath;
+	private String cancelPath;
 
-    private SessionManager sessionManager;
+	private SessionManager sessionManager;
 
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
 
-        RequestScopeSuperBean rssb = RequestScopeSuperBean
-                .getFromRequest(request);
+		RequestScopeSuperBean rssb = RequestScopeSuperBean
+				.getFromRequest(request);
 
-        ViewParamsHelperBean vphb = (ViewParamsHelperBean) rssb
-                .getNameHelperBean();
+		ViewParamsHelperBean vphb = (ViewParamsHelperBean) rssb
+				.getNameHelperBean();
 
+		String content = vphb.getContent();
+		String save = vphb.getSaveType();
+		String name = vphb.getGlobalName();
+		String realm = vphb.getLocalSpace();
+		if (save == null)
+		{
+			save = EditBean.SAVE_VALUE;
+		}
+		if (save.equals(EditBean.OVERWRITE_VALUE))
+		{
+			content = vphb.getSubmittedContent();
+			// Set the content as the submitted content in case we have a
+			// version exception
+			vphb.setContent(content);
+		}
+		else if (save.equals(EditBean.PREVIEW_VALUE))
+		{
+			this.previewDispatch(request, response);
+			return;
+		}
+		else if (save.equals(EditBean.LINK_ATTACHMENT_VALUE)
+				|| save.equals(EditBean.EMBED_ATTACHMENT_VALUE))
+		{
 
-        String content = vphb.getContent();
-        String save = vphb.getSaveType();
-        String name = vphb.getGlobalName();
-        String realm = vphb.getLocalSpace();
-        if (save == null) {
-            save = EditBean.SAVE_VALUE;
-        }
-        if (save.equals(EditBean.OVERWRITE_VALUE)) {
-            content = vphb.getSubmittedContent();
-            // Set the content as the submitted content in case we have a
-            // version exception
-            vphb.setContent(content);
-        } else if (save.equals(EditBean.PREVIEW_VALUE)) {
-            this.previewDispatch(request, response);
-            return;
-        } else if (save.equals(EditBean.LINK_ATTACHMENT_VALUE) || save.equals(EditBean.EMBED_ATTACHMENT_VALUE) ) {
-                     
-            ToolSession session = sessionManager.getCurrentToolSession();
-            
-            Map parameterMap = request.getParameterMap();
-            session.setAttribute("STORED_PARAMETERS", parameterMap);
+			ToolSession session = sessionManager.getCurrentToolSession();
 
-            ViewBean vb = rssb.getViewBean();
-            
-            // FIXME Knowledge of URL structure assumed!
-	    WikiPageAction returnAction = WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION;
-	    if (save.equals(EditBean.EMBED_ATTACHMENT_VALUE)) {
-		    returnAction = WikiPageAction.EMBED_ATTACHMENT_RETURN_ACTION;
-	    }
-            session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
-                    request.getContextPath() + request.getServletPath()
-                            + vb.getActionUrl(returnAction, true));
+			Map parameterMap = request.getParameterMap();
+			session.setAttribute("STORED_PARAMETERS", parameterMap);
 
-            session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
-            
-            // FIXME internationalise this
-            String fromText;
-            if (returnAction.equals(WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION)) {
-                fromText = vb.getLocalName() + " as link";
-            } else {
-                fromText = vb.getLocalName() + " as embed";
-            }
-            
-            session.setAttribute(FilePickerHelper.FILE_PICKER_FROM_TEXT, fromText);
-            
-            response.sendRedirect(request.getContextPath()
-                            + request.getServletPath() + "/helper/"
-                            + ATTACHMENT_HELPER + "/tool");
-            return;
-        } else if (save.equals(EditBean.CANCEL_VALUE)) {
-            this.cancelDispatch(request, response);
-            ViewBean vb = new ViewBean(name, realm);
-            String requestURL = request.getRequestURL().toString();
-            sessionManager.getCurrentToolSession().setAttribute(
-                    RWikiServlet.SAVED_REQUEST_URL,
-                    requestURL + vb.getViewUrl());
-            return;
-        }
+			ViewBean vb = rssb.getViewBean();
 
-        String version = vphb.getSubmittedVersion();
-        Date versionDate = new Date(Long.parseLong(version));
+			// FIXME Knowledge of URL structure assumed!
+			WikiPageAction returnAction = WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION;
+			if (save.equals(EditBean.EMBED_ATTACHMENT_VALUE))
+			{
+				returnAction = WikiPageAction.EMBED_ATTACHMENT_RETURN_ACTION;
+			}
+			session.setAttribute(ATTACHMENT_HELPER + Tool.HELPER_DONE_URL,
+					request.getContextPath() + request.getServletPath()
+							+ vb.getActionUrl(returnAction, true));
 
-        try {
-            doUpdate(name,  realm, versionDate, content);
-        } catch (VersionException e) {
-            // The page has changed underneath us...
+			session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS,
+					FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 
-            // redirect probably back to the edit page
-            this.contentChangedDispatch(request, response);
-            return;
-        } catch (PermissionException e) {
-            // Redirect back to a no permission page...
-            this.noUpdateAllowed(request, response);
-            return;
-        }
-        // Successful update
-        this.successfulUpdateDispatch(request, response);
-        ViewBean vb = new ViewBean(name, realm);
-        String requestURL = request.getRequestURL().toString();
-        sessionManager.getCurrentToolSession().setAttribute(
-                RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getViewUrl());
-        return;
+			// FIXME internationalise this
+			String fromText;
+			if (returnAction
+					.equals(WikiPageAction.LINK_ATTACHMENT_RETURN_ACTION))
+			{
+				fromText = vb.getLocalName() + " as link";
+			}
+			else
+			{
+				fromText = vb.getLocalName() + " as embed";
+			}
 
-    }
+			session.setAttribute(FilePickerHelper.FILE_PICKER_FROM_TEXT,
+					fromText);
 
-    protected void doUpdate(String name, String realm,
-            Date versionDate, String content) {
-        objectService.update(name, realm, versionDate, content);
-    }
+			response.sendRedirect(request.getContextPath()
+					+ request.getServletPath() + "/helper/" + ATTACHMENT_HELPER
+					+ "/tool");
+			return;
+		}
+		else if (save.equals(EditBean.CANCEL_VALUE))
+		{
+			this.cancelDispatch(request, response);
+			ViewBean vb = new ViewBean(name, realm);
+			String requestURL = request.getRequestURL().toString();
+			sessionManager.getCurrentToolSession().setAttribute(
+					RWikiServlet.SAVED_REQUEST_URL,
+					requestURL + vb.getViewUrl());
+			return;
+		}
 
-    private void cancelDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher(cancelPath);
-        rd.forward(request, response);
-    }
+		String version = vphb.getSubmittedVersion();
+		Date versionDate = new Date(Long.parseLong(version));
 
-    private void previewDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher(previewPath);
-        rd.forward(request, response);
-    }
+		try
+		{
+			doUpdate(name, realm, versionDate, content);
+		}
+		catch (VersionException e)
+		{
+			// The page has changed underneath us...
 
-    protected void successfulUpdateDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
-        rd.forward(request, response);
-    }
+			// redirect probably back to the edit page
+			this.contentChangedDispatch(request, response);
+			return;
+		}
+		catch (PermissionException e)
+		{
+			// Redirect back to a no permission page...
+			this.noUpdateAllowed(request, response);
+			return;
+		}
+		// Successful update
+		this.successfulUpdateDispatch(request, response);
+		ViewBean vb = new ViewBean(name, realm);
+		String requestURL = request.getRequestURL().toString();
+		sessionManager.getCurrentToolSession().setAttribute(
+				RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getViewUrl());
+		return;
 
-    private void contentChangedDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-        // FIXME internationalise this!!
-        errorBean
-                .addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
-        RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
-        rd.forward(request, response);
-    }
+	}
 
-    private void noUpdateAllowed(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-        // FIXME internationalise this!!
-        errorBean.addError("You do not have permission to update this page.");
-        RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
-        rd.forward(request, response);
-    }
+	protected void doUpdate(String name, String realm, Date versionDate,
+			String content)
+	{
+		objectService.update(name, realm, versionDate, content);
+	}
 
-    public String getSuccessfulPath() {
-        return successfulPath;
-    }
+	private void cancelDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		RequestDispatcher rd = request.getRequestDispatcher(cancelPath);
+		rd.forward(request, response);
+	}
 
-    public void setSuccessfulPath(String successfulPath) {
-        this.successfulPath = successfulPath;
-    }
+	private void previewDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		RequestDispatcher rd = request.getRequestDispatcher(previewPath);
+		rd.forward(request, response);
+	}
 
-    public String getContentChangedPath() {
-        return contentChangedPath;
-    }
+	protected void successfulUpdateDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
+		rd.forward(request, response);
+	}
 
-    public void setContentChangedPath(String contentChangedPath) {
-        this.contentChangedPath = contentChangedPath;
-    }
+	private void contentChangedDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
+		// FIXME internationalise this!!
+		errorBean
+				.addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
+		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
+		rd.forward(request, response);
+	}
 
-    public String getNoUpdatePath() {
-        return noUpdatePath;
-    }
+	private void noUpdateAllowed(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
+		// FIXME internationalise this!!
+		errorBean.addError("You do not have permission to update this page.");
+		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
+		rd.forward(request, response);
+	}
 
-    public void setNoUpdatePath(String noUpdatePath) {
-        this.noUpdatePath = noUpdatePath;
-    }
+	public String getSuccessfulPath()
+	{
+		return successfulPath;
+	}
 
-    public String getPreviewPath() {
-        return previewPath;
-    }
+	public void setSuccessfulPath(String successfulPath)
+	{
+		this.successfulPath = successfulPath;
+	}
 
-    public void setPreviewPath(String previewPath) {
-        this.previewPath = previewPath;
-    }
+	public String getContentChangedPath()
+	{
+		return contentChangedPath;
+	}
 
-    public String getCancelPath() {
-        return cancelPath;
-    }
+	public void setContentChangedPath(String contentChangedPath)
+	{
+		this.contentChangedPath = contentChangedPath;
+	}
 
-    public void setCancelPath(String cancelPath) {
-        this.cancelPath = cancelPath;
-    }
+	public String getNoUpdatePath()
+	{
+		return noUpdatePath;
+	}
 
-    public RWikiObjectService getObjectService() {
-        return objectService;
-    }
+	public void setNoUpdatePath(String noUpdatePath)
+	{
+		this.noUpdatePath = noUpdatePath;
+	}
 
-    public void setObjectService(RWikiObjectService objectService) {
-        this.objectService = objectService;
-    }
+	public String getPreviewPath()
+	{
+		return previewPath;
+	}
 
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
+	public void setPreviewPath(String previewPath)
+	{
+		this.previewPath = previewPath;
+	}
 
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
+	public String getCancelPath()
+	{
+		return cancelPath;
+	}
 
-    public Logger getLog() {
-        return log;
-    }
+	public void setCancelPath(String cancelPath)
+	{
+		this.cancelPath = cancelPath;
+	}
 
-    public void setLog(Logger log) {
-        this.log = log;
-    }
+	public RWikiObjectService getObjectService()
+	{
+		return objectService;
+	}
+
+	public void setObjectService(RWikiObjectService objectService)
+	{
+		this.objectService = objectService;
+	}
+
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
 
 }

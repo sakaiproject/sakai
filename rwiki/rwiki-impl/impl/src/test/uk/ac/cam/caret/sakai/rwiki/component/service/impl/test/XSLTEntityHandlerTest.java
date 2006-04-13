@@ -29,10 +29,8 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -48,10 +46,7 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FormattingResults;
 import org.apache.fop.apps.MimeConstants;
-import org.apache.fop.apps.PageSequenceResults;
-import org.sakaiproject.component.framework.log.CommonsLogger;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -63,23 +58,26 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiEntity;
 
 /**
  * @author ieb
- * 
  */
-public class XSLTEntityHandlerTest extends TestCase {
+public class XSLTEntityHandlerTest extends TestCase
+{
 	private static Log logger = LogFactory.getLog(XSLTEntityHandlerTest.class);
 
 	private XSLTEntityHandler eh = null;
 
-	private static final  String testinputhtml = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/test/testpattern.xhtml";
-	private static final  String testinputfop = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/test/testinput.xml";
+	private static final String testinputhtml = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/test/testpattern.xhtml";
 
-	public void setUp() {
+	private static final String testinputfop = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/test/testinput.xml";
+
+	public void setUp()
+	{
 
 		eh = new XSLTEntityHandler();
 
 	}
 
-	public void xtestDecode() {
+	public void xtestDecode()
+	{
 
 		XSLTEntityHandler eh = new XSLTEntityHandler();
 		eh.setAccessURLStart("/wiki/");
@@ -154,55 +152,102 @@ public class XSLTEntityHandlerTest extends TestCase {
 				null,
 				new Decoded(
 						"/site/site-uk.ac.cam.caret.sakai.rwiki.component.test.componentintegrationtest-71220.0",
-						"/", "hometestpage", "-1"),
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","  ","-1"), //20.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","","-1"), //.atom",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss",
-				null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss",
-				null // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom"
+						"/", "hometestpage", "-1"), null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //.09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","","-1"),
+				// //.atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //20.rss",
+				null // new
+		// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+		// ","-1") //atom"
 		};
 		Decoded[] results_09rss = {
-				null, //0
-				null, //1
-				null, //2
-				null, //3
-				null, //4
-				null, //5
-				null, //6
-				null, //7
-				null, //8
-				null, //9
-				null, //10
-				null, //11
-				null, //12
-				null, //13
-				null, //14
-				null, //15
-				null, //16
-				null, //17
-				null, //18
-				null, //19
-				null, //20
-						 new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss", //21
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss", //22
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss", //23
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom", //24
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss", //25
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss", //26
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //20.rss", //27
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //.atom",  //28
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss", //29
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss", //30
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss", //31
-						null // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom" //32
-			};
+				null, // 0
+				null, // 1
+				null, // 2
+				null, // 3
+				null, // 4
+				null, // 5
+				null, // 6
+				null, // 7
+				null, // 8
+				null, // 9
+				null, // 10
+				null, // 11
+				null, // 12
+				null, // 13
+				null, // 14
+				null, // 15
+				null, // 16
+				null, // 17
+				null, // 18
+				null, // 19
+				null, // 20
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", "HelpPage", "-1"), // .09.rss", //21
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //10.rss", //22
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //20.rss", //23
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //atom", //24
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", " ", "-1"), // 09.rss", //25
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //10.rss", //26
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //20.rss", //27
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //.atom", //28
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/subsite", " ", "-1"), // 09.rss", //29
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //10.rss", //30
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //20.rss", //31
+				null // new
+		// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+		// ","-1") //atom" //32
+		};
 		Decoded[] results_ = {
 				null,
 				null,
@@ -225,21 +270,43 @@ public class XSLTEntityHandlerTest extends TestCase {
 						"/", "HelpPage", "-1"),
 				new Decoded(
 						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
-						"/", "HelpPage.", "-1"), 
-						null, null, null, 
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //.atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss",
-						null // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom"
-			};
+						"/", "HelpPage.", "-1"), null, null, null, null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //.09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //.atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //20.rss",
+				null // new
+		// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+		// ","-1") //atom"
+		};
 		Decoded[] results_10rss = {
 				null,
 				null,
@@ -259,20 +326,46 @@ public class XSLTEntityHandlerTest extends TestCase {
 				null,
 				null,
 				null,
-				 null, null, null, 
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //.atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss",
-						null // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom"
-			};
+				null,
+				null,
+				null,
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //.09.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", "HelpPage", "-1"), // 10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //09.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", " ", "-1"), // 10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //.atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //09.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/subsite", " ", "-1"), // 10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //20.rss",
+				null // new
+		// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+		// ","-1") //atom"
+		};
 		Decoded[] results_20rss = {
 				null,
 				null,
@@ -292,20 +385,46 @@ public class XSLTEntityHandlerTest extends TestCase {
 				null,
 				null,
 				null,
-				 null, null, null, 
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //20.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //.atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss",
-						new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss",
-						null // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom"
-			};
+				null,
+				null,
+				null,
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //.09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //10.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", "HelpPage", "-1"), // 20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //10.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", " ", "-1"), // 20.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //.atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //10.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/subsite", " ", "-1"), // 20.rss",
+				null // new
+		// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+		// ","-1") //atom"
+		};
 		Decoded[] results_atom = {
 				null,
 				null,
@@ -325,97 +444,125 @@ public class XSLTEntityHandlerTest extends TestCase {
 				null,
 				null,
 				null,
-				 null, null, null, 
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //.09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //20.rss",
-						 new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"), //atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //20.rss",
-						 new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/"," ","-1"), //.atom",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //09.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //10.rss",
-						null, // new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1"), //20.rss",
-						 new Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite"," ","-1") //atom"
-			};
-		
-		Object[] testSet = {
-				results_html,
-				results_,
-				results_09rss,
-				results_10rss,
-				results_20rss,
-				results_atom
+				null,
+				null,
+				null,
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //.09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","HelpPage","-1"),
+				// //20.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", "HelpPage", "-1"), // atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/","
+				// ","-1"), //20.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/", " ", "-1"), // .atom",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //09.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //10.rss",
+				null, // new
+				// Decoded("/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs","/subsite","
+				// ","-1"), //20.rss",
+				new Decoded(
+						"/site/c8e34826-dab9-466c-80a9-e8e9bed50465sdfsdfs",
+						"/subsite", " ", "-1") // atom"
 		};
-		String[] postfix = {
-			"html",
-			"",
-			"09.rss",
-			"10.rss",
-			"20.rss",
-			"atom"
-		};
-		assertEquals("Test sequence are not setup correctly ",
-				testSet.length, postfix.length);
-		for ( int ts = 0; ts < testSet.length; ts++ ) {
-			Decoded[] o = (Decoded[])testSet[ts];
-			assertEquals("test and result are different lengths for entry "+ts,
-					o.length, test.length);
+
+		Object[] testSet = { results_html, results_, results_09rss,
+				results_10rss, results_20rss, results_atom };
+		String[] postfix = { "html", "", "09.rss", "10.rss", "20.rss", "atom" };
+		assertEquals("Test sequence are not setup correctly ", testSet.length,
+				postfix.length);
+		for (int ts = 0; ts < testSet.length; ts++)
+		{
+			Decoded[] o = (Decoded[]) testSet[ts];
+			assertEquals("test and result are different lengths for entry "
+					+ ts, o.length, test.length);
 		}
-		assertEquals("Test sequence are not setup correctly ",
-				testSet.length, postfix.length);
-		for ( int ts = 0; ts < testSet.length; ts++ ) {
+		assertEquals("Test sequence are not setup correctly ", testSet.length,
+				postfix.length);
+		for (int ts = 0; ts < testSet.length; ts++)
+		{
 			Decoded[] results = (Decoded[]) testSet[ts];
 			eh.setMinorType(postfix[ts]);
-			for (int j = 0; j < test.length; j++) {
+			for (int j = 0; j < test.length; j++)
+			{
 				Decoded decoded = eh.decode(test[j]);
-				
+
 				Decoded result = results[j];
-				if (decoded != null) {
+				if (decoded != null)
+				{
 					logger.info("--Context = " + decoded.getContext());
 					logger.info("--getContainer = " + decoded.getContainer());
 					logger.info("--getPage = " + decoded.getPage());
 					logger.info("--getVersion = " + decoded.getVersion());
 					logger.info("--getId = " + decoded.getId());
-					
-				} else {
+
+				}
+				else
+				{
 					logger.info("--null");
 				}
-				if (result != null) {
+				if (result != null)
+				{
 					logger.info("++Context = " + result.getContext());
 					logger.info("++getContainer = " + result.getContainer());
 					logger.info("++getPage = " + result.getPage());
 					logger.info("++getVersion = " + result.getVersion());
 					logger.info("++getId = " + result.getId());
-				} else {
+				}
+				else
+				{
 					logger.info("++null");
 				}
-				
+
 				if (result != null && decoded == null)
-					fail("Test Set "+ts+" minor "+postfix[ts]+" item "+j+" Should have matched  " + test[j]);
+					fail("Test Set " + ts + " minor " + postfix[ts] + " item "
+							+ j + " Should have matched  " + test[j]);
 				if (result == null && decoded != null)
 					fail(" Should not have matched  " + test[j]);
-				if (result != null && decoded != null) {
-					assertEquals("Test "+ts+":" + j + " Failed Contexts not the same "
-							+ test[j], result.getContext(), decoded.getContext());
-					assertEquals("Test "+ts+":" + j + " Failed Container not the same "
-							+ test[j], result.getContainer(), decoded
-							.getContainer());
-					assertEquals("Test "+ts+":" + j + " Failed Page not the same "
-							+ test[j], result.getPage(), decoded.getPage());
-					assertEquals("Test "+ts+":" + j + " Failed Version not the same "
-							+ test[j], result.getVersion(), decoded.getVersion());
-					assertEquals(
-							"Test "+ts+":" + j + " Failed Id not the same " + test[j],
-							result.getId(), decoded.getId());
+				if (result != null && decoded != null)
+				{
+					assertEquals("Test " + ts + ":" + j
+							+ " Failed Contexts not the same " + test[j],
+							result.getContext(), decoded.getContext());
+					assertEquals("Test " + ts + ":" + j
+							+ " Failed Container not the same " + test[j],
+							result.getContainer(), decoded.getContainer());
+					assertEquals("Test " + ts + ":" + j
+							+ " Failed Page not the same " + test[j], result
+							.getPage(), decoded.getPage());
+					assertEquals("Test " + ts + ":" + j
+							+ " Failed Version not the same " + test[j], result
+							.getVersion(), decoded.getVersion());
+					assertEquals("Test " + ts + ":" + j
+							+ " Failed Id not the same " + test[j], result
+							.getId(), decoded.getId());
 				}
 			}
 		}
 
 		long start = System.currentTimeMillis();
 		int iters = 10000;
-		for (int i = 0; i < iters; i++) {
+		for (int i = 0; i < iters; i++)
+		{
 			eh.decode(test[i % test.length]);
 
 		}
@@ -425,8 +572,9 @@ public class XSLTEntityHandlerTest extends TestCase {
 
 	}
 
-	public void xtestXSLT() throws Exception {
-		String[] test = { 
+	public void xtestXSLT() throws Exception
+	{
+		String[] test = {
 				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/null.xslt",
 				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/toatom03.xslt",
 				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/tohtml.xslt",
@@ -436,8 +584,6 @@ public class XSLTEntityHandlerTest extends TestCase {
 				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt"
 
 		};
-		
-		
 
 		RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		RWikiEntity rwe = new RWikiEntityImpl(rwco);
@@ -452,9 +598,9 @@ public class XSLTEntityHandlerTest extends TestCase {
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 
-		for (int i = 0; i < test.length; i++) {
+		for (int i = 0; i < test.length; i++)
+		{
 			MockHttpServletResponse response = new MockHttpServletResponse();
-			eh.setLogger(new CommonsLogger());
 			eh.setXslt(test[i]);
 			eh.init();
 			eh.outputContent(rwe, request, response);
@@ -462,12 +608,11 @@ public class XSLTEntityHandlerTest extends TestCase {
 		}
 		long start = System.currentTimeMillis();
 		int iters = 10;
-		for (int j = 0; j < iters; j++) {
-			for (int i = 0; i < test.length; i++) {
+		for (int j = 0; j < iters; j++)
+		{
+			for (int i = 0; i < test.length; i++)
+			{
 				MockHttpServletResponse response = new MockHttpServletResponse();
-				eh.setLogger(new CommonsLogger());
-				// eh.setXslt(test[i]);
-				// eh.init();
 				eh.outputContent(rwe, request, response);
 			}
 		}
@@ -476,18 +621,20 @@ public class XSLTEntityHandlerTest extends TestCase {
 		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
-	public void xtestRTF() throws Exception {
-		String transform =  
-				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
+
+	public void xtestRTF() throws Exception
+	{
+		String transform = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
 		StringBuffer sb = new StringBuffer();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(testinputhtml)));
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				getClass().getResourceAsStream(testinputhtml)));
 		String line = reader.readLine();
-		while( line != null ) {
+		while (line != null)
+		{
 			sb.append(line).append("\n");
 			line = reader.readLine();
 		}
-		
 
 		RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		RWikiEntity rwe = new RWikiEntityImpl(rwco);
@@ -501,61 +648,65 @@ public class XSLTEntityHandlerTest extends TestCase {
 		rwco.setRevision(new Integer(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		
+
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
-		xeh.setLogger(new CommonsLogger());
 		xeh.setAccessURLStart("/wiki/");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("rtf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
-		xeh.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
+		xeh
+				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setStandardLinkFormat("/access/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setFeedFormat("<a href=\"{0}rtf\" target=\"feeds\"><img src=\"/library/image/sakai/rtf.gif\" border=\"0\"  alt=\"RTF\" /></a>");
+		xeh
+				.setFeedFormat("<a href=\"{0}rtf\" target=\"feeds\"><img src=\"/library/image/sakai/rtf.gif\" border=\"0\"  alt=\"RTF\" /></a>");
 		HashMap responseHeaders = new HashMap();
-		responseHeaders.put("content-type","text/rtf");
+		responseHeaders.put("content-type", "text/rtf");
 		xeh.setResponseHeaders(responseHeaders);
 		HashMap outputProperties = new HashMap();
-		outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2RTFSerializer");
+		outputProperties
+				.put("{http://xml.apache.org/xalan}content-handler",
+						"uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2RTFSerializer");
 		xeh.setOutputProperties(outputProperties);
-		
-		
+
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe,request,response);
+		xeh.outputContent(rwe, request, response);
 		File f = new File("testoutput.rtf");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
 		fo.close();
-		
+
 		long start = System.currentTimeMillis();
 		int iters = 10;
-		for (int j = 0; j < iters; j++) {
-				response = new MockHttpServletResponse();
-				xeh.outputContent(rwe,request,response);
+		for (int j = 0; j < iters; j++)
+		{
+			response = new MockHttpServletResponse();
+			xeh.outputContent(rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
 		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
-	
-	public void xtestPDF() throws Exception {
-		String transform =  
-				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
+
+	public void xtestPDF() throws Exception
+	{
+		String transform = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
 		StringBuffer sb = new StringBuffer();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(testinputhtml)));
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				getClass().getResourceAsStream(testinputhtml)));
 		String line = reader.readLine();
-		while( line != null ) {
+		while (line != null)
+		{
 			sb.append(line).append("\n");
 			line = reader.readLine();
 		}
-		
 
 		RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		RWikiEntity rwe = new RWikiEntityImpl(rwco);
@@ -569,61 +720,65 @@ public class XSLTEntityHandlerTest extends TestCase {
 		rwco.setRevision(new Integer(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		
+
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
-		xeh.setLogger(new CommonsLogger());
 		xeh.setAccessURLStart("/wiki/");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
-		xeh.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
+		xeh
+				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setStandardLinkFormat("/access/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
+		xeh
+				.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
 		HashMap responseHeaders = new HashMap();
-		responseHeaders.put("content-type","application/pdf");
+		responseHeaders.put("content-type", "application/pdf");
 		xeh.setResponseHeaders(responseHeaders);
 		HashMap outputProperties = new HashMap();
-		outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
+		outputProperties
+				.put("{http://xml.apache.org/xalan}content-handler",
+						"uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
 		xeh.setOutputProperties(outputProperties);
-		
-		
+
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe,request,response);
+		xeh.outputContent(rwe, request, response);
 		File f = new File("testoutput.pdf");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
 		fo.close();
-		
+
 		long start = System.currentTimeMillis();
 		int iters = 10;
-		for (int j = 0; j < iters; j++) {
-				response = new MockHttpServletResponse();
-				xeh.outputContent(rwe,request,response);
+		for (int j = 0; j < iters; j++)
+		{
+			response = new MockHttpServletResponse();
+			xeh.outputContent(rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
 		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
-	
-	public void xtestFOP() throws Exception {
-		String transform =  
-				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
+
+	public void xtestFOP() throws Exception
+	{
+		String transform = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt";
 		StringBuffer sb = new StringBuffer();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(testinputhtml)));
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				getClass().getResourceAsStream(testinputhtml)));
 		String line = reader.readLine();
-		while( line != null ) {
+		while (line != null)
+		{
 			sb.append(line).append("\n");
 			line = reader.readLine();
 		}
-		
 
 		RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		RWikiEntity rwe = new RWikiEntityImpl(rwco);
@@ -637,61 +792,63 @@ public class XSLTEntityHandlerTest extends TestCase {
 		rwco.setRevision(new Integer(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		
+
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
-		xeh.setLogger(new CommonsLogger());
 		xeh.setAccessURLStart("/wiki/");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
-		xeh.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
+		xeh
+				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setStandardLinkFormat("/access/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
+		xeh
+				.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
 		HashMap responseHeaders = new HashMap();
-		responseHeaders.put("content-type","application/pdf");
+		responseHeaders.put("content-type", "application/pdf");
 		xeh.setResponseHeaders(responseHeaders);
 		HashMap outputProperties = new HashMap();
-//		outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
+		// outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
 		xeh.setOutputProperties(outputProperties);
-		
-		
+
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe,request,response);
+		xeh.outputContent(rwe, request, response);
 		File f = new File("testoutputfop.xml");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
 		fo.close();
-		
+
 		long start = System.currentTimeMillis();
 		int iters = 10;
-		for (int j = 0; j < iters; j++) {
-				response = new MockHttpServletResponse();
-				xeh.outputContent(rwe,request,response);
+		for (int j = 0; j < iters; j++)
+		{
+			response = new MockHttpServletResponse();
+			xeh.outputContent(rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
 		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
-	
-	public void xtestNULL() throws Exception {
-		String transform =  
-				"/uk/ac/cam/caret/sakai/rwiki/component/service/impl/null.xslt";
+
+	public void xtestNULL() throws Exception
+	{
+		String transform = "/uk/ac/cam/caret/sakai/rwiki/component/service/impl/null.xslt";
 		StringBuffer sb = new StringBuffer();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(testinputhtml )));
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				getClass().getResourceAsStream(testinputhtml)));
 		String line = reader.readLine();
-		while( line != null ) {
+		while (line != null)
+		{
 			sb.append(line).append("\n");
 			line = reader.readLine();
 		}
-		
 
 		RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		RWikiEntity rwe = new RWikiEntityImpl(rwco);
@@ -705,96 +862,101 @@ public class XSLTEntityHandlerTest extends TestCase {
 		rwco.setRevision(new Integer(5));
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		
+
 		XSLTEntityHandler xeh = new XSLTEntityHandler();
-		xeh.setLogger(new CommonsLogger());
 		xeh.setAccessURLStart("/wiki/");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setXslt(transform);
 		xeh.setMinorType("pdf");
 		xeh.setDefaultStackTrace("Failed To generate Stack Trace : {0}");
-		xeh.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
+		xeh
+				.setErrorFormat("Error encounvered performing transform : {0} \n {1}");
 		xeh.setAuthZPrefix("/wiki");
 		xeh.setAnchorLinkFormat("/access/wiki{0}.html#{1}");
 		xeh.setStandardLinkFormat("/access/wiki{0}.html");
 		xeh.setHrefTagFormat("<a href=\"{0}\" >{1}</a>");
 		xeh.setAccessURLStart("/wiki/");
-		xeh.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
+		xeh
+				.setFeedFormat("<a href=\"{0}pdf\" target=\"feeds\"><img src=\"/library/image/sakai/pdf.gif\" border=\"0\"  alt=\"PDF\" /></a>");
 		HashMap responseHeaders = new HashMap();
-		responseHeaders.put("content-type","application/pdf");
+		responseHeaders.put("content-type", "application/pdf");
 		xeh.setResponseHeaders(responseHeaders);
 		HashMap outputProperties = new HashMap();
-//		outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
+		// outputProperties.put("{http://xml.apache.org/xalan}content-handler","uk.ac.cam.caret.sakai.rwiki.component.service.impl.FOP2PDFSerializer");
 		xeh.setOutputProperties(outputProperties);
-		
-		
+
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		xeh.init();
-		xeh.outputContent(rwe,request,response);
+		xeh.outputContent(rwe, request, response);
 		File f = new File("testoutput.xml");
 		FileOutputStream fo = new FileOutputStream(f);
 		fo.write(response.getContentAsByteArray());
 		fo.close();
-		
+
 		long start = System.currentTimeMillis();
 		int iters = 10;
-		for (int j = 0; j < iters; j++) {
-				response = new MockHttpServletResponse();
-				xeh.outputContent(rwe,request,response);
+		for (int j = 0; j < iters; j++)
+		{
+			response = new MockHttpServletResponse();
+			xeh.outputContent(rwe, request, response);
 		}
 		float timet = (float) 1.0 * (System.currentTimeMillis() - start);
 		float tper = (float) (timet / (1.0 * iters));
 		logger.info("Transform and Serialize Call Cost = " + tper + " ms");
 
 	}
-	
-	public void testFOPNULL() throws Exception {
-		  OutputStream out = null;
-	        
-	        try {
-	            // Construct fop with desired output format
-	            Fop fop = new Fop(MimeConstants.MIME_RTF);
-	    
-	            // Setup output stream.  Note: Using BufferedOutputStream
-	            // for performance reasons (helpful with FileOutputStreams).
-	            out = new FileOutputStream("testfooutput.rtf");
-	            out = new BufferedOutputStream(out);
-	            fop.setOutputStream(out);
 
-	            // Setup JAXP using identity transformer
-	            TransformerFactory factory = TransformerFactory.newInstance();
-	            Transformer transformer = factory.newTransformer(); // identity transformer
-	            
-	            // Setup input stream
-	            Source src = new StreamSource(getClass().getResourceAsStream(testinputfop));
+	public void testFOPNULL() throws Exception
+	{
+		OutputStream out = null;
 
-	            // Resulting SAX events (the generated FO) must be piped through to FOP
-	            Result res = new SAXResult(fop.getDefaultHandler());
-	            
-	            // Start XSLT transformation and FOP processing
-	            transformer.transform(src, res);
-	            
-	            // Result processing
-	            /*
-	            FormattingResults foResults = fop.getResults();
-	            java.util.List pageSequences = foResults.getPageSequences();
-	            for (java.util.Iterator it = pageSequences.iterator(); it.hasNext();) {
-	                PageSequenceResults pageSequenceResults = (PageSequenceResults)it.next();
-	                System.out.println("PageSequence " 
-	                        + (String.valueOf(pageSequenceResults.getID()).length() > 0 
-	                                ? pageSequenceResults.getID() : "<no id>") 
-	                        + " generated " + pageSequenceResults.getPageCount() + " pages.");
-	            }
-	            
-	            System.out.println("Generated " + foResults.getPageCount() + " pages in total.");
-	            */
+		try
+		{
+			// Construct fop with desired output format
+			Fop fop = new Fop(MimeConstants.MIME_RTF);
 
-	        } finally {
-	            out.close();
-	        }
+			// Setup output stream. Note: Using BufferedOutputStream
+			// for performance reasons (helpful with FileOutputStreams).
+			out = new FileOutputStream("testfooutput.rtf");
+			out = new BufferedOutputStream(out);
+			fop.setOutputStream(out);
+
+			// Setup JAXP using identity transformer
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Transformer transformer = factory.newTransformer(); // identity
+			// transformer
+
+			// Setup input stream
+			Source src = new StreamSource(getClass().getResourceAsStream(
+					testinputfop));
+
+			// Resulting SAX events (the generated FO) must be piped through to
+			// FOP
+			Result res = new SAXResult(fop.getDefaultHandler());
+
+			// Start XSLT transformation and FOP processing
+			transformer.transform(src, res);
+
+			// Result processing
+			/*
+			 * FormattingResults foResults = fop.getResults(); java.util.List
+			 * pageSequences = foResults.getPageSequences(); for
+			 * (java.util.Iterator it = pageSequences.iterator(); it.hasNext();) {
+			 * PageSequenceResults pageSequenceResults =
+			 * (PageSequenceResults)it.next(); System.out.println("PageSequence " +
+			 * (String.valueOf(pageSequenceResults.getID()).length() > 0 ?
+			 * pageSequenceResults.getID() : "<no id>") + " generated " +
+			 * pageSequenceResults.getPageCount() + " pages."); }
+			 * System.out.println("Generated " + foResults.getPageCount() + "
+			 * pages in total.");
+			 */
+
+		}
+		finally
+		{
+			out.close();
+		}
 
 	}
-	
-
 
 }

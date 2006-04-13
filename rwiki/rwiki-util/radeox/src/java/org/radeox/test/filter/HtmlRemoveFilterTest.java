@@ -24,23 +24,30 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.HtmlRemoveFilter;
 
-public class HtmlRemoveFilterTest extends FilterTestSupport {
-  public HtmlRemoveFilterTest(String name) {
-    super(name);
-  }
+public class HtmlRemoveFilterTest extends FilterTestSupport
+{
+	public HtmlRemoveFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new HtmlRemoveFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new HtmlRemoveFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(HtmlRemoveFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(HtmlRemoveFilterTest.class);
+	}
 
-  public void testHtmlRemove() {
-    assertEquals("Test", filter.filter("<tag attr=\"Text\">Test</tag>", context));
-  }
+	public void testHtmlRemove()
+	{
+		assertEquals("Test", filter.filter("<tag attr=\"Text\">Test</tag>",
+				context));
+	}
 }

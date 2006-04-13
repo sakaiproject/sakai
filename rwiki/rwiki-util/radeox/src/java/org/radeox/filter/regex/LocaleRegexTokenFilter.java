@@ -23,53 +23,64 @@
 
 package org.radeox.filter.regex;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 /*
- * Filter that extends RegexTokenFilter but reads regular expressions from
- * a locale
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Filter that extends RegexTokenFilter but reads regular expressions from a
+ * locale @author stephan @team sonicteam
+ * 
+ * @version $Id: LocaleRegexTokenFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public abstract class LocaleRegexTokenFilter extends RegexTokenFilter  {
-  private static Log log = LogFactory.getLog(LocaleRegexTokenFilter.class);
-  protected ResourceBundle inputMessages;
-  protected ResourceBundle outputMessages;
+public abstract class LocaleRegexTokenFilter extends RegexTokenFilter
+{
+	private static Log log = LogFactory.getLog(LocaleRegexTokenFilter.class);
 
-  protected boolean isSingleLine() {
-    return false;
-  }
+	protected ResourceBundle inputMessages;
 
-  protected ResourceBundle getInputBundle() {
-    Locale inputLocale = (Locale) initialContext.get(RenderContext.INPUT_LOCALE);
-    String inputName = (String) initialContext.get(RenderContext.INPUT_BUNDLE_NAME);
-    return ResourceBundle.getBundle(inputName, inputLocale);
-  }
+	protected ResourceBundle outputMessages;
 
-  protected ResourceBundle getOutputBundle() {
-    Locale outputLocale = (Locale) initialContext.get(RenderContext.OUTPUT_LOCALE);
-    String outputName = (String) initialContext.get(RenderContext.OUTPUT_BUNDLE_NAME);
-    return ResourceBundle.getBundle(outputName, outputLocale);
-  }
+	protected boolean isSingleLine()
+	{
+		return false;
+	}
 
-  public void setInitialContext(InitialRenderContext context) {
-    super.setInitialContext(context);
-    clearRegex();
+	protected ResourceBundle getInputBundle()
+	{
+		Locale inputLocale = (Locale) initialContext
+				.get(RenderContext.INPUT_LOCALE);
+		String inputName = (String) initialContext
+				.get(RenderContext.INPUT_BUNDLE_NAME);
+		return ResourceBundle.getBundle(inputName, inputLocale);
+	}
 
-    outputMessages = getOutputBundle();
-    inputMessages = getInputBundle();
-    String match = inputMessages.getString(getLocaleKey()+".match");
-    addRegex(match, "", isSingleLine() ? RegexReplaceFilter.SINGLELINE : RegexReplaceFilter.MULTILINE);
-  }
+	protected ResourceBundle getOutputBundle()
+	{
+		Locale outputLocale = (Locale) initialContext
+				.get(RenderContext.OUTPUT_LOCALE);
+		String outputName = (String) initialContext
+				.get(RenderContext.OUTPUT_BUNDLE_NAME);
+		return ResourceBundle.getBundle(outputName, outputLocale);
+	}
 
-  protected abstract String getLocaleKey();
+	public void setInitialContext(InitialRenderContext context)
+	{
+		super.setInitialContext(context);
+		clearRegex();
+
+		outputMessages = getOutputBundle();
+		inputMessages = getInputBundle();
+		String match = inputMessages.getString(getLocaleKey() + ".match");
+		addRegex(match, "", isSingleLine() ? RegexReplaceFilter.SINGLELINE
+				: RegexReplaceFilter.MULTILINE);
+	}
+
+	protected abstract String getLocaleKey();
 }

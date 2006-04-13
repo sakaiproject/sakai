@@ -27,17 +27,18 @@ import java.util.List;
 
 /**
  * Repository for Macros
- *
- * @author 
+ * 
+ * @author
  * @version $Id$
  */
 
-public interface Repository {
-  public boolean containsKey(String key);
+public interface Repository
+{
+	public boolean containsKey(String key);
 
-  public Object get(String key);
+	public Object get(String key);
 
-  public List getPlugins();
+	public List getPlugins();
 
-  public void put(String key, Object value);
+	public void put(String key, Object value);
 }

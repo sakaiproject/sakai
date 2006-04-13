@@ -1,8 +1,8 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.bean.helper;
 
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.AuthZGroupBean;
@@ -11,24 +11,33 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 
 //FIXME: Tool
 
-public class AuthZGroupBeanHelper {
+public class AuthZGroupBeanHelper
+{
 
-	public static AuthZGroupBean createRealmBean(AuthzGroupService realmService, RWikiObject rwikiObject, ErrorBean errorBean, ViewBean vb) {
-		AuthZGroupBean rb = new AuthZGroupBean(vb.getPageName(), vb.getLocalSpace());
-		
+	public static AuthZGroupBean createRealmBean(
+			AuthzGroupService realmService, RWikiObject rwikiObject,
+			ErrorBean errorBean, ViewBean vb)
+	{
+		AuthZGroupBean rb = new AuthZGroupBean(vb.getPageName(), vb
+				.getLocalSpace());
+
 		String realmId = rwikiObject.getRealm();
 		rb.setRealmId(realmId);
-		try {
+		try
+		{
 			AuthzGroup realm = realmService.getAuthzGroup(realmId);
 			rb.setCurrentRealm(realm);
-		} catch (IdUnusedException e) {
-			// FIXME localise!
-			errorBean.addError("Realm: " + realmId + " is not recognised in the system.");
 		}
-        
-        rb.setSiteUpdateAllowed(realmService.allowUpdate(realmId));
-		
+		catch (GroupNotDefinedException e)
+		{
+			// FIXME localise!
+			errorBean.addError("Realm: " + realmId
+					+ " is not recognised in the system.");
+		}
+
+		rb.setSiteUpdateAllowed(realmService.allowUpdate(realmId));
+
 		return rb;
 	}
-	
+
 }

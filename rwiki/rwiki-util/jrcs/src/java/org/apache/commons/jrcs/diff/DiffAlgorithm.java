@@ -59,26 +59,27 @@ package org.apache.commons.jrcs.diff;
 
 /**
  * A simple interface for implementations of differencing algorithms.
- *
- * @version $Revision$ $Date$
- *
+ * 
+ * @version $Revision$ $Date: 2006-04-12 18:30:19 +0100 (Wed, 12 Apr
+ *          2006) $
  * @author <a href="mailto:bwm@hplb.hpl.hp.com">Brian McBride</a>
  */
 public interface DiffAlgorithm
 {
-    /**
-     * Computes the difference between the original
-     * sequence and the revised sequence and returns it
-     * as a {@link org.apache.commons.jrcs.diff.Revision Revision}
-     * object.
-     * <p>
-     * The revision can be used to construct the revised sequence
-     * from the original sequence.
-     *
-     * @param rev the revised text
-     * @return the revision script.
-     * @throws DifferentiationFailedException if the diff could not be computed.
-     */
-    public abstract Revision diff(Object[] orig, Object[] rev)
-        throws DifferentiationFailedException;
+	/**
+	 * Computes the difference between the original sequence and the revised
+	 * sequence and returns it as a
+	 * {@link org.apache.commons.jrcs.diff.Revision Revision} object.
+	 * <p>
+	 * The revision can be used to construct the revised sequence from the
+	 * original sequence.
+	 * 
+	 * @param rev
+	 *        the revised text
+	 * @return the revision script.
+	 * @throws DifferentiationFailedException
+	 *         if the diff could not be computed.
+	 */
+	public abstract Revision diff(Object[] orig, Object[] rev)
+			throws DifferentiationFailedException;
 }

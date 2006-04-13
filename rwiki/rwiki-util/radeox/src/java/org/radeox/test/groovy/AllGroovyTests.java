@@ -24,14 +24,17 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllGroovyTests extends TestCase {
-  public AllGroovyTests(String name) {
-    super(name);
-  }
+public class AllGroovyTests extends TestCase
+{
+	public AllGroovyTests(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    TestSuite s = new TestSuite();
-//    s.addTestSuite(RadeoxTemplateEngineTest.class);
-    return s;
-  }
+	public static Test suite()
+	{
+		TestSuite s = new TestSuite();
+		// s.addTestSuite(RadeoxTemplateEngineTest.class);
+		return s;
+	}
 }

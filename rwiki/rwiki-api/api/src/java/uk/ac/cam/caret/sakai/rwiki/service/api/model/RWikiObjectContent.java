@@ -22,38 +22,50 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RWikiObjectContent {
+public interface RWikiObjectContent
+{
 	/**
 	 * The Id of the content
+	 * 
 	 * @return
 	 */
 	String getRwikiid();
+
 	/**
 	 * The Id of the content
+	 * 
 	 * @param rwikiid
 	 */
 	void setRwikiid(String rwikiid);
+
 	/**
 	 * The record ID
+	 * 
 	 * @return
 	 */
 	String getId();
+
 	/**
 	 * The record ID
+	 * 
 	 * @param id
 	 */
 	void setId(String id);
+
 	/**
 	 * The content
+	 * 
 	 * @return
 	 */
 	String getContent();
+
 	/**
 	 * The content
+	 * 
 	 * @param content
 	 */
 	void setContent(String content);
-	
+
 }

@@ -26,18 +26,17 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * Filter for special words ...
- * Currently if replaces the word neotis with a link to the old
- * neotis homepage. Neotis was the company from funzel and leo.
- * Can be used for other words.
- *
- * @author leo
- * @team other
+ * Filter for special words ... Currently if replaces the word neotis with a
+ * link to the old neotis homepage. Neotis was the company from funzel and leo.
+ * Can be used for other words. @author leo @team other
+ * 
  * @version $Id$
  */
 
-public class MarkFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.mark";
-  }
+public class MarkFilter extends LocaleRegexReplaceFilter implements CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.mark";
+	}
 }

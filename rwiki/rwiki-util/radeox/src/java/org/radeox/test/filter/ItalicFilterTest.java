@@ -25,23 +25,30 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.ItalicFilter;
 
-public class ItalicFilterTest extends FilterTestSupport {
-  public ItalicFilterTest(String name) {
-    super(name);
-  }
+public class ItalicFilterTest extends FilterTestSupport
+{
+	public ItalicFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new ItalicFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new ItalicFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(FilterTestSupport.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(FilterTestSupport.class);
+	}
 
-  public void testItalic() {
-    assertEquals("<i class=\"italic\">Text</i>", filter.filter("~~Text~~", context));
-  }
+	public void testItalic()
+	{
+		assertEquals("<i class=\"italic\">Text</i>", filter.filter("~~Text~~",
+				context));
+	}
 }

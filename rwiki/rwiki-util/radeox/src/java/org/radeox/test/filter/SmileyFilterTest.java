@@ -24,23 +24,29 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.SmileyFilter;
 
-public class SmileyFilterTest extends FilterTestSupport {
-  public SmileyFilterTest(String name) {
-    super(name);
-  }
+public class SmileyFilterTest extends FilterTestSupport
+{
+	public SmileyFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new SmileyFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new SmileyFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(SmileyFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(SmileyFilterTest.class);
+	}
 
-  public void testSmiley() {
-    assertEquals(":-)", filter.filter(":-(", context));
-  }
+	public void testSmiley()
+	{
+		assertEquals(":-)", filter.filter(":-(", context));
+	}
 }

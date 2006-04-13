@@ -23,36 +23,38 @@
 
 package org.radeox.macro;
 
-import org.radeox.filter.interwiki.InterWiki;
-import org.radeox.macro.parameter.MacroParameter;
-
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.filter.interwiki.InterWiki;
+import org.radeox.macro.parameter.MacroParameter;
+
 /*
- * Macro that shows all know interwiki mappings.
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Macro that shows all know interwiki mappings. @author stephan @team sonicteam
+ * 
+ * @version $Id: InterWikiMacro.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class InterWikiMacro extends BaseLocaleMacro {
-    private String[] paramDescription =
-     {"none"};
+public class InterWikiMacro extends BaseLocaleMacro
+{
+	private String[] paramDescription = { "none" };
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public String getLocaleKey() {
-    return "macro.interwiki";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.interwiki";
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
-    InterWiki interWiki = InterWiki.getInstance();
-    interWiki.appendTo(writer);
-    return;
-  }
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
+		InterWiki interWiki = InterWiki.getInstance();
+		interWiki.appendTo(writer);
+		return;
+	}
 }

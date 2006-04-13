@@ -30,36 +30,44 @@ import java.util.Map;
 
 /**
  * Repository for plugins
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: PluginRepository.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class PluginRepository implements Repository {
-  protected Map plugins;
-  protected List list;
+public class PluginRepository implements Repository
+{
+	protected Map plugins;
 
-  protected static Repository instance;
+	protected List list;
 
-  public PluginRepository() {
-    plugins = new HashMap();
-    list = new ArrayList();
-  }
+	protected static Repository instance;
 
-  public boolean containsKey(String key) {
-    return plugins.containsKey(key);
-  }
+	public PluginRepository()
+	{
+		plugins = new HashMap();
+		list = new ArrayList();
+	}
 
-  public Object get(String key) {
-    return plugins.get(key);
-  }
+	public boolean containsKey(String key)
+	{
+		return plugins.containsKey(key);
+	}
 
-  public List getPlugins() {
-    return new ArrayList(plugins.values());
-  }
+	public Object get(String key)
+	{
+		return plugins.get(key);
+	}
 
-  public void put(String key, Object value) {
-    plugins.put(key, value);
-    list.add(value);
-  }
+	public List getPlugins()
+	{
+		return new ArrayList(plugins.values());
+	}
+
+	public void put(String key, Object value)
+	{
+		plugins.put(key, value);
+		list.add(value);
+	}
 }

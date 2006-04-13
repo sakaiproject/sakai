@@ -24,52 +24,60 @@
 package org.radeox.regex;
 
 /*
- * Matcher matches regular expressions (Pattern) to input
- * Implementation for regex package in JDK 1.4
- *
- * @author stephan
- * @team sonicteam
+ * Matcher matches regular expressions (Pattern) to input Implementation for
+ * regex package in JDK 1.4 @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class JdkMatcher extends Matcher {
-  private JdkPattern pattern;
-  private String input;
-  private java.util.regex.Matcher internalMatcher;
+public class JdkMatcher extends Matcher
+{
+	private JdkPattern pattern;
 
-  public String substitute(Substitution substitution) {
-    MatchResult matchResult = new JdkMatchResult(internalMatcher);
+	private String input;
 
-    StringBuffer buffer = new StringBuffer();
-    while (internalMatcher.find()) {
-      internalMatcher.appendReplacement(buffer, "");
-      substitution.handleMatch(buffer, matchResult);
-    }
-    internalMatcher.appendTail(buffer);
-    return buffer.toString();
-  }
+	private java.util.regex.Matcher internalMatcher;
 
-  public String substitute(String substitution) {
-    return internalMatcher.replaceAll(substitution);
-  }
+	public String substitute(Substitution substitution)
+	{
+		MatchResult matchResult = new JdkMatchResult(internalMatcher);
 
-  protected java.util.regex.Matcher getMatcher() {
-    return internalMatcher;
-  }
+		StringBuffer buffer = new StringBuffer();
+		while (internalMatcher.find())
+		{
+			internalMatcher.appendReplacement(buffer, "");
+			substitution.handleMatch(buffer, matchResult);
+		}
+		internalMatcher.appendTail(buffer);
+		return buffer.toString();
+	}
 
-  public JdkMatcher(String input, Pattern pattern) {
-    this.input = input;
-    this.pattern = (JdkPattern) pattern;
-    internalMatcher = this.pattern.getPattern().matcher(this.input);
+	public String substitute(String substitution)
+	{
+		return internalMatcher.replaceAll(substitution);
+	}
 
-  }
+	protected java.util.regex.Matcher getMatcher()
+	{
+		return internalMatcher;
+	}
 
-  public boolean contains() {
-    internalMatcher.reset();
-    return internalMatcher.find();
-  }
+	public JdkMatcher(String input, Pattern pattern)
+	{
+		this.input = input;
+		this.pattern = (JdkPattern) pattern;
+		internalMatcher = this.pattern.getPattern().matcher(this.input);
 
-  public boolean matches() {
-    return internalMatcher.matches();
-  }
+	}
+
+	public boolean contains()
+	{
+		internalMatcher.reset();
+		return internalMatcher.find();
+	}
+
+	public boolean matches()
+	{
+		return internalMatcher.matches();
+	}
 }

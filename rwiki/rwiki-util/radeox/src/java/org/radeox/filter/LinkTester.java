@@ -23,20 +23,19 @@
 package org.radeox.filter;
 
 /*
- * LinkTester defines an interface for tests for existence of
- * objects, for example wiki pages.
- *
- * @author stephan
- * @team sonicteam
+ * LinkTester defines an interface for tests for existence of objects, for
+ * example wiki pages. @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public interface LinkTester {
-  /**
-   * Test for the existence of an object given a String key
-   * for an object, for example the name of a wiki page.
-   *
-   * @return exists returns true if the objects exists
-   */
-  public boolean exists(String link);
+public interface LinkTester
+{
+	/**
+	 * Test for the existence of an object given a String key for an object, for
+	 * example the name of a wiki page.
+	 * 
+	 * @return exists returns true if the objects exists
+	 */
+	public boolean exists(String link);
 }

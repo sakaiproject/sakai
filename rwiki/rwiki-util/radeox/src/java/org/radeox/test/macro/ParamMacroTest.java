@@ -22,28 +22,34 @@
  */
 package org.radeox.test.macro;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.radeox.EngineManager;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParamMacroTest extends MacroTestSupport {
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-  public ParamMacroTest(String name) {
-    super(name);
-  }
+import org.radeox.EngineManager;
 
-  public static Test suite() {
-    return new TestSuite(ParamMacroTest.class);
-  }
+public class ParamMacroTest extends MacroTestSupport
+{
 
-  public void testParamMacro() {
-    Map params = new HashMap();
-    params.put("user","stephan");
-    context.setParameters(params);
-    String result = EngineManager.getInstance().render("{hello:$user}", context);
-    assertEquals("Hello <b>stephan</b>", result);
-  }
+	public ParamMacroTest(String name)
+	{
+		super(name);
+	}
+
+	public static Test suite()
+	{
+		return new TestSuite(ParamMacroTest.class);
+	}
+
+	public void testParamMacro()
+	{
+		Map params = new HashMap();
+		params.put("user", "stephan");
+		context.setParameters(params);
+		String result = EngineManager.getInstance().render("{hello:$user}",
+				context);
+		assertEquals("Hello <b>stephan</b>", result);
+	}
 }

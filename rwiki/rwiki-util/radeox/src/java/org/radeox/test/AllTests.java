@@ -25,23 +25,27 @@ package org.radeox.test;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.radeox.test.filter.AllFilterTests;
+import org.radeox.test.groovy.AllGroovyTests;
 import org.radeox.test.macro.AllMacroTests;
 import org.radeox.test.macro.list.AllListTests;
-import org.radeox.test.groovy.AllGroovyTests;
 
-public class AllTests extends TestCase {
-  public AllTests(String name) {
-    super(name);
-  }
+public class AllTests extends TestCase
+{
+	public AllTests(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    TestSuite s = new TestSuite();
-    s.addTest(AllFilterTests.suite());
-    s.addTest(AllMacroTests.suite());
-    s.addTest(AllListTests.suite());
-    s.addTest(AllGroovyTests.suite());
-    s.addTestSuite(BaseRenderEngineTest.class);
-    return s;
-  }
+	public static Test suite()
+	{
+		TestSuite s = new TestSuite();
+		s.addTest(AllFilterTests.suite());
+		s.addTest(AllMacroTests.suite());
+		s.addTest(AllListTests.suite());
+		s.addTest(AllGroovyTests.suite());
+		s.addTestSuite(BaseRenderEngineTest.class);
+		return s;
+	}
 }

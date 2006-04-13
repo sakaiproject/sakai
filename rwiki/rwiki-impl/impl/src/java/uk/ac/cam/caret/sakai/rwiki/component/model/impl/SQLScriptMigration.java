@@ -36,114 +36,154 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.framework.sql.cover.SqlService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.db.cover.SqlService;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.HibernateTemplate;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.DataMigrationAgent;
 
-//FIXME: Component
+// FIXME: Component
 
-public class SQLScriptMigration implements DataMigrationAgent{
+public class SQLScriptMigration implements DataMigrationAgent
+{
+	private static Log log = LogFactory.getLog(SQLScriptMigration.class);
+
 	private String from;
+
 	private String to;
-    private String scriptPattern;
+
+	private String scriptPattern;
+
 	private SessionFactory sessionFactory;
-	private Logger log;
-	public String migrate(String current, String target) throws Exception {
-		if (( current != null && from == null ) ||
-			( current != null && !current.equals(from) )) {
-				log.info("Skipping Migration for "+from+" to "+to);
+
+	public String migrate(String current, String target) throws Exception
+	{
+		if ((current != null && from == null)
+				|| (current != null && !current.equals(from)))
+		{
+			log.info("Skipping Migration for " + from + " to " + to);
 			return current;
 		}
-        String targetScript = null;
-        String targetDialect = SqlService.getVendor();
-        if ( targetDialect == null || targetDialect.length() == 0 )
-                targetDialect = "hsqldb";
-        targetScript = MessageFormat.format(scriptPattern,new Object[] {targetDialect});
+		String targetScript = null;
+		String targetDialect = SqlService.getVendor();
+		if (targetDialect == null || targetDialect.length() == 0)
+			targetDialect = "hsqldb";
+		targetScript = MessageFormat.format(scriptPattern,
+				new Object[] { targetDialect });
 		// to matches
 		// perform the migration
-		log.info("Migrating database schema from "+from+" to "+to+" using "+targetScript);
+		log.info("Migrating database schema from " + from + " to " + to
+				+ " using " + targetScript);
 		InputStream inStream = getClass().getResourceAsStream(targetScript);
-		if ( inStream == null ) {
-			log.warn("Migration Script "+targetScript+" was not found ");
+		if (inStream == null)
+		{
+			log.warn("Migration Script " + targetScript + " was not found ");
 			return current;
 		}
-			
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(inStream));
 		String line = br.readLine();
 		StringBuffer currentLine = new StringBuffer();
 		List lines = new ArrayList();
-		while ( line != null ) {
-			if ( line.trim().endsWith(";") ) {
+		while (line != null)
+		{
+			if (line.trim().endsWith(";"))
+			{
 				currentLine.append(line);
 				String sqlcmd = currentLine.toString().trim();
-				sqlcmd = sqlcmd.substring(0,sqlcmd.length()-1);
-				if  ( sqlcmd != null && sqlcmd.length() > 0 ) {
+				sqlcmd = sqlcmd.substring(0, sqlcmd.length() - 1);
+				if (sqlcmd != null && sqlcmd.length() > 0)
+				{
 					lines.add(sqlcmd);
 				}
 				currentLine = new StringBuffer();
-			} else {
+			}
+			else
+			{
 				currentLine.append(line);
 			}
 			line = br.readLine();
 		}
-		final String[] sql = (String[])lines.toArray(new String[0]);
-		
-		HibernateTemplate hibernateTemplate = new HibernateTemplate(sessionFactory);
+		final String[] sql = (String[]) lines.toArray(new String[0]);
+
+		HibernateTemplate hibernateTemplate = new HibernateTemplate(
+				sessionFactory);
 		hibernateTemplate.setFlushMode(HibernateTemplate.FLUSH_NEVER);
-		hibernateTemplate.execute(
-				new HibernateCallback() {
-					public Object doInHibernate(Session session) throws HibernateException, SQLException {
-						Connection con = session.connection();						
-						executeSchemaScript(con, sql);
-						return null;
-					}
-				}
-			);
+		hibernateTemplate.execute(new HibernateCallback()
+		{
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException
+			{
+				Connection con = session.connection();
+				executeSchemaScript(con, sql);
+				return null;
+			}
+		});
 		return to;
-	}		
-	
+	}
+
 	/**
 	 * borrowed from LocalSessionFactoryBean in spring
+	 * 
 	 * @param con
 	 * @param sql
 	 * @throws SQLException
 	 */
-	protected void executeSchemaScript(Connection con, String[] sql) throws SQLException {
-		if (sql != null && sql.length > 0) {
+	protected void executeSchemaScript(Connection con, String[] sql)
+			throws SQLException
+	{
+		if (sql != null && sql.length > 0)
+		{
 			boolean oldAutoCommit = con.getAutoCommit();
-			if (!oldAutoCommit) {
+			if (!oldAutoCommit)
+			{
 				con.setAutoCommit(true);
 			}
-			try {
+			try
+			{
 				Statement stmt = con.createStatement();
-				try {
-					for (int i = 0; i < sql.length; i++) {
-						if ( sql[i].startsWith("message") ) {
-							log.info("Data Migration "+sql[i]);
-						} else {
-							log.debug("Executing data migration statement: " + sql[i]);
-							try {
+				try
+				{
+					for (int i = 0; i < sql.length; i++)
+					{
+						if (sql[i].startsWith("message"))
+						{
+							log.info("Data Migration " + sql[i]);
+						}
+						else
+						{
+							log.debug("Executing data migration statement: "
+									+ sql[i]);
+							try
+							{
 								long start = System.currentTimeMillis();
 								int l = stmt.executeUpdate(sql[i]);
-								log.debug("   Done "+l+" rows in "+(System.currentTimeMillis()-start)+" ms");
+								log.debug("   Done " + l + " rows in "
+										+ (System.currentTimeMillis() - start)
+										+ " ms");
 							}
-							catch (SQLException ex) {
-								log.warn("Unsuccessful data migration statement: " + sql[i]);
-								log.debug("Cause: "+ex.getMessage());
+							catch (SQLException ex)
+							{
+								log
+										.warn("Unsuccessful data migration statement: "
+												+ sql[i]);
+								log.debug("Cause: " + ex.getMessage());
 							}
 						}
 					}
 				}
-				finally {
+				finally
+				{
 					JdbcUtils.closeStatement(stmt);
 				}
 			}
-			finally {
-				if (!oldAutoCommit) {
+			finally
+			{
+				if (!oldAutoCommit)
+				{
 					con.setAutoCommit(false);
 				}
 			}
@@ -153,67 +193,69 @@ public class SQLScriptMigration implements DataMigrationAgent{
 	/**
 	 * @return Returns the from.
 	 */
-	public String getFrom() {
+	public String getFrom()
+	{
 		return from;
 	}
+
 	/**
-	 * @param from The from to set.
+	 * @param from
+	 *        The from to set.
 	 */
-	public void setFrom(String from) {
+	public void setFrom(String from)
+	{
 		this.from = from;
 	}
-	/**
-	 * @return Returns the log.
-	 */
-	public Logger getLog() {
-		return log;
-	}
-	/**
-	 * @param log The log to set.
-	 */
-	public void setLog(Logger log) {
-		this.log = log;
-	}
+
 	/**
 	 * @return Returns the sessionFactory.
 	 */
-	public SessionFactory getSessionFactory() {
+	public SessionFactory getSessionFactory()
+	{
 		return sessionFactory;
 	}
+
 	/**
-	 * @param sessionFactory The sessionFactory to set.
+	 * @param sessionFactory
+	 *        The sessionFactory to set.
 	 */
-	public void setSessionFactory(SessionFactory sessionFactory) {
+	public void setSessionFactory(SessionFactory sessionFactory)
+	{
 		this.sessionFactory = sessionFactory;
 	}
+
 	/**
 	 * @return Returns the to.
 	 */
-	public String getTo() {
+	public String getTo()
+	{
 		return to;
 	}
+
 	/**
-	 * @param to The to to set.
+	 * @param to
+	 *        The to to set.
 	 */
-	public void setTo(String to) {
+	public void setTo(String to)
+	{
 		this.to = to;
 	}
 
-    /**
-     * @return Returns the scriptPattern.
-     */
-    public String getScriptPattern() {
-        return scriptPattern;
-    }
+	/**
+	 * @return Returns the scriptPattern.
+	 */
+	public String getScriptPattern()
+	{
+		return scriptPattern;
+	}
 
-    /**
-     * @param scriptPattern The scriptPattern to set.
-     */
-    public void setScriptPattern(String scriptPattern) {
-        this.scriptPattern = scriptPattern;
-    }
-
-
-	
+	/**
+	 * @param scriptPattern
+	 *        The scriptPattern to set.
+	 */
+	public void setScriptPattern(String scriptPattern)
+	{
+		this.scriptPattern = scriptPattern;
+	}
 
 }

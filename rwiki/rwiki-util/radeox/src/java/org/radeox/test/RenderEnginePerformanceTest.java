@@ -23,25 +23,31 @@
 package org.radeox.test;
 
 import junit.framework.TestCase;
+
 import org.radeox.EngineManager;
 import org.radeox.api.engine.RenderEngine;
-import org.radeox.engine.context.BaseRenderContext;
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.engine.context.BaseRenderContext;
 
-public class RenderEnginePerformanceTest extends TestCase {
-  private RenderContext context;
-  private String wikiMarkup;
-  private RenderEngine engine;
+public class RenderEnginePerformanceTest extends TestCase
+{
+	private RenderContext context;
 
-  public RenderEnginePerformanceTest(String text) {
-    super("testPerformance");
-    context = new BaseRenderContext();
-    wikiMarkup = text;
-    engine = EngineManager.getInstance();
-  }
+	private String wikiMarkup;
 
-  public void testPerformance() {
-    System.err.println("Test Size: "+wikiMarkup.length());
-    engine.render(wikiMarkup, context);
-  }
+	private RenderEngine engine;
+
+	public RenderEnginePerformanceTest(String text)
+	{
+		super("testPerformance");
+		context = new BaseRenderContext();
+		wikiMarkup = text;
+		engine = EngineManager.getInstance();
+	}
+
+	public void testPerformance()
+	{
+		System.err.println("Test Size: " + wikiMarkup.length());
+		engine.render(wikiMarkup, context);
+	}
 }

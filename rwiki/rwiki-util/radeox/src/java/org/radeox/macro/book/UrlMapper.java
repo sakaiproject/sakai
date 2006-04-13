@@ -28,14 +28,14 @@ import java.io.Writer;
 
 /**
  * Manages links to keys
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public interface UrlMapper {
-  public Writer appendTo(Writer writer) throws IOException;
+public interface UrlMapper
+{
+	public Writer appendTo(Writer writer) throws IOException;
 
-  public Writer appendUrl(Writer writer, String key)
-      throws IOException;
+	public Writer appendUrl(Writer writer, String key) throws IOException;
 }

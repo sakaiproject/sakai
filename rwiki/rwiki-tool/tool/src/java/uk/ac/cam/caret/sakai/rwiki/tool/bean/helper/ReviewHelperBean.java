@@ -34,110 +34,135 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.HistoryBean;
  * 
  * @author andrew
  */
-//FIXME: Tool
+// FIXME: Tool
+public class ReviewHelperBean
+{
 
-public class ReviewHelperBean {
+	/**
+	 * SerlvetRequest to get revision details from
+	 */
+	private ServletRequest request;
 
-    /**
-     * SerlvetRequest to get revision details from
-     */
-    private ServletRequest request;
+	/**
+	 * the real rwikiObject
+	 */
+	private RWikiObject rwikiObject;
 
-    /**
-     * the real rwikiObject
-     */
-    private RWikiObject rwikiObject;
-    
-    private RWikiObjectService rwikiObjectService;
+	private RWikiObjectService rwikiObjectService;
 
-    /**
-     * the mock rwikiObject
-     */
-    private RWikiObject mock;
+	/**
+	 * the mock rwikiObject
+	 */
+	private RWikiObject mock;
 
-    /**
-     * the revision number of the mock
-     */
-    private int interestedRevision;
+	/**
+	 * the revision number of the mock
+	 */
+	private int interestedRevision;
 
-    /**
-     * Initialize the bean by setting the interested revision from the request
-     * and creating the mock.
-     */
-    public void init() {
-        if (request != null) {
-            interestedRevision = Integer.parseInt(request
-                    .getParameter(HistoryBean.REVISION_PARAM));
-        }
+	/**
+	 * Initialize the bean by setting the interested revision from the request
+	 * and creating the mock.
+	 */
+	public void init()
+	{
+		if (request != null)
+		{
+			interestedRevision = Integer.parseInt(request
+					.getParameter(HistoryBean.REVISION_PARAM));
+		}
 
-        if (interestedRevision == rwikiObject.getRevision().intValue()) {
-            mock = rwikiObject;
-        } else {
-            mock =  rwikiObjectService.getRWikiHistoryObject(rwikiObject,interestedRevision);
-        }
-    }
+		if (interestedRevision == rwikiObject.getRevision().intValue())
+		{
+			mock = rwikiObject;
+		}
+		else
+		{
+			mock = rwikiObjectService.getRWikiHistoryObject(rwikiObject,
+					interestedRevision);
+		}
+	}
 
-    /**
-     * Set the current request
-     * @param servletRequest
-     */
-    public void setServletRequest(ServletRequest servletRequest) {
-        this.request = servletRequest;
-    }
+	/**
+	 * Set the current request
+	 * 
+	 * @param servletRequest
+	 */
+	public void setServletRequest(ServletRequest servletRequest)
+	{
+		this.request = servletRequest;
+	}
 
-    /**
-     * Get the associated real rwikiObject
-     * @return the associated real rwikiObject
-     */
-    public RWikiObject getRwikiObject() {
-        return rwikiObject;
-    }
+	/**
+	 * Get the associated real rwikiObject
+	 * 
+	 * @return the associated real rwikiObject
+	 */
+	public RWikiObject getRwikiObject()
+	{
+		return rwikiObject;
+	}
 
-    /**
-     * Set the real rwikiObject
-     * @param rwikiObject the real object
-     */
-    public void setRwikiObject(RWikiObject rwikiObject) {
-        this.rwikiObject = rwikiObject;
-    }
+	/**
+	 * Set the real rwikiObject
+	 * 
+	 * @param rwikiObject
+	 *        the real object
+	 */
+	public void setRwikiObject(RWikiObject rwikiObject)
+	{
+		this.rwikiObject = rwikiObject;
+	}
 
-    /**
-     * Get the requested interestedRevision
-     * @return revision number of the mock
-     */
-    public int getInterestedRevision() {
-        return interestedRevision;
-    }
+	/**
+	 * Get the requested interestedRevision
+	 * 
+	 * @return revision number of the mock
+	 */
+	public int getInterestedRevision()
+	{
+		return interestedRevision;
+	}
 
-    /**
-     * Set the interestedRevision of the mock
-     * @param interestedRevision the interestedRevision to set
-     */
-    public void setInterestedRevision(int interestedRevision) {
-        this.interestedRevision = interestedRevision;
-    }
+	/**
+	 * Set the interestedRevision of the mock
+	 * 
+	 * @param interestedRevision
+	 *        the interestedRevision to set
+	 */
+	public void setInterestedRevision(int interestedRevision)
+	{
+		this.interestedRevision = interestedRevision;
+	}
 
-    /**
-     * Get the mock rwikiObject
-     * @return the mock rwikiObject
-     */
-    public RWikiObject getMock() {
-        return mock;
-    }
+	/**
+	 * Get the mock rwikiObject
+	 * 
+	 * @return the mock rwikiObject
+	 */
+	public RWikiObject getMock()
+	{
+		return mock;
+	}
 
-    /**
-     * Set the mock rwikiObject
-     * @param mock object to set
-     */
-    public void setMock(RWikiObject mock) {
-        this.mock = mock;
-    }
+	/**
+	 * Set the mock rwikiObject
+	 * 
+	 * @param mock
+	 *        object to set
+	 */
+	public void setMock(RWikiObject mock)
+	{
+		this.mock = mock;
+	}
 
-	public RWikiObjectService getRwikiObjectService() {
+	public RWikiObjectService getRwikiObjectService()
+	{
 		return rwikiObjectService;
 	}
 
-	public void setRwikiObjectService(RWikiObjectService rwikiObjectService) {
+	public void setRwikiObjectService(RWikiObjectService rwikiObjectService)
+	{
 		this.rwikiObjectService = rwikiObjectService;
 	}
 }

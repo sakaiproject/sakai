@@ -29,66 +29,65 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
 /**
  * @author andrew
- * 
  */
-//FIXME: Tool
+// FIXME: Tool
+public class BasicHttpCommand implements HttpCommand
+{
+	private static Log log = LogFactory.getLog(BasicHttpCommand.class);
 
-public class BasicHttpCommand implements HttpCommand {
+	private String servletPath;
 
-    private String servletPath;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.ac.cam.caret.sakai.rwiki.tool.service.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse)
+	 */
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
+		this.beforeDispatch(request, response);
+		if (!response.isCommitted())
+		{
+			this.dispatch(request, response);
+			this.afterDispatch(request, response);
+		}
+	}
 
-    private Logger log;
+	public void afterDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		// EMPTY
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see uk.ac.cam.caret.sakai.rwiki.tool.service.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
-     */
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        this.beforeDispatch(request, response);
-        if (!response.isCommitted()) {
-            this.dispatch(request, response);
-            this.afterDispatch(request, response);
-        }
-    }
+	public void beforeDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		// EMPTY
+	}
 
-    public void afterDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        // EMPTY
-    }
+	public void dispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		RequestDispatcher rd = request.getRequestDispatcher(servletPath);
+		rd.forward(request, response);
+	}
 
-    public void beforeDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        // EMPTY
-    }
+	public String getServletPath()
+	{
+		return servletPath;
+	}
 
-    public void dispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher(servletPath);
-        rd.forward(request, response);
-    }
+	public void setServletPath(String servletPath)
+	{
+		this.servletPath = servletPath;
+	}
 
-    public String getServletPath() {
-        return servletPath;
-    }
-
-    public void setServletPath(String servletPath) {
-        this.servletPath = servletPath;
-    }
-
-    public Logger getLog() {
-        return log;
-    }
-
-    public void setLog(Logger log) {
-        this.log = log;
-    }
 }

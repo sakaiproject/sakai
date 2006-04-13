@@ -23,117 +23,155 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.entity.api.Entity;
 
 /**
  * Represents a decoded entity url
+ * 
  * @author ieb
- *
  */
-public class Decoded {
-	public Decoded() {
-		
+public class Decoded
+{
+	public Decoded()
+	{
+
 	}
-	public Decoded( String context, String container, String page, String version ) {
+
+	public Decoded(String context, String container, String page, String version)
+	{
 		this.context = context;
 		this.container = container;
 		this.page = page;
 		this.version = version;
-		
+
 	}
+
 	private String id = null;
+
 	private String context = null;
+
 	private String container = null;
+
 	private String page = null;
+
 	private String version = null;
+
 	/**
 	 * @return Returns the container.
 	 */
-	public String getContainer() {
+	public String getContainer()
+	{
 		return container;
 	}
+
 	/**
-	 * @param container The container to set.
+	 * @param container
+	 *        The container to set.
 	 */
-	public void setContainer(String container) {
+	public void setContainer(String container)
+	{
 		this.container = container;
 	}
+
 	/**
 	 * @return Returns the context.
 	 */
-	public String getContext() {
+	public String getContext()
+	{
 		return context;
 	}
+
 	/**
-	 * @param context The context to set.
+	 * @param context
+	 *        The context to set.
 	 */
-	public void setContext(String context) {
+	public void setContext(String context)
+	{
 		this.context = context;
 	}
+
 	/**
 	 * @return Returns the id.
 	 */
-	public String getId() {
-		if ( id == null ) {
-			if ( container.equals("/") ) {
-				id = context+container+page;
-			} else {
-				id = context+container+Entity.SEPARATOR+page;
+	public String getId()
+	{
+		if (id == null)
+		{
+			if (container.equals("/"))
+			{
+				id = context + container + page;
+			}
+			else
+			{
+				id = context + container + Entity.SEPARATOR + page;
 			}
 		}
 		return id;
 	}
+
 	/**
 	 * @return Returns the page.
 	 */
-	public String getPage() {
+	public String getPage()
+	{
 		return page;
 	}
+
 	/**
-	 * @param page The page to set.
+	 * @param page
+	 *        The page to set.
 	 */
-	public void setPage(String page) {
+	public void setPage(String page)
+	{
 		id = null;
 		this.page = page;
 	}
+
 	/**
 	 * @return Returns the version.
 	 */
-	public String getVersion() {
+	public String getVersion()
+	{
 		id = null;
 		return version;
 	}
+
 	/**
-	 * @param version The version to set.
+	 * @param version
+	 *        The version to set.
 	 */
-	public void setVersion(String version) {
+	public void setVersion(String version)
+	{
 		id = null;
 		this.version = version;
 	}
-	
-	public boolean equals(Object o) {
-		if ( o instanceof Decoded ) {
-			Decoded d = (Decoded)o;
+
+	public boolean equals(Object o)
+	{
+		if (o instanceof Decoded)
+		{
+			Decoded d = (Decoded) o;
 			String dcontainer = d.getContainer();
 			String dcontext = d.getContext();
 			String dpage = d.getPage();
 			String dversion = d.getVersion();
-			if ( container == null && dcontainer != null ) return false;
-			if ( context == null && dcontext != null ) return false;
-			if ( page == null && dpage != null ) return false;
-			if ( version == null && dversion != null ) return false;
-			if ( container != null && ! container.equals(dcontainer) ) return false;
-			if ( context != null && ! context.equals(dcontext) ) return false;
-			if ( page != null && ! page.equals(dpage) ) return false;
-			if ( version != null && ! version.equals(dversion) ) return false;
+			if (container == null && dcontainer != null) return false;
+			if (context == null && dcontext != null) return false;
+			if (page == null && dpage != null) return false;
+			if (version == null && dversion != null) return false;
+			if (container != null && !container.equals(dcontainer))
+				return false;
+			if (context != null && !context.equals(dcontext)) return false;
+			if (page != null && !page.equals(dpage)) return false;
+			if (version != null && !version.equals(dversion)) return false;
 			return true;
 		}
 		return false;
 	}
-	public String toString() {
-		return getId()+","+version;
-	}
-	
 
+	public String toString()
+	{
+		return getId() + "," + version;
+	}
 
 }

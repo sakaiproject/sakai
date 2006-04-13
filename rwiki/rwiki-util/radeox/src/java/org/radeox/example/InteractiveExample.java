@@ -33,34 +33,43 @@ import org.radeox.engine.BaseRenderEngine;
 import org.radeox.engine.context.BaseRenderContext;
 
 /*
- * Interactive example how to use EngineManager
- *
- * @author Stephan J. Schmidt
- * @version $Id$
+ * Interactive example how to use EngineManager @author Stephan J. Schmidt
+ * 
+ * @version $Id: InteractiveExample.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class InteractiveExample {
-  public static void main(String[] args) {
-    System.err.println("Radeox 0.8");
-    System.err.println("Copyright (c) 2003 Stephan J. Schmidt, Matthias L. Jugel. "
-        + "\nAll Rights Reserved.");
-    System.err.println("See License Agreement for terms and conditions of use.");
+public class InteractiveExample
+{
+	public static void main(String[] args)
+	{
+		System.err.println("Radeox 0.8");
+		System.err
+				.println("Copyright (c) 2003 Stephan J. Schmidt, Matthias L. Jugel. "
+						+ "\nAll Rights Reserved.");
+		System.err
+				.println("See License Agreement for terms and conditions of use.");
 
-    RenderEngine engine = new BaseRenderEngine();
+		RenderEngine engine = new BaseRenderEngine();
 
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    RenderContext context = new BaseRenderContext();
-    String line;
-    try {
-      System.out.print("> ");
-      System.out.flush();
-      while ( (line = reader.readLine()) != null ) {
-        System.out.println(engine.render(line, context));
-        System.out.print("> ");
-        System.out.flush();
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				System.in));
+		RenderContext context = new BaseRenderContext();
+		String line;
+		try
+		{
+			System.out.print("> ");
+			System.out.flush();
+			while ((line = reader.readLine()) != null)
+			{
+				System.out.println(engine.render(line, context));
+				System.out.print("> ");
+				System.out.flush();
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 }

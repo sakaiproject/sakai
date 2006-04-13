@@ -28,43 +28,58 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A function that summerizes table cells
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class SumFunction implements Function {
-  private static Log log = LogFactory.getLog(SumFunction.class);
+public class SumFunction implements Function
+{
+	private static Log log = LogFactory.getLog(SumFunction.class);
 
+	public String getName()
+	{
+		return "SUM";
+	}
 
-  public String getName() {
-    return "SUM";
-  }
-
-  public void execute(Table table, int posx, int posy, int startX, int startY, int endX, int endY) {
-    float sum = 0;
-    boolean floating = false;
-    for (int x = startX; x <= endX; x++) {
-      for (int y = startY; y <= endY; y++) {
-        //Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
-        try {
-          sum += Integer.parseInt((String) table.getXY(x, y));
-        } catch (Exception e) {
-          try {
-            sum += Float.parseFloat((String) table.getXY(x, y));
-            floating = true;
-          } catch (NumberFormatException e1) {
-            log.debug("SumFunction: unable to parse " + table.getXY(x, y));
-          }
-        }
-      }
-    }
-    //Logger.debug("Sum="+sum);
-    if (floating) {
-      table.setXY(posx, posy, "" + sum);
-    } else {
-      table.setXY(posx, posy, "" + (int) sum);
-    }
-  }
+	public void execute(Table table, int posx, int posy, int startX,
+			int startY, int endX, int endY)
+	{
+		float sum = 0;
+		boolean floating = false;
+		for (int x = startX; x <= endX; x++)
+		{
+			for (int y = startY; y <= endY; y++)
+			{
+				// Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
+				try
+				{
+					sum += Integer.parseInt((String) table.getXY(x, y));
+				}
+				catch (Exception e)
+				{
+					try
+					{
+						sum += Float.parseFloat((String) table.getXY(x, y));
+						floating = true;
+					}
+					catch (NumberFormatException e1)
+					{
+						log.debug("SumFunction: unable to parse "
+								+ table.getXY(x, y));
+					}
+				}
+			}
+		}
+		// Logger.debug("Sum="+sum);
+		if (floating)
+		{
+			table.setXY(posx, posy, "" + sum);
+		}
+		else
+		{
+			table.setXY(posx, posy, "" + (int) sum);
+		}
+	}
 
 }

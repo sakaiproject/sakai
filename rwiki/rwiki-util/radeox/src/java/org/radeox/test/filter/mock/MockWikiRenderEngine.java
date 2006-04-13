@@ -23,51 +23,62 @@
 
 package org.radeox.test.filter.mock;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.util.Encoder;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.io.Reader;
+public class MockWikiRenderEngine implements RenderEngine, WikiRenderEngine
+{
 
-public class MockWikiRenderEngine implements RenderEngine, WikiRenderEngine {
+	public boolean exists(String name)
+	{
+		return name.equals("SnipSnap") || name.equals("stephan");
+	}
 
-  public boolean exists(String name) {
-    return name.equals("SnipSnap") || name.equals("stephan");
-  }
+	public boolean showCreate()
+	{
+		return true;
+	}
 
-  public boolean showCreate() {
-    return true;
-  }
+	public void appendLink(StringBuffer buffer, String name, String view,
+			String anchor)
+	{
+		buffer.append("link:" + name + "|" + view + "#" + anchor);
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view, String anchor) {
-    buffer.append("link:"+name+"|"+view+"#"+anchor);
-  }
+	public void appendLink(StringBuffer buffer, String name, String view)
+	{
+		buffer.append("link:" + name + "|" + view);
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view) {
-    buffer.append("link:" + name + "|" +view);
-  }
+	public void appendCreateLink(StringBuffer buffer, String name, String view)
+	{
+		buffer.append("'").append(name).append("' - ");
+		buffer.append("'").append(Encoder.escape(name)).append("'");
+	}
 
-  public void appendCreateLink(StringBuffer buffer, String name, String view) {
-    buffer.append("'").append(name).append("' - ");
-    buffer.append("'").append(Encoder.escape(name)).append("'");
-  }
+	public String getName()
+	{
+		return "mock-wiki";
+	}
 
-  public String getName() {
-    return "mock-wiki";
-  }
+	public String render(String content, RenderContext context)
+	{
+		return null;
+	}
 
-  public String render(String content, RenderContext context) {
-    return null;
-  }
+	public void render(Writer out, String content, RenderContext context)
+			throws IOException
+	{
+	}
 
-  public void render(Writer out, String content, RenderContext context) throws IOException {
-  }
-
-
-  public String render(Reader in, RenderContext context) throws IOException {
-    return null;
-  }
+	public String render(Reader in, RenderContext context) throws IOException
+	{
+		return null;
+	}
 }

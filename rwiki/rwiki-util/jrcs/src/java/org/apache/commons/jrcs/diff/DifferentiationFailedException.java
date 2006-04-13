@@ -60,9 +60,9 @@ package org.apache.commons.jrcs.diff;
 /**
  * Thrown whenever the differencing engine cannot produce the differences
  * between two revisions of ta text.
- *
- * @version $Revision$ $Date$
- *
+ * 
+ * @version $Revision$ $Date: 2006-04-12 18:30:19 +0100 (Wed, 12 Apr
+ *          2006) $
  * @author <a href="mailto:juanco@suigeneris.org">Juanco Anez</a>
  * @see Diff
  * @see DiffAlgorithm
@@ -70,13 +70,12 @@ package org.apache.commons.jrcs.diff;
 public class DifferentiationFailedException extends DiffException
 {
 
-    public DifferentiationFailedException()
-    {
-    }
+	public DifferentiationFailedException()
+	{
+	}
 
-    public DifferentiationFailedException(String msg)
-    {
-        super(msg);
-    }
+	public DifferentiationFailedException(String msg)
+	{
+		super(msg);
+	}
 }
-

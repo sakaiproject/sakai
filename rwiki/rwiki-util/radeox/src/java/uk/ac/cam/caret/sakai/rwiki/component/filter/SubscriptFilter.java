@@ -4,10 +4,12 @@ import org.radeox.filter.CacheFilter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 public class SubscriptFilter extends LocaleRegexReplaceFilter implements
-        CacheFilter {
+		CacheFilter
+{
 
-    protected String getLocaleKey() {
-        return "filter.subscript";
-    }
+	protected String getLocaleKey()
+	{
+		return "filter.subscript";
+	}
 
 }

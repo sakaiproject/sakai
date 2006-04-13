@@ -31,13 +31,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
-import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 import uk.ac.cam.caret.sakai.rwiki.tool.RWikiServlet;
@@ -51,31 +52,26 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 
 /**
  * @author andrew
- * 
  */
-//FIXME: Tool
+// FIXME: Tool
+public class EditManyAuthZGroupCommand implements HttpCommand
+{
+	private static Log log = LogFactory.getLog(EditManyAuthZGroupCommand.class);
 
-public class EditManyAuthZGroupCommand implements HttpCommand {
-	
 	private String editRealmPath;
+
 	private String cancelEditPath;
+
 	private String successfulPath;
+
 	private String permissionPath;
+
 	private String unknownRealmPath;
+
 	private String idInUsePath;
+
 	private AuthzGroupService realmService;
-	private Logger log;
-	
-	public Logger getLog() {
-		return log;
-	}
-	
-	
-	public void setLog(Logger log) {
-		this.log = log;
-	}
-	
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -83,250 +79,288 @@ public class EditManyAuthZGroupCommand implements HttpCommand {
 	 *      javax.servlet.http.HttpServletResponse)
 	 */
 	public void execute(HttpServletRequest request, HttpServletResponse response)
-	throws ServletException, IOException {
-		
+			throws ServletException, IOException
+	{
+
 		RequestScopeSuperBean rssb = RequestScopeSuperBean
-		.getFromRequest(request);
-		
+				.getFromRequest(request);
+
 		ViewParamsHelperBean vphb = rssb.getNameHelperBean();
-		AuthZGroupCollectionBean collectionsBean = rssb.getAuthZGroupCollectionBean();
-		//String requestedRealmId = realmEditBean.getLocalSpace();
-		
+		AuthZGroupCollectionBean collectionsBean = rssb
+				.getAuthZGroupCollectionBean();
+		// String requestedRealmId = realmEditBean.getLocalSpace();
+
 		String saveType = vphb.getSaveType();
-		
-		try {            			
-			if (saveType == null || saveType.equals("")) {
+
+		try
+		{
+			if (saveType == null || saveType.equals(""))
+			{
 				// Begin a realmEdit...
 				editDispatch(request, response);
 				return;
-			} else if (saveType.equals(AuthZGroupEditBean.CANCEL_VALUE)) {
+			}
+			else if (saveType.equals(AuthZGroupEditBean.CANCEL_VALUE))
+			{
 				// cancel a realmEdit...
-				// TODO: CHECK We beleive that this is no longer needed since locking in authz group
+				// TODO: CHECK We beleive that this is no longer needed since
+				// locking in authz group
 				// is optimistic
-				//realmService.cancelEdit(realmEdit);
+				// realmService.cancelEdit(realmEdit);
 				cancelDispatch(request, response);
 
-	            String pageName = vphb.getGlobalName();
-	            String realm = vphb.getLocalSpace();
-	            ViewBean vb = new ViewBean(pageName, realm);
-	            String requestURL = request.getRequestURL().toString();
-	            SessionManager.getCurrentToolSession().setAttribute(RWikiServlet.SAVED_REQUEST_URL,requestURL+vb.getInfoUrl());
+				String pageName = vphb.getGlobalName();
+				String realm = vphb.getLocalSpace();
+				ViewBean vb = new ViewBean(pageName, realm);
+				String requestURL = request.getRequestURL().toString();
+				SessionManager.getCurrentToolSession().setAttribute(
+						RWikiServlet.SAVED_REQUEST_URL,
+						requestURL + vb.getInfoUrl());
 
 				return;
-			} else if (saveType.equals(AuthZGroupEditBean.SAVE_VALUE)) {
+			}
+			else if (saveType.equals(AuthZGroupEditBean.SAVE_VALUE))
+			{
 				// complete a realmEdit...
 				Map requestMap = request.getParameterMap();
-				
-                for (Iterator it = collectionsBean.getRealms().iterator(); it.hasNext();) {
-                    AuthZGroupBean aub = (AuthZGroupBean) it.next();
-                    AuthzGroup group = aub.getRealmEdit();
-                    for (Iterator jt = group.getRoles().iterator(); jt.hasNext(); ) {
-                        Role role = (Role) jt.next();
-                        updateRole(role, aub.getEscapedId(), requestMap);
-                    }
-                    
-                    realmService.save(group);
-                }
-                				
-				successfulDispatch(request, response);
-				
 
-	            String pageName = vphb.getGlobalName();
-	            String realm = vphb.getLocalSpace();
-	            ViewBean vb = new ViewBean(pageName, realm);
-	            String requestURL = request.getRequestURL().toString();
-	            SessionManager.getCurrentToolSession().setAttribute(RWikiServlet.SAVED_REQUEST_URL,requestURL+vb.getInfoUrl());
+				for (Iterator it = collectionsBean.getRealms().iterator(); it
+						.hasNext();)
+				{
+					AuthZGroupBean aub = (AuthZGroupBean) it.next();
+					AuthzGroup group = aub.getRealmEdit();
+					for (Iterator jt = group.getRoles().iterator(); jt
+							.hasNext();)
+					{
+						Role role = (Role) jt.next();
+						updateRole(role, aub.getEscapedId(), requestMap);
+					}
+
+					realmService.save(group);
+				}
+
+				successfulDispatch(request, response);
+
+				String pageName = vphb.getGlobalName();
+				String realm = vphb.getLocalSpace();
+				ViewBean vb = new ViewBean(pageName, realm);
+				String requestURL = request.getRequestURL().toString();
+				SessionManager.getCurrentToolSession().setAttribute(
+						RWikiServlet.SAVED_REQUEST_URL,
+						requestURL + vb.getInfoUrl());
 
 			}
-		} catch (IdUnusedException e) {
+		}
+		catch (GroupNotDefinedException e)
+		{
 			unknownRealmDispatch(request, response);
 			return;
-		} catch (PermissionException e) {
+		}
+		catch (AuthzPermissionException e)
+		{
 			// redirect to permission denied page
 			permissionDeniedDispatch(request, response);
 			return;
 		}
-		
-		
-		
-		
-	}
-	
-	
 
-    public String getIdInUsePath() {
+	}
+
+	public String getIdInUsePath()
+	{
 		return idInUsePath;
 	}
-	
-	
-	
-	public void setIdInUsePath(String idInUsePath) {
+
+	public void setIdInUsePath(String idInUsePath)
+	{
 		this.idInUsePath = idInUsePath;
 	}
-	
-	
-	
-	public String getPermissionPath() {
+
+	public String getPermissionPath()
+	{
 		return permissionPath;
 	}
-	
-	
-	
-	public void setPermissionPath(String permissionPath) {
+
+	public void setPermissionPath(String permissionPath)
+	{
 		this.permissionPath = permissionPath;
 	}
-	
-	
-	
-	public String getUnknownRealmPath() {
+
+	public String getUnknownRealmPath()
+	{
 		return unknownRealmPath;
 	}
-	
-	
-	
-	public void setUnknownRealmPath(String unknownRealmPath) {
+
+	public void setUnknownRealmPath(String unknownRealmPath)
+	{
 		this.unknownRealmPath = unknownRealmPath;
 	}
-	
-	
-	
-	public String getCancelEditPath() {
+
+	public String getCancelEditPath()
+	{
 		return cancelEditPath;
 	}
-	
-	
-	
-	public void setCancelEditPath(String cancelEditPath) {
+
+	public void setCancelEditPath(String cancelEditPath)
+	{
 		this.cancelEditPath = cancelEditPath;
 	}
-	
-	
-	
-	public String getEditRealmPath() {
+
+	public String getEditRealmPath()
+	{
 		return editRealmPath;
 	}
-	
-	
-	
-	public void setEditRealmPath(String editRealmPath) {
+
+	public void setEditRealmPath(String editRealmPath)
+	{
 		this.editRealmPath = editRealmPath;
 	}
-	
-	
-	
-	public String getSuccessfulPath() {
+
+	public String getSuccessfulPath()
+	{
 		return successfulPath;
 	}
-	
-	
-	
-	public void setSuccessfulPath(String successfulPath) {
+
+	public void setSuccessfulPath(String successfulPath)
+	{
 		this.successfulPath = successfulPath;
 	}
-	
-	public AuthzGroupService getRealmService() {
+
+	public AuthzGroupService getRealmService()
+	{
 		return realmService;
 	}
-	
-	public void setRealmService(AuthzGroupService realmService) {
+
+	public void setRealmService(AuthzGroupService realmService)
+	{
 		this.realmService = realmService;
 	}
-	
-	private void successfulDispatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	private void successfulDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		dispatch(request, response, successfulPath);
 	}
-	
-	
-	
-	private void dispatch(HttpServletRequest request, HttpServletResponse response, String path) throws ServletException, IOException {
+
+	private void dispatch(HttpServletRequest request,
+			HttpServletResponse response, String path) throws ServletException,
+			IOException
+	{
 		RequestDispatcher rd = request.getRequestDispatcher(path);
 		rd.forward(request, response);
 	}
-	
-	private void cancelDispatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	private void cancelDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		dispatch(request, response, cancelEditPath);
 	}
-	
-	
-	
-	private void editDispatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	private void editDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		dispatch(request, response, editRealmPath);
 	}
-	
-	private void permissionDeniedDispatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	private void permissionDeniedDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		dispatch(request, response, permissionPath);
 	}
-	
-	private void unknownRealmDispatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	private void unknownRealmDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
 		dispatch(request, response, unknownRealmPath);
 	}
-	
-	
-    private void updateRole(Role role, String escapedId, Map map) {
+
+	private void updateRole(Role role, String escapedId, Map map)
+	{
 		String id = role.getId();
-		if (map.get("create_" + escapedId + "_" + id) != null) {
-			if (!role.isAllowed(RWikiSecurityService.SECURE_CREATE)) {
+		if (map.get("create_" + escapedId + "_" + id) != null)
+		{
+			if (!role.isAllowed(RWikiSecurityService.SECURE_CREATE))
+			{
 				role.allowFunction(RWikiSecurityService.SECURE_CREATE);
 			}
-		} else {
-			if (role.isAllowed(RWikiSecurityService.SECURE_CREATE)) {
-				role.disallowFunction(RWikiSecurityService.SECURE_CREATE);
-			}                    
 		}
-		
-		if (map.get("read_" + escapedId + "_" + id) != null) {
-			
-			if (!role.isAllowed(RWikiSecurityService.SECURE_READ)) {
+		else
+		{
+			if (role.isAllowed(RWikiSecurityService.SECURE_CREATE))
+			{
+				role.disallowFunction(RWikiSecurityService.SECURE_CREATE);
+			}
+		}
+
+		if (map.get("read_" + escapedId + "_" + id) != null)
+		{
+
+			if (!role.isAllowed(RWikiSecurityService.SECURE_READ))
+			{
 				role.allowFunction(RWikiSecurityService.SECURE_READ);
 			}
-		} else {
-			if (role.isAllowed(RWikiSecurityService.SECURE_READ)) {
-				role.disallowFunction(RWikiSecurityService.SECURE_READ);
-			}                    
 		}
-		
-		if (map.get("update_" + escapedId + "_" + id) != null) {
-			if (!role.isAllowed(RWikiSecurityService.SECURE_UPDATE)) {
+		else
+		{
+			if (role.isAllowed(RWikiSecurityService.SECURE_READ))
+			{
+				role.disallowFunction(RWikiSecurityService.SECURE_READ);
+			}
+		}
+
+		if (map.get("update_" + escapedId + "_" + id) != null)
+		{
+			if (!role.isAllowed(RWikiSecurityService.SECURE_UPDATE))
+			{
 				role.allowFunction(RWikiSecurityService.SECURE_UPDATE);
 			}
-		} else {
-			if (role.isAllowed(RWikiSecurityService.SECURE_UPDATE)) {
-				role.disallowFunction(RWikiSecurityService.SECURE_UPDATE);
-			}                    
 		}
-		
-//		if (requestMap.get("delete_" + escapedId + "_" + id) != null) {
-//		if (!roleEdit.contains(RWikiSecurityServiceImpl.SECURE_DELETE)) {
-//		roleEdit.add(RWikiSecurityServiceImpl.SECURE_DELETE);
-//		}
-//		} else {
-//		if (roleEdit.contains(RWikiSecurityServiceImpl.SECURE_DELETE)) {
-//		roleEdit.remove(RWikiSecurityServiceImpl.SECURE_DELETE);
-//		}                    
-//		}                
-		
-		if (map.get("admin_" + escapedId + "_" + id) != null) {
-			if (!role.isAllowed(RWikiSecurityService.SECURE_ADMIN)) {
+		else
+		{
+			if (role.isAllowed(RWikiSecurityService.SECURE_UPDATE))
+			{
+				role.disallowFunction(RWikiSecurityService.SECURE_UPDATE);
+			}
+		}
+
+		// if (requestMap.get("delete_" + escapedId + "_" + id) != null) {
+		// if (!roleEdit.contains(RWikiSecurityServiceImpl.SECURE_DELETE)) {
+		// roleEdit.add(RWikiSecurityServiceImpl.SECURE_DELETE);
+		// }
+		// } else {
+		// if (roleEdit.contains(RWikiSecurityServiceImpl.SECURE_DELETE)) {
+		// roleEdit.remove(RWikiSecurityServiceImpl.SECURE_DELETE);
+		// }
+		// }
+
+		if (map.get("admin_" + escapedId + "_" + id) != null)
+		{
+			if (!role.isAllowed(RWikiSecurityService.SECURE_ADMIN))
+			{
 				role.allowFunction(RWikiSecurityService.SECURE_ADMIN);
 			}
-		} else {
-			if (role.isAllowed(RWikiSecurityService.SECURE_ADMIN)) {
-				role.disallowFunction(RWikiSecurityService.SECURE_ADMIN);
-			}                    
 		}
-		
-		if (map.get("superadmin_" + escapedId + "_" + id) != null) {
-			if (!role.isAllowed(RWikiSecurityService.SECURE_SUPER_ADMIN)) {
+		else
+		{
+			if (role.isAllowed(RWikiSecurityService.SECURE_ADMIN))
+			{
+				role.disallowFunction(RWikiSecurityService.SECURE_ADMIN);
+			}
+		}
+
+		if (map.get("superadmin_" + escapedId + "_" + id) != null)
+		{
+			if (!role.isAllowed(RWikiSecurityService.SECURE_SUPER_ADMIN))
+			{
 				role.allowFunction(RWikiSecurityService.SECURE_SUPER_ADMIN);
 			}
-		} else {
-			if (role.isAllowed(RWikiSecurityService.SECURE_SUPER_ADMIN)) {
+		}
+		else
+		{
+			if (role.isAllowed(RWikiSecurityService.SECURE_SUPER_ADMIN))
+			{
 				role.disallowFunction(RWikiSecurityService.SECURE_SUPER_ADMIN);
-			}                    
-		}        
+			}
+		}
 	}
 
-
-
-    
 }

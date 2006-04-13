@@ -1,57 +1,68 @@
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import org.sakaiproject.service.legacy.authzGroup.Role;
-
+import org.sakaiproject.authz.api.Role;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 
 //FIXME: Tool
 
-public class RoleBean {
+public class RoleBean
+{
 
 	private Role role;
-	
-	public RoleBean() {
-		
+
+	public RoleBean()
+	{
+
 	}
-	
-	public RoleBean(Role role) {
+
+	public RoleBean(Role role)
+	{
 		this.role = role;
 	}
-	
-	public void setRole(Role role) {
+
+	public void setRole(Role role)
+	{
 		this.role = role;
 	}
-	
-	public String getId() {
+
+	public String getId()
+	{
 		return role.getId();
 	}
-	
-	public String getDescription() {
+
+	public String getDescription()
+	{
 		return role.getDescription();
 	}
-	
-	public boolean isSecureRead() {
+
+	public boolean isSecureRead()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_READ);
 	}
-	
-	public boolean isSecureUpdate() {
+
+	public boolean isSecureUpdate()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_UPDATE);
 	}
-	
-	public boolean isSecureAdmin() {
+
+	public boolean isSecureAdmin()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_ADMIN);
 	}
-	
-	public boolean isSecureDelete() {
+
+	public boolean isSecureDelete()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_DELETE);
 	}
-	
-	public boolean isSecureCreate() {
+
+	public boolean isSecureCreate()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_CREATE);
 	}
-	
-	public boolean isSecureSuperAdmin() {
+
+	public boolean isSecureSuperAdmin()
+	{
 		return role.isAllowed(RWikiSecurityService.SECURE_SUPER_ADMIN);
 	}
 }

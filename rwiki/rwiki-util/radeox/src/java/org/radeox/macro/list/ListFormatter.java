@@ -22,36 +22,41 @@
  */
 package org.radeox.macro.list;
 
-import org.radeox.util.Linkable;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 
-/**
- * List formatter interface. List formatters are loaded via the plugin mechanism.
- *
- * @author Matthias L. Jugel
- * @version $Id$
- */
-public interface ListFormatter {
-  public String getName();
+import org.radeox.util.Linkable;
 
-  /**
-   * Display a simple vertical list.
-   *
-   * @param writer Writer to write the list output to
-   * @param current the current linkable
-   * @param listComment String to display before the list
-   * @param c Collection of Linkables, Snips or Nameables to display
-   * @param emptyText Text to display if collection is empty
-   * @param showSize If showSize is true then the size of the collection is displayed
-   */
-  public void format(Writer writer,
-                     Linkable current,
-                     String listComment,
-                     Collection c,
-                     String emptyText,
-                     boolean showSize)
-      throws IOException;
+/**
+ * List formatter interface. List formatters are loaded via the plugin
+ * mechanism.
+ * 
+ * @author Matthias L. Jugel
+ * @version $Id: ListFormatter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
+ */
+public interface ListFormatter
+{
+	public String getName();
+
+	/**
+	 * Display a simple vertical list.
+	 * 
+	 * @param writer
+	 *        Writer to write the list output to
+	 * @param current
+	 *        the current linkable
+	 * @param listComment
+	 *        String to display before the list
+	 * @param c
+	 *        Collection of Linkables, Snips or Nameables to display
+	 * @param emptyText
+	 *        Text to display if collection is empty
+	 * @param showSize
+	 *        If showSize is true then the size of the collection is displayed
+	 */
+	public void format(Writer writer, Linkable current, String listComment,
+			Collection c, String emptyText, boolean showSize)
+			throws IOException;
 }

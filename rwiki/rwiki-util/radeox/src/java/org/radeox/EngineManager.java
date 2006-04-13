@@ -23,98 +23,113 @@
 
 package org.radeox;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.radeox.engine.BaseRenderEngine;
-import org.radeox.api.engine.RenderEngine;
-import org.radeox.util.Service;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.radeox.api.engine.RenderEngine;
+import org.radeox.engine.BaseRenderEngine;
+import org.radeox.util.Service;
+
 /**
- * Acess point to dock several different rendering engines into
- * e.g. SnipSnap.
- *
+ * Acess point to dock several different rendering engines into e.g. SnipSnap.
  * Will be replaced by PicoContainer (but kept for compatibility)
- *
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: EngineManager.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class EngineManager  {
-  private static Log log = LogFactory.getLog(EngineManager.class);
+public class EngineManager
+{
+	private static Log log = LogFactory.getLog(EngineManager.class);
 
-  public static final String DEFAULT = "radeox";
-  private static Map availableEngines = new HashMap();
+	public static final String DEFAULT = "radeox";
 
+	private static Map availableEngines = new HashMap();
 
-  static {
-    Iterator iterator = Service.providers(RenderEngine.class);
-    while (iterator.hasNext()) {
-      try {
-        RenderEngine engine = (RenderEngine) iterator.next();
-        registerEngine(engine);
-        log.debug("Loaded RenderEngine: " + engine.getClass().getName());
-      } catch (Exception e) {
-        log.warn("EngineManager: unable to load RenderEngine", e);
-      }
-    }
-  }
+	static
+	{
+		Iterator iterator = Service.providers(RenderEngine.class);
+		while (iterator.hasNext())
+		{
+			try
+			{
+				RenderEngine engine = (RenderEngine) iterator.next();
+				registerEngine(engine);
+				log
+						.debug("Loaded RenderEngine: "
+								+ engine.getClass().getName());
+			}
+			catch (Exception e)
+			{
+				log.warn("EngineManager: unable to load RenderEngine", e);
+			}
+		}
+	}
 
-  /**
-   * Different RenderEngines can register themselves with the
-   * EngineManager factory to be available with EngineManager.getInstance();
-   *
-   * @param engine RenderEngine instance, e.g. SnipRenderEngine
-   */
-  public static synchronized void registerEngine(RenderEngine engine) {
-    if (null == availableEngines) {
-      availableEngines = new HashMap();
-    }
-    availableEngines.put(engine.getName(), engine);
-  }
+	/**
+	 * Different RenderEngines can register themselves with the EngineManager
+	 * factory to be available with EngineManager.getInstance();
+	 * 
+	 * @param engine
+	 *        RenderEngine instance, e.g. SnipRenderEngine
+	 */
+	public static synchronized void registerEngine(RenderEngine engine)
+	{
+		if (null == availableEngines)
+		{
+			availableEngines = new HashMap();
+		}
+		availableEngines.put(engine.getName(), engine);
+	}
 
-  /**
-   * Get an instance of a RenderEngine. This is a factory method.
-   *
-   * @param name Name of the RenderEngine to get
-   * @return engine RenderEngine for the requested name
-   */
-  public static synchronized RenderEngine getInstance(String name) {
-    if (null == availableEngines) {
-      availableEngines = new HashMap();
-    }
+	/**
+	 * Get an instance of a RenderEngine. This is a factory method.
+	 * 
+	 * @param name
+	 *        Name of the RenderEngine to get
+	 * @return engine RenderEngine for the requested name
+	 */
+	public static synchronized RenderEngine getInstance(String name)
+	{
+		if (null == availableEngines)
+		{
+			availableEngines = new HashMap();
+		}
 
-    //Logger.debug("Engines: " + availableEngines);
-    return (RenderEngine) availableEngines.get(name);
-  }
+		// Logger.debug("Engines: " + availableEngines);
+		return (RenderEngine) availableEngines.get(name);
+	}
 
-  /**
-   * Get an instance of a RenderEngine. This is a factory method.
-   * Defaults to a default RenderEngine. Currently this is a
-   * basic EngineManager with no additional features that is
-   * distributed with Radeox.
-   *
-   * @return engine default RenderEngine
-   */
-  public static synchronized RenderEngine getInstance() {
-    //availableEngines = null;
-    if (null == availableEngines) {
-      availableEngines = new HashMap();
-    }
+	/**
+	 * Get an instance of a RenderEngine. This is a factory method. Defaults to
+	 * a default RenderEngine. Currently this is a basic EngineManager with no
+	 * additional features that is distributed with Radeox.
+	 * 
+	 * @return engine default RenderEngine
+	 */
+	public static synchronized RenderEngine getInstance()
+	{
+		// availableEngines = null;
+		if (null == availableEngines)
+		{
+			availableEngines = new HashMap();
+		}
 
-    if (!availableEngines.containsKey(DEFAULT)) {
-      RenderEngine engine = new BaseRenderEngine();
-      availableEngines.put(engine.getName(), engine);
-    }
+		if (!availableEngines.containsKey(DEFAULT))
+		{
+			RenderEngine engine = new BaseRenderEngine();
+			availableEngines.put(engine.getName(), engine);
+		}
 
-    return (RenderEngine) availableEngines.get(DEFAULT);
-  }
+		return (RenderEngine) availableEngines.get(DEFAULT);
+	}
 
-  public static String getVersion() {
-    return "0.5.1";
-  }
+	public static String getVersion()
+	{
+		return "0.5.1";
+	}
 }

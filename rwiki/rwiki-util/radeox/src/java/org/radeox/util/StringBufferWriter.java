@@ -29,71 +29,87 @@ import java.io.Writer;
 /**
  * The same as StringWriter, but takes an existing StringBuffer in its
  * constructor.
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: StringBufferWriter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class StringBufferWriter extends Writer {
+public class StringBufferWriter extends Writer
+{
 
-  private StringBuffer buffer;
+	private StringBuffer buffer;
 
-  private boolean closed = false;
+	private boolean closed = false;
 
-  public StringBufferWriter(StringBuffer buffer) {
-    this.buffer = buffer;
-    this.lock = buffer;
-  }
+	public StringBufferWriter(StringBuffer buffer)
+	{
+		this.buffer = buffer;
+		this.lock = buffer;
+	}
 
-  public StringBufferWriter() {
-    this.buffer = new StringBuffer();
-    this.lock = buffer;
-  }
+	public StringBufferWriter()
+	{
+		this.buffer = new StringBuffer();
+		this.lock = buffer;
+	}
 
-  public StringBufferWriter(int initialSize) {
-    if (initialSize < 0) {
-      throw new IllegalArgumentException("Negative buffer size");
-    }
-    buffer = new StringBuffer(initialSize);
-    lock = buffer;
-  }
+	public StringBufferWriter(int initialSize)
+	{
+		if (initialSize < 0)
+		{
+			throw new IllegalArgumentException("Negative buffer size");
+		}
+		buffer = new StringBuffer(initialSize);
+		lock = buffer;
+	}
 
-   public void write(int c) {
-    buffer.append((char) c);
-  }
+	public void write(int c)
+	{
+		buffer.append((char) c);
+	}
 
-   public void write(char cbuf[], int off, int len) {
-    if ((off < 0) || (off > cbuf.length) || (len < 0) ||
-        ((off + len) > cbuf.length) || ((off + len) < 0)) {
-      throw new IndexOutOfBoundsException();
-    } else if (len == 0) {
-      return;
-    }
-    buffer.append(cbuf, off, len);
-  }
+	public void write(char cbuf[], int off, int len)
+	{
+		if ((off < 0) || (off > cbuf.length) || (len < 0)
+				|| ((off + len) > cbuf.length) || ((off + len) < 0))
+		{
+			throw new IndexOutOfBoundsException();
+		}
+		else if (len == 0)
+		{
+			return;
+		}
+		buffer.append(cbuf, off, len);
+	}
 
-  public void write(String str) {
-    buffer.append(str);
-  }
+	public void write(String str)
+	{
+		buffer.append(str);
+	}
 
+	public void write(String str, int off, int len)
+	{
+		buffer.append(str.substring(off, off + len));
+	}
 
-  public void write(String str, int off, int len) {
-    buffer.append(str.substring(off, off + len));
-  }
+	public String toString()
+	{
+		return buffer.toString();
+	}
 
-  public String toString() {
-    return buffer.toString();
-  }
+	public StringBuffer getBuffer()
+	{
+		return buffer;
+	}
 
-  public StringBuffer getBuffer() {
-    return buffer;
-  }
+	public void flush()
+	{
+	}
 
-  public void flush() {
-  }
-
-  public void close() throws IOException {
-    closed = true;
-  }
+	public void close() throws IOException
+	{
+		closed = true;
+	}
 
 }

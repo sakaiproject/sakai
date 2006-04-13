@@ -22,7 +22,7 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-//FIXME: Tool
+// FIXME: Tool
 
 import java.util.List;
 
@@ -33,95 +33,102 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
  * 
  * @author andrew
  */
-public class SearchBean {
+public class SearchBean
+{
 
-    /**
-     * Parameter name for requesting search terms.
-     */
-    public static final String SEARCH_PARAM = "search";
-    /**
-     * Parameter name for requesting search terms.
-     */
-    public static final String PAGE_PARAM = "page"; 
+	/**
+	 * Parameter name for requesting search terms.
+	 */
+	public static final String SEARCH_PARAM = "search";
 
-    /**
-     * Parameter name for the realm to which the search is restricted.
-     */
-    public static final String REALM_PARAM = "realm";
+	/**
+	 * Parameter name for requesting search terms.
+	 */
+	public static final String PAGE_PARAM = "page";
 
-    /**
-     * The search criteria
-     */
-    private String search;
+	/**
+	 * Parameter name for the realm to which the search is restricted.
+	 */
+	public static final String REALM_PARAM = "realm";
 
-    /**
-     * The realm to restrict the search to
-     */
-    private String realm;
+	/**
+	 * The search criteria
+	 */
+	private String search;
 
+	/**
+	 * The realm to restrict the search to
+	 */
+	private String realm;
 
-    /**
-     * RWikiObjectService to use
-     */
-    private RWikiObjectService objectService;
+	/**
+	 * RWikiObjectService to use
+	 */
+	private RWikiObjectService objectService;
 
-    /**
-     * Creates a searchBean
-     * 
-     * @param search
-     * @param user
-     * @param realm
-     * @param objectService
-     */
-    public SearchBean(String search,  String realm,
-            RWikiObjectService objectService) {
-        this.search = search;
-        this.realm = realm;
-        this.objectService = objectService;
-    }
+	/**
+	 * Creates a searchBean
+	 * 
+	 * @param search
+	 * @param user
+	 * @param realm
+	 * @param objectService
+	 */
+	public SearchBean(String search, String realm,
+			RWikiObjectService objectService)
+	{
+		this.search = search;
+		this.realm = realm;
+		this.objectService = objectService;
+	}
 
-    /**
-     * Set the RWikiObjectService for searching from
-     * 
-     * @param objectService
-     */
-    public void setRWikiObjectService(RWikiObjectService objectService) {
-        this.objectService = objectService;
-    }
+	/**
+	 * Set the RWikiObjectService for searching from
+	 * 
+	 * @param objectService
+	 */
+	public void setRWikiObjectService(RWikiObjectService objectService)
+	{
+		this.objectService = objectService;
+	}
 
-    /**
-     * Gets the current search request
-     * 
-     * @return current search request
-     */
-    public String getSearch() {
-        return search;
-    }
+	/**
+	 * Gets the current search request
+	 * 
+	 * @return current search request
+	 */
+	public String getSearch()
+	{
+		return search;
+	}
 
-    /**
-     * Gets the current search realm
-     * 
-     * @return current search realm
-     */
-    public String getRealm() {
-        return realm;
-    }
+	/**
+	 * Gets the current search realm
+	 * 
+	 * @return current search realm
+	 */
+	public String getRealm()
+	{
+		return realm;
+	}
 
-    /**
-     * Perform the search
-     * @return a list of page names that match the search criteria
-     */
-    public List getSearchResults() {
-        return search();
-    }
-    
+	/**
+	 * Perform the search
+	 * 
+	 * @return a list of page names that match the search criteria
+	 */
+	public List getSearchResults()
+	{
+		return search();
+	}
 
-
-    /**
-     * Perform the search
-     * @return a list of page names that match the search criteria
-     */
-    public List search() {
-    		return objectService.search(search,  realm);
-    }
+	/**
+	 * Perform the search
+	 * 
+	 * @return a list of page names that match the search criteria
+	 */
+	public List search()
+	{
+		return objectService.search(search, realm);
+	}
 }

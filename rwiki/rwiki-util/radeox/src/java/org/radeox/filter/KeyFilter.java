@@ -26,16 +26,16 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * Keyfilter finds key combinations like Ctrl-A and
- * sourunds this with a HTML span "key"
- *
- * @author stephan
- * @team sonicteam
+ * Keyfilter finds key combinations like Ctrl-A and sourunds this with a HTML
+ * span "key" @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class KeyFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.key";
-  }
+public class KeyFilter extends LocaleRegexReplaceFilter implements CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.key";
+	}
 }

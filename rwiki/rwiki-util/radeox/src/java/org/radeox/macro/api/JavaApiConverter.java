@@ -28,19 +28,23 @@ import java.io.Writer;
 
 /**
  * Converts a Java class name to an API url
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: JavaApiConverter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class JavaApiConverter extends BaseApiConverter {
-  public void appendUrl(Writer writer, String className) throws IOException {
-    writer.write(baseUrl);
-    writer.write(className.replace('.', '/'));
-    writer.write(".html");
-  }
+public class JavaApiConverter extends BaseApiConverter
+{
+	public void appendUrl(Writer writer, String className) throws IOException
+	{
+		writer.write(baseUrl);
+		writer.write(className.replace('.', '/'));
+		writer.write(".html");
+	}
 
-  public String getName() {
-    return "Java";
-  }
+	public String getName()
+	{
+		return "Java";
+	}
 }

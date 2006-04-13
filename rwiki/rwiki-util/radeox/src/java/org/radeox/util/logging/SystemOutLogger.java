@@ -23,22 +23,25 @@
 
 package org.radeox.util.logging;
 
-
 /**
  * Concrete Logger that logs to System Out
- *
+ * 
  * @author stephan
- * @version $Id$
+ * @version $Id: SystemOutLogger.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class SystemOutLogger implements LogHandler {
-  public void log(String output) {
-    System.out.println(output);
-  }
+public class SystemOutLogger implements LogHandler
+{
+	public void log(String output)
+	{
+		System.out.println(output);
+	}
 
-  public void log(String output, Throwable e) {
-    System.out.println(output);
-    if (Logger.PRINT_STACKTRACE) e.printStackTrace(System.out);
-  }
+	public void log(String output, Throwable e)
+	{
+		System.out.println(output);
+		if (Logger.PRINT_STACKTRACE) e.printStackTrace(System.out);
+	}
 
 }

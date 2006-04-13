@@ -25,26 +25,30 @@ package org.radeox.api.engine;
 
 /**
  * Interface for RenderEngines that know about Wiki pages.
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: WikiRenderEngine.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface WikiRenderEngine {
-  /**
-   * Test for the existence of a wiki page
-   *
-   * @param name Name of an Wiki Page
-   * @return result True if wiki page exists
-   */
+public interface WikiRenderEngine
+{
+	/**
+	 * Test for the existence of a wiki page
+	 * 
+	 * @param name
+	 *        Name of an Wiki Page
+	 * @return result True if wiki page exists
+	 */
 
-  public boolean exists(String name);
+	public boolean exists(String name);
 
-  public boolean showCreate();
+	public boolean showCreate();
 
-  public void appendLink(StringBuffer buffer, String name, String view, String anchor);
+	public void appendLink(StringBuffer buffer, String name, String view,
+			String anchor);
 
-  public void appendLink(StringBuffer buffer, String name, String view);
+	public void appendLink(StringBuffer buffer, String name, String view);
 
-  public void appendCreateLink(StringBuffer buffer, String name, String view);
+	public void appendCreateLink(StringBuffer buffer, String name, String view);
 }

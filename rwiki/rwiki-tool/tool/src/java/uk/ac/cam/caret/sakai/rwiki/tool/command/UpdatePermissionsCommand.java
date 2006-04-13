@@ -30,8 +30,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiPermissions;
@@ -48,137 +49,146 @@ import uk.ac.cam.caret.sakai.rwiki.tool.command.helper.ErrorBeanHelper;
 
 /**
  * @author andrew
- * 
  */
-//FIXME: Tool
+// FIXME: Tool
+public class UpdatePermissionsCommand implements HttpCommand
+{
+	private static Log log = LogFactory.getLog(UpdatePermissionsCommand.class);
 
-public class UpdatePermissionsCommand implements HttpCommand {
+	private RWikiObjectService objectService;
 
-    private RWikiObjectService objectService;
+	private String contentChangedPath;
 
-    private Logger log;
+	private String noUpdatePath;
 
-    private String contentChangedPath;
+	private String successfulPath;
 
-    private String noUpdatePath;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
+	 *      javax.servlet.http.HttpServletResponse)
+	 */
+	public void execute(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
+	{
 
-    private String successfulPath;
+		RequestScopeSuperBean rssb = RequestScopeSuperBean
+				.getFromRequest(request);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see uk.ac.cam.caret.sakai.rwiki.service.api.HttpCommand#execute(javax.servlet.http.HttpServletRequest,
-     *      javax.servlet.http.HttpServletResponse)
-     */
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+		ViewParamsHelperBean vphb = rssb.getNameHelperBean();
 
-        RequestScopeSuperBean rssb = RequestScopeSuperBean
-                .getFromRequest(request);
+		UpdatePermissionsBean upb = rssb.getUpdatePermissionsBean();
 
-        ViewParamsHelperBean vphb = rssb.getNameHelperBean();
+		String version = vphb.getSubmittedVersion();
+		Date versionDate = new Date(Long.parseLong(version));
+		String name = vphb.getGlobalName();
+		String realm = vphb.getLocalSpace();
 
-        UpdatePermissionsBean upb = rssb.getUpdatePermissionsBean();
+		RWikiPermissions perms = upb.getPermissions();
+		String updateMethod = upb.getUpdatePermissionsMethod();
 
-        String version = vphb.getSubmittedVersion();
-        Date versionDate = new Date(Long.parseLong(version));
-        String name = vphb.getGlobalName();
-        String realm = vphb.getLocalSpace();
+		if (updateMethod != null
+				&& updateMethod.equals(UpdatePermissionsBean.OVERWRITE_VALUE))
+		{
+			perms = upb.getOverwritePermissions();
+			// Set the permissions as the overwrite permissions.
+			upb.setPermissions(perms);
+		}
 
-        RWikiPermissions perms = upb.getPermissions();
-        String updateMethod = upb.getUpdatePermissionsMethod();
+		try
+		{
+			objectService.update(name, realm, versionDate, perms);
+		}
+		catch (VersionException e)
+		{
+			// The page has changed underneath us...
 
-        if (updateMethod != null && updateMethod.equals(UpdatePermissionsBean.OVERWRITE_VALUE)) {
-            perms = upb.getOverwritePermissions();
-            // Set the permissions as the overwrite permissions.
-            upb.setPermissions(perms);
-        }
-        
-        try {
-            objectService.update(name,  realm, versionDate, perms);
-        } catch (VersionException e) {
-            // The page has changed underneath us...
+			// redirect probably back to the edit page
+			this.contentChangedDispatch(request, response);
+			return;
+		}
+		catch (PermissionException e)
+		{
+			// Redirect back to a no permission page...
+			this.noUpdateAllowed(request, response);
+			return;
+		}
+		// Successful update
+		this.successfulUpdateDispatch(request, response);
+		ViewBean vb = new ViewBean(name, realm);
+		String requestURL = request.getRequestURL().toString();
+		SessionManager.getCurrentToolSession().setAttribute(
+				RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getViewUrl());
+		return;
+	}
 
-            // redirect probably back to the edit page
-            this.contentChangedDispatch(request, response);
-            return;
-        } catch (PermissionException e) {
-            // Redirect back to a no permission page...
-            this.noUpdateAllowed(request, response);
-            return;
-        }
-        // Successful update
-        this.successfulUpdateDispatch(request, response);
-        ViewBean vb = new ViewBean(name, realm);
-        String requestURL = request.getRequestURL().toString();
-        SessionManager.getCurrentToolSession().setAttribute(
-                RWikiServlet.SAVED_REQUEST_URL, requestURL + vb.getViewUrl());
-        return;
-    }
+	private void successfulUpdateDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
+		rd.forward(request, response);
+	}
 
-    private void successfulUpdateDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher(successfulPath);
-        rd.forward(request, response);
-    }
+	private void contentChangedDispatch(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
+		// FIXME internationalise this!!
+		errorBean
+				.addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
+		RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
+		rd.forward(request, response);
+	}
 
-    private void contentChangedDispatch(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-        // FIXME internationalise this!!
-        errorBean
-                .addError("Content has changed since you last viewed it. Please update the new content or overwrite it with the submitted content.");
-        RequestDispatcher rd = request.getRequestDispatcher(contentChangedPath);
-        rd.forward(request, response);
-    }
+	private void noUpdateAllowed(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
+		// FIXME internationalise this!!
+		errorBean.addError("You do not have permission to update this page.");
+		RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
+		rd.forward(request, response);
+	}
 
-    private void noUpdateAllowed(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
-        ErrorBean errorBean = ErrorBeanHelper.getErrorBean(request);
-        // FIXME internationalise this!!
-        errorBean.addError("You do not have permission to update this page.");
-        RequestDispatcher rd = request.getRequestDispatcher(noUpdatePath);
-        rd.forward(request, response);
-    }
+	public String getContentChangedPath()
+	{
+		return contentChangedPath;
+	}
 
-    public String getContentChangedPath() {
-        return contentChangedPath;
-    }
+	public void setContentChangedPath(String contentChangedPath)
+	{
+		this.contentChangedPath = contentChangedPath;
+	}
 
-    public void setContentChangedPath(String contentChangedPath) {
-        this.contentChangedPath = contentChangedPath;
-    }
+	public String getNoUpdatePath()
+	{
+		return noUpdatePath;
+	}
 
-    public Logger getLog() {
-        return log;
-    }
+	public void setNoUpdatePath(String noUpdatePath)
+	{
+		this.noUpdatePath = noUpdatePath;
+	}
 
-    public void setLog(Logger log) {
-        this.log = log;
-    }
+	public RWikiObjectService getObjectService()
+	{
+		return objectService;
+	}
 
-    public String getNoUpdatePath() {
-        return noUpdatePath;
-    }
+	public void setObjectService(RWikiObjectService objectService)
+	{
+		this.objectService = objectService;
+	}
 
-    public void setNoUpdatePath(String noUpdatePath) {
-        this.noUpdatePath = noUpdatePath;
-    }
+	public String getSuccessfulPath()
+	{
+		return successfulPath;
+	}
 
-    public RWikiObjectService getObjectService() {
-        return objectService;
-    }
-
-    public void setObjectService(RWikiObjectService objectService) {
-        this.objectService = objectService;
-    }
-
-    public String getSuccessfulPath() {
-        return successfulPath;
-    }
-
-    public void setSuccessfulPath(String successfulPath) {
-        this.successfulPath = successfulPath;
-    }
+	public void setSuccessfulPath(String successfulPath)
+	{
+		this.successfulPath = successfulPath;
+	}
 
 }

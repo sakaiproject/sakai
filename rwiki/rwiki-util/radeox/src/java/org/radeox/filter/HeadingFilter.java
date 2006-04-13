@@ -23,54 +23,64 @@
 
 package org.radeox.filter;
 
+import java.text.MessageFormat;
+
+import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.filter.regex.LocaleRegexTokenFilter;
 import org.radeox.regex.MatchResult;
-import org.radeox.api.engine.context.InitialRenderContext;
-
-import java.text.MessageFormat;
 
 /*
  * Transforms header style lines into subsections. A header starts with a 1 for
- * first level headers and 1.1 for secend level headers. Headers are
- * numbered automatically
- *
- * @author leo
- * @team other
- * @version $Id$
+ * first level headers and 1.1 for secend level headers. Headers are numbered
+ * automatically @author leo @team other
+ * 
+ * @version $Id: HeadingFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class HeadingFilter extends LocaleRegexTokenFilter implements CacheFilter {
-  private MessageFormat formatter;
+public class HeadingFilter extends LocaleRegexTokenFilter implements
+		CacheFilter
+{
+	private MessageFormat formatter;
 
+	protected String getLocaleKey()
+	{
+		return "filter.heading";
+	}
 
-  protected String getLocaleKey() {
-    return "filter.heading";
-  }
+	public void handleMatch(StringBuffer buffer, MatchResult result,
+			FilterContext context)
+	{
+		buffer.append(handleMatch(result, context));
+	}
 
-  public void handleMatch(StringBuffer buffer, MatchResult result, FilterContext context) {
-    buffer.append(handleMatch(result, context));
-  }
+	public void setInitialContext(InitialRenderContext context)
+	{
+		super.setInitialContext(context);
+		String outputTemplate = outputMessages.getString(getLocaleKey()
+				+ ".print");
+		formatter = new MessageFormat("");
+		formatter.applyPattern(outputTemplate);
+	}
 
-  public void setInitialContext(InitialRenderContext context) {
-    super.setInitialContext(context);
-    String outputTemplate = outputMessages.getString(getLocaleKey()+".print");
-    formatter = new MessageFormat("");
-    formatter.applyPattern(outputTemplate);
- }
-
-  public String handleMatch(MatchResult result, FilterContext context) {
-      String name = "";
-      char[] nameChars = result.group(3).toCharArray();
-      int end = 0;
-      for (int i = 0; i < nameChars.length; i++) {
-          if (Character.isLetterOrDigit(nameChars[i])) {
-              nameChars[end++] = nameChars[i]; 
-          }
-      }
-      if (end > 0) { 
-          name = new String(nameChars, 0, end);
-      }
-    return formatter.format(new Object[]{result.group(1).replace('.', '-'), result.group(3), name});
-  }
+	public String handleMatch(MatchResult result, FilterContext context)
+	{
+		String name = "";
+		char[] nameChars = result.group(3).toCharArray();
+		int end = 0;
+		for (int i = 0; i < nameChars.length; i++)
+		{
+			if (Character.isLetterOrDigit(nameChars[i]))
+			{
+				nameChars[end++] = nameChars[i];
+			}
+		}
+		if (end > 0)
+		{
+			name = new String(nameChars, 0, end);
+		}
+		return formatter.format(new Object[] {
+				result.group(1).replace('.', '-'), result.group(3), name });
+	}
 }

@@ -25,11 +25,11 @@ package uk.ac.cam.caret.sakai.rwiki.service.api.dao;
 /**
  * An Object proxy inspects objects and returns a proxied version where
  * necessary.
+ * 
  * @author ieb
- *
  */
-//FIXME: Service
-
-public interface ObjectProxy {
+// FIXME: Service
+public interface ObjectProxy
+{
 	Object proxyObject(Object o);
 }

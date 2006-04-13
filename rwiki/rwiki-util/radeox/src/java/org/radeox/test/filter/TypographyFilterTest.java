@@ -25,44 +25,56 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.TypographyFilter;
 
-public class TypographyFilterTest extends FilterTestSupport {
-  public TypographyFilterTest(String name) {
-    super(name);
-  }
+public class TypographyFilterTest extends FilterTestSupport
+{
+	public TypographyFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new TypographyFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new TypographyFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(FilterTestSupport.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(FilterTestSupport.class);
+	}
 
-  public void testElipsis() {
-    assertEquals("Test &#8230; Text", filter.filter("Test ... Text", context));
-  }
+	public void testElipsis()
+	{
+		assertEquals("Test &#8230; Text", filter.filter("Test ... Text",
+				context));
+	}
 
-  public void testNotAfter() {
-    assertEquals("...Text", filter.filter("...Text", context));
-  }
+	public void testNotAfter()
+	{
+		assertEquals("...Text", filter.filter("...Text", context));
+	}
 
-  public void testEndOfLine() {
-    assertEquals("Text&#8230;", filter.filter("Text...", context));
-  }
+	public void testEndOfLine()
+	{
+		assertEquals("Text&#8230;", filter.filter("Text...", context));
+	}
 
-  public void test4Dots() {
-    assertEquals("Test .... Text", filter.filter("Test .... Text", context));
-  }
+	public void test4Dots()
+	{
+		assertEquals("Test .... Text", filter.filter("Test .... Text", context));
+	}
 
-  public void testLineStart() {
-    assertEquals("&#8230; Text", filter.filter("... Text", context));
-  }
+	public void testLineStart()
+	{
+		assertEquals("&#8230; Text", filter.filter("... Text", context));
+	}
 
-  public void testLineEnd() {
-    assertEquals("Test &#8230;", filter.filter("Test ...", context));
-  }
+	public void testLineEnd()
+	{
+		assertEquals("Test &#8230;", filter.filter("Test ...", context));
+	}
 
 }

@@ -24,19 +24,21 @@
 package org.radeox.filter;
 
 /*
- * Typography replaces some characters with typographic entities,
- * e.g. ... with ellipses
- * Idea taken from MovableType/SmartyPants,
- * see http://daringfireball.net/projects/smartypants/
- *
- * @author Stephan J. Schmidt
- * @version $Id$
+ * Typography replaces some characters with typographic entities, e.g. ... with
+ * ellipses Idea taken from MovableType/SmartyPants, see
+ * http://daringfireball.net/projects/smartypants/ @author Stephan J. Schmidt
+ * 
+ * @version $Id: TypographyFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
-public class TypographyFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.typography";
-  }
+public class TypographyFilter extends LocaleRegexReplaceFilter implements
+		CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.typography";
+	}
 }

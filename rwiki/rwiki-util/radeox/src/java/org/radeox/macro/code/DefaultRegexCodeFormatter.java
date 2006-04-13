@@ -24,21 +24,23 @@
 package org.radeox.macro.code;
 
 /*
- * Default code formatter
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Default code formatter @author stephan @team sonicteam
+ * 
+ * @version $Id: DefaultRegexCodeFormatter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
 import org.radeox.filter.regex.RegexReplaceFilter;
 
-public class DefaultRegexCodeFormatter extends RegexReplaceFilter {
-  public DefaultRegexCodeFormatter(String regex, String substitute) {
-    super(regex, substitute);
-  }
+public class DefaultRegexCodeFormatter extends RegexReplaceFilter
+{
+	public DefaultRegexCodeFormatter(String regex, String substitute)
+	{
+		super(regex, substitute);
+	}
 
-  public int getPriority() {
-    return 0;
-  }
+	public int getPriority()
+	{
+		return 0;
+	}
 }

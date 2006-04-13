@@ -27,21 +27,20 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.text.MessageFormat;
 
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.EntityHandler;
 
 /**
- * 
  * Provides a regex base entity handler where the matching uses MessageFormats
  * and Regex patterns
  * 
  * @author ieb
- * 
  */
-public abstract class BaseEntityHandlerImpl implements EntityHandler {
+public abstract class BaseEntityHandlerImpl implements EntityHandler
+{
 
 	/**
 	 * The start of the URL endign in a /
@@ -66,18 +65,19 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 	private boolean available = true;
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * TODO
+	 * {@inheritDoc} TODO
 	 */
-	public void setReference(String majorType, Reference ref, String reference) {
-		if (!isAvailable())
-			return;
+	public void setReference(String majorType, Reference ref, String reference)
+	{
+		if (!isAvailable()) return;
 		Decoded decoded = decode(reference);
-		if (decoded != null) {
+		if (decoded != null)
+		{
 			ref.set(majorType, minorType, decoded.getId(), decoded
 					.getContainer(), decoded.getContext());
-		} else {
+		}
+		else
+		{
 			throw new RuntimeException(this
 					+ " Failed to setReference in EntityHelper " + majorType
 					+ ":" + minorType
@@ -87,24 +87,20 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * TODO
+	 * {@inheritDoc} TODO
 	 */
-	public boolean matches(String reference) {
-		if (!isAvailable())
-			return false;
+	public boolean matches(String reference)
+	{
+		if (!isAvailable()) return false;
 		return (decode(reference) != null);
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * TODO
+	 * {@inheritDoc} TODO
 	 */
-	public int getRevision(Reference reference) {
-		if (!isAvailable())
-			return 0;
+	public int getRevision(Reference reference)
+	{
+		if (!isAvailable()) return 0;
 		Decoded decode = decode(reference.getReference());
 		return Integer.parseInt(decode.getVersion());
 	}
@@ -112,43 +108,50 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 	/**
 	 * @return Returns the minorType.
 	 */
-	public String getMinorType() {
+	public String getMinorType()
+	{
 		return minorType;
 	}
 
 	/**
 	 * @param minorType
-	 *            The minorType to set.
+	 *        The minorType to set.
 	 */
-	public void setMinorType(String minorType) {
+	public void setMinorType(String minorType)
+	{
 		this.minorType = minorType;
 	}
 
 	/**
-	 * 
 	 * @param s
-	 *            the full reference
+	 *        the full reference
 	 * @return A Decoded object contianing the values, or null if not this
 	 *         handler
 	 */
-	public Decoded decode(String s) {
+	public Decoded decode(String s)
+	{
 
 		String ending = "." + minorType;
 		if (isAvailable() && s.startsWith(accessURLStart) && s.endsWith(ending)
 				&& s.indexOf("//") == -1 && s.indexOf("/,") == -1
-				&& s.indexOf("/.") == -1) {
+				&& s.indexOf("/.") == -1)
+		{
 			Decoded decoded = new Decoded();
 			s = s.substring(accessURLStart.length() - 1);
 			int lastslash = s.lastIndexOf(Entity.SEPARATOR);
 			int firstslash = s.indexOf(Entity.SEPARATOR, 1);
 			int nextslash = s.indexOf(Entity.SEPARATOR, firstslash + 1);
-			if (nextslash == -1) {
+			if (nextslash == -1)
+			{
 				nextslash = firstslash;
 			}
 			decoded.setContext(s.substring(0, nextslash));
-			if (nextslash == lastslash) {
+			if (nextslash == lastslash)
+			{
 				decoded.setContainer(Entity.SEPARATOR);
-			} else {
+			}
+			else
+			{
 				decoded.setContainer(s.substring(nextslash, lastslash));
 			}
 
@@ -156,43 +159,55 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 			filename = filename.substring(0, filename.length()
 					- ending.length());
 			int comma = filename.indexOf(",");
-			if (comma != -1) {
+			if (comma != -1)
+			{
 				decoded.setPage(filename.substring(0, comma));
 				decoded.setVersion(filename.substring(comma + 1));
-			} else {
+			}
+			else
+			{
 				decoded.setPage(filename);
 				decoded.setVersion("-1");
 			}
 
 			return decoded;
 		}
-		
+
 		return null;
 	}
 
 	/**
 	 * @return Returns the accessURLStart.
 	 */
-	public String getAccessURLStart() {
+	public String getAccessURLStart()
+	{
 		return accessURLStart;
 	}
 
 	/**
 	 * @param accessURLStart
-	 *            The accessURLStart to set.
+	 *        The accessURLStart to set.
 	 */
-	public void setAccessURLStart(String accessURLStart) {
+	public void setAccessURLStart(String accessURLStart)
+	{
 		this.accessURLStart = accessURLStart;
 	}
 
-	public boolean isAvailable() {
-		if (!setup) {
-			if (!experimental) {
+	public boolean isAvailable()
+	{
+		if (!setup)
+		{
+			if (!experimental)
+			{
 				available = true;
-			} else if (ServerConfigurationService.getBoolean(
-					"wiki.experimental", false)) {
+			}
+			else if (ServerConfigurationService.getBoolean("wiki.experimental",
+					false))
+			{
 				available = true;
-			} else {
+			}
+			else
+			{
 				available = false;
 			}
 			setup = true;
@@ -203,10 +218,11 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getHTML(Entity e) {
-		if (isAvailable()) {
-			if (feedFormat == null)
-				return null;
+	public String getHTML(Entity e)
+	{
+		if (isAvailable())
+		{
+			if (feedFormat == null) return null;
 			return MessageFormat
 					.format(feedFormat, new Object[] { e.getUrl() });
 		}
@@ -216,29 +232,34 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler {
 	/**
 	 * @return Returns the feedFormat.
 	 */
-	public String getFeedFormat() {
+	public String getFeedFormat()
+	{
 		return feedFormat;
 	}
 
 	/**
 	 * @param feedFormat
-	 *            The feedFormat to set.
+	 *        The feedFormat to set.
 	 */
-	public void setFeedFormat(String feedFormat) {
+	public void setFeedFormat(String feedFormat)
+	{
 		this.feedFormat = feedFormat;
 	}
 
 	/**
 	 * @return Returns the experimental.
 	 */
-	public boolean getExperimental() {
+	public boolean getExperimental()
+	{
 		return experimental;
 	}
 
 	/**
-	 * @param experimental The experimental to set.
+	 * @param experimental
+	 *        The experimental to set.
 	 */
-	public void setExperimental(boolean experimental) {
+	public void setExperimental(boolean experimental)
+	{
 		this.experimental = experimental;
 	}
 

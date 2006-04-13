@@ -59,21 +59,20 @@ package org.apache.commons.jrcs.diff;
 
 /**
  * Base class for all exceptions emanating from this package.
- *
- * @version $Revision$ $Date$
- *
+ * 
+ * @version $Revision$ $Date: 2006-04-12 18:30:19 +0100 (Wed, 12 Apr
+ *          2006) $
  * @author <a href="mailto:juanco@suigeneris.org">Juanco Anez</a>
  */
 public class DiffException extends Exception
 {
 
-    public DiffException()
-    {
-    }
+	public DiffException()
+	{
+	}
 
-    public DiffException(String msg)
-    {
-        super(msg);
-    }
+	public DiffException(String msg)
+	{
+		super(msg);
+	}
 }
-

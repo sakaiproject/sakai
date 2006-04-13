@@ -28,29 +28,37 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * Plugin loader for macros
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public class MacroLoader extends PluginLoader {
-  private static Log log = LogFactory.getLog(MacroLoader.class);
+public class MacroLoader extends PluginLoader
+{
+	private static Log log = LogFactory.getLog(MacroLoader.class);
 
-  public Class getLoadClass() {
-    return Macro.class;
-  }
+	public Class getLoadClass()
+	{
+		return Macro.class;
+	}
 
-  /**
-   * Add a plugin to the known plugin map
-   *
-   * @param macro Macro to add
-   */
-  public void add(Repository repository, Object plugin) {
-    if (plugin instanceof Macro) {
-      repository.put(((Macro) plugin).getName(), plugin);
-    } else {
-      log.debug("MacroLoader: " + plugin.getClass() + " not of Type " + getLoadClass());
-    }
-  }
+	/**
+	 * Add a plugin to the known plugin map
+	 * 
+	 * @param macro
+	 *        Macro to add
+	 */
+	public void add(Repository repository, Object plugin)
+	{
+		if (plugin instanceof Macro)
+		{
+			repository.put(((Macro) plugin).getName(), plugin);
+		}
+		else
+		{
+			log.debug("MacroLoader: " + plugin.getClass() + " not of Type "
+					+ getLoadClass());
+		}
+	}
 
 }

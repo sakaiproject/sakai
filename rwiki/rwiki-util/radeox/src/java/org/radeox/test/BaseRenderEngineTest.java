@@ -22,70 +22,92 @@
  */
 package org.radeox.test;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
-import org.radeox.test.filter.mock.MockWikiRenderEngine;
 import org.radeox.api.engine.RenderEngine;
+import org.radeox.api.engine.context.RenderContext;
 import org.radeox.engine.BaseRenderEngine;
 import org.radeox.engine.context.BaseRenderContext;
-import org.radeox.api.engine.context.RenderContext;
+import org.radeox.test.filter.mock.MockWikiRenderEngine;
 
-import java.io.StringWriter;
-import java.io.IOException;
+public class BaseRenderEngineTest extends TestCase
+{
+	RenderContext context;
 
-public class BaseRenderEngineTest extends TestCase {
-  RenderContext context;
+	public BaseRenderEngineTest(String name)
+	{
+		super(name);
+	}
 
-  public BaseRenderEngineTest(String name) {
-    super(name);
-  }
+	protected void setUp() throws Exception
+	{
+		context = new BaseRenderContext();
+		super.setUp();
+	}
 
-  protected void setUp() throws Exception {
-    context = new BaseRenderContext();
-    super.setUp();
-  }
+	public static Test suite()
+	{
+		return new TestSuite(BaseRenderEngineTest.class);
+	}
 
-  public static Test suite() {
-    return new TestSuite(BaseRenderEngineTest.class);
-  }
+	public void testBoldInList()
+	{
+		RenderEngine engine = EngineManager.getInstance();
+		assertEquals(
+				"<ul class=\"minus\">\n<li><b class=\"bold\">test</b></li>\n</ul>",
+				engine.render("- __test__", context));
+	}
 
-  public void testBoldInList() {
-    RenderEngine engine = EngineManager.getInstance();
-    assertEquals("<ul class=\"minus\">\n<li><b class=\"bold\">test</b></li>\n</ul>", engine.render("- __test__", context));
-  }
+	public void testRenderEngine()
+	{
+		String result = EngineManager.getInstance().render(
+				"__SnipSnap__ {link:Radeox|http://radeox.org}", context);
+		assertEquals(
+				"<b class=\"bold\">SnipSnap</b> <span class=\"nobr\"><a href=\"http://radeox.org\">Radeox</a></span>",
+				result);
+	}
 
-  public void testRenderEngine() {
-    String result = EngineManager.getInstance().render("__SnipSnap__ {link:Radeox|http://radeox.org}", context);
-    assertEquals("<b class=\"bold\">SnipSnap</b> <span class=\"nobr\"><a href=\"http://radeox.org\">Radeox</a></span>", result);
-  }
+	public void testEmpty()
+	{
+		String result = EngineManager.getInstance().render("", context);
+		assertEquals("", result);
+	}
 
-  public void testEmpty() {
-    String result = EngineManager.getInstance().render("", context);
-    assertEquals("", result);
-  }
+	public void testDefaultEngine()
+	{
+		RenderEngine engine = EngineManager.getInstance();
+		RenderEngine engineDefault = EngineManager
+				.getInstance(EngineManager.DEFAULT);
+		assertEquals(engine.getName(), engineDefault.getName());
+	}
 
-  public void testDefaultEngine() {
-    RenderEngine engine = EngineManager.getInstance();
-    RenderEngine engineDefault = EngineManager.getInstance(EngineManager.DEFAULT);
-    assertEquals(engine.getName(), engineDefault.getName());
-  }
+	public void testWriter()
+	{
+		RenderEngine engine = new BaseRenderEngine();
+		StringWriter writer = new StringWriter();
+		try
+		{
+			engine.render(writer, "__SnipSnap__", context);
+		}
+		catch (IOException e)
+		{
+			// never reach
+		}
+		assertEquals("BaseRenderEngine writes to Writer",
+				"<b class=\"bold\">SnipSnap</b>", writer.toString());
+	}
 
-  public void testWriter() {
-    RenderEngine engine = new BaseRenderEngine();
-    StringWriter writer = new StringWriter();
-    try {
-      engine.render(writer, "__SnipSnap__", context);
-    } catch (IOException e) {
-      // never reach
-    }
-    assertEquals("BaseRenderEngine writes to Writer","<b class=\"bold\">SnipSnap</b>", writer.toString());
-  }
-
-  public void testFilterOrder() {
-    RenderEngine engine = EngineManager.getInstance();
-    context.setRenderEngine(new MockWikiRenderEngine());
-    assertEquals("'<link>' - '&#60;link&#62;'", engine.render("[<link>]", context));
-  }
+	public void testFilterOrder()
+	{
+		RenderEngine engine = EngineManager.getInstance();
+		context.setRenderEngine(new MockWikiRenderEngine());
+		assertEquals("'<link>' - '&#60;link&#62;'", engine.render("[<link>]",
+				context));
+	}
 }

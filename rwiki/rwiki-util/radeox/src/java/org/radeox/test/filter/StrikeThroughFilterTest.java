@@ -24,52 +24,71 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.StrikeThroughFilter;
 
-public class StrikeThroughFilterTest extends FilterTestSupport {
-  public StrikeThroughFilterTest(String name) {
-    super(name);
-  }
+public class StrikeThroughFilterTest extends FilterTestSupport
+{
+	public StrikeThroughFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new StrikeThroughFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new StrikeThroughFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(StrikeThroughFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(StrikeThroughFilterTest.class);
+	}
 
-  public void testStrikeThroughDash() {
-    assertEquals("Test<strike class=\"strike\">Test-Text</strike>", filter.filter("Test--Test-Text--", context));
-  }
+	public void testStrikeThroughDash()
+	{
+		assertEquals("Test<strike class=\"strike\">Test-Text</strike>", filter
+				.filter("Test--Test-Text--", context));
+	}
 
-  public void testStrikeThroughDoubleDash() {
-    assertEquals("Test<strike class=\"strike\">Test</strike>Text--", filter.filter("Test--Test--Text--", context));
-  }
+	public void testStrikeThroughDoubleDash()
+	{
+		assertEquals("Test<strike class=\"strike\">Test</strike>Text--", filter
+				.filter("Test--Test--Text--", context));
+	}
 
-  public void testStartStrikeThrough() {
-    assertEquals("Test<strike class=\"strike\">Text</strike>", filter.filter("Test--Text--", context));
-  }
+	public void testStartStrikeThrough()
+	{
+		assertEquals("Test<strike class=\"strike\">Text</strike>", filter
+				.filter("Test--Text--", context));
+	}
 
-  public void testEndStrikeThrough() {
-    assertEquals("<strike class=\"strike\">Text</strike>Test", filter.filter("--Text--Test", context));
-  }
+	public void testEndStrikeThrough()
+	{
+		assertEquals("<strike class=\"strike\">Text</strike>Test", filter
+				.filter("--Text--Test", context));
+	}
 
-  public void testStrikeThrough() {
-    assertEquals("Test<strike class=\"strike\">Text</strike>Test", filter.filter("Test--Text--Test", context));
-  }
+	public void testStrikeThrough()
+	{
+		assertEquals("Test<strike class=\"strike\">Text</strike>Test", filter
+				.filter("Test--Text--Test", context));
+	}
 
-  public void testFourDashes() {
-    assertEquals("----", filter.filter("----",context));
-  }
+	public void testFourDashes()
+	{
+		assertEquals("----", filter.filter("----", context));
+	}
 
-  public void testFiveDashes() {
-    assertEquals("-----", filter.filter("-----", context));
-  }
+	public void testFiveDashes()
+	{
+		assertEquals("-----", filter.filter("-----", context));
+	}
 
-  public void testHtmlComment() {
-    assertEquals("<!-- comment -->", filter.filter("<!-- comment -->", context));
-  }
+	public void testHtmlComment()
+	{
+		assertEquals("<!-- comment -->", filter.filter("<!-- comment -->",
+				context));
+	}
 
 }

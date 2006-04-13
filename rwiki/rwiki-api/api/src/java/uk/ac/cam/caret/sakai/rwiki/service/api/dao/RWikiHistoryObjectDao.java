@@ -28,47 +28,49 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiCurrentObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RWikiHistoryObjectDao extends RWikiObjectDao {
+public interface RWikiHistoryObjectDao extends RWikiObjectDao
+{
 
 	/**
 	 * Update a History Object
+	 * 
 	 * @param rwo
 	 */
 	void update(RWikiHistoryObject rwo);
 
-	/** 
+	/**
 	 * Create a new History object by cloning a Current Object
+	 * 
 	 * @param rwo
 	 * @return
 	 */
-    RWikiHistoryObject createRWikiHistoryObject(RWikiCurrentObject rwo);
-    
-    /**
-     * Find a revision based ont the rwikiobjectid of the reference
-     * @param rwo
-     * @param revision
-     * @return
-     */
-    RWikiHistoryObject getRWikiHistoryObject(RWikiObject rwo, int revision);
-    
-    /**
-     * Find all revisions based on the rwikiobjectid of the reference
-     * @param reference
-     * @return
-     */
-    List findRWikiHistoryObjects(RWikiObject reference);
+	RWikiHistoryObject createRWikiHistoryObject(RWikiCurrentObject rwo);
 
-    /**
-     * Find all revisions based on the rwikiobjectid of the reference
-     * in reverse 
-     * @param reference
-     * @return
-     */
+	/**
+	 * Find a revision based ont the rwikiobjectid of the reference
+	 * 
+	 * @param rwo
+	 * @param revision
+	 * @return
+	 */
+	RWikiHistoryObject getRWikiHistoryObject(RWikiObject rwo, int revision);
+
+	/**
+	 * Find all revisions based on the rwikiobjectid of the reference
+	 * 
+	 * @param reference
+	 * @return
+	 */
+	List findRWikiHistoryObjects(RWikiObject reference);
+
+	/**
+	 * Find all revisions based on the rwikiobjectid of the reference in reverse
+	 * 
+	 * @param reference
+	 * @return
+	 */
 	List findRWikiHistoryObjectsInReverse(RWikiObject reference);
-
-
-    
 
 }

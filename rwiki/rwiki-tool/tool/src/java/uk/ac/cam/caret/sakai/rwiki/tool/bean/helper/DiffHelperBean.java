@@ -36,88 +36,97 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.HistoryBean;
  * 
  * @author andrew
  */
-//FIXME: Tool
+// FIXME: Tool
+public class DiffHelperBean
+{
 
-public class DiffHelperBean {
+	/**
+	 * current servletRequest
+	 */
+	private ServletRequest request;
 
-    /**
-     * current servletRequest
-     */
-    private ServletRequest request;
+	/**
+	 * current rwikiObject
+	 */
+	private RWikiObject rwikiObject;
 
-    /**
-     * current rwikiObject
-     */
-    private RWikiObject rwikiObject;
+	private RWikiObjectService rwikiObjectService;
 
-    private RWikiObjectService rwikiObjectService;
-    /**
-     * DiffBean that was created
-     */
-    private DiffBean diffBean;
+	/**
+	 * DiffBean that was created
+	 */
+	private DiffBean diffBean;
 
-    /**
-     * initialise the DiffHelperBean, effectively creating a new diffBean for
-     * the rwikiObject
-     */
-    public void init() {
-        String left = request.getParameter(HistoryBean.LEFT_PARAM);
-        String right = request.getParameter(HistoryBean.RIGHT_PARAM);
-        diffBean = new DiffBean(rwikiObject, rwikiObjectService, left, right);
-    }
+	/**
+	 * initialise the DiffHelperBean, effectively creating a new diffBean for
+	 * the rwikiObject
+	 */
+	public void init()
+	{
+		String left = request.getParameter(HistoryBean.LEFT_PARAM);
+		String right = request.getParameter(HistoryBean.RIGHT_PARAM);
+		diffBean = new DiffBean(rwikiObject, rwikiObjectService, left, right);
+	}
 
-    /**
-     * Set the current servletRequest
-     * 
-     * @param servletRequest
-     *            current request to respond to
-     */
-    public void setServletRequest(ServletRequest servletRequest) {
-        this.request = servletRequest;
-    }
+	/**
+	 * Set the current servletRequest
+	 * 
+	 * @param servletRequest
+	 *        current request to respond to
+	 */
+	public void setServletRequest(ServletRequest servletRequest)
+	{
+		this.request = servletRequest;
+	}
 
-    /**
-     * Get the currently selected rwikiObject
-     * 
-     * @return rwikiObject
-     */
-    public RWikiObject getRwikiObject() {
-        return rwikiObject;
-    }
+	/**
+	 * Get the currently selected rwikiObject
+	 * 
+	 * @return rwikiObject
+	 */
+	public RWikiObject getRwikiObject()
+	{
+		return rwikiObject;
+	}
 
-    /**
-     * Set the RWikiObject for the diffBean
-     * 
-     * @param rwikiObject
-     *            RWikiObject for the diffs
-     */
-    public void setRwikiObject(RWikiObject rwikiObject) {
-        this.rwikiObject = rwikiObject;
-    }
+	/**
+	 * Set the RWikiObject for the diffBean
+	 * 
+	 * @param rwikiObject
+	 *        RWikiObject for the diffs
+	 */
+	public void setRwikiObject(RWikiObject rwikiObject)
+	{
+		this.rwikiObject = rwikiObject;
+	}
 
-    /**
-     * Get the DiffBean for the current RWikiObject and the request
-     * 
-     * @return
-     */
-    public DiffBean getDiffBean() {
-        return diffBean;
-    }
+	/**
+	 * Get the DiffBean for the current RWikiObject and the request
+	 * 
+	 * @return
+	 */
+	public DiffBean getDiffBean()
+	{
+		return diffBean;
+	}
 
-    /**
-     * Set the diffBean for this DiffHelperBean
-     * 
-     * @param diffBean
-     */
-    public void setDiffBean(DiffBean diffBean) {
-        this.diffBean = diffBean;
-    }
+	/**
+	 * Set the diffBean for this DiffHelperBean
+	 * 
+	 * @param diffBean
+	 */
+	public void setDiffBean(DiffBean diffBean)
+	{
+		this.diffBean = diffBean;
+	}
 
-	public RWikiObjectService getRwikiObjectService() {
+	public RWikiObjectService getRwikiObjectService()
+	{
 		return rwikiObjectService;
 	}
 
-	public void setRwikiObjectService(RWikiObjectService rwikiObjectService) {
+	public void setRwikiObjectService(RWikiObjectService rwikiObjectService)
+	{
 		this.rwikiObjectService = rwikiObjectService;
 	}
 

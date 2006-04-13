@@ -23,25 +23,30 @@
 package org.radeox.macro.code;
 
 /*
- * XmlCodeFilter colourizes Xml Code
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * XmlCodeFilter colourizes Xml Code @author stephan @team sonicteam
+ * 
+ * @version $Id: XmlCodeFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class XmlCodeFilter extends DefaultRegexCodeFormatter implements SourceCodeFormatter {
-  private static final String KEYWORDS = "\\b(xsl:[^&\\s]*)\\b";
-  private static final String TAGS = "(&#60;/?.*?&#62;)";
-  private static final String QUOTE = "\"(([^\"\\\\]|\\.)*)\"";
+public class XmlCodeFilter extends DefaultRegexCodeFormatter implements
+		SourceCodeFormatter
+{
+	private static final String KEYWORDS = "\\b(xsl:[^&\\s]*)\\b";
 
-  public XmlCodeFilter() {
-    super(QUOTE, "<span class=\"xml-quote\">\"$1\"</span>");
-    addRegex(TAGS, "<span class=\"xml-tag\">$1</span>");
-    addRegex(KEYWORDS, "<span class=\"xml-keyword\">$1</span>");
-  }
+	private static final String TAGS = "(&#60;/?.*?&#62;)";
 
-  public String getName() {
-    return "xml";
-  }
+	private static final String QUOTE = "\"(([^\"\\\\]|\\.)*)\"";
+
+	public XmlCodeFilter()
+	{
+		super(QUOTE, "<span class=\"xml-quote\">\"$1\"</span>");
+		addRegex(TAGS, "<span class=\"xml-tag\">$1</span>");
+		addRegex(KEYWORDS, "<span class=\"xml-keyword\">$1</span>");
+	}
+
+	public String getName()
+	{
+		return "xml";
+	}
 }

@@ -24,32 +24,37 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 /**
  * @author andrew
- *
  */
 
-//FIXME: Tool
+// FIXME: Tool
+public class HomeBean
+{
 
-public class HomeBean {
+	private String homeLinkUrl;
 
-    private String homeLinkUrl;
-    private String homeLinkValue;
-    
-    public String getHomeLinkUrl() {
-        return homeLinkUrl;
-    }
-    
-    public void setHomeLinkUrl(String homeLinkUrl) {
-        this.homeLinkUrl = homeLinkUrl;
-    }
-    
-    public String getHomeLinkValue() {
-        return homeLinkValue;
-    }
-    
-    public void setHomeLinkValue(String homeLinkValue) {
-       if (homeLinkValue != null) {
-           this.homeLinkValue = homeLinkValue;
-       }   
-        
-    }   
+	private String homeLinkValue;
+
+	public String getHomeLinkUrl()
+	{
+		return homeLinkUrl;
+	}
+
+	public void setHomeLinkUrl(String homeLinkUrl)
+	{
+		this.homeLinkUrl = homeLinkUrl;
+	}
+
+	public String getHomeLinkValue()
+	{
+		return homeLinkValue;
+	}
+
+	public void setHomeLinkValue(String homeLinkValue)
+	{
+		if (homeLinkValue != null)
+		{
+			this.homeLinkValue = homeLinkValue;
+		}
+
+	}
 }

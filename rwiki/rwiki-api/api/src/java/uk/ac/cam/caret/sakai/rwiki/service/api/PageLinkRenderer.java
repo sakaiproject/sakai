@@ -21,59 +21,67 @@
  *
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.service.api;
+
 /**
  * A page link render renders links for the render engine
+ * 
  * @author andrew
- *
  */
-//FIXME: Service
-
-public interface PageLinkRenderer {
+// FIXME: Service
+public interface PageLinkRenderer
+{
 	/**
 	 * create a view link by appending it to the buffer
+	 * 
 	 * @param buffer
 	 * @param name
 	 * @param view
 	 */
-    void appendLink(StringBuffer buffer, String name, String view);
+	void appendLink(StringBuffer buffer, String name, String view);
 
-    /**
-     * Create a view link with an anchor by appending it to the buffer
-     * @param buffer
-     * @param name
-     * @param view
-     * @param anchor
-     */
-    void appendLink(StringBuffer buffer, String name, String view, String anchor);
+	/**
+	 * Create a view link with an anchor by appending it to the buffer
+	 * 
+	 * @param buffer
+	 * @param name
+	 * @param view
+	 * @param anchor
+	 */
+	void appendLink(StringBuffer buffer, String name, String view, String anchor);
 
-    /**
-     * append a create link to the buffer
-     * @param buffer
-     * @param name
-     * @param view
-     */
-    void appendCreateLink(StringBuffer buffer, String name, String view);
-    
-    /**
-     * 
-     * @param cachable
-     */
-    void setCachable( boolean cachable ); 
-    /**
-     * After rendering is the result cachable
-     * @return
-     */
-    boolean isCachable();
-    /**
-     * Before rendering, can we use a chached version
-     * @return
-     */
-    boolean canUseCache();
-    
-    /**
-     * If true the rendered may use the cache, if false it should not
-     * @param b
-     */
-    void setUseCache(boolean b);
+	/**
+	 * append a create link to the buffer
+	 * 
+	 * @param buffer
+	 * @param name
+	 * @param view
+	 */
+	void appendCreateLink(StringBuffer buffer, String name, String view);
+
+	/**
+	 * @param cachable
+	 */
+	void setCachable(boolean cachable);
+
+	/**
+	 * After rendering is the result cachable
+	 * 
+	 * @return
+	 */
+	boolean isCachable();
+
+	/**
+	 * Before rendering, can we use a chached version
+	 * 
+	 * @return
+	 */
+	boolean canUseCache();
+
+	/**
+	 * If true the rendered may use the cache, if false it should not
+	 * 
+	 * @param b
+	 */
+	void setUseCache(boolean b);
 
 }

@@ -24,16 +24,18 @@
 package org.radeox.filter;
 
 /*
- * SmileyFilter replaces frownies :-( with smileys :-)
- *
- * @author Stephan J. Schmidt
+ * SmileyFilter replaces frownies :-( with smileys :-) @author Stephan J.
+ * Schmidt
+ * 
  * @version $Id$
  */
 
 import org.radeox.filter.regex.RegexReplaceFilter;
 
-public class SmileyFilter extends RegexReplaceFilter implements CacheFilter {
-  public SmileyFilter() {
-    super(":-\\(", ":-)");
-  };
+public class SmileyFilter extends RegexReplaceFilter implements CacheFilter
+{
+	public SmileyFilter()
+	{
+		super(":-\\(", ":-)");
+	};
 }

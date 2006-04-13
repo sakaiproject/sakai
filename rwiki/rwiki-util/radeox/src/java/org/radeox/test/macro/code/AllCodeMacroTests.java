@@ -27,14 +27,17 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllCodeMacroTests extends TestCase {
-  public AllCodeMacroTests(String name) {
-    super(name);
-  }
+public class AllCodeMacroTests extends TestCase
+{
+	public AllCodeMacroTests(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    TestSuite s = new TestSuite();
-    s.addTestSuite(XmlCodeMacroTest.class);
-    return s;
-  }
+	public static Test suite()
+	{
+		TestSuite s = new TestSuite();
+		s.addTestSuite(XmlCodeMacroTest.class);
+		return s;
+	}
 }

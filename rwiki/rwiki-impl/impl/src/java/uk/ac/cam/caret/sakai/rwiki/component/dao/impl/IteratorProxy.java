@@ -25,30 +25,39 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 import java.util.Iterator;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
+
 /**
  * Provides a proxy implementation of an iterator, proxying objects with a
  * ObjectProxy
+ * 
  * @author ieb
- *
  */
 // FIXME: Component
-public class IteratorProxy implements Iterator {
+public class IteratorProxy implements Iterator
+{
 
 	private ObjectProxy lop;
+
 	private Iterator i;
-	public IteratorProxy( Iterator i, ObjectProxy lop) {
+
+	public IteratorProxy(Iterator i, ObjectProxy lop)
+	{
 		this.i = i;
 		this.lop = lop;
 	}
-	public boolean hasNext() {
+
+	public boolean hasNext()
+	{
 		return i.hasNext();
 	}
 
-	public Object next() {
+	public Object next()
+	{
 		return lop.proxyObject(i.next());
 	}
 
-	public void remove() {
+	public void remove()
+	{
 		i.remove();
 	}
 

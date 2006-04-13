@@ -28,7 +28,8 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.expression.Expression;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -39,58 +40,67 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
-//FIXME: Component
+// FIXME: Component
 
-public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport implements RWikiObjectContentDao {
-	private Logger log;
-	public RWikiObjectContent getContentObject(final RWikiObject parent) {
-	       long start = System.currentTimeMillis();
-	        try {
-	        HibernateCallback callback = new HibernateCallback() {
-	            public Object doInHibernate(Session session)
-	                    throws HibernateException {
-	                return session.createCriteria(RWikiHistoryObjectContent.class).add(
-	                        Expression.eq("rwikiid", parent.getId())).list();
-	            }
-	            
-	        };
-	        List found = (List) getHibernateTemplate().execute(callback);
-	        if (found.size() == 0) {
-	            if (log.isDebugEnabled()) {
-	                log.debug("Found " + found.size() + " objects with id "
-	                        + parent.getId() );
-	            }
-	            return null;
-	        }
-	        if (log.isDebugEnabled()) {
-	            log.debug("Found " + found.size() + " objects with name " + parent.getId()
-	                    + " returning most recent one.");
-	        }
-	        return (RWikiObjectContent) found.get(0);
-	        } finally {
-	            long finish = System.currentTimeMillis();
-	            TimeLogger.printTimer("RWikiHistroyObjectContentDaoImpl.getContentObject: " + parent.getId(),start,finish);
-	        }
+public class RWikiHistoryObjectContentDaoImpl extends HibernateDaoSupport
+		implements RWikiObjectContentDao
+{
+	private static Log log = LogFactory
+			.getLog(RWikiHistoryObjectContentDaoImpl.class);
+
+	public RWikiObjectContent getContentObject(final RWikiObject parent)
+	{
+		long start = System.currentTimeMillis();
+		try
+		{
+			HibernateCallback callback = new HibernateCallback()
+			{
+				public Object doInHibernate(Session session)
+						throws HibernateException
+				{
+					return session.createCriteria(
+							RWikiHistoryObjectContent.class).add(
+							Expression.eq("rwikiid", parent.getId())).list();
+				}
+
+			};
+			List found = (List) getHibernateTemplate().execute(callback);
+			if (found.size() == 0)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Found " + found.size() + " objects with id "
+							+ parent.getId());
+				}
+				return null;
+			}
+			if (log.isDebugEnabled())
+			{
+				log.debug("Found " + found.size() + " objects with name "
+						+ parent.getId() + " returning most recent one.");
+			}
+			return (RWikiObjectContent) found.get(0);
+		}
+		finally
+		{
+			long finish = System.currentTimeMillis();
+			TimeLogger.printTimer(
+					"RWikiHistroyObjectContentDaoImpl.getContentObject: "
+							+ parent.getId(), start, finish);
+		}
 	}
 
-	public RWikiObjectContent createContentObject(RWikiObject parent) {
+	public RWikiObjectContent createContentObject(RWikiObject parent)
+	{
 		RWikiHistoryObjectContent rwco = new RWikiHistoryObjectContentImpl();
 		rwco.setRwikiid(parent.getId());
 		return rwco;
 	}
 
-	public void update(RWikiObjectContent content) {
-		 RWikiHistoryObjectContentImpl impl = (RWikiHistoryObjectContentImpl) content;
-	     getHibernateTemplate().saveOrUpdate(impl);
+	public void update(RWikiObjectContent content)
+	{
+		RWikiHistoryObjectContentImpl impl = (RWikiHistoryObjectContentImpl) content;
+		getHibernateTemplate().saveOrUpdate(impl);
 	}
-
-	public Logger getLog() {
-		return log;
-	}
-
-	public void setLog(Logger log) {
-		this.log = log;
-	}
-
 
 }

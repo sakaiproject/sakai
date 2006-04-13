@@ -23,47 +23,53 @@
 
 package org.radeox.macro;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.macro.book.AsinServices;
 import org.radeox.macro.parameter.MacroParameter;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /*
- * Macro for displaying links to external DVD/CD services or dealers.
- * AsinMacro reads the mapping from names to
- * urls from a configuration file and then maps an ASIN number
- * like {asin:1234} to the DVD/CD e.g. on Amazon.
- *
- * @author stephan
+ * Macro for displaying links to external DVD/CD services or dealers. AsinMacro
+ * reads the mapping from names to urls from a configuration file and then maps
+ * an ASIN number like {asin:1234} to the DVD/CD e.g. on Amazon. @author stephan
  * @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class AsinMacro extends BaseLocaleMacro {
-  private static Log log = LogFactory.getLog(AsinMacro.class);
+public class AsinMacro extends BaseLocaleMacro
+{
+	private static Log log = LogFactory.getLog(AsinMacro.class);
 
-  private String[] paramDescription = {"1: asin number"};
+	private String[] paramDescription = { "1: asin number" };
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public String getLocaleKey() {
-    return "macro.asin";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.asin";
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
 
-    if (params.getLength() == 1) {
-      AsinServices.getInstance().appendUrl(writer, params.get("0"));
-      return;
-    } else {
-      log.warn("needs an ASIN number as argument");
-      throw new IllegalArgumentException("needs an ASIN number as argument");
-    }
-  }
+		if (params.getLength() == 1)
+		{
+			AsinServices.getInstance().appendUrl(writer, params.get("0"));
+			return;
+		}
+		else
+		{
+			log.warn("needs an ASIN number as argument");
+			throw new IllegalArgumentException(
+					"needs an ASIN number as argument");
+		}
+	}
 }

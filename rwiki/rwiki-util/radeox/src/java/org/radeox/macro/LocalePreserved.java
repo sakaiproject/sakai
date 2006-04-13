@@ -1,12 +1,12 @@
 package org.radeox.macro;
 
-import org.radeox.api.engine.context.InitialRenderContext;
-import org.radeox.api.engine.context.RenderContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.radeox.api.engine.context.InitialRenderContext;
+import org.radeox.api.engine.context.RenderContext;
 
 /*
  * This file is part of "SnipSnap Radeox Rendering Engine".
@@ -31,31 +31,43 @@ import java.util.ResourceBundle;
  * --LICENSE NOTICE--
  */
 
-public abstract class LocalePreserved extends Preserved implements LocaleMacro {
-  private static Log log = LogFactory.getLog(LocalePreserved.class);
+public abstract class LocalePreserved extends Preserved implements LocaleMacro
+{
+	private static Log log = LogFactory.getLog(LocalePreserved.class);
 
-  private String name;
+	private String name;
 
-  public String getName() {
-    return name;
-  }
+	public String getName()
+	{
+		return name;
+	}
 
-  public void setInitialContext(InitialRenderContext context) {
-    super.setInitialContext(context);
-    Locale languageLocale = (Locale) context.get(RenderContext.LANGUAGE_LOCALE);
-    String languageName = (String) context.get(RenderContext.LANGUAGE_BUNDLE_NAME);
-    ResourceBundle messages = ResourceBundle.getBundle(languageName, languageLocale);
+	public void setInitialContext(InitialRenderContext context)
+	{
+		super.setInitialContext(context);
+		Locale languageLocale = (Locale) context
+				.get(RenderContext.LANGUAGE_LOCALE);
+		String languageName = (String) context
+				.get(RenderContext.LANGUAGE_BUNDLE_NAME);
+		ResourceBundle messages = ResourceBundle.getBundle(languageName,
+				languageLocale);
 
-    Locale inputLocale = (Locale) context.get(RenderContext.INPUT_LOCALE);
-    String inputName = (String) context.get(RenderContext.INPUT_BUNDLE_NAME);
-    ResourceBundle inputMessages = ResourceBundle.getBundle(inputName, inputLocale);
+		Locale inputLocale = (Locale) context.get(RenderContext.INPUT_LOCALE);
+		String inputName = (String) context
+				.get(RenderContext.INPUT_BUNDLE_NAME);
+		ResourceBundle inputMessages = ResourceBundle.getBundle(inputName,
+				inputLocale);
 
-    name = inputMessages.getString(getLocaleKey() + ".name");
+		name = inputMessages.getString(getLocaleKey() + ".name");
 
-    try {
-      description = messages.getString(getLocaleKey() + ".description");
-    } catch (Exception e) {
-      log.warn("Cannot read description from properties " + inputName + " for " + getLocaleKey());
-    }
-  }
+		try
+		{
+			description = messages.getString(getLocaleKey() + ".description");
+		}
+		catch (Exception e)
+		{
+			log.warn("Cannot read description from properties " + inputName
+					+ " for " + getLocaleKey());
+		}
+	}
 }

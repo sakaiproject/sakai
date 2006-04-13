@@ -23,43 +23,50 @@
 
 package org.radeox.macro;
 
-import org.radeox.macro.book.BookServices;
-import org.radeox.macro.parameter.MacroParameter;
-
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.macro.book.BookServices;
+import org.radeox.macro.parameter.MacroParameter;
+
 /*
  * Macro for displaying links to external book services, book dealers or
- * intranet libraries. IsbnMacro reads the mapping from names to
- * urls from a configuration file and then maps an ISBN number
- * like {isbn:1234} to the book e.g. on Amazon.
- *
- * @author stephan
- * @team sonicteam
+ * intranet libraries. IsbnMacro reads the mapping from names to urls from a
+ * configuration file and then maps an ISBN number like {isbn:1234} to the book
+ * e.g. on Amazon. @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class IsbnMacro extends BaseLocaleMacro {
-  private String[] paramDescription = {"1: isbn number"};
-  private String NEEDS_ISBN_ERROR;
+public class IsbnMacro extends BaseLocaleMacro
+{
+	private String[] paramDescription = { "1: isbn number" };
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	private String NEEDS_ISBN_ERROR;
 
-  public String getLocaleKey() {
-    return "macro.isbn";
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
+	public String getLocaleKey()
+	{
+		return "macro.isbn";
+	}
 
-    if (params.getLength() == 1) {
-      BookServices.getInstance().appendUrl(writer, params.get("0"));
-      return;
-    } else {
-      throw new IllegalArgumentException("needs an ISBN number as argument");
-    }
-  }
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
+
+		if (params.getLength() == 1)
+		{
+			BookServices.getInstance().appendUrl(writer, params.get("0"));
+			return;
+		}
+		else
+		{
+			throw new IllegalArgumentException(
+					"needs an ISBN number as argument");
+		}
+	}
 }

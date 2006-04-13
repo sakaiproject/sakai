@@ -23,16 +23,17 @@
 
 package org.radeox.macro.table;
 
-
 /**
- * A function interface for functions in table cells like
- * =SUM(A1:A3)
- *
+ * A function interface for functions in table cells like =SUM(A1:A3)
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public interface Function {
-  public String getName();
-  public void execute(Table table, int posx, int posy, int startX, int startY, int endX, int endY);
+public interface Function
+{
+	public String getName();
+
+	public void execute(Table table, int posx, int posy, int startX,
+			int startY, int endX, int endY);
 }

@@ -24,53 +24,58 @@
 package org.radeox.regex;
 
 /*
- * The result when a Matcher object finds matches in some input
- *
- * @author stephan
+ * The result when a Matcher object finds matches in some input @author stephan
  * @team sonicteam
+ * 
  * @version $Id$
  */
 
-public abstract class MatchResult {
+public abstract class MatchResult
+{
 
-  /**
-   * Create a new MatchResult depending on the used implementation
-   *
-   * @param matcher Matcher object of the implementation
-   * @return MatchResult for the Matcher
-   */
-  public static MatchResult create(Matcher matcher) {
-    return new JdkMatchResult(matcher);
-  }
+	/**
+	 * Create a new MatchResult depending on the used implementation
+	 * 
+	 * @param matcher
+	 *        Matcher object of the implementation
+	 * @return MatchResult for the Matcher
+	 */
+	public static MatchResult create(Matcher matcher)
+	{
+		return new JdkMatchResult(matcher);
+	}
 
-  /**
-   * Returns the number of groups (...) found
-   *
-   * @return Number of found groups
-   */
-  public abstract int groups();
+	/**
+	 * Returns the number of groups (...) found
+	 * 
+	 * @return Number of found groups
+	 */
+	public abstract int groups();
 
-  /**
-   * Return the content of group with the index i
-   *
-   * @param i index for the group
-   * @return Content of the group with the index i
-   */
-  public abstract String group(int i);
+	/**
+	 * Return the content of group with the index i
+	 * 
+	 * @param i
+	 *        index for the group
+	 * @return Content of the group with the index i
+	 */
+	public abstract String group(int i);
 
-  /**
-   * The offset of the beginning of the match for the group with the index i
-   *
-   * @param i index for the group
-   * @return Offset of the group
-   */
-  public abstract int beginOffset(int i);
+	/**
+	 * The offset of the beginning of the match for the group with the index i
+	 * 
+	 * @param i
+	 *        index for the group
+	 * @return Offset of the group
+	 */
+	public abstract int beginOffset(int i);
 
-  /**
-   * The offset of the end of the match for the group with the index i
-   *
-   * @param i index for the group
-   * @return Offset of the group
-   */
-  public abstract int endOffset(int i);
+	/**
+	 * The offset of the end of the match for the group with the index i
+	 * 
+	 * @param i
+	 *        index for the group
+	 * @return Offset of the group
+	 */
+	public abstract int endOffset(int i);
 }

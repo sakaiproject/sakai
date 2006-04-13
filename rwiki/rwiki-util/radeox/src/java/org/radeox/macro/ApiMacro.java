@@ -23,56 +23,67 @@
 
 package org.radeox.macro;
 
-import org.radeox.macro.api.ApiDoc;
-import org.radeox.macro.parameter.MacroParameter;
-
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.macro.api.ApiDoc;
+import org.radeox.macro.parameter.MacroParameter;
+
 /*
- * Macro that replaces {api} with external URLS to api
- * documentation
- *
- * @author stephan
- * @team sonicteam
+ * Macro that replaces {api} with external URLS to api documentation @author
+ * stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class ApiMacro extends BaseLocaleMacro {
-  private String[] paramDescription =
-      {"1: class name, e.g. java.lang.Object or java.lang.Object@Java131",
-       "?2: mode, e.g. Java12, Ruby, defaults to Java"};
+public class ApiMacro extends BaseLocaleMacro
+{
+	private String[] paramDescription = {
+			"1: class name, e.g. java.lang.Object or java.lang.Object@Java131",
+			"?2: mode, e.g. Java12, Ruby, defaults to Java" };
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public String getLocaleKey() {
-    return "macro.api";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.api";
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
-    String mode;
-    String klass;
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
+		String mode;
+		String klass;
 
-    if (params.getLength() == 1) {
-      klass = params.get("0");
-      int index = klass.indexOf("@");
-      if (index > 0) {
-        mode = klass.substring(index + 1);
-        klass = klass.substring(0, index);
-      } else {
-        mode = "java";
-      }
-    } else if (params.getLength() == 2) {
-      mode = params.get("1").toLowerCase();
-      klass = params.get("0");
-    } else {
-      throw new IllegalArgumentException("api macro needs one or two paramaters");
-    }
+		if (params.getLength() == 1)
+		{
+			klass = params.get("0");
+			int index = klass.indexOf("@");
+			if (index > 0)
+			{
+				mode = klass.substring(index + 1);
+				klass = klass.substring(0, index);
+			}
+			else
+			{
+				mode = "java";
+			}
+		}
+		else if (params.getLength() == 2)
+		{
+			mode = params.get("1").toLowerCase();
+			klass = params.get("0");
+		}
+		else
+		{
+			throw new IllegalArgumentException(
+					"api macro needs one or two paramaters");
+		}
 
-    ApiDoc.getInstance().expand(writer, klass, mode);
-    return;
-  }
+		ApiDoc.getInstance().expand(writer, klass, mode);
+		return;
+	}
 }

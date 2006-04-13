@@ -57,18 +57,23 @@
 
 package org.apache.commons.jrcs;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-public class AllTests extends TestCase {
+public class AllTests extends TestCase
+{
 
-  public AllTests(String s) {
-    super(s);
-  }
+	public AllTests(String s)
+	{
+		super(s);
+	}
 
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTestSuite(org.apache.commons.jrcs.diff.SimpleDiffTests.class);
-    suite.addTestSuite(org.apache.commons.jrcs.diff.MyersDiffTests.class);
-    return suite;
-  }
+	public static Test suite()
+	{
+		TestSuite suite = new TestSuite();
+		suite.addTestSuite(org.apache.commons.jrcs.diff.SimpleDiffTests.class);
+		suite.addTestSuite(org.apache.commons.jrcs.diff.MyersDiffTests.class);
+		return suite;
+	}
 }

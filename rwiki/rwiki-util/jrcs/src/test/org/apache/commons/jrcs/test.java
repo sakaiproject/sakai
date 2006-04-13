@@ -54,20 +54,23 @@ package org.apache.commons.jrcs;
  * <http://www.apache.org/>.
  */
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-import junit.framework.*;
+public class test
+{
 
-public class test {
+	public static Test suite()
+	{
+		TestSuite suite = new TestSuite();
+		suite.addTest(org.apache.commons.jrcs.diff.DiffTest.suite());
+		return suite;
+	}
 
-  public static Test suite() {
-    TestSuite suite = new TestSuite();
-    suite.addTest(org.apache.commons.jrcs.diff.DiffTest.suite());
-    return suite;
-  }
-
-  public static void main(String args[]) {
-    //junit.swingui.TestRunner.main(new String[] {"tests"});
-    junit.textui.TestRunner.main(new String[] {"test"});
-  }
+	public static void main(String args[])
+	{
+		// junit.swingui.TestRunner.main(new String[] {"tests"});
+		junit.textui.TestRunner.main(new String[] { "test" });
+	}
 
 }

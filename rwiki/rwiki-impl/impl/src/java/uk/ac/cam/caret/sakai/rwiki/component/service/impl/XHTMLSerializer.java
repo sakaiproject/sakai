@@ -10,15 +10,16 @@ import org.xml.sax.SAXException;
 
 /**
  * @author andrew
- * 
  */
-public class XHTMLSerializer extends ToXMLStream {
+public class XHTMLSerializer extends ToXMLStream
+{
 
 	private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
 
 	private static HashMap emptyTag = new HashMap();
 
-	static {
+	static
+	{
 		// inclusion els
 		emptyTag.put("img", "img");
 		emptyTag.put("area", "area");
@@ -44,15 +45,18 @@ public class XHTMLSerializer extends ToXMLStream {
 	}
 
 	public void endElement(String namespaceURI, String localName, String name)
-			throws SAXException {
-		if ((namespaceURI != null && !namespaceURI.equals("") && !namespaceURI.equals(XHTML_NAMESPACE))
-				|| emptyTag.containsKey(localName.toLowerCase())) {
+			throws SAXException
+	{
+		if ((namespaceURI != null && !namespaceURI.equals("") && !namespaceURI
+				.equals(XHTML_NAMESPACE))
+				|| emptyTag.containsKey(localName.toLowerCase()))
+		{
 			super.endElement(namespaceURI, localName, name);
 			return;
 		}
 
 		this.characters("");
-		
+
 		super.endElement(namespaceURI, localName, name);
 
 	}

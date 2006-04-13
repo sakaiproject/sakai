@@ -23,52 +23,58 @@
 
 package org.radeox.macro;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.macro.parameter.MacroParameter;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /*
- * Displays a file path. This is used to store a filepath in an
- * OS independent way and then display the file path as needed.
- * This macro also solves the problems with to many backslashes
- * in Windows filepaths when they are entered in Snipsnap.
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Displays a file path. This is used to store a filepath in an OS independent
+ * way and then display the file path as needed. This macro also solves the
+ * problems with to many backslashes in Windows filepaths when they are entered
+ * in Snipsnap. @author stephan @team sonicteam
+ * 
+ * @version $Id: FilePathMacro.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class FilePathMacro extends LocalePreserved {
-  private static Log log = LogFactory.getLog(FilePathMacro.class);
+public class FilePathMacro extends LocalePreserved
+{
+	private static Log log = LogFactory.getLog(FilePathMacro.class);
 
-  private String[] paramDescription = {"1: file path"};
+	private String[] paramDescription = { "1: file path" };
 
-   public String getLocaleKey() {
-    return "macro.filepath";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.filepath";
+	}
 
-  public FilePathMacro() {
-    addSpecial('\\');
-  }
+	public FilePathMacro()
+	{
+		addSpecial('\\');
+	}
 
-  public String getDescription() {
-    return "Displays a file system path. The file path should use slashes. Defaults to windows.";
-  }
+	public String getDescription()
+	{
+		return "Displays a file system path. The file path should use slashes. Defaults to windows.";
+	}
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
 
-    if (params.getLength() == 1) {
-      String path = params.get("0").replace('/', '\\');
-      writer.write(replace(path));
-    }
-    return;
-  }
+		if (params.getLength() == 1)
+		{
+			String path = params.get("0").replace('/', '\\');
+			writer.write(replace(path));
+		}
+		return;
+	}
 }

@@ -30,38 +30,48 @@ import org.radeox.util.Encoder;
 
 /*
  * Transforms multiple \ into single backspaces and escapes other characters.
- *
- * @author leo
- * @team other
+ * @author leo @team other
+ * 
  * @version $Id$
  */
 
-public class EscapeFilter extends LocaleRegexTokenFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.escape";
-  }
+public class EscapeFilter extends LocaleRegexTokenFilter implements CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.escape";
+	}
 
-  public void handleMatch(StringBuffer buffer, MatchResult result, FilterContext context) {
-    buffer.append(handleMatch(result, context));
-  }
+	public void handleMatch(StringBuffer buffer, MatchResult result,
+			FilterContext context)
+	{
+		buffer.append(handleMatch(result, context));
+	}
 
-  public String handleMatch(MatchResult result, FilterContext context) {
-    if (result.group(1) == null) {
-      String match = result.group(2);
-      if (match == null) {
-        match = result.group(3);
-      }
-      if ("\\".equals(match)) {
-        return "\\\\";
-      }
-      return Encoder.toEntity(match.charAt(0));
-    } else {
-      return "&#92;";
-    }
-  }
+	public String handleMatch(MatchResult result, FilterContext context)
+	{
+		if (result.group(1) == null)
+		{
+			String match = result.group(2);
+			if (match == null)
+			{
+				match = result.group(3);
+			}
+			if ("\\".equals(match))
+			{
+				return "\\\\";
+			}
+			return Encoder.toEntity(match.charAt(0));
+		}
+		else
+		{
+			return "&#92;";
+		}
+	}
 
-  public String[] before() {
-    //return new String[]{ "BoldFilter.class", "BoingFilter.class" };
-    return FilterPipe.FIRST_BEFORE;
-  }
+	public String[] before()
+	{
+		// return new String[]{ "BoldFilter.class", "BoingFilter.class" };
+		return FilterPipe.FIRST_BEFORE;
+	}
 }

@@ -23,59 +23,71 @@
 
 package org.radeox.macro;
 
+import java.util.Iterator;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.util.Service;
 
-import java.util.Iterator;
-
 /**
  * Plugin loader
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public abstract class PluginLoader {
-  private static Log log = LogFactory.getLog(PluginLoader.class);
+public abstract class PluginLoader
+{
+	private static Log log = LogFactory.getLog(PluginLoader.class);
 
-  protected Repository repository;
+	protected Repository repository;
 
-  public Repository loadPlugins(Repository repository) {
-    return loadPlugins(repository, getLoadClass());
-  }
+	public Repository loadPlugins(Repository repository)
+	{
+		return loadPlugins(repository, getLoadClass());
+	}
 
-  public void setRepository(Repository repository) {
-    this.repository = repository;
-  }
+	public void setRepository(Repository repository)
+	{
+		this.repository = repository;
+	}
 
-  public Iterator getPlugins(Class klass) {
-    return Service.providers(klass);
-  }
+	public Iterator getPlugins(Class klass)
+	{
+		return Service.providers(klass);
+	}
 
-  public Repository loadPlugins(Repository repository, Class klass) {
-    if (null != repository) {
-      /* load all macros found in the services plugin control file */
-      Iterator iterator = getPlugins(klass);
-      while (iterator.hasNext()) {
-        try {
-          Object plugin = iterator.next();
-          add(repository, plugin);
-          log.debug("PluginLoader: Loaded plugin: " + plugin.getClass());
-        } catch (Exception e) {
-          log.warn("PluginLoader: unable to load plugin", e);
-        }
-      }
-    }
-    return repository;
-  }
+	public Repository loadPlugins(Repository repository, Class klass)
+	{
+		if (null != repository)
+		{
+			/* load all macros found in the services plugin control file */
+			Iterator iterator = getPlugins(klass);
+			while (iterator.hasNext())
+			{
+				try
+				{
+					Object plugin = iterator.next();
+					add(repository, plugin);
+					log.debug("PluginLoader: Loaded plugin: "
+							+ plugin.getClass());
+				}
+				catch (Exception e)
+				{
+					log.warn("PluginLoader: unable to load plugin", e);
+				}
+			}
+		}
+		return repository;
+	}
 
-  /**
-   * Add a plugin to the known plugin map
-   *
-   * @param plugin Plugin to add
-   */
-  public abstract void add(Repository repository, Object plugin);
+	/**
+	 * Add a plugin to the known plugin map
+	 * 
+	 * @param plugin
+	 *        Plugin to add
+	 */
+	public abstract void add(Repository repository, Object plugin);
 
-  public abstract Class getLoadClass();
+	public abstract Class getLoadClass();
 }

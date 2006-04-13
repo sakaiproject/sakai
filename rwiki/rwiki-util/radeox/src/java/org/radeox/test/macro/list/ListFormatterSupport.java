@@ -23,28 +23,36 @@ package org.radeox.test.macro.list;
  * --LICENSE NOTICE--
  */
 
+import java.io.StringWriter;
+import java.io.Writer;
+
 import junit.framework.TestCase;
+
 import org.radeox.macro.list.ListFormatter;
 import org.radeox.util.Linkable;
 
-import java.io.Writer;
-import java.io.StringWriter;
+public class ListFormatterSupport extends TestCase
+{
+	protected ListFormatter formatter;
 
-public class ListFormatterSupport extends TestCase {
-  protected ListFormatter formatter;
-  protected Writer writer;
-  protected Linkable emptyLinkable = new Linkable() {
-    public String getLink() {
-      return "";
-    }
-  };
+	protected Writer writer;
 
-  public ListFormatterSupport(String name) {
-    super(name);
-  }
+	protected Linkable emptyLinkable = new Linkable()
+	{
+		public String getLink()
+		{
+			return "";
+		}
+	};
 
-  protected void setUp() throws Exception {
-    super.setUp();
-    writer = new StringWriter();
-  }
+	public ListFormatterSupport(String name)
+	{
+		super(name);
+	}
+
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+		writer = new StringWriter();
+	}
 }

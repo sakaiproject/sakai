@@ -24,16 +24,17 @@
 package org.radeox.filter;
 
 /*
- * Boldfilter replaces __text__ with bold "text".
- *
- * @author Stephan J. Schmidt
+ * Boldfilter replaces __text__ with bold "text". @author Stephan J. Schmidt
+ * 
  * @version $Id$
  */
 
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
-public class BoldFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.bold";
-  }
+public class BoldFilter extends LocaleRegexReplaceFilter implements CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.bold";
+	}
 }

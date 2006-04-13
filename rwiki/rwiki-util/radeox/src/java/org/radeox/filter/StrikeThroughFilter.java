@@ -26,16 +26,18 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * StrikeThrough finds --text-- in its input and transforms this
- * striked through text.
- *
- * @author Stephan J. Schmidt
- * @team sonicteam
- * @version $Id$
+ * StrikeThrough finds --text-- in its input and transforms this striked through
+ * text. @author Stephan J. Schmidt @team sonicteam
+ * 
+ * @version $Id: StrikeThroughFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class StrikeThroughFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.strikethrough";
-  }
+public class StrikeThroughFilter extends LocaleRegexReplaceFilter implements
+		CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.strikethrough";
+	}
 }

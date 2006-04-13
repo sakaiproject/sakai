@@ -26,25 +26,24 @@ package org.radeox.filter;
 
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
+
 /*
- * Filter interface. Concrete Filters should
- * implement Filter. Filters transform a
- * String (usually snip content) to another String
- * (usually HTML).
- *
- * @author stephan
- * @team sonicteam
+ * Filter interface. Concrete Filters should implement Filter. Filters transform
+ * a String (usually snip content) to another String (usually HTML). @author
+ * stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public interface Filter {
-  public String filter(String input, FilterContext context);
+public interface Filter
+{
+	public String filter(String input, FilterContext context);
 
-  public String[] replaces();
+	public String[] replaces();
 
-  public String[] before();
+	public String[] before();
 
-  public void setInitialContext(InitialRenderContext context);
+	public void setInitialContext(InitialRenderContext context);
 
-  public String getDescription();
+	public String getDescription();
 }

@@ -22,21 +22,24 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.service.exception;
 
-//FIXME: Service
+// FIXME: Service
 
-public class VersionException extends RuntimeException {
+public class VersionException extends RuntimeException
+{
 
-    /**
-     * @see java.io.ObjectInputStream.resolveClass()
-     */
-    private static final long serialVersionUID = -6439357964499357144L;
+	/**
+	 * @see java.io.ObjectInputStream.resolveClass()
+	 */
+	private static final long serialVersionUID = -6439357964499357144L;
 
-    public VersionException(String message) {
-        super(message);
-    }
-    
-    public VersionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+	public VersionException(String message)
+	{
+		super(message);
+	}
+
+	public VersionException(String message, Throwable cause)
+	{
+		super(message, cause);
+	}
 
 }

@@ -25,11 +25,12 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import org.apache.fop.apps.MimeConstants;
 
+public class FOP2PDFSerializer extends BaseFOPSerializer
+{
 
-public class FOP2PDFSerializer extends BaseFOPSerializer  {
+	public FOP2PDFSerializer()
+	{
+		mimeType = MimeConstants.MIME_PDF;
+	}
 
-    public FOP2PDFSerializer() {
-    		mimeType = MimeConstants.MIME_PDF;
-    }
-	
 }

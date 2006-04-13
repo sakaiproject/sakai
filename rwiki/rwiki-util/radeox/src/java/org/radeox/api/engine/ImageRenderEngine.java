@@ -24,20 +24,22 @@
 package org.radeox.api.engine;
 
 /**
- * RenderEngine interface for RenderEngines that know how to handle images,
- * e.g. small arrows for external links in the {link...} macro.
- *
+ * RenderEngine interface for RenderEngines that know how to handle images, e.g.
+ * small arrows for external links in the {link...} macro.
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: ImageRenderEngine.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface ImageRenderEngine {
-  /**
-   * Get a link to an image. This can be used by filters or
-   * macros to get images for e.g. external links or icons
-   * Should be refactored to get other images as well
-   *
-   * @return result String with an HTML link to an image
-   */
-  public String getExternalImageLink();
+public interface ImageRenderEngine
+{
+	/**
+	 * Get a link to an image. This can be used by filters or macros to get
+	 * images for e.g. external links or icons Should be refactored to get other
+	 * images as well
+	 * 
+	 * @return result String with an HTML link to an image
+	 */
+	public String getExternalImageLink();
 }

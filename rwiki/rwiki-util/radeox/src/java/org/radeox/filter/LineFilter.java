@@ -26,16 +26,16 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * LineFilter finds ---- in its input and transforms this
- * to <hr/>
- *
- * @author stephan
- * @team sonicteam
+ * LineFilter finds ---- in its input and transforms this to <hr/> @author
+ * stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class LineFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.line";
-  }
+public class LineFilter extends LocaleRegexReplaceFilter implements CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.line";
+	}
 }

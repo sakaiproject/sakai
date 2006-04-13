@@ -24,19 +24,25 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class FilePathMacroTest extends MacroTestSupport {
-  public FilePathMacroTest(String name) {
-    super(name);
-  }
+public class FilePathMacroTest extends MacroTestSupport
+{
+	public FilePathMacroTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(FilePathMacroTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(FilePathMacroTest.class);
+	}
 
-  public void testFile() {
-    String result = EngineManager.getInstance().render("{file-path://share}", context);
-    assertEquals("&#92;&#92;share", result);
-  }
+	public void testFile()
+	{
+		String result = EngineManager.getInstance().render(
+				"{file-path://share}", context);
+		assertEquals("&#92;&#92;share", result);
+	}
 }

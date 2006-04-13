@@ -32,83 +32,101 @@ import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
 
 /*
- * Macro for displaying external links with a name. The normal UrlFilter
- * takes the url as a name.
- *
- * @author stephan
- * @team sonicteam
+ * Macro for displaying external links with a name. The normal UrlFilter takes
+ * the url as a name. @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class LinkMacro extends BaseLocaleMacro {
-	private static String[] paramDescription = 
-	{
-		"1,text: Text of the link ",
-		"2,url: URL of the link, if this is external and no target is specified, a new window will open ",
-		"3,img: (optional) if 'none' then no small URL image will be used",
-		"4,target: (optional) Target window, if 'none' is specified, the url will use the current window",
-		"Remember if using positional parameters, you must include dummies for the optional parameters"
-	};
+public class LinkMacro extends BaseLocaleMacro
+{
+	private static String[] paramDescription = {
+			"1,text: Text of the link ",
+			"2,url: URL of the link, if this is external and no target is specified, a new window will open ",
+			"3,img: (optional) if 'none' then no small URL image will be used",
+			"4,target: (optional) Target window, if 'none' is specified, the url will use the current window",
+			"Remember if using positional parameters, you must include dummies for the optional parameters" };
+
 	private static String description = "Generated a link";
-	public String[] getParamDescription() {
+
+	public String[] getParamDescription()
+	{
 		return paramDescription;
 	}
 
-
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.radeox.macro.Macro#getDescription()
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
-  public String getLocaleKey() {
-    return "macro.link";
-  }
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
+	public String getLocaleKey()
+	{
+		return "macro.link";
+	}
 
-    RenderContext context = params.getContext();
-    RenderEngine engine = context.getRenderEngine();
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
 
-    String text = params.get("text", 0);
-    String url = params.get("url", 1);
-    String img = params.get("img", 2);
-    String target = params.get("target",3);
+		RenderContext context = params.getContext();
+		RenderEngine engine = context.getRenderEngine();
 
-    // check for single url argument (text == url)
-    if(params.getLength() == 1) {
-      url = text;
-      text = Encoder.toEntity(text.charAt(0)) + Encoder.escape(text.substring(1));
-    }
+		String text = params.get("text", 0);
+		String url = params.get("url", 1);
+		String img = params.get("img", 2);
+		String target = params.get("target", 3);
 
-    if (url != null && text != null) {
-    	  if ( target == null ) {
-        	  if ( url.indexOf("://") >= 0 && url.indexOf("://") < 6 ) {
-        		target = "rwikiexternal";
-          } else {
-        	  	target = "none";
-          }
-    		  
-    	  }
-      writer.write("<span class=\"nobr\">");
-      if (!"none".equals(img) && engine instanceof ImageRenderEngine) {
-        writer.write(((ImageRenderEngine) engine).getExternalImageLink());
-      }
-      writer.write("<a href=\"");
-      writer.write(url);
-      writer.write("\"");
-      if ( !"none".equals(target) ) {
-    	  	writer.write(" target=\"");
-    	  	writer.write(target);
-    	  	writer.write("\" ");
-      }
-      writer.write(">");
-      writer.write(text);
-      writer.write("</a></span>");
-    } else {
-      throw new IllegalArgumentException("link needs a name and a url as argument");
-    }
-    return;
-  }
+		// check for single url argument (text == url)
+		if (params.getLength() == 1)
+		{
+			url = text;
+			text = Encoder.toEntity(text.charAt(0))
+					+ Encoder.escape(text.substring(1));
+		}
+
+		if (url != null && text != null)
+		{
+			if (target == null)
+			{
+				if (url.indexOf("://") >= 0 && url.indexOf("://") < 6)
+				{
+					target = "rwikiexternal";
+				}
+				else
+				{
+					target = "none";
+				}
+
+			}
+			writer.write("<span class=\"nobr\">");
+			if (!"none".equals(img) && engine instanceof ImageRenderEngine)
+			{
+				writer.write(((ImageRenderEngine) engine)
+						.getExternalImageLink());
+			}
+			writer.write("<a href=\"");
+			writer.write(url);
+			writer.write("\"");
+			if (!"none".equals(target))
+			{
+				writer.write(" target=\"");
+				writer.write(target);
+				writer.write("\" ");
+			}
+			writer.write(">");
+			writer.write(text);
+			writer.write("</a></span>");
+		}
+		else
+		{
+			throw new IllegalArgumentException(
+					"link needs a name and a url as argument");
+		}
+		return;
+	}
 }

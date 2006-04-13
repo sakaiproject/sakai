@@ -65,9 +65,9 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  * and worksite:// url formats
  * 
  * @author andrew
- * 
  */
-public class SakaiLinkMacro extends BaseLocaleMacro {
+public class SakaiLinkMacro extends BaseLocaleMacro
+{
 	private static String[] paramDescription = {
 			"1,text: Text of the link ",
 			"2,url: URL of the link, if this is external and no target is specified, a new window will open ",
@@ -77,7 +77,8 @@ public class SakaiLinkMacro extends BaseLocaleMacro {
 
 	private static String description = "Generated a link";
 
-	public String[] getParamDescription() {
+	public String[] getParamDescription()
+	{
 		return paramDescription;
 	}
 
@@ -86,16 +87,19 @@ public class SakaiLinkMacro extends BaseLocaleMacro {
 	 * 
 	 * @see org.radeox.macro.Macro#getDescription()
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
-	public String getLocaleKey() {
+	public String getLocaleKey()
+	{
 		return "macro.link";
 	}
 
 	public void execute(Writer writer, MacroParameter params)
-			throws IllegalArgumentException, IOException {
+			throws IllegalArgumentException, IOException
+	{
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
@@ -107,40 +111,51 @@ public class SakaiLinkMacro extends BaseLocaleMacro {
 		String target = params.get("target", 3);
 
 		// check for single url argument (text == url)
-		if (params.getLength() == 1) {
+		if (params.getLength() == 1)
+		{
 			url = text;
 			text = Encoder.toEntity(text.charAt(0))
 					+ Encoder.escape(text.substring(1));
 		}
 
-		if (url != null && text != null) {
-			if (target == null) {
-				if (url.indexOf("://") >= 0 && url.indexOf("://") < 10) {
+		if (url != null && text != null)
+		{
+			if (target == null)
+			{
+				if (url.indexOf("://") >= 0 && url.indexOf("://") < 10)
+				{
 					target = "rwikiexternal";
-				} else {
+				}
+				else
+				{
 					target = "none";
 				}
 
 			}
 
 			// check url for sakai:// or worksite://
-			if (url.startsWith("sakai:/")) {
+			if (url.startsWith("sakai:/"))
+			{
 				url = "/access/content/group/"
 						+ url.substring("sakai:/".length());
-			} else if (url.startsWith("worksite:/")) {
+			}
+			else if (url.startsWith("worksite:/"))
+			{
 				url = "/access/content/group/" + context.getSiteId() + "/"
 						+ url.substring("worksite:/".length());
 			}
 
 			writer.write("<span class=\"nobr\">");
-			if (!"none".equals(img) && engine instanceof ImageRenderEngine) {
+			if (!"none".equals(img) && engine instanceof ImageRenderEngine)
+			{
 				writer.write(((ImageRenderEngine) engine)
 						.getExternalImageLink());
 			}
 			writer.write("<a href=\"");
 			writer.write(url);
 			writer.write("\"");
-			if (!"none".equals(target)) {
+			if (!"none".equals(target))
+			{
 				writer.write(" target=\"");
 				writer.write(target);
 				writer.write("\" ");
@@ -148,7 +163,9 @@ public class SakaiLinkMacro extends BaseLocaleMacro {
 			writer.write(">");
 			writer.write(text);
 			writer.write("</a></span>");
-		} else {
+		}
+		else
+		{
 			throw new IllegalArgumentException(
 					"link needs a name and a url as argument");
 		}

@@ -45,18 +45,18 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 /*
  * The paragraph filter finds any text between two empty lines and inserts a
- * <p/>
- * 
- * @author stephan @team sonicteam
+ * <p/> @author stephan @team sonicteam
  * 
  * @version $Id: ParagraphFilter.java 4158 2005-11-25 23:25:19Z
  *          ian@caret.cam.ac.uk $
  */
 
-public class XHTMLFilter implements Filter, CacheFilter {
+public class XHTMLFilter implements Filter, CacheFilter
+{
 
 	private static final Map blockElements = new HashMap();
-	static {
+	static
+	{
 		List l = new ArrayList();
 		l.add("p");
 		blockElements.put("hr", l); // hr cant be nested inside p
@@ -70,10 +70,11 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		blockElements.put("ul", l);
 		blockElements.put("ol", l);
 	}
-	
+
 	private static HashMap emptyTag = new HashMap();
 
-	static {
+	static
+	{
 		// inclusion els
 		emptyTag.put("img", "img");
 		emptyTag.put("area", "area");
@@ -98,13 +99,13 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		emptyTag.put("p", "p");
 	}
 
-
 	private InitialRenderContext initialContext;
 
-
-	public String filter(String input, FilterContext context) {
+	public String filter(String input, FilterContext context)
+	{
 		String finalOutput = input;
-		try {
+		try
+		{
 			DeblockFilter dbf = new DeblockFilter();
 			dbf.setBlockElements(blockElements);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -115,41 +116,48 @@ public class XHTMLFilter implements Filter, CacheFilter {
 			xser.setIndentAmount(4);
 			dbf.setContentHandler(xser.asContentHandler());
 
-			XMLReader xmlr = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+			XMLReader xmlr = XMLReaderFactory
+					.createXMLReader("org.apache.xerces.parsers.SAXParser");
 			xmlr.setContentHandler(dbf);
 			xmlr.parse(new InputSource(new StringReader("<sr>" + input
 					+ "</sr>")));
 
-			
-			String output = new String(baos.toByteArray(),"UTF-8");
+			String output = new String(baos.toByteArray(), "UTF-8");
 			int startBlock = output.indexOf("<sr>");
 			int endBlock = output.indexOf("</sr>");
 			finalOutput = output.substring(startBlock + 4, endBlock);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			throw new RuntimeException("Failed to rationalise XHTML Stream", t);
 		}
 
 		return finalOutput;
 	}
 
-	public String[] replaces() {
+	public String[] replaces()
+	{
 		return FilterPipe.NO_REPLACES;
 	}
 
-	public String[] before() {
+	public String[] before()
+	{
 		return FilterPipe.EMPTY_BEFORE;
 	}
 
-	public void setInitialContext(InitialRenderContext context) {
+	public void setInitialContext(InitialRenderContext context)
+	{
 		initialContext = context;
 
 	}
 
-	public String getDescription() {
+	public String getDescription()
+	{
 		return "Hand Coded XHTML filter";
 	}
 
-	public class DeblockFilter implements ContentHandler {
+	public class DeblockFilter implements ContentHandler
+	{
 
 		private Stack s = new Stack();
 
@@ -157,27 +165,33 @@ public class XHTMLFilter implements Filter, CacheFilter {
 
 		private Map blockElements = new HashMap();
 
-		public void setContentHandler(ContentHandler ch) {
+		public void setContentHandler(ContentHandler ch)
+		{
 			this.ch = ch;
 		}
 
-		public void setBlockElements(Map blockElements) {
+		public void setBlockElements(Map blockElements)
+		{
 			this.blockElements = blockElements;
-			
+
 		}
 
-		public void addElement(String blockElement, String unnested) {
+		public void addElement(String blockElement, String unnested)
+		{
 			List l = (List) blockElements.get(blockElement);
-			if (l == null) {
+			if (l == null)
+			{
 				l = new ArrayList();
 				blockElements.put(blockElement, l);
 			}
 			l.add(unnested);
 		}
 
-		public class EStack {
+		public class EStack
+		{
 			public EStack(String ns, String qname, String lname,
-					Attributes atts, Stack restore) {
+					Attributes atts, Stack restore)
+			{
 				this.ns = ns;
 				this.qname = qname;
 				this.lname = lname;
@@ -185,7 +199,8 @@ public class XHTMLFilter implements Filter, CacheFilter {
 				this.restore = restore;
 			}
 
-			public EStack(EStack es) {
+			public EStack(EStack es)
+			{
 				this.ns = es.ns;
 				this.qname = es.qname;
 				this.lname = es.lname;
@@ -210,17 +225,21 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		 * 
 		 * @param deblockElement
 		 */
-		private Stack closeTo(List deblockElements) throws SAXException {
+		private Stack closeTo(List deblockElements) throws SAXException
+		{
 			int firstIndex = s.size();
-			for (int i = 0; i < s.size(); i++) {
+			for (int i = 0; i < s.size(); i++)
+			{
 				EStack es = (EStack) s.get(i);
-				if (deblockElements.contains(es.lname)) {
+				if (deblockElements.contains(es.lname))
+				{
 					firstIndex = i;
 				}
 			}
 			EStack es = null;
 			Stack sb = new Stack();
-			while (s.size() > firstIndex) {
+			while (s.size() > firstIndex)
+			{
 				es = (EStack) s.pop();
 				ch.endElement(es.ns, es.qname, es.lname);
 				sb.push(es);
@@ -236,11 +255,15 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		 * @{inheritDoc}
 		 */
 		public void startElement(String ns, String qname, String lname,
-				Attributes atts) throws SAXException {
-			if (blockElements.get(lname) != null) {
+				Attributes atts) throws SAXException
+		{
+			if (blockElements.get(lname) != null)
+			{
 				s.push(new EStack(ns, qname, lname, atts,
 						closeTo((List) blockElements.get(lname))));
-			} else {
+			}
+			else
+			{
 				s.push(new EStack(ns, qname, lname, atts, null));
 			}
 			ch.startElement(ns, qname, lname, atts);
@@ -254,11 +277,14 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		 * @{inheritDoc}
 		 */
 		public void endElement(String arg0, String arg1, String arg2)
-				throws SAXException {
+				throws SAXException
+		{
 			ch.endElement(arg0, arg1, arg2);
 			EStack es = (EStack) s.pop();
-			if (es.restore != null) {
-				while (es.restore.size() > 0) {
+			if (es.restore != null)
+			{
+				while (es.restore.size() > 0)
+				{
 					EStack esr = (EStack) es.restore.pop();
 					ch.startElement(esr.ns, esr.qname, esr.lname, esr.atts);
 					s.push(esr);
@@ -267,72 +293,81 @@ public class XHTMLFilter implements Filter, CacheFilter {
 		}
 
 		public void characters(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+				throws SAXException
+		{
 			ch.characters(arg0, arg1, arg2);
 		}
 
 		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-				throws SAXException {
+				throws SAXException
+		{
 			ch.ignorableWhitespace(arg0, arg1, arg2);
 		}
 
 		public void processingInstruction(String arg0, String arg1)
-				throws SAXException {
+				throws SAXException
+		{
 			ch.processingInstruction(arg0, arg1);
 		}
 
-		public void skippedEntity(String arg0) throws SAXException {
+		public void skippedEntity(String arg0) throws SAXException
+		{
 			ch.skippedEntity(arg0);
 		}
 
-		public void setDocumentLocator(Locator arg0) {
+		public void setDocumentLocator(Locator arg0)
+		{
 			ch.setDocumentLocator(arg0);
 		}
 
-		public void startDocument() throws SAXException {
+		public void startDocument() throws SAXException
+		{
 			ch.startDocument();
 		}
 
-		public void endDocument() throws SAXException {
+		public void endDocument() throws SAXException
+		{
 			ch.endDocument();
 		}
 
 		public void startPrefixMapping(String arg0, String arg1)
-				throws SAXException {
+				throws SAXException
+		{
 			ch.startPrefixMapping(arg0, arg1);
 		}
 
-		public void endPrefixMapping(String arg0) throws SAXException {
+		public void endPrefixMapping(String arg0) throws SAXException
+		{
 			ch.endPrefixMapping(arg0);
 		}
 
 	}
-	
 
 	/**
 	 * @author andrew
-	 * 
 	 */
-	public class SpecialXHTMLSerializer extends ToXMLStream {
+	public class SpecialXHTMLSerializer extends ToXMLStream
+	{
 
 		private static final String XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
 
-
-		public void endElement(String namespaceURI, String localName, String name)
-				throws SAXException {
-			if ((namespaceURI != null && !namespaceURI.equals("") && !namespaceURI.equals(XHTML_NAMESPACE))
-					|| emptyTag.containsKey(localName.toLowerCase())) {
+		public void endElement(String namespaceURI, String localName,
+				String name) throws SAXException
+		{
+			if ((namespaceURI != null && !namespaceURI.equals("") && !namespaceURI
+					.equals(XHTML_NAMESPACE))
+					|| emptyTag.containsKey(localName.toLowerCase()))
+			{
 				super.endElement(namespaceURI, localName, name);
 				return;
 			}
 
 			this.characters("");
-			
+
 			super.endElement(namespaceURI, localName, name);
 
 		}
 
 	}
-
 
 }

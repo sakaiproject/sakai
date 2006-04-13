@@ -24,30 +24,39 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.HeadingFilter;
 
-public class HeadingFilterTest extends FilterTestSupport {
-  public HeadingFilterTest(String name) {
-    super(name);
-  }
+public class HeadingFilterTest extends FilterTestSupport
+{
+	public HeadingFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new HeadingFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new HeadingFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(HeadingFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(HeadingFilterTest.class);
+	}
 
-  public void testHeading() {
-    assertEquals("<h3 class=\"heading-1\">Test</h3>", filter.filter("1 Test", context));
-  }
+	public void testHeading()
+	{
+		assertEquals("<h3 class=\"heading-1\">Test</h3>", filter.filter(
+				"1 Test", context));
+	}
 
-  public void testSubHeadings() {
-    assertEquals("<h3 class=\"heading-1\">Test</h3>\n" +
-        "<h3 class=\"heading-1-1\">Test</h3>\n" +
-        "<h3 class=\"heading-1-1-1\">Test</h3>\n" +
-        "<h3 class=\"heading-1\">Test</h3>", filter.filter("1 Test\n1.1 Test\n1.1.1 Test\n1 Test", context));
-  }
+	public void testSubHeadings()
+	{
+		assertEquals("<h3 class=\"heading-1\">Test</h3>\n"
+				+ "<h3 class=\"heading-1-1\">Test</h3>\n"
+				+ "<h3 class=\"heading-1-1-1\">Test</h3>\n"
+				+ "<h3 class=\"heading-1\">Test</h3>", filter.filter(
+				"1 Test\n1.1 Test\n1.1.1 Test\n1 Test", context));
+	}
 }

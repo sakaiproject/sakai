@@ -37,22 +37,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.entity.HttpAccess;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.event.cover.EventTrackingService;
-import org.sakaiproject.service.legacy.notification.NotificationEdit;
-import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,15 +84,13 @@ import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
 /**
  * @author andrew
- * 
  */
 
 // FIXME: Component
-public class RWikiObjectServiceImpl implements RWikiObjectService {
+public class RWikiObjectServiceImpl implements RWikiObjectService
+{
 
-	private static Log dlog = LogFactory.getLog(RWikiObjectServiceImpl.class);
-
-	private Logger log;
+	private static Log log = LogFactory.getLog(RWikiObjectServiceImpl.class);
 
 	private RWikiCurrentObjectDao cdao;
 
@@ -114,17 +110,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 	public String createTemplatePageName = "default_template";
 
-
 	/**
 	 * Register this as an EntityProducer
-	 * 
 	 */
-	public void init() {
-		dlog.debug("init start");
+	public void init()
+	{
+		log.debug("init start");
 
 		EntityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
-		if (ServerConfigurationService.getBoolean("wiki.notification", false)) {
+		if (ServerConfigurationService.getBoolean("wiki.notification", false))
+		{
 			// Email notification
 			// register a transient notification for resources
 			NotificationEdit edit = NotificationService
@@ -142,8 +138,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			edit.setAction(new SiteEmailNotificationRWiki(this,
 					this.renderService, this.preferenceService));
 		}
-		
-		dlog.debug("init end");
+
+		log.debug("init end");
 
 	}
 
@@ -154,7 +150,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 *      java.lang.String, java.lang.String)
 	 */
 	public RWikiCurrentObject getRWikiObject(String name, String realm)
-			throws PermissionException {
+			throws PermissionException
+	{
 		return getRWikiObject(name, realm, null, createTemplatePageName);
 	}
 
@@ -165,12 +162,15 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 *      java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public RWikiCurrentObject getRWikiObject(String name, String realm,
-			RWikiObject ignore, String templatePage) throws PermissionException {
+			RWikiObject ignore, String templatePage) throws PermissionException
+	{
 		long start = System.currentTimeMillis();
 		String user = SessionManager.getCurrentSessionUserId();
-		try {
+		try
+		{
 
-			if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled())
+			{
 				log.debug("Looking for object with name " + name + " in realm "
 						+ realm + " for user " + user);
 			}
@@ -180,21 +180,26 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			name = NameHelper.globaliseName(name, realm);
 			long start2 = System.currentTimeMillis();
 			RWikiCurrentObject returnable;
-			try {
+			try
+			{
 				returnable = cdao.findByGlobalName(name);
-			} finally {
+			}
+			finally
+			{
 				long finish = System.currentTimeMillis();
 				TimeLogger.printTimer("dao.findByGlobalName: " + name, start2,
 						finish);
 			}
 
-			if (returnable == null) {
+			if (returnable == null)
+			{
 
 				String permissionsReference = securityService
 						.createPermissionsReference(realm);
 
 				if (!securityService
-						.checkCreatePermission(permissionsReference)) {
+						.checkCreatePermission(permissionsReference))
+				{
 					throw new CreatePermissionException("User: " + user
 							+ " cannot create pages in realm: " + realm);
 				}
@@ -205,7 +210,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 						pageSpace);
 				RWikiCurrentObject template = cdao
 						.findByGlobalName(defTemplate);
-				if (template != null) {
+				if (template != null)
+				{
 					returnable.setContent(template.getContent());
 					returnable.setPermissions(template.getPermissions());
 					returnable.setUser(user);
@@ -215,14 +221,20 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 					returnable.setSha1(template.getSha1());
 				}
 				return returnable;
-			} else if (securityService
-					.checkRead((RWikiEntity) getEntity(returnable))) {
+			}
+			else if (securityService
+					.checkRead((RWikiEntity) getEntity(returnable)))
+			{
 				// Allowed to read this object
 				return returnable;
-			} else {
+			}
+			else
+			{
 				throw new ReadPermissionException(user, returnable);
 			}
-		} finally {
+		}
+		finally
+		{
 			long finish = System.currentTimeMillis();
 			TimeLogger.printTimer("dao.GetRWikiObject: " + name + ", " + user
 					+ ", " + realm, start, finish);
@@ -236,70 +248,75 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 *      java.lang.String, java.lang.String)
 	 */
 	public List search(String criteria, String realm)
-			throws PermissionException {
+			throws PermissionException
+	{
 
 		String user = SessionManager.getCurrentSessionUserId();
 
 		String permissionsReference = securityService
 				.createPermissionsReference(realm);
-		if (!securityService.checkSearchPermission(permissionsReference)) {
+		if (!securityService.checkSearchPermission(permissionsReference))
+		{
 			throw new ReadPermissionException(user, realm);
 		}
 
 		return cdao.findByGlobalNameAndContents(criteria, user, realm);
 	}
 
-	public Logger getLog() {
-		return log;
-	}
-
-	public void setLog(Logger log) {
-		this.log = log;
-	}
-
-	public RWikiCurrentObjectDao getRWikiCurrentObjectDao() {
+	public RWikiCurrentObjectDao getRWikiCurrentObjectDao()
+	{
 		return cdao;
 	}
 
-	public void setRWikiCurrentObjectDao(RWikiCurrentObjectDao cdao) {
+	public void setRWikiCurrentObjectDao(RWikiCurrentObjectDao cdao)
+	{
 		this.cdao = cdao;
 	}
 
-	public RWikiHistoryObjectDao getRWikiHistoryObjectDao() {
+	public RWikiHistoryObjectDao getRWikiHistoryObjectDao()
+	{
 		return hdao;
 	}
 
-	public void setRWikiHistoryObjectDao(RWikiHistoryObjectDao hdao) {
+	public void setRWikiHistoryObjectDao(RWikiHistoryObjectDao hdao)
+	{
 		this.hdao = hdao;
 	}
 
-	public RWikiSecurityService getSecurityService() {
+	public RWikiSecurityService getSecurityService()
+	{
 		return securityService;
 	}
 
-	public void setSecurityService(RWikiSecurityService securityService) {
+	public void setSecurityService(RWikiSecurityService securityService)
+	{
 		this.securityService = securityService;
 	}
 
-	public RenderService getRenderService() {
+	public RenderService getRenderService()
+	{
 		return renderService;
 	}
 
-	public void setRenderService(RenderService renderService) {
+	public void setRenderService(RenderService renderService)
+	{
 		this.renderService = renderService;
 	}
 
-	public PreferenceService getPreferenceService() {
+	public PreferenceService getPreferenceService()
+	{
 		return preferenceService;
 	}
 
-	public void setPreferenceService(PreferenceService preferenceService) {
+	public void setPreferenceService(PreferenceService preferenceService)
+	{
 		this.preferenceService = preferenceService;
 	}
 
 	public void update(String name, String realm, Date version, String content,
 			RWikiPermissions permissions) throws PermissionException,
-			VersionException {
+			VersionException
+	{
 
 		String user = SessionManager.getCurrentSessionUserId();
 		update(name, user, realm, version, content, permissions);
@@ -313,8 +330,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @param name
 	 * @param user
-	 *            The user to set owner and modified by, normally the current
-	 *            user
+	 *        The user to set owner and modified by, normally the current user
 	 * @param realm
 	 * @param version
 	 * @param content
@@ -324,24 +340,32 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 */
 	private void update(String name, String user, String realm, Date version,
 			String content, RWikiPermissions permissions)
-			throws PermissionException, VersionException {
+			throws PermissionException, VersionException
+	{
 
 		// May throw ReadPermissionException...
 
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 		RWikiHistoryObject rwho = null;
 
-		if (securityService.checkUpdate((RWikiEntity) getEntity(rwo))) {
+		if (securityService.checkUpdate((RWikiEntity) getEntity(rwo)))
+		{
 			rwho = updateContent(rwo, content, version);
-		} else {
+		}
+		else
+		{
 			throw new UpdatePermissionException("User: " + user
 					+ " doesn't have permission to update: " + name);
 		}
 
-		if (permissions != null) {
-			if (securityService.checkAdmin((RWikiEntity) getEntity(rwo))) {
+		if (permissions != null)
+		{
+			if (securityService.checkAdmin((RWikiEntity) getEntity(rwo)))
+			{
 				rwo.setPermissions(permissions);
-			} else {
+			}
+			else
+			{
 				throw new UpdatePermissionException("User: " + user
 						+ " doesn't have permission to update and admin: "
 						+ name);
@@ -349,55 +373,68 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 		}
 
 		rwo.setUser(user);
-		if (rwo.getOwner() == null) {
+		if (rwo.getOwner() == null)
+		{
 			rwo.setOwner(user);
 		}
-		try {
+		try
+		{
 			cdao.update(rwo, rwho);
 			Entity e = getEntity(rwo);
 			EventTrackingService.post(EventTrackingService.newEvent(
 					EVENT_RESOURCE_WRITE, e.getReference(), true,
 					NotificationService.PREF_IMMEDIATE));
-		} catch (HibernateOptimisticLockingFailureException e) {
+		}
+		catch (HibernateOptimisticLockingFailureException e)
+		{
 			throw new VersionException("Version has changed since: " + version,
 					e);
 		}
 	}
 
 	public void update(String name, String realm, Date version, String content)
-			throws PermissionException, VersionException {
+			throws PermissionException, VersionException
+	{
 		// May throw ReadPermissionException...
 		update(name, realm, version, content, null);
 	}
 
 	public void update(String name, String realm, Date version,
 			RWikiPermissions permissions) throws PermissionException,
-			VersionException {
-		if (permissions == null) {
+			VersionException
+	{
+		if (permissions == null)
+		{
 			throw new IllegalArgumentException("permissions must not be null");
 		}
 		String user = SessionManager.getCurrentSessionUserId();
 
 		RWikiCurrentObject rwo = getRWikiObject(name, realm);
 
-		if (securityService.checkAdmin((RWikiEntity) getEntity(rwo))) {
+		if (securityService.checkAdmin((RWikiEntity) getEntity(rwo)))
+		{
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
 			rwo.setRevision(new Integer(rwo.getRevision().intValue() + 1));
 			rwo.setPermissions(permissions);
 			rwo.setVersion(version);
-			try {
+			try
+			{
 				cdao.update(rwo, rwho);
 				// track it
 				Entity e = getEntity(rwo);
 				EventTrackingService.post(EventTrackingService.newEvent(
 						EVENT_RESOURCE_WRITE, e.getReference(), true,
 						NotificationService.PREF_IMMEDIATE));
-			} catch (HibernateOptimisticLockingFailureException e) {
+			}
+			catch (HibernateOptimisticLockingFailureException e)
+			{
 				throw new VersionException("Version has changed since: "
 						+ version, e);
 			}
 
-		} else {
+		}
+		else
+		{
 			throw new UpdatePermissionException("User: " + user
 					+ " doesn't have permission to update and admin: " + name);
 		}
@@ -405,14 +442,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	}
 
 	private RWikiHistoryObject updateContent(RWikiCurrentObject rwo,
-			String content, Date version) {
+			String content, Date version)
+	{
 		// We set the version in order to allow hibernate to tell us if the
 		// object has been changed since we last looked at it.
-		if (version != null) {
+		if (version != null)
+		{
 			rwo.setVersion(version);
 		}
 
-		if (content != null && !content.equals(rwo.getContent())) {
+		if (content != null && !content.equals(rwo.getContent()))
+		{
 
 			// create a history instance
 			RWikiHistoryObject rwho = hdao.createRWikiHistoryObject(rwo);
@@ -428,37 +468,45 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			final String currentSpace = NameHelper.localizeSpace(rwo.getName(),
 					rwo.getRealm());
 
-			PageLinkRenderer plr = new PageLinkRenderer() {
+			PageLinkRenderer plr = new PageLinkRenderer()
+			{
 				public void appendLink(StringBuffer buffer, String name,
-						String view) {
+						String view)
+				{
 					referenced
 							.add(NameHelper.globaliseName(name, currentSpace));
 				}
 
 				public void appendLink(StringBuffer buffer, String name,
-						String view, String anchor) {
+						String view, String anchor)
+				{
 					referenced
 							.add(NameHelper.globaliseName(name, currentSpace));
 				}
 
 				public void appendCreateLink(StringBuffer buffer, String name,
-						String view) {
+						String view)
+				{
 					referenced
 							.add(NameHelper.globaliseName(name, currentSpace));
 				}
 
-				public boolean isCachable() {
+				public boolean isCachable()
+				{
 					return false; // should not cache this render op
 				}
 
-				public boolean canUseCache() {
+				public boolean canUseCache()
+				{
 					return false;
 				}
 
-				public void setCachable(boolean cachable) {
+				public void setCachable(boolean cachable)
+				{
 				}
 
-				public void setUseCache(boolean b) {
+				public void setUseCache(boolean b)
+				{
 
 				}
 
@@ -469,7 +517,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			// process the references
 			StringBuffer sb = new StringBuffer();
 			Iterator i = referenced.iterator();
-			while (i.hasNext()) {
+			while (i.hasNext())
+			{
 				sb.append("::").append(i.next());
 			}
 			sb.append("::");
@@ -481,22 +530,27 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 	}
 
-	public boolean exists(String name, String space) {
+	public boolean exists(String name, String space)
+	{
 		long start = System.currentTimeMillis();
-		try {
+		try
+		{
 
 			String globalName = NameHelper.globaliseName(name, space);
 
 			return cdao.exists(globalName);
 
-		} finally {
+		}
+		finally
+		{
 			long finish = System.currentTimeMillis();
 			TimeLogger.printTimer("Exists: " + name, start, finish);
 
 		}
 	}
 
-	public List findChangedSince(Date since, String realm) {
+	public List findChangedSince(Date since, String realm)
+	{
 		//
 		// if (!securityService.checkSearchPermission(user, realm)) {
 		// throw new ReadPermissionException(user, realm);
@@ -511,7 +565,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#findReferencingPages(java.lang.String)
 	 */
-	public List findReferencingPages(String name) {
+	public List findReferencingPages(String name)
+	{
 		// TODO Permissions ?
 		return cdao.findReferencingPages(name);
 	}
@@ -522,7 +577,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#revert(java.lang.String,
 	 *      java.lang.String, java.lang.String, java.util.Date, int)
 	 */
-	public void revert(String name, String realm, Date version, int revision) {
+	public void revert(String name, String realm, Date version, int revision)
+	{
 		// TODO Permissions ?
 		RWikiCurrentObject rwikiObject = getRWikiObject(name, realm);
 
@@ -537,7 +593,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#getRWikiObject(java.lang.String)
 	 */
-	public RWikiCurrentObject getRWikiObject(RWikiObject reference) {
+	public RWikiCurrentObject getRWikiObject(RWikiObject reference)
+	{
 		// TODO Permissions ?
 		return cdao.getRWikiCurrentObject(reference);
 	}
@@ -549,7 +606,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 *      int)
 	 */
 	public RWikiHistoryObject getRWikiHistoryObject(RWikiObject reference,
-			int revision) {
+			int revision)
+	{
 		// TODO Permissions ?
 		return hdao.getRWikiHistoryObject(reference, revision);
 	}
@@ -559,12 +617,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#findRWikiHistoryObjects(java.lang.String)
 	 */
-	public List findRWikiHistoryObjects(RWikiObject reference) {
+	public List findRWikiHistoryObjects(RWikiObject reference)
+	{
 		// TODO Permissions ?
 		return hdao.findRWikiHistoryObjects(reference);
 	}
 
-	public List findRWikiHistoryObjectsInReverse(RWikiObject reference) {
+	public List findRWikiHistoryObjectsInReverse(RWikiObject reference)
+	{
 		// TODO Permissions ?
 		return hdao.findRWikiHistoryObjectsInReverse(reference);
 	}
@@ -572,15 +632,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * @return Returns the createTemplatePageName.
 	 */
-	public String getCreateTemplatePageName() {
+	public String getCreateTemplatePageName()
+	{
 		return createTemplatePageName;
 	}
 
 	/**
 	 * @param createTemplatePageName
-	 *            The createTemplatePageName to set.
+	 *        The createTemplatePageName to set.
 	 */
-	public void setCreateTemplatePageName(String createTemplatePageName) {
+	public void setCreateTemplatePageName(String createTemplatePageName)
+	{
 		this.createTemplatePageName = createTemplatePageName;
 	}
 
@@ -589,7 +651,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#findRWikiSubPages(java.lang.String)
 	 */
-	public List findRWikiSubPages(String globalParentPageName) {
+	public List findRWikiSubPages(String globalParentPageName)
+	{
 		// TODO Permissions ?
 		return cdao.findRWikiSubPages(globalParentPageName);
 	}
@@ -602,17 +665,22 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 *      java.lang.String)
 	 */
 	public void updateNewComment(String name, String realm, Date version,
-			String content) throws PermissionException, VersionException {
+			String content) throws PermissionException, VersionException
+	{
 
 		int retries = 0;
-		while (retries < 5) {
-			try {
+		while (retries < 5)
+		{
+			try
+			{
 				RWikiObject lastComment = cdao.findLastRWikiSubPage(name);
 				int cnum = 0;
-				if (lastComment != null) {
+				if (lastComment != null)
+				{
 					String lastCommentName = lastComment.getName();
 					int lastp = lastCommentName.lastIndexOf(".");
-					if (lastp >= 0) {
+					if (lastp >= 0)
+					{
 						cnum = Integer.parseInt(lastCommentName
 								.substring(lastp + 1)) + 1;
 					}
@@ -622,9 +690,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 								new Integer(cnum) });
 				update(newCommentName, realm, version, content);
 				break;
-			} catch (VersionException e) {
-				if (retries >= 5)
-					throw e;
+			}
+			catch (VersionException e)
+			{
+				if (retries >= 5) throw e;
 				retries++;
 			}
 		}
@@ -636,7 +705,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#createListProxy(java.util.List,
 	 *      uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy)
 	 */
-	public List createListProxy(List commentsList, ObjectProxy lop) {
+	public List createListProxy(List commentsList, ObjectProxy lop)
+	{
 		return new ListProxy(commentsList, lop);
 	}
 
@@ -645,7 +715,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#createNewRWikiCurrentObject()
 	 */
-	public RWikiObject createNewRWikiCurrentObject() {
+	public RWikiObject createNewRWikiCurrentObject()
+	{
 		// RWikiCurrentObjectImpl rwco = new RWikiCurrentObjectImpl();
 		// rwco.setRwikiObjectContentDao(c)
 		return cdao.createRWikiObject("dummy", "dummy");
@@ -656,60 +727,65 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService#createNewRWikiPermissionsImpl()
 	 */
-	public RWikiPermissions createNewRWikiPermissionsImpl() {
+	public RWikiPermissions createNewRWikiPermissionsImpl()
+	{
 		return new RWikiPermissionsImpl();
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public String getLabel() {
+	public String getLabel()
+	{
 		return REFERENCE_LABEL;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public boolean willArchiveMerge() {
+	public boolean willArchiveMerge()
+	{
 		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public boolean willImport() {
+	public boolean willImport()
+	{
 		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public void syncWithSiteChange(Site site, ChangeType change) {
+	public void syncWithSiteChange(Site site, ChangeType change)
+	{
 		// stolen :) from BaseContentService
 
 		String[] toolIds = { "sakai.rwiki" };
 
 		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change) {
+		if (EntityProducer.ChangeType.REMOVE == change)
+		{
 			disableWiki(site);
 		}
 
 		// otherwise enable if we now have the tool, disable otherwise
-		else {
+		else
+		{
 			// collect the tools from the site
 			Collection tools = site.getTools(toolIds);
 
 			// if we have the tool
-			if (!tools.isEmpty()) {
+			if (!tools.isEmpty())
+			{
 				enableWiki(site);
 			}
 
 			// if we do not
-			else {
+			else
+			{
 				disableWiki(site);
 			}
 		}
@@ -717,12 +793,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * Archive all the wiki pages in the site as a single collection
+	 * {@inheritDoc} Archive all the wiki pages in the site as a single
+	 * collection
 	 */
 	public String archive(String siteId, Document doc, Stack stack,
-			String archivePath, List attachments) {
+			String archivePath, List attachments)
+	{
 
 		// TODO Permissions ?
 
@@ -733,7 +809,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 		int npages = 0;
 		int nversions = 0;
 
-		try {
+		try
+		{
 			String defaultRealm = SiteService.getSite(siteId).getReference();
 
 			securityService
@@ -745,10 +822,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			((Element) stack.peek()).appendChild(element);
 			stack.push(element);
 
-			try {
+			try
+			{
 
 				List l = cdao.findRWikiSubPages("/site/" + siteId);
-				for (Iterator i = l.iterator(); i.hasNext();) {
+				for (Iterator i = l.iterator(); i.hasNext();)
+				{
 
 					RWikiObject rwo = (RWikiObject) i.next();
 					RWikiEntity rwe = (RWikiEntity) getEntity(rwo);
@@ -756,8 +835,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 					rwe.toXml(doc, stack);
 					npages++;
 					List lh = this.findRWikiHistoryObjects(rwo);
-					if (lh != null) {
-						for (Iterator ih = lh.iterator(); ih.hasNext();) {
+					if (lh != null)
+					{
+						for (Iterator ih = lh.iterator(); ih.hasNext();)
+						{
 							RWikiObject rwoh = (RWikiObject) ih.next();
 							RWikiEntity rwoeh = (RWikiEntity) getEntity(rwoh);
 							log.debug("Archiving " + rwoh.getName()
@@ -767,7 +848,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 						}
 					}
 				}
-			} catch (Exception any) {
+			}
+			catch (Exception any)
+			{
 				any.printStackTrace();
 				results.append("Error archiving pages from site: " + siteId
 						+ " " + any.toString() + "\n");
@@ -776,7 +859,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			results.append("archiving: Completed ").append(npages).append(
 					" pages and ").append(nversions).append(" versions\n");
 			stack.pop();
-		} catch (IdUnusedException ex) {
+		}
+		catch (IdUnusedException ex)
+		{
 
 		}
 
@@ -784,19 +869,16 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * The archive contains the current version, followed by historical versions
-	 * If any of these aer out of order, only versions upto the first
-	 * encoundered version will be merged. If the page exists, then only version
-	 * that dont exist, and are not already present will be added in practice
-	 * this means all the pages in the set will be rejected.
-	 * 
-	 * 
+	 * {@inheritDoc} The archive contains the current version, followed by
+	 * historical versions If any of these aer out of order, only versions upto
+	 * the first encoundered version will be merged. If the page exists, then
+	 * only version that dont exist, and are not already present will be added
+	 * in practice this means all the pages in the set will be rejected.
 	 */
 	public String merge(String siteId, Element root, String archivePath,
 			String fromSiteId, Map attachmentNames, Map userIdTrans,
-			Set userListAllowImport) {
+			Set userListAllowImport)
+	{
 		log.info(" wiki Merge");
 		// TODO Permissions ?
 		// stolen :) from BaseContentService
@@ -818,7 +900,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 		int nversions = 0;
 		int npages_fail = 0;
 		int npages_errors = 0;
-		try {
+		try
+		{
 			String defaultRealm = SiteService.getSite(siteId).getReference();
 
 			securityService
@@ -828,13 +911,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 			NodeList children = root.getChildNodes();
 			final int length = children.getLength();
 			log.info("Archive has " + length + " pages ");
-			for (int i = 0; i < length; i++) {
+			for (int i = 0; i < length; i++)
+			{
 				Node child = children.item(i);
-				if (child.getNodeType() != Node.ELEMENT_NODE)
-					continue;
+				if (child.getNodeType() != Node.ELEMENT_NODE) continue;
 				Element element = (Element) child;
 
-				try {
+				try
+				{
 
 					RWikiCurrentObject archiverwo = cdao.createRWikiObject(
 							"dummy", "dummy");
@@ -850,12 +934,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 					String pageName = archiverwo.getName();
 
-					if (exists(pageName, defaultRealm)) {
+					if (exists(pageName, defaultRealm))
+					{
 						// page exists, add to history, if the version does not
 						// exist
 						RWikiObject rwo = getRWikiObject(pageName, defaultRealm);
 						if (archiverwo.getRevision().intValue() >= rwo
-								.getRevision().intValue()) {
+								.getRevision().intValue())
+						{
 							nversions_reject++;
 							results
 									.append("Page ")
@@ -871,10 +957,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 											" please report this a bug to JIRA if you feel that")
 									.append(
 											" this functionality is required \n");
-						} else {
+						}
+						else
+						{
 							RWikiHistoryObject rwho = getRWikiHistoryObject(
 									rwo, archiverwo.getRevision().intValue());
-							if (rwho == null) {
+							if (rwho == null)
+							{
 								rwho = hdao
 										.createRWikiHistoryObject(archiverwo);
 								// connect to the correct master object
@@ -885,7 +974,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 								rwho = getRWikiHistoryObject(rwo, archiverwo
 										.getRevision().intValue());
 								nversions++;
-							} else {
+							}
+							else
+							{
 								nversions_reject++;
 								results
 										.append("Page ")
@@ -901,12 +992,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 							}
 						}
 
-					} else {
+					}
+					else
+					{
 						// page does not exist, create
 						String newUser = (String) userIdTrans.get(archiverwo
 								.getOwner());
-						if (newUser == null)
-							newUser = archiverwo.getOwner();
+						if (newUser == null) newUser = archiverwo.getOwner();
 
 						// go direct, if we use the utility methods, all sorts
 						// of
@@ -915,9 +1007,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 						RWikiObject savedrwo = getRWikiObject(archiverwo
 								.getName(), archiverwo.getRealm());
-						if (archiverwo.getSha1().equals(savedrwo.getSha1())) {
+						if (archiverwo.getSha1().equals(savedrwo.getSha1()))
+						{
 							npages++;
-						} else {
+						}
+						else
+						{
 							npages_errors++;
 							results.append("Created ").append(
 									savedrwo.getName()).append(" revision ")
@@ -938,7 +1033,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 											savedrwo.getContent()).append("\n");
 						}
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex)
+				{
 					npages_fail++;
 					log.error("Failed to add page ", ex);
 					results.append("Failed to add ").append(
@@ -949,7 +1046,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 				}
 			}
-		} catch (IdUnusedException ex) {
+		}
+		catch (IdUnusedException ex)
+		{
 			results.append(" Problem locating Reference on site ").append(
 					siteId).append(" :").append(ex.getMessage()).append("\n");
 		}
@@ -965,43 +1064,51 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * {@inheritDoc} Only the current version of a page is imported, history is
 	 * left behind.
 	 */
-	public void importEntities(String fromContext, String toContext, List ids) {
+	public void importEntities(String fromContext, String toContext, List ids)
+	{
 		// TODO Will check admin on each rwiki object
-		if (fromContext.equals(toContext))
-			return;
-		if (!fromContext.endsWith("/")) {
+		if (fromContext.equals(toContext)) return;
+		if (!fromContext.endsWith("/"))
+		{
 			fromContext = fromContext + "/";
 		}
-		if (!toContext.endsWith("/")) {
+		if (!toContext.endsWith("/"))
+		{
 			toContext = toContext + "/";
 		}
 
 		List pages = findRWikiSubPages(fromContext);
 
-		for (Iterator i = pages.iterator(); i.hasNext();) {
+		for (Iterator i = pages.iterator(); i.hasNext();)
+		{
 			RWikiObject rwo = (RWikiObject) i.next();
 			RWikiEntity rwe = (RWikiEntity) getEntity(rwo);
 			securityService.checkAdmin(rwe);
 			// might want to check admin on source and target site ?
 			boolean transfer = true;
 			// if the list exists, is this id in the list ?
-			if (ids != null && ids.size() > 0) {
+			if (ids != null && ids.size() > 0)
+			{
 				transfer = false;
-				for (Iterator j = ids.iterator(); j.hasNext() && !transfer;) {
+				for (Iterator j = ids.iterator(); j.hasNext() && !transfer;)
+				{
 					String id = (String) j.next();
-					if (id.equals(rwo.getRwikiobjectid())) {
+					if (id.equals(rwo.getRwikiobjectid()))
+					{
 						transfer = true;
 					}
 				}
 			}
 			// ok to transfer
-			if (transfer) {
+			if (transfer)
+			{
 				String pageName = rwo.getName();
 				// relocate the page name
 				pageName = NameHelper.localizeName(pageName, NameHelper
 						.localizeSpace(pageName, rwo.getRealm()));
 				pageName = NameHelper.globaliseName(pageName, toContext);
-				try {
+				try
+				{
 					// create a brand new page containing the content,
 					// this does not copy prior versions
 
@@ -1012,7 +1119,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 					update(pageName, fromContext, new Date(), rwo.getContent(),
 							rwo.getPermissions());
-				} catch (Throwable t) {
+				}
+				catch (Throwable t)
+				{
 					log.error("Failed to import " + pageName + " from "
 							+ fromContext + " to " + toContext);
 				}
@@ -1022,15 +1131,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * The parsing process iterates though a list of regular expressions to
-	 * generate a match
+	 * {@inheritDoc} The parsing process iterates though a list of regular
+	 * expressions to generate a match
 	 */
-	public boolean parseEntityReference(String reference, Reference ref) {
+	public boolean parseEntityReference(String reference, Reference ref)
+	{
 		EntityHandler eh = findEntityReferenceMatch(reference);
-		if (eh == null)
-			return false;
+		if (eh == null) return false;
 		eh.setReference(SERVICE_NAME, ref, reference);
 
 		return true;
@@ -1038,9 +1145,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 
 	/**
 	 * {@inheritDoc}
-	 * 
 	 */
-	public String getEntityDescription(Reference ref) {
+	public String getEntityDescription(Reference ref)
+	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
 
@@ -1051,7 +1158,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public ResourceProperties getEntityResourceProperties(Reference ref) {
+	public ResourceProperties getEntityResourceProperties(Reference ref)
+	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
 		Entity e = getEntity(ref, eh);
@@ -1061,19 +1169,19 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Entity getEntity(Reference ref) {
+	public Entity getEntity(Reference ref)
+	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
 		return getEntity(ref, eh);
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * 
-	 * The format of the URL is controlled by a MessageFormat String injected
-	 * into urlFormat. The parameters are 0 = global Page Name
+	 * {@inheritDoc} The format of the URL is controlled by a MessageFormat
+	 * String injected into urlFormat. The parameters are 0 = global Page Name
 	 */
-	public String getEntityUrl(Reference ref) {
+	public String getEntityUrl(Reference ref)
+	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
 		Entity entity = getEntity(ref, eh);
@@ -1083,7 +1191,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref) {
+	public Collection getEntityAuthzGroups(Reference ref)
+	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
 		return eh.getAuthzGroups(ref);
@@ -1092,54 +1201,69 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public HttpAccess getHttpAccess() {
-		return new HttpAccess() {
+	public HttpAccess getHttpAccess()
+	{
+		return new HttpAccess()
+		{
 			public void handleAccess(HttpServletRequest req,
 					HttpServletResponse res, Reference ref,
 					Collection copyrightAcceptedRefs)
-					throws org.sakaiproject.exception.PermissionException,
-					IdUnusedException, ServerOverloadException {
+
+			{
 				checkReference(ref);
-				try {
+				try
+				{
 
 					EntityHandler eh = findEntityHandler(ref);
 					Entity entity = getEntity(ref, eh);
 					String user = req.getRemoteUser();
-					if (entity instanceof RWikiEntity) {
+					if (entity instanceof RWikiEntity)
+					{
 						RWikiEntity rwe = (RWikiEntity) entity;
-						if (!rwe.isContainer()) {
+						if (!rwe.isContainer())
+						{
 							RWikiObject rwo = rwe.getRWikiObject();
 							if (securityService
-									.checkRead((RWikiEntity) getEntity(rwo))) {
+									.checkRead((RWikiEntity) getEntity(rwo)))
+							{
 								eh.outputContent(entity, req, res);
-							} else {
-								throw new org.sakaiproject.exception.PermissionException(
-										user, RWikiSecurityService.SECURE_READ,
-										ref.getReference());
 							}
-						} else {
-							// this is a container, read on the site
-							if (securityService.checkGetPermission(ref
-									.getReference())) {
-								eh.outputContent(entity, req, res);
-							} else {
+							else
+							{
 								throw new org.sakaiproject.exception.PermissionException(
 										user, RWikiSecurityService.SECURE_READ,
 										ref.getReference());
 							}
 						}
-					} else {
+						else
+						{
+							// this is a container, read on the site
+							if (securityService.checkGetPermission(ref
+									.getReference()))
+							{
+								eh.outputContent(entity, req, res);
+							}
+							else
+							{
+								throw new org.sakaiproject.exception.PermissionException(
+										user, RWikiSecurityService.SECURE_READ,
+										ref.getReference());
+							}
+						}
+					}
+					else
+					{
 						res.reset();
 						res.sendError(HttpServletResponse.SC_NOT_FOUND,
 								" Resource Now found " + ref.getReference());
 					}
-				} catch (org.sakaiproject.exception.PermissionException pex) {
-					throw pex;
-				} catch (Throwable t) {
+				}
+				catch (Throwable t)
+				{
 					log.warn("Error getting wiki page via access :"
 							+ ref.getReference());
 					log.debug("Stack trace was ", t);
-					throw new IdUnusedException(ref.getReference());
+					throw new RuntimeException(ref.getReference());
 				}
 			}
 		};
@@ -1152,19 +1276,20 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @return the Entity handler that shoul be used to generate content and
 	 *         format the URL
 	 */
-	private EntityHandler findEntityReferenceMatch(String reference) {
-		if (!reference.startsWith(REFERENCE_ROOT))
-			return null;
-		for (Iterator i = m_handlers.keySet().iterator(); i.hasNext();) {
+	private EntityHandler findEntityReferenceMatch(String reference)
+	{
+		if (!reference.startsWith(REFERENCE_ROOT)) return null;
+		for (Iterator i = m_handlers.keySet().iterator(); i.hasNext();)
+		{
 			String s = (String) i.next();
 			EntityHandler eh = (EntityHandler) m_handlers.get(s);
-			if (eh.matches(reference))
-				return eh;
+			if (eh.matches(reference)) return eh;
 		}
 		return null;
 	}
 
-	private void checkReference(Reference ref) {
+	private void checkReference(Reference ref)
+	{
 		if (!SERVICE_NAME.equals(ref.getType()))
 			throw new RuntimeException(
 					"Request Routed to incorrect EntityProducer by the kernel expected "
@@ -1179,9 +1304,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @param ref
 	 * @return
 	 */
-	private EntityHandler findEntityHandler(Reference ref) {
-		if (!SERVICE_NAME.equals(ref.getType()))
-			return null;
+	private EntityHandler findEntityHandler(Reference ref)
+	{
+		if (!SERVICE_NAME.equals(ref.getType())) return null;
 		String subtype = ref.getSubType();
 		return (EntityHandler) m_handlers.get(subtype);
 	}
@@ -1192,31 +1317,38 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @param eh
 	 * @return
 	 */
-	private Entity getEntity(Reference ref, EntityHandler eh) {
+	private Entity getEntity(Reference ref, EntityHandler eh)
+	{
 
 		RWikiObject rwo = this.getRWikiCurrentObjectDao().findByGlobalName(
 				ref.getId());
 
 		int revision = eh.getRevision(ref);
 		if (rwo != null && revision != -1
-				&& revision != rwo.getRevision().intValue()) {
+				&& revision != rwo.getRevision().intValue())
+		{
 			RWikiObject hrwo = this.getRWikiHistoryObjectDao()
 					.getRWikiHistoryObject(rwo, revision);
-			if (hrwo != null) {
+			if (hrwo != null)
+			{
 				rwo = hrwo;
 			}
 
 		}
 		RWikiEntity rwe = null;
-		if (rwo == null) {
+		if (rwo == null)
+		{
 			rwe = (RWikiEntity) getReferenceEntity(ref);
-		} else {
+		}
+		else
+		{
 			rwe = (RWikiEntity) getEntity(rwo);
 		}
 		return rwe;
 	}
 
-	public Entity getReferenceEntity(Reference ref) {
+	public Entity getReferenceEntity(Reference ref)
+	{
 		return new RWikiEntityImpl(ref);
 	}
 
@@ -1226,7 +1358,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @param rwo
 	 * @return
 	 */
-	public Entity getEntity(RWikiObject rwo) {
+	public Entity getEntity(RWikiObject rwo)
+	{
 		return new RWikiEntityImpl(rwo);
 	}
 
@@ -1236,22 +1369,25 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * @param rwo
 	 * @return
 	 */
-	public Reference getReference(RWikiObject rwo) {
+	public Reference getReference(RWikiObject rwo)
+	{
 		return EntityManager.newReference(getEntity(rwo).getReference());
 	}
 
 	/**
 	 * @return Returns the handlers.
 	 */
-	public Map getHandlers() {
+	public Map getHandlers()
+	{
 		return m_handlers;
 	}
 
 	/**
 	 * @param m_handlers
-	 *            The handlers to set.
+	 *        The handlers to set.
 	 */
-	public void setHandlers(Map m_handlers) {
+	public void setHandlers(Map m_handlers)
+	{
 		this.m_handlers = m_handlers;
 	}
 
@@ -1260,7 +1396,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @param site
 	 */
-	private void disableWiki(Site site) {
+	private void disableWiki(Site site)
+	{
 		// ? we are not going to delete the content, so do nothing TODO
 	}
 
@@ -1269,14 +1406,16 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	 * 
 	 * @param site
 	 */
-	private void enableWiki(Site site) {
+	private void enableWiki(Site site)
+	{
 		// ? we are not going to delete the content, so do nothing TODO
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public List findAllChangedSince(Date time, String basepath) {
+	public List findAllChangedSince(Date time, String basepath)
+	{
 		// TODO: Put authz in place
 		return cdao.findAllChangedSince(time, basepath);
 	}
@@ -1284,45 +1423,48 @@ public class RWikiObjectServiceImpl implements RWikiObjectService {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean checkRead(RWikiObject rwo) {
+	public boolean checkRead(RWikiObject rwo)
+	{
 		return securityService.checkRead((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean checkUpdate(RWikiObject rwo) {
+	public boolean checkUpdate(RWikiObject rwo)
+	{
 		return securityService.checkUpdate((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean checkAdmin(RWikiObject rwo) {
+	public boolean checkAdmin(RWikiObject rwo)
+	{
 		return securityService.checkAdmin((RWikiEntity) getEntity(rwo));
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public List findAllPageNames() {
+	public List findAllPageNames()
+	{
 		return cdao.findAllPageNames();
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public String createReference(String pageName) {
-		return RWikiObjectService.REFERENCE_ROOT+pageName+".";
+	public String createReference(String pageName)
+	{
+		return RWikiObjectService.REFERENCE_ROOT + pageName + ".";
 	}
-	
+
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public PageLinkRenderer getComponentPageLinkRender(String pageSpace) {
+	public PageLinkRenderer getComponentPageLinkRender(String pageSpace)
+	{
 		return new ComponentPageLinkRenderImpl(pageSpace);
 	}
 

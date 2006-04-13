@@ -24,22 +24,24 @@
 package org.radeox.regex;
 
 /*
- * Called with a MatchResult which is substituted
- *
- * @author stephan
- * @team sonicteam
+ * Called with a MatchResult which is substituted @author stephan @team
+ * sonicteam
+ * 
  * @version $Id$
  */
 
-public interface Substitution {
-  /**
-   * When substituting matches in a matcher, the handleMatch method
-   * of the supplied substitution is called with a MatchResult.
-   * This method then does something with the match and replaces
-   * the match with some output, like replace all 2*2 with (2*2 =) 4.
-   *
-   * @param buffer StringBuffer to append the output to
-   * @param result MatchResult with the match
-   */
-    public void handleMatch(StringBuffer buffer, MatchResult result);
+public interface Substitution
+{
+	/**
+	 * When substituting matches in a matcher, the handleMatch method of the
+	 * supplied substitution is called with a MatchResult. This method then does
+	 * something with the match and replaces the match with some output, like
+	 * replace all 2*2 with (2*2 =) 4.
+	 * 
+	 * @param buffer
+	 *        StringBuffer to append the output to
+	 * @param result
+	 *        MatchResult with the match
+	 */
+	public void handleMatch(StringBuffer buffer, MatchResult result);
 }

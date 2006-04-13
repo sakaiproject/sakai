@@ -24,36 +24,42 @@
 package org.radeox.regex;
 
 /*
- * Class which stores regular expressions
- * Implementation for regex package in JDK 1.4
- *
- * @author stephan
- * @team sonicteam
+ * Class which stores regular expressions Implementation for regex package in
+ * JDK 1.4 @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class JdkPattern implements Pattern {
-  private String regex;
-  private boolean multiline;
-  private java.util.regex.Pattern internPattern;
+public class JdkPattern implements Pattern
+{
+	private String regex;
 
-  public JdkPattern(String regex, boolean multiline) {
-    this.regex = regex;
-    this.multiline = multiline;
+	private boolean multiline;
 
-    internPattern = java.util.regex.Pattern.compile(regex,
-        java.util.regex.Pattern.DOTALL | (multiline ? java.util.regex.Pattern.MULTILINE : 0));
-  }
+	private java.util.regex.Pattern internPattern;
 
-  protected java.util.regex.Pattern getPattern() {
-    return internPattern;
-  }
+	public JdkPattern(String regex, boolean multiline)
+	{
+		this.regex = regex;
+		this.multiline = multiline;
 
-  public String getRegex() {
-    return regex;
-  }
+		internPattern = java.util.regex.Pattern.compile(regex,
+				java.util.regex.Pattern.DOTALL
+						| (multiline ? java.util.regex.Pattern.MULTILINE : 0));
+	}
 
-  public boolean getMultiline() {
-    return multiline;
-  }
+	protected java.util.regex.Pattern getPattern()
+	{
+		return internPattern;
+	}
+
+	public String getRegex()
+	{
+		return regex;
+	}
+
+	public boolean getMultiline()
+	{
+		return multiline;
+	}
 }

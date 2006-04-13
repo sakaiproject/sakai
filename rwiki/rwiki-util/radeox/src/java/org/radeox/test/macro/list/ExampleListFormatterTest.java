@@ -31,41 +31,55 @@ import junit.framework.TestSuite;
 
 import org.radeox.macro.list.ExampleListFormatter;
 
-public class ExampleListFormatterTest extends ListFormatterSupport {
-  public ExampleListFormatterTest(String name) {
-    super(name);
-  }
+public class ExampleListFormatterTest extends ListFormatterSupport
+{
+	public ExampleListFormatterTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(ExampleListFormatterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(ExampleListFormatterTest.class);
+	}
 
-  protected void setUp() throws Exception {
-    super.setUp();
-    formatter = new ExampleListFormatter();
-  }
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+		formatter = new ExampleListFormatter();
+	}
 
-  public void testSize() {
-    Collection c = Arrays.asList(new String[]{"test"});
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", true);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Size is rendered",
-        "<div class=\"list\"><div class=\"list-title\"> (1)</div><ol><li>test</li></ol></div>",
-        writer.toString());
-  }
+	public void testSize()
+	{
+		Collection c = Arrays.asList(new String[] { "test" });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Size is rendered",
+				"<div class=\"list\"><div class=\"list-title\"> (1)</div><ol><li>test</li></ol></div>",
+				writer.toString());
+	}
 
-  public void testSingeItem() {
-    Collection c = Arrays.asList(new String[]{"test"});
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Single item is rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div><ol><li>test</li></ol></div>",
-        writer.toString());
-  }
+	public void testSingeItem()
+	{
+		Collection c = Arrays.asList(new String[] { "test" });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Single item is rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div><ol><li>test</li></ol></div>",
+				writer.toString());
+	}
 }

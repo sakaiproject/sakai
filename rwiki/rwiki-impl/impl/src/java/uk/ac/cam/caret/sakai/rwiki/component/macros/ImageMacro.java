@@ -36,11 +36,10 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  * FIXME needs localisation
  * 
  * @author ieb
- * 
- * 
  */
 // FIXME: Component
-public class ImageMacro extends BaseMacro {
+public class ImageMacro extends BaseMacro
+{
 	private static String[] paramDescription = {
 			"1,img: URL to the image, image URL must be relative, or absolute but cannot be external, It may also startwith worksite:/ or sakai:/ if referencing resources in the worksite or the whole of sakai. When referencing resources in other worksites (eg sakai:/) you must include the site id ",
 			"2,alt: (optional) Alt text ",
@@ -52,7 +51,8 @@ public class ImageMacro extends BaseMacro {
 
 	private static String description = "Places an Image in the page";
 
-	public String[] getParamDescription() {
+	public String[] getParamDescription()
+	{
 		return paramDescription;
 	}
 
@@ -61,11 +61,13 @@ public class ImageMacro extends BaseMacro {
 	 * 
 	 * @see org.radeox.macro.Macro#getDescription()
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return "image";
 	}
 
@@ -76,7 +78,8 @@ public class ImageMacro extends BaseMacro {
 	 *      org.radeox.macro.parameter.MacroParameter)
 	 */
 	public void execute(Writer writer, MacroParameter params)
-			throws IllegalArgumentException, IOException {
+			throws IllegalArgumentException, IOException
+	{
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
@@ -85,17 +88,21 @@ public class ImageMacro extends BaseMacro {
 		// This code is informed by SnipSnap image Macro, we have used it
 		// so that the markup is the same.
 
-		if (params.getLength() > 0) {
+		if (params.getLength() > 0)
+		{
 			String img = params.get("img");
 			String alt = null, ext = null, cssclass = null, target = null, title = null;
 			boolean qualifiedParams = img != null;
-			if (qualifiedParams) {
+			if (qualifiedParams)
+			{
 				alt = params.get("alt");
 				title = params.get("title");
 				ext = params.get("ext");
 				cssclass = params.get("class");
 				target = params.get("target");
-			} else {
+			}
+			else
+			{
 				img = params.get(0);
 				alt = params.get(1);
 				ext = params.get(2);
@@ -104,24 +111,30 @@ public class ImageMacro extends BaseMacro {
 				title = params.get(5);
 			}
 
-			if (title == null && alt != null) {
+			if (title == null && alt != null)
+			{
 				title = alt;
 			}
 
 			String link = params.get("link");
 
-			if (link != null) {
+			if (link != null)
+			{
 				// check url for sakai:// or worksite://
-				if (link.startsWith("sakai:/")) {
+				if (link.startsWith("sakai:/"))
+				{
 					link = "/access/content/group/"
 							+ link.substring("sakai:/".length());
-				} else if (link.startsWith("worksite:/")) {
+				}
+				else if (link.startsWith("worksite:/"))
+				{
 					link = "/access/content/group/" + siteId + "/"
 							+ link.substring("worksite:/".length());
 				}
 
 				writer.write("<a href=\"" + Encoder.escape(link) + "\"");
-				if (target != null) {
+				if (target != null)
+				{
 					writer.write("target=\"" + Encoder.escape(target) + "\"");
 				}
 				writer.write(">");
@@ -135,34 +148,42 @@ public class ImageMacro extends BaseMacro {
 					|| imageName.startsWith("ftp://"))
 				throw new IllegalArgumentException(
 						"External URLs are not allowed, only relative or absolute");
-			if (imageName.startsWith("worksite:/")) {
+			if (imageName.startsWith("worksite:/"))
+			{
 				imageName = imageName.substring("worksite:/".length());
 				imageName = "/access/content/group/" + siteId + "/" + imageName;
 			}
-			if (imageName.startsWith("sakai:/")) {
+			if (imageName.startsWith("sakai:/"))
+			{
 				imageName = imageName.substring("sakai:/".length());
 				imageName = "/access/content/group/" + imageName;
 			}
 			writer.write("<img src=\"");
 			writer.write(imageName);
 			writer.write("\" ");
-			if (cssclass != null) {
+			if (cssclass != null)
+			{
 				writer.write("class=\"");
 				writer.write(cssclass);
 				writer.write("\" ");
 			}
-			if (alt != null) {
+			if (alt != null)
+			{
 				writer.write("alt=\"" + Encoder.escape(alt) + "\" ");
 			}
-			if (title != null) {
+			if (title != null)
+			{
 				writer.write("title=\"" + Encoder.escape(title) + "\" ");
 			}
 			writer.write("border=\"0\"/>");
 
-			if (link != null) {
+			if (link != null)
+			{
 				writer.write("</a>");
 			}
-		} else {
+		}
+		else
+		{
 			throw new IllegalArgumentException(
 					"Number of arguments does not match");
 		}
@@ -173,8 +194,6 @@ public class ImageMacro extends BaseMacro {
 }
 
 /*******************************************************************************
- * 
  * $Header$
- * 
  ******************************************************************************/
 

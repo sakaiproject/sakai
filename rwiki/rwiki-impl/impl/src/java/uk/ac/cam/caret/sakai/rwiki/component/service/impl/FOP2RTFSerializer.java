@@ -25,9 +25,11 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import org.apache.fop.apps.MimeConstants;
 
-public class FOP2RTFSerializer extends BaseFOPSerializer  {
-	
-	public FOP2RTFSerializer() {
+public class FOP2RTFSerializer extends BaseFOPSerializer
+{
+
+	public FOP2RTFSerializer()
+	{
 		mimeType = MimeConstants.MIME_RTF;
 	}
 

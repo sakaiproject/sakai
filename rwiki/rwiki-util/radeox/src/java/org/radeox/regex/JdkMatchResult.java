@@ -24,38 +24,44 @@
 package org.radeox.regex;
 
 /*
- * The result when a Matcher object finds matches in some input
- * Implementation for regex package in JDK 1.4
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * The result when a Matcher object finds matches in some input Implementation
+ * for regex package in JDK 1.4 @author stephan @team sonicteam
+ * 
+ * @version $Id: JdkMatchResult.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class JdkMatchResult extends MatchResult {
-  private java.util.regex.Matcher matcher;
+public class JdkMatchResult extends MatchResult
+{
+	private java.util.regex.Matcher matcher;
 
-  public JdkMatchResult(java.util.regex.Matcher matcher) {
-    this.matcher = matcher;
-  }
+	public JdkMatchResult(java.util.regex.Matcher matcher)
+	{
+		this.matcher = matcher;
+	}
 
-  public JdkMatchResult(Matcher matcher) {
-    this.matcher = ((JdkMatcher) matcher).getMatcher();
-  }
+	public JdkMatchResult(Matcher matcher)
+	{
+		this.matcher = ((JdkMatcher) matcher).getMatcher();
+	}
 
-  public int groups() {
-    return matcher.groupCount();
-  }
+	public int groups()
+	{
+		return matcher.groupCount();
+	}
 
-  public String group(int i) {
-    return matcher.group(i);
-  }
+	public String group(int i)
+	{
+		return matcher.group(i);
+	}
 
-  public int beginOffset(int i) {
-    return matcher.start(i);
-  }
+	public int beginOffset(int i)
+	{
+		return matcher.start(i);
+	}
 
-  public int endOffset(int i) {
-    return matcher.end(i);
-  }
+	public int endOffset(int i)
+	{
+		return matcher.end(i);
+	}
 }

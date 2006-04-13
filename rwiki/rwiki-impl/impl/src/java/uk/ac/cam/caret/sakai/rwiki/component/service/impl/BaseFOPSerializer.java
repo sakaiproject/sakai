@@ -46,15 +46,16 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.xml.serializer.DOMSerializer;
 import org.apache.xml.serializer.Serializer;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class BaseFOPSerializer implements Serializer {
+public class BaseFOPSerializer implements Serializer
+{
 
 	private static final Log logger = LogFactory
 			.getLog(BaseFOPSerializer.class);
@@ -72,60 +73,62 @@ public class BaseFOPSerializer implements Serializer {
 	protected String mimeType = MimeConstants.MIME_PDF;
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public void setOutputStream(OutputStream arg0) {
+	public void setOutputStream(OutputStream arg0)
+	{
 		this.outputStream = arg0;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public OutputStream getOutputStream() {
+	public OutputStream getOutputStream()
+	{
 		return outputStream;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public void setWriter(Writer arg0) {
+	public void setWriter(Writer arg0)
+	{
 		this.writer = arg0;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public Writer getWriter() {
+	public Writer getWriter()
+	{
 		return writer;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public void setOutputFormat(Properties arg0) {
+	public void setOutputFormat(Properties arg0)
+	{
 		this.outputFormat = arg0;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public Properties getOutputFormat() {
+	public Properties getOutputFormat()
+	{
 		return outputFormat;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public ContentHandler asContentHandler() throws IOException {
-		if (fop == null) {
-			try {
+	public ContentHandler asContentHandler() throws IOException
+	{
+		if (fop == null)
+		{
+			try
+			{
 				DefaultConfigurationBuilder cfgBuild = new DefaultConfigurationBuilder();
 				Configuration cfg = cfgBuild.build(getClass()
 						.getResourceAsStream(configfile));
@@ -133,19 +136,24 @@ public class BaseFOPSerializer implements Serializer {
 				ff.setUserConfig(cfg);
 				FOUserAgent userAgent = new FOUserAgent(ff);
 
-				userAgent.setURIResolver(new URIResolver() {
+				userAgent.setURIResolver(new URIResolver()
+				{
 
 					public Source resolve(String href, String base)
-							throws TransformerException {
+							throws TransformerException
+					{
 						Source source = null;
-						try {
+						try
+						{
 							logger.info("Resolving " + href + " from " + base);
 							HttpServletRequest request = XSLTEntityHandler
 									.getCurrentRequest();
-							if (request != null && href.startsWith("/access")) {
+							if (request != null && href.startsWith("/access"))
+							{
 								// going direct into the ContentHandler Service
 
-								try {
+								try
+								{
 									String path = href.substring("/access"
 											.length());
 
@@ -167,18 +175,24 @@ public class BaseFOPSerializer implements Serializer {
 													.getContentLength());
 									return new StreamSource(resource
 											.streamContent());
-								} catch (Exception ex) {
+								}
+								catch (Exception ex)
+								{
 									URI uri = new URI(base);
 									String content = uri.resolve(href)
 											.toString();
 									source = new StreamSource(content);
 								}
-							} else {
+							}
+							else
+							{
 								URI uri = new URI(base);
 								String content = uri.resolve(href).toString();
 								source = new StreamSource(content);
 							}
-						} catch (Exception ex) {
+						}
+						catch (Exception ex)
+						{
 							throw new TransformerException("Failed to get "
 									+ href, ex);
 						}
@@ -186,24 +200,32 @@ public class BaseFOPSerializer implements Serializer {
 					}
 
 				});
-				try {
+				try
+				{
 					userAgent.setBaseURL(ServerConfigurationService
 							.getString("serverUrl"));
-				} catch (Throwable ex) {
+				}
+				catch (Throwable ex)
+				{
 				}
 
-				fop = ff.newFop(mimeType, userAgent,outputStream);
-			} catch (Exception e) {
+				fop = ff.newFop(mimeType, userAgent, outputStream);
+			}
+			catch (Exception e)
+			{
 				new IOException("Failed to create " + mimeType
 						+ " Serializer: " + e.getMessage());
 			}
 		}
 		DefaultHandler dh;
-		try {
+		try
+		{
 
 			dh = fop.getDefaultHandler();
 
-		} catch (FOPException e) {
+		}
+		catch (FOPException e)
+		{
 			throw new RuntimeException("Failed to get FOP Handler ", e);
 		}
 
@@ -211,18 +233,18 @@ public class BaseFOPSerializer implements Serializer {
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public DOMSerializer asDOMSerializer() throws IOException {
+	public DOMSerializer asDOMSerializer() throws IOException
+	{
 		return null;
 	}
 
 	/**
-	 * 
 	 * {@inheritDoc}
 	 */
-	public boolean reset() {
+	public boolean reset()
+	{
 		fop = null;
 		outputFormat = null;
 		writer = null;

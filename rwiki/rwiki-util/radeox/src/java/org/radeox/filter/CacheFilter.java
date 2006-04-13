@@ -23,13 +23,12 @@
 
 package org.radeox.filter;
 
-
 /*
- * Marker interface for Filters that are cacheable
- *
- * @author Stephan J. Schmidt
+ * Marker interface for Filters that are cacheable @author Stephan J. Schmidt
+ * 
  * @version $Id$
  */
 
-public interface CacheFilter {
+public interface CacheFilter
+{
 }

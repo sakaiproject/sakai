@@ -26,27 +26,31 @@ package org.radeox.macro.code;
 import org.radeox.filter.context.FilterContext;
 
 /*
- * Dummy filter that does nothing
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * Dummy filter that does nothing @author stephan @team sonicteam
+ * 
+ * @version $Id: NullCodeFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class NullCodeFilter implements SourceCodeFormatter {
+public class NullCodeFilter implements SourceCodeFormatter
+{
 
-  public NullCodeFilter() {
-  }
+	public NullCodeFilter()
+	{
+	}
 
-  public String filter(String content, FilterContext context) {
-    return content;
-  }
+	public String filter(String content, FilterContext context)
+	{
+		return content;
+	}
 
-  public String getName() {
-    return "none";
-  }
+	public String getName()
+	{
+		return "none";
+	}
 
-  public int getPriority() {
-    return 0;
-  }
+	public int getPriority()
+	{
+		return 0;
+	}
 }

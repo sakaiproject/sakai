@@ -27,17 +27,22 @@ import org.radeox.api.engine.context.RenderContext;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RenderContextFactory {
+public interface RenderContextFactory
+{
 
 	/**
 	 * Creates a render context to hold information for the renderer
-	 * @param rwo The RWiki Object to be rendered
-	 * @param user The User requesting the render
-	 * @param renderEngine The Render engine performing the render
+	 * 
+	 * @param rwo
+	 *        The RWiki Object to be rendered
+	 * @param user
+	 *        The User requesting the render
+	 * @param renderEngine
+	 *        The Render engine performing the render
 	 * @return A Render Context suitable fo use with the RenderEngine
 	 */
-    RenderContext getRenderContext(RWikiObject rwo,  RenderEngine renderEngine);
-    
+	RenderContext getRenderContext(RWikiObject rwo, RenderEngine renderEngine);
+
 }

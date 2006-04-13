@@ -27,13 +27,17 @@ import org.radeox.filter.context.FilterContext;
 
 /**
  * Displays source code with syntax highlighting etc.
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: SourceCodeFormatter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface SourceCodeFormatter {
-  public String getName();
-  public int getPriority();
-  public String filter(String content, FilterContext context);
+public interface SourceCodeFormatter
+{
+	public String getName();
+
+	public int getPriority();
+
+	public String filter(String content, FilterContext context);
 }

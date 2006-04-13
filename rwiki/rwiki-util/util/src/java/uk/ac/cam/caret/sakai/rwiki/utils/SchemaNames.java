@@ -5,178 +5,180 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 
 /**
  * @author ieb
- *
  */
-public class SchemaNames {
-    /**
-     * event name space.
-     */
-    public static final String NS_EVENTS = "";
+public class SchemaNames
+{
+	/**
+	 * event name space.
+	 */
+	public static final String NS_EVENTS = "";
 
-    /**
-     * root element of events.
-     */
-    public static final String EL_EVENTS = "events";
+	/**
+	 * root element of events.
+	 */
+	public static final String EL_EVENTS = "events";
 
-    /**
-     * root element of events.
-     */
-    public static final String EL_NSEVENTS = "events";
+	/**
+	 * root element of events.
+	 */
+	public static final String EL_NSEVENTS = "events";
 
-    /**
-     * event container.
-     */
-    public static final String EL_EVENT = "event";
+	/**
+	 * event container.
+	 */
+	public static final String EL_EVENT = "event";
 
-    /**
-     * event container.
-     */
-    public static final String EL_NSEVENT = "event";
-    
-    public final static String EL_EXCEPTION = "exception";
+	/**
+	 * event container.
+	 */
+	public static final String EL_NSEVENT = "event";
 
-    public final static String EL_NSEXCEPTION = "exception";
+	public final static String EL_EXCEPTION = "exception";
 
-    public final static String ATTR_EXMESSAGE = "message";
+	public final static String EL_NSEXCEPTION = "exception";
 
-    /**
-     * Name space of the xml container.
-     */
-    public static final String NS_CONTAINER = "";
+	public final static String ATTR_EXMESSAGE = "message";
 
-    /**
-     * Top level elemenr local name.
-     */
-    public static final String EL_XMLSERVICE = "xmlservice";
+	/**
+	 * Name space of the xml container.
+	 */
+	public static final String NS_CONTAINER = "";
 
-    /**
-     * Top level element qname.
-     */
-    public static final String EL_NSXMLSERVICE = "xmlservice";
+	/**
+	 * Top level elemenr local name.
+	 */
+	public static final String EL_XMLSERVICE = "xmlservice";
 
-    /**
-     * properties container.
-     */
-    public static final String EL_XMLPROPERTIES = "properties";
+	/**
+	 * Top level element qname.
+	 */
+	public static final String EL_NSXMLSERVICE = "xmlservice";
 
-    /**
-     * properties container.
-     */
-    public static final String EL_NSXMLPROPERTIES = "properties";
+	/**
+	 * properties container.
+	 */
+	public static final String EL_XMLPROPERTIES = "properties";
 
-    /**
-     * Property element.
-     */
-    public static final String EL_XMLPROPERTY = "property";
+	/**
+	 * properties container.
+	 */
+	public static final String EL_NSXMLPROPERTIES = "properties";
 
-    /**
-     * property element.
-     */
-    public static final String EL_NSXMLPROPERTY = "property";
+	/**
+	 * Property element.
+	 */
+	public static final String EL_XMLPROPERTY = "property";
 
-    /**
-     * name of the attribute.
-     */
-    public static final String ATTR_NAME = "name";
-    
-    public final static String NS_PROPS = "";
+	/**
+	 * property element.
+	 */
+	public static final String EL_NSXMLPROPERTY = "property";
 
-    public final static String EL_PROPERTIES = "rproperties";
+	/**
+	 * name of the attribute.
+	 */
+	public static final String ATTR_NAME = "name";
 
-    public final static String EL_NSPROPERTIES = "rproperties";
+	public final static String NS_PROPS = "";
 
-    public final static String EL_PROPERTY = "rproperty";
+	public final static String EL_PROPERTIES = "rproperties";
 
-    public final static String EL_NSPROPERTY = "rproperty";
+	public final static String EL_NSPROPERTIES = "rproperties";
 
-    public final static String ATTR_LIST = "name";
+	public final static String EL_PROPERTY = "rproperty";
 
-    public final static String EL_NAME = "name";
+	public final static String EL_NSPROPERTY = "rproperty";
 
-    public final static String EL_VALUE = "value";
+	public final static String ATTR_LIST = "name";
 
-    /**
-     * Name of the event.
-     */
-    public static final String EL_EVENTNAME = "eventname";
+	public final static String EL_NAME = "name";
 
-    /**
-     * Name of the event.
-     */
-    public static final String EL_NSEVENTNAME = "eventname";
+	public final static String EL_VALUE = "value";
 
-    /**
-     * Name of the event.
-     */
-    public static final String EL_EVENTTIMESTAMP = "eventtimestamp";
+	/**
+	 * Name of the event.
+	 */
+	public static final String EL_EVENTNAME = "eventname";
 
-    /**
-     * Name of the event.
-     */
-    public static final String EL_NSEVENTTIMESTAMP = "eventtimestamp";
+	/**
+	 * Name of the event.
+	 */
+	public static final String EL_NSEVENTNAME = "eventname";
 
-    /**
-     * Has the subject been modified.
-     */
-    public static final String EL_MODIFY = "modify";
+	/**
+	 * Name of the event.
+	 */
+	public static final String EL_EVENTTIMESTAMP = "eventtimestamp";
 
-    /**
-     * Has the subject been modified.
-     */
-    public static final String EL_NSMODIFY = "modify";
+	/**
+	 * Name of the event.
+	 */
+	public static final String EL_NSEVENTTIMESTAMP = "eventtimestamp";
 
-    /**
-     * Priority.
-     */
-    public static final String EL_PRIORITY = "priority";
+	/**
+	 * Has the subject been modified.
+	 */
+	public static final String EL_MODIFY = "modify";
 
-    /**
-     * Priority.
-     */
-    public static final String EL_NSPRIORITY = "priority";
+	/**
+	 * Has the subject been modified.
+	 */
+	public static final String EL_NSMODIFY = "modify";
 
-    /**
-     * Resource event is about.
-     */
-    public static final String EL_RESOURCE = "resource";
+	/**
+	 * Priority.
+	 */
+	public static final String EL_PRIORITY = "priority";
 
-    /**
-     * Resource event is about.
-     */
-    public static final String EL_NSRESOURCE = "resource";
+	/**
+	 * Priority.
+	 */
+	public static final String EL_NSPRIORITY = "priority";
 
-    /**
-     * Session ID.
-     */
-    public static final String EL_SESSIONID = "sessionid";
+	/**
+	 * Resource event is about.
+	 */
+	public static final String EL_RESOURCE = "resource";
 
-    /**
-     * Session ID.
-     */
-    public static final String EL_NSSESSIONID = "sessionid";
+	/**
+	 * Resource event is about.
+	 */
+	public static final String EL_NSRESOURCE = "resource";
 
-    /**
-     * User ID.
-     */
-    public static final String EL_USERID = "userid";
+	/**
+	 * Session ID.
+	 */
+	public static final String EL_SESSIONID = "sessionid";
 
-    /**
-     * User ID.
-     */
-    public static final String EL_NSUSERID = "userid";
-    /**
-     * A wiki Page
-     */
-    public static final String EL_RENDEREDCONTENT = "rendered-content";
-    
-    /**
-     * 
-     */
-    public static final String EL_ENTITYSERVICE =  "entity-service";
-    /**
-     * 
-     */
-    public static final String EL_ENTITY=  "entity";
+	/**
+	 * Session ID.
+	 */
+	public static final String EL_NSSESSIONID = "sessionid";
+
+	/**
+	 * User ID.
+	 */
+	public static final String EL_USERID = "userid";
+
+	/**
+	 * User ID.
+	 */
+	public static final String EL_NSUSERID = "userid";
+
+	/**
+	 * A wiki Page
+	 */
+	public static final String EL_RENDEREDCONTENT = "rendered-content";
+
+	/**
+	 * 
+	 */
+	public static final String EL_ENTITYSERVICE = "entity-service";
+
+	/**
+	 * 
+	 */
+	public static final String EL_ENTITY = "entity";
 
 	public static final String EL_ERROR = "error";
 
@@ -263,6 +265,5 @@ public class SchemaNames {
 	public static final String EL_WIKICONTENT = "wikicontent";
 
 	public static final String EL_NSWIKICONTENT = "wikicontent";
-
 
 }

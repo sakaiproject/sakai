@@ -31,11 +31,8 @@ import java.util.List;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.component.section.cover.SectionAwareness;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
@@ -44,9 +41,9 @@ import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRend
  * and worksite:// url formats
  * 
  * @author andrew
- * 
  */
-public class SectionsMacro extends BaseMacro {
+public class SectionsMacro extends BaseMacro
+{
 	private static String[] paramDescription = {
 			"1,useids: (optional) if true will generate with ID's otherwise will use names, names it the default ",
 			"2,categories: (optional) list of comma seperated categories to generate links for ",
@@ -54,7 +51,8 @@ public class SectionsMacro extends BaseMacro {
 
 	private static String description = "Generate a list of links that point to section subsites";
 
-	public String[] getParamDescription() {
+	public String[] getParamDescription()
+	{
 		return paramDescription;
 	}
 
@@ -63,15 +61,19 @@ public class SectionsMacro extends BaseMacro {
 	 * 
 	 * @see org.radeox.macro.Macro#getDescription()
 	 */
-	public String getDescription() {
+	public String getDescription()
+	{
 		return description;
 	}
-	 public String getName() {
-	        return "sakai-sections";
-	 }
+
+	public String getName()
+	{
+		return "sakai-sections";
+	}
 
 	public void execute(Writer writer, MacroParameter params)
-			throws IllegalArgumentException, IOException {
+			throws IllegalArgumentException, IOException
+	{
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
@@ -82,32 +84,42 @@ public class SectionsMacro extends BaseMacro {
 
 		String siteId = PortalService.getCurrentSiteId();
 		Site s = null;
-		try {
+		try
+		{
 			s = SiteService.getSite(siteId);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 
 		}
-		
+
 		List sections = null;
-		if (categories != null && categories.length() > 0) {
+		if (categories != null && categories.length() > 0)
+		{
 			sections = SectionAwareness.getSectionsInCategory(siteId,
 					categories);
-		} else {
+		}
+		else
+		{
 			sections = SectionAwareness.getSections(siteId);
 		}
-		
-		
-		for (Iterator is = sections.iterator(); is.hasNext();) {
+
+		for (Iterator is = sections.iterator(); is.hasNext();)
+		{
 			CourseSection cs = (CourseSection) is.next();
 			String pageName = "";
-			
-			if ( "true".equals(useids) ) {
-				pageName = cs.getUuid()+"/Home";
-			} else {
-				if ( s !=null ) {
-					pageName = s.getReference()+"/";
+
+			if ("true".equals(useids))
+			{
+				pageName = cs.getUuid() + "/Home";
+			}
+			else
+			{
+				if (s != null)
+				{
+					pageName = s.getReference() + "/";
 				}
-				pageName += "section/"+cs.getTitle()+"/Home";
+				pageName += "section/" + cs.getTitle() + "/Home";
 			}
 			writer.write("\n");
 			writer.write("* [ Section: ");

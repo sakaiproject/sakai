@@ -22,57 +22,71 @@
  */
 package org.radeox.macro.list;
 
-import org.radeox.util.Linkable;
-import org.radeox.util.Nameable;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.radeox.util.Linkable;
+import org.radeox.util.Nameable;
+
 /**
  * Simple list formatter.
- *
+ * 
  * @author Matthias L. Jugel
  * @version $Id$
  */
-public class SimpleList implements ListFormatter {
-  public String getName() {
-    return "simple";
-  }
+public class SimpleList implements ListFormatter
+{
+	public String getName()
+	{
+		return "simple";
+	}
 
+	public void format(Writer writer, Linkable current, String listComment,
+			Collection c, String emptyText, boolean showSize)
+			throws IOException
+	{
+		writer.write("<div class=\"list\"><div class=\"list-title\">");
+		writer.write(listComment);
+		if (showSize)
+		{
+			writer.write(" (");
+			writer.write("" + c.size());
+			writer.write(")");
+		}
+		writer.write("</div>");
+		if (c.size() > 0)
+		{
+			writer.write("<blockquote>");
+			Iterator nameIterator = c.iterator();
+			while (nameIterator.hasNext())
+			{
+				Object object = nameIterator.next();
+				if (object instanceof Linkable)
+				{
+					writer.write(((Linkable) object).getLink());
+				}
+				else if (object instanceof Nameable)
+				{
+					writer.write(((Nameable) object).getName());
+				}
+				else
+				{
+					writer.write(object.toString());
+				}
 
-  public void format(Writer writer, Linkable current, String listComment, Collection c, String emptyText, boolean showSize)
-      throws IOException {
-    writer.write("<div class=\"list\"><div class=\"list-title\">");
-    writer.write(listComment);
-    if (showSize) {
-      writer.write(" (");
-      writer.write("" + c.size());
-      writer.write(")");
-    }
-    writer.write("</div>");
-    if (c.size() > 0) {
-      writer.write("<blockquote>");
-      Iterator nameIterator = c.iterator();
-      while (nameIterator.hasNext()) {
-        Object object = nameIterator.next();
-        if (object instanceof Linkable) {
-          writer.write(((Linkable) object).getLink());
-        } else if (object instanceof Nameable) {
-          writer.write(((Nameable) object).getName());
-        } else {
-          writer.write(object.toString());
-        }
-
-        if (nameIterator.hasNext()) {
-          writer.write(", ");
-        }
-      }
-      writer.write("</blockquote>");
-    } else {
-      writer.write(emptyText);
-    }
-    writer.write("</div>");
-  }
+				if (nameIterator.hasNext())
+				{
+					writer.write(", ");
+				}
+			}
+			writer.write("</blockquote>");
+		}
+		else
+		{
+			writer.write(emptyText);
+		}
+		writer.write("</div>");
+	}
 }

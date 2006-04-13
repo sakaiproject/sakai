@@ -23,35 +23,38 @@
 
 package org.radeox.example;
 
-import org.radeox.engine.context.BaseRenderContext;
-import org.radeox.api.engine.context.RenderContext;
-import org.radeox.api.engine.context.InitialRenderContext;
-import org.radeox.engine.context.BaseInitialRenderContext;
-import org.radeox.api.engine.RenderEngine;
-import org.radeox.engine.BaseRenderEngine;
-
 import java.util.Locale;
 
+import org.radeox.api.engine.RenderEngine;
+import org.radeox.api.engine.context.InitialRenderContext;
+import org.radeox.api.engine.context.RenderContext;
+import org.radeox.engine.BaseRenderEngine;
+import org.radeox.engine.context.BaseInitialRenderContext;
+import org.radeox.engine.context.BaseRenderContext;
+
 /*
- * Example how to use BaseRenderEngine
- *
- * @author Stephan J. Schmidt
- * @version $Id$
+ * Example how to use BaseRenderEngine @author Stephan J. Schmidt
+ * 
+ * @version $Id: RenderEngineExample.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class RenderEngineExample {
-  public static void main(String[] args) {
-    String test = "__SnipSnap__ {link:Radeox|http://radeox.org} ==Other Bold==";
+public class RenderEngineExample
+{
+	public static void main(String[] args)
+	{
+		String test = "__SnipSnap__ {link:Radeox|http://radeox.org} ==Other Bold==";
 
-    RenderContext context = new BaseRenderContext();
-    RenderEngine engine = new BaseRenderEngine();
-    System.out.println("Rendering with default:");
-    System.out.println(engine.render(test, context));
+		RenderContext context = new BaseRenderContext();
+		RenderEngine engine = new BaseRenderEngine();
+		System.out.println("Rendering with default:");
+		System.out.println(engine.render(test, context));
 
-    System.out.println("Rendering with alternative Wiki:");
-    InitialRenderContext initialContext = new BaseInitialRenderContext();
-    initialContext.set(RenderContext.INPUT_LOCALE, new Locale("otherwiki", ""));
-    RenderEngine engineWithContext = new BaseRenderEngine(initialContext);
-    System.out.println(engineWithContext.render(test, context));
-  }
+		System.out.println("Rendering with alternative Wiki:");
+		InitialRenderContext initialContext = new BaseInitialRenderContext();
+		initialContext.set(RenderContext.INPUT_LOCALE, new Locale("otherwiki",
+				""));
+		RenderEngine engineWithContext = new BaseRenderEngine(initialContext);
+		System.out.println(engineWithContext.render(test, context));
+	}
 }

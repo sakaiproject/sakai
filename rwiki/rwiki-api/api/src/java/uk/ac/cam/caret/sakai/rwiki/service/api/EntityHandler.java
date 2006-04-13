@@ -27,9 +27,9 @@ import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  * An entity handler matches resource references and handles how those resource
@@ -39,19 +39,19 @@ import org.sakaiproject.service.legacy.entity.ResourceProperties;
  * local.
  * 
  * @author ieb
- * 
  */
-public interface EntityHandler {
+public interface EntityHandler
+{
 
 	/**
 	 * This sets the reference using this entity handler
 	 * 
 	 * @param majorType
-	 *            The mojor type to bind this reference to
+	 *        The mojor type to bind this reference to
 	 * @param ref
-	 *            the reference object
+	 *        the reference object
 	 * @param reference
-	 *            the reference string
+	 *        the reference string
 	 */
 	void setReference(String majorType, Reference ref, String reference);
 
@@ -85,7 +85,7 @@ public interface EntityHandler {
 	 * get a url for the entity
 	 * 
 	 * @param entity
-	 *            the entity object
+	 *        the entity object
 	 * @return a url that represents the entity
 	 */
 	String getUrl(Entity entity);
@@ -94,11 +94,11 @@ public interface EntityHandler {
 	 * output the entity to the output stream
 	 * 
 	 * @param entity
-	 *            the Entity to output
+	 *        the Entity to output
 	 * @param rrequest
-	 *            the servlet request object
+	 *        the servlet request object
 	 * @param res
-	 *            the servlet response object
+	 *        the servlet response object
 	 */
 	void outputContent(Entity entity, HttpServletRequest request,
 			HttpServletResponse res);
@@ -107,7 +107,7 @@ public interface EntityHandler {
 	 * Gets the resource properties for the id
 	 * 
 	 * @param e
-	 *            The entity
+	 *        The entity
 	 * @return
 	 */
 	ResourceProperties getProperties(Entity e);
@@ -122,6 +122,7 @@ public interface EntityHandler {
 
 	/**
 	 * Generate a HTML link for the entity handler
+	 * 
 	 * @param e
 	 * @return
 	 */

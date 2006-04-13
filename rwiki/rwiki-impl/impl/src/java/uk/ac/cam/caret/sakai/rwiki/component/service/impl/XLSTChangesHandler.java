@@ -23,7 +23,6 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -34,9 +33,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.AttributesImpl;
@@ -54,29 +53,29 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SchemaNames;
  * Provides a XSLT Based handler, that outputs the changes on the object.
  * 
  * @author ieb
- * 
  */
-public class XLSTChangesHandler extends XSLTEntityHandler {
+public class XLSTChangesHandler extends XSLTEntityHandler
+{
 	private RWikiObjectService rwikObjectService = null;
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
 	public void outputContent(Entity entity, HttpServletRequest request,
-			HttpServletResponse res) {
-		if ( !isAvailable() ) 
-			return;
+			HttpServletResponse res)
+	{
+		if (!isAvailable()) return;
 
-		if (!(entity instanceof RWikiEntity))
-			return;
+		if (!(entity instanceof RWikiEntity)) return;
 
-		try {
-			
+		try
+		{
+
 			Map rheaders = getResponseHeaders();
-			if (rheaders != null) {
-				for (Iterator i = rheaders.keySet().iterator(); i.hasNext();) {
+			if (rheaders != null)
+			{
+				for (Iterator i = rheaders.keySet().iterator(); i.hasNext();)
+				{
 					String name = (String) i.next();
 					String value = (String) rheaders.get(name);
 					res.setHeader(name, value);
@@ -86,9 +85,12 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 			}
 			ContentHandler opch = getOutputHandler(res.getOutputStream());
 			ContentHandler ch = null;
-			if (false) {
+			if (false)
+			{
 				ch = new DebugContentHandler(opch);
-			} else {
+			}
+			else
+			{
 				ch = opch;
 			}
 
@@ -119,11 +121,10 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL,
 						SchemaNames.ATTR_REQUEST_REQUEST_URL, "sting", String
 								.valueOf(request.getRequestURL()));
-				
-				
-			
+
 				propA.addAttribute("", SchemaNames.ATTR_SERVER_URL,
-						SchemaNames.ATTR_SERVER_URL, "sting", ServerConfigurationService.getServerUrl());
+						SchemaNames.ATTR_SERVER_URL, "sting",
+						ServerConfigurationService.getServerUrl());
 
 				ch.startElement(SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_REQUEST_PROPERTIES,
@@ -145,7 +146,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 					SchemaNames.EL_NSXMLPROPERTIES, dummyAttributes);
 			ResourceProperties rp = entity.getProperties();
 
-			for (Iterator i = rp.getPropertyNames(); i.hasNext();) {
+			for (Iterator i = rp.getPropertyNames(); i.hasNext();)
+			{
 				Object key = i.next();
 				String name = String.valueOf(key);
 				String value = String.valueOf(rp.getProperty(name));
@@ -165,18 +167,23 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 						SchemaNames.EL_NSXMLPROPERTY, propA,
 						" XSLTEntity Handler");
 			}
-			if (entity instanceof RWikiEntity) {
+			if (entity instanceof RWikiEntity)
+			{
 				RWikiEntity rwe = (RWikiEntity) entity;
-				if ( !rwe.isContainer() ) {
-				RWikiObject rwo = rwe.getRWikiObject();
-				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", "_title");
-				addElement(ch, SchemaNames.NS_CONTAINER,
-						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, NameHelper
-								.localizeName(rwo.getName(), rwo.getRealm()));
-				} else {
+				if (!rwe.isContainer())
+				{
+					RWikiObject rwo = rwe.getRWikiObject();
+					AttributesImpl propA = new AttributesImpl();
+					propA.addAttribute("", SchemaNames.ATTR_NAME,
+							SchemaNames.ATTR_NAME, "string", "_title");
+					addElement(ch, SchemaNames.NS_CONTAINER,
+							SchemaNames.EL_XMLPROPERTY,
+							SchemaNames.EL_NSXMLPROPERTY, propA,
+							NameHelper.localizeName(rwo.getName(), rwo
+									.getRealm()));
+				}
+				else
+				{
 					AttributesImpl propA = new AttributesImpl();
 					propA.addAttribute("", SchemaNames.ATTR_NAME,
 							SchemaNames.ATTR_NAME, "string", "_title");
@@ -193,29 +200,34 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 						SchemaNames.ATTR_NAME, "string", "_description");
 				addElement(ch, SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, ServerConfigurationService.getString("ui.service"));
-				
+						SchemaNames.EL_NSXMLPROPERTY, propA,
+						ServerConfigurationService.getString("ui.service"));
+
 			}
 			{
 				AttributesImpl propA = new AttributesImpl();
 				propA.addAttribute("", SchemaNames.ATTR_NAME,
 						SchemaNames.ATTR_NAME, "string", "_datestamp");
-				//2006-02-16T18:28:03+01:00
-				SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-				
+				// 2006-02-16T18:28:03+01:00
+				SimpleDateFormat sd = new SimpleDateFormat(
+						"yyyy-MM-dd'T'HH:mm:ssZ");
+
 				addElement(ch, SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, sd.format(new Date()));
-				
+						SchemaNames.EL_NSXMLPROPERTY, propA, sd
+								.format(new Date()));
+
 			}
 
 			ch.endElement(SchemaNames.NS_CONTAINER,
 					SchemaNames.EL_XMLPROPERTIES,
 					SchemaNames.EL_NSXMLPROPERTIES);
 
-			if (entity instanceof RWikiEntity) {
+			if (entity instanceof RWikiEntity)
+			{
 				RWikiEntity rwe = (RWikiEntity) entity;
-				if ( !rwe.isContainer() ) {
+				if (!rwe.isContainer())
+				{
 					RWikiObject rwo = rwe.getRWikiObject();
 					ch.startElement(SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_RENDEREDCONTENT,
@@ -232,7 +244,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 					ch.endElement(SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_CHANGES, SchemaNames.EL_NSCHANGES);
 
-				} else {
+				}
+				else
+				{
 					ch.startElement(SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_CHANGES, SchemaNames.EL_NSCHANGES,
 							dummyAttributes);
@@ -251,23 +265,28 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 
 			ch.endDocument();
 
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			ex.printStackTrace();
 			throw new RuntimeException("Failed to serialise "
 					+ ex.getLocalizedMessage(), ex);
 		}
 	}
 
-	public void changeHistoryToXML(RWikiObject rwo, ContentHandler ch) throws Exception {
-		if ( !isAvailable() ) return;
+	public void changeHistoryToXML(RWikiObject rwo, ContentHandler ch)
+			throws Exception
+	{
+		if (!isAvailable()) return;
 
 		List changes = rwikObjectService.findRWikiHistoryObjectsInReverse(rwo);
-		if ( changes == null ) return;
-		for (Iterator i = changes.iterator(); i.hasNext();) {
+		if (changes == null) return;
+		for (Iterator i = changes.iterator(); i.hasNext();)
+		{
 			RWikiHistoryObject rwco = (RWikiHistoryObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_ID,
-					SchemaNames.ATTR_ID, "sting", rwco.getId());
+			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
+					"sting", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
 					SchemaNames.ATTR_NAME, "sting", rwco.getName());
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
@@ -290,31 +309,34 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);
-			renderToXML(rwco,ch);
+			renderToXML(rwco, ch);
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE);
 		}
 
 	}
 
-	public void recentChangesToXML(RWikiEntity rwe, ContentHandler ch) throws Exception {
-		if ( !isAvailable() ) return;
+	public void recentChangesToXML(RWikiEntity rwe, ContentHandler ch)
+			throws Exception
+	{
+		if (!isAvailable()) return;
 
 		GregorianCalendar g = new GregorianCalendar();
 		g.setTime(new Date());
 		g.add(GregorianCalendar.YEAR, -1);
 
-		Decoded d = decode(rwe.getReference()+getMinorType());
+		Decoded d = decode(rwe.getReference() + getMinorType());
 		String basepath = d.getContext() + d.getContainer();
 		List changes = rwikObjectService.findAllChangedSince(g.getTime(),
 				basepath);
 		int nchanges = 0;
-		for (Iterator i = changes.iterator(); i.hasNext() && nchanges < 20;) {
+		for (Iterator i = changes.iterator(); i.hasNext() && nchanges < 20;)
+		{
 			nchanges++;
 			RWikiCurrentObject rwco = (RWikiCurrentObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
-			propA.addAttribute("", SchemaNames.ATTR_ID,
-					SchemaNames.ATTR_ID, "sting", rwco.getId());
+			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
+					"sting", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
 					SchemaNames.ATTR_NAME, "sting", rwco.getName());
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
@@ -336,7 +358,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 							.getVersion()));
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);
-			renderToXML(rwco,ch);
+			renderToXML(rwco, ch);
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE);
 		}
@@ -346,14 +368,17 @@ public class XLSTChangesHandler extends XSLTEntityHandler {
 	/**
 	 * @return Returns the rwikObjectService.
 	 */
-	public RWikiObjectService getRwikObjectService() {
+	public RWikiObjectService getRwikObjectService()
+	{
 		return rwikObjectService;
 	}
 
 	/**
-	 * @param rwikObjectService The rwikObjectService to set.
+	 * @param rwikObjectService
+	 *        The rwikObjectService to set.
 	 */
-	public void setRwikObjectService(RWikiObjectService rwikObjectService) {
+	public void setRwikObjectService(RWikiObjectService rwikObjectService)
+	{
 		this.rwikObjectService = rwikObjectService;
 	}
 

@@ -24,13 +24,14 @@
 package org.radeox.filter.context;
 
 /**
- * InitialFilterContext is used to
- * give the filter information after it's startup
- * (e.g. locales)
- *
+ * InitialFilterContext is used to give the filter information after it's
+ * startup (e.g. locales)
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: InitialFilterContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface InitialFilterContext {
+public interface InitialFilterContext
+{
 }

@@ -24,6 +24,7 @@
 package org.radeox.test.filter;
 
 import junit.framework.TestCase;
+
 import org.radeox.engine.context.BaseInitialRenderContext;
 import org.radeox.engine.context.BaseRenderContext;
 import org.radeox.filter.Filter;
@@ -32,25 +33,31 @@ import org.radeox.filter.context.FilterContext;
 
 /**
  * Support class for defning JUnit FilterTests.
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: FilterTestSupport.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class FilterTestSupport extends TestCase {
-  protected Filter filter;
-  protected FilterContext context;
+public class FilterTestSupport extends TestCase
+{
+	protected Filter filter;
 
-  public FilterTestSupport(String s) {
-    super(s);
-    context = new BaseFilterContext();
-    context.setRenderContext(new BaseRenderContext());
-  }
+	protected FilterContext context;
 
-  protected void setUp() throws Exception {
-    super.setUp();
-    if (null != filter) {
-      filter.setInitialContext(new BaseInitialRenderContext());
-    }
-  }
+	public FilterTestSupport(String s)
+	{
+		super(s);
+		context = new BaseFilterContext();
+		context.setRenderContext(new BaseRenderContext());
+	}
+
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+		if (null != filter)
+		{
+			filter.setInitialContext(new BaseInitialRenderContext());
+		}
+	}
 }

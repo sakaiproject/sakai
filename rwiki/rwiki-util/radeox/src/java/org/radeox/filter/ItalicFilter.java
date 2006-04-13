@@ -26,16 +26,17 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * Italic finds ~~text~~ in its input and transforms this
- * to <i>text</i>
- *
- * @author Stephan J. Schmidt
- * @team sonicteam
+ * Italic finds ~~text~~ in its input and transforms this to <i>text</i>
+ * @author Stephan J. Schmidt @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class ItalicFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.italic";
-  }
+public class ItalicFilter extends LocaleRegexReplaceFilter implements
+		CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.italic";
+	}
 }

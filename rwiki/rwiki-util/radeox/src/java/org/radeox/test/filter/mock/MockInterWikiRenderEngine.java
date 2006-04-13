@@ -23,45 +23,58 @@
 
 package org.radeox.test.filter.mock;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.RenderContext;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.io.Reader;
+public class MockInterWikiRenderEngine implements RenderEngine,
+		WikiRenderEngine
+{
 
-public class MockInterWikiRenderEngine implements RenderEngine, WikiRenderEngine {
+	public boolean exists(String name)
+	{
+		return false;
+	}
 
-  public boolean exists(String name) {
-    return false;
-  }
+	public boolean showCreate()
+	{
+		return false;
+	}
 
-  public boolean showCreate() {
-    return false;
-  }
+	public void appendLink(StringBuffer buffer, String name, String view,
+			String anchor)
+	{
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view, String anchor) {
-  }
+	public void appendLink(StringBuffer buffer, String name, String view)
+	{
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view) {
-  }
+	public void appendCreateLink(StringBuffer buffer, String name, String view)
+	{
+	}
 
-  public void appendCreateLink(StringBuffer buffer, String name, String view) {
-  }
+	public String getName()
+	{
+		return "mock-wiki";
+	}
 
-  public String getName() {
-    return "mock-wiki";
-  }
+	public String render(String content, RenderContext context)
+	{
+		return null;
+	}
 
-  public String render(String content, RenderContext context) {
-    return null;
-  }
+	public void render(Writer out, String content, RenderContext context)
+			throws IOException
+	{
+	}
 
-  public void render(Writer out, String content, RenderContext context) throws IOException {
-  }
-
-  public String render(Reader in, RenderContext context) throws IOException {
-    return null;
-  }
+	public String render(Reader in, RenderContext context) throws IOException
+	{
+		return null;
+	}
 }

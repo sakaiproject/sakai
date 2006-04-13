@@ -24,19 +24,27 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class IsbnMacroTest extends MacroTestSupport {
-  public IsbnMacroTest(String name) {
-    super(name);
-  }
+public class IsbnMacroTest extends MacroTestSupport
+{
+	public IsbnMacroTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(IsbnMacroTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(IsbnMacroTest.class);
+	}
 
-  public void testIsbn() {
-    String result = EngineManager.getInstance().render("{isbn:0201615630}", context);
-    assertEquals("(<a href=\"http://www.amazon.com/exec/obidos/ASIN/0201615630\">Amazon.com</a>)", result);
-  }
+	public void testIsbn()
+	{
+		String result = EngineManager.getInstance().render("{isbn:0201615630}",
+				context);
+		assertEquals(
+				"(<a href=\"http://www.amazon.com/exec/obidos/ASIN/0201615630\">Amazon.com</a>)",
+				result);
+	}
 }

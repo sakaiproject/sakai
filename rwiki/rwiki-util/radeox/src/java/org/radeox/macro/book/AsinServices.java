@@ -21,35 +21,40 @@
  * --LICENSE NOTICE--
  */
 
-
 package org.radeox.macro.book;
 
 /**
  * Manages links to asin (DVD, CD) dealears or comparison services
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public class AsinServices extends TextFileUrlMapper {
-  private static AsinServices instance;
+public class AsinServices extends TextFileUrlMapper
+{
+	private static AsinServices instance;
 
-  public AsinServices() {
-    super(AsinServices.class);
-  }
+	public AsinServices()
+	{
+		super(AsinServices.class);
+	}
 
-  public static synchronized UrlMapper getInstance() {
-    if (null == instance) {
-      instance = new AsinServices();
-    }
-    return instance;
-  }
+	public static synchronized UrlMapper getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new AsinServices();
+		}
+		return instance;
+	}
 
-  public String getFileName() {
-    return "conf/asinservices.txt";
-  }
+	public String getFileName()
+	{
+		return "conf/asinservices.txt";
+	}
 
-  public String getKeyName() {
-    return "asin";
-  }
+	public String getKeyName()
+	{
+		return "asin";
+	}
 }

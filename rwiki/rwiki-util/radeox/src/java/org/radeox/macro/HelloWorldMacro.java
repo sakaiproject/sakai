@@ -23,41 +23,51 @@
 
 package org.radeox.macro;
 
-import org.radeox.macro.parameter.MacroParameter;
-
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.macro.parameter.MacroParameter;
+
 /*
- * Hello world example macro. This Macro displays a hello world string.
- *
- * @author stephan
- * @version $Id$
+ * Hello world example macro. This Macro displays a hello world string. @author
+ * stephan
+ * 
+ * @version $Id: HelloWorldMacro.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class HelloWorldMacro extends BaseMacro {
-  private String[] paramDescription = {"1: name to print"};
+public class HelloWorldMacro extends BaseMacro
+{
+	private String[] paramDescription = { "1: name to print" };
 
-  public String getName() {
-    return "hello";
-  }
+	public String getName()
+	{
+		return "hello";
+	}
 
-  public String getDescription() {
-    return "Say hello example macro.";
-  }
+	public String getDescription()
+	{
+		return "Say hello example macro.";
+	}
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
-    if (params.getLength() == 1) {
-      writer.write("Hello <b>");
-      writer.write(params.get("0"));
-      writer.write("</b>");
-    } else {
-      throw new IllegalArgumentException("Number of arguments does not match");
-    }
-  }
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
+		if (params.getLength() == 1)
+		{
+			writer.write("Hello <b>");
+			writer.write(params.get("0"));
+			writer.write("</b>");
+		}
+		else
+		{
+			throw new IllegalArgumentException(
+					"Number of arguments does not match");
+		}
+	}
 }

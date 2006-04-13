@@ -23,37 +23,33 @@
 
 package org.radeox.macro.code;
 
-
 /*
- * SqlCodeFilter colourizes SQL source code
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * SqlCodeFilter colourizes SQL source code @author stephan @team sonicteam
+ * 
+ * @version $Id: SqlCodeFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class SqlCodeFilter extends DefaultRegexCodeFormatter implements SourceCodeFormatter {
+public class SqlCodeFilter extends DefaultRegexCodeFormatter implements
+		SourceCodeFormatter
+{
 
-  private static final String KEYWORDS =
-      "\\b(SELECT|DELETE|UPDATE|WHERE|FROM|GROUP|BY|HAVING)\\b";
+	private static final String KEYWORDS = "\\b(SELECT|DELETE|UPDATE|WHERE|FROM|GROUP|BY|HAVING)\\b";
 
-  private static final String OBJECTS =
-      "\\b(VARCHAR)" +
-      "\\b";
+	private static final String OBJECTS = "\\b(VARCHAR)" + "\\b";
 
-  private static final String QUOTES =
-      "\"(([^\"\\\\]|\\.)*)\"";
+	private static final String QUOTES = "\"(([^\"\\\\]|\\.)*)\"";
 
+	public SqlCodeFilter()
+	{
+		super(QUOTES, "<span class=\"sql-quote\">\"$1\"</span>");
+		addRegex(OBJECTS, "<span class=\"sql-object\">$1</span>");
+		addRegex(KEYWORDS, "<span class=\"sql-keyword\">$1</span>");
+	}
 
-  public SqlCodeFilter() {
-    super(QUOTES, "<span class=\"sql-quote\">\"$1\"</span>");
-    addRegex(OBJECTS, "<span class=\"sql-object\">$1</span>");
-    addRegex(KEYWORDS, "<span class=\"sql-keyword\">$1</span>");
-  }
-
-
-  public String getName() {
-    return "sql";
-  }
+	public String getName()
+	{
+		return "sql";
+	}
 
 }

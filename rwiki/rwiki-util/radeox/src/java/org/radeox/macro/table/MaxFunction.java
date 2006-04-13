@@ -28,47 +28,63 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A function that finds the max of table cells
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class MaxFunction implements Function {
-  private static Log log = LogFactory.getLog(MaxFunction.class);
+public class MaxFunction implements Function
+{
+	private static Log log = LogFactory.getLog(MaxFunction.class);
 
+	public String getName()
+	{
+		return "MAX";
+	}
 
-  public String getName() {
-    return "MAX";
-  }
-
-  public void execute(Table table, int posx, int posy, int startX, int startY, int endX, int endY) {
-    float max = 0;
-    boolean floating = false;
-    for (int x = startX; x <= endX; x++) {
-      for (int y = startY; y <= endY; y++) {
-        //Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
-        float value = 0;
-        try {
-          value += Integer.parseInt((String) table.getXY(x, y));
-        } catch (Exception e) {
-          try {
-            value += Float.parseFloat((String) table.getXY(x, y));
-            floating = true;
-          } catch (NumberFormatException e1) {
-            log.debug("SumFunction: unable to parse " + table.getXY(x, y));
-          }
-        }
-        if (max < value) {
-          max = value;
-        }
-      }
-    }
-    //Logger.debug("Sum="+sum);
-    if (floating) {
-      table.setXY(posx, posy, "" + max);
-    } else {
-      table.setXY(posx, posy, "" + (int) max);
-    }
-  }
+	public void execute(Table table, int posx, int posy, int startX,
+			int startY, int endX, int endY)
+	{
+		float max = 0;
+		boolean floating = false;
+		for (int x = startX; x <= endX; x++)
+		{
+			for (int y = startY; y <= endY; y++)
+			{
+				// Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
+				float value = 0;
+				try
+				{
+					value += Integer.parseInt((String) table.getXY(x, y));
+				}
+				catch (Exception e)
+				{
+					try
+					{
+						value += Float.parseFloat((String) table.getXY(x, y));
+						floating = true;
+					}
+					catch (NumberFormatException e1)
+					{
+						log.debug("SumFunction: unable to parse "
+								+ table.getXY(x, y));
+					}
+				}
+				if (max < value)
+				{
+					max = value;
+				}
+			}
+		}
+		// Logger.debug("Sum="+sum);
+		if (floating)
+		{
+			table.setXY(posx, posy, "" + max);
+		}
+		else
+		{
+			table.setXY(posx, posy, "" + (int) max);
+		}
+	}
 
 }

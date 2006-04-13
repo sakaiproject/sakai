@@ -29,7 +29,8 @@ import net.sf.hibernate.Session;
 import net.sf.hibernate.expression.Expression;
 import net.sf.hibernate.expression.Order;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -42,172 +43,222 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiHistoryObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
-//FIXME: Component
+// FIXME: Component
 
 public class RWikiHistoryObjectDaoImpl extends HibernateDaoSupport implements
-        RWikiHistoryObjectDao, ObjectProxy {
+		RWikiHistoryObjectDao, ObjectProxy
+{
 
 	private RWikiObjectContentDao contentDAO;
-    private Logger log;
-    /**
-     * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#update(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiHistoryObject)
-     */
-    public void update(RWikiHistoryObject rwo) {
-        // should have already checked
-        RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
-        getHibernateTemplate().saveOrUpdate(impl);
-        // and remember to save the content
-        impl.getRWikiObjectContent().setRwikiid(rwo.getId());
-        contentDAO.update(impl.getRWikiObjectContent());
 
-        
-    }
-    /**
-     * Standard logger (IOC)
-     * @return
-     */
-    public Logger getLog() {
-        return log;
-    }
+	private static Log log = LogFactory.getLog(RWikiHistoryObjectDaoImpl.class);
 
-    /**
-     * Standard logger (IOC)
-     * @param log
-     */
-    public void setLog(Logger log) {
-        this.log = log;
-    }
-    /**
-     * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#createRWikiHistoryObject(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiCurrentObject)
-     */
-    public RWikiHistoryObject createRWikiHistoryObject(RWikiCurrentObject rwo) {
-        RWikiHistoryObjectImpl returnable = new RWikiHistoryObjectImpl();
-        returnable.setRwikiObjectContentDao(contentDAO);
-        rwo.copyAllTo(returnable);
-        returnable.setRwikiobjectid(rwo.getId());
-        return returnable;
-    }
-    /**
-     * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#getRWikiHistoryObject(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject, int)
-     */
-    public RWikiHistoryObject getRWikiHistoryObject(final RWikiObject rwo, final int revision) {
-    	        long start = System.currentTimeMillis();
-    	        try {
-    	        HibernateCallback callback = new HibernateCallback() {
-    	            public Object doInHibernate(Session session)
-    	                    throws HibernateException {
-    	                return session.createCriteria(RWikiHistoryObject.class).add(
-    	                        Expression.eq("rwikiobjectid", rwo.getRwikiobjectid())).add(
-    	                        		Expression.eq("revision",new Integer(revision))).list();
-    	            }
-    	        };
-    	        List found = (List) getHibernateTemplate().execute(callback);
-    	        if (found.size() == 0) {
-    	            if (log.isDebugEnabled()) {
-    	                log.debug("Found " + found.size() + " objects with id "
-    	                        +  rwo.getRwikiobjectid());
-    	            }
-    	            return null;
-    	        }
-    	        if (log.isDebugEnabled()) {
-    	            log.debug("Found " + found.size() + " objects with id " + rwo.getRwikiobjectid()
-    	                    + " returning most recent one.");
-    	        }
-    	        return (RWikiHistoryObject) proxyObject(found.get(0));
-    	        } finally {
-    	            long finish = System.currentTimeMillis();
-    	            TimeLogger.printTimer("RWikiHistoryObjectDaoImpl.getRWikiHistoryObject: " + rwo.getName(),start,finish);
-    	        }
-    	     	
-    }
+	/**
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#update(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiHistoryObject)
+	 */
+	public void update(RWikiHistoryObject rwo)
+	{
+		// should have already checked
+		RWikiHistoryObjectImpl impl = (RWikiHistoryObjectImpl) rwo;
+		getHibernateTemplate().saveOrUpdate(impl);
+		// and remember to save the content
+		impl.getRWikiObjectContent().setRwikiid(rwo.getId());
+		contentDAO.update(impl.getRWikiObjectContent());
 
-    /**
-     * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#findRWikiHistoryObjects(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject)
-     */
-	public List findRWikiHistoryObjects(final RWikiObject reference) {
-        long start = System.currentTimeMillis();
-        try {
-        HibernateCallback callback = new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-                return session.createCriteria(RWikiHistoryObject.class).add(
-                        Expression.eq("rwikiobjectid", reference.getRwikiobjectid())).addOrder(
-                        		Order.asc("revision")).list();
-            }
-        };
-        List found = (List) getHibernateTemplate().execute(callback);
-        if (found.size() == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Found " + found.size() + " objects with id "
-                        +  reference.getRwikiobjectid());
-            }
-            return null;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Found " + found.size() + " objects with id " + reference.getRwikiobjectid()
-                    + " returning most recent one.");
-        }
-        return new ListProxy(found,this);
-        } finally {
-            long finish = System.currentTimeMillis();
-            TimeLogger.printTimer("RWikiHistoryObjectDaoImpl.getRWikiHistoryObjects: " + reference.getName(),start,finish);
-        }
-	}
-	public List findRWikiHistoryObjectsInReverse(final RWikiObject reference) {
-        long start = System.currentTimeMillis();
-        try {
-        HibernateCallback callback = new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-                return session.createCriteria(RWikiHistoryObject.class).add(
-                        Expression.eq("rwikiobjectid", reference.getRwikiobjectid())).addOrder(
-                        		Order.desc("revision")).list();
-            }
-        };
-        List found = (List) getHibernateTemplate().execute(callback);
-        if (found.size() == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("Found " + found.size() + " objects with id "
-                        +  reference.getRwikiobjectid());
-            }
-            return null;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Found " + found.size() + " objects with id " + reference.getRwikiobjectid()
-                    + " returning most recent one.");
-        }
-        return new ListProxy(found,this);
-        } finally {
-            long finish = System.currentTimeMillis();
-            TimeLogger.printTimer("RWikiHistoryObjectDaoImpl.getRWikiHistoryObjects: " + reference.getName(),start,finish);
-        }
 	}
 
-	public Object proxyObject(Object o) {
-		if (o != null && o instanceof RWikiHistoryObjectImpl) {
+	/**
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#createRWikiHistoryObject(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiCurrentObject)
+	 */
+	public RWikiHistoryObject createRWikiHistoryObject(RWikiCurrentObject rwo)
+	{
+		RWikiHistoryObjectImpl returnable = new RWikiHistoryObjectImpl();
+		returnable.setRwikiObjectContentDao(contentDAO);
+		rwo.copyAllTo(returnable);
+		returnable.setRwikiobjectid(rwo.getId());
+		return returnable;
+	}
+
+	/**
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#getRWikiHistoryObject(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject,
+	 *      int)
+	 */
+	public RWikiHistoryObject getRWikiHistoryObject(final RWikiObject rwo,
+			final int revision)
+	{
+		long start = System.currentTimeMillis();
+		try
+		{
+			HibernateCallback callback = new HibernateCallback()
+			{
+				public Object doInHibernate(Session session)
+						throws HibernateException
+				{
+					return session.createCriteria(RWikiHistoryObject.class)
+							.add(
+									Expression.eq("rwikiobjectid", rwo
+											.getRwikiobjectid())).add(
+									Expression.eq("revision", new Integer(
+											revision))).list();
+				}
+			};
+			List found = (List) getHibernateTemplate().execute(callback);
+			if (found.size() == 0)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Found " + found.size() + " objects with id "
+							+ rwo.getRwikiobjectid());
+				}
+				return null;
+			}
+			if (log.isDebugEnabled())
+			{
+				log.debug("Found " + found.size() + " objects with id "
+						+ rwo.getRwikiobjectid()
+						+ " returning most recent one.");
+			}
+			return (RWikiHistoryObject) proxyObject(found.get(0));
+		}
+		finally
+		{
+			long finish = System.currentTimeMillis();
+			TimeLogger.printTimer(
+					"RWikiHistoryObjectDaoImpl.getRWikiHistoryObject: "
+							+ rwo.getName(), start, finish);
+		}
+
+	}
+
+	/**
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.dao.RWikiHistoryObjectDao#findRWikiHistoryObjects(uk.ac.cam.caret.sakai.rwiki.service.api.api.model.RWikiObject)
+	 */
+	public List findRWikiHistoryObjects(final RWikiObject reference)
+	{
+		long start = System.currentTimeMillis();
+		try
+		{
+			HibernateCallback callback = new HibernateCallback()
+			{
+				public Object doInHibernate(Session session)
+						throws HibernateException
+				{
+					return session.createCriteria(RWikiHistoryObject.class)
+							.add(
+									Expression.eq("rwikiobjectid", reference
+											.getRwikiobjectid())).addOrder(
+									Order.asc("revision")).list();
+				}
+			};
+			List found = (List) getHibernateTemplate().execute(callback);
+			if (found.size() == 0)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Found " + found.size() + " objects with id "
+							+ reference.getRwikiobjectid());
+				}
+				return null;
+			}
+			if (log.isDebugEnabled())
+			{
+				log.debug("Found " + found.size() + " objects with id "
+						+ reference.getRwikiobjectid()
+						+ " returning most recent one.");
+			}
+			return new ListProxy(found, this);
+		}
+		finally
+		{
+			long finish = System.currentTimeMillis();
+			TimeLogger.printTimer(
+					"RWikiHistoryObjectDaoImpl.getRWikiHistoryObjects: "
+							+ reference.getName(), start, finish);
+		}
+	}
+
+	public List findRWikiHistoryObjectsInReverse(final RWikiObject reference)
+	{
+		long start = System.currentTimeMillis();
+		try
+		{
+			HibernateCallback callback = new HibernateCallback()
+			{
+				public Object doInHibernate(Session session)
+						throws HibernateException
+				{
+					return session.createCriteria(RWikiHistoryObject.class)
+							.add(
+									Expression.eq("rwikiobjectid", reference
+											.getRwikiobjectid())).addOrder(
+									Order.desc("revision")).list();
+				}
+			};
+			List found = (List) getHibernateTemplate().execute(callback);
+			if (found.size() == 0)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Found " + found.size() + " objects with id "
+							+ reference.getRwikiobjectid());
+				}
+				return null;
+			}
+			if (log.isDebugEnabled())
+			{
+				log.debug("Found " + found.size() + " objects with id "
+						+ reference.getRwikiobjectid()
+						+ " returning most recent one.");
+			}
+			return new ListProxy(found, this);
+		}
+		finally
+		{
+			long finish = System.currentTimeMillis();
+			TimeLogger.printTimer(
+					"RWikiHistoryObjectDaoImpl.getRWikiHistoryObjects: "
+							+ reference.getName(), start, finish);
+		}
+	}
+
+	public Object proxyObject(Object o)
+	{
+		if (o != null && o instanceof RWikiHistoryObjectImpl)
+		{
 			RWikiHistoryObjectImpl rwCo = (RWikiHistoryObjectImpl) o;
 			rwCo.setRwikiObjectContentDao(contentDAO);
 		}
 		return o;
 	}
-	public RWikiObjectContentDao getContentDAO() {
+
+	public RWikiObjectContentDao getContentDAO()
+	{
 		return contentDAO;
 	}
-	public void setContentDAO(RWikiObjectContentDao contentDAO) {
+
+	public void setContentDAO(RWikiObjectContentDao contentDAO)
+	{
 		this.contentDAO = contentDAO;
 	}
-	public List getAll() {
-        HibernateCallback callback = new HibernateCallback() {
-            public Object doInHibernate(Session session)
-                    throws HibernateException {
-                return session.createCriteria(RWikiHistoryObject.class).addOrder(
-                        Order.desc("version")).list();
-            }
-        };
-        return new ListProxy((List) getHibernateTemplate().execute(callback), this);
+
+	public List getAll()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session)
+					throws HibernateException
+			{
+				return session.createCriteria(RWikiHistoryObject.class)
+						.addOrder(Order.desc("version")).list();
+			}
+		};
+		return new ListProxy((List) getHibernateTemplate().execute(callback),
+				this);
 	}
-	public void updateObject(RWikiObject rwo) {
-        getHibernateTemplate().saveOrUpdate(rwo);
+
+	public void updateObject(RWikiObject rwo)
+	{
+		getHibernateTemplate().saveOrUpdate(rwo);
 	}
 
 }

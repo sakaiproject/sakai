@@ -25,26 +25,29 @@ package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 /**
  * A holder class for page permissions. It <b>DOES NOT</b> link back to the
  * RWikiObject
- * @author andrew
  * 
+ * @author andrew
  */
-//FIXME: Service
-
-public interface RWikiPermissions {
+// FIXME: Service
+public interface RWikiPermissions
+{
 	/**
 	 * does the page have Group admin ticked
+	 * 
 	 * @return
 	 */
 	public boolean isGroupAdmin();
 
 	/**
 	 * Set group admin on the page
+	 * 
 	 * @param groupAdmin
 	 */
 	public void setGroupAdmin(boolean groupAdmin);
 
 	/**
 	 * Is the group red page permission set
+	 * 
 	 * @return
 	 */
 	public boolean isGroupRead();

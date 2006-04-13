@@ -23,66 +23,80 @@
 
 package org.radeox.engine.context;
 
-import org.radeox.api.engine.RenderEngine;
-import org.radeox.api.engine.context.RenderContext;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.radeox.api.engine.RenderEngine;
+import org.radeox.api.engine.context.RenderContext;
 
 /**
  * Base impementation for RenderContext
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: BaseRenderContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class BaseRenderContext implements RenderContext {
-  private boolean cacheable = true;
-  private boolean tempCacheable = false;;
+public class BaseRenderContext implements RenderContext
+{
+	private boolean cacheable = true;
 
-  private RenderEngine engine;
-  private Map params;
-  private Map values;
+	private boolean tempCacheable = false;;
 
-  public BaseRenderContext() {
-    values = new HashMap();
-  }
+	private RenderEngine engine;
 
-  public Object get(String key) {
-    return values.get(key);
-  }
+	private Map params;
 
-  public void set(String key, Object value) {
-    values.put(key, value);
-  }
+	private Map values;
 
-  public Map getParameters() {
-    return params;
-  }
+	public BaseRenderContext()
+	{
+		values = new HashMap();
+	}
 
-  public void setParameters(Map parameters) {
-    this.params = parameters;
-  }
+	public Object get(String key)
+	{
+		return values.get(key);
+	}
 
-  public RenderEngine getRenderEngine() {
-    return engine;
-  }
+	public void set(String key, Object value)
+	{
+		values.put(key, value);
+	}
 
-  public void setRenderEngine(RenderEngine engine) {
-    this.engine = engine;
-  }
+	public Map getParameters()
+	{
+		return params;
+	}
 
-  public void setCacheable(boolean cacheable) {
-    tempCacheable = cacheable;
-  }
+	public void setParameters(Map parameters)
+	{
+		this.params = parameters;
+	}
 
-  public void commitCache() {
-    cacheable = cacheable && tempCacheable;
-    tempCacheable = false;
-  }
+	public RenderEngine getRenderEngine()
+	{
+		return engine;
+	}
 
-  public boolean isCacheable() {
-    return cacheable;
-  }
+	public void setRenderEngine(RenderEngine engine)
+	{
+		this.engine = engine;
+	}
+
+	public void setCacheable(boolean cacheable)
+	{
+		tempCacheable = cacheable;
+	}
+
+	public void commitCache()
+	{
+		cacheable = cacheable && tempCacheable;
+		tempCacheable = false;
+	}
+
+	public boolean isCacheable()
+	{
+		return cacheable;
+	}
 }

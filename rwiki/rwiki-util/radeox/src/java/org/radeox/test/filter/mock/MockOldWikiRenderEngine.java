@@ -23,26 +23,29 @@
 
 package org.radeox.test.filter.mock;
 
+public class MockOldWikiRenderEngine extends MockWikiRenderEngine
+{
 
+	public void appendLink(StringBuffer buffer, String name, String view,
+			String anchor)
+	{
+		buffer.append("link:" + view + "#" + anchor);
+	}
 
-public class MockOldWikiRenderEngine extends MockWikiRenderEngine {
+	public void appendLink(StringBuffer buffer, String name, String view)
+	{
+		buffer.append("link:" + view);
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view, String anchor) {
-    buffer.append("link:"+view+"#"+anchor);
-  }
+	public void appendCreateLink(StringBuffer buffer, String name, String view)
+	{
+		buffer.append(view);
+		buffer.append("?");
+	}
 
-  public void appendLink(StringBuffer buffer, String name, String view) {
-    buffer.append("link:"+view);
-  }
-
-  public void appendCreateLink(StringBuffer buffer, String name, String view) {
-    buffer.append(view);
-    buffer.append("?");
-  }
-
-  public String getName() {
-    return "mock-old-wiki";
-  }
-
+	public String getName()
+	{
+		return "mock-old-wiki";
+	}
 
 }

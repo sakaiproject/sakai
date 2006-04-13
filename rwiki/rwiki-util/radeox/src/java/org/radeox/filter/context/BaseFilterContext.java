@@ -27,26 +27,30 @@ import org.radeox.api.engine.context.RenderContext;
 import org.radeox.macro.parameter.BaseMacroParameter;
 import org.radeox.macro.parameter.MacroParameter;
 
-
 /**
  * Base impementation for FilterContext
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: BaseFilterContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class BaseFilterContext implements FilterContext {
-  protected RenderContext context;
+public class BaseFilterContext implements FilterContext
+{
+	protected RenderContext context;
 
-  public MacroParameter getMacroParameter() {
-    return new BaseMacroParameter(context);
-  }
+	public MacroParameter getMacroParameter()
+	{
+		return new BaseMacroParameter(context);
+	}
 
-  public void setRenderContext(RenderContext context) {
-    this.context = context;
-  }
+	public void setRenderContext(RenderContext context)
+	{
+		this.context = context;
+	}
 
-  public RenderContext getRenderContext() {
-    return context;
-  }
+	public RenderContext getRenderContext()
+	{
+		return context;
+	}
 }

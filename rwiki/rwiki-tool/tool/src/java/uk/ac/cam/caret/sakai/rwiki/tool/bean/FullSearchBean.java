@@ -24,66 +24,57 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 // FIXME: Tool
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.search.SearchList;
-import org.sakaiproject.search.SearchService;
-import org.sakaiproject.service.framework.current.cover.CurrentService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
-
 
 /**
  * Bean for helping with the search view
  * 
  * @author andrew
  */
-public class FullSearchBean {
+public class FullSearchBean
+{
 
-
-    /**
+	/**
 	 * The search criteria
 	 */
-    private String search;
+	private String search;
 
-    /**
+	/**
 	 * The realm to restrict the search to
 	 */
-    private String realm;
+	private String realm;
 
-
-    /**
+	/**
 	 * RWikiObjectService to use
 	 */
-    private SearchService searchService;
-
-    /**
+	// TODO Serach private SearchService searchService;
+	/**
 	 * Time taken
 	 */
 	private double timeTaken = 0;
 
-    /**
+	/**
 	 * The number of results per page
 	 */
 	private int pagesize = 20;
+
 	/**
 	 * The number of list links
 	 */
 	private int nlistPages = 5;
+
 	/**
 	 * The default request page
 	 */
 	private int requestPage = 0;
-	
+
 	/**
 	 * The current search list
 	 */
-	private SearchList searchResults;
-
-    /**
+	// TODO: Search private SearchList searchResults;
+	/**
 	 * Creates a searchBean
 	 * 
 	 * @param search
@@ -91,170 +82,190 @@ public class FullSearchBean {
 	 * @param realm
 	 * @param objectService
 	 */
-    public FullSearchBean(String search, String requestPage, String realm,
-            SearchService searchService) {
-        this.search = search;
-        this.realm = realm;
-        this.searchService = searchService;
-        try {
-        		this.requestPage = Integer.parseInt(requestPage);
-        } catch ( Exception ex) {
-        	
-        }
-    }
+	/*
+	 * TODO SEARCH public FullSearchBean(String search, String requestPage,
+	 * String realm, SearchService searchService) { this.search = search;
+	 * this.realm = realm; this.searchService = searchService; try {
+	 * this.requestPage = Integer.parseInt(requestPage); } catch (Exception ex) { } }
+	 */
 
-    /**
+	/**
 	 * Set the RWikiObjectService for searching from
 	 * 
 	 * @param objectService
 	 */
-    public void setRWikiObjectService(SearchService searchService) {
-        this.searchService = searchService;
-    }
+	/*
+	 * TODO Search public void setRWikiObjectService(SearchService
+	 * searchService) { this.searchService = searchService; }
+	 */
 
-    /**
+	/**
 	 * Gets the current search request
 	 * 
 	 * @return current search request
 	 */
-    public String getSearch() {
-        return search;
-    }
+	public String getSearch()
+	{
+		return search;
+	}
 
-    /**
+	/**
 	 * Gets the current search realm
 	 * 
 	 * @return current search realm
 	 */
-    public String getRealm() {
-        return realm;
-    }
+	public String getRealm()
+	{
+		return realm;
+	}
 
-    /**
+	/**
 	 * Perform the search
 	 * 
 	 * @return a list of page names that match the search criteria
 	 */
-    public List getSearchResults() {
-        return search();
-    }
-    
-    public String getTimeTaken() {
-    	    int tt = (int) timeTaken;
-    	 	return String.valueOf(tt);
-    }
+	public List getSearchResults()
+	{
+		return search();
+	}
 
+	public String getTimeTaken()
+	{
+		int tt = (int) timeTaken;
+		return String.valueOf(tt);
+	}
 
-    /**
+	/**
 	 * Perform the search
 	 * 
 	 * @return a list of page names that match the search criteria
 	 */
-    public List search() {
-    		if ( searchResults == null ) {
-    		List l = new ArrayList();
-    		l.add(PortalService.getCurrentSiteId());
-    		long start = System.currentTimeMillis();
-    		int searchStart = requestPage * pagesize;
-		int searchEnd = searchStart + pagesize;
-        searchResults = searchService.search(search,  l, searchStart, searchEnd);
-        long end = System.currentTimeMillis();
-        timeTaken = 0.001*(end-start);
-    		}
-        return searchResults;
-    }
+	public List search()
+	{
+		/*
+		 * TODO :Search if (searchResults == null) { List l = new ArrayList();
+		 * l.add(PortalService.getCurrentSiteId()); long start =
+		 * System.currentTimeMillis(); int searchStart = requestPage * pagesize;
+		 * int searchEnd = searchStart + pagesize; searchResults =
+		 * searchService.search(search, l, searchStart, searchEnd); long end =
+		 * System.currentTimeMillis(); timeTaken = 0.001 * (end - start); }
+		 * return searchResults;
+		 */
+		return null;
+	}
 
-    public List getSearchPages() {
-    	   SearchList sr = (SearchList)search();
-    	   int npages = sr.getFullSize()/pagesize;
-    	   List pages = new ArrayList();
-    	   int cpage = requestPage - (nlistPages/2);
-    	   if ( cpage < 0 ) {
-    		   cpage = 0;
-    	   }
-    	   
-    	   int lastPage = Math.min(cpage+nlistPages,npages);
-    	   while ( cpage <= lastPage ) {
-    		   pages.add(new PageLink(cpage));
-    		   cpage++;
-    	   }
-    	   return pages;
-    }
-    
-    public class PageLink {
-    		private int pagenum = 0;
-    		public PageLink(int pagenum) {
-    			this.pagenum = pagenum;
-    		}
-    		public String getPage() {
-    			return String.valueOf(pagenum);
-    		}
-    		public String getPageNum() {
-    			return String.valueOf(pagenum) ;
-    		}
-    	    public String getFullSearchLinkUrl() {
-    	        return "?" + ViewBean.ACTION_URL_ENCODED + "=" + ViewBean.urlEncode(WikiPageAction.FULL_SEARCH_ACTION.getName()) + "&"
-    	                + ViewBean.SEARCH_URL_ENCODED + "=" + ViewBean.urlEncode(search) + "&"
-    	                + ViewBean.PAGE_URL_ENCODED + "=" + ViewBean.urlEncode(String.valueOf(pagenum)) + "&"
-    	                + ViewBean.REALM_URL_ENCODED + "=" + ViewBean.urlEncode(realm) + "&"
-    	                + ViewBean.PANEL_URL_ENCODED + "=" + ViewBean.MAIN_URL_ENCODED;
-    	    }
+	public List getSearchPages()
+	{
+		/*
+		 * TODO: SEARCH SearchList sr = (SearchList) search(); int npages =
+		 * sr.getFullSize() / pagesize; List pages = new ArrayList(); int cpage =
+		 * requestPage - (nlistPages / 2); if (cpage < 0) { cpage = 0; } int
+		 * lastPage = Math.min(cpage + nlistPages, npages); while (cpage <=
+		 * lastPage) { pages.add(new PageLink(cpage)); cpage++; } return pages;
+		 */
+		return null;
+	}
 
-    }
+	public class PageLink
+	{
+		private int pagenum = 0;
+
+		public PageLink(int pagenum)
+		{
+			this.pagenum = pagenum;
+		}
+
+		public String getPage()
+		{
+			return String.valueOf(pagenum);
+		}
+
+		public String getPageNum()
+		{
+			return String.valueOf(pagenum);
+		}
+
+		public String getFullSearchLinkUrl()
+		{
+			return "?"
+					+ ViewBean.ACTION_URL_ENCODED
+					+ "="
+					+ ViewBean.urlEncode(WikiPageAction.FULL_SEARCH_ACTION
+							.getName()) + "&" + ViewBean.SEARCH_URL_ENCODED
+					+ "=" + ViewBean.urlEncode(search) + "&"
+					+ ViewBean.PAGE_URL_ENCODED + "="
+					+ ViewBean.urlEncode(String.valueOf(pagenum)) + "&"
+					+ ViewBean.REALM_URL_ENCODED + "="
+					+ ViewBean.urlEncode(realm) + "&"
+					+ ViewBean.PANEL_URL_ENCODED + "="
+					+ ViewBean.MAIN_URL_ENCODED;
+		}
+
+	}
 
 	/**
 	 * @return Returns the nlistPages.
 	 */
-	public int getNlistPages() {
+	public int getNlistPages()
+	{
 		return nlistPages;
 	}
 
 	/**
-	 * @param nlistPages The nlistPages to set.
+	 * @param nlistPages
+	 *        The nlistPages to set.
 	 */
-	public void setNlistPages(int nlistPages) {
+	public void setNlistPages(int nlistPages)
+	{
 		this.nlistPages = nlistPages;
 	}
 
 	/**
 	 * @return Returns the pagesize.
 	 */
-	public int getPagesize() {
+	public int getPagesize()
+	{
 		return pagesize;
 	}
 
 	/**
-	 * @param pagesize The pagesize to set.
+	 * @param pagesize
+	 *        The pagesize to set.
 	 */
-	public void setPagesize(int pagesize) {
+	public void setPagesize(int pagesize)
+	{
 		this.pagesize = pagesize;
 	}
 
 	/**
 	 * @return Returns the requestPage.
 	 */
-	public int getRequestPage() {
+	public int getRequestPage()
+	{
 		return requestPage;
 	}
 
 	/**
-	 * @param requestPage The requestPage to set.
+	 * @param requestPage
+	 *        The requestPage to set.
 	 */
-	public void setRequestPage(int requestPage) {
+	public void setRequestPage(int requestPage)
+	{
 		this.requestPage = requestPage;
 	}
 
 	/**
-	 * @param timeTaken The timeTaken to set.
+	 * @param timeTaken
+	 *        The timeTaken to set.
 	 */
-	public void setTimeTaken(double timeTaken) {
+	public void setTimeTaken(double timeTaken)
+	{
 		this.timeTaken = timeTaken;
 	}
-	
-	public int getNresults() {
-		return searchResults.getFullSize();
+
+	public int getNresults()
+	{
+		return 0; // TODO: SearchsearchResults.getFullSize();
 	}
-
-
 
 }

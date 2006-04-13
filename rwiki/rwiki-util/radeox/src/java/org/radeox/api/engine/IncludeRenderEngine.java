@@ -24,20 +24,23 @@
 package org.radeox.api.engine;
 
 /**
- * Interface for RenderEngines that allow to include content like wiki pages
- * or snips, e.g. with {!includeWiki} in MacroFilter
- *
+ * Interface for RenderEngines that allow to include content like wiki pages or
+ * snips, e.g. with {!includeWiki} in MacroFilter
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: IncludeRenderEngine.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface IncludeRenderEngine {
-    /**
-   * Include an object in the input. This could be a
-   * wiki page, snips, comments.
-   *
-   * @param name Name of the object to include, e.g. wiki page name
-   * @return result A string representation of the included object
-   */
-  public String include(String name);
+public interface IncludeRenderEngine
+{
+	/**
+	 * Include an object in the input. This could be a wiki page, snips,
+	 * comments.
+	 * 
+	 * @param name
+	 *        Name of the object to include, e.g. wiki page name
+	 * @return result A string representation of the included object
+	 */
+	public String include(String name);
 }

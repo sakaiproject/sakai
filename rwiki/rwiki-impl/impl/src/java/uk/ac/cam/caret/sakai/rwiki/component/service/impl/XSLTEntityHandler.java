@@ -38,16 +38,13 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.component.section.cover.SectionAwareness;
-import org.sakaiproject.service.framework.current.cover.CurrentService;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.util.java.StringUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.cover.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -71,9 +68,10 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SimpleCoverage;
  * into XML and then apply a XSLT to generate the Whole output.
  * 
  * @author ieb
- * 
  */
-public class XSLTEntityHandler extends BaseEntityHandlerImpl {
+public class XSLTEntityHandler extends BaseEntityHandlerImpl
+{
+	private static Log log = LogFactory.getLog(XSLTEntityHandler.class);
 
 	private static ThreadLocal currentRequest = new ThreadLocal();
 
@@ -103,11 +101,6 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	private String authZPrefix = "";
 
 	/**
-	 * Logger.
-	 */
-	private Logger logger = null;
-
-	/**
 	 * dependency The base name of the xslt file, relative to context root.
 	 */
 	private String xslt = null;
@@ -120,12 +113,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 	/**
 	 * A format pattern for formatting a stack trace in the xml.@param tag for
-	 * 'servletConfig'. 140
-	 * 
-	 * Expected
+	 * 'servletConfig'. 140 Expected
 	 * 
 	 * @throws tag
-	 *             for 'ServletException'.
+	 *         for 'ServletException'.
 	 */
 	private String errorFormat;
 
@@ -146,63 +137,58 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
-	public String getDescription(Entity entity) {
-		if (!isAvailable())
-			return null;
-		if (!(entity instanceof RWikiEntity))
-			return null;
+	public String getDescription(Entity entity)
+	{
+		if (!isAvailable()) return null;
+		if (!(entity instanceof RWikiEntity)) return null;
 		return entity.getId();
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
-	public String getUrl(Entity entity) {
-		if (!isAvailable())
-			return null;
-		if (!(entity instanceof RWikiEntity))
-			return null;
+	public String getUrl(Entity entity)
+	{
+		if (!isAvailable()) return null;
+		if (!(entity instanceof RWikiEntity)) return null;
 		return entity.getUrl() + getMinorType();
 	}
+
 	/**
-	 * 
 	 * @return
 	 */
-	public static HttpServletRequest getCurrentRequest() {
+	public static HttpServletRequest getCurrentRequest()
+	{
 		return (HttpServletRequest) currentRequest.get();
 	}
+
 	/**
-	 * 
 	 * @param request
 	 */
-	public static void setCurrentRequest( HttpServletRequest request) {
+	public static void setCurrentRequest(HttpServletRequest request)
+	{
 		currentRequest.set(request);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
 	public void outputContent(final Entity entity,
-			final HttpServletRequest request, final HttpServletResponse res) {
-		if (!isAvailable())
-			return;
-		if (!(entity instanceof RWikiEntity))
-			return;
-		
+			final HttpServletRequest request, final HttpServletResponse res)
+	{
+		if (!isAvailable()) return;
+		if (!(entity instanceof RWikiEntity)) return;
 
-		try {
+		try
+		{
 			setCurrentRequest(request);
 
-			if (responseHeaders != null) {
+			if (responseHeaders != null)
+			{
 				for (Iterator i = responseHeaders.keySet().iterator(); i
-						.hasNext();) {
+						.hasNext();)
+				{
 					String name = (String) i.next();
 					String value = (String) responseHeaders.get(name);
 					res.setHeader(name, value);
@@ -215,9 +201,12 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 			ContentHandler opch = getOutputHandler(out);
 			ContentHandler ch = null;
-			if (false) {
+			if (false)
+			{
 				ch = new DebugContentHandler(opch);
-			} else {
+			}
+			else
+			{
 				ch = opch;
 			}
 
@@ -266,7 +255,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 					SchemaNames.EL_NSXMLPROPERTIES, dummyAttributes);
 			ResourceProperties rp = entity.getProperties();
 
-			for (Iterator i = rp.getPropertyNames(); i.hasNext();) {
+			for (Iterator i = rp.getPropertyNames(); i.hasNext();)
+			{
 				Object key = i.next();
 				String name = String.valueOf(key);
 				String value = String.valueOf(rp.getProperty(name));
@@ -286,9 +276,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 						SchemaNames.EL_NSXMLPROPERTY, propA,
 						" XSLTEntity Handler");
 			}
-			if (entity instanceof RWikiEntity) {
+			if (entity instanceof RWikiEntity)
+			{
 				RWikiEntity rwe = (RWikiEntity) entity;
-				if (!rwe.isContainer()) {
+				if (!rwe.isContainer())
+				{
 					RWikiObject rwo = rwe.getRWikiObject();
 					AttributesImpl propA = new AttributesImpl();
 					propA.addAttribute("", SchemaNames.ATTR_NAME,
@@ -298,7 +290,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 							SchemaNames.EL_NSXMLPROPERTY, propA,
 							NameHelper.localizeName(rwo.getName(), rwo
 									.getRealm()));
-				} else {
+				}
+				else
+				{
 					AttributesImpl propA = new AttributesImpl();
 					propA.addAttribute("", SchemaNames.ATTR_NAME,
 							SchemaNames.ATTR_NAME, "string", "_title");
@@ -313,9 +307,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 					SchemaNames.EL_XMLPROPERTIES,
 					SchemaNames.EL_NSXMLPROPERTIES);
 
-			if (entity instanceof RWikiEntity) {
+			if (entity instanceof RWikiEntity)
+			{
 				RWikiEntity rwe = (RWikiEntity) entity;
-				if (!rwe.isContainer()) {
+				if (!rwe.isContainer())
+				{
 					RWikiObject rwo = rwe.getRWikiObject();
 					ch.startElement(SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_RENDEREDCONTENT,
@@ -334,12 +330,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 			ch.endDocument();
 
-		} catch (Throwable ex) {
-			logger.info("Failed to serialize " + ex.getMessage());
+		}
+		catch (Throwable ex)
+		{
+			log.info("Failed to serialize " + ex.getMessage());
 			ex.printStackTrace();
 			throw new RuntimeException("Failed to serialise "
 					+ ex.getLocalizedMessage(), ex);
-		} finally {
+		}
+		finally
+		{
 			setCurrentRequest(null);
 		}
 	}
@@ -348,41 +348,45 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	 * Adds an element to the content handler.
 	 * 
 	 * @param ch
-	 *            the content handler
+	 *        the content handler
 	 * @param ns
-	 *            the name space of the element
+	 *        the name space of the element
 	 * @param lname
-	 *            the local name
+	 *        the local name
 	 * @param qname
-	 *            the qname
+	 *        the qname
 	 * @param attr
-	 *            the attribute list
+	 *        the attribute list
 	 * @param content
-	 *            content of the element
+	 *        content of the element
 	 * @throws SAXException
-	 *             if the underlying sax chain has a problem
+	 *         if the underlying sax chain has a problem
 	 */
 	public void addElement(final ContentHandler ch, final String ns,
 			final String lname, final String qname, final Attributes attr,
-			final Object content) throws SAXException {
+			final Object content) throws SAXException
+	{
 
 		ch.startElement(ns, lname, qname, attr);
-		try {
-			if (content != null) {
+		try
+		{
+			if (content != null)
+			{
 				char[] c = String.valueOf(content).toCharArray();
 				ch.characters(c, 0, c.length);
 			}
-		} finally {
+		}
+		finally
+		{
 			ch.endElement(ns, lname, qname);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
-	public ResourceProperties getProperties(Entity entity) {
+	public ResourceProperties getProperties(Entity entity)
+	{
 		return entity.getProperties();
 	}
 
@@ -393,60 +397,73 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	 * @param ch
 	 */
 	public void renderToXML(RWikiObject rwo, final ContentHandler ch)
-			throws SAXException, IOException {
+			throws SAXException, IOException
+	{
 
 		/**
 		 * create a proxy for the stream, filtering out the start element and
 		 * end element events
 		 */
-		ContentHandler proxy = new ContentHandler() {
-			public void setDocumentLocator(Locator arg0) {
+		ContentHandler proxy = new ContentHandler()
+		{
+			public void setDocumentLocator(Locator arg0)
+			{
 				ch.setDocumentLocator(arg0);
 			}
 
-			public void startDocument() throws SAXException {
+			public void startDocument() throws SAXException
+			{
 				// ignore
 			}
 
-			public void endDocument() throws SAXException {
+			public void endDocument() throws SAXException
+			{
 				// ignore
 			}
 
 			public void startPrefixMapping(String arg0, String arg1)
-					throws SAXException {
+					throws SAXException
+			{
 				ch.startPrefixMapping(arg0, arg1);
 			}
 
-			public void endPrefixMapping(String arg0) throws SAXException {
+			public void endPrefixMapping(String arg0) throws SAXException
+			{
 				ch.endPrefixMapping(arg0);
 			}
 
 			public void startElement(String arg0, String arg1, String arg2,
-					Attributes arg3) throws SAXException {
+					Attributes arg3) throws SAXException
+			{
 				ch.startElement(arg0, arg1, arg2, arg3);
 			}
 
 			public void endElement(String arg0, String arg1, String arg2)
-					throws SAXException {
+					throws SAXException
+			{
 				ch.endElement(arg0, arg1, arg2);
 			}
 
 			public void characters(char[] arg0, int arg1, int arg2)
-					throws SAXException {
+					throws SAXException
+			{
 				ch.characters(arg0, arg1, arg2);
 			}
 
 			public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
-					throws SAXException {
+					throws SAXException
+			{
 				ch.ignorableWhitespace(arg0, arg1, arg2);
 			}
 
 			public void processingInstruction(String arg0, String arg1)
-					throws SAXException {
+					throws SAXException
+			{
 				ch.processingInstruction(arg0, arg1);
 			}
 
-			public void skippedEntity(String arg0) throws SAXException {
+			public void skippedEntity(String arg0) throws SAXException
+			{
 				ch.skippedEntity(arg0);
 			}
 
@@ -462,20 +479,26 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 		plr.setUrlFormat(hrefTagFormat);
 
 		String renderedPage = null;
-		if (renderService == null) {
+		if (renderService == null)
+		{
 			// only for testing
 			renderedPage = rwo.getContent();
-		} else {
+		}
+		else
+		{
 			renderedPage = renderService.renderPage(rwo, localSpace, plr);
 		}
 		String contentDigest = DigestHtml.digest(renderedPage);
-		if (contentDigest.length() > 500) {
+		if (contentDigest.length() > 500)
+		{
 			contentDigest = contentDigest.substring(0, 500);
 		}
-		if ( renderedPage == null || renderedPage.trim().length() == 0 ) {
+		if (renderedPage == null || renderedPage.trim().length() == 0)
+		{
 			renderedPage = "no content on page";
 		}
-		if ( contentDigest == null || contentDigest.trim().length() == 0 ) {
+		if (contentDigest == null || contentDigest.trim().length() == 0)
+		{
 			contentDigest = "no content on page";
 		}
 
@@ -483,11 +506,15 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 				+ "</rendered><contentdigest>" + contentDigest
 				+ "</contentdigest></content>";
 		InputSource ins = new InputSource(new StringReader(renderedPage));
-		XMLReader xmlReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+		XMLReader xmlReader = XMLReaderFactory
+				.createXMLReader("org.apache.xerces.parsers.SAXParser");
 		xmlReader.setContentHandler(proxy);
-		try {
+		try
+		{
 			xmlReader.parse(ins);
-		} catch (Throwable ex) {
+		}
+		catch (Throwable ex)
+		{
 
 			SimpleCoverage.cover("Failed to parse ::\n" + renderedPage
 					+ "\n:: from ::\n" + rwo.getContent());
@@ -515,34 +542,37 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * 
 	 */
-	public Collection getAuthzGroups(Reference ref) {
+	public Collection getAuthzGroups(Reference ref)
+	{
 		// use the resources realm, all container (folder) realms
 
 		Collection rv = new Vector();
-		if (!isAvailable())
-			return rv;
+		if (!isAvailable()) return rv;
 
-		try {
+		try
+		{
 			// try the resource, all the folders above it (don't include /)
-			String paths[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
+			String paths[] = ref.getId().split(Entity.SEPARATOR);
 			boolean container = ref.getId().endsWith(Entity.SEPARATOR);
-			if (paths.length > 1) {
+			if (paths.length > 1)
+			{
 
 				String root = Entity.SEPARATOR + paths[1] + Entity.SEPARATOR;
 				// rv.add(root);
 
 				List al = new ArrayList();
-				for (int next = 2; next < paths.length; next++) {
+				for (int next = 2; next < paths.length; next++)
+				{
 					root = root + paths[next];
-					if ((next < paths.length - 1) || container) {
+					if ((next < paths.length - 1) || container)
+					{
 						root = root + Entity.SEPARATOR;
 					}
 					al.add(root);
 				}
-				for (int i = al.size() - 1; i >= 0; i--) {
+				for (int i = al.size() - 1; i >= 0; i--)
+				{
 					// add in the sections authzgroup
 					rv.add(authZPrefix + al.get(i));
 				}
@@ -551,14 +581,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 			// special check for group-user : the grant's in the user's My
 			// Workspace site
-			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
-			if ((parts.length > 3) && (parts[1].equals("group-user"))) {
+			String parts[] = ref.getId().split(Entity.SEPARATOR);
+			if ((parts.length > 3) && (parts[1].equals("group-user")))
+			{
 				rv.add(SiteService.siteReference(SiteService
 						.getUserSiteId(parts[3])));
 			}
 			// . how do we get a section by ID, I assume that the
 			if (paths.length > 4
-					&& ("group".equals(paths[3]) || "section".equals(paths[3]))) {
+					&& ("group".equals(paths[3]) || "section".equals(paths[3])))
+			{
 				// paths 2 is the site id, which will be of the same form as a
 				// group id
 				String[] testuuid = paths[2].split("-");
@@ -568,32 +600,40 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 						+ Entity.SEPARATOR + paths[2] + Entity.SEPARATOR
 						+ paths[3] + Entity.SEPARATOR + paths[4];
 				;
-				if (testuuid.length > 0 && testuuid.length == uuidparts.length) {
+				if (testuuid.length > 0 && testuuid.length == uuidparts.length)
+				{
 					isuuid = true;
-					for (int i = 0; i < testuuid.length; i++) {
-						if (testuuid[i].length() != uuidparts[i].length()) {
+					for (int i = 0; i < testuuid.length; i++)
+					{
+						if (testuuid[i].length() != uuidparts[i].length())
+						{
 							isuuid = false;
 						}
 					}
 
 				}
-				if (!isuuid) {
+				if (!isuuid)
+				{
 					// could be a section name
 					Reference siteRef = EntityManager.newReference(ref
 							.getContext());
 					List l = SectionAwareness.getSections(siteRef.getId());
-					for (Iterator is = l.iterator(); is.hasNext();) {
+					for (Iterator is = l.iterator(); is.hasNext();)
+					{
 						CourseSection cs = (CourseSection) is.next();
-						if (paths[4].equalsIgnoreCase(cs.getTitle())) {
+						if (paths[4].equalsIgnoreCase(cs.getTitle()))
+						{
 							sectionID = cs.getUuid();
-							logger.debug("Found Match " + sectionID);
+							log.debug("Found Match " + sectionID);
 							break;
 						}
 					}
-					logger.debug("Converted ID " + sectionID);
+					log.debug("Converted ID " + sectionID);
 
-				} else {
-					logger.debug("Raw ID " + sectionID);
+				}
+				else
+				{
+					log.debug("Raw ID " + sectionID);
 				}
 				rv.add(sectionID);
 
@@ -608,8 +648,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 
 			// site helper
 			rv.add("!site.helper");
-		} catch (Throwable e) {
-			logger.error(this + " Problem ", e);
+		}
+		catch (Throwable e)
+		{
+			log.error(this + " Problem ", e);
 		}
 
 		return rv;
@@ -618,15 +660,18 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	/**
 	 * called by spring.
 	 */
-	public void init() {
-		if (!isAvailable())
-			return;
-		try {
+	public void init()
+	{
+		if (!isAvailable()) return;
+		try
+		{
 			XSLTTransform xsltTransform = new XSLTTransform();
 			xsltTransform.setXslt(new InputSource(this.getClass()
 					.getResourceAsStream(xslt)));
 			xsltTransform.getContentHandler();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			ex.printStackTrace();
 			System.err
 					.println("Please check that the xslt is in the classpath "
@@ -640,20 +685,23 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	/**
 	 * called by spring.
 	 */
-	public void destroy() {
+	public void destroy()
+	{
 	}
 
 	/**
 	 * @see uk.co.tfd.sakai.xmlserver.api.OutputContentHandler#getOutputHandler(java.io.Writer)
 	 */
 
-	public ContentHandler getOutputHandler(Writer out) throws IOException {
-		if (!isAvailable())
-			return null;
-		try {
+	public ContentHandler getOutputHandler(Writer out) throws IOException
+	{
+		if (!isAvailable()) return null;
+		try
+		{
 			XSLTTransform xsltTransform = (XSLTTransform) transformerHolder
 					.get();
-			if (xsltTransform == null) {
+			if (xsltTransform == null)
+			{
 				xsltTransform = new XSLTTransform();
 				xsltTransform.setXslt(new InputSource(this.getClass()
 						.getResourceAsStream(xslt)));
@@ -662,7 +710,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 			ContentHandler ch = xsltTransform.getOutputHandler(out,
 					outputProperties);
 			return ch;
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			throw new RuntimeException("Failed to create Content Handler", ex);
 			/*
 			 * String stackTrace = null; try { StringWriter exw = new
@@ -676,14 +726,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 		}
 	}
 
-	public ContentHandler getOutputHandler(OutputStream out) throws IOException {
-		if (!isAvailable())
-			return null;
+	public ContentHandler getOutputHandler(OutputStream out) throws IOException
+	{
+		if (!isAvailable()) return null;
 
-		try {
+		try
+		{
 			XSLTTransform xsltTransform = (XSLTTransform) transformerHolder
 					.get();
-			if (xsltTransform == null) {
+			if (xsltTransform == null)
+			{
 				xsltTransform = new XSLTTransform();
 				xsltTransform.setXslt(new InputSource(this.getClass()
 						.getResourceAsStream(xslt)));
@@ -692,7 +744,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 			ContentHandler ch = xsltTransform.getOutputHandler(out,
 					outputProperties);
 			return ch;
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			// XXX Hmm I don't like this but I'm not sure what the correct way
 			// to handle this is
 			throw new RuntimeException("Failed to create Content Handler", ex);
@@ -713,190 +767,198 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	/**
 	 * @return Returns the xslt.
 	 */
-	public String getXslt() {
+	public String getXslt()
+	{
 		return xslt;
 	}
 
 	/**
 	 * @param xslt
-	 *            The xslt to set.
+	 *        The xslt to set.
 	 */
-	public void setXslt(final String xslt) {
+	public void setXslt(final String xslt)
+	{
 		this.xslt = xslt;
-	}
-
-	/**
-	 * @return Returns the logger.
-	 */
-	public Logger getLogger() {
-		return logger;
-	}
-
-	/**
-	 * @param logger
-	 *            The logger to set.
-	 */
-	public void setLogger(final Logger logger) {
-		this.logger = logger;
 	}
 
 	/**
 	 * @return Returns the defaultStackTrace.
 	 */
-	public String getDefaultStackTrace() {
+	public String getDefaultStackTrace()
+	{
 		return defaultStackTrace;
 	}
 
 	/**
 	 * @param defaultStackTrace
-	 *            The defaultStackTrace to set.
+	 *        The defaultStackTrace to set.
 	 */
-	public void setDefaultStackTrace(final String defaultStackTrace) {
+	public void setDefaultStackTrace(final String defaultStackTrace)
+	{
 		this.defaultStackTrace = defaultStackTrace;
 	}
 
 	/**
 	 * @return Returns the errorFormat.
 	 */
-	public String getErrorFormat() {
+	public String getErrorFormat()
+	{
 		return errorFormat;
 	}
 
 	/**
 	 * @param errorFormat
-	 *            The errorFormat to set.
+	 *        The errorFormat to set.
 	 */
-	public void setErrorFormat(final String errorFormat) {
+	public void setErrorFormat(final String errorFormat)
+	{
 		this.errorFormat = errorFormat;
 	}
 
 	/**
 	 * @return Returns the authZPrefix.
 	 */
-	public String getAuthZPrefix() {
+	public String getAuthZPrefix()
+	{
 		return authZPrefix;
 	}
 
 	/**
 	 * @param authZPrefix
-	 *            The authZPrefix to set.
+	 *        The authZPrefix to set.
 	 */
-	public void setAuthZPrefix(String authZPrefix) {
+	public void setAuthZPrefix(String authZPrefix)
+	{
 		this.authZPrefix = authZPrefix;
 	}
 
 	/**
 	 * @return Returns the anchorLinkFormat.
 	 */
-	public String getAnchorLinkFormat() {
+	public String getAnchorLinkFormat()
+	{
 		return anchorLinkFormat;
 	}
 
 	/**
 	 * @param anchorLinkFormat
-	 *            The anchorLinkFormat to set.
+	 *        The anchorLinkFormat to set.
 	 */
-	public void setAnchorLinkFormat(String anchorLinkFormat) {
+	public void setAnchorLinkFormat(String anchorLinkFormat)
+	{
 		this.anchorLinkFormat = anchorLinkFormat;
 	}
 
 	/**
 	 * @return Returns the hrefTagFormat.
 	 */
-	public String getHrefTagFormat() {
+	public String getHrefTagFormat()
+	{
 		return hrefTagFormat;
 	}
 
 	/**
 	 * @param hrefTagFormat
-	 *            The hrefTagFormat to set.
+	 *        The hrefTagFormat to set.
 	 */
-	public void setHrefTagFormat(String hrefTagFormat) {
+	public void setHrefTagFormat(String hrefTagFormat)
+	{
 		this.hrefTagFormat = hrefTagFormat;
 	}
 
 	/**
 	 * @return Returns the renderService.
 	 */
-	public RenderService getRenderService() {
+	public RenderService getRenderService()
+	{
 		return renderService;
 	}
 
 	/**
 	 * @param renderService
-	 *            The renderService to set.
+	 *        The renderService to set.
 	 */
-	public void setRenderService(RenderService renderService) {
+	public void setRenderService(RenderService renderService)
+	{
 		this.renderService = renderService;
 	}
 
 	/**
 	 * @return Returns the standardLinkFormat.
 	 */
-	public String getStandardLinkFormat() {
+	public String getStandardLinkFormat()
+	{
 		return standardLinkFormat;
 	}
 
 	/**
 	 * @param standardLinkFormat
-	 *            The standardLinkFormat to set.
+	 *        The standardLinkFormat to set.
 	 */
-	public void setStandardLinkFormat(String standardLinkFormat) {
+	public void setStandardLinkFormat(String standardLinkFormat)
+	{
 		this.standardLinkFormat = standardLinkFormat;
 	}
 
 	/**
 	 * @return Returns the outputProperties.
 	 */
-	public Map getOutputProperties() {
+	public Map getOutputProperties()
+	{
 		return outputProperties;
 	}
 
 	/**
 	 * @param outputProperties
-	 *            The outputProperties to set.
+	 *        The outputProperties to set.
 	 */
-	public void setOutputProperties(Map outputProperties) {
+	public void setOutputProperties(Map outputProperties)
+	{
 		this.outputProperties = outputProperties;
 	}
 
 	/**
 	 * @return Returns the responseHeaders.
 	 */
-	public Map getResponseHeaders() {
+	public Map getResponseHeaders()
+	{
 		return responseHeaders;
 	}
 
 	/**
 	 * @param responseHeaders
-	 *            The responseHeaders to set.
+	 *        The responseHeaders to set.
 	 */
-	public void setResponseHeaders(Map responseHeaders) {
+	public void setResponseHeaders(Map responseHeaders)
+	{
 		this.responseHeaders = responseHeaders;
 	}
 
 	public void addRequestAttributes(ContentHandler ch,
-			HttpServletRequest request) throws Exception {
-		if (!isAvailable())
-			return;
+			HttpServletRequest request) throws Exception
+	{
+		if (!isAvailable()) return;
 
 		// add the attributes
 		AttributesImpl dummyAttributes = new AttributesImpl();
 		ch.startElement(SchemaNames.NS_CONTAINER,
 				SchemaNames.EL_REQUEST_ATTRIBUTES,
 				SchemaNames.EL_NSREQUEST_ATTRIBUTES, dummyAttributes);
-		for (Enumeration e = request.getAttributeNames(); e.hasMoreElements();) {
+		for (Enumeration e = request.getAttributeNames(); e.hasMoreElements();)
+		{
 			String name = (String) e.nextElement();
 			Object attr = request.getAttribute(name);
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
 					SchemaNames.ATTR_NAME, "string", name);
-			if (attr instanceof Object[]) {
+			if (attr instanceof Object[])
+			{
 				Object[] oattr = (Object[]) attr;
 				ch.startElement(SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_REQUEST_ATTRIBUTE,
 						SchemaNames.EL_NSREQUEST_ATTRIBUTE, propA);
-				for (int i = 0; i < oattr.length; i++) {
+				for (int i = 0; i < oattr.length; i++)
+				{
 					addElement(ch, SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_VALUE, SchemaNames.EL_NSVALUE,
 							dummyAttributes, oattr[i]);
@@ -904,7 +966,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 				ch.endElement(SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_REQUEST_ATTRIBUTE,
 						SchemaNames.EL_NSREQUEST_ATTRIBUTE);
-			} else {
+			}
+			else
+			{
 				ch.startElement(SchemaNames.NS_CONTAINER,
 						SchemaNames.EL_REQUEST_ATTRIBUTE,
 						SchemaNames.EL_NSREQUEST_ATTRIBUTE, propA);
@@ -922,9 +986,9 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 	}
 
 	public void addRequestParameters(ContentHandler ch,
-			HttpServletRequest request) throws Exception {
-		if (!isAvailable())
-			return;
+			HttpServletRequest request) throws Exception
+	{
+		if (!isAvailable()) return;
 
 		AttributesImpl dummyAttributes = new AttributesImpl();
 
@@ -932,7 +996,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 		ch.startElement(SchemaNames.NS_CONTAINER,
 				SchemaNames.EL_REQUEST_PARAMS, SchemaNames.EL_NSREQUEST_PARAMS,
 				dummyAttributes);
-		for (Enumeration e = request.getParameterNames(); e.hasMoreElements();) {
+		for (Enumeration e = request.getParameterNames(); e.hasMoreElements();)
+		{
 			String name = (String) e.nextElement();
 			String[] attr = request.getParameterValues(name);
 			AttributesImpl propA = new AttributesImpl();
@@ -941,7 +1006,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl {
 			ch.startElement(SchemaNames.NS_CONTAINER,
 					SchemaNames.EL_REQUEST_PARAM,
 					SchemaNames.EL_NSREQUEST_PARAM, propA);
-			for (int i = 0; i < attr.length; i++) {
+			for (int i = 0; i < attr.length; i++)
+			{
 				addElement(ch, SchemaNames.NS_CONTAINER, SchemaNames.EL_VALUE,
 						SchemaNames.EL_NSVALUE, dummyAttributes, attr[i]);
 			}

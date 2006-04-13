@@ -24,6 +24,7 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.EscapeFilter;
 import org.radeox.filter.Filter;
@@ -31,67 +32,84 @@ import org.radeox.filter.FilterPipe;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.util.Encoder;
 
-public class EscapeFilterTest extends FilterTestSupport {
-  public EscapeFilterTest(String name) {
-    super(name);
-  }
+public class EscapeFilterTest extends FilterTestSupport
+{
+	public EscapeFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new EscapeFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new EscapeFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(EscapeFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(EscapeFilterTest.class);
+	}
 
-  public void testEscapeH() {
-    assertEquals("h is escaped", "&#104;", filter.filter("\\h", context));
-  }
+	public void testEscapeH()
+	{
+		assertEquals("h is escaped", "&#104;", filter.filter("\\h", context));
+	}
 
-  public void testBackslash() {
-    // test "\\"
-    assertEquals("\\\\ is kept escaped", "\\\\", filter.filter("\\\\", context));
-  }
+	public void testBackslash()
+	{
+		// test "\\"
+		assertEquals("\\\\ is kept escaped", "\\\\", filter.filter("\\\\",
+				context));
+	}
 
-  public void testBeforeEscape() {
-    FilterPipe fp = new FilterPipe();
-    Filter f = new Filter() {
-      public String[] replaces() {
-        return new String[0];
-      }
+	public void testBeforeEscape()
+	{
+		FilterPipe fp = new FilterPipe();
+		Filter f = new Filter()
+		{
+			public String[] replaces()
+			{
+				return new String[0];
+			}
 
-      public void setInitialContext(InitialRenderContext context) {
-      }
+			public void setInitialContext(InitialRenderContext context)
+			{
+			}
 
-      public String[] before() {
-        return FilterPipe.EMPTY_BEFORE;
-      }
+			public String[] before()
+			{
+				return FilterPipe.EMPTY_BEFORE;
+			}
 
-      public String filter(String input, FilterContext context) {
-        return null;
-      }
+			public String filter(String input, FilterContext context)
+			{
+				return null;
+			}
 
-      public String getDescription() {
-        return "";
-      }
-    };
+			public String getDescription()
+			{
+				return "";
+			}
+		};
 
-    fp.addFilter(f);
-    fp.addFilter(filter);
-    assertEquals("EscapeFilter is first", fp.getFilter(0), filter);
-  }
+		fp.addFilter(f);
+		fp.addFilter(filter);
+		assertEquals("EscapeFilter is first", fp.getFilter(0), filter);
+	}
 
-  public void testHTMLEncoderEscape() {
-    assertEquals("&#60;link&#62;", Encoder.escape("<link>"));
-  }
+	public void testHTMLEncoderEscape()
+	{
+		assertEquals("&#60;link&#62;", Encoder.escape("<link>"));
+	}
 
-  public void testHTMLEncoderUnescape() {
-    assertEquals("<link>", Encoder.unescape("&#60;link&#62;"));
-  }
+	public void testHTMLEncoderUnescape()
+	{
+		assertEquals("<link>", Encoder.unescape("&#60;link&#62;"));
+	}
 
-  public void testAmpersandEscape() {
-    assertEquals("&#38;", filter.filter("&", context));
-  }
+	public void testAmpersandEscape()
+	{
+		assertEquals("&#38;", filter.filter("&", context));
+	}
 
 }

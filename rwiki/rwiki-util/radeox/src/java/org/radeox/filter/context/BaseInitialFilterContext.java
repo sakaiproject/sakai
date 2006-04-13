@@ -23,14 +23,14 @@
 
 package org.radeox.filter.context;
 
-
-
 /**
  * Base impementation for InitialFilterContext
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: BaseInitialFilterContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class BaseInitialFilterContext implements InitialFilterContext {
+public class BaseInitialFilterContext implements InitialFilterContext
+{
 }

@@ -25,12 +25,14 @@ package org.radeox.util.logging;
 
 /**
  * Interface for concrete Loggers
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public interface LogHandler {
-  public void log(String output);
-  public void log(String output, Throwable e);
+public interface LogHandler
+{
+	public void log(String output);
+
+	public void log(String output, Throwable e);
 }

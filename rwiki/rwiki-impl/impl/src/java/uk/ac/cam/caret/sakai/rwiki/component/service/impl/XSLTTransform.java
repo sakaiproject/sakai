@@ -51,9 +51,9 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * class is NOT thread safe and should be cached in the Thread Local
  * 
  * @author ieb
- * 
  */
-public class XSLTTransform {
+public class XSLTTransform
+{
 
 	private Templates templates = null;
 
@@ -64,14 +64,16 @@ public class XSLTTransform {
 	 * Set the xslt resource.
 	 * 
 	 * @param xsltresource
-	 *            an Input Source to the XSLT
+	 *        an Input Source to the XSLT
 	 * @throws Exception
 	 */
-	public void setXslt(InputSource xsltresource) throws Exception {
+	public void setXslt(InputSource xsltresource) throws Exception
+	{
 		TemplatesHandler th = factory.newTemplatesHandler();
 		String systemId = xsltresource.getSystemId();
 		th.setSystemId(systemId);
-		XMLReader xr = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+		XMLReader xr = XMLReaderFactory
+				.createXMLReader("org.apache.xerces.parsers.SAXParser");
 		xr.setContentHandler(th);
 		xr.parse(xsltresource);
 		templates = th.getTemplates();
@@ -82,17 +84,20 @@ public class XSLTTransform {
 	 * pumping sax events into
 	 * 
 	 * @param out
-	 *            the output stream
+	 *        the output stream
 	 * @return a content handler configured to produce output
 	 * @throws Exception
 	 */
 	public ContentHandler getOutputHandler(Writer out, Map outputProperties)
-			throws Exception {
+			throws Exception
+	{
 		TransformerHandler saxTH = factory.newTransformerHandler(templates);
 		Result r = new StreamResult(out);
-		if (outputProperties != null) {
+		if (outputProperties != null)
+		{
 			Transformer trans = saxTH.getTransformer();
-			for (Iterator i = outputProperties.keySet().iterator(); i.hasNext();) {
+			for (Iterator i = outputProperties.keySet().iterator(); i.hasNext();)
+			{
 				String name = (String) i.next();
 				String value = (String) outputProperties.get(name);
 				trans.setOutputProperty(name, value);
@@ -106,12 +111,14 @@ public class XSLTTransform {
 	}
 
 	public ContentHandler getOutputHandler(OutputStream out,
-			final Map outputProperties) throws Exception {
+			final Map outputProperties) throws Exception
+	{
 
 		TransformerHandler saxTH = factory.newTransformerHandler(templates);
 		Properties p = OutputPropertiesFactory
 				.getDefaultMethodProperties("xml");
-		if ( outputProperties != null && outputProperties.size() > 0  ) { 
+		if (outputProperties != null && outputProperties.size() > 0)
+		{
 			p.putAll(outputProperties);
 		}
 
@@ -120,7 +127,8 @@ public class XSLTTransform {
 		String className = p
 				.getProperty(OutputProperties.S_KEY_CONTENT_HANDLER);
 
-		if (null == className) {
+		if (null == className)
+		{
 			throw new IllegalArgumentException(
 					"The output format must have a '"
 							+ OutputProperties.S_KEY_CONTENT_HANDLER
@@ -129,7 +137,7 @@ public class XSLTTransform {
 
 		serializer = (Serializer) Class.forName(className).newInstance();
 		serializer.setOutputFormat(p);
-		
+
 		serializer.setOutputStream(out);
 
 		Result r = new SAXResult(serializer.asContentHandler());
@@ -145,7 +153,8 @@ public class XSLTTransform {
 	 * @return
 	 * @throws Exception
 	 */
-	public ContentHandler getContentHandler() throws Exception {
+	public ContentHandler getContentHandler() throws Exception
+	{
 		TransformerHandler saxTH = factory.newTransformerHandler(templates);
 		return saxTH;
 	}

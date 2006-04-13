@@ -30,29 +30,33 @@ import org.radeox.filter.ParagraphFilter;
 
 /**
  * @author ieb
- *
  */
-public class ParagraphFilterTest extends FilterTestSupport {
+public class ParagraphFilterTest extends FilterTestSupport
+{
 
-
-	public ParagraphFilterTest(String s) {
+	public ParagraphFilterTest(String s)
+	{
 		super(s);
 		// TODO Auto-generated constructor stub
 	}
-	
-	protected void setUp() throws Exception {
-	    filter = new ParagraphFilter();
-	    super.setUp();
-	  }
 
-	  public static Test suite() {
-	    return new TestSuite(ParagraphFilterTest.class);
-	  }
+	protected void setUp() throws Exception
+	{
+		filter = new ParagraphFilter();
+		super.setUp();
+	}
 
-	  public void testParagraph() {
-		 
-		 String result =  filter.filter("<h1>test</h1>Text \n\n Text\n <h2>Head2</h2>", context);
-		 System.err.println(":"+result+":");
-	    assertEquals("Text<p class=\"paragraph\">Text</p>", result );
-	  }
+	public static Test suite()
+	{
+		return new TestSuite(ParagraphFilterTest.class);
+	}
+
+	public void testParagraph()
+	{
+
+		String result = filter.filter(
+				"<h1>test</h1>Text \n\n Text\n <h2>Head2</h2>", context);
+		System.err.println(":" + result + ":");
+		assertEquals("Text<p class=\"paragraph\">Text</p>", result);
+	}
 }

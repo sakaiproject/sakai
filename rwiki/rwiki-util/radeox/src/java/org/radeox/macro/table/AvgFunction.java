@@ -27,41 +27,53 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * A function that calculates the average  table cells
- *
+ * A function that calculates the average table cells
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class AvgFunction implements Function {
-  private static Log log = LogFactory.getLog(AvgFunction.class);
+public class AvgFunction implements Function
+{
+	private static Log log = LogFactory.getLog(AvgFunction.class);
 
+	public String getName()
+	{
+		return "AVG";
+	}
 
-  public String getName() {
-    return "AVG";
-  }
-
-  public void execute(Table table, int posx, int posy, int startX, int startY, int endX, int endY) {
-    float sum = 0;
-    int count = 0;
-    for (int x = startX; x <= endX; x++) {
-      for (int y = startY; y <= endY; y++) {
-        //Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
-        try {
-          sum += Integer.parseInt((String) table.getXY(x, y));
-          count++;
-        } catch (Exception e) {
-          try {
-            sum += Float.parseFloat((String) table.getXY(x, y));
-            count++;
-          } catch (NumberFormatException e1) {
-            log.debug("SumFunction: unable to parse " + table.getXY(x, y));
-          }
-        }
-      }
-    }
-    //Logger.debug("Sum="+sum);
-    table.setXY(posx, posy, "" + sum / count);
-  }
+	public void execute(Table table, int posx, int posy, int startX,
+			int startY, int endX, int endY)
+	{
+		float sum = 0;
+		int count = 0;
+		for (int x = startX; x <= endX; x++)
+		{
+			for (int y = startY; y <= endY; y++)
+			{
+				// Logger.debug("x="+x+" y="+y+" >"+getXY(x,y));
+				try
+				{
+					sum += Integer.parseInt((String) table.getXY(x, y));
+					count++;
+				}
+				catch (Exception e)
+				{
+					try
+					{
+						sum += Float.parseFloat((String) table.getXY(x, y));
+						count++;
+					}
+					catch (NumberFormatException e1)
+					{
+						log.debug("SumFunction: unable to parse "
+								+ table.getXY(x, y));
+					}
+				}
+			}
+		}
+		// Logger.debug("Sum="+sum);
+		table.setXY(posx, posy, "" + sum / count);
+	}
 
 }

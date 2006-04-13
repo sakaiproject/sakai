@@ -23,20 +23,24 @@
 
 package org.radeox.util.logging;
 
-
 /**
  * Concrete Logger that logs to System Err
- *
+ * 
  * @author stephan
- * @version $Id$
+ * @version $Id: SystemErrLogger.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class SystemErrLogger implements LogHandler {
-  public void log(String output) {
-    System.err.println(output);
-  }
-  public void log(String output, Throwable e) {
-    System.err.println(output);
-    if (Logger.PRINT_STACKTRACE) e.printStackTrace(System.err);
-  }
+public class SystemErrLogger implements LogHandler
+{
+	public void log(String output)
+	{
+		System.err.println(output);
+	}
+
+	public void log(String output, Throwable e)
+	{
+		System.err.println(output);
+		if (Logger.PRINT_STACKTRACE) e.printStackTrace(System.err);
+	}
 }

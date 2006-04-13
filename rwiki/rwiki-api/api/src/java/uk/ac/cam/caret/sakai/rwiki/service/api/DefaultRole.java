@@ -4,7 +4,8 @@ import java.util.Map;
 
 //FIXME: Service, remove
 
-public interface DefaultRole {
+public interface DefaultRole
+{
 
 	/**
 	 * @return Returns the enabledFunctions.
@@ -12,7 +13,8 @@ public interface DefaultRole {
 	public abstract Map getEnabledFunctions();
 
 	/**
-	 * @param enabledFunctions The enabledFunctions to set.
+	 * @param enabledFunctions
+	 *        The enabledFunctions to set.
 	 */
 	public abstract void setEnabledFunctions(Map enabledFunctions);
 
@@ -22,7 +24,8 @@ public interface DefaultRole {
 	public abstract String getRoleId();
 
 	/**
-	 * @param roleId The roleId to set.
+	 * @param roleId
+	 *        The roleId to set.
 	 */
 	public abstract void setRoleId(String roleId);
 

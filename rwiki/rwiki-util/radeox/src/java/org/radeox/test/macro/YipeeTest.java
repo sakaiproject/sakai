@@ -24,19 +24,24 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class YipeeTest extends MacroTestSupport {
-  public YipeeTest(String name) {
-    super(name);
-  }
+public class YipeeTest extends MacroTestSupport
+{
+	public YipeeTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(YipeeTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(YipeeTest.class);
+	}
 
-  public void testYipee() {
-    String result = EngineManager.getInstance().render("{yipee}", context);
-    assertEquals("Yipee ay ey", result);
-  }
+	public void testYipee()
+	{
+		String result = EngineManager.getInstance().render("{yipee}", context);
+		assertEquals("Yipee ay ey", result);
+	}
 }

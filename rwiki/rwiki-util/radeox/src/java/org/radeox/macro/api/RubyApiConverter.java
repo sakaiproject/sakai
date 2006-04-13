@@ -28,20 +28,24 @@ import java.io.Writer;
 
 /**
  * Converts a Ruby class name to an Ruby api doku url
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: RubyApiConverter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class RubyApiConverter extends BaseApiConverter {
+public class RubyApiConverter extends BaseApiConverter
+{
 
-  public void appendUrl(Writer writer, String className) throws IOException {
-    writer.write(baseUrl);
-    writer.write(className.toLowerCase());
-    writer.write(".html");
-  }
+	public void appendUrl(Writer writer, String className) throws IOException
+	{
+		writer.write(baseUrl);
+		writer.write(className.toLowerCase());
+		writer.write(".html");
+	}
 
-  public String getName() {
-    return "Ruby";
-  }
+	public String getName()
+	{
+		return "Ruby";
+	}
 }

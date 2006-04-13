@@ -23,117 +23,145 @@
 
 package org.radeox.macro.api;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Stores information and links to api documentation, e.g. for Java, Ruby, JBoss
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public class ApiDoc {
+public class ApiDoc
+{
 
-  private static Log log = LogFactory.getLog(ApiDoc.class);
+	private static Log log = LogFactory.getLog(ApiDoc.class);
 
-  private static ApiDoc instance;
-  private Map apiDocs;
+	private static ApiDoc instance;
 
-  public static synchronized ApiDoc getInstance() {
-    if (null == instance) {
-      instance = new ApiDoc();
-    }
-    return instance;
-  }
+	private Map apiDocs;
 
-  public ApiDoc() {
-    apiDocs = new HashMap();
+	public static synchronized ApiDoc getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new ApiDoc();
+		}
+		return instance;
+	}
 
-    boolean fileNotFound = false;
-    try {
-      BufferedReader br = new BufferedReader(
-          new InputStreamReader(
-              new FileInputStream("conf/apidocs.txt")));
-      addApiDoc(br);
-    } catch (IOException e) {
-      log.warn("Unable to read conf/apidocs.txt");
-      fileNotFound = true;
-    }
+	public ApiDoc()
+	{
+		apiDocs = new HashMap();
 
-    if (fileNotFound) {
-      BufferedReader br = null;
-      try {
-        br = new BufferedReader(
-            new InputStreamReader(
-                ApiDoc.class.getResourceAsStream("/conf/apidocs.txt")
-            )
-        );
-        addApiDoc(br);
-      } catch (Exception e) {
-        log.warn("Unable to read conf/apidocs.txt from jar");
-      }
-    }
-  }
+		boolean fileNotFound = false;
+		try
+		{
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream("conf/apidocs.txt")));
+			addApiDoc(br);
+		}
+		catch (IOException e)
+		{
+			log.warn("Unable to read conf/apidocs.txt");
+			fileNotFound = true;
+		}
 
-  public void addApiDoc(BufferedReader reader) throws IOException {
-    String line;
-    while ((line = reader.readLine()) != null) {
-      StringTokenizer tokenizer = new StringTokenizer(line, " ");
-      String mode = tokenizer.nextToken();
-      String baseUrl = tokenizer.nextToken();
-      String converterName = tokenizer.nextToken();
-      ApiConverter converter = null;
-      try {
-        converter = (ApiConverter) Class.forName("org.radeox.macro.api." + converterName + "ApiConverter").newInstance();
-      } catch (Exception e) {
-        log.warn("Unable to load converter: " + converterName + "ApiConverter", e);
-      }
-      converter.setBaseUrl(baseUrl);
-      apiDocs.put(mode.toLowerCase(), converter);
-    }
-  }
+		if (fileNotFound)
+		{
+			BufferedReader br = null;
+			try
+			{
+				br = new BufferedReader(new InputStreamReader(ApiDoc.class
+						.getResourceAsStream("/conf/apidocs.txt")));
+				addApiDoc(br);
+			}
+			catch (Exception e)
+			{
+				log.warn("Unable to read conf/apidocs.txt from jar");
+			}
+		}
+	}
 
-  public boolean contains(String external) {
-    return apiDocs.containsKey(external);
-  }
+	public void addApiDoc(BufferedReader reader) throws IOException
+	{
+		String line;
+		while ((line = reader.readLine()) != null)
+		{
+			StringTokenizer tokenizer = new StringTokenizer(line, " ");
+			String mode = tokenizer.nextToken();
+			String baseUrl = tokenizer.nextToken();
+			String converterName = tokenizer.nextToken();
+			ApiConverter converter = null;
+			try
+			{
+				converter = (ApiConverter) Class.forName(
+						"org.radeox.macro.api." + converterName
+								+ "ApiConverter").newInstance();
+			}
+			catch (Exception e)
+			{
+				log.warn("Unable to load converter: " + converterName
+						+ "ApiConverter", e);
+			}
+			converter.setBaseUrl(baseUrl);
+			apiDocs.put(mode.toLowerCase(), converter);
+		}
+	}
 
-  public Writer expand(Writer writer, String className, String mode) throws IOException {
-    mode = mode.toLowerCase();
-    if (apiDocs.containsKey(mode)) {
-      writer.write("<a href=\"");
-      ((ApiConverter) apiDocs.get(mode)).appendUrl(writer, className);
-      writer.write("\">");
-      writer.write(className);
-      writer.write("</a>");
-    } else {
-      log.warn(mode + " not found");
-    }
-    return writer;
-  }
+	public boolean contains(String external)
+	{
+		return apiDocs.containsKey(external);
+	}
 
-  public Writer appendTo(Writer writer) throws IOException {
-    writer.write("{table}\n");
-    writer.write("Binding|BaseUrl|Converter Name\n");
-    Iterator iterator = apiDocs.entrySet().iterator();
-    while (iterator.hasNext()) {
-      Map.Entry entry = (Map.Entry) iterator.next();
-      writer.write((String) entry.getKey());
-      ApiConverter converter = (ApiConverter) entry.getValue();
-      writer.write("|");
-      writer.write(converter.getBaseUrl());
-      writer.write("|");
-      writer.write(converter.getName());
-      writer.write("\n");
-    }
-    writer.write("{table}");
-    return writer;
-  }
+	public Writer expand(Writer writer, String className, String mode)
+			throws IOException
+	{
+		mode = mode.toLowerCase();
+		if (apiDocs.containsKey(mode))
+		{
+			writer.write("<a href=\"");
+			((ApiConverter) apiDocs.get(mode)).appendUrl(writer, className);
+			writer.write("\">");
+			writer.write(className);
+			writer.write("</a>");
+		}
+		else
+		{
+			log.warn(mode + " not found");
+		}
+		return writer;
+	}
+
+	public Writer appendTo(Writer writer) throws IOException
+	{
+		writer.write("{table}\n");
+		writer.write("Binding|BaseUrl|Converter Name\n");
+		Iterator iterator = apiDocs.entrySet().iterator();
+		while (iterator.hasNext())
+		{
+			Map.Entry entry = (Map.Entry) iterator.next();
+			writer.write((String) entry.getKey());
+			ApiConverter converter = (ApiConverter) entry.getValue();
+			writer.write("|");
+			writer.write(converter.getBaseUrl());
+			writer.write("|");
+			writer.write(converter.getName());
+			writer.write("\n");
+		}
+		writer.write("{table}");
+		return writer;
+	}
 
 }

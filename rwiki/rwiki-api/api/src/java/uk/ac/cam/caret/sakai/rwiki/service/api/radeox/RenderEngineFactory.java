@@ -26,10 +26,11 @@ import org.radeox.api.engine.RenderEngine;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RenderEngineFactory {
+public interface RenderEngineFactory
+{
 
-    RenderEngine getRenderEngine(String defaultSpace, PageLinkRenderer plr);
-//SAK-2519
+	RenderEngine getRenderEngine(String defaultSpace, PageLinkRenderer plr);
+	// SAK-2519
 }

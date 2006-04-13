@@ -23,17 +23,20 @@
 
 package org.radeox.util.logging;
 
-
 /**
  * Concrete Logger that does not log
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class NullLogger implements LogHandler {
-  public void log(String output) {
-  }
-  public void log(String output, Throwable e) {
-  }
+public class NullLogger implements LogHandler
+{
+	public void log(String output)
+	{
+	}
+
+	public void log(String output, Throwable e)
+	{
+	}
 }

@@ -22,115 +22,149 @@
  */
 package org.radeox.test.macro.list;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.radeox.macro.list.SimpleList;
-import org.radeox.util.Linkable;
-import org.radeox.util.Nameable;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class SimpleListTest extends ListFormatterSupport {
-  public SimpleListTest(String name) {
-    super(name);
-  }
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
-  public static Test suite() {
-    return new TestSuite(SimpleListTest.class);
-  }
+import org.radeox.macro.list.SimpleList;
+import org.radeox.util.Linkable;
+import org.radeox.util.Nameable;
 
-  protected void setUp() throws Exception {
-    super.setUp();
-    formatter = new SimpleList();
-  }
+public class SimpleListTest extends ListFormatterSupport
+{
+	public SimpleListTest(String name)
+	{
+		super(name);
+	}
 
-  public void testNameable() {
-    Collection c = Arrays.asList(new Nameable[]{
-      new Nameable() {
-        public String getName() {
-          return "name:test";
-        }
-      }
-    });
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+	public static Test suite()
+	{
+		return new TestSuite(SimpleListTest.class);
+	}
 
-    assertEquals("Nameable is rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div><blockquote>name:test</blockquote></div>",
-        writer.toString());
-  }
+	protected void setUp() throws Exception
+	{
+		super.setUp();
+		formatter = new SimpleList();
+	}
 
-  public void testLinkable() {
-    Collection c = Arrays.asList(new Linkable[]{
-      new Linkable() {
-        public String getLink() {
-          return "link:test";
-        }
-      }
-    });
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+	public void testNameable()
+	{
+		Collection c = Arrays.asList(new Nameable[] { new Nameable()
+		{
+			public String getName()
+			{
+				return "name:test";
+			}
+		} });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 
-    assertEquals("Linkable is rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div><blockquote>link:test</blockquote></div>",
-        writer.toString());
-  }
+		assertEquals(
+				"Nameable is rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div><blockquote>name:test</blockquote></div>",
+				writer.toString());
+	}
 
-  public void testSingeItem() {
-    Collection c = Arrays.asList(new String[]{"test"});
-    try {
-      formatter.format(writer,emptyLinkable, "", c, "", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Single item is rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div><blockquote>test</blockquote></div>",
-        writer.toString());
-  }
+	public void testLinkable()
+	{
+		Collection c = Arrays.asList(new Linkable[] { new Linkable()
+		{
+			public String getLink()
+			{
+				return "link:test";
+			}
+		} });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 
+		assertEquals(
+				"Linkable is rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div><blockquote>link:test</blockquote></div>",
+				writer.toString());
+	}
 
-  public void testSize() {
-    Collection c = Arrays.asList(new String[]{"test"});
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", true);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Size is rendered",
-        "<div class=\"list\"><div class=\"list-title\"> (1)</div><blockquote>test</blockquote></div>",
-        writer.toString());
-  }
+	public void testSingeItem()
+	{
+		Collection c = Arrays.asList(new String[] { "test" });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Single item is rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div><blockquote>test</blockquote></div>",
+				writer.toString());
+	}
 
-  public void testEmpty() {
-    Collection c = Arrays.asList(new String[]{});
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "No items", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Empty list is rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div>No items</div>",
-        writer.toString());
-  }
+	public void testSize()
+	{
+		Collection c = Arrays.asList(new String[] { "test" });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Size is rendered",
+				"<div class=\"list\"><div class=\"list-title\"> (1)</div><blockquote>test</blockquote></div>",
+				writer.toString());
+	}
 
-  public void testTwoItems() {
-    Collection c = Arrays.asList(new String[]{"test1", "test2"});
-    try {
-      formatter.format(writer, emptyLinkable, "", c, "", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    assertEquals("Two items are rendered",
-        "<div class=\"list\"><div class=\"list-title\"></div><blockquote>test1, test2</blockquote></div>",
-        writer.toString());
-  }
+	public void testEmpty()
+	{
+		Collection c = Arrays.asList(new String[] {});
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "No items", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Empty list is rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div>No items</div>",
+				writer.toString());
+	}
+
+	public void testTwoItems()
+	{
+		Collection c = Arrays.asList(new String[] { "test1", "test2" });
+		try
+		{
+			formatter.format(writer, emptyLinkable, "", c, "", false);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		assertEquals(
+				"Two items are rendered",
+				"<div class=\"list\"><div class=\"list-title\"></div><blockquote>test1, test2</blockquote></div>",
+				writer.toString());
+	}
 
 }

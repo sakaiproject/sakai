@@ -23,111 +23,135 @@
 
 package org.radeox.macro.book;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.radeox.util.Encoder;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.radeox.util.Encoder;
+
 /**
  * Manages links to keys, mapping is read from a text file
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: TextFileUrlMapper.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public abstract class TextFileUrlMapper implements UrlMapper {
-  private static Log log = LogFactory.getLog(TextFileUrlMapper.class);
+public abstract class TextFileUrlMapper implements UrlMapper
+{
+	private static Log log = LogFactory.getLog(TextFileUrlMapper.class);
 
-  private Map services;
+	private Map services;
 
-  public abstract String getFileName();
+	public abstract String getFileName();
 
-  public abstract String getKeyName();
+	public abstract String getKeyName();
 
-  public TextFileUrlMapper(Class klass) {
-    services = new HashMap();
+	public TextFileUrlMapper(Class klass)
+	{
+		services = new HashMap();
 
-    boolean fileNotFound = false;
-    try {
-      BufferedReader br = new BufferedReader(
-          new InputStreamReader(
-              new FileInputStream(getFileName())));
-      addMapping(br);
-    } catch (IOException e) {
-      log.warn("Unable to read " + getFileName());
-      fileNotFound = true;
-    }
+		boolean fileNotFound = false;
+		try
+		{
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream(getFileName())));
+			addMapping(br);
+		}
+		catch (IOException e)
+		{
+			log.warn("Unable to read " + getFileName());
+			fileNotFound = true;
+		}
 
-    if (fileNotFound) {
-      BufferedReader br = null;
-      try {
-        br = new BufferedReader(
-            new InputStreamReader(
-                klass.getResourceAsStream("/"+getFileName())));
-        addMapping(br);
-      } catch (Exception e) {
-        log.warn("Unable to read /" + getFileName() + " from jar");
-      }
-    }
-  }
+		if (fileNotFound)
+		{
+			BufferedReader br = null;
+			try
+			{
+				br = new BufferedReader(new InputStreamReader(klass
+						.getResourceAsStream("/" + getFileName())));
+				addMapping(br);
+			}
+			catch (Exception e)
+			{
+				log.warn("Unable to read /" + getFileName() + " from jar");
+			}
+		}
+	}
 
-  public void addMapping(BufferedReader reader) throws IOException {
-    String line;
-    while ((line = reader.readLine()) != null) {
-      if (!line.startsWith("#")) {
-        int index = line.indexOf(" ");
-        services.put(line.substring(0, index), Encoder.escape(line.substring(index + 1)));
-      }
-    }
-  }
+	public void addMapping(BufferedReader reader) throws IOException
+	{
+		String line;
+		while ((line = reader.readLine()) != null)
+		{
+			if (!line.startsWith("#"))
+			{
+				int index = line.indexOf(" ");
+				services.put(line.substring(0, index), Encoder.escape(line
+						.substring(index + 1)));
+			}
+		}
+	}
 
-  public Writer appendTo(Writer writer) throws IOException {
-    Iterator iterator = services.entrySet().iterator();
-    writer.write("{table}\n");
-    writer.write("Service|Url\n");
-    while (iterator.hasNext()) {
-      Map.Entry entry = (Map.Entry) iterator.next();
-      writer.write((String) entry.getKey());
-      writer.write("|");
-      writer.write((String) entry.getValue());
-      writer.write("\n");
-    }
-    writer.write("{table}");
-    return writer;
-  }
+	public Writer appendTo(Writer writer) throws IOException
+	{
+		Iterator iterator = services.entrySet().iterator();
+		writer.write("{table}\n");
+		writer.write("Service|Url\n");
+		while (iterator.hasNext())
+		{
+			Map.Entry entry = (Map.Entry) iterator.next();
+			writer.write((String) entry.getKey());
+			writer.write("|");
+			writer.write((String) entry.getValue());
+			writer.write("\n");
+		}
+		writer.write("{table}");
+		return writer;
+	}
 
-  public boolean contains(String
-      external) {
-    return services.containsKey(external);
-  }
+	public boolean contains(String external)
+	{
+		return services.containsKey(external);
+	}
 
-  public Writer appendUrl(Writer writer, String key) throws IOException {
-    if (services.size() == 0) {
-      writer.write(getKeyName());
-      writer.write(":");
-      writer.write(key);
-    } else {
-      //SnipLink.appendImage(writer, "external-link", "&gt;&gt;");
-      writer.write("(");
-      Iterator iterator = services.entrySet().iterator();
-      while (iterator.hasNext()) {
-        Map.Entry entry = (Map.Entry) iterator.next();
-        writer.write("<a href=\"");
-        writer.write((String) entry.getValue());
-        writer.write(key);
-        writer.write("\">");
-        writer.write((String) entry.getKey());
-        writer.write("</a>");
-        if (iterator.hasNext()) {
-          writer.write(" &#x7c; ");
-        }
-      }
-      writer.write(")");
-    }
-    return writer;
-  }
+	public Writer appendUrl(Writer writer, String key) throws IOException
+	{
+		if (services.size() == 0)
+		{
+			writer.write(getKeyName());
+			writer.write(":");
+			writer.write(key);
+		}
+		else
+		{
+			// SnipLink.appendImage(writer, "external-link", "&gt;&gt;");
+			writer.write("(");
+			Iterator iterator = services.entrySet().iterator();
+			while (iterator.hasNext())
+			{
+				Map.Entry entry = (Map.Entry) iterator.next();
+				writer.write("<a href=\"");
+				writer.write((String) entry.getValue());
+				writer.write(key);
+				writer.write("\">");
+				writer.write((String) entry.getKey());
+				writer.write("</a>");
+				if (iterator.hasNext())
+				{
+					writer.write(" &#x7c; ");
+				}
+			}
+			writer.write(")");
+		}
+		return writer;
+	}
 }

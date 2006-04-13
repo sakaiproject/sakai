@@ -25,32 +25,43 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.KeyFilter;
 
-public class KeyFilterTest extends FilterTestSupport {
-  public KeyFilterTest(String name) {
-    super(name);
-  }
+public class KeyFilterTest extends FilterTestSupport
+{
+	public KeyFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new KeyFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new KeyFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(KeyFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(KeyFilterTest.class);
+	}
 
-  public void testAltKey() {
-    assertEquals("<span class=\"key\">Alt-1</span>", filter.filter("Alt-1", context));
-  }
+	public void testAltKey()
+	{
+		assertEquals("<span class=\"key\">Alt-1</span>", filter.filter("Alt-1",
+				context));
+	}
 
-  public void testCtrlKey() {
-    assertEquals("<span class=\"key\">Ctrl-1</span>", filter.filter("Ctrl-1", context));
-  }
+	public void testCtrlKey()
+	{
+		assertEquals("<span class=\"key\">Ctrl-1</span>", filter.filter(
+				"Ctrl-1", context));
+	}
 
-  public void testShiftKey() {
-    assertEquals("<span class=\"key\">Shift-1</span>", filter.filter("Shift-1", context));
-  }
+	public void testShiftKey()
+	{
+		assertEquals("<span class=\"key\">Shift-1</span>", filter.filter(
+				"Shift-1", context));
+	}
 
 }

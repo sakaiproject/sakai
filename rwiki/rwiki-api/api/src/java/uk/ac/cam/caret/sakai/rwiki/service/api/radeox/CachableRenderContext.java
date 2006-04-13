@@ -23,18 +23,18 @@
 package uk.ac.cam.caret.sakai.rwiki.service.api.radeox;
 
 /**
- * A Cachable render Context indicates that the render output is cachable (or not)
+ * A Cachable render Context indicates that the render output is cachable (or
+ * not)
+ * 
  * @author ieb
- *
  */
-//FIXME: Service
-
-public interface CachableRenderContext {
+// FIXME: Service
+public interface CachableRenderContext
+{
 
 	/**
-	 * 
 	 * @return true if the Context is cachable after rendering
 	 */
 	boolean isCachable();
-    
+
 }

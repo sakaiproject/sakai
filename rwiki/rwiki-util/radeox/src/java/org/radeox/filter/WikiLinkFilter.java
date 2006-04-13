@@ -25,27 +25,27 @@ package org.radeox.filter;
 
 /*
  * WikiLinkFilter finds WikiLinks in CamelCase in its input and transforms this
- * to <a href="text">...</a> if the wiki page exists. If not
- * it adds a [create text] to the output.
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * to <a href="text">...</a> if the wiki page exists. If not it adds a [create
+ * text] to the output. @author stephan @team sonicteam
+ * 
+ * @version $Id: WikiLinkFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class WikiLinkFilter extends LinkTestFilter {
-  /**
-   * The regular expression for detecting WikiLinks.
-   * This is CamelCase or
-   * OldAndUglyWikiLinking :-)
-   *
-   */
-  protected String getLocaleKey() {
-    return "filter.wikilink";
-  }
+public class WikiLinkFilter extends LinkTestFilter
+{
+	/**
+	 * The regular expression for detecting WikiLinks. This is CamelCase or
+	 * OldAndUglyWikiLinking :-)
+	 */
+	protected String getLocaleKey()
+	{
+		return "filter.wikilink";
+	}
 
-  protected String getWikiView(String name) {
-    return name;
-  }
+	protected String getWikiView(String name)
+	{
+		return name;
+	}
 
 }

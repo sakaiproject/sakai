@@ -23,83 +23,101 @@
 
 package org.radeox.macro;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 
-import java.util.*;
-
 /**
  * Repository for plugins
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: MacroRepository.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class MacroRepository extends PluginRepository {
-  private static Log log = LogFactory.getLog(MacroRepository.class);
+public class MacroRepository extends PluginRepository
+{
+	private static Log log = LogFactory.getLog(MacroRepository.class);
 
-  private InitialRenderContext context;
+	private InitialRenderContext context;
 
-  protected static MacroRepository instance;
-  protected List loaders;
+	protected static MacroRepository instance;
 
-  public synchronized static MacroRepository getInstance() {
-    if (null == instance) {
-      instance = new MacroRepository();
-    }
-    return instance;
-  }
+	protected List loaders;
 
-  private void initialize(InitialRenderContext context) {
-    Iterator iterator = list.iterator();
-    while (iterator.hasNext()) {
-      Macro macro = (Macro) iterator.next();
-      macro.setInitialContext(context);
-    }
-    init();
-  }
+	public synchronized static MacroRepository getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new MacroRepository();
+		}
+		return instance;
+	}
 
-  public void setInitialContext(InitialRenderContext context) {
-    this.context = context;
-    initialize(context);
-  }
+	private void initialize(InitialRenderContext context)
+	{
+		Iterator iterator = list.iterator();
+		while (iterator.hasNext())
+		{
+			Macro macro = (Macro) iterator.next();
+			macro.setInitialContext(context);
+		}
+		init();
+	}
 
-  private void init() {
-    Map newPlugins = new HashMap();
+	public void setInitialContext(InitialRenderContext context)
+	{
+		this.context = context;
+		initialize(context);
+	}
 
-    Iterator iterator = list.iterator();
-    while (iterator.hasNext()) {
-      Macro macro = (Macro) iterator.next();
-      newPlugins.put(macro.getName(), macro);
-    }
-    plugins = newPlugins;
-  }
+	private void init()
+	{
+		Map newPlugins = new HashMap();
 
-  /**
-   * Loads macros from all loaders into plugins.
-   */
-  private void load() {
-    Iterator iterator = loaders.iterator();
-    while (iterator.hasNext()) {
-      MacroLoader loader = (MacroLoader) iterator.next();
-      loader.setRepository(this);
-      log.debug("Loading from: " + loader.getClass());
-      loader.loadPlugins(this);
-    }
-  }
+		Iterator iterator = list.iterator();
+		while (iterator.hasNext())
+		{
+			Macro macro = (Macro) iterator.next();
+			newPlugins.put(macro.getName(), macro);
+		}
+		plugins = newPlugins;
+	}
 
-  public void addLoader(MacroLoader loader) {
-    loader.setRepository(this);
-    loaders.add(loader);
-    plugins = new HashMap();
-    list = new ArrayList();
-    load();
-  }
+	/**
+	 * Loads macros from all loaders into plugins.
+	 */
+	private void load()
+	{
+		Iterator iterator = loaders.iterator();
+		while (iterator.hasNext())
+		{
+			MacroLoader loader = (MacroLoader) iterator.next();
+			loader.setRepository(this);
+			log.debug("Loading from: " + loader.getClass());
+			loader.loadPlugins(this);
+		}
+	}
 
-  private MacroRepository() {
-    loaders = new ArrayList();
-    loaders.add(new MacroLoader());
-    load();
-  }
+	public void addLoader(MacroLoader loader)
+	{
+		loader.setRepository(this);
+		loaders.add(loader);
+		plugins = new HashMap();
+		list = new ArrayList();
+		load();
+	}
+
+	private MacroRepository()
+	{
+		loaders = new ArrayList();
+		loaders.add(new MacroLoader());
+		load();
+	}
 }

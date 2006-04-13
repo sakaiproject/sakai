@@ -26,29 +26,33 @@ package org.radeox.test.macro;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.radeox.test.macro.code.AllCodeMacroTests;
 
-public class AllMacroTests extends TestCase {
-  public AllMacroTests(String name) {
-    super(name);
-  }
+public class AllMacroTests extends TestCase
+{
+	public AllMacroTests(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    TestSuite s = new TestSuite();
-    s.addTestSuite(ApiMacroTest.class);
-    s.addTestSuite(ApiDocMacroTest.class);
-    s.addTestSuite(AsinMacroTest.class);
-    s.addTestSuite(FilePathMacroTest.class);
-    s.addTestSuite(IsbnMacroTest.class);
-    s.addTestSuite(LinkMacroTest.class);
-    s.addTestSuite(ParamMacroTest.class);
-    s.addTestSuite(TableMacroTest.class);
-    s.addTestSuite(XrefMacroTest.class);
-    s.addTestSuite(MailToMacroTest.class);
-    s.addTestSuite(RfcMacroTest.class);
-//    s.addTestSuite(YipeeTest.class);
+	public static Test suite()
+	{
+		TestSuite s = new TestSuite();
+		s.addTestSuite(ApiMacroTest.class);
+		s.addTestSuite(ApiDocMacroTest.class);
+		s.addTestSuite(AsinMacroTest.class);
+		s.addTestSuite(FilePathMacroTest.class);
+		s.addTestSuite(IsbnMacroTest.class);
+		s.addTestSuite(LinkMacroTest.class);
+		s.addTestSuite(ParamMacroTest.class);
+		s.addTestSuite(TableMacroTest.class);
+		s.addTestSuite(XrefMacroTest.class);
+		s.addTestSuite(MailToMacroTest.class);
+		s.addTestSuite(RfcMacroTest.class);
+		// s.addTestSuite(YipeeTest.class);
 
-    s.addTest(AllCodeMacroTests.suite());
-    return s;
-  }
+		s.addTest(AllCodeMacroTests.suite());
+		return s;
+	}
 }

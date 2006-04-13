@@ -25,25 +25,32 @@ package uk.ac.cam.caret.sakai.rwiki.service.api.dao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObjectContent;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RWikiObjectContentDao {
-    /**
-     * get the content object for the RWikiObject
-     * @param parent the RWikiObject 
-     * @return
-     */
+public interface RWikiObjectContentDao
+{
+	/**
+	 * get the content object for the RWikiObject
+	 * 
+	 * @param parent
+	 *        the RWikiObject
+	 * @return
+	 */
 	RWikiObjectContent getContentObject(RWikiObject parent);
-    /**
-     * Create a new content object and associate it with the RWikiObject
-     * @param parent
-     * @return
-     */
+
+	/**
+	 * Create a new content object and associate it with the RWikiObject
+	 * 
+	 * @param parent
+	 * @return
+	 */
 	RWikiObjectContent createContentObject(RWikiObject parent);
-    /**
-     * Update the content object
-     * @param content
-     */
+
+	/**
+	 * Update the content object
+	 * 
+	 * @param content
+	 */
 	void update(RWikiObjectContent content);
 
 }

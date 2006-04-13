@@ -23,41 +23,42 @@
 
 package org.radeox.macro;
 
+import java.io.IOException;
+import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.macro.api.ApiDoc;
 import org.radeox.macro.parameter.MacroParameter;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /*
- * Lists all known API documentation repositories and
- * mappings
- *
- * @author stephan
+ * Lists all known API documentation repositories and mappings @author stephan
  * @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class ApiDocMacro extends BaseLocaleMacro {
-  private static Log log = LogFactory.getLog(ApiDocMacro.class);
+public class ApiDocMacro extends BaseLocaleMacro
+{
+	private static Log log = LogFactory.getLog(ApiDocMacro.class);
 
-  private String[] paramDescription = {};
+	private String[] paramDescription = {};
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public String getLocaleKey() {
-    return "macro.apidocs";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.apidocs";
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
-    ApiDoc apiDoc = ApiDoc.getInstance();
-    apiDoc.appendTo(writer);
-    return;
-  }
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
+		ApiDoc apiDoc = ApiDoc.getInstance();
+		apiDoc.appendTo(writer);
+		return;
+	}
 }

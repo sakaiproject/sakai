@@ -24,19 +24,27 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class RfcMacroTest extends MacroTestSupport {
-  public RfcMacroTest(String name) {
-    super(name);
-  }
+public class RfcMacroTest extends MacroTestSupport
+{
+	public RfcMacroTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(RfcMacroTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(RfcMacroTest.class);
+	}
 
-  public void testRfc() {
-    String result = EngineManager.getInstance().render("{rfc:1}", context);
-    assertEquals("RFC is rendered","<a href=\"http://zvon.org/tmRFC/RFC1/Output/index.html\">RFC1</a>", result);
-  }
+	public void testRfc()
+	{
+		String result = EngineManager.getInstance().render("{rfc:1}", context);
+		assertEquals(
+				"RFC is rendered",
+				"<a href=\"http://zvon.org/tmRFC/RFC1/Output/index.html\">RFC1</a>",
+				result);
+	}
 }

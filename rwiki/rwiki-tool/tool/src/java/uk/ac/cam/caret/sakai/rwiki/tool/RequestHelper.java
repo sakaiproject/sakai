@@ -24,74 +24,78 @@ package uk.ac.cam.caret.sakai.rwiki.tool;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.CommandService;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 
 // FIXME: Tool
-public class RequestHelper {
-    public static final String PANEL = "panel";
+public class RequestHelper
+{
+	private static Log log = LogFactory.getLog(RequestHelper.class);
 
-    public static final String ACTION = "action";
+	public static final String PANEL = "panel";
 
-    public static final String TITLE_PANEL = "Title";
+	public static final String ACTION = "action";
 
-    public static final String HELPER_PATH = "helper";
+	public static final String TITLE_PANEL = "Title";
 
-    public static final String WIKI_PATH = "wiki";
+	public static final String HELPER_PATH = "helper";
 
-    private String defaultAction = "view";
+	public static final String WIKI_PATH = "wiki";
 
-    private CommandService commandService;
+	private String defaultAction = "view";
 
-    private Logger log;
+	private CommandService commandService;
 
-    public HttpCommand getCommandForRequest(HttpServletRequest request) {
-        String panel = request.getParameter(PANEL);
-        String action = request.getParameter(ACTION);
+	public HttpCommand getCommandForRequest(HttpServletRequest request)
+	{
+		String panel = request.getParameter(PANEL);
+		String action = request.getParameter(ACTION);
 
-        // Cope with Sakai panel behaviour
-        if (TITLE_PANEL.equals(panel)) {
-            action = panel;
-        }
+		// Cope with Sakai panel behaviour
+		if (TITLE_PANEL.equals(panel))
+		{
+			action = panel;
+		}
 
-        // Cope with helper call:
-        String requestPath = request.getRequestURI().substring(request.getContextPath().length() + request.getServletPath().length());
-        if (requestPath != null
-                && requestPath.startsWith("/" + HELPER_PATH + "/")) {
-            action = HELPER_PATH;
-        } 
+		// Cope with helper call:
+		String requestPath = request.getRequestURI().substring(
+				request.getContextPath().length()
+						+ request.getServletPath().length());
+		if (requestPath != null
+				&& requestPath.startsWith("/" + HELPER_PATH + "/"))
+		{
+			action = HELPER_PATH;
+		}
 
-        if (action == null) {
-            action = defaultAction;
-        }
+		if (action == null)
+		{
+			action = defaultAction;
+		}
 
-        return commandService.getCommand(action);
-    }
+		return commandService.getCommand(action);
+	}
 
-    public CommandService getCommandService() {
-        return commandService;
-    }
+	public CommandService getCommandService()
+	{
+		return commandService;
+	}
 
-    public void setCommandService(CommandService commandService) {
-        this.commandService = commandService;
-    }
+	public void setCommandService(CommandService commandService)
+	{
+		this.commandService = commandService;
+	}
 
-    public String getDefaultAction() {
-        return defaultAction;
-    }
+	public String getDefaultAction()
+	{
+		return defaultAction;
+	}
 
-    public void setDefaultAction(String defaultAction) {
-        this.defaultAction = defaultAction;
-    }
-
-    public Logger getLog() {
-        return log;
-    }
-
-    public void setLog(Logger log) {
-        this.log = log;
-    }
+	public void setDefaultAction(String defaultAction)
+	{
+		this.defaultAction = defaultAction;
+	}
 
 }

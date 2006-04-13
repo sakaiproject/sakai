@@ -21,35 +21,40 @@
  * --LICENSE NOTICE--
  */
 
-
 package org.radeox.macro.book;
 
 /**
  * Manages links to book dealears or comparison services
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public class BookServices extends TextFileUrlMapper {
-  private static BookServices instance;
+public class BookServices extends TextFileUrlMapper
+{
+	private static BookServices instance;
 
-  public BookServices() {
-    super(BookServices.class);
-  }
+	public BookServices()
+	{
+		super(BookServices.class);
+	}
 
-  public static synchronized UrlMapper getInstance() {
-    if (null == instance) {
-      instance = new BookServices();
-    }
-    return instance;
-  }
+	public static synchronized UrlMapper getInstance()
+	{
+		if (null == instance)
+		{
+			instance = new BookServices();
+		}
+		return instance;
+	}
 
-  public String getFileName() {
-    return "conf/bookservices.txt";
-  }
+	public String getFileName()
+	{
+		return "conf/bookservices.txt";
+	}
 
-  public String getKeyName() {
-    return "isbn";
-  }
+	public String getKeyName()
+	{
+		return "isbn";
+	}
 }

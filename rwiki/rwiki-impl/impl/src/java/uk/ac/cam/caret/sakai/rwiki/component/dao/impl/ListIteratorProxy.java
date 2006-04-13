@@ -25,56 +25,69 @@ package uk.ac.cam.caret.sakai.rwiki.component.dao.impl;
 import java.util.ListIterator;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
-/**
- * Provides a proxy implementation of a ListIterator, proxying objects with
- * a ObjectProxy
- * @author ieb
- *
- */
-//FIXME: Component
 
+/**
+ * Provides a proxy implementation of a ListIterator, proxying objects with a
+ * ObjectProxy
+ * 
+ * @author ieb
+ */
+// FIXME: Component
 public class ListIteratorProxy implements ListIterator
 {
 	private ListIterator li;
+
 	private ObjectProxy lop;
-	public ListIteratorProxy(ListIterator li, ObjectProxy lop) {
+
+	public ListIteratorProxy(ListIterator li, ObjectProxy lop)
+	{
 		this.li = li;
 		this.lop = lop;
 	}
-	
-	public boolean hasNext() {
+
+	public boolean hasNext()
+	{
 		return li.hasNext();
 	}
-	public Object next() {
+
+	public Object next()
+	{
 		return lop.proxyObject(li.next());
 	}
-	
-	public boolean hasPrevious() {
+
+	public boolean hasPrevious()
+	{
 		return li.hasPrevious();
 	}
-	
-	public Object previous() {
+
+	public Object previous()
+	{
 		return lop.proxyObject(previous());
 	}
-	
-	public int nextIndex() {
+
+	public int nextIndex()
+	{
 		return li.nextIndex();
 	}
-	
-	public int previousIndex() {
+
+	public int previousIndex()
+	{
 		return li.previousIndex();
 	}
-	
-	public void remove() {
+
+	public void remove()
+	{
 		li.remove();
 	}
-	
-	public void set(Object arg0) {
+
+	public void set(Object arg0)
+	{
 		li.set(lop.proxyObject(arg0));
 	}
-	
-	public void add(Object arg0) {
+
+	public void add(Object arg0)
+	{
 		li.add(lop.proxyObject(arg0));
 	}
-	
+
 }

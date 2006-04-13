@@ -28,46 +28,47 @@ import java.io.Writer;
 
 /**
  * Converts a class name to an API url
- *
+ * 
  * @author Stephan J. Schmidt
  * @version $Id$
  */
 
-public interface ApiConverter {
-  /**
-   * Converts a class name to an url and adds the url to an
-   * Writer. The url usually shows som API information about
-   * the class e.g. for Java classes this points to the API
-   * documentation on the Sun site.
-   *
-   * @param writer Writer to add the class url to
-   * @param className Namee of the class to create pointer for
-   */
-  public void appendUrl(Writer writer, String className) throws IOException ;
+public interface ApiConverter
+{
+	/**
+	 * Converts a class name to an url and adds the url to an Writer. The url
+	 * usually shows som API information about the class e.g. for Java classes
+	 * this points to the API documentation on the Sun site.
+	 * 
+	 * @param writer
+	 *        Writer to add the class url to
+	 * @param className
+	 *        Namee of the class to create pointer for
+	 */
+	public void appendUrl(Writer writer, String className) throws IOException;
 
-  /**
-   * Set the base Url for the Converter. A converter
-   * creates an API pointer by combining an base url
-   * and the name of a class.
-   *
-   * @param baseUrl Url to use when creating an API pointer
-   */
-  public void setBaseUrl(String baseUrl);
+	/**
+	 * Set the base Url for the Converter. A converter creates an API pointer by
+	 * combining an base url and the name of a class.
+	 * 
+	 * @param baseUrl
+	 *        Url to use when creating an API pointer
+	 */
+	public void setBaseUrl(String baseUrl);
 
-  /**
-   * Get the base Url for the Converter. A converter
-   * creates an API pointer by combining an base url
-   * and the name of a class.
-   *
-   * @return baseUrl Url the converter uses when creating an API pointer
-   */
-  public String getBaseUrl();
+	/**
+	 * Get the base Url for the Converter. A converter creates an API pointer by
+	 * combining an base url and the name of a class.
+	 * 
+	 * @return baseUrl Url the converter uses when creating an API pointer
+	 */
+	public String getBaseUrl();
 
-  /**
-   * Returns the name of the converter. This is used to configure
-   * the BaseUrls and associate them with a concrete converter.
-   *
-   * @return name Name of the Converter, e.g. Java12
-   */
-  public String getName();
+	/**
+	 * Returns the name of the converter. This is used to configure the BaseUrls
+	 * and associate them with a concrete converter.
+	 * 
+	 * @return name Name of the Converter, e.g. Java12
+	 */
+	public String getName();
 }

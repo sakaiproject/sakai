@@ -43,23 +43,23 @@ import junit.framework.TestSuite;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroupService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
-import org.sakaiproject.service.legacy.entity.HttpAccess;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SiteService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.UserDirectoryService;
-import org.sakaiproject.service.legacy.user.UserEdit;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiTestBase;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.xml.Xml;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -81,9 +81,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SimpleCoverage;
  * functionality. Sakai must have been deployed for this to work correctly
  * 
  * @author ieb
- * 
  */
-public class ComponentIntegrationTest extends SakaiTestBase {
+public class ComponentIntegrationTest extends SakaiTestBase
+{
 	private static Log logger = LogFactory
 			.getLog(ComponentIntegrationTest.class);
 
@@ -135,10 +135,13 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @return
 	 */
-	public static Test suite() {
+	public static Test suite()
+	{
 		TestSetup setup = new TestSetup(new TestSuite(
-				ComponentIntegrationTest.class)) {
-			protected void setUp() throws Exception {
+				ComponentIntegrationTest.class))
+		{
+			protected void setUp() throws Exception
+			{
 				oneTimeSetup();
 			}
 		};
@@ -148,7 +151,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	/**
 	 * Setup test fixture (runs once for each test method called)
 	 */
-	public void setUp() throws Exception {
+	public void setUp() throws Exception
+	{
 
 		// Get the services we need for the tests
 		siteService = (SiteService) getService("org.sakaiproject.service.legacy.site.SiteService");
@@ -245,42 +249,58 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * Remove the newly created objects, so we can run more tests with a clean
 	 * slate.
 	 */
-	public void tearDown() throws Exception {
+	public void tearDown() throws Exception
+	{
 		setUser("admin");
-		try {
+		try
+		{
 			// Remove the site (along with its groups)
 			siteService.removeSite(site);
 
-		} catch (Throwable t) {
 		}
-		try {
+		catch (Throwable t)
+		{
+		}
+		try
+		{
 			// Remove the site (along with its groups)
 			siteService.removeSite(targetSite);
 
-		} catch (Throwable t) {
 		}
-		try {
+		catch (Throwable t)
+		{
+		}
+		try
+		{
 			// Remove the users
 			UserEdit user1 = userDirService.editUser("test.user.1");
 			userDirService.removeUser(user1);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 
 		}
 
-		try {
+		try
+		{
 			UserEdit user2 = userDirService.editUser("test.user.2");
 			userDirService.removeUser(user2);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 		}
-		try {
+		try
+		{
 			// Remove the users
 			UserEdit user1 = userDirService.editUser("test.ta.1");
 			userDirService.removeUser(user1);
-		} catch (Throwable t) {
+		}
+		catch (Throwable t)
+		{
 			// logger.info("Failed to remove user ",t);
 			logger.info("Failed to remove user " + t.getMessage());
 		}
@@ -294,7 +314,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void testAll() throws Exception {
+	public void testAll() throws Exception
+	{
 		consolidatedtest = true;
 		xtestBasicMethods();
 		xtestRenderPage();
@@ -306,7 +327,7 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 		xtestImport();
 		xtestPreference();
 		xtestPermissions();
-		
+
 		Thread.sleep(60000);
 
 	}
@@ -316,7 +337,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestBasicMethods() throws Exception {
+	public void dtestBasicMethods() throws Exception
+	{
 		consolidatedtest = false;
 		xtestBasicMethods();
 
@@ -327,7 +349,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestRenderPage() throws Exception {
+	public void dtestRenderPage() throws Exception
+	{
 		consolidatedtest = false;
 		xtestRenderPage();
 
@@ -338,7 +361,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestURLAccess() throws Exception {
+	public void dtestURLAccess() throws Exception
+	{
 		consolidatedtest = false;
 		xtestURLAccess();
 
@@ -349,13 +373,15 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestEntityAccess() throws Exception {
+	public void dtestEntityAccess() throws Exception
+	{
 		consolidatedtest = false;
 		xtestEntityAccess();
 
 	}
 
-	public void dtestArchiveAccess() throws Exception {
+	public void dtestArchiveAccess() throws Exception
+	{
 		consolidatedtest = false;
 		xtestArchiveAccess();
 
@@ -366,7 +392,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestMerge() throws Exception {
+	public void dtestMerge() throws Exception
+	{
 		consolidatedtest = false;
 		xtestMerge();
 
@@ -377,7 +404,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void dtestImport() throws Exception {
+	public void dtestImport() throws Exception
+	{
 		consolidatedtest = false;
 		xtestImport();
 
@@ -388,12 +416,14 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestRenderPage() throws Exception {
+	public void xtestRenderPage() throws Exception
+	{
 		SimpleCoverage.cover("Render Page Test");
 		assertEquals("Test and results sets are not the same size ",
 				content.length, rendered.length);
 		Date d = new Date();
-		for (int i = 0; i < content.length; i++) {
+		for (int i = 0; i < content.length; i++)
+		{
 			SimpleCoverage.cover("Updating page ");
 			rwikiObjectservice.update("HomeTestPageRENDER",
 					site.getReference(), d, content[i]);
@@ -434,9 +464,12 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 			"/wiki/site/SITEID/indexURL.09.rss",
 			"/wiki/site/SITEID/indexURL.10.rss",
 			"/wiki/site/SITEID/indexURL.20.rss",
-			"/wiki/site/SITEID/indexURL.atom", "/wiki/site/SITEID/ .09.rss",
-			"/wiki/site/SITEID/ .10.rss", "/wiki/site/SITEID/ .20.rss",
-			"/wiki/site/SITEID/ .atom", "/wiki/site/SITEID/changedURL.html",
+			"/wiki/site/SITEID/indexURL.atom",
+			"/wiki/site/SITEID/ .09.rss",
+			"/wiki/site/SITEID/ .10.rss",
+			"/wiki/site/SITEID/ .20.rss",
+			"/wiki/site/SITEID/ .atom",
+			"/wiki/site/SITEID/changedURL.html",
 			"/wiki/site/SITEID/changedURL.09.rss",
 			"/wiki/site/SITEID/changedURL.10.rss",
 			"/wiki/site/SITEID/changedURL.20.rss",
@@ -448,10 +481,7 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 			"/wiki/site/8e2f826d-5a12-4b64-00f1-8cb328cd1443/group/Studio2/home.html",
 			"/wiki/site/8e2f826d-5a12-4b64-00f1-8cb328cd1443/section/Studio2/home.html",
 			"/wiki/site/8e2f826d-5a12-4b64-00f1-8cb328cd1443/group/Studio3/home.html",
-			"/wiki/site/8e2f826d-5a12-4b64-00f1-8cb328cd1443/section/Studio3/home.html"
-	};
-
-	
+			"/wiki/site/8e2f826d-5a12-4b64-00f1-8cb328cd1443/section/Studio3/home.html" };
 
 	/**
 	 * some page names to populate
@@ -470,20 +500,24 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestURLAccess() throws Exception {
+	public void xtestURLAccess() throws Exception
+	{
 		assertEquals("pageNames and pageContent must be the same length ",
 				pageNames.length, pageContent.length);
 
-		for (int i = 0; i < pageNames.length; i++) {
+		for (int i = 0; i < pageNames.length; i++)
+		{
 			rwikiObjectservice.update(pageNames[i], site.getReference(),
 					new Date(), pageContent[i]);
 		}
 		Collection copy = new ArrayList();
 		String siteID = site.getId();
-		for (int i = 0; i < accessPaths.length; i++) {
+		for (int i = 0; i < accessPaths.length; i++)
+		{
 			String testURL = accessPaths[i];
 			int ix = testURL.indexOf("SITEID");
-			if (ix != -1) {
+			if (ix != -1)
+			{
 				testURL = testURL.substring(0, ix) + siteID
 						+ testURL.substring(ix + "SITEID".length());
 			}
@@ -491,7 +525,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 			Reference ref = EntityManager.newReference(testURL);
 			logger.info("Got " + ref);
 			EntityProducer service = ref.getEntityProducer();
-			if (service != null) {
+			if (service != null)
+			{
 				MockHttpServletRequest req = new MockHttpServletRequest();
 				MockHttpServletResponse res = new MockHttpServletResponse();
 				HttpAccess ha = service.getHttpAccess();
@@ -500,10 +535,12 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 						+ res.getContentAsString());
 				Collection authZGroups = service.getEntityAuthzGroups(ref);
 				logger.info("Reference  " + ref.getReference());
-				for (Iterator ic = authZGroups.iterator(); ic.hasNext();) {
+				for (Iterator ic = authZGroups.iterator(); ic.hasNext();)
+				{
 					String authZGroupID = (String) ic.next();
 					logger.info("   AuthZGroup " + authZGroupID);
-					try {
+					try
+					{
 						AuthzGroup azg = authzGroupService
 								.getAuthzGroup(authZGroupID);
 						printFunction(azg, RWikiSecurityService.SECURE_ADMIN);
@@ -514,12 +551,16 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 								RWikiSecurityService.SECURE_SUPER_ADMIN);
 						printFunction(azg, RWikiSecurityService.SECURE_UPDATE);
 
-					} catch (IdUnusedException iduex) {
+					}
+					catch (GroupNotDefinedException iduex)
+					{
 						logger.info("        Does not exist "
 								+ iduex.getMessage());
 					}
 				}
-			} else {
+			}
+			else
+			{
 				logger.info("Rejected URL " + testURL + "");
 			}
 		}
@@ -532,10 +573,12 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * @param azg
 	 * @param function
 	 */
-	public void printFunction(AuthzGroup azg, String function) {
+	public void printFunction(AuthzGroup azg, String function)
+	{
 		logger.info("  Checking for " + function);
 		Set roles = azg.getRolesIsAllowed(function);
-		for (Iterator ri = roles.iterator(); ri.hasNext();) {
+		for (Iterator ri = roles.iterator(); ri.hasNext();)
+		{
 			logger.info("       " + String.valueOf(ri.next()) + " allowed to "
 					+ function);
 		}
@@ -544,11 +587,12 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	/**
 	 * Verift the find all operations in the object service. Some db's have
 	 * problems with like statements
-	 * 
 	 */
-	public void xtestFindAll() {
+	public void xtestFindAll()
+	{
 		List l = rwikiObjectservice.findRWikiSubPages(site.getReference());
-		if (l.size() == 0) {
+		if (l.size() == 0)
+		{
 			logger.info("Found " + l.size() + " pages in "
 					+ site.getReference());
 			fail(" Fialed to find any pages in " + site.getReference());
@@ -562,7 +606,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestEntityAccess() throws Exception {
+	public void xtestEntityAccess() throws Exception
+	{
 
 		rwikiObjectservice.update("HomeTestPageENTITY", site.getReference(),
 				new Date(), content[0]);
@@ -620,7 +665,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestArchiveAccess() throws Exception {
+	public void xtestArchiveAccess() throws Exception
+	{
 		rwikiObjectservice.update("HomeTestPageARCHIVE", site.getReference(),
 				new Date(), content[0]);
 		RWikiObject rwo = rwikiObjectservice.getRWikiObject(
@@ -662,7 +708,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestImport() throws Exception {
+	public void xtestImport() throws Exception
+	{
 		// create 2 pages, add their ids to the list, transfer to annother site,
 		// check they were there
 		List l = new ArrayList();
@@ -693,15 +740,16 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	/**
 	 * Test a merge operation from a standard archive file (static). If the
 	 * archive format changes this may fail
-	 * 
 	 */
-	public void xtestMerge() {
+	public void xtestMerge()
+	{
 		Document doc = Xml.readDocumentFromStream(this.getClass()
 				.getResourceAsStream(archiveContentResource));
 		String fromSiteId = doc.getDocumentElement().getAttribute("source");
 		NodeList nl = doc
 				.getElementsByTagName("uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService");
-		for (int i = 0; i < nl.getLength(); i++) {
+		for (int i = 0; i < nl.getLength(); i++)
+		{
 			Element el = (Element) nl.item(i);
 			String results = rwikiObjectservice.merge(targetSite.getId(), el,
 					"/tmp", fromSiteId, new HashMap(), new HashMap(),
@@ -714,9 +762,9 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	/**
 	 * A quick test of the settings of the RWikiObjectServce from an
 	 * EntityProducer point of view
-	 * 
 	 */
-	public void xtestBasicMethods() {
+	public void xtestBasicMethods()
+	{
 		assertEquals("Service was not as expected ", "wiki", rwikiObjectservice
 				.getLabel());
 		assertEquals("Expected to be able to archive  ", true,
@@ -730,7 +778,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestPreference() throws Exception {
+	public void xtestPreference() throws Exception
+	{
 		rwikiObjectservice.update("HomeTestPagePreference",
 				site.getReference(), new Date(), content[0]);
 		RWikiObject rwo = rwikiObjectservice.getRWikiObject(
@@ -793,22 +842,25 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * Check for a lock on a site
 	 * 
 	 * @param user
-	 *            the user
+	 *        the user
 	 * @param reference
-	 *            the reference
+	 *        the reference
 	 * @param lock
-	 *            the lock to check for
+	 *        the lock to check for
 	 * @param perms
-	 *            a map of permissions found on the lock
+	 *        a map of permissions found on the lock
 	 */
-	public void checkLock(String user, String reference, String lock, Map perms) {
+	public void checkLock(String user, String reference, String lock, Map perms)
+	{
 		Set groups = authzGroupService
 				.getAuthzGroupsIsAllowed(user, lock, null);
 		perms.put(user + ":" + lock, "false");
-		for (Iterator i = groups.iterator(); i.hasNext();) {
+		for (Iterator i = groups.iterator(); i.hasNext();)
+		{
 			String ref = i.next().toString();
 			logger.debug(" Group for " + user + ":" + lock + " " + ref);
-			if (ref.equals(reference)) {
+			if (ref.equals(reference))
+			{
 				perms.put(user + ":" + lock, "true");
 			}
 		}
@@ -844,7 +896,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 	 * 
 	 * @throws Exception
 	 */
-	public void xtestPermissions() throws Exception {
+	public void xtestPermissions() throws Exception
+	{
 		rwikiObjectservice.update("HomeTestPagePermissions", site
 				.getReference(), new Date(), content[0]);
 		RWikiObject rwo = rwikiObjectservice.getRWikiObject(
@@ -887,11 +940,13 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 		checkLock(user, siteRef, RWikiSecurityService.SECURE_SUPER_ADMIN, perms);
 		checkLock(user, siteRef, RWikiSecurityService.SECURE_UPDATE, perms);
 
-		for (int i = 0; i < truePerms.length; i++) {
+		for (int i = 0; i < truePerms.length; i++)
+		{
 			assertEquals(" Permissions Check " + truePerms[i], "true", perms
 					.get(truePerms[i]));
 		}
-		for (int i = 0; i < falsePerms.length; i++) {
+		for (int i = 0; i < falsePerms.length; i++)
+		{
 			assertEquals(" Permissions Check " + falsePerms[i], "false", perms
 					.get(falsePerms[i]));
 		}
@@ -900,7 +955,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 		users.put("test.user.1", userDirService.getUser("test.user.1"));
 		users.put("test.user.2", userDirService.getUser("test.user.2"));
 		users.put("test.ta.1", userDirService.getUser("test.ta.1"));
-		for (Iterator i = perms.keySet().iterator(); i.hasNext();) {
+		for (Iterator i = perms.keySet().iterator(); i.hasNext();)
+		{
 			String key = (String) i.next();
 			String[] dec = key.split(":");
 			String expected = (String) perms.get(key);
@@ -910,10 +966,12 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 			User u = (User) users.get(utest);
 			String userid = utest + " does not exist";
 
-			if (u != null && securityService.unlock(u, lock, siteRef)) {
+			if (u != null && securityService.unlock(u, lock, siteRef))
+			{
 				val = "true";
 			}
-			if (u != null) {
+			if (u != null)
+			{
 				userid = utest + " " + u.getId();
 			}
 			logger.debug("Evaluating " + userid + "--" + lock + "::" + key
@@ -925,8 +983,10 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 		logger.info(" All Sakai Security Service Locks pass ");
 		RWikiEntity rwe = (RWikiEntity) rwikiObjectservice.getEntity(rwo);
 		String entityRef = rwe.getReference();
-		try {
-			for (Iterator i = perms.keySet().iterator(); i.hasNext();) {
+		try
+		{
+			for (Iterator i = perms.keySet().iterator(); i.hasNext();)
+			{
 				String key = (String) i.next();
 				String[] dec = key.split(":");
 				String expected = (String) perms.get(key);
@@ -940,23 +1000,33 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				logger.debug("Set User to " + dec[0] + " checking " + lock
 						+ " on " + siteRef);
 
-				if (RWikiSecurityService.SECURE_ADMIN.equals(lock)) {
+				if (RWikiSecurityService.SECURE_ADMIN.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkAdminPermission(siteRef);
-				} else if (RWikiSecurityService.SECURE_CREATE.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_CREATE.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkCreatePermission(siteRef);
-				} else if (RWikiSecurityService.SECURE_READ.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_READ.equals(lock))
+				{
 					locktest = rwikiSecurityService.checkGetPermission(siteRef);
-				} else if (RWikiSecurityService.SECURE_SUPER_ADMIN.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_SUPER_ADMIN.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkSuperAdminPermission(siteRef);
-				} else if (RWikiSecurityService.SECURE_UPDATE.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_UPDATE.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkUpdatePermission(siteRef);
 				}
 
-				if (locktest) {
+				if (locktest)
+				{
 					val = "true";
 				}
 				logger.debug("Evaluating " + utest + "--" + lock + "::" + key
@@ -964,11 +1034,15 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				assertEquals("Check RWikiSecurityService on Site  " + utest
 						+ "--" + lock + "::" + key, expected, val);
 			}
-		} finally {
+		}
+		finally
+		{
 			setUser("admin");
 		}
-		try {
-			for (Iterator i = perms.keySet().iterator(); i.hasNext();) {
+		try
+		{
+			for (Iterator i = perms.keySet().iterator(); i.hasNext();)
+			{
 				String key = (String) i.next();
 				String[] dec = key.split(":");
 				String expected = (String) perms.get(key);
@@ -982,24 +1056,34 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				logger.debug("Set User to " + dec[0] + " checking " + lock
 						+ " on " + entityRef);
 
-				if (RWikiSecurityService.SECURE_ADMIN.equals(lock)) {
+				if (RWikiSecurityService.SECURE_ADMIN.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkAdminPermission(entityRef);
-				} else if (RWikiSecurityService.SECURE_CREATE.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_CREATE.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkCreatePermission(entityRef);
-				} else if (RWikiSecurityService.SECURE_READ.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_READ.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkGetPermission(entityRef);
-				} else if (RWikiSecurityService.SECURE_SUPER_ADMIN.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_SUPER_ADMIN.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkSuperAdminPermission(entityRef);
-				} else if (RWikiSecurityService.SECURE_UPDATE.equals(lock)) {
+				}
+				else if (RWikiSecurityService.SECURE_UPDATE.equals(lock))
+				{
 					locktest = rwikiSecurityService
 							.checkUpdatePermission(entityRef);
 				}
 
-				if (locktest) {
+				if (locktest)
+				{
 					val = "true";
 				}
 				logger.debug("Evaluating " + utest + "--" + lock + "::" + key
@@ -1007,7 +1091,9 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				assertEquals("Check RWikiSecurityService on RWikiObject "
 						+ utest + "--" + lock + "::" + key, expected, val);
 			}
-		} finally {
+		}
+		finally
+		{
 			setUser("admin");
 		}
 
@@ -1018,7 +1104,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				.checkRead(rwo));
 		assertEquals("Check admin checkUpdate ", true, rwikiObjectservice
 				.checkUpdate(rwo));
-		try {
+		try
+		{
 			setUser("test.user.1");
 			assertEquals("Check test.user.1 checkAdmin ", false,
 					rwikiObjectservice.checkAdmin(rwo));
@@ -1050,7 +1137,9 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 					.checkRead(rwo));
 			assertEquals("Check null checkUpdate ", false, rwikiObjectservice
 					.checkUpdate(rwo));
-		} finally {
+		}
+		finally
+		{
 
 			setUser("admin");
 
@@ -1072,7 +1161,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				.checkRead(rwo));
 		assertEquals("Check admin checkUpdate ", true, rwikiObjectservice
 				.checkUpdate(rwo));
-		try {
+		try
+		{
 			setUser("test.user.1");
 			assertEquals("Check test.user.1 checkAdmin ", false,
 					rwikiObjectservice.checkAdmin(rwo));
@@ -1104,7 +1194,9 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 					.checkRead(rwo));
 			assertEquals("Check null checkUpdate ", false, rwikiObjectservice
 					.checkUpdate(rwo));
-		} finally {
+		}
+		finally
+		{
 
 			setUser("admin");
 
@@ -1125,7 +1217,8 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 				.checkRead(rwo));
 		assertEquals("Check admin checkUpdate ", true, rwikiObjectservice
 				.checkUpdate(rwo));
-		try {
+		try
+		{
 			setUser("test.user.1");
 			assertEquals("Check test.user.1 checkAdmin ", false,
 					rwikiObjectservice.checkAdmin(rwo));
@@ -1157,7 +1250,9 @@ public class ComponentIntegrationTest extends SakaiTestBase {
 					.checkRead(rwo));
 			assertEquals("Check null checkUpdate ", false, rwikiObjectservice
 					.checkUpdate(rwo));
-		} finally {
+		}
+		finally
+		{
 
 			setUser("admin");
 

@@ -30,22 +30,26 @@ import org.radeox.api.engine.context.RenderContext;
 
 /**
  * Base impementation for InitialRenderContext
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: BaseInitialRenderContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class BaseInitialRenderContext extends BaseRenderContext implements InitialRenderContext {
-  public BaseInitialRenderContext() {
-    Locale languageLocale = Locale.getDefault();
-    Locale locale = new Locale("Basic", "basic");
-    set(RenderContext.INPUT_LOCALE, locale);
-    set(RenderContext.OUTPUT_LOCALE, locale);
-    set(RenderContext.LANGUAGE_LOCALE, languageLocale);
-    set(RenderContext.INPUT_BUNDLE_NAME, "radeox_markup");
-    set(RenderContext.OUTPUT_BUNDLE_NAME, "radeox_markup");
-    set(RenderContext.LANGUAGE_BUNDLE_NAME, "radeox_messages");
+public class BaseInitialRenderContext extends BaseRenderContext implements
+		InitialRenderContext
+{
+	public BaseInitialRenderContext()
+	{
+		Locale languageLocale = Locale.getDefault();
+		Locale locale = new Locale("Basic", "basic");
+		set(RenderContext.INPUT_LOCALE, locale);
+		set(RenderContext.OUTPUT_LOCALE, locale);
+		set(RenderContext.LANGUAGE_LOCALE, languageLocale);
+		set(RenderContext.INPUT_BUNDLE_NAME, "radeox_markup");
+		set(RenderContext.OUTPUT_BUNDLE_NAME, "radeox_markup");
+		set(RenderContext.LANGUAGE_BUNDLE_NAME, "radeox_messages");
 
-    set(RenderContext.DEFAULT_FORMATTER, "java");
-  }
+		set(RenderContext.DEFAULT_FORMATTER, "java");
+	}
 }

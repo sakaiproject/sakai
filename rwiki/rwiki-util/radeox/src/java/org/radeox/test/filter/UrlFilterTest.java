@@ -24,34 +24,45 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.UrlFilter;
 
-public class UrlFilterTest extends FilterTestSupport {
-  public UrlFilterTest(String name) {
-    super(name);
-  }
+public class UrlFilterTest extends FilterTestSupport
+{
+	public UrlFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new UrlFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new UrlFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(UrlFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(UrlFilterTest.class);
+	}
 
-  public void testHttp() {
-    assertEquals("<span class=\"nobr\"><a href=\"http://radeox.org\">&#104;ttp://radeox.org</a></span>",
-                 filter.filter("http://radeox.org", context));
-  }
+	public void testHttp()
+	{
+		assertEquals(
+				"<span class=\"nobr\"><a href=\"http://radeox.org\">&#104;ttp://radeox.org</a></span>",
+				filter.filter("http://radeox.org", context));
+	}
 
-  public void testHttps() {
-    assertEquals("<span class=\"nobr\"><a href=\"https://radeox.org\">&#104;ttps://radeox.org</a></span>",
-                 filter.filter("https://radeox.org", context));
-  }
+	public void testHttps()
+	{
+		assertEquals(
+				"<span class=\"nobr\"><a href=\"https://radeox.org\">&#104;ttps://radeox.org</a></span>",
+				filter.filter("https://radeox.org", context));
+	}
 
-  public void testFtp() {
-    assertEquals("<span class=\"nobr\"><a href=\"ftp://radeox.org\">&#102;tp://radeox.org</a></span>",
-                 filter.filter("ftp://radeox.org", context));
-  }
+	public void testFtp()
+	{
+		assertEquals(
+				"<span class=\"nobr\"><a href=\"ftp://radeox.org\">&#102;tp://radeox.org</a></span>",
+				filter.filter("ftp://radeox.org", context));
+	}
 }

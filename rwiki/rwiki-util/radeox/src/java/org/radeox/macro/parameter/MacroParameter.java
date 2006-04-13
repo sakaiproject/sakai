@@ -23,49 +23,51 @@
 
 package org.radeox.macro.parameter;
 
-import org.radeox.api.engine.context.RenderContext;
-
 import java.util.Map;
+
+import org.radeox.api.engine.context.RenderContext;
 
 /**
  * Encapsulates parameters for an executed Macro call
- *
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: MacroParameter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface MacroParameter {
-  public void setParams(String stringParams);
+public interface MacroParameter
+{
+	public void setParams(String stringParams);
 
-  public String getContent();
+	public String getContent();
 
-  public void setContent(String content);
+	public void setContent(String content);
 
-  public int getLength();
+	public int getLength();
 
-  public String get(String index, int idx);
+	public String get(String index, int idx);
 
-  public String get(String index);
+	public String get(String index);
 
-  public String get(int index);
+	public String get(int index);
 
-  public Map getParams();
+	public Map getParams();
 
-  public void setStart(int start);
+	public void setStart(int start);
 
-  public void setEnd(int end);
+	public void setEnd(int end);
 
-  public int getStart();
+	public int getStart();
 
-  public int getEnd();
+	public int getEnd();
 
-  public void setContentStart(int start);
+	public void setContentStart(int start);
 
-  public void setContentEnd(int end);
+	public void setContentEnd(int end);
 
-  public int getContentStart();
+	public int getContentStart();
 
-  public int getContentEnd();
+	public int getContentEnd();
 
-  public RenderContext getContext();
+	public RenderContext getContext();
 }

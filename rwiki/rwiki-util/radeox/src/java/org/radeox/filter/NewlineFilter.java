@@ -26,16 +26,18 @@ package org.radeox.filter;
 import org.radeox.filter.regex.LocaleRegexReplaceFilter;
 
 /*
- * NewlineFilter finds \\ in its input and transforms this
- * to <br/>
- *
- * @author stephan
- * @team sonicteam
- * @version $Id$
+ * NewlineFilter finds \\ in its input and transforms this to <br/> @author
+ * stephan @team sonicteam
+ * 
+ * @version $Id: NewlineFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class NewlineFilter extends LocaleRegexReplaceFilter implements CacheFilter {
-  protected String getLocaleKey() {
-    return "filter.newline";
-  }
+public class NewlineFilter extends LocaleRegexReplaceFilter implements
+		CacheFilter
+{
+	protected String getLocaleKey()
+	{
+		return "filter.newline";
+	}
 }

@@ -35,19 +35,24 @@ import org.xml.sax.helpers.XMLReaderFactory;
  * Digests XHTML into a string representation
  * 
  * @author ieb
- * 
  */
-public class DigestHtml {
+public class DigestHtml
+{
 
-	public static String digest(String todigest) {
+	public static String digest(String todigest)
+	{
 		Digester d = new Digester();
-		try {
-			XMLReader reader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
+		try
+		{
+			XMLReader reader = XMLReaderFactory
+					.createXMLReader("org.apache.xerces.parsers.SAXParser");
 			reader.setContentHandler(d);
 			reader.parse(new InputSource(new StringReader("<content>"
 					+ todigest + "</content>")));
 			return d.toString();
-		} catch (Exception ex) {
+		}
+		catch (Exception ex)
+		{
 			return d.toString() + "\n Failed at " + ex.getMessage();
 		}
 	}

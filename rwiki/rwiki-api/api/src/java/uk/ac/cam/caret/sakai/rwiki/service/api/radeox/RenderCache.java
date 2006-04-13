@@ -24,12 +24,13 @@ package uk.ac.cam.caret.sakai.rwiki.service.api.radeox;
 
 /**
  * Provides a cache service
+ * 
  * @author ieb
- *
  */
-//FIXME: Service
-
-public interface RenderCache {
+// FIXME: Service
+public interface RenderCache
+{
 	String getRenderedContent(String key);
+
 	void putRenderedContent(String key, String content);
 }

@@ -24,62 +24,76 @@ package uk.ac.cam.caret.sakai.rwiki.service.exception;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
-//FIXME: Service
+// FIXME: Service
 
-public class ReadPermissionException extends PermissionException {
+public class ReadPermissionException extends PermissionException
+{
 
-    /**
-     * @see java.io.ObjectInputStream.resolveClass()
-     */
-    private static final long serialVersionUID = -3744459824034953929L;
-    private String user;
-    private RWikiObject rwikiObject;
-    private String realm;
+	/**
+	 * @see java.io.ObjectInputStream.resolveClass()
+	 */
+	private static final long serialVersionUID = -3744459824034953929L;
 
-    public ReadPermissionException(String user, RWikiObject rwikiObject) {
-        super("User: " + user + " cannot read RWikiObject " + rwikiObject);
-        this.user = user;
-        this.rwikiObject = rwikiObject;
-        this.realm = rwikiObject.getRealm();
-    }
-    
-    public ReadPermissionException(String user, RWikiObject rwikiObject, Throwable cause) {
-        super("User: " + user + " cannot read RWikiObject " + rwikiObject ,cause);
-        this.user = user;
-        this.rwikiObject = rwikiObject;
-        this.realm = rwikiObject.getRealm();
-    }
-    
-    public ReadPermissionException(String user, String realm) {
-        super("User: " + user + " is not permitted to read in realm " + realm);
-        this.user = user;
-        this.realm = realm;
-        this.rwikiObject = null;
-    }
+	private String user;
 
-    public RWikiObject getRWikiObject() {
-        return rwikiObject;
-    }
+	private RWikiObject rwikiObject;
 
-    public void setRWikiObject(RWikiObject rwikiObject) {
-        this.rwikiObject = rwikiObject;
-    }
+	private String realm;
 
-    public String getUser() {
-        return user;
-    }
+	public ReadPermissionException(String user, RWikiObject rwikiObject)
+	{
+		super("User: " + user + " cannot read RWikiObject " + rwikiObject);
+		this.user = user;
+		this.rwikiObject = rwikiObject;
+		this.realm = rwikiObject.getRealm();
+	}
 
-    public void setUser(String user) {
-        this.user = user;
-    }
+	public ReadPermissionException(String user, RWikiObject rwikiObject,
+			Throwable cause)
+	{
+		super("User: " + user + " cannot read RWikiObject " + rwikiObject,
+				cause);
+		this.user = user;
+		this.rwikiObject = rwikiObject;
+		this.realm = rwikiObject.getRealm();
+	}
 
-    public String getRealm() {
-        return realm;
-    }
+	public ReadPermissionException(String user, String realm)
+	{
+		super("User: " + user + " is not permitted to read in realm " + realm);
+		this.user = user;
+		this.realm = realm;
+		this.rwikiObject = null;
+	}
 
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-    
-    
+	public RWikiObject getRWikiObject()
+	{
+		return rwikiObject;
+	}
+
+	public void setRWikiObject(RWikiObject rwikiObject)
+	{
+		this.rwikiObject = rwikiObject;
+	}
+
+	public String getUser()
+	{
+		return user;
+	}
+
+	public void setUser(String user)
+	{
+		this.user = user;
+	}
+
+	public String getRealm()
+	{
+		return realm;
+	}
+
+	public void setRealm(String realm)
+	{
+		this.realm = realm;
+	}
+
 }

@@ -23,15 +23,14 @@
 
 package org.radeox.util;
 
-
-
 /**
  * Tells the object to create a link to itself.
- *
+ * 
  * @author Matthias L. Jugel
  * @version $Id$
  */
 
-public interface Linkable {
-  public String getLink();
+public interface Linkable
+{
+	public String getLink();
 }

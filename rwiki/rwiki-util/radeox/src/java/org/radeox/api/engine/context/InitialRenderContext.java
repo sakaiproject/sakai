@@ -23,17 +23,15 @@
 
 package org.radeox.api.engine.context;
 
-
-
-
 /**
- * IntialRenderContext tells a Filter how to behave at initializiation.
- * For example the Filter can read pattern locales for it's pattern
- * matching.
- *
+ * IntialRenderContext tells a Filter how to behave at initializiation. For
+ * example the Filter can read pattern locales for it's pattern matching.
+ * 
  * @author Stephan J. Schmidt
- * @version $Id$
+ * @version $Id: InitialRenderContext.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public interface InitialRenderContext extends RenderContext {
+public interface InitialRenderContext extends RenderContext
+{
 }

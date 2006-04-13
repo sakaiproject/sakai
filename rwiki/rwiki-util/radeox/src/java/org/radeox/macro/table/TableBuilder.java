@@ -27,32 +27,41 @@ import java.util.StringTokenizer;
 
 /**
  * Built a table from a string
- *
+ * 
  * @author stephan
  * @version $Id$
  */
 
-public class TableBuilder {
-  public static Table build(String content) {
-    Table table = new Table();
-    StringTokenizer tokenizer = new StringTokenizer(content, "|\n", true);
-    String lastToken = null;
-    while (tokenizer.hasMoreTokens()) {
-      String token = tokenizer.nextToken();
-      if ("\n".equals(token)) {
-        // Handles "\n" - "|\n"
-        if (null == lastToken || "|".equals(lastToken)) {
-          table.addCell(" ");
-        }
-        table.newRow();
-      } else if (!"|".equals(token)) {
-        table.addCell(token);
-      } else if (null == lastToken || "|".equals(lastToken)) {
-        // Handles "|" "||"
-        table.addCell(" ");
-      }
-      lastToken = token;
-    }
-    return table;
-  }
+public class TableBuilder
+{
+	public static Table build(String content)
+	{
+		Table table = new Table();
+		StringTokenizer tokenizer = new StringTokenizer(content, "|\n", true);
+		String lastToken = null;
+		while (tokenizer.hasMoreTokens())
+		{
+			String token = tokenizer.nextToken();
+			if ("\n".equals(token))
+			{
+				// Handles "\n" - "|\n"
+				if (null == lastToken || "|".equals(lastToken))
+				{
+					table.addCell(" ");
+				}
+				table.newRow();
+			}
+			else if (!"|".equals(token))
+			{
+				table.addCell(token);
+			}
+			else if (null == lastToken || "|".equals(lastToken))
+			{
+				// Handles "|" "||"
+				table.addCell(" ");
+			}
+			lastToken = token;
+		}
+		return table;
+	}
 }

@@ -24,8 +24,10 @@ package uk.ac.cam.caret.sakai.rwiki.tool.api;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 
-//FIXME: Tool
+// FIXME: Tool
 
-public interface PopulateService {
-    void populateRealm(String user, String space, String group) throws PermissionException;
+public interface PopulateService
+{
+	void populateRealm(String user, String space, String group)
+			throws PermissionException;
 }

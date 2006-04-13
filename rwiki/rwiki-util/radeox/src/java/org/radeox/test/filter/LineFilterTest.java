@@ -24,35 +24,47 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.filter.LineFilter;
 
-public class LineFilterTest extends FilterTestSupport {
-  public LineFilterTest(String name) {
-    super(name);
-  }
+public class LineFilterTest extends FilterTestSupport
+{
+	public LineFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new LineFilter();
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new LineFilter();
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(LineFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(LineFilterTest.class);
+	}
 
-  public void test3Line() {
-    assertEquals("Test---Text", filter.filter("Test---Text", context));
-  }
+	public void test3Line()
+	{
+		assertEquals("Test---Text", filter.filter("Test---Text", context));
+	}
 
-  public void test4Line() {
-    assertEquals("Test<hr class=\"line\"/>Text", filter.filter("Test----Text", context));
-  }
+	public void test4Line()
+	{
+		assertEquals("Test<hr class=\"line\"/>Text", filter.filter(
+				"Test----Text", context));
+	}
 
-  public void test5Line() {
-    assertEquals("Test<hr class=\"line\"/>Text", filter.filter("Test-----Text", context));
-  }
+	public void test5Line()
+	{
+		assertEquals("Test<hr class=\"line\"/>Text", filter.filter(
+				"Test-----Text", context));
+	}
 
-  public void testSimpleLine() {
-    assertEquals("<hr class=\"line\"/>\n", filter.filter("-----\n", context));
-  }
+	public void testSimpleLine()
+	{
+		assertEquals("<hr class=\"line\"/>\n", filter
+				.filter("-----\n", context));
+	}
 }

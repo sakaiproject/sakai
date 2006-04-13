@@ -22,15 +22,14 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 
-
 /**
  * Migrates data between different versions of the database
+ * 
  * @author ieb
- *
  */
-//FIXME: Service
-
-public interface DataMigrationAgent {
-	String migrate(String current, String target) throws Exception ;
+// FIXME: Service
+public interface DataMigrationAgent
+{
+	String migrate(String current, String target) throws Exception;
 
 }

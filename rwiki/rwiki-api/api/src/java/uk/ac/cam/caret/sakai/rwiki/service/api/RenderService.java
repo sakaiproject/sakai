@@ -24,17 +24,17 @@ package uk.ac.cam.caret.sakai.rwiki.service.api;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
-//FIXME: Service
+// FIXME: Service
 
-public interface RenderService {
+public interface RenderService
+{
 	/**
-     * 
-     * @param rwo
-     * @param user
-     * @param pageSpace
-     * @param plr
-     * @return
-     */
-    String renderPage(RWikiObject rwo,  String pageSpace, PageLinkRenderer plr);
-    // SAK-2519
+	 * @param rwo
+	 * @param user
+	 * @param pageSpace
+	 * @param plr
+	 * @return
+	 */
+	String renderPage(RWikiObject rwo, String pageSpace, PageLinkRenderer plr);
+	// SAK-2519
 }

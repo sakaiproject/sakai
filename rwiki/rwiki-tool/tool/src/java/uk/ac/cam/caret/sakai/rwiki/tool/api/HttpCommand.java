@@ -28,10 +28,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-//FIXME: Tool
+// FIXME: Tool
 
-public interface HttpCommand {
+public interface HttpCommand
+{
 
-    void execute(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException;
+	void execute(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException;
 }

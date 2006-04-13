@@ -23,11 +23,10 @@
 package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 
 /**
- * @author ieb
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * @author ieb TODO To change the template for this generated type comment go to
+ *         Window - Preferences - Java - Code Style - Code Templates
  */
-public interface DataMigrationController {
+public interface DataMigrationController
+{
 	void update() throws Exception;
 }

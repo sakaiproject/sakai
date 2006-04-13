@@ -23,158 +23,196 @@
 
 package org.radeox.macro.parameter;
 
-import org.radeox.api.engine.context.RenderContext;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.radeox.api.engine.context.RenderContext;
+
 /**
- *
  * @author
- * @version $Id$
+ * @version $Id: BaseMacroParameter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class BaseMacroParameter implements MacroParameter {
-  private String content;
-  protected Map params;
-  private int size;
-  protected RenderContext context;
-  private int start;
-  private int end;
-  private int contentStart;
-  private int contentEnd;
+public class BaseMacroParameter implements MacroParameter
+{
+	private String content;
 
-  public BaseMacroParameter() {
-  }
+	protected Map params;
 
-  public BaseMacroParameter(RenderContext context) {
-    this.context = context;
-  }
+	private int size;
 
-  public void setParams(String stringParams) {
-    params = split(stringParams, "|");
-    size = params.size();
-  }
+	protected RenderContext context;
 
-  public RenderContext getContext() {
-    return context;
-  }
+	private int start;
 
-  public Map getParams() {
-    return params;
-  }
+	private int end;
 
-  public String getContent() {
-    return content;
-  }
+	private int contentStart;
 
-  public void setContent(String content) {
-    this.content = content;
-  }
+	private int contentEnd;
 
-  public int getLength() {
-    return size;
-  }
+	public BaseMacroParameter()
+	{
+	}
 
-  public String get(String index, int idx) {
-    String result = get(index);
-    if (result == null) {
-      result = get(idx);
-    }
-    return result;
-  }
+	public BaseMacroParameter(RenderContext context)
+	{
+		this.context = context;
+	}
 
-  public String get(String index) {
-    return (String) params.get(index);
-  }
+	public void setParams(String stringParams)
+	{
+		params = split(stringParams, "|");
+		size = params.size();
+	}
 
-  public String get(int index) {
-    return get("" + index);
-  }
+	public RenderContext getContext()
+	{
+		return context;
+	}
 
-  /**
-   *
-   * Splits a String on a delimiter to a List. The function works like
-   * the perl-function split.
-   *
-   * @param aString    a String to split
-   * @param delimiter  a delimiter dividing the entries
-   * @return           a Array of splittet Strings
-   */
+	public Map getParams()
+	{
+		return params;
+	}
 
-  private Map split(String aString, String delimiter) {
-    Map result = new HashMap();
+	public String getContent()
+	{
+		return content;
+	}
 
-    if (null != aString) {
-      StringTokenizer st = new StringTokenizer(aString, delimiter);
-      int i = 0;
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
 
-      while (st.hasMoreTokens()) {
-        String value = st.nextToken();
-        String key = "" + i;
-        if (value.indexOf("=") != -1) {
-          // Store this for
-          result.put(key, insertValue(value));
-          int index = value.indexOf("=");
-          key = value.substring(0, index);
-          value = value.substring(index + 1);
+	public int getLength()
+	{
+		return size;
+	}
 
-          result.put(key, insertValue(value));
-        } else {
-          result.put(key, insertValue(value));
-        }
-        i++;
-      }
-    }
-    return result;
-  }
+	public String get(String index, int idx)
+	{
+		String result = get(index);
+		if (result == null)
+		{
+			result = get(idx);
+		}
+		return result;
+	}
 
-  private String insertValue(String s) {
-    int idx = s.indexOf('$');
-    if (idx != -1) {
-      StringBuffer tmp = new StringBuffer();
-      Map globals = context.getParameters();
-      String var = s.substring(idx + 1);
-      if (idx > 0) tmp.append(s.substring(0, idx));
-      if (globals.containsKey(var)) {
-        tmp.append(globals.get(var));
-      }
-      return tmp.toString();
-    }
-    return s;
-  }
+	public String get(String index)
+	{
+		return (String) params.get(index);
+	}
 
-  public void setStart(int start) {
-    this.start = start;
-  }
+	public String get(int index)
+	{
+		return get("" + index);
+	}
 
-  public void setEnd(int end) {
-    this.end = end;
-  }
+	/**
+	 * Splits a String on a delimiter to a List. The function works like the
+	 * perl-function split.
+	 * 
+	 * @param aString
+	 *        a String to split
+	 * @param delimiter
+	 *        a delimiter dividing the entries
+	 * @return a Array of splittet Strings
+	 */
 
-  public int getStart() {
-    return this.start;
-  }
+	private Map split(String aString, String delimiter)
+	{
+		Map result = new HashMap();
 
-  public int getEnd() {
-    return this.end;
-  }
+		if (null != aString)
+		{
+			StringTokenizer st = new StringTokenizer(aString, delimiter);
+			int i = 0;
 
-  public int getContentStart() {
-    return contentStart;
-  }
+			while (st.hasMoreTokens())
+			{
+				String value = st.nextToken();
+				String key = "" + i;
+				if (value.indexOf("=") != -1)
+				{
+					// Store this for
+					result.put(key, insertValue(value));
+					int index = value.indexOf("=");
+					key = value.substring(0, index);
+					value = value.substring(index + 1);
 
-  public void setContentStart(int contentStart) {
-    this.contentStart = contentStart;
-  }
+					result.put(key, insertValue(value));
+				}
+				else
+				{
+					result.put(key, insertValue(value));
+				}
+				i++;
+			}
+		}
+		return result;
+	}
 
-  public int getContentEnd() {
-    return contentEnd;
-  }
+	private String insertValue(String s)
+	{
+		int idx = s.indexOf('$');
+		if (idx != -1)
+		{
+			StringBuffer tmp = new StringBuffer();
+			Map globals = context.getParameters();
+			String var = s.substring(idx + 1);
+			if (idx > 0) tmp.append(s.substring(0, idx));
+			if (globals.containsKey(var))
+			{
+				tmp.append(globals.get(var));
+			}
+			return tmp.toString();
+		}
+		return s;
+	}
 
-  public void setContentEnd(int contentEnd) {
-    this.contentEnd = contentEnd;
-  }
+	public void setStart(int start)
+	{
+		this.start = start;
+	}
+
+	public void setEnd(int end)
+	{
+		this.end = end;
+	}
+
+	public int getStart()
+	{
+		return this.start;
+	}
+
+	public int getEnd()
+	{
+		return this.end;
+	}
+
+	public int getContentStart()
+	{
+		return contentStart;
+	}
+
+	public void setContentStart(int contentStart)
+	{
+		this.contentStart = contentStart;
+	}
+
+	public int getContentEnd()
+	{
+		return contentEnd;
+	}
+
+	public void setContentEnd(int contentEnd)
+	{
+		this.contentEnd = contentEnd;
+	}
 
 }

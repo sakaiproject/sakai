@@ -28,171 +28,176 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
  * @author andrew
  * @version $Id$
  */
-//FIXME: Tool
+// FIXME: Tool
+public class EditBean
+{
 
-public class EditBean {
+	/**
+	 * Parameter name for version. This parameter is sent when saving a
+	 * RWikiObject. It is used to know when we have a
+	 * <code>VersionException</code>
+	 */
+	public static final String VERSION_PARAM = "version";
 
+	/**
+	 * Parameter name for content that we want resubmit after a
+	 * <code>VersionException</code>
+	 */
+	public static final String SUBMITTED_CONTENT_PARAM = "submittedContent";
 
-    /**
-     * Parameter name for version. This parameter is sent when saving a
-     * RWikiObject. It is used to know when we have a
-     * <code>VersionException</code>
-     */
-    public static final String VERSION_PARAM = "version";
+	/**
+	 * Value of the save parameter that indicates we should overwrite with the
+	 * submittedContent.
+	 */
+	public static final String OVERWRITE_VALUE = "overwrite";
 
-    /**
-     * Parameter name for content that we want resubmit after a
-     * <code>VersionException</code>
-     */
-    public static final String SUBMITTED_CONTENT_PARAM = "submittedContent";
+	/**
+	 * Parameter name for the save parameter that indicates what kind of save we
+	 * should be doing.
+	 */
+	public static final String SAVE_PARAM = "save";
 
-    /**
-     * Value of the save parameter that indicates we should overwrite with the
-     * submittedContent.
-     */
-    public static final String OVERWRITE_VALUE = "overwrite";
+	/**
+	 * Parameter name for the content to save
+	 */
+	public static final String CONTENT_PARAM = "content";
 
-    /**
-     * Parameter name for the save parameter that indicates what kind of save we
-     * should be doing.
-     */
-    public static final String SAVE_PARAM = "save";
+	/**
+	 * Value of the save parameter that indicates we wish to preview the content
+	 * (NOTE must be lowercase!)
+	 */
+	public static final String PREVIEW_VALUE = "preview";
 
-    /**
-     * Parameter name for the content to save
-     */
-    public static final String CONTENT_PARAM = "content";
+	/**
+	 * Value of the save parameter that indicates we wish to save the content
+	 */
+	public static final String SAVE_VALUE = "save";
 
-    /**
-     * Value of the save parameter that indicates we wish to preview the content
-     * (NOTE must be lowercase!)
-     */
-    public static final String PREVIEW_VALUE = "preview";
+	/**
+	 * Value of the save parameter that indicates we wish to cancel this edit
+	 */
+	public static final String CANCEL_VALUE = "cancel";
 
-    /**
-     * Value of the save parameter that indicates we wish to save the content
-     */
-    public static final String SAVE_VALUE = "save";
+	/**
+	 * Value of the save parameter that indicates we wish to add an attachment.
+	 * This should be interpretted as a call to the file.helper. (NOTE must be
+	 * lowercase!)
+	 */
+	public static final String LINK_ATTACHMENT_VALUE = "attachlink";
 
-    /**
-     * Value of the save parameter that indicates we wish to cancel this edit
-     */
-    public static final String CANCEL_VALUE = "cancel";
+	/**
+	 * Value of the save parameter that indicates we wish to embed an
+	 * attachment. This should be interpretted as a call to the file.helper.
+	 * (NOTE must be lowercase!)
+	 */
+	public static final String EMBED_ATTACHMENT_VALUE = "attachembed";
 
-    /**
-     * Value of the save parameter that indicates we wish to add an attachment.
-     * This should be interpretted as a call to the file.helper.
-     * (NOTE must be lowercase!)
-     */
-    public static final String LINK_ATTACHMENT_VALUE = "attachlink";
+	/**
+	 * Last position of the caret or highlights, (if available)
+	 */
+	public static final String STORED_CARET_POSITION = "caretPosition";
 
-    /**
-     * Value of the save parameter that indicates we wish to embed an attachment.
-     * This should be interpretted as a call to the file.helper.
-     * (NOTE must be lowercase!)
-     */
-    public static final String EMBED_ATTACHMENT_VALUE = "attachembed";
-    
-    /**
-     *  Last position of the caret or highlights, (if available)
-     */
-    public static final String STORED_CARET_POSITION = "caretPosition";
+	/**
+	 * The version string that was sent in the last save.
+	 */
+	private String previousVersion;
 
+	/**
+	 * The content that was sent in the last save. Will become the
+	 * submittedContent.
+	 */
+	private String previousContent;
 
-    
-    /**
-     * The version string that was sent in the last save.
-     */
-    private String previousVersion;
+	/**
+	 * Type of save performed last save.
+	 */
+	private String saveType;
 
-    /**
-     * The content that was sent in the last save. Will become the
-     * submittedContent.
-     */
-    private String previousContent;
+	/**
+	 * The revision that we were asked to revert to.
+	 */
+	private int previousRevision;
 
-    /**
-     * Type of save performed last save.
-     */
-    private String saveType;
+	public EditBean()
+	{
+		// Must have null constructor
+		super();
+	}
 
-    /**
-     * The revision that we were asked to revert to.
-     */
-    private int previousRevision;
+	/**
+	 * @return content sent to the last save, if any.
+	 */
+	public String getPreviousContent()
+	{
+		return previousContent;
+	}
 
-    public EditBean() {
-        // Must have null constructor
-        super();
-    }
+	/**
+	 * Set the content sent in the last save
+	 * 
+	 * @param previousContent
+	 *        the previous content
+	 */
+	public void setPreviousContent(String previousContent)
+	{
+		this.previousContent = previousContent;
+	}
 
-    /**
-     * 
-     * @return content sent to the last save, if any.
-     */
-    public String getPreviousContent() {
-        return previousContent;
-    }
+	/**
+	 * @return the version string sent in the last save, if any
+	 */
+	public String getPreviousVersion()
+	{
+		return previousVersion;
+	}
 
-    /**
-     * Set the content sent in the last save
-     * 
-     * @param previousContent
-     *            the previous content
-     */
-    public void setPreviousContent(String previousContent) {
-        this.previousContent = previousContent;
-    }
+	/**
+	 * Set the version string sent in the last save
+	 * 
+	 * @param version
+	 *        the version string
+	 */
+	public void setPreviousVersion(String version)
+	{
+		this.previousVersion = version;
+	}
 
-    /**
-     * @return the version string sent in the last save, if any
-     */
-    public String getPreviousVersion() {
-        return previousVersion;
-    }
+	/**
+	 * @return the save type used in the last save
+	 */
+	public String getSaveType()
+	{
+		return saveType;
+	}
 
-    /**
-     * Set the version string sent in the last save
-     * 
-     * @param version
-     *            the version string
-     */
-    public void setPreviousVersion(String version) {
-        this.previousVersion = version;
-    }
+	/**
+	 * Sets the save type used by the last save.
+	 * 
+	 * @param saveType
+	 */
+	public void setSaveType(String saveType)
+	{
+		this.saveType = saveType;
+	}
 
-    /**
-     * @return the save type used in the last save
-     */
-    public String getSaveType() {
-        return saveType;
-    }
+	/**
+	 * Set the revision used for the last save
+	 * 
+	 * @param previousRevision
+	 *        the revision number
+	 */
+	public void setPreviousRevision(int previousRevision)
+	{
+		this.previousRevision = previousRevision;
+	}
 
-    /**
-     * Sets the save type used by the last save.
-     * 
-     * @param saveType
-     */
-    public void setSaveType(String saveType) {
-        this.saveType = saveType;
-    }
-
-    /**
-     * Set the revision used for the last save
-     * 
-     * @param previousRevision
-     *            the revision number
-     */
-    public void setPreviousRevision(int previousRevision) {
-        this.previousRevision = previousRevision;
-    }
-
-    /**
-     * Get the previous revision number used by the last save, if any
-     * 
-     * @return revision number
-     */
-    public int getPreviousRevision() {
-        return previousRevision;
-    }
+	/**
+	 * Get the previous revision number used by the last save, if any
+	 * 
+	 * @return revision number
+	 */
+	public int getPreviousRevision()
+	{
+		return previousRevision;
+	}
 }

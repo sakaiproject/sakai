@@ -24,32 +24,38 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.filter.WikiLinkFilter;
 import org.radeox.test.filter.mock.MockOldWikiRenderEngine;
 
-public class WikiLinkFilterTest extends FilterTestSupport {
-  public WikiLinkFilterTest(String name) {
-    super(name);
-  }
+public class WikiLinkFilterTest extends FilterTestSupport
+{
+	public WikiLinkFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new WikiLinkFilter();
-    context.getRenderContext().setRenderEngine((RenderEngine)
-        new MockOldWikiRenderEngine()
-    );
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new WikiLinkFilter();
+		context.getRenderContext().setRenderEngine(
+				(RenderEngine) new MockOldWikiRenderEngine());
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(WikiLinkFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(WikiLinkFilterTest.class);
+	}
 
-  public void testWikiCreate() {
-    assertEquals("WebRoller?", filter.filter("WebRoller", context));
-  }
+	public void testWikiCreate()
+	{
+		assertEquals("WebRoller?", filter.filter("WebRoller", context));
+	}
 
-  public void testWikiLink() {
-    assertEquals("link:SnipSnap", filter.filter("SnipSnap", context));
-  }
+	public void testWikiLink()
+	{
+		assertEquals("link:SnipSnap", filter.filter("SnipSnap", context));
+	}
 }

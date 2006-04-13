@@ -24,19 +24,27 @@ package org.radeox.test.macro;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.EngineManager;
 
-public class AsinMacroTest extends MacroTestSupport {
-  public AsinMacroTest(String name) {
-    super(name);
-  }
+public class AsinMacroTest extends MacroTestSupport
+{
+	public AsinMacroTest(String name)
+	{
+		super(name);
+	}
 
-  public static Test suite() {
-    return new TestSuite(AsinMacroTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(AsinMacroTest.class);
+	}
 
-  public void testAsin() {
-    String result = EngineManager.getInstance().render("{asin:B00005YVUD}", context);
-    assertEquals("(<a href=\"http://www.amazon.de/exec/obidos/ASIN/B00005YVUD\">Amazon.de</a>)", result);
-  }
+	public void testAsin()
+	{
+		String result = EngineManager.getInstance().render("{asin:B00005YVUD}",
+				context);
+		assertEquals(
+				"(<a href=\"http://www.amazon.de/exec/obidos/ASIN/B00005YVUD\">Amazon.de</a>)",
+				result);
+	}
 }

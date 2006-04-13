@@ -24,70 +24,94 @@ package org.radeox.test.filter;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.LinkTestFilter;
 import org.radeox.test.filter.mock.MockWikiRenderEngine;
 
-public class LinkTestFilterTest extends FilterTestSupport {
-  public LinkTestFilterTest(String name) {
-    super(name);
-  }
+public class LinkTestFilterTest extends FilterTestSupport
+{
+	public LinkTestFilterTest(String name)
+	{
+		super(name);
+	}
 
-  protected void setUp() throws Exception {
-    filter = new LinkTestFilter();
-    context.getRenderContext().setRenderEngine(new MockWikiRenderEngine());
-    super.setUp();
-  }
+	protected void setUp() throws Exception
+	{
+		filter = new LinkTestFilter();
+		context.getRenderContext().setRenderEngine(new MockWikiRenderEngine());
+		super.setUp();
+	}
 
-  public static Test suite() {
-    return new TestSuite(LinkTestFilterTest.class);
-  }
+	public static Test suite()
+	{
+		return new TestSuite(LinkTestFilterTest.class);
+	}
 
-  public void testUrlInLink() {
-    assertEquals("Url is reported", "<div class=\"error\">Do not surround URLs with [...].</div>", filter.filter("[http://radeox.org]",context));
-  }
-  public void testCreate() {
-    assertEquals("'Roller' - 'Roller'", filter.filter("[Roller]", context));
-  }
+	public void testUrlInLink()
+	{
+		assertEquals("Url is reported",
+				"<div class=\"error\">Do not surround URLs with [...].</div>",
+				filter.filter("[http://radeox.org]", context));
+	}
 
-  public void testLink() {
-    assertEquals("link:SnipSnap|SnipSnap", filter.filter("[SnipSnap]", context));
-  }
+	public void testCreate()
+	{
+		assertEquals("'Roller' - 'Roller'", filter.filter("[Roller]", context));
+	}
 
-  public void testLinkLower() {
-    assertEquals("link:stephan|stephan", filter.filter("[stephan]", context));
-  }
+	public void testLink()
+	{
+		assertEquals("link:SnipSnap|SnipSnap", filter.filter("[SnipSnap]",
+				context));
+	}
 
-  public void testLinkAlias() {
-    assertEquals("link:stephan|alias", filter.filter("[alias|stephan]", context));
-  }
+	public void testLinkLower()
+	{
+		assertEquals("link:stephan|stephan", filter
+				.filter("[stephan]", context));
+	}
 
-  public void testLinkAliasAnchor() {
-    assertEquals("link:stephan|alias#hash", filter.filter("[alias|stephan#hash]", context));
-  }
+	public void testLinkAlias()
+	{
+		assertEquals("link:stephan|alias", filter.filter("[alias|stephan]",
+				context));
+	}
 
-  public void testLinkAliasAnchorType() {
-    assertEquals("link:stephan|alias#hash", filter.filter("[alias|type:stephan#hash]", context));
-  }
+	public void testLinkAliasAnchor()
+	{
+		assertEquals("link:stephan|alias#hash", filter.filter(
+				"[alias|stephan#hash]", context));
+	}
 
+	public void testLinkAliasAnchorType()
+	{
+		assertEquals("link:stephan|alias#hash", filter.filter(
+				"[alias|type:stephan#hash]", context));
+	}
 
-  public void testLinkCacheable() {
-    RenderContext renderContext = context.getRenderContext();
-    renderContext.setCacheable(false);
-    filter.filter("[SnipSnap]", context);
-    renderContext.commitCache();
-    assertTrue("Normal link is cacheable", renderContext.isCacheable());
-  }
+	public void testLinkCacheable()
+	{
+		RenderContext renderContext = context.getRenderContext();
+		renderContext.setCacheable(false);
+		filter.filter("[SnipSnap]", context);
+		renderContext.commitCache();
+		assertTrue("Normal link is cacheable", renderContext.isCacheable());
+	}
 
-  public void testCreateLinkNotCacheable() {
-    RenderContext renderContext = context.getRenderContext();
-    renderContext.setCacheable(false);
-    filter.filter("[Roller]", context);
-    renderContext.commitCache();
-    assertTrue("Non existing link is not cacheable", ! renderContext.isCacheable());
-  }
+	public void testCreateLinkNotCacheable()
+	{
+		RenderContext renderContext = context.getRenderContext();
+		renderContext.setCacheable(false);
+		filter.filter("[Roller]", context);
+		renderContext.commitCache();
+		assertTrue("Non existing link is not cacheable", !renderContext
+				.isCacheable());
+	}
 
-  public void testLinksWithEscapedChars() {
-    assertEquals("'<link>' - '&#60;link&#62;'", filter.filter("[<link>]", context));
-  }
+	public void testLinksWithEscapedChars()
+	{
+		assertEquals("'<link>' - '&#60;link&#62;'", filter.filter("[<link>]",
+				context));
+	}
 }

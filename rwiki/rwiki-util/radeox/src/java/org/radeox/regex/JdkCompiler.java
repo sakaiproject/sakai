@@ -24,22 +24,23 @@
 package org.radeox.regex;
 
 /*
- * Class that compiles regular expressions to patterns
- * Implementation for regex package in JDK 1.4
- *
- * @author stephan
- * @team sonicteam
+ * Class that compiles regular expressions to patterns Implementation for regex
+ * package in JDK 1.4 @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class JdkCompiler extends Compiler {
-  private boolean multiline;
+public class JdkCompiler extends Compiler
+{
+	private boolean multiline;
 
-  public void setMultiline(boolean multiline) {
-    this.multiline = multiline;
-  }
+	public void setMultiline(boolean multiline)
+	{
+		this.multiline = multiline;
+	}
 
-  public Pattern compile(String regex) {
-    return new JdkPattern(regex, multiline);
-  }
+	public Pattern compile(String regex)
+	{
+		return new JdkPattern(regex, multiline);
+	}
 }

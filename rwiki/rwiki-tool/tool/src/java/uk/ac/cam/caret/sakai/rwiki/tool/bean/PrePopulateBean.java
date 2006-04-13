@@ -22,7 +22,8 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
 
@@ -32,107 +33,107 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService;
  * 
  * @author andrew
  */
-//FIXME: Tool
+// FIXME: Tool
+public class PrePopulateBean
+{
+	private static Log log = LogFactory.getLog(PrePopulateBean.class);
 
-public class PrePopulateBean {
+	private PopulateService populateService;
 
-    private PopulateService populateService;
+	private String currentPageRealm;
 
-    private String currentPageRealm;
-    
-    private String currentGroup;
+	private String currentGroup;
 
-    private String woksiteOwner;
+	private String woksiteOwner;
 
-    private Logger log;
+	/**
+	 * Populates the current realm, relying on the service for caching etc.
+	 */
+	public void doPrepopulate()
+	{
+		log.debug(this.getClass().getName() + " current-user: " + woksiteOwner
+				+ " pre-populating realm " + currentPageRealm);
 
-    /**
-     * Populates the current realm, relying on the service for caching etc.
-     */
-    public void doPrepopulate() {
-        log.debug(this.getClass().getName() + " current-user: " + woksiteOwner
-                + " pre-populating realm " + currentPageRealm);
+		// Populate the realm...
 
-        // Populate the realm...
-        
-        populateService.populateRealm(woksiteOwner, currentPageRealm, currentGroup);
-    }
+		populateService.populateRealm(woksiteOwner, currentPageRealm,
+				currentGroup);
+	}
 
-    /**
-     * The current page realm.
-     * @return currentPageRealm 
-     */
-    public String getCurrentPageRealm() {
-        return currentPageRealm;
-    }
+	/**
+	 * The current page realm.
+	 * 
+	 * @return currentPageRealm
+	 */
+	public String getCurrentPageRealm()
+	{
+		return currentPageRealm;
+	}
 
-    /**
-     * Set the current page realm.
-     * @param currentPageRealm
-     */
-    public void setCurrentPageRealm(String currentPageRealm) {
-        this.currentPageRealm = currentPageRealm;
-    }
+	/**
+	 * Set the current page realm.
+	 * 
+	 * @param currentPageRealm
+	 */
+	public void setCurrentPageRealm(String currentPageRealm)
+	{
+		this.currentPageRealm = currentPageRealm;
+	}
 
-    /**
-     * The current user.
-     * @return current user
-     */
-    public String getWoksiteOwner() {
-        return woksiteOwner;
-    }
+	/**
+	 * The current user.
+	 * 
+	 * @return current user
+	 */
+	public String getWoksiteOwner()
+	{
+		return woksiteOwner;
+	}
 
-    /**
-     * Set the current user.
-     * @param currentUser
-     */
-    public void setWoksiteOwner(String currentUser) {
-        this.woksiteOwner = currentUser;
-    }
+	/**
+	 * Set the current user.
+	 * 
+	 * @param currentUser
+	 */
+	public void setWoksiteOwner(String currentUser)
+	{
+		this.woksiteOwner = currentUser;
+	}
 
-    /**
-     * The logger with which to register log events.
-     * @return log
-     */
-    public Logger getLog() {
-        return log;
-    }
+	/**
+	 * The current populateService
+	 * 
+	 * @return populateService
+	 */
+	public PopulateService getPopulateService()
+	{
+		return populateService;
+	}
 
-    /**
-     * Set the logger with which to register log events.
-     * @param log
-     */
-    public void setLog(Logger log) {
-        this.log = log;
-    }
-
-    /**
-     * The current populateService
-     * @return populateService
-     */
-    public PopulateService getPopulateService() {
-        return populateService;
-    }
-
-    /**
-     * Set the current populateService.
-     * @param populateService
-     */
-    public void setPopulateService(PopulateService populateService) {
-        this.populateService = populateService;
-    }
+	/**
+	 * Set the current populateService.
+	 * 
+	 * @param populateService
+	 */
+	public void setPopulateService(PopulateService populateService)
+	{
+		this.populateService = populateService;
+	}
 
 	/**
 	 * @return Returns the currentGroup.
 	 */
-	public String getCurrentGroup() {
+	public String getCurrentGroup()
+	{
 		return currentGroup;
 	}
 
 	/**
-	 * @param currentGroup The currentGroup to set.
+	 * @param currentGroup
+	 *        The currentGroup to set.
 	 */
-	public void setCurrentGroup(String currentGroup) {
+	public void setCurrentGroup(String currentGroup)
+	{
 		this.currentGroup = currentGroup;
 	}
 

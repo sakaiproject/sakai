@@ -28,7 +28,8 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.expression.Expression;
 
-import org.sakaiproject.service.framework.log.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
@@ -37,74 +38,81 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.dao.RWikiPropertyDao;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiProperty;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
 
-//FIXME: Component
+// FIXME: Component
 
-public class RWikiPropertyDaoImpl extends HibernateDaoSupport 
-	implements RWikiPropertyDao {
+public class RWikiPropertyDaoImpl extends HibernateDaoSupport implements
+		RWikiPropertyDao
+{
 
-	private Logger log;
-	
+	private static Log log = LogFactory.getLog(RWikiPropertyDaoImpl.class);
+
 	private String schemaVersion;
-	
-	public RWikiProperty getProperty(final String name) {
-	       long start = System.currentTimeMillis();
-	        try {
-	        HibernateCallback callback = new HibernateCallback() {
-	            public Object doInHibernate(Session session)
-	                    throws HibernateException {
-	                return session.createCriteria(RWikiProperty.class).add(
-	                        Expression.eq("name", name)).list();
-	            }
-	            
-	        };
-	        List found = (List) getHibernateTemplate().execute(callback);
-	        if (found.size() == 0) {
-	            if (log.isDebugEnabled()) {
-	                log.debug("Found " + found.size() + " objects with name "
-	                        + name );
-	            }
-	            return null;
-	        }
-	        if (log.isDebugEnabled()) {
-	            log.debug("Found " + found.size() + " objects with name " + name
-	                    + " returning most recent one.");
-	        }
-	        return (RWikiProperty) found.get(0);
-	        } finally {
-	            long finish = System.currentTimeMillis();
-	            TimeLogger.printTimer("RWikiPropertyDaoImpl.getContentObject: " + name,start,finish);
-	        }
+
+	public RWikiProperty getProperty(final String name)
+	{
+		long start = System.currentTimeMillis();
+		try
+		{
+			HibernateCallback callback = new HibernateCallback()
+			{
+				public Object doInHibernate(Session session)
+						throws HibernateException
+				{
+					return session.createCriteria(RWikiProperty.class).add(
+							Expression.eq("name", name)).list();
+				}
+
+			};
+			List found = (List) getHibernateTemplate().execute(callback);
+			if (found.size() == 0)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Found " + found.size() + " objects with name "
+							+ name);
+				}
+				return null;
+			}
+			if (log.isDebugEnabled())
+			{
+				log.debug("Found " + found.size() + " objects with name "
+						+ name + " returning most recent one.");
+			}
+			return (RWikiProperty) found.get(0);
+		}
+		finally
+		{
+			long finish = System.currentTimeMillis();
+			TimeLogger.printTimer("RWikiPropertyDaoImpl.getContentObject: "
+					+ name, start, finish);
+		}
 	}
 
-	public RWikiProperty createProperty() {
+	public RWikiProperty createProperty()
+	{
 		return new RWikiPropertyImpl();
 	}
 
-	public void update(RWikiProperty property) {
-	     getHibernateTemplate().saveOrUpdate(property);
-	}
-
-	public Logger getLog() {
-		return log;
-	}
-
-	public void setLog(Logger log) {
-		this.log = log;
+	public void update(RWikiProperty property)
+	{
+		getHibernateTemplate().saveOrUpdate(property);
 	}
 
 	/**
 	 * @return Returns the schemaVersion.
 	 */
-	public String getSchemaVersion() {
+	public String getSchemaVersion()
+	{
 		return schemaVersion;
 	}
 
 	/**
-	 * @param schemaVersion The schemaVersion to set.
+	 * @param schemaVersion
+	 *        The schemaVersion to set.
 	 */
-	public void setSchemaVersion(String schemaVersion) {
+	public void setSchemaVersion(String schemaVersion)
+	{
 		this.schemaVersion = schemaVersion;
 	}
-
 
 }

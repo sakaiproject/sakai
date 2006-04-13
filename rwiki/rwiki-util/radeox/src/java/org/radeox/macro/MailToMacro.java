@@ -23,41 +23,44 @@ package org.radeox.macro;
  * --LICENSE NOTICE--
  */
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.macro.parameter.MacroParameter;
 
-import java.io.IOException;
-import java.io.Writer;
-
 /*
- * Displays a mail to link.
- *
- * @author stephan
- * @team sonicteam
+ * Displays a mail to link. @author stephan @team sonicteam
+ * 
  * @version $Id$
  */
 
-public class MailToMacro extends LocalePreserved {
-  private static Log log = LogFactory.getLog(MailToMacro.class);
+public class MailToMacro extends LocalePreserved
+{
+	private static Log log = LogFactory.getLog(MailToMacro.class);
 
-  private String[] paramDescription = {"1: mail address"};
+	private String[] paramDescription = { "1: mail address" };
 
-  public String getLocaleKey() {
-    return "macro.mailto";
-  }
+	public String getLocaleKey()
+	{
+		return "macro.mailto";
+	}
 
-  public String[] getParamDescription() {
-    return paramDescription;
-  }
+	public String[] getParamDescription()
+	{
+		return paramDescription;
+	}
 
-  public void execute(Writer writer, MacroParameter params)
-      throws IllegalArgumentException, IOException {
+	public void execute(Writer writer, MacroParameter params)
+			throws IllegalArgumentException, IOException
+	{
 
-    if (params.getLength() == 1) {
-      String mail = params.get("0");
-      writer.write("<a href=\"mailto:"+mail+"\">"+mail+"</a>");
-    }
-    return;
-  }
+		if (params.getLength() == 1)
+		{
+			String mail = params.get("0");
+			writer.write("<a href=\"mailto:" + mail + "\">" + mail + "</a>");
+		}
+		return;
+	}
 }

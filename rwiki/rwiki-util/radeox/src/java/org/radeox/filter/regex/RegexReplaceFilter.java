@@ -26,57 +26,69 @@ package org.radeox.filter.regex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.filter.context.FilterContext;
-import org.radeox.regex.Pattern;
 import org.radeox.regex.Matcher;
-
+import org.radeox.regex.Pattern;
 
 /*
- * Class that applies a RegexFilter, can be subclassed
- * for special Filters. Regular expressions in the input
- * are replaced with strings.
- *
- * @author stephan
+ * Class that applies a RegexFilter, can be subclassed for special Filters.
+ * Regular expressions in the input are replaced with strings. @author stephan
  * @team sonicteam
- * @version $Id$
+ * 
+ * @version $Id: RegexReplaceFilter.java 7707 2006-04-12 17:30:19Z
+ *          ian@caret.cam.ac.uk $
  */
 
-public class RegexReplaceFilter extends RegexFilter {
-  private static Log log = LogFactory.getLog(RegexReplaceFilter.class);
+public class RegexReplaceFilter extends RegexFilter
+{
+	private static Log log = LogFactory.getLog(RegexReplaceFilter.class);
 
-  public RegexReplaceFilter() {
-    super();
-  }
+	public RegexReplaceFilter()
+	{
+		super();
+	}
 
-  public RegexReplaceFilter(String regex, String substitute) {
-    super(regex, substitute);
-  }
+	public RegexReplaceFilter(String regex, String substitute)
+	{
+		super(regex, substitute);
+	}
 
-  public RegexReplaceFilter(String regex, String substitute, boolean multiline) {
-    super(regex, substitute, multiline);
-  }
+	public RegexReplaceFilter(String regex, String substitute, boolean multiline)
+	{
+		super(regex, substitute, multiline);
+	}
 
-  public String filter(String input, FilterContext context) {
-    String result = input;
-    int size = pattern.size();
-    Pattern p;
-    String s;
-    for (int i = 0; i < size; i++) {
-      p = (Pattern) pattern.get(i);
-      s = (String) substitute.get(i);
-      try {
-        Matcher matcher = Matcher.create(result, p);
-        result = matcher.substitute(s);
+	public String filter(String input, FilterContext context)
+	{
+		String result = input;
+		int size = pattern.size();
+		Pattern p;
+		String s;
+		for (int i = 0; i < size; i++)
+		{
+			p = (Pattern) pattern.get(i);
+			s = (String) substitute.get(i);
+			try
+			{
+				Matcher matcher = Matcher.create(result, p);
+				result = matcher.substitute(s);
 
-        // Util.substitute(matcher, p, new Perl5Substitution(s, interps), result, limit);
-      } catch (Exception e) {
-        //log.warn("<span class=\"error\">Exception</span>: " + this + ": " + e);
-        log.warn("Exception for: " + this+" "+e);
-     } catch (Error err) {
-        //log.warn("<span class=\"error\">Error</span>: " + this + ": " + err);
-        log.warn("Error for: " + this);
-        err.printStackTrace();
-      }
-    }
-    return result;
-  }
+				// Util.substitute(matcher, p, new Perl5Substitution(s,
+				// interps), result, limit);
+			}
+			catch (Exception e)
+			{
+				// log.warn("<span class=\"error\">Exception</span>: " + this +
+				// ": " + e);
+				log.warn("Exception for: " + this + " " + e);
+			}
+			catch (Error err)
+			{
+				// log.warn("<span class=\"error\">Error</span>: " + this + ": "
+				// + err);
+				log.warn("Error for: " + this);
+				err.printStackTrace();
+			}
+		}
+		return result;
+	}
 }
