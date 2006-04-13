@@ -68,7 +68,7 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-rwiki-utils</artifactId>
+      <artifactId>sakai-rwiki-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
@@ -99,7 +99,48 @@
       <version>1.0.4</version>
       <type>jar</type>
     </dependency>
-    
+       <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-event-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+        <dependency>
+      <groupId>commons-id</groupId>
+      <artifactId>commons-id</artifactId>
+      <version>0.1-dev</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 </project>
 
