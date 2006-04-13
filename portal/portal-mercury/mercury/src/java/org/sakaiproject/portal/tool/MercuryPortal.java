@@ -326,7 +326,7 @@ public class MercuryPortal extends HttpServlet
 		for (Iterator i = m_placements.values().iterator(); i.hasNext();)
 		{
 			Placement p = (Placement) i.next();
-			out.println("<tr><td>" + p.getId() + "</td><td>" + p.getContext() + "</td><td>" + p.getTool().getId() + "</td><td>"
+			out.println("<tr><td>" + p.getId() + "</td><td>" + p.getContext() + "</td><td>" + p.getToolId() + "</td><td>"
 					+ printConfiguration(p.getPlacementConfig()) + "</td></tr>");
 		}
 		out.println("</table>");
@@ -369,7 +369,7 @@ public class MercuryPortal extends HttpServlet
 			Placement p = (Placement) m_placements.get(key);
 			if (p == null)
 			{
-				p = new org.sakaiproject.util.Placement(IdManager.createUuid(), tool, null, context, null);
+				p = new org.sakaiproject.util.Placement(IdManager.createUuid(), toolId, tool, null, context, null);
 				m_placements.put(key, p);
 			}
 
@@ -493,7 +493,7 @@ public class MercuryPortal extends HttpServlet
 			Placement p = (Placement) m_placements.get(key);
 			if (p == null)
 			{
-				p = new org.sakaiproject.util.Placement(IdManager.createUuid(), tool, null, context, null);
+				p = new org.sakaiproject.util.Placement(IdManager.createUuid(), toolId, tool, null, context, null);
 				m_placements.put(key, p);
 			}
 
