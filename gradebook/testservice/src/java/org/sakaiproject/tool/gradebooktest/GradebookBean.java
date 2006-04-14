@@ -55,6 +55,11 @@ public class GradebookBean {
 		log.info("search uid=" + uid + ", uidFound=" + uidFound);
 	}
 
+	public void create(ActionEvent event) {
+		getGradebookService().addGradebook(uid, "Gradebook " + uid);
+		log.info("created Gradebook with uid=" + uid);
+	}
+
 	public GradebookService getGradebookService() {
 		log.info("getGradebookService " + gradebookService);
 		return gradebookService;

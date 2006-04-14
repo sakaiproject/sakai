@@ -17,7 +17,10 @@
 
 			<hr/>
 
-			<h:outputText rendered="#{not empty gradebookBean.uid}" value="Found it = #{gradebookBean.uidFound}" />
+			<h:outputText rendered="#{not empty gradebookBean.uid}" value="Found it = #{gradebookBean.uidFound}" /><br />
+
+			<h:commandButton id="create" actionListener="#{gradebookBean.create}" value="Create" />
+
 		</h:form>
 	</f:view>
 </body>
