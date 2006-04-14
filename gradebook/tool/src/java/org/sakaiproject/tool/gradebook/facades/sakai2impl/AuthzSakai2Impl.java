@@ -26,9 +26,9 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.kernel.function.cover.FunctionManager;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.site.cover.SiteService;
 
 import org.sakaiproject.api.section.facade.Role;
 

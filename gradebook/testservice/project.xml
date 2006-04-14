@@ -30,6 +30,7 @@
 		</dependency>
 
 		<!-- Sakai2 Dependencies -->
+<!--
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-service</artifactId>
@@ -50,6 +51,7 @@
 			<artifactId>sakai-tool</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+-->
 
 		<!-- this is required for any Sakai JSF tool -->
 		<dependency>
@@ -70,7 +72,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
+<!--
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-web</artifactId>
@@ -79,7 +81,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
+-->
 		<!-- sakai2 plugin -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
