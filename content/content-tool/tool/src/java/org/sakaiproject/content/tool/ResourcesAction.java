@@ -9939,23 +9939,93 @@ public class ResourcesAction
 	 */
 	private static void copyrightChoicesIntoContext(SessionState state, Context context)
 	{
+		boolean usingCreativeCommons = true;
+		
+		if(usingCreativeCommons)
+		{
+			
+			String ccOwnershipLabel = "Who created this resource?";
+			List ccOwnershipList = new Vector();
+			ccOwnershipList.add("-- Select --");
+			ccOwnershipList.add("I created this resource");
+			ccOwnershipList.add("Someone else created this resource");
+			
+			String ccMyGrantLabel = "Terms of use";
+			List ccMyGrantOptions = new Vector();
+			ccMyGrantOptions.add("-- Select --");
+			ccMyGrantOptions.add("Use my copyright");
+			ccMyGrantOptions.add("Use Creative Commons License");
+			ccMyGrantOptions.add("Use Public Domain Dedication");
+			
+			String ccCommercialLabel = "Allow commercial use?";
+			List ccCommercialList = new Vector();
+			ccCommercialList.add("Yes");
+			ccCommercialList.add("No");
+			
+			String ccModificationLabel = "Allow Modifications?";
+			List ccModificationList = new Vector();
+			ccModificationList.add("Yes");
+			ccModificationList.add("Yes, share alike");
+			ccModificationList.add("No");
+			
+			String ccOtherGrantLabel = "Terms of use";
+			List ccOtherGrantList = new Vector();
+			ccOtherGrantList.add("Subject to fair-use exception");
+			ccOtherGrantList.add("Public domain (created before copyright law applied)");
+			ccOtherGrantList.add("Public domain (copyright has expired)");
+			ccOtherGrantList.add("Public domain (government document not subject to copyright)");
+			
+			String ccRightsYear = "Year";
+			String ccRightsOwner = "Copyright owner";
+			
+			String ccAcknowledgeLabel = "Require users to acknowledge author's rights before access?";
+			List ccAcknowledgeList = new Vector();
+			ccAcknowledgeList.add("Yes");
+			ccAcknowledgeList.add("No");
+			
+			String ccInfoUrl = "";
+			
+			int year = TimeService.newTime().breakdownLocal().getYear();
+			String username = UserDirectoryService.getCurrentUser().getDisplayName(); 
 
-		//copyright
-		if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) != null)
-		{
-			context.put("fairuseurl", state.getAttribute(COPYRIGHT_FAIRUSE_URL));
+			context.put("usingCreativeCommons", Boolean.TRUE);
+			context.put("ccOwnershipLabel", ccOwnershipLabel);
+			context.put("ccOwnershipList", ccOwnershipList);
+			context.put("ccMyGrantLabel", ccMyGrantLabel);
+			context.put("ccMyGrantOptions", ccMyGrantOptions);
+			context.put("ccCommercialLabel", ccCommercialLabel);
+			context.put("ccCommercialList", ccCommercialList);
+			context.put("ccModificationLabel", ccModificationLabel);
+			context.put("ccModificationList", ccModificationList);
+			context.put("ccOtherGrantLabel", ccOtherGrantLabel);
+			context.put("ccOtherGrantList", ccOtherGrantList);
+			context.put("ccRightsYear", ccRightsYear);
+			context.put("ccRightsOwner", ccRightsOwner);
+			context.put("ccAcknowledgeLabel", ccAcknowledgeLabel);
+			context.put("ccAcknowledgeList", ccAcknowledgeList);
+			context.put("ccInfoUrl", ccInfoUrl);
+			context.put("ccThisYear", Integer.toString(year));
+			context.put("ccThisUser", username);
 		}
-		if (state.getAttribute(NEW_COPYRIGHT_INPUT) != null)
+		else
 		{
-			context.put("newcopyrightinput", state.getAttribute(NEW_COPYRIGHT_INPUT));
-		}
-
-		if (state.getAttribute(COPYRIGHT_TYPES) != null)
-		{
-			List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
-			context.put("copyrightTypes", copyrightTypes);
-			context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
-			context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
+			//copyright
+			if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) != null)
+			{
+				context.put("fairuseurl", state.getAttribute(COPYRIGHT_FAIRUSE_URL));
+			}
+			if (state.getAttribute(NEW_COPYRIGHT_INPUT) != null)
+			{
+				context.put("newcopyrightinput", state.getAttribute(NEW_COPYRIGHT_INPUT));
+			}
+	
+			if (state.getAttribute(COPYRIGHT_TYPES) != null)
+			{
+				List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
+				context.put("copyrightTypes", copyrightTypes);
+				context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
+				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
+			}
 		}
 		
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
@@ -10683,6 +10753,7 @@ public class ResourcesAction
 		protected ResourcesMetadata m_form;
 		protected boolean m_isBlank;
 		protected String m_instruction;
+		protected String m_rightsowner;
 
 
 		/**
@@ -10714,6 +10785,7 @@ public class ResourcesAction
 			m_instruction = "";
 			m_pubview = false;
 			m_pubviewset = false;
+			m_rightsowner = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 
 		}
@@ -10901,6 +10973,16 @@ public class ResourcesAction
 		public void setMimeType(String mimetype)
 		{
 			m_mimetype = mimetype;
+		}
+		
+		public String getRightsowner()
+		{
+			return m_rightsowner;
+		}
+		
+		public void setRightsowner(String owner)
+		{
+			
 		}
 
 		/**

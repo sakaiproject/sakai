@@ -1,7 +1,181 @@
 <!-- chef_resources_itemtype.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<!-- "$itemType" == "$TYPE_UPLOAD" -->
 ############################################# macro getPropertyValues 
 ##
+<script type="text/javascript">
+	var ccValues = new Object();
+	ccValues.ccOwner = new Array();
+	ccValues.myRights = new Array();
+	ccValues.otherRights = new Array();
+	ccValues.ccCommercial = new Array();
+	ccValues.ccModifications = new Array();
+	ccValues.ccRightsYear = new Array();
+	ccValues.ccRightsOwner = new Array();
+	
+	var ccPrevious = new Object();
+	ccPrevious.ccOwner = new Array();
+	ccPrevious.myRights = new Array();
+	ccPrevious.otherRights = new Array();
+	ccPrevious.ccCommercial = new Array();
+	ccPrevious.ccModifications = new Array();
+	ccPrevious.ccRightsYear = new Array();
+	ccPrevious.ccRightsOwner = new Array();
+	
+	function updateCreativeCommons(element, index)
+	{
+		saveCreativeCommonsValues(index);
+		var div1 = document.getElementById("copyright_div_1_" + index);
+		var div2 = document.getElementById("copyright_div_2_" + index);
+		var div3 = document.getElementById("copyright_div_3_" + index);
+		//if(element.id == "owner" + index)
+		{
+			var html1 = "";
+			var html2 = "";
+			var html3 = "";
+			if(ccValues.ccOwner[index] && ccValues.ccOwner[index] == "$ccOwnershipList.get(1)")
+			{
+				html1 += "<p class=\"shorttext\"> <span class=\"reqStar\">*</span> <label for=\"myRights" + index + "\"> $ccMyGrantLabel </label> "
+						+ "<select name=\"myRights" + index + "\" id=\"myRights" + index + "\" onchange=\"javascript:updateCreativeCommons(this, '" 
+						+ index + "');\"> ";
+				#foreach ($option in $ccMyGrantOptions)
+					if(ccValues.myRights[index] && ccValues.myRights[index] == "$option")
+					{
+						html1 += " <option value=\"$option\" selected=\"selected\">$option</option>";
+					}
+					else
+					{
+						html1 += " <option value=\"$option\">$option</option>";
+					}
+				#end
+				html1 += "</select> </p> ";
+				
+				if(ccValues.myRights[index] && ccValues.myRights[index] == "$ccMyGrantOptions.get(1)")
+				{
+					html2 += "<table border=\"0\"> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> </td> "
+							+ "<td> </td> <td style=\"vertical-align:top\"> <label for=\"ccRightsYear" + index + "\"> $ccRightsYear </label> </td> "
+							+ "<td style=\"vertical-align:top\"> <label for=\"ccRightsOwner" + index + "\"> $ccRightsOwner </label> </td> </tr> "
+							+ "<tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> </td> <td>&copy;</td> "
+							+ "<td style=\"vertical-align:top\"> <input type=\"text\" name=\"ccRightsYear" + index + "\" id=\"ccRightsYear" + index + "\" size=\"5\" value=\"";
+					if(ccValues.ccRightsYear[index])
+					{
+						html2 += ccValues.ccRightsYear[index];
+					}
+					else
+					{
+						html2 += "$ccThisYear";
+					}
+					html2 += "\" /> </td> <td style=\"vertical-align:top\"> <input type=\"text\" name=\"ccRightsOwner" + index + "\" id=\"ccRightsOwner" + index + "\" value=\"" 
+					if(ccValues.ccRightsOwner[index])
+					{
+						html2 += ccValues.ccRightsOwner[index];
+					}
+					else
+					{
+						html2 += "$ccThisUser";
+					}
+					html2 += "\" /> </td> </tr> </table> ";
+				}
+				else if(ccValues.myRights[index] && ccValues.myRights[index] == "$ccMyGrantOptions.get(2)")
+				{
+					html2 += "<table border=\"0\"> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> "
+							+ "</td> <td style=\"vertical-align:top\"> <label for=\"ccCommercial" + index + "\"> $ccCommercialLabel </label> ";
+					#foreach($option in $ccCommercialList)
+						html2 += "<input type=\"radio\" name=\"ccCommercial" + index + "\" id =\"ccCommercial" + index 
+								+ "_$validator.escapeJavascript(${option})\" value=\"${option}\"> ${option} </option> ";
+					#end
+					html2 += "</td> </tr> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> "
+							+ "</td> <td style=\"vertical-align:top\"> <label for=\"ccModification" + index + "\"> $ccModificationLabel </label> ";
+					#foreach($option in $ccModificationList)
+						html2 += "<input type=\"radio\" name=\"ccModification" + index + "\" id =\"ccModification" + index 
+								+ "_$validator.escapeJavascript(${option})\" value=\"${option}\"> ${option} </option> ";
+					#end
+					html2 += "</td> </tr> </table> ";
+				}
+				else if(ccValues.myRights[index] && ccValues.myRights[index] == "$ccMyGrantOptions.get(3)")
+				{
+				}
+			}
+			else if(ccValues.ccOwner[index] && ccValues.ccOwner[index] == "$ccOwnershipList.get(2)")
+			{
+				html1 += "<p class=\"shorttext\"> <span class=\"reqStar\">*</span> <label for=\"otherRights" + index + "\"> $ccOtherGrantLabel </label> "
+						+ "<select name=\"otherRights" + index + "\" id=\"otherRights" + index + "\" onchange=\"javascript:updateCreativeCommons(this, '" 
+						+ index + "');\"> ";
+				#foreach ($option in $ccOtherGrantList)
+					if(ccValues.otherRights[index] && ccValues.otherRights[index] == "$option")
+					{
+						html1 += " <option value=\"$option\" selected=\"selected\">$option</option>";
+					}
+					else
+					{
+						html1 += " <option value=\"$option\">$option</option>";
+					}
+				#end
+				html1 += "</select> </p> ";
+			}
+			div1.innerHTML = html1;
+			div2.innerHTML = html2;
+			div3.innerHTML = html3;
+		}
+	}
+	function saveCreativeCommonsValues(index)
+	{
+		var ownerElement = document.getElementById("owner" + index);
+		if(ownerElement && ownerElement.value)
+		{
+			ccPrevious.ccOwner[index] = ccValues.ccOwner[index];
+			ccValues.ccOwner[index] = ownerElement.value;
+		}
+		var myRightsElement = document.getElementById("myRights" + index);
+		if(myRightsElement && myRightsElement.value)
+		{
+			ccPrevious.myRights[index] = ccValues.myRights[index];
+			ccValues.myRights[index] = myRightsElement.value;
+		}		
+		var otherRightsElement = document.getElementById("otherRights" + index);
+		if(otherRightsElement && otherRightsElement.value)
+		{
+			ccPrevious.otherRights[index] = ccValues.otherRights[index];
+			ccValues.otherRights[index] = otherRightsElement.value;
+		}		
+		var ccRightsYearElement = document.getElementById("ccRightsYear" + index);
+		if(ccRightsYearElement && ccRightsYearElement.value)
+		{
+			ccPrevious.ccRightsYear[index] = ccValues.ccRightsYear[index];
+			ccValues.ccRightsYear[index] = ccRightsYearElement.value;
+		}		
+		var ccRightsOwnerElement = document.getElementById("ccRightsOwner" + index);
+		if(ccRightsOwnerElement && ccRightsOwnerElement.value)
+		{
+			ccPrevious.ccRightsOwner[index] = ccValues.ccRightsOwner[index];
+			ccValues.ccRightsOwner[index] = ccRightsOwnerElement.value;
+		}		
+	}
+</script>
+
+## start of getCopyright macro
+#macro(getCreativeCommons $cItem $cIndex)
+	<p class="shorttext">
+		<span class="reqStar">*</span>
+		<label for="owner$cIndex">
+			$ccOwnershipLabel
+		</label>	
+		<select name="owner$cIndex" id ="owner$cIndex" onchange="javascript:updateCreativeCommons(this, '$cIndex');">
+			#foreach ($option in $ccOwnershipList)
+				<option value="$option"#if($cItem.rightsowner == $option) selected="selected"#end>$option</option>
+			#end
+		</select>
+		#if ($!ccInfoUrl)
+			(<a href="$ccInfoUrl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
+		#end
+	</p>
+	<div id="copyright_div_1_$cIndex">
+	</div>
+	<div id="copyright_div_2_$cIndex">
+	</div>
+	<div id="copyright_div_3_$cIndex">
+	</div>
+	
+#end 
+## end of getCreativeCommons macro
 
 #macro(getPropertyValues $tags)
 	#foreach($tag in $tags)
@@ -540,6 +714,9 @@
 				<textarea id="description$i" name="description$i" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
 			</p>	
 			#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
+				#if($usingCreativeCommons)
+					#getCreativeCommons($item $i)
+				#else
 					#if ($!copyrightTypes)
 						<p class="shorttext">
 							<span class="reqStar">*</span>
@@ -584,6 +761,7 @@
 							</tr>
 						</table>
 					#end
+				#end
 			#end
 		
 			#if (!$dropboxMode && !$preventPublicDisplay)
