@@ -69,6 +69,14 @@
 			org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter
 		</converter-class>
 	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.NontrailingDoubleConverter
+		</converter-class>
+	</converter>
 
 	<validator>
 		<validator-id>

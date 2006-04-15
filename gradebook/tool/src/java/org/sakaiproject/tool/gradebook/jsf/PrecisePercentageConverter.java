@@ -41,7 +41,7 @@ public class PrecisePercentageConverter extends NumberConverter {
 	private static final Log log = LogFactory.getLog(PrecisePercentageConverter.class);
 
 	public PrecisePercentageConverter() {
-		setType("percentage");
+		setType("percent");
 		setMaxFractionDigits(2);
 	}
 

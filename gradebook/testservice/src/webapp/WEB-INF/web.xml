@@ -39,14 +39,6 @@
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
 
-
-	<!-- MyFaces support -->
-
-	<listener>
-		<listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-	</listener>
-
-
 	<!-- Faces Servlet -->
 	<servlet>
 		<servlet-name>Faces Servlet</servlet-name>

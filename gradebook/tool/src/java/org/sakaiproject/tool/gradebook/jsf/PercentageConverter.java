@@ -40,7 +40,7 @@ public class PercentageConverter extends NumberConverter {
 	private static final Log log = LogFactory.getLog(PercentageConverter.class);
 
 	public PercentageConverter() {
-		setType("percentage");
+		setType("percent");
 		setIntegerOnly(true);
 	}
 

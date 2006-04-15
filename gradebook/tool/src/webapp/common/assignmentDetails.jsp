@@ -163,7 +163,7 @@
 
 				<h:inputText id="Score" value="#{scoreRow.score}" size="4" rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}" style="text-align:right;"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-					<f:convertNumber />
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validateDoubleRange minimum="0"/>
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 				</h:inputText>
