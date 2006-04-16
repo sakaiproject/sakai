@@ -8521,10 +8521,13 @@ public class ResourcesAction
 		state.setAttribute (STATE_NAVIGATION_ROOT, home);
 
 		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-		Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-		if(! homes.isEmpty())
+		if(factory != null)
 		{
-			state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+			if(! homes.isEmpty())
+			{
+				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+			}
 		}
 
 		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
