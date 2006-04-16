@@ -6488,37 +6488,31 @@ public class ResourcesAction
 			if(usingCreativeCommons)
 			{
 				String ccOwnership = params.getString("ccOwnership");
-				System.out.println(" ==> ccOwnership: " + ccOwnership);
 				if(ccOwnership != null)
 				{
 					item.setRightsownership(ccOwnership);
 				}
 				String ccTerms = params.getString("ccTerms");
-				System.out.println(" ==> ccTerms: " + ccTerms);
 				if(ccTerms != null)
 				{
 					item.setLicense(ccTerms);
 				}
-				String ccCommercial = params.getString("ccCommercial"); 
-				System.out.println(" ==> ccCommercial: " + ccCommercial);
+				String ccCommercial = params.getString("ccCommercial");
 				if(ccCommercial != null)
 				{
 					item.setAllowCommercial(ccCommercial);
 				}
-				String ccModification = params.getString("ccModification"); 
-				System.out.println(" ==> ccModification: " + ccModification);
+				String ccModification = params.getString("ccModification");
 				if(ccCommercial != null)
 				{
 					item.setAllowModifications(ccModification);
 				}
 				String ccRightsYear = params.getString("ccRightsYear");
-				System.out.println(" ==> ccRightsYear: " + ccRightsYear);
 				if(ccRightsYear != null)
 				{
 					item.setRightstyear(ccRightsYear);
 				}
 				String ccRightsOwner = params.getString("ccRightsOwner");
-				System.out.println(" ==> ccRightsOwner: " + ccRightsOwner);
 				if(ccRightsOwner != null)
 				{
 					item.setRightsowner(ccRightsOwner);
@@ -6935,44 +6929,36 @@ public class ResourcesAction
 		}
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
-			System.out.println(" ==> checking usingCreativeCommons: ");
-			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
-			System.out.println(" ==> usingCreativeCommons: " + usingCreativeCommons);
+			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());
 			
 			if(usingCreativeCommons)
 			{
 				String ccOwnership = params.getString("ccOwnership" + index);
-				System.out.println(" ==> ccOwnership: " + ccOwnership);
 				if(ccOwnership != null)
 				{
 					item.setRightsownership(ccOwnership);
 				}
 				String ccTerms = params.getString("ccTerms" + index);
-				System.out.println(" ==> ccTerms: " + ccTerms);
 				if(ccTerms != null)
 				{
 					item.setLicense(ccTerms);
 				}
-				String ccCommercial = params.getString("ccCommercial" + index); 
-				System.out.println(" ==> ccCommercial: " + ccCommercial);
+				String ccCommercial = params.getString("ccCommercial" + index);
 				if(ccCommercial != null)
 				{
 					item.setAllowCommercial(ccCommercial);
 				}
-				String ccModification = params.getString("ccModification" + index); 
-				System.out.println(" ==> ccModification: " + ccModification);
+				String ccModification = params.getString("ccModification" + index);
 				if(ccCommercial != null)
 				{
 					item.setAllowModifications(ccModification);
 				}
 				String ccRightsYear = params.getString("ccRightsYear" + index);
-				System.out.println(" ==> ccRightsYear: " + ccRightsYear);
 				if(ccRightsYear != null)
 				{
 					item.setRightstyear(ccRightsYear);
 				}
 				String ccRightsOwner = params.getString("ccRightsOwner" + index);
-				System.out.println(" ==> ccRightsOwner: " + ccRightsOwner);
 				if(ccRightsOwner != null)
 				{
 					item.setRightsowner(ccRightsOwner);
