@@ -455,6 +455,9 @@ public class ResourcesAction
 	private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
 	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
 	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+	
+	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
+	protected static final String STATE_USING_CREATIVE_COMMONS = "resources.usingCreativeCommons";
 
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
@@ -6480,36 +6483,90 @@ public class ResourcesAction
 
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
-			// check for copyright status
-			// check for copyright info
-			// check for copyright alert
-
-			String copyrightStatus = StringUtil.trimToNull(params.getString ("copyrightStatus"));
-			String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("copyrightInfo"));
-			String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
-
-			if (copyrightStatus != null)
+			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
+			
+			if(usingCreativeCommons)
 			{
-				if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+				String ccOwnership = params.getString("ccOwnership");
+				System.out.println(" ==> ccOwnership: " + ccOwnership);
+				if(ccOwnership != null)
 				{
-					if (copyrightInfo != null)
-					{
-						item.setCopyrightInfo( copyrightInfo );
-					}
-					else
-					{
-						alerts.add(rb.getString("specifycp2"));
-						// addAlert(state, rb.getString("specifycp2"));
-					}
+					item.setRightsownership(ccOwnership);
 				}
-				else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+				String ccTerms = params.getString("ccTerms");
+				System.out.println(" ==> ccTerms: " + ccTerms);
+				if(ccTerms != null)
 				{
-					item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					item.setLicense(ccTerms);
+				}
+				String ccCommercial = params.getString("ccCommercial"); 
+				System.out.println(" ==> ccCommercial: " + ccCommercial);
+				if(ccCommercial != null)
+				{
+					item.setAllowCommercial(ccCommercial);
+				}
+				String ccModification = params.getString("ccModification"); 
+				System.out.println(" ==> ccModification: " + ccModification);
+				if(ccCommercial != null)
+				{
+					item.setAllowModifications(ccModification);
+				}
+				String ccRightsYear = params.getString("ccRightsYear");
+				System.out.println(" ==> ccRightsYear: " + ccRightsYear);
+				if(ccRightsYear != null)
+				{
+					item.setRightstyear(ccRightsYear);
+				}
+				String ccRightsOwner = params.getString("ccRightsOwner");
+				System.out.println(" ==> ccRightsOwner: " + ccRightsOwner);
+				if(ccRightsOwner != null)
+				{
+					item.setRightsowner(ccRightsOwner);
 				}
 
-				item.setCopyrightStatus( copyrightStatus );
+				/*
+				ccValues.ccOwner = new Array();
+				ccValues.myRights = new Array();
+				ccValues.otherRights = new Array();
+				ccValues.ccCommercial = new Array();
+				ccValues.ccModifications = new Array();
+				ccValues.ccRightsYear = new Array();
+				ccValues.ccRightsOwner = new Array();
+				*/
 			}
-			item.setCopyrightAlert(copyrightAlert != null);
+			else
+			{
+				// check for copyright status
+				// check for copyright info
+				// check for copyright alert
+	
+				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyrightStatus"));
+				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("copyrightInfo"));
+				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
+	
+				if (copyrightStatus != null)
+				{
+					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+					{
+						if (copyrightInfo != null)
+						{
+							item.setCopyrightInfo( copyrightInfo );
+						}
+						else
+						{
+							alerts.add(rb.getString("specifycp2"));
+							// addAlert(state, rb.getString("specifycp2"));
+						}
+					}
+					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+					{
+						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					}
+	
+					item.setCopyrightStatus( copyrightStatus );
+				}
+				item.setCopyrightAlert(copyrightAlert != null);
+			}
 		}
 
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
@@ -6878,36 +6935,92 @@ public class ResourcesAction
 		}
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
-			// check for copyright status
-			// check for copyright info
-			// check for copyright alert
-
-			String copyrightStatus = StringUtil.trimToNull(params.getString ("copyright" + index));
-			String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("newcopyright" + index));
-			String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert" + index));
-
-			if (copyrightStatus != null)
+			System.out.println(" ==> checking usingCreativeCommons: ");
+			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
+			System.out.println(" ==> usingCreativeCommons: " + usingCreativeCommons);
+			
+			if(usingCreativeCommons)
 			{
-				if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+				String ccOwnership = params.getString("ccOwnership" + index);
+				System.out.println(" ==> ccOwnership: " + ccOwnership);
+				if(ccOwnership != null)
 				{
-					if (copyrightInfo != null)
-					{
-						item.setCopyrightInfo( copyrightInfo );
-					}
-					else
-					{
-						item_alerts.add(rb.getString("specifycp2"));
-						// addAlert(state, rb.getString("specifycp2"));
-					}
+					item.setRightsownership(ccOwnership);
 				}
-				else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+				String ccTerms = params.getString("ccTerms" + index);
+				System.out.println(" ==> ccTerms: " + ccTerms);
+				if(ccTerms != null)
 				{
-					item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					item.setLicense(ccTerms);
+				}
+				String ccCommercial = params.getString("ccCommercial" + index); 
+				System.out.println(" ==> ccCommercial: " + ccCommercial);
+				if(ccCommercial != null)
+				{
+					item.setAllowCommercial(ccCommercial);
+				}
+				String ccModification = params.getString("ccModification" + index); 
+				System.out.println(" ==> ccModification: " + ccModification);
+				if(ccCommercial != null)
+				{
+					item.setAllowModifications(ccModification);
+				}
+				String ccRightsYear = params.getString("ccRightsYear" + index);
+				System.out.println(" ==> ccRightsYear: " + ccRightsYear);
+				if(ccRightsYear != null)
+				{
+					item.setRightstyear(ccRightsYear);
+				}
+				String ccRightsOwner = params.getString("ccRightsOwner" + index);
+				System.out.println(" ==> ccRightsOwner: " + ccRightsOwner);
+				if(ccRightsOwner != null)
+				{
+					item.setRightsowner(ccRightsOwner);
 				}
 
-				item.setCopyrightStatus( copyrightStatus );
+				/*
+				ccValues.ccOwner = new Array();
+				ccValues.myRights = new Array();
+				ccValues.otherRights = new Array();
+				ccValues.ccCommercial = new Array();
+				ccValues.ccModifications = new Array();
+				ccValues.ccRightsYear = new Array();
+				ccValues.ccRightsOwner = new Array();
+				*/
 			}
-			item.setCopyrightAlert(copyrightAlert != null);
+			else
+			{
+				// check for copyright status
+				// check for copyright info
+				// check for copyright alert
+	
+				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyright" + index));
+				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("newcopyright" + index));
+				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert" + index));
+	
+				if (copyrightStatus != null)
+				{
+					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
+					{
+						if (copyrightInfo != null)
+						{
+							item.setCopyrightInfo( copyrightInfo );
+						}
+						else
+						{
+							item_alerts.add(rb.getString("specifycp2"));
+							// addAlert(state, rb.getString("specifycp2"));
+						}
+					}
+					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
+					{
+						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
+					}
+	
+					item.setCopyrightStatus( copyrightStatus );
+				}
+				item.setCopyrightAlert(copyrightAlert != null);
+			}
 
 		}
 
@@ -8446,6 +8559,19 @@ public class ResourcesAction
 		HashMap expandedCollections = new HashMap();
 		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		
+		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
+		{
+			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
+			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
+			}
+			else
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
+			}
+		}
 
 		if (state.getAttribute(COPYRIGHT_TYPES) == null)
 		{
@@ -9939,7 +10065,7 @@ public class ResourcesAction
 	 */
 	private static void copyrightChoicesIntoContext(SessionState state, Context context)
 	{
-		boolean usingCreativeCommons = true;
+		boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
 		
 		if(usingCreativeCommons)
 		{
@@ -10753,8 +10879,12 @@ public class ResourcesAction
 		protected ResourcesMetadata m_form;
 		protected boolean m_isBlank;
 		protected String m_instruction;
-		protected String m_rightsowner;
-
+		protected String m_ccRightsownership;
+		protected String m_ccLicense;
+		protected String m_ccCommercial;
+		protected String m_ccModification;
+		protected String m_ccRightsOwner;
+		protected String m_ccRightsYear;
 
 		/**
 		 * @param id
@@ -10785,9 +10915,68 @@ public class ResourcesAction
 			m_instruction = "";
 			m_pubview = false;
 			m_pubviewset = false;
-			m_rightsowner = "";
+			m_ccRightsownership = "";
+			m_ccLicense = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 
+		}
+
+		public void setRightsowner(String ccRightsOwner)
+		{
+			m_ccRightsOwner = ccRightsOwner;
+		}
+		
+		public String getRightsowner()
+		{
+			return m_ccRightsOwner;
+		}
+
+		public void setRightstyear(String ccRightsYear)
+		{
+			m_ccRightsYear = ccRightsYear;
+		}
+		
+		public String getRightsyear()
+		{
+			return m_ccRightsYear;
+		}
+
+		public void setAllowModifications(String ccModification)
+		{
+			m_ccModification = ccModification;
+		}
+		
+		public String getAllowModifications()
+		{
+			return m_ccModification;
+		}
+
+		public void setAllowCommercial(String ccCommercial)
+		{
+			m_ccCommercial = ccCommercial;
+		}
+		
+		public String getAllowCommercial()
+		{
+			return m_ccCommercial;
+		}
+
+		/**
+		 * 
+		 * @param license
+		 */
+		public void setLicense(String license)
+		{
+			m_ccLicense = license;
+		}
+		
+		/**
+		 * 
+		 * @return
+		 */
+		public String getLicense()
+		{
+			return m_ccLicense;
 		}
 
 		/**
@@ -10975,14 +11164,14 @@ public class ResourcesAction
 			m_mimetype = mimetype;
 		}
 		
-		public String getRightsowner()
+		public String getRightsownership()
 		{
-			return m_rightsowner;
+			return m_ccRightsownership;
 		}
 		
-		public void setRightsowner(String owner)
+		public void setRightsownership(String owner)
 		{
-			
+			m_ccRightsownership = owner;
 		}
 
 		/**
