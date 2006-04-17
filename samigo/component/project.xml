@@ -90,7 +90,6 @@
       <version>${sakai.version}</version>
     </dependency>
     <!-- For integration with the gradebook -->
-<!--
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-gradebook-service</artifactId>
@@ -99,7 +98,6 @@
        <deploy.target>shared</deploy.target>
       </properties>
     </dependency>
--->
     <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
     <dependency>
       <groupId>sakaiproject</groupId>

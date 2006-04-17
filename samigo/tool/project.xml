@@ -79,6 +79,7 @@
 	integration support JAR.
 	-->
 	<!-- Uuid generator -->
+<!--
 	<dependency>
 	  <groupId>sakaiproject</groupId>
 		<artifactId>sakai-common-uuid-component</artifactId>
@@ -95,6 +96,7 @@
                 <war.bundle>standalone</war.bundle>
             </properties>
 	</dependency>
+-->
 	<dependency>
 	      <groupId>commons-id</groupId>
 	      <artifactId>commons-id</artifactId>
@@ -180,7 +182,6 @@
       </properties>
     </dependency>
     <!-- For integration with the gradebook -->
-<!--
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-gradebook-service</artifactId>
@@ -189,7 +190,6 @@
         <war.bundle>false</war.bundle>
       </properties>
     </dependency>
--->
     <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
     <dependency>
       <groupId>sakaiproject</groupId>
@@ -201,7 +201,7 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
+      <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>false</war.bundle>
@@ -240,11 +240,25 @@
       </properties>
     </dependency>
     <!-- need to registering samigo functions with sakai -->
+<!-- doesn't need this 
     <dependency>
        <groupId>sakaiproject</groupId>
        <artifactId>sakai-function</artifactId>
        <version>${sakai.version}</version>
     </dependency>
+-->
+        <!-- Uuid generator -->
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-util-api</artifactId>
+                        <version>${sakai.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-util-impl</artifactId>
+                        <version>${sakai.version}</version>
+                </dependency>
+
     <!-- end Sakai integration dependencies -->
     <!--**********************************************************-->
     <dependency>
