@@ -1,6 +1,8 @@
 <!-- chef_resources_itemtype.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 ############################################# macro getPropertyValues 
 ##
+## start of creative-commons scripts
+#if($usingCreativeCommons)
 <script type="text/javascript">
 	var ccValues = new Object();
 	ccValues.ccOwnership = new Array();
@@ -180,8 +182,10 @@
 		#end		
 	}
 </script>
+#end
+## end of creative-commons scripts
 
-## start of getCopyright macro
+## start of getCreativeCommons macro
 #macro(getCreativeCommons $cItem $cIndex)
 	<p class="shorttext">
 		<span class="reqStar">*</span>
