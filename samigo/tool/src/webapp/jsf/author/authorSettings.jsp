@@ -100,6 +100,8 @@ function disableAllFeedbackCheck(feedbackType)
       }
     }
   }
+  document.forms[0].onsubmit();
+  document.forms[0].submit();
 }
 
 var autoSubmitId;
