@@ -66,8 +66,8 @@ import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 
 //cwen
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.Placement; 
 // note: we should wrap above dependency in a backend service--esmiley
 
 import java.text.SimpleDateFormat;

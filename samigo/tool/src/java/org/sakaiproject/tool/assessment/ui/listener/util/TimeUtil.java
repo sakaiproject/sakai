@@ -31,33 +31,14 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.text.SimpleDateFormat;
 
-/*
-import java.text.NumberFormat;
-import javax.faces.context.FacesContextFactory;
-import javax.faces.lifecycle.Lifecycle;
-import javax.faces.lifecycle.LifecycleFactory;
-import javax.faces.FactoryFinder;
-import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import java.util.ArrayList;
-import javax.servlet.*;
-import javax.servlet.http.*;
-*/
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 //import org.springframework.web.context.WebApplicationContext;
 
 import java.util.TimeZone;
 // need to move this out to support standalone,  using spring injection 
-import org.sakaiproject.service.legacy.preference.PreferencesService;
 
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.preference.PreferencesEdit;
-import org.sakaiproject.service.legacy.preference.PreferencesService;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>Description: Time conversion utility class</p>

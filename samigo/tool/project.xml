@@ -44,35 +44,34 @@
       </properties>
     </dependency>
 
-
-                <!-- Section Awareness -->
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-sections-api</artifactId>
-                        <version>${sakai.version}</version>
-                        <properties>
-                          <deploy.target>shared</deploy.target>
-                        </properties>
-                </dependency>
-        <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
-                <!-- Standalone component -->
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-sections-comp-shared-standalone</artifactId>
-                        <version>${sakai.version}</version>
-                        <properties>
-                          <war.bundle>standalone</war.bundle>
-                        </properties>
-                </dependency>
-                <!-- Sakai-embedded version -->
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>integrated</war.bundle>
-            </properties>
-        </dependency>
+    <!-- Section Awareness -->
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-sections-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <deploy.target>shared</deploy.target>
+      </properties>
+    </dependency>
+    <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
+    <!-- Standalone component -->
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-sections-comp-shared-standalone</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>standalone</war.bundle>
+      </properties>
+    </dependency>
+    <!-- Sakai-embedded version -->
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>integrated</war.bundle>
+      </properties>
+    </dependency>
 
   
 	<!--
@@ -140,16 +139,26 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    <!--  need for SessionUtil -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-session</artifactId>
+      <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
     </dependency>
-    <!-- need to use Placement and ToolManager -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-tool</artifactId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
+    </dependency>
+      <!-- need to use ToolManager, ToolSession, Placement -->
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <!-- this is required for any Sakai JSF tool -->
@@ -170,15 +179,8 @@
         <war.bundle>integrated</war.bundle>
       </properties>
     </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-web</artifactId>
-      <version>${sakai.version}</version>
-      <properties>
-        <war.bundle>integrated</war.bundle>
-      </properties>
-    </dependency>
     <!-- For integration with the gradebook -->
+<!--
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-gradebook-service</artifactId>
@@ -187,10 +189,11 @@
         <war.bundle>false</war.bundle>
       </properties>
     </dependency>
+-->
     <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
+      <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>false</war.bundle>
@@ -198,7 +201,39 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-db-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <properties>
+        <war.bundle>false</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>false</war.bundle>

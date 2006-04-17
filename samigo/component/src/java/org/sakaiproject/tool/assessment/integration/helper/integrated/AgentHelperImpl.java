@@ -32,20 +32,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.cover.ToolManager; 
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.authz.api.Role;
+
 import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.osid.shared.impl.AgentImpl;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 //cwen
-import org.sakaiproject.api.kernel.tool.Placement;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  *
@@ -404,7 +405,7 @@ public class AgentHelperImpl implements AgentHelper
   }
   /**
    * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
-   * on org.sakaiproject.service.framework.config.cover.ServerConfigurationService.
+   * on org.sakaiproject.component.cover.ServerConfigurationService.
    * @todo for 2.2 remove method when done with refactor.
    * @deprecated
    *

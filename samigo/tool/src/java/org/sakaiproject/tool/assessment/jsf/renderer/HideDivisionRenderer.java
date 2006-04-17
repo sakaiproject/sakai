@@ -32,8 +32,8 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.faces.component.UIViewRoot;
 
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Description: </p>

@@ -25,7 +25,8 @@ package org.sakaiproject.tool.assessment.test.integration.helper.ifc;
 import junit.framework.*;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.*;
 import org.sakaiproject.service.framework.log.*;
-import org.sakaiproject.service.legacy.site.*;
+import org.sakaiproject.site.*;
+
 import java.util.*;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 

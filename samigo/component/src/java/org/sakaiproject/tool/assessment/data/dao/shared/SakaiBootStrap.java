@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.data.dao.shared;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.framework.sql.SqlService;
+import org.sakaiproject.db.api.SqlService;
 
 /**
  * This class will be used to initialize the state of the application.
@@ -56,7 +56,7 @@ public class SakaiBootStrap
   {
     LOG.info("init()");
 
-    sqlService = org.sakaiproject.service.framework.sql.cover.SqlService
+    sqlService = org.sakaiproject.db.cover.SqlService
         .getInstance();
     if (sqlService == null)
     {

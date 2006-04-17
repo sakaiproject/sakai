@@ -44,7 +44,32 @@
     <!-- need to use Placement and ToolManager -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-tool</artifactId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-db-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <!-- this is required for any Sakai JSF tool -->
@@ -53,18 +78,19 @@
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <!-- these (jsf-app and util-web) are options to get full Sakai JSF integration -->
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-util-web</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
     <!-- For integration with the gradebook -->
+<!--
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-gradebook-service</artifactId>
@@ -73,15 +99,16 @@
        <deploy.target>shared</deploy.target>
       </properties>
     </dependency>
+-->
     <!--  For the facades to call into Sakai legacy services (SiteService, RealmService, etc) -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
+      <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-legacy-service</artifactId>
+      <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <!-- end Sakai integration dependencies -->

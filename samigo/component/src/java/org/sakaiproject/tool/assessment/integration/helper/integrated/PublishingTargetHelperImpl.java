@@ -52,7 +52,7 @@ public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
   private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
-  private org.sakaiproject.api.kernel.component.ComponentManager cm;
+    //private org.sakaiproject.component.api.ComponentManager cm;
 
   public PublishingTargetHelperImpl()
   {

@@ -4,9 +4,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
 import javax.faces.component.UIComponent;
 
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Organization: Sakai Project</p>

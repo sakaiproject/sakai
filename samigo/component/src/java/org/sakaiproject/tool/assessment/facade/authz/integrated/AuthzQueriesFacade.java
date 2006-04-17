@@ -37,11 +37,11 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentBaseData;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -100,8 +100,7 @@ public class AuthzQueriesFacade
 
     if (!agent.isAccessViaUrl())
     {
-      currentSiteId =
-        org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+       currentSiteId =ToolManager.getCurrentPlacement().getId();
     }
 
     if(currentSiteId == null)
@@ -138,7 +137,7 @@ public class AuthzQueriesFacade
     {
       throw new IllegalArgumentException("Null Argument");
     }
-    final String queryAgentId = org.sakaiproject.service.framework.portal.cover.PortalService.getCurrentSiteId();
+    final String queryAgentId = ToolManager.getCurrentPlacement().getId();
 
     HibernateCallback hcb = new HibernateCallback()
     {

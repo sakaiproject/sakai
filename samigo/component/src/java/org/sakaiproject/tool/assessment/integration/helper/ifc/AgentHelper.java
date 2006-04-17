@@ -86,7 +86,7 @@ public interface AgentHelper extends Serializable
 
   /**
    * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
-   * on org.sakaiproject.service.framework.config.cover.ServerConfigurationService.
+   * on org.sakaiproject.service.component.cover.ServerConfigurationService.
    * @todo for 2.2 remove method when done with refactor.
    * @deprecated
    *
