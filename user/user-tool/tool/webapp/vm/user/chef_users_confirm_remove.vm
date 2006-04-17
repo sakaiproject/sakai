@@ -1,0 +1,30 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="alertMessage">
+			$tlang.getString("useconrem.areyousur")
+		</div>
+		<table class="listHier" cellspacing="0" summary ="List of Users">
+			<tr>
+				<th id="Id">$tlang.getString("useconrem.useid")</th>
+				<th id="Name">$tlang.getString("useconrem.nam")</th>
+				<th id="Email">$tlang.getString("useconrem.ema")</th>
+			</tr>
+			<tr>
+				<td headers="Id"> $validator.escapeHtml($user.Id)</td>
+				<td headers="Name">$validator.escapeHtml($user.DisplayName)</td>
+				<td headers="Email">$validator.escapeHtml($user.Email)</td>
+			</tr>
+		</table>
+		<form action="#toolForm("$action")" method="post">
+			<div class="act">
+				<input type="submit" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("useconrem.rem")" />
+				<input type="submit" name="eventSubmit_doCancel_remove" value="$tlang.getString("useconrem.can")" />
+			</div>
+		</form>
+	</div>
+

@@ -1,0 +1,93 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_create.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["id"];
+</script>
+<script type="text/javascript" language="JavaScript">
+	function validatePassword(evt)
+	{
+		var pwdef = document.getElementById("pw").defaultValue;
+		var pw1 = document.getElementById("pw").value;
+		var pw2 = document.getElementById("pw0").value;
+		if((pw1 == pwdef && pw2 == pwdef) || pw1 == pw2)
+		{
+			return true;
+		}
+		if(evt.preventDefault)
+		{
+			evt.preventDefault();
+		}
+		alert("$tlang.getString("usecre.pass")");
+		document.getElementById("pw").value = "";
+		document.getElementById("pw0").value = "";
+		document.getElementById("pw").focus();
+		
+		return false;
+	}
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("usecre.entthe")
+	</h3>
+	
+	## (gsilver) - $form-name in commented line below is not resolving to a value - and "$" is not a valid char for a name or an id with this doctype.
+
+##	<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">	
+	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
+		<p class="shorttext">
+			#if(!$user)<span class="reqStar">*</span>#end
+			<label #if(!$user) for="id" #end>
+				 $tlang.getString("usecre.useid")
+			</label>
+			#if(!$user)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($user.Id)#end
+		</p>
+		<p class="shorttext">
+			<label for="first-name">
+				$tlang.getString("usecre.firnam")
+			</label>
+			<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#end/>
+		</p>
+		<p class="shorttext">
+			<label for="last-name">
+				$tlang.getString("usecre.lasnam")
+			</label>
+			<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#end/>
+		</p>
+		<p class="shorttext">
+			<label for="email">
+				$tlang.getString("usecre.ema")
+			</label>
+			<input type="text" name="email" id="email"#if($user) value="$validator.escapeHtml($user.Email)"#end />
+		</p>
+		<p class="shorttext">
+			#if ($pwRequired) <span class="reqStar">*</span> #end
+			<label for="pw">
+				$tlang.getString("usecre.crenewpass")
+			</label>
+			<input type="password" name="pw" id="pw"/>
+		</p>
+		<p class="shorttext">
+			#if ($pwRequired) <span class="reqStar">*</span> #end
+			<label for="pw0">
+				$tlang.getString("usecre.vernewpass")
+			</label>
+			<input type="password" name="pw0" id="pw0"/>
+		</p>
+		<p class="shorttext">
+			<label for="dtype">
+				$tlang.getString("usecre.typ")
+			</label>
+			<input disabled type="text" name="dtype" id="dtype" value="$type"/>
+			<input type="hidden" name="type" id="type" value="$type"/>
+		</p>
+		<div class="act">
+			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("usecre.can")" />
+		</div>
+	</form>
+</div>
+

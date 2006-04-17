@@ -1,0 +1,50 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+		Users
+	</h3>
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("uselis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("uselis.theare")
+		</div>
+#if ($users.size() > 0)
+##		<div id="chefOverContent">
+			<table class="listHier" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
+				<tr>
+					<th id="Id">$tlang.getString("uselis.useid")</th>
+					<th id="Name">$tlang.getString("uselis.nam")</th>
+					<th id="Email">$tlang.getString("uselis.ema")</th>
+					<th id="Type">$tlang.getString("uselis.typ")</th>
+				</tr>
+	#foreach ($user in $users)
+				<tr>
+					<td headers="Id">
+		#if ($service.allowUpdateUser($user.Id))
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($user.Id)")">
+							$validator.escapeHtml($user.Id)
+						</a>
+		#else
+						$validator.escapeHtml($user.Id)
+		#end
+					</td>
+					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
+					<td headers="Email">$validator.escapeHtml($user.Email)</td>
+					<td headers="Type">$validator.escapeHtml($user.Type)</td>
+				</tr>
+	#end
+			</table>
+##		</div>
+#else
+		<div class="instruction">
+			$tlang.getString("uselis.nouse")
+		</div>
+#end
+	</div>
+

@@ -1,0 +1,123 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_edit.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+
+<script type="text/javascript" language="JavaScript">
+	focus_path = [#if(!$user)"id"#else"first-name"#end];
+</script>
+<script type="text/javascript" language="JavaScript">
+	function validatePassword(evt)
+	{
+		var pwdef = document.getElementById("pw").defaultValue;
+		var pw1 = document.getElementById("pw").value;
+		var pw2 = document.getElementById("pw0").value;
+		if((pw1 == pwdef && pw2 == pwdef) || pw1 == pw2)
+		{
+			return true;
+		}
+		if(evt.preventDefault)
+		{
+			evt.preventDefault();
+		}
+		alert("$tlang.getString("useedi.pass")");
+		document.getElementById("pw").value = "";
+		document.getElementById("pw0").value = "";
+		document.getElementById("pw").focus();
+		
+		return false;
+	}
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<h3>
+			$tlang.getString("useedi.revandmod")
+		</h3>
+		<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
+			<p class="shorttext">
+				#if(!$user)<span class="reqStar">*</span>#end 
+				<label #if(!$user) for="id" #end>
+					$tlang.getString("useedi.useid")
+				</label>
+				#if(!$user)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($user.Id)#end
+			</p>	
+			<p class="shorttext">
+				<label for="first-name">
+					$tlang.getString("useedi.firnam")
+				</label>	
+				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#end/>
+			</p>
+			<p class="shorttext">
+				<label for="last-name">
+					$tlang.getString("useedi.lasnam")
+				</label>
+				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#end/>
+			</p>
+			<p class="shorttext">
+				<label for="email">
+					$tlang.getString("useedi.ema")
+				</label>
+				<input type="text" name="email" id="email"#if($user) value="$validator.escapeHtml($user.Email)"#end />
+			</p>	
+#if ($incPw)
+			<p class="shorttext">
+				<label for="pw">
+					$tlang.getString("useedi.crenewpass")
+				</label>
+				<input type="password" name="pw" id="pw"/>
+			</p>
+			<p class="shorttext">
+				<label for="pw0">
+					$tlang.getString("useedi.vernewpass")
+				</label>
+				<input type="password" name="pw0" id="pw0"/>
+			</p>	
+#end
+#if ($incType)
+			<p class="shorttext">
+				<label for="type">
+					$tlang.getString("useedi.typ")
+				</label>
+				<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#end/>
+			</p>	
+#end
+#if ($user)
+			<table  class="itemSummary" summary="$tlang.getString("useedi.revuseinf")">
+				<tr>
+					<td>$tlang.getString("useedi.creby")</td>
+					<td>
+						$validator.escapeHtml($user.CreatedBy.DisplayName)
+					</td>
+				</tr>
+				<tr>
+					<td>$tlang.getString("useedi.cre")</td>
+					<td >
+						$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+					</td>
+				</tr>
+				<tr>
+					<td>$tlang.getString("useedi.modby")</td>
+					<td>
+						$validator.escapeHtml($user.ModifiedBy.DisplayName)
+					</td>
+				</tr>
+				<tr>
+					<td>$tlang.getString("useedi.mod")</td>
+					<td>
+						$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+					</td>
+				</tr>
+			</table>
+#end
+			<div class="act">
+				#if($user)
+					<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" />
+				#else
+					<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" />
+				#end					
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" />
+			</div>
+		</form>
+	</div>
+</div>

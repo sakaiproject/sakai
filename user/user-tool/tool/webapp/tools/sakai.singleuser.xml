@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.singleuser"
+			title="Account"
+			description="View and modify my user profile.">
+
+		<configuration name="include-password" value="true" />
+
+		<configuration name="single-user" value="true" type="final" />
+
+		<category name="myworkspace" />
+
+	</tool>
+
+</registration>

@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>sakai-legacy-admin-tools</display-name>
+    <description>Sakai 2 Legacy Admin tools</description>
+
+	<!--
+    <filter>
+        <filter-name>sakai.snoop</filter-name>
+        <filter-class>org.sakaiproject.util.web.SnoopFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sakai.snoop</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+	-->
+
+	<!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.memory</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.aliases</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.archive</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.online</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.realms</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sites</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.users</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.singleuser</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.createuser</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.news</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.membership</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.iframe</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.iframe.myworkspace</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.iframe.service</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.iframe.site</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitemanage</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+   <filter-mapping>
+       <filter-name>sakai.request</filter-name>
+       <servlet-name>sakai.permissions.helper</servlet-name>
+       <dispatcher>REQUEST</dispatcher>
+       <dispatcher>FORWARD</dispatcher>
+       <dispatcher>INCLUDE</dispatcher>
+   </filter-mapping>
+
+   <filter-mapping>
+       <filter-name>sakai.request</filter-name>
+       <servlet-name>sakai.filepicker</servlet-name>
+       <dispatcher>REQUEST</dispatcher>
+       <dispatcher>FORWARD</dispatcher>
+       <dispatcher>INCLUDE</dispatcher>
+   </filter-mapping>
+
+   <filter-mapping>
+       <filter-name>sakai.request</filter-name>
+       <servlet-name>sakai.announcements</servlet-name>
+       <dispatcher>REQUEST</dispatcher>
+       <dispatcher>FORWARD</dispatcher>
+       <dispatcher>INCLUDE</dispatcher>
+   </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.synoptic.announcement</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.motd</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.discussion</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.synoptic.discussion</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.chat</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.synoptic.chat</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.mailbox</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.schedule</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.resources</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.dropbox</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.assignment</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.assignment.grades</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.contactSupport</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitebrowser</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitesetup</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.siteinfo</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+	<!-- the vm handling servlet : used direct by name, not by URL path -->
+	<servlet>
+		<servlet-name>
+		   sakai.vm
+		</servlet-name>
+		<servlet-class>
+			org.sakaiproject.vm.VelocityServlet
+		</servlet-class>
+		<init-param>
+			<param-name> properties </param-name>
+			<param-value> velocity.properties </param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.memory
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.MemoryAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_memory</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.aliases
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.AliasesAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_aliases</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.archive
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.ArchiveAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_archive</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.online
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.PresenceToolAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_presence</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.realms
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.RealmsAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_realms</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+ 
+    <servlet>
+        <servlet-name>
+           sakai.sites
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.SitesAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_sites</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.users
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.UsersAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_users</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+          sakai.singleuser
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.UsersAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_users</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.createuser
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.admin.UsersAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>admin/chef_users</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	 <servlet>
+        <servlet-name>
+           sakai.iframe
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.web.IFrameAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>web/chef_iframe</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	 <servlet>
+        <servlet-name>
+           sakai.iframe.myworkspace
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.web.IFrameAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>web/chef_iframe</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	 <servlet>
+        <servlet-name>
+           sakai.iframe.site
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.web.IFrameAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>web/chef_iframe</param-value>
+        </init-param>
+       <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	 <servlet>
+        <servlet-name>
+           sakai.iframe.service
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.web.IFrameAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>web/chef_iframe</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.news
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.news.NewsAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>news/chef_news</param-value>            
+        </init-param>
+        <init-param>
+            <param-name>graphic_version</param-name>
+            <param-value>Graphic Version</param-value>            
+        </init-param>
+        <init-param>
+            <param-name>full_story</param-name>
+            <param-value>Full Story</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.membership
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.prefs.MembershipAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>prefs/chef_membership</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+     <servlet>
+        <servlet-name>
+           sakai.sitemanage
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.sitesetup.SiteAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitesetup/chef_site</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+   <servlet>
+       <servlet-name>
+          sakai.announcements
+       </servlet-name>
+       <servlet-class>
+           org.sakaiproject.tool.announcement.AnnouncementAction
+       </servlet-class>
+       <init-param>
+           <param-name>template</param-name>
+           <param-value>announcement/chef_announcements</param-value>
+       </init-param>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
+
+   <servlet>
+       <servlet-name>
+          sakai.permissions.helper
+       </servlet-name>
+       <servlet-class>
+           org.sakaiproject.tool.helper.PermissionsHelperAction
+       </servlet-class>
+       <init-param>
+           <param-name>template</param-name>
+           <param-value>helper/chef_permissions</param-value>
+       </init-param>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
+
+   <servlet>
+       <servlet-name>
+          sakai.filepicker
+       </servlet-name>
+       <servlet-class>
+           org.sakaiproject.tool.filepicker.FilePickerAction
+       </servlet-class>
+       <init-param>
+           <param-name>template</param-name>
+           <param-value>helper/chef_attachment</param-value>
+       </init-param>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
+
+   <servlet>
+       <servlet-name>
+          sakai.resource.helper
+       </servlet-name>
+       <servlet-class>
+          org.sakaiproject.tool.filepicker.ResourceEditHelperAction
+       </servlet-class>
+       <init-param>
+           <param-name>template</param-name>
+           <param-value>helper/chef_attachment</param-value>
+       </init-param>
+       <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+          sakai.synoptic.announcement
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.announcement.AnnouncementAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>announcement/chef_announcements</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.motd
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.recent.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+     <servlet>
+        <servlet-name>
+           sakai.discussion
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.discussion.ThreadedDiscussionIIAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>discussion/chef_threaded_discussionsII</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.synoptic.discussion
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.recent.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.chat
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.chat.ChatAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>chat/chef_chat</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.synoptic.chat
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.recent.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.mailbox
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.email.MailboxAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>email/chef_mailbox</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.schedule
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.calendar.CalendarAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>calendar/chef_calendar</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.resources
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.content.ResourcesAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>content/chef_resources</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.dropbox
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.content.ResourcesAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>content/chef_resources</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.assignment
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.assignment.AssignmentAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>assignment/chef_assignments</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	<servlet>
+        <servlet-name>
+           sakai.assignment.grades
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.assignment.AssignmentAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>assignment/chef_assignments</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+     
+    <servlet>
+        <servlet-name>
+           sakai.contactSupport
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.support.ContactSupportAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>support/chef_contactsupport</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.sitebrowser
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.sitebrowser.SiteBrowserAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitebrowser/chef_sitebrowser</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.sitesetup
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.sitesetup.SiteAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitesetup/chef_site</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.siteinfo
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.tool.sitesetup.SiteAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitesetup/chef_site</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+</web-app>
