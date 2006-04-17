@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-presence-api</name>
+	<name>sakai-presence-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-presence-api</id>
+	<id>sakai-presence-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -14,24 +14,26 @@
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- deploy as a jar -->
-		<deploy.type>jar</deploy.type>
-		<!-- deploy to "shared", "common" or "server" -->
-		<deploy.target>shared</deploy.target>
+		<!-- deploy as a components -->
+		<deploy.type>components</deploy.type>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
+			<artifactId>sakai-presence-impl</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 	</dependencies>
 
 	<build>
 
+		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
 
 	</build>
