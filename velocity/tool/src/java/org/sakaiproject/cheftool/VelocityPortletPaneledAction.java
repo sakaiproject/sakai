@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
@@ -45,11 +45,6 @@ import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
-import org.sakaiproject.vm.ActionURL;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -57,6 +52,11 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
+import org.sakaiproject.vm.ActionURL;
 
 /**
  * <p>
@@ -686,12 +686,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	public void doOptions(RunData runData, Context context)
 	{
-		// the editor will operate on the tool placement configuration of the current tool
-		// TODO: does the end user have permission to modify this placement?
-		// catch (PermissionException e)
-		// {
-		// msg = "you do not have permission to set options for this Worksite.";
-		// }
+		// ignore if not allowed
+		if (!allowedToOptions())
+		{
+			return;
+			//msg = "you do not have permission to set options for this Worksite.";
+		}
 
 		Placement placement = ToolManager.getCurrentPlacement();
 		String pid = null;
@@ -747,17 +747,31 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	 */
 	protected void addOptionsMenu(Menu bar, JetspeedRunData data) // %%% don't need data -ggolden
 	{
-		Placement placement = ToolManager.getCurrentPlacement();
-		String context = null;
-		if (placement != null) context = placement.getContext();
-
-		// TODO: stolen from site -ggolden
-		if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), "site.upd", "/site/" + context))
+		if (allowedToOptions())
 		{
 			bar.add(new MenuEntry(rb.getString("options"), "doOptions"));
 		}
 
 	} // addOptionsMenu
+
+	/**
+	 * Check if the current user is allowed to do options for the current context (site based)
+	 * @return true if the user is allowed to modify the current context's options, false if not.
+	 */
+	protected boolean allowedToOptions()
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		String context = null;
+		if (placement != null) context = placement.getContext();
+
+		// TODO: stolen from site -ggolden
+		if (SecurityService.unlock("site.upd", "/site/" + context))
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Disable any observers registered in state in STATE_OBSERVER or STATE_OBSERVER2
