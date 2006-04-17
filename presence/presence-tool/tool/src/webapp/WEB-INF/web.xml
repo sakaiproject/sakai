@@ -24,7 +24,7 @@
            sakai.presence
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.tool.portal.PresenceTool
+            org.sakaiproject.presence.tool.PresenceTool
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>

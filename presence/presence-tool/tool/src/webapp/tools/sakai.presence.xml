@@ -7,8 +7,6 @@
 			title="Presence Tool"
 			description="Display the users present at a location.">
 
-	<category name="sakai.portal" />
-
 	<configuration name="reset.button" value="false" />
 
 	</tool>
