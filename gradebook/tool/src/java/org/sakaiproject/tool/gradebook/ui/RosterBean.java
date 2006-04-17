@@ -122,7 +122,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
         Map enrollmentMap = getOrderedEnrollmentMap();
 
-		List gradeRecords = getGradeManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), enrollmentMap.keySet());
+		List gradeRecords = getGradebookManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), enrollmentMap.keySet());
         List workingEnrollments = new ArrayList(enrollmentMap.values());
 
         if (!isEnrollmentSort()) {
@@ -168,8 +168,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             studentRows.add(new StudentRow(enrollment));
         }
 
-		List gradableObjects = getGradeManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradeManager().getCourseGrade(getGradebookId());
+		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		gradableObjectColumns = new ArrayList();
 		for (Iterator iter = gradableObjects.iterator(); iter.hasNext(); ) {
 			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));

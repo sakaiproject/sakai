@@ -114,14 +114,14 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 		// Clear view state.
 		scoreRows = new ArrayList();
-		courseGrade = getGradeManager().getCourseGradeWithStats(getGradebookId());
+		courseGrade = getGradebookManager().getCourseGradeWithStats(getGradebookId());
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
-        totalPoints = getGradeManager().getTotalPoints(getGradebookId());
+        totalPoints = getGradebookManager().getTotalPoints(getGradebookId());
 
 		// Set up score rows.
 		Map enrollmentMap = getOrderedEnrollmentMap();
-		List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
+		List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, enrollmentMap.keySet());
 		List workingEnrollments = new ArrayList(enrollmentMap.values());
 
 		if (!isEnrollmentSort()) {
@@ -154,7 +154,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		}
 
 		// Get all of the grading events for these enrollments on this assignment
-		GradingEvents allEvents = getGradeManager().getGradingEvents(courseGrade, workingEnrollments);
+		GradingEvents allEvents = getGradebookManager().getGradingEvents(courseGrade, workingEnrollments);
 
 		gradeRecordSet = new GradeRecordSet(courseGrade);
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
@@ -190,7 +190,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	}
 
 	private void saveGrades() throws StaleObjectModificationException {
-		getGradeManager().updateCourseGradeRecords(gradeRecordSet);
+		getGradebookManager().updateCourseGradeRecords(gradeRecordSet);
 
 		// Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));

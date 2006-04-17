@@ -79,7 +79,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section.getUuid(), Role.TA);
 
         // Add an internal assignment.
-        gradeManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE);
 
         // Add an external assessment.
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");

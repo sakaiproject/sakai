@@ -65,10 +65,10 @@ public class GradebookServiceTest extends GradebookTestBase {
 
         // Add an internal assignment
         Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
-        asn_1Id = gradeManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
+        asn_1Id = gradebookManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
 
         // Add a score for the internal assignment
-        List assignments = gradeManager.getAssignments(gbId);
+        List assignments = gradebookManager.getAssignments(gbId);
         Assignment asn = null;
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment tmp = (Assignment)iter.next();
@@ -79,7 +79,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         }
         GradeRecordSet gradeRecordSet = new GradeRecordSet(asn);
         gradeRecordSet.addGradeRecord(new AssignmentGradeRecord(asn, "student1", new Double(10)));
-        gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+        gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
     }
 
     /**
@@ -126,7 +126,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Find the assessment and ensure that it has been updated
         Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
         Assignment asn = null;
-        List assignments = gradeManager.getAssignments(gbId);
+        List assignments = gradebookManager.getAssignments(gbId);
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment tmp = (Assignment)iter.next();
             if(tmp.getExternalId() != null && tmp.getExternalId().equals(floatingExtId)) {
@@ -147,7 +147,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Find the assessment and ensure that it has been updated
         Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
         Assignment asn = null;
-        List assignments = gradeManager.getAssignments(gbId);
+        List assignments = gradebookManager.getAssignments(gbId);
         for(Iterator iter = assignments.iterator(); iter.hasNext();) {
             Assignment tmp = (Assignment)iter.next();
             if(tmp.getExternalId() != null && tmp.getExternalId().equals(EXT_ID_1)) {
@@ -158,7 +158,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         Assert.assertEquals(asn.getPointsPossible(), new Double(20));
 
         // Ensure that the total points possible in the gradebook reflects the updated assessment's points
-        Assert.assertTrue(gradeManager.getTotalPoints(gbId) == 30);
+        Assert.assertTrue(gradebookManager.getTotalPoints(gbId) == 30);
     }
 
     public void testCreateExternalGradeRecords() throws Exception {
@@ -171,7 +171,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(5));
 
         // Ensure that the course grade record for student1 has been updated
-        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(15))); // 10 points on internal, 5 points on external
     }
 
@@ -184,7 +184,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(2));
 
         // Ensure that the course grade record for student1 has been updated
-        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
     }
 
@@ -196,14 +196,14 @@ public class GradebookServiceTest extends GradebookTestBase {
 
         // Add the external assessment score
         gradebookService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, "student1", new Double(5));
-        CourseGradeRecord cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(15)));// 10 points on internal, 10 points on external
 
         // Remove the external assessment
         gradebookService.removeExternalAssessment(GRADEBOOK_UID, EXT_ID_1);
 
         // Ensure that the course grade record for student1 has been updated
-        cgr = gradeManager.getStudentCourseGradeRecord(gb, "student1");
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));// 10 points on internal, 0 points on external
     }
 

@@ -45,11 +45,6 @@
 			<value>#{org_sakaiproject_tool_gradebook_business_GradebookManager}</value>
 		</managed-property>
 		<managed-property>
-			<description>Grade Manager</description>
-			<property-name>gradeManager</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_business_GradeManager}</value>
-		</managed-property>
-		<managed-property>
 			<description>Gradable Object Manager</description>
 			<property-name>gradableObjectManager</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_business_GradableObjectManager}</value>

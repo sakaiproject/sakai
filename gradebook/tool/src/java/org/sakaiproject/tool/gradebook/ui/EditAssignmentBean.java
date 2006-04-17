@@ -42,7 +42,7 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
 
 		if (assignment == null) {
-			assignment = (Assignment)getGradeManager().getGradableObject(assignmentId);
+			assignment = (Assignment)getGradebookManager().getGradableObject(assignmentId);
 			if (assignment == null) {
 				// The assignment might have been removed since this link was set up.
 				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());
@@ -54,8 +54,8 @@ public class EditAssignmentBean extends GradebookDependentBean implements Serial
 
 	public String updateAssignment() {
 		try {
-			getGradeManager().updateAssignment(assignment);
-			String messageKey = getGradeManager().isEnteredAssignmentScores(assignmentId) ?
+			getGradebookManager().updateAssignment(assignment);
+			String messageKey = getGradebookManager().isEnteredAssignmentScores(assignmentId) ?
 				"edit_assignment_save_scored" :
 				"edit_assignment_save";
             FacesUtil.addRedirectSafeMessage(getLocalizedString(messageKey, new String[] {assignment.getName()}));

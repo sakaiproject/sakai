@@ -35,7 +35,6 @@ import org.sakaiproject.api.section.SectionAwareness;
 
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -60,7 +59,6 @@ public class GradebookBean extends InitializableBean {
 	// These interfaces are defined application-wide (through Spring, although the
 	// UI classes don't know that).
 	private GradebookManager gradebookManager;
-	private GradeManager gradeManager;
 	private SectionAwareness sectionAwareness;
 	private UserDirectoryService userDirectoryService;
 	private Authn authnService;
@@ -161,19 +159,6 @@ public class GradebookBean extends InitializableBean {
 	 */
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
-	}
-
-	/**
-	 * @return Returns the gradeManager.
-	 */
-	public GradeManager getGradeManager() {
-		return gradeManager;
-	}
-	/**
-	 * @param gradeManager The gradeManager to set.
-	 */
-	public void setGradeManager(GradeManager gradeManager) {
-		this.gradeManager = gradeManager;
 	}
 	/**
 	 * @return Returns the authnService.

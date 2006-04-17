@@ -218,7 +218,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
         // Display course grade if we've been instructed to.
         if (gradebook.isCourseGradeDisplayed()) {
-        	CourseGradeRecord gradeRecord = getGradeManager().getStudentCourseGradeRecord(gradebook, getUserUid());
+        	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
         	if (gradeRecord != null) {
 	        	courseGrade = gradeRecord.getDisplayGrade();
 	        }
@@ -228,8 +228,8 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         if(!gradebook.isAssignmentsDisplayed()) {
             assignmentGradeRows = new ArrayList();
         } else {
-            List assignments = getGradeManager().getAssignments(gradebook.getId());
-            List gradeRecords = getGradeManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
+            List assignments = getGradebookManager().getAssignments(gradebook.getId());
+            List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
 
             // Create a map of assignments to assignment grade rows
             Map asnMap = new HashMap();

@@ -36,7 +36,6 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
 /**
@@ -49,14 +48,13 @@ public class TestGradebookTool {
 
     // Services
     private GradebookManager gradebookManager;
-    private GradeManager gradeManager;
 	private SectionAwareness sectionAwareness;
 
     /**
      * @return A List of all assignments in the currently selected gradebook
      */
     public List getAssignments() {
-        List gradableObjects = gradeManager.getAssignmentsAndCourseGradeWithStats(selectedGradebook.getId(), Assignment.DEFAULT_SORT, true);
+        List gradableObjects = gradebookManager.getAssignmentsAndCourseGradeWithStats(selectedGradebook.getId(), Assignment.DEFAULT_SORT, true);
         return gradableObjects;
     }
 
@@ -93,19 +91,6 @@ public class TestGradebookTool {
     }
 
     //// Service Dependencies ////
-
-	/**
-	 * @return Returns the gradeManager.
-	 */
-	public GradeManager getGradeManager() {
-		return gradeManager;
-	}
-	/**
-	 * @param gradeManager The gradeManager to set.
-	 */
-	public void setGradeManager(GradeManager gradeManager) {
-		this.gradeManager = gradeManager;
-	}
 
 	public SectionAwareness getSectionAwareness() {
 		return sectionAwareness;

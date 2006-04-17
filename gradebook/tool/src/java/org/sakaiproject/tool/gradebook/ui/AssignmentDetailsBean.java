@@ -109,7 +109,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		scoreRows = new ArrayList();
 
 		if (assignmentId != null) {
-			assignment = getGradeManager().getAssignmentWithStats(assignmentId);
+			assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
 			if (assignment != null) {
                 scores = new GradeRecordSet(assignment);
 
@@ -117,10 +117,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 // need to fetch the assignment statistics as well.
 				List assignments;
                 if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
-                    assignments = getGradeManager().getAssignmentsWithStats(getGradebookId(),
+                    assignments = getGradebookManager().getAssignmentsWithStats(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 } else {
-                    assignments = getGradeManager().getAssignments(getGradebookId(),
+                    assignments = getGradebookManager().getAssignments(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
                 }
 
@@ -136,7 +136,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
 
-				List gradeRecords = getGradeManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
+				List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(assignment, enrollmentMap.keySet());
 				List workingEnrollments = new ArrayList(enrollmentMap.values());
 
 				if (!isEnrollmentSort()) {
@@ -157,7 +157,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				}
 
                 // Get all of the grading events for these enrollments on this assignment
-                GradingEvents allEvents = getGradeManager().getGradingEvents(assignment, workingEnrollments);
+                GradingEvents allEvents = getGradebookManager().getGradingEvents(assignment, workingEnrollments);
 
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
@@ -210,7 +210,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	private void saveScores() throws StaleObjectModificationException {
 		if (logger.isInfoEnabled()) logger.info("saveScores " + assignmentId);
-		Set excessiveScores = getGradeManager().updateAssignmentGradeRecords(scores);
+		Set excessiveScores = getGradebookManager().updateAssignmentGradeRecords(scores);
 
 		String messageKey = (excessiveScores.size() > 0) ?
 			"assignment_details_scores_saved_excessive" :

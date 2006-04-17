@@ -40,13 +40,11 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 public class TestGradeLoader extends GradebookLoaderBase {
 
 	public void testPopulate() throws Exception {
-        List gradebooks = new ArrayList();
-
         // Fetch the first gradebook.
         Gradebook gb = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
 
 		List enrollments = sectionAwareness.getSiteMembersInRole(gb.getUid(), Role.STUDENT);
-		List assignments = gradeManager.getAssignments(gb.getId());
+		List assignments = gradebookManager.getAssignments(gb.getId());
 
 		for(Iterator asnIter = assignments.iterator(); asnIter.hasNext();) {
 			boolean needToAddScrewyExternalScore = true;
@@ -79,7 +77,7 @@ public class TestGradeLoader extends GradebookLoaderBase {
 
             // Save the internal assignment scores
             if(!asn.isExternallyMaintained()) {
-            	gradeManager.updateAssignmentGradeRecords(gradeRecordSet);
+            	gradebookManager.updateAssignmentGradeRecords(gradeRecordSet);
             }
 		}
         // Ensure that this is actually saved to the database

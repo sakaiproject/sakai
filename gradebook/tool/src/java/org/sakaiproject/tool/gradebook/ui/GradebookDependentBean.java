@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
@@ -114,10 +113,6 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 	public UserDirectoryService getUserDirectoryService() {
 		return getGradebookBean().getUserDirectoryService();
-	}
-
-	public GradeManager getGradeManager() {
-		return getGradebookBean().getGradeManager();
 	}
 
 	public Authn getAuthnService() {

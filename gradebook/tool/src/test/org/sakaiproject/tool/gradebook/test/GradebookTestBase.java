@@ -34,7 +34,6 @@ import org.sakaiproject.api.section.facade.Role;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -58,7 +57,6 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     protected Authz authz;
     protected Authn authn;
     protected GradebookManager gradebookManager;
-    protected GradeManager gradeManager;
     protected GradebookService gradebookService;
 	protected SectionAwareness sectionAwareness;
     protected UserDirectoryService userDirectoryService;
@@ -70,7 +68,6 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         authz = (Authz)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authz");
         gradebookService = (GradebookService)applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookService");
         gradebookManager = (GradebookManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradebookManager");
-        gradeManager = (GradeManager)applicationContext.getBean("org_sakaiproject_tool_gradebook_business_GradeManager");
         sectionAwareness = (SectionAwareness)applicationContext.getBean("org.sakaiproject.api.section.SectionAwareness");
         userDirectoryService = (UserDirectoryService)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_UserDirectoryService");
         integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
