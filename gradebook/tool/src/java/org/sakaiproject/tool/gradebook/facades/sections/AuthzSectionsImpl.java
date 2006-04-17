@@ -94,7 +94,6 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	/**
 	 */
 	public List getAvailableEnrollments(String gradebookUid) {
-		String userUid = authn.getUserUid();
 		List enrollments;
 		if (isUserAbleToGradeAll(gradebookUid)) {
 			enrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
@@ -117,7 +116,6 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	}
 
 	public List getAvailableSections(String gradebookUid) {
-		String userUid = authn.getUserUid();
 		SectionAwareness sectionAwareness = getSectionAwareness();
 		List availableSections = new ArrayList();
 
@@ -151,7 +149,6 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	}
 
 	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid) {
-		String userUid = authn.getUserUid();
 		List enrollments;
         List allEnrollmentsFilteredBySearch = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, searchString);
 

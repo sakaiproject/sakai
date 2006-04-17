@@ -33,7 +33,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -98,8 +97,6 @@ public class RoleFilter implements Filter {
 			chain.doFilter(request, response);
 			return;
 		}
-
-		HttpSession session = request.getSession();
 
 		Authn authnService = (Authn)ac.getBean(authnServiceBeanName);
 		Authz authzService = (Authz)ac.getBean(authzServiceBeanName);

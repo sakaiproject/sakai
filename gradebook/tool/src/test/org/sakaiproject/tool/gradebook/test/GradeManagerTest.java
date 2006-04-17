@@ -147,7 +147,6 @@ public class GradeManagerTest extends GradebookTestBase {
             CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
             Double percent = cgr.calculatePercent(totalPoints);
             Double sortGrade = cgr.getSortGrade();
-            String studentId = cgr.getStudentId();
             Assert.assertTrue(sortGrade.doubleValue() - percent.doubleValue() < .001);
         }
 
@@ -178,7 +177,7 @@ public class GradeManagerTest extends GradebookTestBase {
 		addUsersEnrollments(gradebook, studentUidsList);
         Set studentIds = new HashSet(studentUidsList);
 
-        Long asgId = gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date(), Boolean.FALSE);
+        gradeManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date(), Boolean.FALSE);
         Assignment asn = (Assignment)gradeManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         // Create a grade record set
@@ -242,10 +241,7 @@ public class GradeManagerTest extends GradebookTestBase {
 			studentId,
 		});
 		List enrollments = addUsersEnrollments(gradebook, studentUidsList);
-        Set studentIds = new HashSet(studentUidsList);
-
-
-        Long asgId = gradeManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date(), Boolean.FALSE);
+        gradeManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date(), Boolean.FALSE);
         Assignment assignment = (Assignment)gradeManager.getAssignments(gradebook.getId()).get(0);
 
         // Create a map of studentUserUids to grades
@@ -321,12 +317,10 @@ public class GradeManagerTest extends GradebookTestBase {
 			"testStudentUserUid1",
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
-		Set studentUids = new HashSet(studentUidsList);
 
         Long id1 = gradeManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE);
         Long id2 = gradeManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE);
 
-        List assignments = gradeManager.getAssignments(gradebook.getId());
         Assignment asn1 = gradeManager.getAssignmentWithStats(id1);
         Assignment asn2 = gradeManager.getAssignmentWithStats(id2);
 

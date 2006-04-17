@@ -82,7 +82,7 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         // Try to save a new assignment with the same name
         boolean errorThrown = false;
         try {
-            Long dupId = gradeManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(20), new Date(), Boolean.FALSE);
+            gradeManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(20), new Date(), Boolean.FALSE);
         } catch (ConflictingAssignmentNameException e) {
             errorThrown = true;
         }
@@ -228,8 +228,8 @@ public class GradableObjectManagerTest extends GradebookTestBase {
      */
     public void testTotalPointsInGradebook() throws Exception {
         Long id1 = gradeManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE);
-        Long id2 = gradeManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE);
-        Long id3 = gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE);
+        gradeManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(20), new Date(10), Boolean.FALSE);
+        gradeManager.createAssignment(gradebook.getId(), ASN3_NAME, new Double(30), new Date(), Boolean.FALSE);
 
         double totalPointsPossible = gradeManager.getTotalPoints(gradebook.getId());
         Assert.assertTrue(totalPointsPossible == 60);

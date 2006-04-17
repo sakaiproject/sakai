@@ -24,9 +24,7 @@
 package org.sakaiproject.tool.gradebook.business.impl;
 
 import java.util.Iterator;
-import java.util.List;
 
-import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.StaleObjectStateException;

@@ -47,10 +47,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.GradeManager;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
@@ -148,9 +145,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         return getHibernateTemplate().find(hql, gradebookUid, Hibernate.STRING).size() == 1;
     }
 
-    /**
-     * @see org.sakaiproject.service.gradebook.shared.GradebookService#gradebookExists(java.lang.String)
-     */
     public boolean gradebookExists(String gradebookUid) {
         return isGradebookDefined(gradebookUid);
     }
@@ -261,10 +255,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 */
 	public void removeExternalAssessment(final String gradebookUid,
             final String externalId) throws GradebookNotFoundException, AssessmentNotFoundException {
-
-        // Make sure the gradebook uid is valid.  This throws a gradebook not found exception.
-        Gradebook gb = getGradebook(gradebookUid);
-
         // Get the external assignment
         final Assignment asn = getExternalAssignment(gradebookUid, externalId);
         if(asn == null) {

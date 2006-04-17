@@ -40,7 +40,6 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
     private Double sortGrade; // Persisted for sorting purposes
     private Double autoCalculatedGrade;  // Not persisted
-    private String displayGrade;  // Not persisted
 
     private static final Log log = LogFactory.getLog(CourseGradeRecord.class);
     public static Comparator calcComparator;

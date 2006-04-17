@@ -183,7 +183,7 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 			String uidPrefix = (i != 3) ? "uid_" : "uID_";
 			students.add(userManager.createUser(AUTHID_STUDENT_PREFIX + i, firstName + " " + lastName, lastName + ", " + firstName, uidPrefix + i));
 		}
-		User nobody = userManager.createUser(AUTHID_NO_SITE, "Johnny Nobody", "Nobody, Johnny", AUTHID_NO_SITE);
+		userManager.createUser(AUTHID_NO_SITE, "Johnny Nobody", "Nobody, Johnny", AUTHID_NO_SITE);
 
 		// Load enrollments into the courses.
 		for (int i = 0; i < students.size(); i++) {
@@ -260,7 +260,7 @@ public class StandaloneSectionsDataLoader extends GradebookTestBase {
 		}
 
 		// Add a TA to the site and two sections.
-		User ta = userManager.createUser(AUTHID_TA, "Teech N. Assist", "Assist, Teech N.", "uTA");
+		userManager.createUser(AUTHID_TA, "Teech N. Assist", "Assist, Teech N.", "uTA");
 		integrationSupport.addSiteMembership(AUTHID_TA, SITE_UIDS[SITE_LOADED_UP], Role.TA);
 		integrationSupport.addSectionMembership(AUTHID_TA, (String)catASectionUuids.get(2), Role.TA);
 		integrationSupport.addSectionMembership(AUTHID_TA, (String)catBSectionUuids.get(1), Role.TA);

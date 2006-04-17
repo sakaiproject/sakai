@@ -140,7 +140,7 @@ public class DivMessagesRenderer extends DivMessageRendererBase {
             facesMessages = context.getMessages();
         }
 
-        for(Iterator msgs = facesMessages; facesMessages.hasNext();) {
+        while (facesMessages.hasNext()) {
             allMessages.add(facesMessages.next());
         }
 		return allMessages;

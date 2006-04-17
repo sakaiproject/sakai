@@ -33,7 +33,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.api.section.SectionAwareness;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 
@@ -212,7 +211,6 @@ public abstract class EnrollmentTableBean
 		}
 
 		// Section filtering.
-		SectionAwareness sectionAwareness = getSectionAwareness();
 		availableSections = getAvailableSections();
 		sectionFilterSelectItems = new ArrayList();
 

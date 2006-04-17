@@ -45,7 +45,6 @@ import org.apache.commons.logging.LogFactory;
 public class Pager implements Serializable {
 	private static final Log logger = LogFactory.getLog(Pager.class);
 
-	private String selectedDisplayedRows;
 	private List displayedRowsSelectItems;
 	private Paging pagingBean;
 

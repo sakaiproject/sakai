@@ -176,8 +176,6 @@ public class CalculationsTest extends TestCase {
     }
 
     public void testGradeInputConversion() throws Exception {
-    	String inputGrade, standardizedGrade;
-
     	Assert.assertEquals(gradeMap.standardizeInputGrade("b"), "B");
     	Assert.assertEquals(gradeMap.standardizeInputGrade("B"), "B");
     	Assert.assertEquals(gradeMap.standardizeInputGrade("Ba"), null);

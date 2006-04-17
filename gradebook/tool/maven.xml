@@ -93,12 +93,6 @@
 		<attainGoal name="hibernate:schema-export" />
 	</goal>
 
-	<!-- The sakai archive services are not currently implemented -->
-	<goal name="test-archive">
-		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestArchive" />
-		<attainGoal name="test:single" />
-	</goal>
-
 	<goal name="load-full">
 		<attainGoal name="load-sections" />
 		<attainGoal name="load-gradebook-data" />

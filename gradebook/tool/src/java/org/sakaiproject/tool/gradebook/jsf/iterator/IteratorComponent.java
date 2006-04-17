@@ -55,8 +55,6 @@ public class IteratorComponent extends UIComponentBase implements NamingContaine
 	private Object value = null;
 	private String var = null;
 	private String rowIndexVar = null;
-	private Integer rowIndex = null;
-	private Boolean rendered = null;
 
 	public void encodeChildren(FacesContext context) throws IOException {
 		if (!isRendered()) {

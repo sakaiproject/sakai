@@ -29,7 +29,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,8 +54,6 @@ public class EntryServlet extends HttpServlet {
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-		HttpSession session = request.getSession(true);
-
         WebApplicationContext appContext = WebApplicationContextUtils.getWebApplicationContext(this.getServletContext());
 
         Authn authnService = (Authn)appContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -64,7 +61,6 @@ public class EntryServlet extends HttpServlet {
 		ContextManagement contextMgm = (ContextManagement)appContext.getBean("org_sakaiproject_tool_gradebook_facades_ContextManagement");
 
         authnService.setAuthnContext(request);
-        String userUid = authnService.getUserUid();
         String gradebookUid = contextMgm.getGradebookUid(request);
 
         try {

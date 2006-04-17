@@ -59,7 +59,6 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected Authn authn;
 
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
-    	Gradebook gradebook = null;
     	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
     		uid, Hibernate.STRING);
 		if (list.size() == 1) {
