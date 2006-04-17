@@ -19,53 +19,49 @@
  *
  **********************************************************************************/
 
-// package
-package org.sakaiproject.tool.admin;
+package org.sakaiproject.user.tool;
 
-// imports
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.api.common.authentication.Authentication;
-import org.sakaiproject.api.common.authentication.AuthenticationException;
-import org.sakaiproject.api.common.authentication.Evidence;
-import org.sakaiproject.api.common.authentication.cover.AuthenticationManager;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.menu.Menu;
+import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.cheftool.menu.MenuItem;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.current.cover.CurrentService;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.UserEdit;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserLockedException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.cover.AuthenticationManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ExternalTrustedEvidence;
-import org.sakaiproject.util.LoginUtil;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.java.StringUtil;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * <p>
  * UsersAction is the Sakai users editor.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class UsersAction extends PagedResourceActionII
 {
@@ -162,7 +158,7 @@ public class UsersAction extends PagedResourceActionII
 		if (state.getAttribute("redirect") != null)
 		{
 			state.removeAttribute("redirect");
-			sendParentRedirect((HttpServletResponse) CurrentService.getInThread(RequestFilter.CURRENT_HTTP_RESPONSE),
+			sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
 					ServerConfigurationService.getPortalUrl());
 			return template;
 		}
@@ -228,7 +224,7 @@ public class UsersAction extends PagedResourceActionII
 		context.put("users", prepPage(state));
 
 		// build the menu
-		Menu bar = new Menu();
+		Menu bar = new MenuImpl();
 		if (UserDirectoryService.allowAddUser(""))
 		{
 			bar.add(new MenuEntry(rb.getString("useact.newuse"), null, true, MenuItem.CHECKED_NA, "doNew"));
@@ -261,7 +257,7 @@ public class UsersAction extends PagedResourceActionII
 		context.put("incPw", state.getAttribute("include-password"));
 
 		context.put("incType", Boolean.valueOf(true));
-		
+
 		return "_edit";
 
 	} // buildNewContext
@@ -273,7 +269,7 @@ public class UsersAction extends PagedResourceActionII
 	{
 		// is the type to be pre-set
 		context.put("type", state.getAttribute("create-type"));
-		
+
 		// password is required when using Gateway New Account tool
 		// attribute "create-user" is true only for New Account tool
 		context.put("pwRequired", state.getAttribute("create-user"));
@@ -304,7 +300,7 @@ public class UsersAction extends PagedResourceActionII
 		// build the menu
 		// we need the form fields for the remove...
 		boolean menuPopulated = false;
-		Menu bar = new Menu();
+		Menu bar = new MenuImpl();
 		if ((!singleUser) && (UserDirectoryService.allowRemoveUser(user.getId())))
 		{
 			bar.add(new MenuEntry(rb.getString("useact.remuse"), null, true, MenuItem.CHECKED_NA, "doRemove", "user-form"));
@@ -351,20 +347,20 @@ public class UsersAction extends PagedResourceActionII
 				UserDirectoryService.cancelEdit(edit);
 				context.put("enableEdit", "true");
 			}
-			catch (IdUnusedException e)
+			catch (UserNotDefinedException e)
 			{
 			}
-			catch (PermissionException e)
+			catch (UserPermissionException e)
 			{
 			}
-			catch (InUseException e)
+			catch (UserLockedException e)
 			{
 			}
 
 			// disable auto-updates while not in list mode
 			disableObservers(state);
 		}
-		catch (IdUnusedException e)
+		catch (UserNotDefinedException e)
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
@@ -428,7 +424,7 @@ public class UsersAction extends PagedResourceActionII
 			// disable auto-updates while not in list mode
 			disableObservers(state);
 		}
-		catch (IdUnusedException e)
+		catch (UserNotDefinedException e)
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
@@ -438,7 +434,7 @@ public class UsersAction extends PagedResourceActionII
 			// make sure auto-updates are enabled
 			enableObserver(state);
 		}
-		catch (PermissionException e)
+		catch (UserPermissionException e)
 		{
 			addAlert(state, rb.getString("useact.youdonot1") + " " + id);
 			state.removeAttribute("mode");
@@ -446,7 +442,7 @@ public class UsersAction extends PagedResourceActionII
 			// make sure auto-updates are enabled
 			enableObserver(state);
 		}
-		catch (InUseException e)
+		catch (UserLockedException e)
 		{
 			addAlert(state, rb.getString("useact.somone") + " " + id);
 			state.removeAttribute("mode");
@@ -482,7 +478,7 @@ public class UsersAction extends PagedResourceActionII
 			// disable auto-updates while not in list mode
 			disableObservers(state);
 		}
-		catch (IdUnusedException e)
+		catch (UserNotDefinedException e)
 		{
 			Log.warn("chef", "UsersAction.doEdit: user not found: " + id);
 
@@ -492,7 +488,7 @@ public class UsersAction extends PagedResourceActionII
 			// make sure auto-updates are enabled
 			enableObserver(state);
 		}
-		catch (PermissionException e)
+		catch (UserPermissionException e)
 		{
 			addAlert(state, rb.getString("useact.youdonot1") + " " + id);
 			state.removeAttribute("mode");
@@ -500,7 +496,7 @@ public class UsersAction extends PagedResourceActionII
 			// make sure auto-updates are enabled
 			enableObserver(state);
 		}
-		catch (InUseException e)
+		catch (UserLockedException e)
 		{
 			addAlert(state, rb.getString("useact.somone") + " " + id);
 			state.removeAttribute("mode");
@@ -529,7 +525,7 @@ public class UsersAction extends PagedResourceActionII
 			{
 				UserDirectoryService.commitEdit(edit);
 			}
-			catch (IdUsedException e)
+			catch (UserAlreadyDefinedException e)
 			{
 				// TODO: this means the EID value is not unique... when we implement EID fully, we need to check this and send it back to the user
 				Log.warn("chef", "UsersAction.doSave()" + e);
@@ -560,7 +556,7 @@ public class UsersAction extends PagedResourceActionII
 				// login - use the fact that we just created the account as external evidence
 				Evidence e = new ExternalTrustedEvidence(user.getId());
 				Authentication a = AuthenticationManager.authenticate(e);
-				if (!LoginUtil.login(a, (HttpServletRequest) CurrentService.getInThread(RequestFilter.CURRENT_HTTP_REQUEST)))
+				if (!UsageSessionService.login(a, (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
 				{
 					addAlert(state, rb.getString("useact.tryloginagain"));
 				}
@@ -595,7 +591,7 @@ public class UsersAction extends PagedResourceActionII
 				{
 					UserDirectoryService.removeUser(user);
 				}
-				catch (PermissionException e)
+				catch (UserPermissionException e)
 				{
 					addAlert(state, rb.getString("useact.youdonot2") + " " + user.getId());
 				}
@@ -649,7 +645,7 @@ public class UsersAction extends PagedResourceActionII
 		{
 			UserDirectoryService.removeUser(user);
 		}
-		catch (PermissionException e)
+		catch (UserPermissionException e)
 		{
 			addAlert(state, rb.getString("useact.youdonot2") + " " + user.getId());
 		}
@@ -686,13 +682,13 @@ public class UsersAction extends PagedResourceActionII
 	 */
 	private boolean readUserForm(RunData data, SessionState state)
 	{
-		//boolean parameters and values
+		// boolean parameters and values
 		// --------------Mode--singleUser-createUser-typeEnable
 		// Admin New-----new---false------false------true
 		// Admin Update--edit--false------false------true
 		// Gateway New---null---false------true-------false
 		// Account Edit--edit--true-------false------false
-		
+
 		// read the form
 		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
 		String firstName = StringUtil.trimToNull(data.getParameters().getString("first-name"));
@@ -703,7 +699,7 @@ public class UsersAction extends PagedResourceActionII
 		String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
-		
+
 		// if in Gateway New Account tool, password is required
 		if (createUser)
 		{
@@ -713,7 +709,7 @@ public class UsersAction extends PagedResourceActionII
 				return false;
 			}
 		}
-		
+
 		boolean typeEnable = false;
 		String type = null;
 		if ((mode != null) && (mode.equalsIgnoreCase("new")))
@@ -754,17 +750,17 @@ public class UsersAction extends PagedResourceActionII
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
 			}
-			catch (IdUsedException e)
+			catch (UserAlreadyDefinedException e)
 			{
 				addAlert(state, rb.getString("useact.theuseid1"));
 				return false;
 			}
-			catch (IdInvalidException e)
+			catch (UserIdInvalidException e)
 			{
 				addAlert(state, rb.getString("useact.theuseid2"));
 				return false;
 			}
-			catch (PermissionException e)
+			catch (UserPermissionException e)
 			{
 				addAlert(state, rb.getString("useact.youdonot3"));
 				return false;
@@ -786,6 +782,4 @@ public class UsersAction extends PagedResourceActionII
 	} // readUserForm
 
 } // UsersAction
-
-
 
