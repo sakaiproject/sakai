@@ -320,7 +320,7 @@ public class JsfUtil {
 	 * @return
 	 */
 	public static boolean isEndTimeBeforeStartTime(String startTime, boolean startTimeAm, String endTime, boolean endTimeAm) {
-		if(startTime != null & endTime != null) {
+		if(StringUtils.trimToNull(startTime) != null & StringUtils.trimToNull(endTime) != null) {
 			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
 			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
 			if(start.after(end)) {
