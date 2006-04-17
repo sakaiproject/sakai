@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     <display-name>sakai-presence-tool</display-name>
-    <description>Sakai 2 Presence Tool</description>
+    <description>sakai-presence-tool</description>
 
 	<!-- Sakai request filter, mapped to the tool -->
     <filter>
@@ -19,6 +19,29 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.online</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+ 	<!-- the vm handling servlet : used direct by name, not by URL path -->
+	<servlet>
+		<servlet-name>
+		   sakai.vm
+		</servlet-name>
+		<servlet-class>
+			org.sakaiproject.vm.VelocityServlet
+		</servlet-class>
+		<init-param>
+			<param-name> properties </param-name>
+			<param-value> velocity.properties </param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+ 
     <servlet>
         <servlet-name>
            sakai.presence
@@ -26,6 +49,20 @@
         <servlet-class>
             org.sakaiproject.presence.tool.PresenceTool
         </servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.online
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.presence.tool.PresenceToolAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>presence/chef_presence</param-value>            
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 

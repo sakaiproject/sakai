@@ -1,0 +1,43 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_presence-List.vm,v 1.3 2005/05/24 20:00:39 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+	$tlang.getString("presence.list1.user")
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">
+			$tlang.getString("presence.list1.alert") $validator.escapeHtml($alertMessage)
+		</div>
+	#end
+	<table class="listHier" cellspacing="0" summary ="Table holds users present" border="0">
+		#foreach ($location in $locations)
+			#set($list = $service.getPresence($location))
+			<tr style="background-color:#E6E6E6">
+				<td style="font-weight:bold;padding:.5em">
+					$list.size()
+				</td>
+				<td>
+					$tlang.getString("presence.list1.location") $validator.escapeHtml($location) : $validator.escapeHtml($service.getLocationDescription($location))
+				</td>
+			</tr>
+			#foreach($entry in $list)
+				<tr>
+					<td>
+					</td>
+					<td>
+						<ul class="attachList">
+							<li>$validator.escapeHtml($entry.UserId) <span style="font-weight:bold;padding-left:3em">at: </span> $validator.escapeHtml($entry.Id) <span style="font-weight:bold;padding-left:3em">from: </span> $validator.escapeHtml($entry.IpAddress) </li>
+							<li>$validator.escapeHtml($entry.UserAgent)</li>
+							<li>$validator.escapeHtml($entry.Server) &nbsp;&nbsp;&nbsp;&nbsp; $validator.escapeHtml($entry.getStart().toStringLocalFull())</li>
+						</ul>	
+					</td>
+				</tr>
+	
+			#end
+		#end
+	</table>
+</div>
+
+#sakai_courier()

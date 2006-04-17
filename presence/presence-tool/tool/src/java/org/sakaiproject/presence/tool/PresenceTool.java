@@ -68,7 +68,7 @@ public class PresenceTool extends HttpServlet
 	protected static final String ATTR_CHAT_OBSERVER = "chat_observer";
 
 	/** Localized messages * */
-	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.portal.bundle.Messages");
+	ResourceLoader rb = new ResourceLoader("messages");
 
 	/**
 	 * Shutdown the servlet.

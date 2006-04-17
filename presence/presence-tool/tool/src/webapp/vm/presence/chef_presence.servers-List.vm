@@ -1,0 +1,29 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_presence.servers-List.vm,v 1.3 2005/05/24 20:00:39 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	<h3>
+		$tlang.getString("presence.list.active")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("presence.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">$tlang.getString("presence.list.total") $total</div>
+	<table class ="listHier" cellspacing="0" summary ="Table holds servers active">
+			<tr>
+				<th id="Id">$tlang.getString("presence.list.server")</th>
+				<th id="Count">$tlang.getString("presence.list.sessions")</th>
+			</tr>
+		#foreach ($serverName in $serverList)
+			<tr>
+				<td headers="Id">
+					$validator.escapeHtml($serverName)
+				</td>
+				<td headers="Count">
+					$servers.get("$serverName").size()
+				</td>
+			</tr>
+		#end
+		</table>
+	</div>
+
+#sakai_courier()
