@@ -4,35 +4,24 @@
 <beans>
  
  
-  <!-- Logger for Search  -->
-  <bean id="search-logger"
-    parent="org.sakaiproject.service.framework.log.Logger">
-  </bean>
 
 
-  <bean id="org.sakaiproject.search.SearchService"
+  <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
-    <property name="logger"><ref bean="search-logger"/></property>
-    <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.SearchIndexBuilder"/></property>
     <property name="indexDirectory"><value>${sakai.home}/searchindex</value></property>
   </bean> 
     
-  <bean id="org.sakaiproject.search.SearchIndexBuilder"
+  <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" 
     init-method="init" >
-    <property name="logger"><ref bean="search-logger"/></property>
     <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>
-    <property name="searchIndexBuilderWorker" ><ref bean="org.sakaiproject.search.SearchIndexBuilderWorker" /></property>
   </bean>
 
-  <bean id="org.sakaiproject.search.SearchIndexBuilderWorker"
+  <bean id="org.sakaiproject.search.api.SearchIndexBuilderWorker"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker" 
     init-method="init" destroy-method="destroy">
-    <property name="logger"><ref bean="search-logger"/></property>
     <property name="sleepTime"><value>30000</value></property>
-    <property name="searchService"><ref bean="org.sakaiproject.search.SearchService"/></property>
-    <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
     <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
   </bean>
   
@@ -83,20 +72,15 @@
     <property name="sessionFactory"><ref
       bean="org.sakaiproject.search.SearchSessionFactory"/>
     </property>
-    <property name="log"><ref bean="search-logger"/></property>
   </bean>
 
   <bean id="wikiAdapter" 
     class="org.sakaiproject.search.component.adapter.RWikiEntityContentProducer"
     singleton="true"
     init-method="init" >
-    <property name="objectService" ><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
-    <property name="renderService" ><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
-    <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService" /></property>
-    <property name="searchIndexBuilder" ><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
   </bean>
   
-
+<!--
   <bean id="emailMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.MessageContentProducer"
     singleton="true"
@@ -120,6 +104,8 @@
     <property name="searchIndexBuilder" ><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
   </bean>
   
+-->
+<!--
   <bean id="discussionMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.MessageContentProducer"
     singleton="true"
@@ -142,6 +128,9 @@
     <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService" /></property>
     <property name="searchIndexBuilder" ><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
   </bean>
+  
+  -->
+  <!--
   <bean id="chatMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.MessageContentProducer"
     singleton="true"
@@ -164,6 +153,8 @@
     <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService" /></property>
     <property name="searchIndexBuilder" ><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
   </bean>
+  -->
+  <!--
   <bean id="announcementMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.MessageContentProducer"
     singleton="true"
@@ -186,5 +177,6 @@
     <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService" /></property>
     <property name="searchIndexBuilder" ><ref bean="org.sakaiproject.search.SearchIndexBuilder" /></property>
   </bean>
+  -->
   
 </beans>

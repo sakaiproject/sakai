@@ -54,7 +54,7 @@ public class ControllerServlet extends HttpServlet
 	 */
 	private static final long serialVersionUID = 676743152200357708L;
 
-	public static final String SAVED_REQUEST_URL = "org.sakaiproject.search.last-request-url";
+	public static final String SAVED_REQUEST_URL = "org.sakaiproject.search.api.last-request-url";
 
 	private static final String PANEL = "panel";
 

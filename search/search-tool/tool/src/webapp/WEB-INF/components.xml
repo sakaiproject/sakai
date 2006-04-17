@@ -8,9 +8,7 @@
     </bean>
     
     <bean id="search-searchBeanFactory"
-        class="org.sakaiproject.search.tool.SearchBeanFactoryImpl">
-        <property name="searchService" ><ref bean="org.sakaiproject.search.SearchService"/></property>
-        <property name="siteService" ><ref bean="org.sakaiproject.service.legacy.site.SiteService"/></property>
-        <property name="portalService" ><ref bean="org.sakaiproject.service.framework.portal.PortalService"/></property>           
+        class="org.sakaiproject.search.tool.SearchBeanFactoryImpl"
+        init-method="init" >
     </bean>
 </beans>

@@ -29,20 +29,21 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.search.EntityContentProducer;
-import org.sakaiproject.search.SearchIndexBuilder;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * Search index builder is expected to be registered in spring as
- * org.sakaiproject.search.SearchIndexBuilder as a singleton. It receives
+ * org.sakaiproject.search.api.SearchIndexBuilder as a singleton. It receives
  * resources which it adds to its list of pending documents to be indexed. A
  * seperate thread then runs thtough the list of entities to be indexed,
  * updating the index. Each time the index is updates an event is posted to
@@ -66,6 +67,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	public void init()
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		searchIndexBuilderWorker = (SearchIndexBuilderWorker) load(cm,
+				SearchIndexBuilderWorker.class.getName());
 		try
 		{
 
@@ -74,6 +79,16 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			log.error("Failed to init ", t);
 		}
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	/**
@@ -298,23 +313,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return (n == 0);
 	}
 
-	/**
-	 * @return Returns the searchIndexBuilderWorker.
-	 */
-	public SearchIndexBuilderWorker getSearchIndexBuilderWorker()
-	{
-		return searchIndexBuilderWorker;
-	}
-
-	/**
-	 * @param searchIndexBuilderWorker
-	 *        The searchIndexBuilderWorker to set.
-	 */
-	public void setSearchIndexBuilderWorker(
-			SearchIndexBuilderWorker searchIndexBuilderWorker)
-	{
-		this.searchIndexBuilderWorker = searchIndexBuilderWorker;
-	}
 
 	/**
 	 * get all the producers registerd, as a clone to avoid concurrent

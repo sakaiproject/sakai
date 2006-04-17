@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.search.EntityContentProducer;
-import org.sakaiproject.search.SearchIndexBuilder;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -25,6 +28,9 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 public class RWikiEntityContentProducer implements EntityContentProducer
 {
 
+	private static Log log = LogFactory
+			.getLog(RWikiEntityContentProducer.class);
+
 	private RenderService renderService = null;
 
 	private RWikiObjectService objectService = null;
@@ -35,6 +41,15 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	public void init()
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		renderService = (RenderService) load(cm, RenderService.class.getName());
+		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
+				.getName());
+		searchService = (SearchService) load(cm, SearchService.class.getName());
+		searchIndexBuilder = (SearchIndexBuilder) load(cm,
+				SearchIndexBuilder.class.getName());
+
 		if ("true".equals(ServerConfigurationService
 				.getString("wiki.experimental")))
 		{
@@ -46,6 +61,16 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
 
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	public boolean isContentFromReader(Entity cr)
@@ -144,74 +169,6 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			context = context.substring(0, slash);
 		}
 		return context;
-	}
-
-	/**
-	 * @return Returns the objectService.
-	 */
-	public RWikiObjectService getObjectService()
-	{
-		return objectService;
-	}
-
-	/**
-	 * @param objectService
-	 *        The objectService to set.
-	 */
-	public void setObjectService(RWikiObjectService objectService)
-	{
-		this.objectService = objectService;
-	}
-
-	/**
-	 * @return Returns the renderService.
-	 */
-	public RenderService getRenderService()
-	{
-		return renderService;
-	}
-
-	/**
-	 * @param renderService
-	 *        The renderService to set.
-	 */
-	public void setRenderService(RenderService renderService)
-	{
-		this.renderService = renderService;
-	}
-
-	/**
-	 * @return Returns the searchIndexBuilder.
-	 */
-	public SearchIndexBuilder getSearchIndexBuilder()
-	{
-		return searchIndexBuilder;
-	}
-
-	/**
-	 * @param searchIndexBuilder
-	 *        The searchIndexBuilder to set.
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
-	/**
-	 * @return Returns the searchService.
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService
-	 *        The searchService to set.
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
 	}
 
 }

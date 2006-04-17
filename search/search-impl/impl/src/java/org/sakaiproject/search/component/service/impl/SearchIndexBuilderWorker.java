@@ -28,14 +28,16 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.search.EntityContentProducer;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.EntityContentProducer;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
@@ -45,6 +47,8 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+
+import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 
 public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		Runnable
@@ -109,6 +113,15 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 
 	public void init()
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		eventTrackingService = (EventTrackingService) load(cm,
+				EventTrackingService.class.getName());
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+		userDirectoryService = (UserDirectoryService) load(cm,
+				UserDirectoryService.class.getName());
+		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm,
+				SearchIndexBuilder.class.getName());
 
 		enabled = "true".equals(ServerConfigurationService
 				.getString("wiki.experimental"));
@@ -139,6 +152,17 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		{
 			log.error("Failed to init ", t);
 		}
+	}
+
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	/**
@@ -1147,101 +1171,6 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		this.sleepTime = sleepTime;
 	}
 
-	/**
-	 * @return Returns the searchIndexBuilder.
-	 */
-	public SearchIndexBuilderImpl getSearchIndexBuilder()
-	{
-		return searchIndexBuilder;
-	}
 
-	/**
-	 * @param searchIndexBuilder
-	 *        The searchIndexBuilder to set.
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilderImpl searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
 
-	/**
-	 * @return Returns the searchService.
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService
-	 *        The searchService to set.
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
-	 * @return Returns the entityManager.
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
-
-	/**
-	 * @param entityManager The entityManager to set.
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
-	 * @return Returns the eventTrackingService.
-	 */
-	public EventTrackingService getEventTrackingService()
-	{
-		return eventTrackingService;
-	}
-
-	/**
-	 * @param eventTrackingService The eventTrackingService to set.
-	 */
-	public void setEventTrackingService(EventTrackingService eventTrackingService)
-	{
-		this.eventTrackingService = eventTrackingService;
-	}
-
-	/**
-	 * @return Returns the sessionManager.
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	/**
-	 * @param sessionManager The sessionManager to set.
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
-
-	/**
-	 * @return Returns the userDirectoryService.
-	 */
-	public UserDirectoryService getUserDirectoryService()
-	{
-		return userDirectoryService;
-	}
-
-	/**
-	 * @param userDirectoryService The userDirectoryService to set.
-	 */
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
-	{
-		this.userDirectoryService = userDirectoryService;
-	}
 }

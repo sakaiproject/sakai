@@ -33,9 +33,9 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.search.SearchList;
-import org.sakaiproject.search.SearchResult;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;

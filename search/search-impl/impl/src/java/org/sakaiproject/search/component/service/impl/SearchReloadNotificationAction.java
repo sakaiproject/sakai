@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.SearchService;
 import org.w3c.dom.Element;
 
 /**

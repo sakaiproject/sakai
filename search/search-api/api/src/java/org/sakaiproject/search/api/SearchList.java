@@ -21,7 +21,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search;
+package org.sakaiproject.search.api;
 
 import java.util.Iterator;
 import java.util.List;

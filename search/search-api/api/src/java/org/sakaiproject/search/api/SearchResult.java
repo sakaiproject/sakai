@@ -21,88 +21,77 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search;
+package org.sakaiproject.search.api;
 
-import java.io.Reader;
-import java.util.List;
-
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.event.api.Event;
+import java.util.Map;
 
 /**
- * This is a special class than handles ContentResources for the purposes of
- * search. This must be impelented in a thread safe way. The aim is to map the
- * content handler to the mime type
- * 
  * @author ieb
  */
-public interface EntityContentProducer
+public interface SearchResult
 {
 
 	/**
-	 * Should the consumer use the reader or is it Ok to use a memory copy of
-	 * the content
+	 * the result score
 	 * 
-	 * @param cr
 	 * @return
 	 */
-	boolean isContentFromReader(Entity cr);
+	float getScore();
 
 	/**
-	 * Get a reader for the supplied content resource
+	 * The result ID (entity id)
 	 * 
-	 * @param cr
 	 * @return
 	 */
-	Reader getContentReader(Entity cr);
+	String getId();
 
 	/**
-	 * Get the content as a string
+	 * All field names in the search record
 	 * 
-	 * @param cr
 	 * @return
 	 */
-	String getContent(Entity cr);
+	String[] getFieldNames();
 
 	/**
-	 * get the title for the content
+	 * All values in a search field
 	 * 
-	 * @param cr
+	 * @param string
 	 * @return
 	 */
-	String getTitle(Entity cr);
+	String[] getValues(String string);
 
 	/**
-	 * Gets the url that displays the entity
+	 * Get a map of values in the result
 	 * 
-	 * @param entity
 	 * @return
 	 */
-	String getUrl(Entity entity);
+	Map getValueMap();
 
 	/**
-	 * If the reference matches this EntityContentProducer return true
+	 * An absolute URL to the resource (no host, protocol or port)
 	 * 
-	 * @param ref
 	 * @return
 	 */
-	boolean matches(Reference ref);
+	String getUrl();
 
 	/**
-	 * Gets a list of Entity resource as a String to represent all indexable
-	 * content
+	 * The title of the resource, usually including the type (eg Wiki Page,
+	 * Resource)
 	 * 
 	 * @return
 	 */
-	List getAllContent();
+	String getTitle();
 
-	Integer getAction(Event event);
+	/**
+	 * get the index of the search entry over the whole change set
+	 * 
+	 * @return
+	 */
+	int getIndex();
 
-	boolean matches(Event event);
-
-	String getTool();
-
-	String getSiteId(Reference ref);
+	/**
+	 * get the search result content for display
+	 */
+	String getSearchResult();
 
 }

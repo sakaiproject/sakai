@@ -35,8 +35,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.search.SearchIndexBuilder;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -125,8 +125,8 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase
 
 		preferenceService = (PreferenceService) getService("uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService");
 
-		searchService = (SearchService) getService("org.sakaiproject.search.SearchService");
-		searchIndexBuilder = (SearchIndexBuilder) getService("org.sakaiproject.search.SearchIndexBuilder");
+		searchService = (SearchService) getService("org.sakaiproject.search.api.SearchService");
+		searchIndexBuilder = (SearchIndexBuilder) getService("org.sakaiproject.search.api.SearchIndexBuilder");
 
 		assertNotNull(
 				"Cant find site service as org.sakaiproject.service.legacy.authzGroup.AuthzGroupService ",
@@ -152,10 +152,10 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase
 		assertNotNull("Cant find Render Service service as "
 				+ RenderService.class.getName(), renderService);
 		assertNotNull(
-				"Cant find Search Service as org.sakaiproject.search.SearchService ",
+				"Cant find Search Service as org.sakaiproject.search.api.SearchService ",
 				searchService);
 		assertNotNull(
-				"Cant find Search Index Builder as org.sakaiproject.search.SearchIndexBuilder ",
+				"Cant find Search Index Builder as org.sakaiproject.search.api.SearchIndexBuilder ",
 				searchIndexBuilder);
 		// Set username as admin
 		setUser("admin");

@@ -40,11 +40,12 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.search.SearchIndexBuilder;
-import org.sakaiproject.search.SearchList;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchService;
 
 /**
  * The search service
@@ -98,6 +99,12 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void init()
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		notificationService = (NotificationService) load(cm,
+				NotificationService.class.getName());
+		searchIndexBuilder = (SearchIndexBuilder) load(cm,
+				SearchIndexBuilder.class.getName());
 		try
 		{
 			log.debug("init start");
@@ -160,6 +167,16 @@ public class SearchServiceImpl implements SearchService
 			log.error("Failed to start ", t);
 		}
 
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	/**
@@ -291,23 +308,6 @@ public class SearchServiceImpl implements SearchService
 		this.indexDirectory = indexDirectory;
 	}
 
-	/**
-	 * @return Returns the searchIndexBuilder.
-	 */
-	public SearchIndexBuilder getSearchIndexBuilder()
-	{
-		return searchIndexBuilder;
-	}
-
-	/**
-	 * @param searchIndexBuilder
-	 *        The searchIndexBuilder to set.
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
 	public void refreshInstance()
 	{
 		searchIndexBuilder.refreshIndex();
@@ -353,22 +353,6 @@ public class SearchServiceImpl implements SearchService
 	public int getPendingDocs()
 	{
 		return searchIndexBuilder.getPendingDocuments();
-	}
-
-	/**
-	 * @return Returns the notificationService.
-	 */
-	public NotificationService getNotificationService()
-	{
-		return notificationService;
-	}
-
-	/**
-	 * @param notificationService The notificationService to set.
-	 */
-	public void setNotificationService(NotificationService notificationService)
-	{
-		this.notificationService = notificationService;
 	}
 
 }

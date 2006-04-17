@@ -21,73 +21,88 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search;
+package org.sakaiproject.search.api;
 
+import java.io.Reader;
 import java.util.List;
 
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.Notification;
 
 /**
- * A SearchIndexBuilder builds a search index, it must manage its own list of
- * pending documents and should probably do this in a seperate thread
+ * This is a special class than handles ContentResources for the purposes of
+ * search. This must be impelented in a thread safe way. The aim is to map the
+ * content handler to the mime type
  * 
  * @author ieb
  */
-public interface SearchIndexBuilder
+public interface EntityContentProducer
 {
 
 	/**
-	 * Adds a resource to the index builder
+	 * Should the consumer use the reader or is it Ok to use a memory copy of
+	 * the content
 	 * 
-	 * @param notification
-	 * @param event
+	 * @param cr
+	 * @return
 	 */
-	void addResource(Notification notification, Event event);
+	boolean isContentFromReader(Entity cr);
 
 	/**
-	 * EntityProducers that want their content indexed on full text must
-	 * register an EntityContentProducer with the SearchIndexBuilder
+	 * Get a reader for the supplied content resource
 	 * 
-	 * @param ecp
+	 * @param cr
+	 * @return
 	 */
-	void registerEntityContentProducer(EntityContentProducer ecp);
+	Reader getContentReader(Entity cr);
 
 	/**
-	 * Refresh the index based on the registered entities
+	 * Get the content as a string
+	 * 
+	 * @param cr
+	 * @return
 	 */
-	void refreshIndex();
+	String getContent(Entity cr);
 
 	/**
-	 * rebuild the index completely from scratch
+	 * get the title for the content
+	 * 
+	 * @param cr
+	 * @return
 	 */
-	void rebuildIndex();
+	String getTitle(Entity cr);
 
 	/**
-	 * Does the Queue contain work to do.
+	 * Gets the url that displays the entity
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	String getUrl(Entity entity);
+
+	/**
+	 * If the reference matches this EntityContentProducer return true
+	 * 
+	 * @param ref
+	 * @return
+	 */
+	boolean matches(Reference ref);
+
+	/**
+	 * Gets a list of Entity resource as a String to represent all indexable
+	 * content
 	 * 
 	 * @return
 	 */
-	boolean isBuildQueueEmpty();
+	List getAllContent();
 
-	/**
-	 * get all the producers registerd, as a clone to avoid concurrent
-	 * modification exceptions
-	 * 
-	 * @return
-	 */
-	List getContentProducers();
+	Integer getAction(Event event);
 
-	/**
-	 * Close down the entire search infrastructure
-	 */
-	void destroy();
+	boolean matches(Event event);
 
-	/**
-	 * get the number of pending documents
-	 * 
-	 * @return
-	 */
-	int getPendingDocuments();
+	String getTool();
+
+	String getSiteId(Reference ref);
 
 }

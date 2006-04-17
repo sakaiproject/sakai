@@ -33,8 +33,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
-import org.sakaiproject.search.SearchList;
-import org.sakaiproject.search.SearchResult;
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchResult;
 
 /**
  * @author ieb

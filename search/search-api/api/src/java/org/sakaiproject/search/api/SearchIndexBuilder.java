@@ -21,77 +21,73 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search;
+package org.sakaiproject.search.api;
 
-import java.util.Map;
+import java.util.List;
+
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 
 /**
+ * A SearchIndexBuilder builds a search index, it must manage its own list of
+ * pending documents and should probably do this in a seperate thread
+ * 
  * @author ieb
  */
-public interface SearchResult
+public interface SearchIndexBuilder
 {
 
 	/**
-	 * the result score
+	 * Adds a resource to the index builder
+	 * 
+	 * @param notification
+	 * @param event
+	 */
+	void addResource(Notification notification, Event event);
+
+	/**
+	 * EntityProducers that want their content indexed on full text must
+	 * register an EntityContentProducer with the SearchIndexBuilder
+	 * 
+	 * @param ecp
+	 */
+	void registerEntityContentProducer(EntityContentProducer ecp);
+
+	/**
+	 * Refresh the index based on the registered entities
+	 */
+	void refreshIndex();
+
+	/**
+	 * rebuild the index completely from scratch
+	 */
+	void rebuildIndex();
+
+	/**
+	 * Does the Queue contain work to do.
 	 * 
 	 * @return
 	 */
-	float getScore();
+	boolean isBuildQueueEmpty();
 
 	/**
-	 * The result ID (entity id)
+	 * get all the producers registerd, as a clone to avoid concurrent
+	 * modification exceptions
 	 * 
 	 * @return
 	 */
-	String getId();
+	List getContentProducers();
 
 	/**
-	 * All field names in the search record
+	 * Close down the entire search infrastructure
+	 */
+	void destroy();
+
+	/**
+	 * get the number of pending documents
 	 * 
 	 * @return
 	 */
-	String[] getFieldNames();
-
-	/**
-	 * All values in a search field
-	 * 
-	 * @param string
-	 * @return
-	 */
-	String[] getValues(String string);
-
-	/**
-	 * Get a map of values in the result
-	 * 
-	 * @return
-	 */
-	Map getValueMap();
-
-	/**
-	 * An absolute URL to the resource (no host, protocol or port)
-	 * 
-	 * @return
-	 */
-	String getUrl();
-
-	/**
-	 * The title of the resource, usually including the type (eg Wiki Page,
-	 * Resource)
-	 * 
-	 * @return
-	 */
-	String getTitle();
-
-	/**
-	 * get the index of the search entry over the whole change set
-	 * 
-	 * @return
-	 */
-	int getIndex();
-
-	/**
-	 * get the search result content for display
-	 */
-	String getSearchResult();
+	int getPendingDocuments();
 
 }

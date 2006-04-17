@@ -41,7 +41,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
-import org.sakaiproject.search.SearchResult;
+import org.sakaiproject.search.api.SearchResult;
 
 /**
  * @author ieb

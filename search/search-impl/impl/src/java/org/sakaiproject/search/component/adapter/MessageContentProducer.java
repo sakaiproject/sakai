@@ -16,7 +16,7 @@
  ******************************************************************************/
 // TODO: Eamble message service
 /*
- * package org.sakaiproject.search.component.adapter; import java.io.Reader;
+ * package org.sakaiproject.search.api.component.adapter; import java.io.Reader;
  * import java.io.StringReader; import java.util.ArrayList; import
  * java.util.Iterator; import java.util.List; import
  * org.apache.commons.logging.Log; import org.apache.commons.logging.LogFactory;
@@ -28,10 +28,10 @@
  * org.sakaiproject.event.api.Event; import
  * org.sakaiproject.exception.IdUnusedException; import
  * org.sakaiproject.exception.PermissionException; import
- * org.sakaiproject.search.EntityContentProducer; import
- * org.sakaiproject.search.SearchIndexBuilder; import
- * org.sakaiproject.search.SearchService; import
- * org.sakaiproject.search.model.SearchBuilderItem; import
+ * org.sakaiproject.search.api.EntityContentProducer; import
+ * org.sakaiproject.search.api.SearchIndexBuilder; import
+ * org.sakaiproject.search.api.SearchService; import
+ * org.sakaiproject.search.api.model.SearchBuilderItem; import
  * sun.net.www.MessageHeader; import
  * com.sun.corba.se.internal.iiop.messages.Message; /** @author ieb / public
  * class MessageContentProducer implements EntityContentProducer { /** debug

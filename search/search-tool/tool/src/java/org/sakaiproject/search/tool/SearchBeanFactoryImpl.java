@@ -25,9 +25,12 @@ package org.sakaiproject.search.tool;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.search.SearchService;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -38,6 +41,8 @@ import org.sakaiproject.tool.api.ToolManager;
 public class SearchBeanFactoryImpl implements SearchBeanFactory
 {
 
+	private static Log log = LogFactory.getLog(SearchBeanFactoryImpl.class);
+
 	private SearchService searchService;
 
 	private SiteService siteService;
@@ -45,6 +50,27 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 	private ToolManager toolManager;
 
 	private SessionManager sessionManager;
+
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+		searchService = (SearchService) load(cm, SearchService.class.getName());
+		siteService = (SiteService) load(cm, SiteService.class.getName());
+		toolManager = (ToolManager) load(cm, ToolManager.class.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -87,74 +113,6 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 			throw new RuntimeException(
 					"You must access the Search through a woksite");
 		}
-	}
-
-	/**
-	 * @return Returns the searchService.
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService
-	 *        The searchService to set.
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
-	 * @return Returns the portalService.
-	 */
-	public ToolManager getToolManager()
-	{
-		return toolManager;
-	}
-
-	/**
-	 * @param portalService
-	 *        The portalService to set.
-	 */
-	public void setToolManager(ToolManager toolManager)
-	{
-		this.toolManager = toolManager;
-	}
-
-	/**
-	 * @return Returns the siteService.
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService
-	 *        The siteService to set.
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
-	/**
-	 * @return Returns the sessionManager.
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	/**
-	 * @param sessionManager
-	 *        The sessionManager to set.
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
 	}
 
 }
