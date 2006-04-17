@@ -31,10 +31,10 @@ import org.apache.lucene.index.Term;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -47,8 +47,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-
-import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 
 public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		Runnable
@@ -122,7 +120,9 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 				UserDirectoryService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm,
 				SearchIndexBuilder.class.getName());
-
+		searchService = (SearchService) load(cm,
+				SearchService.class.getName());
+		
 		enabled = "true".equals(ServerConfigurationService
 				.getString("wiki.experimental"));
 		try

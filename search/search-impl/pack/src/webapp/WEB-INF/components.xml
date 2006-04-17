@@ -18,7 +18,7 @@
     <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>
   </bean>
 
-  <bean id="org.sakaiproject.search.api.SearchIndexBuilderWorker"
+  <bean id="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker" 
     init-method="init" destroy-method="destroy">
     <property name="sleepTime"><value>30000</value></property>
