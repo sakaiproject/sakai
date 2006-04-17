@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+import org.sakaiproject.component.api.ComponentManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
@@ -50,15 +51,28 @@ public class RenderServiceImpl implements RenderService
 
 	private RenderCache renderCache;
 
-	public RenderCache getRenderCache()
+	public void init()
 	{
-		return renderCache;
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		renderEngineFactory = (RenderEngineFactory) load(cm, RenderEngineFactory.class
+				.getName());
+
+		renderContextFactory = (RenderContextFactory) load(cm, RenderContextFactory.class.getName());
+		renderCache = (RenderCache) load(cm, RenderCache.class
+				.getName());
 	}
 
-	public void setRenderCache(RenderCache renderCache)
+	private Object load(ComponentManager cm, String name)
 	{
-		this.renderCache = renderCache;
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
+	
 
 	public String renderPage(RWikiObject rwo, String pageSpace,
 			PageLinkRenderer plr)
@@ -127,26 +141,6 @@ public class RenderServiceImpl implements RenderService
 		}
 	}
 
-	public RenderContextFactory getRenderContextFactory()
-	{
-		return renderContextFactory;
-	}
-
-	public void setRenderContextFactory(
-			RenderContextFactory renderContextFactory)
-	{
-		this.renderContextFactory = renderContextFactory;
-	}
-
-	public RenderEngineFactory getRenderEngineFactory()
-	{
-		return renderEngineFactory;
-	}
-
-	public void setRenderEngineFactory(RenderEngineFactory renderEngineFactory)
-	{
-		this.renderEngineFactory = renderEngineFactory;
-	}
 
 	/**
 	 * Generates a key for the page taking into account the page, version and

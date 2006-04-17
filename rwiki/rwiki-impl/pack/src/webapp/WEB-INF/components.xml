@@ -21,11 +21,7 @@
   <import resource="messagingComponents.xml" />
  
  
-  <!-- Logger for RWiki  -->
-  <bean id="rwiki-logger"
-    parent="org.sakaiproject.service.framework.log.Logger">
-  </bean>
-
+  
   <!-- each transaction manager, and therefore session factory must have its own data source,
   so overload here to avoid getting the central one -->
   <!--<bean id="sakai-rwiki.javax.sql.DataSource" parent="javax.sql.DataSource">

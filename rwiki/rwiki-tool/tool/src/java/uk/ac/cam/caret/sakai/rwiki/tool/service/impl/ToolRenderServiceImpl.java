@@ -24,6 +24,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool.service.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
@@ -39,6 +40,24 @@ public class ToolRenderServiceImpl implements ToolRenderService
 	private static Log log = LogFactory.getLog(ToolRenderServiceImpl.class);
 
 	private RenderService renderService = null;
+
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+
+		renderService = (RenderService) load(cm, RenderService.class.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	/*
 	 * (non-Javadoc)

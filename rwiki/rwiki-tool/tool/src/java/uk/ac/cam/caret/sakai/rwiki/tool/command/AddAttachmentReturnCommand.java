@@ -14,6 +14,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -36,6 +39,8 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 public class AddAttachmentReturnCommand implements HttpCommand
 {
 
+	private static Log log = LogFactory.getLog(AddAttachmentReturnCommand.class);
+	
 	private static final String MULTIPLE_ATTACHMENT_HEADER_START = "__";
 
 	private static final String MULTIPLE_ATTACHMENT_HEADER_BODY = "see attachments:";
@@ -51,6 +56,24 @@ public class AddAttachmentReturnCommand implements HttpCommand
 	private Map wikiMarkupTemplates;
 
 	private String editPath;
+
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -343,15 +366,7 @@ public class AddAttachmentReturnCommand implements HttpCommand
 		this.wikiMarkupTemplates = wikiMarkupTemplates;
 	}
 
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
+	
 
 	public String getEditPath()
 	{

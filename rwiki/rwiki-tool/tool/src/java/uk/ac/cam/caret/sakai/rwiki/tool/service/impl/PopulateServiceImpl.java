@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -63,9 +64,13 @@ public class PopulateServiceImpl implements PopulateService
 
 	private SiteService siteService = null;
 
-
 	public void init() throws IOException
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+
+		renderService = (RenderService) load(cm, RenderService.class.getName());
+		siteService = (SiteService) load(cm, SiteService.class.getName());
 
 		for (Iterator i = seedPages.iterator(); i.hasNext();)
 		{
@@ -86,6 +91,16 @@ public class PopulateServiceImpl implements PopulateService
 		}
 	}
 
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -104,7 +119,8 @@ public class PopulateServiceImpl implements PopulateService
 				Site s = null;
 				try
 				{
-					s = siteService.getSite(ToolManager.getCurrentPlacement().getContext());
+					s = siteService.getSite(ToolManager.getCurrentPlacement()
+							.getContext());
 					owner = s.getCreatedBy().getId();
 				}
 				catch (Exception e)
@@ -317,40 +333,5 @@ public class PopulateServiceImpl implements PopulateService
 	{
 		this.dao = dao;
 	}
-
-	/**
-	 * @return Returns the renderService.
-	 */
-	public RenderService getRenderService()
-	{
-		return renderService;
-	}
-
-	/**
-	 * @param renderService
-	 *        The renderService to set.
-	 */
-	public void setRenderService(RenderService renderService)
-	{
-		this.renderService = renderService;
-	}
-
-	/**
-	 * @return Returns the siteService.
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService
-	 *        The siteService to set.
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
 
 }

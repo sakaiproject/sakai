@@ -40,7 +40,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="contentDAO"><ref bean="rwikiCurrentObjectContentDaoImpl" /></property>
     <property name="historyDAO"><ref bean="rwikiHistoryObjectDaoImpl" /></property>		
   </bean>
@@ -52,7 +51,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
   <!-- Transaction Proxy for the HistoryObject -->
@@ -83,7 +81,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="contentDAO"><ref bean="rwikiHistoryObjectContentDaoImpl" /></property>
   </bean>
 
@@ -94,7 +91,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
 
@@ -120,7 +116,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
 </beans>

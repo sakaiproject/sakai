@@ -33,10 +33,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
@@ -74,6 +75,26 @@ public class SaveCommand implements HttpCommand
 	private String cancelPath;
 
 	private SessionManager sessionManager;
+
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
+				.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
@@ -287,26 +308,6 @@ public class SaveCommand implements HttpCommand
 	public void setCancelPath(String cancelPath)
 	{
 		this.cancelPath = cancelPath;
-	}
-
-	public RWikiObjectService getObjectService()
-	{
-		return objectService;
-	}
-
-	public void setObjectService(RWikiObjectService objectService)
-	{
-		this.objectService = objectService;
-	}
-
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
 	}
 
 }

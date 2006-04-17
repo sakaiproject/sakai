@@ -10,6 +10,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService;
@@ -25,10 +28,32 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
  */
 public class UpdatePreferencesCommand implements HttpCommand
 {
+	
+	private static Log log = LogFactory.getLog(UpdatePreferencesCommand.class);
 
 	private PreferenceService preferenceService;
 
 	private String successfulPath;
+	
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+
+		preferenceService = (PreferenceService) load(cm,
+				PreferenceService.class.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
+
 
 	/*
 	 * (non-Javadoc)
@@ -88,15 +113,6 @@ public class UpdatePreferencesCommand implements HttpCommand
 		rd.forward(request, response);
 	}
 
-	public PreferenceService getPreferenceService()
-	{
-		return preferenceService;
-	}
-
-	public void setPreferenceService(PreferenceService preferenceService)
-	{
-		this.preferenceService = preferenceService;
-	}
 
 	public String getSuccessfulPath()
 	{

@@ -60,7 +60,7 @@ import org.sakaiproject.test.SakaiTestBase;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.util.Xml;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.w3c.dom.Document;
@@ -137,6 +137,7 @@ public class ComponentIntegrationTest extends SakaiTestBase
 	 */
 	public static Test suite()
 	{
+//		Logger.getRootLogger().setLevel(Level.DEBUG);
 		TestSetup setup = new TestSetup(new TestSuite(
 				ComponentIntegrationTest.class))
 		{

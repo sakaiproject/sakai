@@ -7,15 +7,12 @@
   <!-- Tool request processor -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.tool.RequestHelper"
     class="uk.ac.cam.caret.sakai.rwiki.tool.RequestHelper">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-
     <property name="commandService"><ref bean="commandService"/></property>
   </bean>
   <!-- Service for creating commands in URL Processing -->
   <bean id="commandService"
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.CommandServiceImpl"
 	init-method="init">
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="commandMap">
       <map>
 	<entry key="save"><ref bean="saveCommand"/></entry>
@@ -37,9 +34,9 @@
 
   <!-- Save command -->
   <bean id="saveCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.SaveCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-    <property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.SaveCommand"
+    	init-method="init">
+	<property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value>
     </property>
     <property name="contentChangedPath"><value>/WEB-INF/command-pages/edit.jsp</value>
     </property>
@@ -49,12 +46,10 @@
       <value>/WEB-INF/command-pages/edit.jsp</value></property>
     <property name="cancelPath">
       <value>/WEB-INF/command-pages/view.jsp</value></property>
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>		
-	<property name="sessionManager"><ref bean="org.sakaiproject.api.kernel.session.SessionManager"/></property>
   </bean>
   <bean id="commentSaveCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.CommentSaveCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.CommentSaveCommand"
+	init-method="init">
     <property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value>
     </property>
     <!--<property name="contentChangedPath"><value>/WEB-INF/command-pages/commenteditconflict.jsp</value>-->
@@ -69,11 +64,10 @@
       <value>/WEB-INF/command-pages/edit.jsp</value></property>
     <property name="cancelPath">
       <value>/WEB-INF/command-pages/view.jsp</value></property>
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>		
   </bean>
   <bean id="commentNewCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.CommentNewCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.CommentNewCommand"
+	init-method="init">
     <property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value>
     </property>
     <!--<property name="contentChangedPath"><value>/WEB-INF/command-pages/commenteditconflict.jsp</value>-->
@@ -88,35 +82,33 @@
       <value>/WEB-INF/command-pages/edit.jsp</value></property>
     <property name="cancelPath">
       <value>/WEB-INF/command-pages/view.jsp</value></property>
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>		
   </bean>
 
   <!-- Update permissions command -->
-  <bean id="updatePermissionsCommand" class="uk.ac.cam.caret.sakai.rwiki.tool.command.UpdatePermissionsCommand">
+  <bean id="updatePermissionsCommand" 
+  	class="uk.ac.cam.caret.sakai.rwiki.tool.command.UpdatePermissionsCommand"
+	init-method="init">
     <property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value></property>
     <property name="contentChangedPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
     <property name="successfulPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
   </bean>
 
   <!-- revert command -->
   <bean id="revertCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.RevertCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.RevertCommand"
+	init-method="init">
     <property name="noUpdatePath"><value>/WEB-INF/command-pages/permission.jsp</value>
     </property>
     <property name="contentChangedPath"><value>/WEB-INF/command-pages/edit.jsp</value>
     </property>
     <property name="successfulPath"><value>/WEB-INF/command-pages/view.jsp</value>
     </property>
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
   </bean>
 
   <!-- Real/AuthZgroups edit command -->
   <bean id="editRealmCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.EditAuthZGroupCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-    <property name="realmService"><ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.EditAuthZGroupCommand"
+ 	init-method="init">
     <property name="cancelEditPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
     <property name="editRealmPath"><value>/WEB-INF/command-pages/editRealm.jsp</value></property>
     <property name="idInUsePath"><value>/WEB-INF/command-pages/realmIdInUse.jsp</value></property>
@@ -126,12 +118,10 @@
   </bean>
 	
   <bean id="helperCommand"
-	class="uk.ac.cam.caret.sakai.rwiki.tool.command.HelperCommand">
-    <property name="activeToolManager"><ref bean="org.sakaiproject.api.kernel.tool.ActiveToolManager"/></property>
-	<property name="sessionManager"><ref bean="org.sakaiproject.api.kernel.session.SessionManager"/></property>
+	class="uk.ac.cam.caret.sakai.rwiki.tool.command.HelperCommand"
+	init-method="init">
   </bean>	
   <!--<bean id="Command" class="uk.ac.cam.caret.sakai.rwiki.tool.command.Command">
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="servletPath">/jrwiki/.jsp</property>
     <property name="populateService"><ref bean="populateService"/></property>
     <property name="renderBeanHelper"><ref bean="renderBeanHelper"/></property>
@@ -141,8 +131,8 @@
   </bean>-->
 
   <bean id="addAttachmentReturnEmbedCommand"
-	  class="uk.ac.cam.caret.sakai.rwiki.tool.command.AddAttachmentReturnCommand">
-	<property name="sessionManager"><ref bean="org.sakaiproject.api.kernel.session.SessionManager"/></property>
+	  class="uk.ac.cam.caret.sakai.rwiki.tool.command.AddAttachmentReturnCommand"
+	init-method="init">
 	<property name="wikiMarkupTemplates">
 		<map>
 			<entry key="image/*">
@@ -158,8 +148,8 @@
   </bean>
 
   <bean id="addAttachmentReturnLinkCommand"
-	  class="uk.ac.cam.caret.sakai.rwiki.tool.command.AddAttachmentReturnCommand">
-	<property name="sessionManager"><ref bean="org.sakaiproject.api.kernel.session.SessionManager"/></property>
+	  class="uk.ac.cam.caret.sakai.rwiki.tool.command.AddAttachmentReturnCommand"
+	init-method="init">
 	<property name="wikiMarkupTemplates">
 		<map>
 			<entry key="*/*">
@@ -172,16 +162,16 @@
   </bean>
 
   <!-- Update preferences command -->
-  <bean id="updatePreferencesCommand" class="uk.ac.cam.caret.sakai.rwiki.tool.command.UpdatePreferencesCommand">
+  <bean id="updatePreferencesCommand" 
+  	class="uk.ac.cam.caret.sakai.rwiki.tool.command.UpdatePreferencesCommand"
+	init-method="init">
     <property name="successfulPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
-    <property name="preferenceService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService"/></property>
   </bean>
   
   <!-- Real/AuthZgroups edit command -->
   <bean id="editRealmManyCommand"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.command.EditManyAuthZGroupCommand">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-    <property name="realmService"><ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.tool.command.EditManyAuthZGroupCommand"
+ 	init-method="init">
     <property name="cancelEditPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
     <property name="editRealmPath"><value>/WEB-INF/command-pages/editRealm-many.jsp</value></property>
     <property name="idInUsePath"><value>/WEB-INF/command-pages/realmIdInUse.jsp</value></property>

@@ -41,11 +41,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.section.cover.SectionAwareness;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.site.cover.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -138,6 +139,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	private Map outputProperties;
 
 	private EntityManager entityManager;
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -667,6 +678,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void init()
 	{
 		if (!isAvailable()) return;
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+		renderService = (RenderService) load(cm, RenderService.class.getName());
+
 		try
 		{
 			XSLTTransform xsltTransform = new XSLTTransform();
@@ -870,23 +886,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		this.hrefTagFormat = hrefTagFormat;
 	}
 
-	/**
-	 * @return Returns the renderService.
-	 */
-	public RenderService getRenderService()
-	{
-		return renderService;
-	}
-
-	/**
-	 * @param renderService
-	 *        The renderService to set.
-	 */
-	public void setRenderService(RenderService renderService)
-	{
-		this.renderService = renderService;
-	}
-
+	
 	/**
 	 * @return Returns the standardLinkFormat.
 	 */
@@ -1033,7 +1033,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	}
 
 	/**
-	 * @param entityManager The entityManager to set.
+	 * @param entityManager
+	 *        The entityManager to set.
 	 */
 	public void setEntityManager(EntityManager entityManager)
 	{

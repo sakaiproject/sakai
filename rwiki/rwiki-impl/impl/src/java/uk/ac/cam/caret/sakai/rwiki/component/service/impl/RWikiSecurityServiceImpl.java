@@ -26,10 +26,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -56,6 +57,19 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 
 	public void init()
 	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		functionManager = (FunctionManager) load(cm, FunctionManager.class
+				.getName());
+
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+		securityService = (SecurityService) load(cm, SecurityService.class
+				.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+		siteService = (SiteService) load(cm, SiteService.class.getName());
+		toolManager = (ToolManager) load(cm, ToolManager.class.getName());
+
 		List l = functionManager.getRegisteredFunctions("rwiki.");
 		if (!l.contains(SECURE_READ))
 			functionManager.registerFunction(SECURE_READ);
@@ -67,6 +81,16 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 			functionManager.registerFunction(SECURE_SUPER_ADMIN);
 		if (!l.contains(SECURE_ADMIN))
 			functionManager.registerFunction(SECURE_ADMIN);
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	private SecurityService securityService;
@@ -134,25 +158,7 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		return securityService.unlock(SECURE_READ, reference);
 	}
 
-	public SecurityService getSecurityService()
-	{
-		return securityService;
-	}
-
-	public void setSecurityService(SecurityService securityService)
-	{
-		this.securityService = securityService;
-	}
-
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
+	
 
 	public String createPermissionsReference(String pageSpace)
 	{
@@ -344,72 +350,5 @@ public class RWikiSecurityServiceImpl implements RWikiSecurityService
 		return false;
 	}
 
-	/**
-	 * @return Returns the entityManager.
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
-
-	/**
-	 * @param entityManager
-	 *        The entityManager to set.
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
-	 * @return Returns the functionManager.
-	 */
-	public FunctionManager getFunctionManager()
-	{
-		return functionManager;
-	}
-
-	/**
-	 * @param functionManager
-	 *        The functionManager to set.
-	 */
-	public void setFunctionManager(FunctionManager functionManager)
-	{
-		this.functionManager = functionManager;
-	}
-
-	/**
-	 * @return Returns the sessionManager.
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	/**
-	 * @param sessionManager
-	 *        The sessionManager to set.
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
-
-	/**
-	 * @return Returns the toolManager.
-	 */
-	public ToolManager getToolManager()
-	{
-		return toolManager;
-	}
-
-	/**
-	 * @param toolManager
-	 *        The toolManager to set.
-	 */
-	public void setToolManager(ToolManager toolManager)
-	{
-		this.toolManager = toolManager;
-	}
-
+	
 }

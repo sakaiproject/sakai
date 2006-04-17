@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
@@ -72,6 +73,23 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 
 	private AuthzGroupService realmService;
 
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		realmService = (AuthzGroupService) load(cm, AuthzGroupService.class
+				.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -225,15 +243,7 @@ public class EditManyAuthZGroupCommand implements HttpCommand
 		this.successfulPath = successfulPath;
 	}
 
-	public AuthzGroupService getRealmService()
-	{
-		return realmService;
-	}
 
-	public void setRealmService(AuthzGroupService realmService)
-	{
-		this.realmService = realmService;
-	}
 
 	private void successfulDispatch(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException

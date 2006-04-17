@@ -38,16 +38,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -100,11 +101,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private RWikiHistoryObjectDao hdao;
 
-	private RWikiSecurityService wikiSecurityService;
-
-	private RenderService renderService;
-
-	private PreferenceService preferenceService;
+	
 
 	// dependancy
 	/**
@@ -114,6 +111,13 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	public String createTemplatePageName = "default_template";
 
+	
+	private RWikiSecurityService wikiSecurityService;
+
+	private RenderService renderService;
+
+	private PreferenceService preferenceService;
+	
 	private EntityManager entityManager;
 
 	private NotificationService notificationService;
@@ -138,6 +142,23 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public void init()
 	{
 		log.debug("init start");
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+		.getInstance();
+		entityManager = (EntityManager) load(cm, EntityManager.class
+		.getName());
+		notificationService = ( NotificationService) load(cm, NotificationService.class.getName());
+		sessionManager = (SessionManager) load(cm,SessionManager.class.getName());
+		eventTrackingService = ( EventTrackingService) load(cm,EventTrackingService.class.getName());
+		siteService = (SiteService) load(cm,SiteService.class.getName());
+		threadLocalManager = ( ThreadLocalManager) load(cm,ThreadLocalManager.class.getName());
+		timeService = (TimeService) load(cm,TimeService.class.getName());
+		digestService = (DigestService) load(cm,DigestService.class.getName());
+		securityService = (SecurityService) load(cm,SecurityService.class.getName());
+		wikiSecurityService = ( RWikiSecurityService) load(cm,RWikiSecurityService.class.getName());
+		renderService = (RenderService) load(cm,RenderService.class.getName());
+		preferenceService = ( PreferenceService) load(cm,PreferenceService.class.getName());
+
+		
 
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
@@ -168,6 +189,16 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	}
 
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -308,35 +339,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		this.hdao = hdao;
 	}
 
-	public RWikiSecurityService getRWikiSecurityService()
-	{
-		return wikiSecurityService;
-	}
 
-	public void setRWikiSecurityService(RWikiSecurityService securityService)
-	{
-		this.wikiSecurityService = securityService;
-	}
-
-	public RenderService getRenderService()
-	{
-		return renderService;
-	}
-
-	public void setRenderService(RenderService renderService)
-	{
-		this.renderService = renderService;
-	}
-
-	public PreferenceService getPreferenceService()
-	{
-		return preferenceService;
-	}
-
-	public void setPreferenceService(PreferenceService preferenceService)
-	{
-		this.preferenceService = preferenceService;
-	}
 
 	public void update(String name, String realm, Date version, String content,
 			RWikiPermissions permissions) throws PermissionException,
@@ -1493,170 +1496,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		return new ComponentPageLinkRenderImpl(pageSpace);
 	}
 
-	/**
-	 * @return Returns the entityManager.
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
 
-	/**
-	 * @param entityManager
-	 *        The entityManager to set.
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
-	 * @return Returns the eventTrackingService.
-	 */
-	public EventTrackingService getEventTrackingService()
-	{
-		return eventTrackingService;
-	}
-
-	/**
-	 * @param eventTrackingService
-	 *        The eventTrackingService to set.
-	 */
-	public void setEventTrackingService(
-			EventTrackingService eventTrackingService)
-	{
-		this.eventTrackingService = eventTrackingService;
-	}
-
-	/**
-	 * @return Returns the notificationService.
-	 */
-	public NotificationService getNotificationService()
-	{
-		return notificationService;
-	}
-
-	/**
-	 * @param notificationService
-	 *        The notificationService to set.
-	 */
-	public void setNotificationService(NotificationService notificationService)
-	{
-		this.notificationService = notificationService;
-	}
-
-	/**
-	 * @return Returns the sessionManager.
-	 */
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	/**
-	 * @param sessionManager
-	 *        The sessionManager to set.
-	 */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
-	}
-
-	/**
-	 * @return Returns the siteService.
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService
-	 *        The siteService to set.
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
-	/**
-	 * @return Returns the digestService.
-	 */
-	public DigestService getDigestService()
-	{
-		return digestService;
-	}
-
-	/**
-	 * @param digestService The digestService to set.
-	 */
-	public void setDigestService(DigestService digestService)
-	{
-		this.digestService = digestService;
-	}
-
-	/**
-	 * @return Returns the threadLocalManager.
-	 */
-	public ThreadLocalManager getThreadLocalManager()
-	{
-		return threadLocalManager;
-	}
-
-	/**
-	 * @param threadLocalManager The threadLocalManager to set.
-	 */
-	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
-	{
-		this.threadLocalManager = threadLocalManager;
-	}
-
-	/**
-	 * @return Returns the timeService.
-	 */
-	public TimeService getTimeService()
-	{
-		return timeService;
-	}
-
-	/**
-	 * @param timeService The timeService to set.
-	 */
-	public void setTimeService(TimeService timeService)
-	{
-		this.timeService = timeService;
-	}
-
-	/**
-	 * @return Returns the wikiSecurityService.
-	 */
-	public RWikiSecurityService getWikiSecurityService()
-	{
-		return wikiSecurityService;
-	}
-
-	/**
-	 * @param wikiSecurityService The wikiSecurityService to set.
-	 */
-	public void setWikiSecurityService(RWikiSecurityService wikiSecurityService)
-	{
-		this.wikiSecurityService = wikiSecurityService;
-	}
-
-	/**
-	 * @param securityService The securityService to set.
-	 */
-	public void setSecurityService(SecurityService securityService)
-	{
-		this.securityService = securityService;
-	}
-
-	/**
-	 * @return Returns the securityService.
-	 */
-	public SecurityService getSecurityService()
-	{
-		return securityService;
-	}
 
 }

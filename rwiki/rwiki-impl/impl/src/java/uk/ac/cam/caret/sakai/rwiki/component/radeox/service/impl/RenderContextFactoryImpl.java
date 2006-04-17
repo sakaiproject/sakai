@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.site.api.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -47,6 +48,27 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 
 	private SiteService siteService;
 
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
+				.getName());
+		securityService = (RWikiSecurityService) load(cm,
+				RWikiSecurityService.class.getName());
+		siteService = (SiteService) load(cm, SiteService.class.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -63,40 +85,10 @@ public class RenderContextFactoryImpl implements RenderContextFactory
 		return context;
 	}
 
-	public RWikiObjectService getObjectService()
-	{
-		return objectService;
-	}
+	
 
-	public void setObjectService(RWikiObjectService objectService)
-	{
-		this.objectService = objectService;
-	}
+	
 
-	public RWikiSecurityService getSecurityService()
-	{
-		return securityService;
-	}
-
-	public void setSecurityService(RWikiSecurityService securityService)
-	{
-		this.securityService = securityService;
-	}
-
-	/**
-	 * @return Returns the siteService.
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService The siteService to set.
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
+	
 
 }

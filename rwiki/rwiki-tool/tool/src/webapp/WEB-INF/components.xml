@@ -15,9 +15,5 @@
   + -->
   <import resource="prepopulateComponents.xml" />
   
-  <!-- Logger for RWiki  -->
-  <bean id="rwiki-logger"
-    parent="org.sakaiproject.service.framework.log.Logger">
-  </bean>
 
 </beans>

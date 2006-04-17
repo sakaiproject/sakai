@@ -125,6 +125,12 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
       <artifactId>sakai-email-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>

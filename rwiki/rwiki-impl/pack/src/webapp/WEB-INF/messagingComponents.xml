@@ -6,21 +6,18 @@
   <!-- components context -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService"
     class="uk.ac.cam.caret.sakai.rwiki.component.message.PreferenceServiceImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="preferenceDao"><ref bean="preferenceDao"/></property>
   </bean>
 
   <!-- Service for creating commands in URL Processing -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.MessageService"
     class="uk.ac.cam.caret.sakai.rwiki.component.message.MessageServiceImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="messageDao"><ref bean="messageDao" /></property>
     <property name="pagePresenceDao"><ref bean="pagePresenceDao"/></property>
   </bean>
   <!-- Triggers fired on actions -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.message.api.TriggerService"
     class="uk.ac.cam.caret.sakai.rwiki.component.message.TriggerServiceImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="triggerDao"><ref bean="triggerDao"/></property>
     <property name="triggerHandlers">
       <map>
@@ -56,7 +53,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
   <!-- Page Presence Proxy -->
@@ -82,7 +78,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
   <!-- Preference Proxy -->
@@ -108,7 +103,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
   <!-- Trigger Proxy -->
@@ -134,7 +128,6 @@
     <property name="sessionFactory"><ref
 	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
     </property>
-    <property name="log"><ref bean="rwiki-logger"/></property>
   </bean>
 
 

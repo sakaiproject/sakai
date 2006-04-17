@@ -19,7 +19,6 @@
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.PopulateServiceImpl" 
     init-method="init" >
 
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
     <property name="siteService"><ref bean="org.sakaiproject.service.legacy.site.SiteService" /></property>
     <property name="portalService"><ref bean="org.sakaiproject.service.framework.portal.PortalService" /></property>

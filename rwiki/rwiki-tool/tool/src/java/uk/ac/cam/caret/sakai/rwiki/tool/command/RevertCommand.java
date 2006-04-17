@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -63,6 +64,24 @@ public class RevertCommand implements HttpCommand
 	private String noUpdatePath;
 
 	private String contentChangedPath;
+
+	public void init()
+	{
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
+				.getName());
+	}
+
+	private Object load(ComponentManager cm, String name)
+	{
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
+	}
 
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
@@ -164,16 +183,6 @@ public class RevertCommand implements HttpCommand
 	public void setNoUpdatePath(String noUpdatePath)
 	{
 		this.noUpdatePath = noUpdatePath;
-	}
-
-	public RWikiObjectService getRWikiObjectService()
-	{
-		return objectService;
-	}
-
-	public void setObjectService(RWikiObjectService objectService)
-	{
-		this.objectService = objectService;
 	}
 
 	public String getSuccessfulPath()

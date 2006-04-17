@@ -5,64 +5,41 @@
   <!-- components context -->
 
   <!-- Render Factory for creating Wiki Renderer Contexts -->
-  <bean id="renderContextFactory"
-    class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderContextFactoryImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
-    <property name="securityService"><ref bean="securityService"/></property>
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderContextFactory"
+    class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderContextFactoryImpl"
+       init-method="init" 
+ 	>
   </bean>
 
   <!-- Wiki engine factory -->
-  <bean id="renderEngineFactory"
-    class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderEngineFactoryImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-
-    <property name="objectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"/></property>
-    <property name="renderEngine"><ref bean="baseRenderEngine"/></property>
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderEngineFactory"
+    class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderEngineFactoryImpl"
+       init-method="init" 
+ 	>  
     <property name="externalImageLink"><value>&lt;img src="/sakai-rwiki/images/icklearrow.gif" alt="external link: " title="external link"/&gt;</value></property>
   </bean>
 
 
-  <bean id="securityService"
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.RWikiSecurityServiceImpl"
-    init-method="init" >
-    <property name="log"><ref bean="rwiki-logger"/></property>
+    init-method="init" 
+    >
 
-    <property name="portalService"><ref
-	bean="org.sakaiproject.service.framework.portal.PortalService" />
-    </property>
-    <property name="securityService"><ref
-	bean="org.sakaiproject.service.legacy.security.SecurityService"/>
-    </property>
-    <property name="siteService"><ref
-	bean="org.sakaiproject.service.legacy.site.SiteService"/>
-    </property>
   </bean>
 
   <!-- The component level Render service -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"
-    class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.RenderServiceImpl">
-    <property name="log"><ref bean="rwiki-logger"/></property>
-
-    <property name="renderContextFactory"><ref bean="renderContextFactory"/>
-    </property>
-    <property name="renderEngineFactory"><ref bean="renderEngineFactory"/>
-    </property>
-    <!-- comment the cache out to disable it -->
-    <property name="renderCache"><ref bean="rwikiRenderCache"/></property>
+    class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.RenderServiceImpl"
+    init-method="init" 
+    >
   </bean>
 
   <!-- The RWiki Object service, component level -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.RWikiObjectServiceImpl"
     init-method="init"  >
-    <property name="log"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
     <property name="RWikiHistoryObjectDao"><ref bean="rwikiHistoryObjectDao"/></property>
-    <property name="preferenceService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService"/></property>
-    <property name="securityService"><ref bean="securityService"/></property>
     <property name="handlers">
       <map>
         <entry key=""><ref bean="rwikiRAWHandler" /></entry>
@@ -83,17 +60,19 @@
 
   <!-- The base level radeox render engine -->
 
-  <bean id="baseRenderEngine" class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RWikiBaseRenderEngine" init-method="init">
-    <property name="log"><ref bean="rwiki-logger"/></property>
+  <bean id="org.radeox.api.engine.RenderEngine" 
+  	class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RWikiBaseRenderEngine" 
+  	init-method="init"
+  	>
   </bean>
 
 
 
   <!-- The Rendered content cache, impl uses ehcache which is initialised on first use, if cache fails
   it is re-initialised -->
-  <bean id="rwikiRenderCache" class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderCacheImpl" 
+  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache" 
+  	class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderCacheImpl" 
     init-method="init" >
-    <property name="log"><ref bean="rwiki-logger"/></property>
     <property name="cacheName"><value>rwiki-render-cache</value></property>
   </bean>
   
@@ -105,8 +84,6 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/null.xslt</value></property>
     <property name="minorType"><value></value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -137,8 +114,6 @@
       <!-- The transformer use on the stream -->
      <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/tohtml.xslt</value></property>
     <property name="minorType"><value>html</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -180,8 +155,6 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>pdf</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -212,8 +185,6 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>rtf</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -243,8 +214,6 @@
     <!-- The transformer use on the stream -->
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/xhtml2fo.xslt</value></property>
     <property name="minorType"><value>fop</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -279,7 +248,6 @@ DISABLED
     
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/null.xslt</value></property>
     <property name="minorType"><value>odt</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
     <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
@@ -298,7 +266,6 @@ DISABLED
     init-method="init"  destroy-method="destroy" >
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/torss10.xslt</value></property>
     <property name="minorType"><value>10.rss</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
     <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
@@ -329,8 +296,6 @@ DISABLED
     init-method="init"  destroy-method="destroy" >
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/torss091.xslt</value></property>
     <property name="minorType"><value>09.rss</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -365,8 +330,6 @@ DISABLED
     init-method="init"  destroy-method="destroy" >
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/torss20.xslt</value></property>
     <property name="minorType"><value>20.rss</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
@@ -401,8 +364,6 @@ DISABLED
     init-method="init"  destroy-method="destroy" >
     <property name="xslt"><value>/uk/ac/cam/caret/sakai/rwiki/component/service/impl/toatom03.xslt</value></property>
     <property name="minorType"><value>atom</value></property>    
-    <property name="logger"><ref bean="rwiki-logger"/></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService"/></property>
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>

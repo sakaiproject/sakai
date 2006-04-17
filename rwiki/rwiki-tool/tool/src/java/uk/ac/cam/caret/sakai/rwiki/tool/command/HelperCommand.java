@@ -28,6 +28,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
@@ -43,28 +46,30 @@ import uk.ac.cam.caret.sakai.rwiki.tool.api.HttpCommand;
 public class HelperCommand implements HttpCommand
 {
 
+	private static Log log = LogFactory.getLog(HelperCommand.class);
+
 	private ActiveToolManager activeToolManager;
 
 	private SessionManager sessionManager;
 
-	public ActiveToolManager getActiveToolManager()
+	public void init()
 	{
-		return activeToolManager;
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		activeToolManager = (ActiveToolManager) load(cm,
+				ActiveToolManager.class.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
 	}
 
-	public void setActiveToolManager(ActiveToolManager activeToolManager)
+	private Object load(ComponentManager cm, String name)
 	{
-		this.activeToolManager = activeToolManager;
-	}
-
-	public SessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		this.sessionManager = sessionManager;
+		Object o = cm.get(name);
+		if (o == null)
+		{
+			log.error("Cant find Spring component named " + name);
+		}
+		return o;
 	}
 
 	/*
