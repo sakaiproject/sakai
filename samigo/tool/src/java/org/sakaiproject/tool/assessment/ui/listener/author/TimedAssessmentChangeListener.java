@@ -20,6 +20,11 @@ public class TimedAssessmentChangeListener implements ValueChangeListener
 
   public void processValueChange(ValueChangeEvent ae)
 	{
+    if(((Boolean)ae.getNewValue()).booleanValue() == false && ae.getOldValue() == null)
+      return;
+    else if(((Boolean)ae.getNewValue()).booleanValue() == ((Boolean)ae.getOldValue()).booleanValue())
+      return;
+    
   	UIComponent sourceComp = (UIComponent)ae.getSource();
   	UIComponent hideDivComp = null;
   	while(sourceComp.getParent() != null)
