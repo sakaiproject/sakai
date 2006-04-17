@@ -8,7 +8,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="sqlService"><ref bean="org.sakaiproject.db.api..SqlService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
