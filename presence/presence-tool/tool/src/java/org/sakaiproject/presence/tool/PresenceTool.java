@@ -67,8 +67,9 @@ public class PresenceTool extends HttpServlet
 	/** Tool state attribute where the chat observer is stored. */
 	protected static final String ATTR_CHAT_OBSERVER = "chat_observer";
 
-   /** Localized messages **/
+	/** Localized messages * */
 	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.portal.bundle.Messages");
+
 	/**
 	 * Shutdown the servlet.
 	 */
@@ -121,38 +122,40 @@ public class PresenceTool extends HttpServlet
 		// get SiteId from the current placement and retrieve site
 		String siteId = placement.getContext();
 
-                Site site = null;
+		Site site = null;
 		ToolConfiguration toolConfig = null;
 		List chatUsers = null;
 
-		if ( siteId != null ) {
-                	try
-                	{
-                        	site = SiteService.getSiteVisit(siteId);
-                	}       
-                	catch (Exception e)
-                	{
-                        	// No problem - leave site null
-                	}
-		}
-
-		if ( site != null ) 
+		if (siteId != null)
 		{
-                        toolConfig = site.getToolForCommonId(CHAT_COMMON_ID);
+			try
+			{
+				site = SiteService.getSiteVisit(siteId);
+			}
+			catch (Exception e)
+			{
+				// No problem - leave site null
+			}
 		}
 
-		if ( toolConfig != null ) {
+		if (site != null)
+		{
+			toolConfig = site.getToolForCommonId(CHAT_COMMON_ID);
+		}
+
+		if (toolConfig != null)
+		{
 			String chatLocation = toolConfig.getId();
 			chatUsers = PresenceService.getPresentUsers(chatLocation);
 
 			PresenceObservingCourier chatObserver = (PresenceObservingCourier) toolSession.getAttribute(ATTR_CHAT_OBSERVER);
-                	if (chatObserver == null)
-                	{
+			if (chatObserver == null)
+			{
 				// Monitor presense changes at chatLocation and deliver them to this window's location with
 				// no sub window (null)
-                        	chatObserver = new PresenceObservingCourier(location,null,chatLocation);
-                        	toolSession.setAttribute(ATTR_CHAT_OBSERVER, chatObserver);
-                	}
+				chatObserver = new PresenceObservingCourier(location, null, chatLocation);
+				toolSession.setAttribute(ATTR_CHAT_OBSERVER, chatObserver);
+			}
 		}
 
 		// start the response
@@ -212,8 +215,8 @@ public class PresenceTool extends HttpServlet
 	{
 		// set the refresh of the courier to 1/2 the presence timeout value
 		Web.sendAutoUpdate(out, req, placementId, PresenceService.getTimeout() / 2);
-//		out.println("<div id=\"update_a\" style=\"display:block\"> a </div>");
-//		out.println("<div id=\"update_b\" style=\"display:none\"> b </div>");
+		// out.println("<div id=\"update_a\" style=\"display:block\"> a </div>");
+		// out.println("<div id=\"update_b\" style=\"display:none\"> b </div>");
 	}
 
 	/**
@@ -224,10 +227,11 @@ public class PresenceTool extends HttpServlet
 	 */
 	protected void sendPresence(PrintWriter out, List users, List chatUsers)
 	{
- 		String chatIcon  = ServerConfigurationService.getString("presence.inchat.icon", null);
+		String chatIcon = ServerConfigurationService.getString("presence.inchat.icon", null);
 
 		out.println("<ul class=\"presenceList\">");
-		if ( users == null ) {
+		if (users == null)
+		{
 			out.println("<!-- Presence empty -->");
 			out.println("</ul>");
 			return;
@@ -237,35 +241,35 @@ public class PresenceTool extends HttpServlet
 		{
 			User u = (User) i.next();
 			boolean inChat = false;
-			if ( chatUsers != null ) 
+			if (chatUsers != null)
 			{
 				String userId = u.getId();
-				for (Iterator j = chatUsers.iterator();j.hasNext(); ) 
+				for (Iterator j = chatUsers.iterator(); j.hasNext();)
 				{
 					User chatUser = (User) j.next();
-					if ( userId != null && userId.equals(chatUser.getId()) )
+					if (userId != null && userId.equals(chatUser.getId()))
 					{
 						inChat = true;
 					}
 				}
-			} 
+			}
 
-			if ( inChat ) 
+			if (inChat)
 			{
-            String msg = rb.getString("inchat");
+				String msg = rb.getString("inchat");
 				out.print("<li class=\"inChat\">");
 				out.print("<span title=\"" + msg + "\">");
 				out.print(Web.escapeHtml(u.getDisplayName()));
-				if ( chatIcon != null ) 
+				if (chatIcon != null)
 				{
-//					out.print(" <img height=10px width=10px src=\""+chatIcon+"\">");
+					// out.print(" <img height=10px width=10px src=\""+chatIcon+"\">");
 				}
 			}
 			else
 			{
-            String msg = rb.getString("insite");
+				String msg = rb.getString("insite");
 				out.print("<li>");
-				out.print("<span title=\"" + msg + "\">"); 
+				out.print("<span title=\"" + msg + "\">");
 				out.print(Web.escapeHtml(u.getDisplayName()));
 			}
 			out.println("</span></li>");
@@ -319,6 +323,3 @@ public class PresenceTool extends HttpServlet
 		return out;
 	}
 }
-
-
-
