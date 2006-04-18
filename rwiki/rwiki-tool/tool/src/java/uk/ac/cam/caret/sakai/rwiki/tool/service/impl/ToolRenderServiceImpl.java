@@ -47,7 +47,6 @@ public class ToolRenderServiceImpl implements ToolRenderService
 				.getInstance();
 
 		renderService = (RenderService) load(cm, RenderService.class.getName());
-		log.error("Render Service is "+renderService);
 	}
 
 	private Object load(ComponentManager cm, String name)
