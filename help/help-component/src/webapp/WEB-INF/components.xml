@@ -40,18 +40,16 @@
 					<value>6</value>
 				</property>
 				<property name="restConfiguration">
-					<ref
-						bean="org.sakaiproject.api.app.help.RestConfiguration" />
+					<ref bean="org.sakaiproject.api.app.help.RestConfiguration" />
 				</property>
 				<property name="sessionFactory">
 					<ref bean="helpSessionFactory" />
 				</property>
 				<property name="toolManager">
-					<ref
-						bean="org.sakaiproject.api.kernel.tool.ActiveToolManager" />
+					<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
 				</property>
 				<property name="serverConfigurationService">
-					<ref bean="org.sakaiproject.service.framework.config.ServerConfigurationService"/>
+					<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 				</property>
 				<property name="txManager">
 					<ref bean="helpTransactionManager" />
