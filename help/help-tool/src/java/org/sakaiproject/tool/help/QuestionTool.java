@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.cover.ToolManager;
 
