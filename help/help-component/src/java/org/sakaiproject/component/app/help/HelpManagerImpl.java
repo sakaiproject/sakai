@@ -1026,8 +1026,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     // add non-standard ids
     helpClasspathRegList.add("/sakai_iframe_myworkspace/help.xml");
     helpClasspathRegList.add("/sakai_iframe/help.xml");
-    helpClasspathRegList.add("/sakai_general_info/help.xml");
-    helpClasspathRegList.add("/sakai_grading/help.xml");
     helpClasspathRegList.add("/sakai_iframe_site/help.xml");
     helpClasspathRegList.add("/sakai_menubar/help.xml");
     helpClasspathRegList.add("/sakai_course_sites/help.xml");    
