@@ -123,6 +123,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			XMLReader xmlr = XMLReaderFactory
 					.createXMLReader("org.apache.xerces.parsers.SAXParser");
 			xmlr.setContentHandler(dbf);
+//			log.warn("Input is "+input);
 			xmlr.parse(new InputSource(new StringReader("<sr>" + input
 					+ "</sr>")));
 
@@ -130,6 +131,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			int startBlock = output.indexOf("<sr>");
 			int endBlock = output.indexOf("</sr>");
 			finalOutput = output.substring(startBlock + 4, endBlock);
+//			log.warn("Output is "+finalOutput);
 		}
 		catch (Throwable t)
 		{
@@ -247,9 +249,11 @@ public class XHTMLFilter implements Filter, CacheFilter
 			while (s.size() > firstIndex)
 			{
 				es = (EStack) s.pop();
+//				log.warn("Closing "+es.qname);
 				ch.endElement(es.ns, es.qname, es.lname);
 				sb.push(es);
 			}
+//			log.warn("End Close");
 			return sb;
 		}
 
@@ -292,6 +296,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 				while (es.restore.size() > 0)
 				{
 					EStack esr = (EStack) es.restore.pop();
+//					log.warn("Restore "+esr.lname);
 					ch.startElement(esr.ns, esr.qname, esr.lname, esr.atts);
 					s.push(esr);
 				}

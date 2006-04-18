@@ -25,9 +25,10 @@ package org.radeox.filter;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
 import org.radeox.filter.context.FilterContext;
@@ -42,6 +43,8 @@ import org.radeox.filter.context.FilterContext;
 
 public class ParagraphFilter implements Filter, CacheFilter
 {
+
+	private static Log log = LogFactory.getLog(ParagraphFilter.class);
 
 	private InitialRenderContext initialContext;
 
@@ -59,13 +62,18 @@ public class ParagraphFilter implements Filter, CacheFilter
 
 	public String filter(String input, FilterContext context)
 	{
-		Pattern patternFirst = Pattern.compile(patternFristRE);
-		Pattern patternLast = Pattern.compile(patternLastRE);
+
+		log.debug("Paragraph Filter Input " + input);
+		// Pattern patternFirst = Pattern.compile(patternFristRE);
+		// Pattern patternLast = Pattern.compile(patternLastRE);
 		Pattern patternBreaks = Pattern.compile(breaksRE);
 
 		String[] p = patternBreaks.split(input);
-
-		Matcher m = patternFirst.matcher(p[0]);
+		if (p.length == 1)
+		{
+			return input;
+		}
+		// Matcher m = patternFirst.matcher(p[0]);
 		StringBuffer sb = new StringBuffer();
 		int ins = p[0].lastIndexOf(">") + 1;
 		sb.append(p[0].substring(0, ins));
@@ -91,11 +99,17 @@ public class ParagraphFilter implements Filter, CacheFilter
 		}
 		else
 		{
+			if (p.length == 2)
+			{
+				sb.append(replaceAll);
+			}
 			sb.append(p[p.length - 1]);
 			sb.append(replaceLast);
 		}
+		String output = sb.toString();
+		log.debug("Paragraph Filter Input " + output);
 
-		return sb.toString();
+		return output;
 	}
 
 	public String[] replaces()

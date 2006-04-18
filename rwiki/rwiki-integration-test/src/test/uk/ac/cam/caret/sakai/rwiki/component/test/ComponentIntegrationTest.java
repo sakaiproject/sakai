@@ -124,25 +124,8 @@ public class ComponentIntegrationTest extends SakaiTestBase
 	};
 // this needs looking at since I think there are problems with the XHTMLFlter
 	private static final String[] rendered = {
-			"\n    <p class=\"paragraph\">Some <b class=\"bold\">Simple</b> ContentSome <b class=\"bold\">Simple</b> Content</p>\n"+
-    "    <p class=\"paragraph\"/>\n"+
-    "    <p class=\"paragraph\">\n"+
-   "   </p> <p class=\"paragraph\">Some <b class=\"bold\">Simple</b> ContentSome <b class=\"bold\">Simple</b> Content</p>",
-"Here is a \n"+
-"<h3 class=\"heading-h1\">\n"+
-"        <a name=\"Headingtype1\"></a>Heading type1</h3>\n"+
-"    <p class=\"paragraph\"/>\n"+
-"    <p class=\"paragraph\">Here is a </p>\n"+
-"<h3 class=\"heading-h1\">\n"+
-"        <a name=\"Headingtype1\"></a>Heading type1</h3>\n"+
-"    <p class=\"paragraph\"/>\n" +
-"    <p class=\"paragraph\">Here is a </p>\n" +
-"<h3 class=\"heading-h1\">\n" +
-"        <a name=\"Headingtype1\"></a>Heading type1</h3>\n" +
-"    <p class=\"paragraph\"/>\n"+
-"    <p class=\"paragraph\">Here is a </p>\n"+
-"<h3 class=\"heading-h1\">\n"+
-"        <a name=\"Headingtype1\"></a>Heading type1</h3>" };
+			"Some <b class=\"bold\">Simple</b> Content",
+"Here is a \n<h3 class=\"heading-h1\">\n        <a name=\"Headingtype1\"></a>Heading type1</h3>\n" };
 
 	private static final String archiveContentResource = "/uk/ac/cam/caret/sakai/rwiki/component/test/archive.xml";
 

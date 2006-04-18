@@ -59,8 +59,8 @@ public class BaseRenderEngineTest extends TestCase
 	public void testBoldInList()
 	{
 		RenderEngine engine = EngineManager.getInstance();
-		assertEquals(
-				"<ul class=\"minus\">\n<li><b class=\"bold\">test</b></li>\n</ul>",
+		assertEquals( 
+				"\n    <ul class=\"minus\">\n        <li>\n<b class=\"bold\">test</b></li></ul>\n",
 				engine.render("- __test__", context));
 	}
 
@@ -69,7 +69,8 @@ public class BaseRenderEngineTest extends TestCase
 		String result = EngineManager.getInstance().render(
 				"__SnipSnap__ {link:Radeox|http://radeox.org}", context);
 		assertEquals(
-				"<b class=\"bold\">SnipSnap</b> <span class=\"nobr\"><a href=\"http://radeox.org\">Radeox</a></span>",
+				"\n    <b class=\"bold\">SnipSnap</b> {link:Radeox|<span class=\"nobr\">\n"+
+				"        <a href=\"http://radeox.org\" target=\"rwikiexternal\">http://radeox.org</a></span>}",
 				result);
 	}
 
@@ -100,7 +101,7 @@ public class BaseRenderEngineTest extends TestCase
 			// never reach
 		}
 		assertEquals("BaseRenderEngine writes to Writer",
-				"<b class=\"bold\">SnipSnap</b>", writer.toString());
+				"\n    <b class=\"bold\">SnipSnap</b>", writer.toString());
 	}
 
 	public void testFilterOrder()
@@ -109,5 +110,19 @@ public class BaseRenderEngineTest extends TestCase
 		context.setRenderEngine(new MockWikiRenderEngine());
 		assertEquals("'<link>' - '&#60;link&#62;'", engine.render("[<link>]",
 				context));
+	}
+	
+	public void testParagraphTest() 
+	{
+		RenderEngine engine = EngineManager.getInstance();
+		context.setRenderEngine(new MockWikiRenderEngine());
+		assertEquals("Some <b class=\"bold\">Simple</b> Content",
+				engine.render("Some __Simple__ Content",
+				context));
+		context.setRenderEngine(new MockWikiRenderEngine());
+		assertEquals("\n    <p class=\"paragraph\">Some</p>\n    <p class=\"paragraph\"> <b class=\"bold\">Simple</b> Content</p>", 
+				engine.render("Some\n\n __Simple__ Content",
+				context));
+		
 	}
 }
