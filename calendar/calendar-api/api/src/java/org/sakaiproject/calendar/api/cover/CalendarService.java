@@ -282,15 +282,6 @@ public class CalendarService
 
 		return service.archive(param0, param1, param2, param3, param4);
 	}
-	
-	public static void importResources(java.lang.String param0, java.lang.String param1, java.util.List param2)
-	{
-		org.sakaiproject.calendar.api.CalendarService service = getInstance();
-		if (service == null)
-			return;
-
-		service.importEntities(param0, param1, param2);
-	}
 }
 
 
