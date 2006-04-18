@@ -145,7 +145,8 @@ public class RequestScopeSuperBean
 				.getBean(RWikiObjectService.class.getName());
 		toolRenderService = (ToolRenderService) context
 				.getBean(ToolRenderService.class.getName());
-		populateService = (PopulateService) context.getBean(PopulateService.class.getName());
+		populateService = (PopulateService) context
+				.getBean(PopulateService.class.getName());
 		realmService = (AuthzGroupService) context
 				.getBean(AuthzGroupService.class.getName());
 		preferenceService = (PreferenceService) context
@@ -163,9 +164,13 @@ public class RequestScopeSuperBean
 		{
 			Session session = SessionManager.getCurrentSession();
 
-			messageService.updatePresence(session.getId(), this
-					.getCurrentUser(), this.getCurrentPageName(), this
-					.getCurrentPageSpace());
+			String user = this.getCurrentUser();
+			if (user != null && user.length() > 0)
+			{
+				messageService.updatePresence(session.getId(), this
+						.getCurrentUser(), this.getCurrentPageName(), this
+						.getCurrentPageSpace());
+			}
 		}
 		experimental = ServerConfigurationService.getBoolean(
 				"wiki.experimental", false);
@@ -293,7 +298,8 @@ public class RequestScopeSuperBean
 	{
 		try
 		{
-			Site s = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Site s = SiteService.getSite(ToolManager.getCurrentPlacement()
+					.getContext());
 			return s.getCreatedBy().getId();
 		}
 		catch (IdUnusedException e)
