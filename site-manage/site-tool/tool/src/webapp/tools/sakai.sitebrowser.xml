@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.sitebrowser"
+			title="Site Browser"
+			description="Find and view summarys of Sites.">
+
+		<configuration name="pagesize" value="20" />
+
+		<configuration name="reset.button" value="false" type="final" />
+
+	</tool>
+
+</registration>

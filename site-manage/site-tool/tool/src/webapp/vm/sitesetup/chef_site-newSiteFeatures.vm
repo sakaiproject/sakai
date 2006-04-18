@@ -1,0 +1,145 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteFeatures.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3 class="insCol insBak insBor">
+		$tlang.getString("feat.tools")
+	</h3>
+	<p class="step">
+		$tlang.getString("feat.choose")
+	</p>
+	<form name="featuresForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="option" value="add" />
+		<input type="hidden" name="eventSubmit_doAdd_features" value="x" />
+			<table class="listHier" cellspacing="0">
+				<tr>
+					<td>
+						<input type="checkbox" name="selectedTools" value="home" id="home"
+							#if ($check_home)
+								checked="checked"
+							#end
+						/>
+					</td>
+					<td>
+						<label for="home">
+							$tlang.getString("java.home")
+						</label>
+					</td>	
+					<td>
+						$tlang.getString("feat.forv")
+					</td>
+				</tr>
+				#foreach($tool in $toolRegistrationList)
+					#set($toolId = $tool.getId())
+					#if ($!defaultTools.indexOf($toolId) != -1)
+						<input type="hidden" name="selectedTools" value="$toolId" />
+					#end
+					<tr>
+						<td>	
+							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
+								#if ($!defaultTools.indexOf($toolId) != -1)
+									checked="checked" disabled="disabled"
+								#else
+									#if($toolRegistrationSelectedList)
+										#foreach($tId in $toolRegistrationSelectedList)
+											#if ($tId.indexOf($toolId) != -1)
+												checked="checked"
+											#end
+										#end
+									#end
+								#end
+							/>
+						</td>
+						<td>
+							#if ($toolId.indexOf("sakai.news") != -1)
+								## show title for News tool
+								<label for="$toolId">
+									#if ($toolRegistrationSelectedList.contains($toolId) && $!newsTitles)								
+										$newsTitles.get($toolId)
+									#else
+										$tool.getTitle()
+									#end
+								</label>
+							#elseif ($toolId.indexOf("sakai.iframe") != -1)
+								<label for="$toolId">
+									## show url for Web Content tool
+									#if ($toolRegistrationSelectedList.contains($toolId) && $!wcTitles)
+										$wcTitles.get($toolId)
+									#else
+										$tool.getTitle()
+									#end
+								</label>	
+							#else
+								<label for="$toolId">
+									$tool.getTitle()
+								</label>	
+							#end
+						</td>
+						<td>
+							#if ($toolId.indexOf("sakai.news") != -1)
+								## show url for News tool
+								#if ($toolRegistrationSelectedList.contains($toolId) && $!newsUrls)
+									$newsUrls.get($toolId)
+								#else
+									$tool.getDescription()
+								#end
+							#elseif ($toolId.indexOf("sakai.iframe") != -1)
+								## show url for Web Content tool
+								#if ($toolRegistrationSelectedList.contains($toolId) && $!wcUrls)
+									$wcUrls.get($toolId)
+								#else
+									$tool.getDescription()
+								#end
+							#else
+								$tool.getDescription()
+							#end
+						</td>
+					</tr>	
+				#end
+			</table>
+		#if ($sites.size() > 0)	
+			<h4 class="insCol insBak insBor">
+				$tlang.getString("feat.reuse")
+			</h4>
+			<p class="checkbox">
+				<input type="radio" id="import_no" name="import" value="FALSE" #if(!$import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=true;" />
+				<label for="import_no">
+					$tlang.getString("feat.thanks")
+				</label>
+			</p>
+			<p class="checkbox">
+				<input type="radio" id="import_yes" name="import" value="TRUE" #if($import)checked="checked"#end onclick="document.featuresForm.importSites.disabled=false;" />
+				<label for="import_yes">
+					$tlang.getString("feat.yesfrom")
+				</label>
+			</p>
+			<select name="importSites" class="indnt2" id="importSites" size="5" multiple="multiple" #if(!$import)disabled="disabled"#end >
+				#foreach	($site in $sites)
+					#set($siteSelected = false)
+					#foreach($s in $importSites.keys())
+						#if ($s.Id == $site.Id)
+							#set($siteSelected = true)
+						#end
+					#end
+					<option value="$site.getId()" #if ($siteSelected)selected="selected"#end>$validator.escapeHtml($site.getTitle())</option>
+				#end
+			</select>
+			<p class="instruction">
+				$tlang.getString("feat.note")
+			</p>
+		#end
+		<input type="hidden" name="back" value="2" />
+		<input type="hidden" name="template-index" value="3" />
+		<p class="act">
+			<input type="button" name="Continue" 
+					value="$tlang.getString('gen.continue')"
+					class="active"
+					onclick="document.featuresForm.option.value='continue';javascript:document.featuresForm.submit();" />
+			<input type="button" value="$tlang.getString('gen.back')" 
+					name="Back" 
+					onclick="document.featuresForm.option.value='back';javascript:document.featuresForm.submit();" />
+			<input type="button" value="$tlang.getString('gen.cancel')" 
+					name="Cancel" 
+					onclick="document.featuresForm.option.value='cancel';javascript:document.featuresForm.submit();" />
+		</p>
+	</form>
+</div>

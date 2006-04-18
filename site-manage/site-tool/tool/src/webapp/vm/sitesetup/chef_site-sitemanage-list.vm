@@ -1,0 +1,114 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-sitemanage-list.vm,v 1.2 2005/05/19 20:00:26 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+	<div class="navIntraTool">
+		<a href="#" onclick="location='#toolLink("$action" "doSitemanage_showsearch")';return false;" title ="Search">Search</a>
+	</div>
+	<br />
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanlis.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if ($sites.size() > 0)
+		<p class="instruction">
+				#if ("$!siteType" == "") #set($siteType="Any") #end
+				#if ($termSelection)
+					$allMsgNumber $tlang.getString("sitmanlis.sitfou") "$siteType" $tlang.getString("sitmanlis.typofsit") "$!searchText" $tlang.getString("sitmanlis.text2") "$termSelection" $tlang.getString("sitmanlis.acater")    	
+				#else
+					$allMsgNumber $tlang.getString("sitmanlis.sitfou") "$siteType" $tlang.getString("sitmanlis.typ2") "$!searchText" $tlang.getString("sitmanlis.text")
+				#end
+		</p>
+		#if ($pagesize < $allMsgNumberInt ||  $allMsgNumberInt > 20 ||  $allMsgNumberInt == 20)
+			<span class="rightNav">
+				<span class="instruction">
+					$tlang.getString("sitmanlis.vie")
+					$topMsgPos - $btmMsgPos $tlang.getString("sitmanlis.of") $allMsgNumber $tlang.getString("sitmanlis.items")&nbsp;
+				</span>
+				#if ($pagesize != 0)
+					#if ($goPPButton == "true")
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" />
+						</form>
+					#else
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_prev" disabled="disabled" value="&lt;" />
+						</form>
+					#end
+				#end
+				<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+					<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+						<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("sitmanlis.show") 5 $tlang.getString("sitmanlis.iteperpag")</option>
+						<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("sitmanlis.show") 10 $tlang.getString("sitmanlis.iteperpag")</option>
+						<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("sitmanlis.show") 20 $tlang.getString("sitmanlis.iteperpag")</option>
+						<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("sitmanlis.show") 50 $tlang.getString("sitmanlis.iteperpag")</option>
+						<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("sitmanlis.show") 100 $tlang.getString("sitmanlis.iteperpag")</option>
+						<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("sitmanlis.show") 200 $tlang.getString("sitmanlis.iteperpag")</option>
+					</select>
+				</form>
+				#if ($pagesize != 0)
+					#if ($goNPButton == "true")
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_next" value="&gt;" />
+						</form>
+					#else
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_next" disabled="disabled" value="&gt;" />
+						</form>
+					#end
+				#end
+			</span>
+		#end ##(end of if total sites > sites displayed in page)
+		#set ($siteCount = 0)
+		<table class="listHier" cellpadding="0" cellspacing="0">
+			<tr>
+				<th scope="col" id="Id">$tlang.getString("sitmanlis.wortit")</th>
+				<th scope="col" id="Type">$tlang.getString("sitmanlis.typter")</th>
+				<th scope="col" id="Owner">$tlang.getString("sitmanlis.owner")</th>
+##				<th scope="col" id="Classes">$tlang.getString("sitmanlis.classes")</th>
+				<th scope="col" id="DateCreated">$tlang.getString("sitmanlis.datcre")</th>
+			</tr>
+			#foreach ($site in $sites)
+				<tr>
+					<td headers="Id">
+						$validator.escapeHtml($site.Title)
+						<div class="itemAction">
+							<a href="#toolLinkParam("$action" "doSitemanage_edit_site_access" "id=$validator.escapeUrl($site.Id)")">$tlang.getString("sitmanlis.access")</a> |
+							#if ($service.allowUpdateSite($site.Id))
+								<a href="#toolLinkParam("$action" "doSitemanage_participants" "id=$validator.escapeUrl($site.Id)")">$tlang.getString("sitmanlis.par")</a> | <a href="#toolLinkParam("$action" "doSitemanage_edit_site_info" "id=$validator.escapeUrl($site.Id)")">$tlang.getString("sitmanlis.info")</a>
+							#end
+						</div>
+					</td>
+					<td headers="Type">
+						#if ($termProp)
+							#if ($type == $termSearchSiteType)
+								#if ($!site.Properties.getProperty($termProp))
+									$!site.Properties.getProperty($termProp)
+								#else
+									$type
+								#end
+							#else
+								$validator.escapeHtml($site.Type)
+							#end
+						#end
+					</td>
+					<td headers="Owner">
+						#if ($site.CreatedBy) $site.CreatedBy.DisplayName #end
+					</td>
+	##				<td headers="Classes">n/a</td>
+					<td headers="Description">
+						#if($site.CreatedTime) $site.CreatedTime.toStringLocalFull()#end
+					</td>
+				</tr>
+			#end
+		</table>
+		#else
+		<p class="instruction">
+			#if ("$!siteType" == "") #set($siteType="Any") #end
+			#if ($termSelection)
+				$tlang.getString("sitmanlis.nositwer") "$siteType" $tlang.getString("sitmanlis.typofsit") "$!searchText" $tlang.getString("sitmanlis.text2") "$termSelection" $tlang.getString("sitmanlis.acater")    	
+			#else
+				$tlang.getString("sitmanlis.nositwer") "$siteType" t$tlang.getString("sitmanlis.typ2") "$!searchText" $tlang.getString("sitmanlis.text")
+			#end
+		</p>
+	#end
+</div>

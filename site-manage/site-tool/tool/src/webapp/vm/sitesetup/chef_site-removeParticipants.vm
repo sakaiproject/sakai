@@ -1,0 +1,88 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-removeParticipants.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+## Remove Participants Remove participants from the worksite
+<div class ="chefPortletContainer">
+	#if($menu)#toolbar($menu)#end
+	<h3>
+		$tlang.getString("sitegen.removpart.confirm") $validator.escapeHtml($title)...
+	</h3>
+	<div class ="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitegen.removpart.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<span class ="chefPageviewTitle">
+			$tlang.getString("sitegen.removpart.following")
+		</span>
+		<div class="PortletContent">
+			 <form action="#toolForm("SiteAction")" method="post">
+				#if($removeableList)
+					<table class ="chefFlatListViewTable" cellspacing="0" summary ="info on this table - what it contains, number of columns, number of entries, etc.">
+						<tr>
+							<th>
+								$tlang.getString("sitegen.removpart.name")
+							</th>
+							<th>
+								$tlang.getString("sitegen.removpart.username")
+							</th>
+							<th>
+								$tlang.getString("sitegen.removpart.role")
+							</th>
+						</tr>
+						#foreach($participant in $removeableList)
+						<tr>
+							<td>	
+								$participant.getName()
+							</td>
+							<td>
+								$participant.getUniqname()
+							</td>
+							<td>
+								#foreach($role in $participant.roles)
+									$role.getId()
+								#end
+							</td>
+						</tr>
+						#end
+					</table>
+				#end
+				#if ($unremoveableList.size() > 0)
+					<p />
+					$tlang.getString("sitegen.removpart.participant")
+					<p />
+					<table class ="chefFlatListViewTable" cellspacing="0" summary ="info on this table - what it contains, number of columns, number of entries, etc.">
+						#foreach($user in $unremoveableList)
+							<tr>
+								<th>
+									$tlang.getString("sitegen.removpart.name")
+								</th>
+								<th>
+									$tlang.getString("sitegen.removpart.username")
+								</th>
+								<th>
+									$tlang.getString("sitegen.removpart.role")
+								</th>
+							</tr>
+							<tr>
+								<td>	
+									$user.getName()
+								</td>
+								<td>
+									$user.getUniqname()
+								</td>
+								<td>
+									$user.getRole()
+								</td>
+							</tr>
+						#end
+					</table>
+				#end
+				<br/>
+					<input type="hidden" name="continue" value="$backIndex" />
+					<input type="hidden" name="template-index" value="6" />
+					<input type="hidden" name="back" value="$backIndex" />
+				<div class ="act">
+					<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString("sitegen.removpart.finish")" />
+					<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitegen.removpart.back")" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.removpart.cancel")" />
+				</div>
+			</form>
+		</div>	
+	</div>
+</div>

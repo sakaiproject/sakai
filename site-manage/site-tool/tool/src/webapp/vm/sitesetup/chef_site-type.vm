@@ -1,0 +1,77 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-type.vm,v 1.3 2005/06/04 02:41:16 ggolden.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+ 	function selectCourseType()
+ 	{
+ 		for (var i=0; i<document.typeform.itemType.length; i++)
+ 		{
+ 			if (document.typeform.itemType[i].value=="course")
+ 			{
+ 				document.typeform.itemType[i].checked=true;
+ 			}
+ 			else
+ 			{
+ 				document.typeform.itemType[i].checked=false;
+ 			}
+ 		}
+ 	}
+</script>
+<div class ="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("sitetype.crenewsit")
+	</h3>
+	<p class="instruction">
+		$tlang.getString("sitetype.chothetyp")
+	</p>
+	<form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
+		#foreach ($type in $siteTypes)
+			#if ($type != "GradToolsStudent" || ($type == "GradToolsStudent" && $!withDissertation && $!isGradStudent.booleanValue() && $!noGradToolsSite.booleanValue()))
+				<p class="checkbox indnt1">
+					<input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
+						<label for = "$type">
+							#if ($type == "GradToolsStudent")
+								$tlang.getString("sitetype.gratooweb")
+							#else
+								$type $tlang.getString("sitetype.websit")
+							#end
+						</label>	
+				</p>		
+						#if ($type == "course")
+							<div class="indnt3">
+								<p class="shorttext">
+									<span class ="reqStar"> *</span>
+									<label for="selectTerm">
+										$tlang.getString("sitetype.acater")
+									</label>	
+									<select name="selectTerm" id="selectTerm" onchange="javascript:selectCourseType();">
+										#foreach($term in $termList)
+											<option value ="$term.Id"
+												#if ($!selectedTerm)
+													#if ($term.id == $selectedTerm.Id)
+														selected="selected"
+													#end
+												#else
+													#if ($term.isCurrentTerm())
+														selected="selected"
+													#end
+												#end
+											>
+											$term.Id
+											</option>
+										#end
+									</select> 
+								</p>	
+							</div>	
+						#end
+	
+			#end
+		#end
+		<input type="hidden" name="back" value="0" />
+		<input type="hidden" name="template-index" value="1" />
+		<div class ="act">
+			<input type="submit" class="active" name="eventSubmit_doSite_type" value="$tlang.getString("sitetype.con")" />
+			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
+		</div>
+	</form>				
+</div>	
+

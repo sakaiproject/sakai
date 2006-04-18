@@ -1,0 +1,31 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSitePublishUnpublish.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+## Creating project site: publish the site or not
+<div class="portletBody">
+	##if($menu)#toolbar($menu)#end<br/><br/>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("newsitpub.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3 class="insColor insBak insBor">
+		$tlang.getString("newsitpub.yousit")
+	</h3>
+	<p class="step">
+		$tlang.getString("newsitpub.onelas")
+	</p>
+	<p class="instruction">
+		$tlang.getString("newsitpub.apubsit")
+		
+	</p>	
+	<form name="publishForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="template-index" value="11"/>
+		<input type="hidden" name="option" value="" />
+		<input type="hidden" name="eventSubmit_doPublish_created_site" value="x" />
+		<div class="act">
+			<input type="button" name="Publish Site" 
+				value="$tlang.getString("newsitpub.pubsit")" 
+				class="active"
+				onclick="document.publishForm.option.value='publish';javascript:document.publishForm.submit();" />
+			<input type="button" name="$tlang.getString("newsitpub.levunp")" 
+				value="$tlang.getString("newsitpub.levunp")" 
+				onclick="document.publishForm.option.value='unpublish';javascript:document.publishForm.submit();" />
+		</div>
+	</form>
+</div>
+

@@ -1,0 +1,122 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourse.vm,v 1.3 2005/05/25 17:42:01 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if (!$!site)
+		<h3>$tlang.getString("nscourse.creating")</h3>
+		<p class="step">
+			$tlang.getString("nscourse.choose")
+		</p>
+	#else
+		<h3>$tlang.getString("nscourse.edit") $!siteTitle...</h3>
+	#end
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		#if (!$!site)
+		$tlang.getString("nscourse.select")
+		#else
+			$tlang.getString("nscourse.add") $!siteTitle:
+		#end
+	</p>
+	<form name = "addCourseForm" method="post" action="#toolForm($action)">
+		<h4>		
+			$tlang.getString("nscourse.cinfo")
+		</h4>	
+
+			#if (!$site)
+				<h5>
+					<span class="reqStar">*</span> $tlang.getString("nscourse.acad")
+					$term.Id
+				</h5>
+			#else
+				$tlang.getString("nscourse.already")
+				<ul>
+					#foreach($id in $!providerCourseList)
+						<li>
+							<label for = "$id">
+								$id
+							</label>
+						</li>
+					#end
+					#foreach($id in $!requestedCourseList)
+						<li>
+							<label for = "$id">
+								$id
+							</label>
+						</li>
+					#end
+				</ul>
+				<p class="shorttext">
+					<span class ="reqStar">*</span>
+					<label for="selectTerm">
+						$tlang.getString("nscourse.acad2")
+					</label>	
+					<select name="selectTerm" id="selectTerm" onchange="javascript:document.addCourseForm.option.value='change';document.addCourseForm.submit();">
+						#foreach($t in $termList)
+							<option value ="$t.Id"
+								#if($t.Id == $term.Id)
+									selected="selected"
+								#end
+							>
+							$t.Id
+							</option>
+						#end
+					</select> 
+				</p>
+			#end
+			#if ($!termCourseList)
+				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
+					$tlang.getString("nscourse.youmay")<br />
+				#end
+				
+				## display only subject, course number and section
+				##and finally - the labels work, but having commas in the id does not validate. Can we concatenate or replace with underscore? Here is reqs on ids and labels: an id attribute value must begin with a letter (A-Z or a-z) and consist of the following characters: (A-Z), (a-z), (0-9), hyphens (-), underscores (_), colons (:), and periods (.).
+				#foreach($course in $termCourseList)
+					<p class="checkbox">
+					<input type="checkbox" name="providerCourseAdd" value="$course.Id" id="$course.Id"
+						#if ($!selectedProviderCourse.contains("$course.Id"))
+							checked="checked"
+						#end 
+						/>
+					<label for="$course.Id">
+						$validator.escapeHtml($course.Id)
+						$validator.escapeHtml($course.Crosslist)</label></p>
+				#end
+			#end
+			## instructor could choose to go to the manual creation page
+				<p class="checkbox">
+					<input  type="checkbox" name="manualAdds" value="manual add" id="manual_add" #if ($!selectedManualCourse) checked="checked" #end/>
+				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
+					<label for = "manual_add">$tlang.getString("nscourse.iwould1") </label>
+				#else
+					<label for = "manual_add">$tlang.getString("nscourse.iwould2") </label>
+				#end
+				</p>
+
+		<input type="hidden" name="template-index" value="36" />
+		<input type="hidden" name="back" value="1" />
+		<p class="act">
+			#if (!$site)
+				<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			#else
+				<input type="hidden" name="option" value="x" />
+				<input type="hidden" name="eventSubmit_doAdd_class_select" value="x" />
+				<input
+					type="button" 
+					name="AddClass" 
+					id="Add Class" 
+					value="$tlang.getString('gen.continue')"
+					onclick="document.addCourseForm.option.value='add'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="button" 
+					name="Cancel" 
+					id="Cancel" 
+					value="$tlang.getString('gen.cancel')"
+					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
+				/>
+			#end
+		</p>
+	</form>
+</div>

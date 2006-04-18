@@ -1,0 +1,100 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addRemoveFeatureConfirm.vm,v 1.2 2005/05/26 13:34:15 zqian.umich.edu Exp $ -->
+## Adding/removing features
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<h3 class="insColor insBak insBor">
+		$tlang.getString("addrc.confirming") $validator.escapeHtml($title)
+	</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div style="display:block;clear:both"></div>
+		#end
+## (gsilver) should check what has happened - if tools have been removed output the following block, if not not. Same with added tools (and change the language to suit)	
+##  (gsilver) the removed tools do not show up consistently in the removed tools list - also - if you remove an email archive tool it reads "Email Archive: @localhost"
+	<p class="instruction">
+		$tlang.getString("addrc.youhave")
+	</p>
+	<p class="indnt3">
+		#if (($oldSelectedHome) && (!$check_home))
+			$tlang.getString("java.home")<br />
+		#end
+		#foreach ($oldTool in $oldSelectedTools)
+			#foreach($t in $toolRegistrationList)
+				#if ($t.getId() == $oldTool)
+					#set($oldToolTitle = $t.getTitle())
+				#end
+			#end
+			#set($found=false)
+			#foreach ($newTool in $selectedTools)
+				#if ($newTool.equals($oldTool))
+					#set($found=true)
+				#end
+			#end
+			#if (!$found)
+				#if ($oldTool == "sakai.mailbox")
+					$!oldToolTitle: $!emailId@$serverName
+				#elseif ($oldTool.indexOf("sakai.news") != -1)
+					$validator.escapeHtml($!newsTitles.get($oldTool)) (News Tool)
+				#elseif ($oldTool.indexOf("sakai.iframe") != -1)
+					$validator.escapeHtml($!wcTitles.get($oldTool)) (Web Content Tool)
+				#else
+					$!oldToolTitle
+				#end
+				<br />
+			#end
+		#end
+	</p>
+	<p class="instruction">
+		$tlang.getString("addrc.selected")
+	</p>
+	<p class="indnt3">
+		#if ($check_home)
+			#if (!$oldSelectedHome)
+				<span style="color:#6699ff">$tlang.getString("java.home")</span>
+			#else
+				$tlang.getString("java.home")
+			#end
+		#end
+		#foreach ($newTool in $selectedTools)
+			#set($newToolTitle = "")
+			#foreach($t in $toolRegistrationList)
+				#if ($t.getId() == $newTool)
+					#set($newToolTitle = $t.getTitle())
+				#end
+			#end
+			#set($found=false)
+			#foreach ($oldTool in $oldSelectedTools)
+				#if ($oldTool.equals($newTool))
+					#set($found=true)
+				#end
+			#end
+			#if (!$found)
+				<span style="color:#6699ff">
+			#end
+			#if ($newTool == "sakai.mailbox")
+				$!newToolTitle: $!emailId@$serverName
+			#elseif ($newTool.indexOf("sakai.news") != -1)
+				$validator.escapeHtml($!newsTitles.get($newTool)) (News Tool)
+			#elseif ($newTool.indexOf("sakai.iframe") != -1)
+				$validator.escapeHtml($!wcTitles.get($newTool)) (Web Content Tool)
+			#else
+				$!newToolTitle
+			#end
+			#if (!$found)
+				</span>
+			#end
+			<br />
+		#end
+	</p>
+	<form name="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="cancelIndex" value="$continueIndex" />
+		<input type="hidden" name="back" value="$back" />
+		<input type="hidden" name="template-index" value="15" />
+		<input type="hidden" name="continue" value="$continueIndex" />
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doSave_revised_features" value="$tlang.getString('gen.finish')" />
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+	</form>
+</div>

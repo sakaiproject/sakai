@@ -1,0 +1,34 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-publishUnpublish-confirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+## confirming the publish status
+<div class ="chefPortletContainer">
+	<h3>
+		$validator.escapeHtml($title)
+		$tlang.getString("pubuncon.conpub")
+	</h3>
+	<div class ="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("pubuncon.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<form name="publishSendEmailForm" action="#toolForm("SiteAction")" method="post">
+			<div class ="chefPageviewTitle">
+				$tlang.getString("pubuncon.clifin") #if ($!publish) $tlang.getString("pubuncon.publi")  #else $tlang.getString("pubuncon.unpubli") #end.
+				<p />
+				 #if ($!publish)
+					$tlang.getString("pubuncon.part")#if ($!willNotify) $tlang.getString("pubuncon.will")#else $tlang.getString("pubuncon.willnot")#end $tlang.getString("pubuncon.benot")
+					<p />
+				#end
+				#if ($!publish)
+					$tlang.getString("pubuncon.apub")
+				#else
+					$tlang.getString("pubuncon.unpub")
+				#end
+			</div>
+			<input type="hidden" name="back" value="$backIndex" />		
+			<input type="hidden" name="template-index" value="47" />
+			<input type="hidden" name="continue" value="$continueIndex" />
+			<div class ="act">
+				<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString("pubuncon.fin")" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("pubuncon.bac")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("pubuncon.can")" />
+			</div>
+		</form>				
+	</div>
+</div>	
