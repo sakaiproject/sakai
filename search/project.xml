@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <name>Sakai Search Master</name>
+    <extend>../master/project.xml</extend>
+
+    <groupId>sakaiproject</groupId>
+    <artifactId>sakai-search-multiproject</artifactId>
+    <currentVersion>${sakai.version}</currentVersion>
+    <inceptionYear>2005</inceptionYear>
+    <dependencies>
+        <!-- our plugin -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai</artifactId>
+            <version>${sakai.plugin.version}</version>
+            <type>plugin</type>
+        </dependency>
+    </dependencies>
+</project>
+

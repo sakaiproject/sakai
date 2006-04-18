@@ -112,21 +112,21 @@ public class LoaderComponentIntegrationTest extends SakaiTestBase
 	{
 
 		// Get the services we need for the tests
-		siteService = (SiteService) getService("org.sakaiproject.service.legacy.site.SiteService");
-		userDirService = (UserDirectoryService) getService("org.sakaiproject.service.legacy.user.UserDirectoryService");
-		rwikiObjectservice = (RWikiObjectService) getService("uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService");
-		renderService = (RenderService) getService("uk.ac.cam.caret.sakai.rwiki.service.api.RenderService");
+		siteService = (SiteService) getService(SiteService.class.getName());
+		userDirService = (UserDirectoryService) getService(UserDirectoryService.class.getName());
+		rwikiObjectservice = (RWikiObjectService) getService(RWikiObjectService.class.getName());
+		renderService = (RenderService) getService(RenderService.class.getName());
 
-		securityService = (SecurityService) getService("org.sakaiproject.service.legacy.security.SecurityService");
+		securityService = (SecurityService) getService(SecurityService.class.getName());
 
-		rwikiSecurityService = (RWikiSecurityService) getService("securityService");
+		rwikiSecurityService = (RWikiSecurityService) getService(RWikiSecurityService.class.getName());
 
-		authzGroupService = (AuthzGroupService) getService("org.sakaiproject.service.legacy.authzGroup.AuthzGroupService");
+		authzGroupService = (AuthzGroupService) getService(AuthzGroupService.class.getName());
 
-		preferenceService = (PreferenceService) getService("uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService");
+		preferenceService = (PreferenceService) getService(PreferenceService.class.getName());
 
-		searchService = (SearchService) getService("org.sakaiproject.search.api.SearchService");
-		searchIndexBuilder = (SearchIndexBuilder) getService("org.sakaiproject.search.api.SearchIndexBuilder");
+		searchService = (SearchService) getService(SearchService.class.getName());
+		searchIndexBuilder = (SearchIndexBuilder) getService(SearchIndexBuilder.class.getName());
 
 		assertNotNull(
 				"Cant find site service as org.sakaiproject.service.legacy.authzGroup.AuthzGroupService ",

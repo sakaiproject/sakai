@@ -2,10 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-    <!-- Logger for Search  -->
-    <bean id="search-logger"
-        parent="org.sakaiproject.service.framework.log.Logger">
-    </bean>
     
     <bean id="search-searchBeanFactory"
         class="org.sakaiproject.search.tool.SearchBeanFactoryImpl"
