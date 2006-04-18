@@ -1,0 +1,93 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess-globalAccess.vm,v 1.2 2005/05/19 19:55:26 gsilver.umich.edu Exp $ -->
+## set global access for site
+<div class ="chefPortletContainer">
+	#if($menu)#toolbar($menu)#end
+	<div class ="chefPortletContent">
+		<div class="chefPageviewTitle">
+			$tlang.getString("ediacc-glo.alert")
+			 $validator.escapeHtml($title)...
+		</div>
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("ediacc-glo.alert") $validator.escapeHtml($alertMessage)</div>
+			<div style="display:block;clear:both"></div>
+		#end
+		<form name="joinableForm" action="#toolForm("SiteAction")" method="post">
+			<input type="hidden" name="option" value="x" />
+			<input type="hidden" name="eventSubmit_doSiteinfo_edit_globalAccess" value="x" />
+			<table cellspacing="0" cellpadding="0" class="chefEditItem" summary ="Table holds fields for entering users." >
+				<tr>
+					<td>
+						$tlang.getString("ediacc-glo.setacc")
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="joinable" value="false" 
+							#if (!$form_joinable)
+								checked="checked"
+							#end
+							onClick="document.joinableForm.option.value='unjoinable';javascript:document.joinableForm.submit();"
+						/>
+						$tlang.getString("ediacc-glo.opeonl")
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="joinable" value="true" 
+							#if ($form_joinable)
+								checked="checked"
+							#end
+							onClick="document.joinableForm.option.value='joinable';javascript:document.joinableForm.submit();"
+						/>
+						$tlang.getString("ediacc-glo.sitcanbe")
+					</td>
+				</tr>
+			</table>
+			#if ($form_joinable)
+				<fieldset>
+					<legend>
+						$tlang.getString("ediacc-glo.rol")
+					</legend>
+		           	<table cellspacing="0" cellpadding="0" class="chefEditItem" summary ="$tlang.getString("ediacc-glo.roltoass")" >
+						#foreach ($role in $roles)
+							<tr>
+								<td valign="middle" nowrap="nowrap">
+									<input type="radio" name="joinerRole" value="$role.Id"
+										#if($!form_joinerRole == $role.Id)
+											checked="checked"
+										#end
+									/>
+								</td>
+								<td valign="middle" nowrap="nowrap">
+									$role.Id
+								</td>
+								<td valign="middle" nowrap="nowrap">
+									<div class="instruction">
+										#set($description = "")
+										#set($description = $role.Description)
+										$!description
+									</div>
+								</td>
+							</tr>
+						#end
+					</table>
+				</fieldset>
+			#end
+			<br/>
+			<input type="hidden" name="continue" value="24" />
+			<input type="hidden" name="back" value="18" />
+			<input type="hidden" name="template-index" value="23" />
+			<div class ="act">
+				<input type="button" name="Continue" 
+						value="$tlang.getString("ediacc-glo.con")" 
+						onclick="document.joinableForm.option.value='continue';javascript:document.joinableForm.submit();" />
+				<input type="button" name="Back" 
+						value="$tlang.getString("ediacc-glo.bac")" 
+						onclick="document.joinableForm.option.value='cancel';javascript:document.joinableForm.submit();" />
+				<input type="button" name="Cancel" 
+						value="$tlang.getString("ediacc-glo.can")" 
+						onclick="document.joinableForm.option.value='cancel';javascript:document.joinableForm.submit();" />
+			</div>
+		</form>
+	</div>
+</div>

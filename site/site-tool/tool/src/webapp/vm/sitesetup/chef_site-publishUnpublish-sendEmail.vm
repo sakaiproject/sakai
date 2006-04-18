@@ -1,0 +1,33 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-publishUnpublish-sendEmail.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+## If publishing a site, this is the page to find out whether participants should be notified or not about the site's availability.
+<div class ="chefPortletContainer">
+	<h3>
+		$tlang.getString("sitegen.pubunpub.revi")
+	</h3>
+	<div class ="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitegen.pubunpub.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<form name="publishSendEmailForm" action="#toolForm("SiteAction")" method="post">
+			<div class ="chefPageviewTitle">
+				$tlang.getString("sitegen.pubunpub.when")
+			</div>
+			<input type="radio" name="notify" id="notify" value="true" #if($willNotify)checked="checked"#end />
+			<label for = "send">
+				$tlang.getString("sitegen.pubunpub.send")
+			</label>
+			<br />
+			<input type="radio" name="notify" id="notify" value="false" #if(!$willNotify)checked="checked"#end />
+			<label for = "project">
+				$tlang.getString("sitegen.pubunpub.donot")
+			</label>
+			<br />
+			<input type="hidden" name="back" value="9" />		
+			<input type="hidden" name="template-index" value="16" />
+			<input type="hidden" name="continue" value="17" />
+			<div class ="act">
+				<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString("sitegen.pubunpub.continue")" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitegen.pubunpub.back")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.pubunpub.cancel")" />
+			</div>
+		</form>				
+	</div>
+</div>	

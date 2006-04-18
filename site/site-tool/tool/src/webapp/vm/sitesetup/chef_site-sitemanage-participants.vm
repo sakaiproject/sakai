@@ -1,0 +1,144 @@
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+
+	<div class="navIntraTool">
+	<a href="#" onclick="location='#toolLink("$action" "doMenu_sitemanage_addParticipant")';return false;" title ="Search">$tlang.getString("sitmanpar.addpar")</a>
+	</div>
+	
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanpar.alert") $validator.escapeHtml($alertMessage)</div>#end
+		
+	<h3>$validator.escapeHtml($site.Title) $tlang.getString("sitmanpar.parlis")</h3>
+	
+#if ($participants.size() > 0)
+
+ 	<p>
+    <span class="leftNav">
+        $tlang.getString("sitmanpar.vieandedi") $validator.escapeHtml($site.Title) $tlang.getString("sitmanpar.below")
+    </span>
+    <span class="rightNav">
+        <span class="instruction">$tlang.getString("sitmanpar.view") $topMsgPos - $btmMsgPos $tlang.getString("sitmanpar.of") $allMsgNumber $tlang.getString("sitmanpar.par")</span>
+        #if ($pagesize != 0)
+			#if ($goPPButton == "true")
+				<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action") class="inlineForm">
+				<input type="submit" name="eventSubmit_doList_prev" value="$tlang.getString("sitmanpar.prev") $pagesize" />
+				</form>
+			#end
+		#end
+		
+		<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+		<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+		<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+		<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("sitmanpar.show") 5 $tlang.getString("sitmanpar.iteperpag")</option>
+		<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("sitmanpar.show") 10 $tlang.getString("sitmanpar.iteperpag")</option>
+		<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("sitmanpar.show") 20 $tlang.getString("sitmanpar.iteperpag")</option>
+		<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("sitmanpar.show") 50 $tlang.getString("sitmanpar.iteperpag")</option>
+		<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("sitmanpar.show") 100 $tlang.getString("sitmanpar.iteperpag")</option>
+		<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("sitmanpar.show") 200 $tlang.getString("sitmanpar.iteperpag")</option>
+		</select>
+		</form>
+		
+		#if ($pagesize != 0)
+			#if ($goNPButton == "true")
+				<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+				<input type="submit" name="eventSubmit_doList_next" value="$tlang.getString("sitmanpar.next") $pagesize" />
+				</form>
+			#end
+		#end
+        <br />
+	</span>
+    </p>
+    <form action="#toolForm("$action")" method="post">
+			<table class ="listHier"  cellpadding="0" cellspacing="0">
+			<tr>
+				<th scope="col" id="name">$tlang.getString("sitmanpar.name")</th>
+				<th scope="col" id="username">$tlang.getString("sitmanpar.usenam")</th>
+				<th scope="col" id="role">$tlang.getString("sitmanpar.rol")</th>
+				#if ($allowUpdate)
+					#if ($!activeInactiveUser)
+						<th scope="col" id="status">$tlang.getString("sitmanpar.usesta")</th>
+					#end
+					<th scope="col" id="Remove">$tlang.getString("sitmanpar.rem")</th>
+				#end
+			</tr>
+				</tr>
+				#foreach($participant in $participants)
+					#set($uniqname = $participant.getUniqname())
+					<tr>				
+						<td headers="name">
+							#set ($participantName=$participant.getName())
+							#if ($participantName ==", ") 	
+							#else
+								$participantName
+							#end
+						</td>
+						<td headers="uniqname">
+							$uniqname
+						</td>
+						<td headers="role">
+							#set($uRole = "")
+							#set($uRole = $participant.getRole())
+							<select name="role$uniqname">
+								#foreach($r in $roles)
+									<option value ="$r.Id"
+										#if($r.Id == $uRole)
+											selected="selected"
+										#end
+									>
+										$r.Id
+									</option>
+								#end
+							</select>
+						</td>
+						#if ($allowUpdate)
+							#if ($!activeInactiveUser)
+								<td>
+									#set($grant = $realm.getMember($uniqname))
+									#set($grantActive = $!grant.isActive())
+									<select name="activeGrant$uniqname">
+										#if ($!grant.isActive())
+											<option value="true" selected="selected" >$tlang.getString("sitmanpar.act")</option>
+											<option value="false">$tlang.getString("sitmanpar.inact")</option>
+										#else
+											<option value="true" >$tlang.getString("sitmanpar.act")</option>
+											<option value="false" selected="selected" >$tlang.getString("sitmanpar.inact")</option>
+										#end
+									</select>
+								</td>
+							#end
+							<td>
+								<input type="checkbox" name="selectedUser" value="$uniqname" 
+									#foreach($participantSelected in $selectedParticipants)
+										#if($participantSelected.getUniqname() == $uniqname)
+											checked
+										#end
+									#end
+								/>
+							</td>
+						#end
+					</tr>
+						#end
+			</table>
+		<input type="hidden" name="template-index" value="32" />
+		<input type="hidden" name="back" value="31" />
+		<p class="act">
+			<input class="mainBtn" type="submit" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitmanpar.upd")" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitmanpar.can")" />
+		</p>
+	</form>
+#else
+	<span class="instruction">$tlang.getString("sitmanpar.nopar")</span>
+
+    <form action="#toolForm("$action")" method="post">	
+		<input type="hidden" name="template-index" value="32" />
+		<input type="hidden" name="back" value="31" />
+		<p class="act">
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitmanpar.can")" />
+		</p>
+	</form>
+#end
+
+	</div>
+

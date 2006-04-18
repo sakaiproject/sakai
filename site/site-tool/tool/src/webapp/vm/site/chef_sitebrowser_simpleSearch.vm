@@ -1,0 +1,56 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_simpleSearch.vm,v 1.2 2005/05/19 19:53:16 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+	
+		<h3>$tlang.getString("se.search")</h3>
+		<p class="instruction">$tlang.getString("se.complete")</p>
+	
+		<form action="#toolForm("$action")" method="post">		
+		<h4>$tlang.getString("se.type")</h4>
+			#if ($siteTypes.size() > 0 )
+				#set($siteTypeCount=0)
+				#foreach ($type in $siteTypes)
+				#set($siteTypeCount=$siteTypeCount + 1)
+					#if ($type == $termSearchSiteType)
+						<input type="hidden" name="ClassSiteFromSystem" value="true" />
+						<div class="checkbox indnt1">
+							<input  type="radio" name="siteType" id="classSite" value="$type" />
+							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
+						</div>
+						<div class="indnt3">
+							<label for="selectTerm">$tlang.getString("se.term")</label>
+							<select name="selectTerm" id="selectTerm">
+							<option value="Any">$tlang.getString("se.any")</option>
+							#foreach ($term in $terms)
+							<option value="$term.Id">$term.Id</option>
+							#end
+							</select>
+						</div>	
+					#else
+						<div class="checkbox indnt1">
+							<input type="radio" name="siteType" id="siteType$siteTypeCount" value="$type" />
+							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
+						</div>
+					#end
+				#end
+			#end
+		
+			<div class="checkbox indnt1">
+				<input type="radio" name="siteType" id="siteTypeAny" value="Any" checked="checked" />
+				<label for="siteTypeAny">$tlang.getString("se.any")</label>
+			</div>
+			<p class="instruction indnt1">$tlang.getString("se.instruction")</p>
+		<p class="shorttext indnt1">
+			<label for="searchbox">$tlang.getString("se.search1") </label>
+			<input type="text" name="search" id="searchbox" size="20" maxlength="50" value="" onkeypress="formSubmitOnEnter(this, event)" />
+			<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for Sites" />
+		</p>
+		
+		<p class="act">
+			 <input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("se.search")" />
+		</p>
+		</form>
+
+</div>

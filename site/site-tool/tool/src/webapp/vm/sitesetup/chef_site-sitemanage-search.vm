@@ -1,0 +1,46 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-sitemanage-search.vm,v 1.2 2005/05/19 20:00:40 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+	<h3>$tlang.getString("sitmansea.seaforsit")</h3>
+	<p class="instruction">$tlang.getString("sitmansea.theman")</p>
+	<form action="#toolForm("$action")" method="post">		
+		<h4>$tlang.getString("sitmansea.typofsit")</h4>
+		<div class="checkbox indnt1">
+			<input type="radio" name="siteType" id="siteType" value="$tlang.getString("sitmansea.any")" checked="checked" onclick="clearNewCopyright(newcopyrighttext$i);" />
+			<label for="siteType">$tlang.getString("sitmansea.any")</label>
+		</div>
+		#foreach ($type in $siteTypes)
+			#if ($type == $termSearchSiteType)
+				<div class="checkbox indnt1">
+					<input  type="radio" name="siteType" id="siteType" value="$type" />
+					<label for="classSite">$type</label>
+				</div>
+			#else
+				<div class="checkbox indnt1">
+					<input type="radio" name="siteType" id="siteType" value="$type" />
+					<label for="siteType">$type</label>
+				</div>
+			#end
+		#end
+		<h4>$tlang.getString("sitmansea.acater")</h4>
+		<div class="shorttext indnt1">
+			<label for="selectTerm">$tlang.getString("sitmansea.acater")</label>
+			<select name="selectTerm" id="selectTerm">
+			<option value="Any">$tlang.getString("sitmansea.any")</option>                                                                                               
+			#foreach ($term in $terms)
+			<option value="$term.Id">$term.Id</option>
+			#end
+			</select>
+		</div>	
+
+		<p class="shorttext indnt1">
+			<label for="search" >$tlang.getString("sitmansea.seafor")</label>
+			<input type="text" name="search" id="search" size="32" maxlength="50" value="">
+		</p>
+		<p class="act">
+			 <input type="submit" name="eventSubmit_doSitemanage_search" value="$tlang.getString("sitmansea.seaforsit") " />
+		</p>
+	</form>
+</div>

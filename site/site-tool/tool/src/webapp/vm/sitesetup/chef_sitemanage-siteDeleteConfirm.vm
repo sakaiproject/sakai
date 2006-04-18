@@ -1,0 +1,23 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_sitemanage-siteDeleteConfirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+<div class="chefPortletContainer">
+	<h3 class ="insColor insBak insBor"></h3>
+	
+	<div class="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<p class="instructions">$tlang.getString("rem.youhave") $validator.escapeHtml($site.getTitle())</p>
+			
+		<p class="validation">
+		$tlang.getString("rem.deleting") 
+		</p>
+			
+		<form action="#toolForm("$action")" method="post">
+			<input type="hidden" name="continue" value="31" />
+			<input type="hidden" name="template-index" value="40" />
+			<input type="hidden" name="back" value="31" />
+			<p class="act">
+				<input type="submit" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString('rem.remove')" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			</p>
+		</form>
+	</div>
+</div>

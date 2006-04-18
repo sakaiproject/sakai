@@ -1,0 +1,54 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-sitemanage-sameRole.vm,v 1.2 2005/05/19 20:00:40 gsilver.umich.edu Exp $ -->
+## Add participants to the worksite with same role
+
+## this file seems disconnected from its resource bundle - hard here after the commented call (gsilver)
+
+<div class ="portletBody">
+	<h3>
+## 		$tlang.getString("sitmanpar.choarol")
+	 Choose a Role for Participants
+	</h3>
+
+		#if ($alertMessage)
+##			<div class="alertMessage">$tlang.getString("sitmanpar.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div>
+			<div style="display:block;clear:both"></div>
+		#end
+		<div class="instruction">
+##			$tlang.getString("sitmanpar.chotherol")
+		 	Choose the role for the participants you are adding.	
+		</div>
+		<form action="#toolForm("SiteAction")" method="post">
+				#set($roleNumber=0)
+				#foreach ($role in $roles)
+				#set($roleNumber=$roleNumber + 1)
+					#set ($description = false)
+					<p class="checkbox">
+							<input type="radio" name="selectRole" value="$role.Id"
+								#if($form_selectedRole == $role.Id)
+									checked="checked"
+								#end
+								id="$roleNumber"
+							/>
+							<label for="$roleNumber">$role.Id</label>
+							<div class="instruction">
+								#set ($description = $roleDescription.get($role.Id))
+								#if ($!description) $!description #end
+							</div>
+				#end
+				<h4>User names</h4>
+##				<h4>$tlang.getString("sitmanpar.usrnam")</h4>
+				<ul class="attachList indnt2">
+				#foreach ($participant in $participantList)
+					<li>$participant.getUniqname()</li>
+				#end
+			<input type="hidden" name="back" value="33" />
+			<input type="hidden" name="template-index" value="34" />
+			<div class ="act">
+##				<input type="submit" name="eventSubmit_doSitemanage_participants_save" value="$tlang.getString("sitmanpar.sav")" />
+				<input type="submit" name="eventSubmit_doSitemanage_participants_save" value="Save" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitmanpar.can")" />
+			</div>
+		</form>
+	</div>
+

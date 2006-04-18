@@ -1,0 +1,46 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-gradtoolsConfirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+	##if($menu)#toolbar($menu)#end<br/><br/>
+	<h3 class ="insCo insBor insBak">
+		$tlang.getString("gradt.creating")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<form action="#toolForm("$action")" method="post">
+		<table class ="itemSummary" cellspacing="0" summary="info on the new project site">
+			<tr>
+				<th>
+					$tlang.getString("gradt.sname")
+				</th>
+				<td>
+					$validator.escapeHtml($title)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("gradt.descr")
+				</th>
+				<td>
+					$validator.escapeHtml($description)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("gradt.short")
+				</th>
+				<td>
+					$validator.escapeHtml($short_description)
+				</td>
+			</tr>
+		</table>
+
+		<input type="hidden" name="back" value="0" />
+		<input type="hidden" name="template-index" value="42"/>
+		<input type="hidden" name="continue" value="0" />
+		<p class="act">
+			<input type="submit" class="active" name="eventSubmit_doFinish_grad_tools" value="$tlang.getString('gradt.create')" />
+			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+		</p>
+	</form>
+</div>
+

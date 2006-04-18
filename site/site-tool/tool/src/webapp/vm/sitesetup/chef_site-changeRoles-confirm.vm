@@ -1,0 +1,62 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-changeRoles-confirm.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+## Confirming changing roles of participant
+<div class ="chefPortletContainer">
+	<h3>
+		$tlang.getString("chrolc.confirm") $validator.escapeHtml($siteTitle)...
+	</h3>
+	<div class ="chefPortletContent">
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div style="display:block;clear:both"></div>
+		#end
+		<div class="chefPageviewTitle">
+			$tlang.getString("chrolc.finish")
+		</div>
+		<form name="roleConfirmForm" action="#toolForm("SiteAction")" method="post">
+			## change all participant role
+			<table class ="chefFlatListViewTable" cellspacing="0" summary ="Table holds information of selected participants and their roles">
+				<tr>
+					<th id="name">
+						$tlang.getString("addconf.name")
+					</th>
+					<th id="uniqname">
+						$tlang.getString("chrol.uniq")
+					</th>
+					<th id="id">
+						$tlang.getString("addsame.roles")
+						<a href="$config.getString("help.rolesurl")" target="umcthelp" onclick="sitehelp('$config.getString("help.rolesurl")');return false" title="$tlang.getString('chrol.help')" ><img src = "#imageLink("help.gif")" border="0" alt ="$tlang.getString('java.help')" /></a>
+					</th>
+				</tr>
+				#foreach($participant in $participantSelectedList)
+					<tr>
+						<td headers="name">
+							$participant.getName()
+						</td>
+						<td headers="uniqname">
+							#set($uniqname=$participant.getUniqname())
+							$!uniqname
+						</td>
+						<td headers="id">
+							#if ($participantSelectedList.size() == 1 || $sameRole)
+								$!currentRole
+							#else
+								#set($role = "")
+								#set($role = $!selectedRoles.get($!uniqname))
+								$!role
+							#end
+						</td>
+					</tr>
+				#end
+			</table>
+			<br/>
+			<input type="hidden" name="back" value="7" />
+			<input type="hidden" name="template-index" value="25" />
+			<input type="hidden" name="continue" value="18" />
+			<div class ="act">
+				<input type="submit" name="eventSubmit_doUpdate_participant_roles" value="$tlang.getString('gen.finish')" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			</div>
+		</form>
+	</div>
+</div>

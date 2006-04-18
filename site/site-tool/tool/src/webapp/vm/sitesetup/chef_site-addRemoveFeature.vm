@@ -1,0 +1,127 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addRemoveFeature.vm,v 1.2 2005/05/27 17:22:51 zqian.umich.edu Exp $ -->
+## Adding/removing features
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div style="display:block;clear:both"></div>
+		#end
+	<h3 class="insColor insBak insBor">
+		$tlang.getString('addrem.revising') $validator.escapeHtml($SiteTitle)...
+	</h3>
+	<p  class="instruction">
+		$tlang.getString("addrem.check")
+	</p>
+	<form name="addremovefeaturesForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="option" value="add" />
+		<input type="hidden" name="eventSubmit_doAdd_remove_features" value="x" />
+		<table  class="listHier">
+			<tr>
+				<td>
+					#if (!$myworkspace_site)
+						<input type="checkbox" name="selectedTools" id="home" value="home"
+							#if ($check_home)
+								checked="checked"
+							#end
+						/>
+					#else
+						#if ($check_home)
+							<input type="hidden" name="selectedTools" id="home" value="home" checked="checked" />
+							<input type="checkbox" name="selectedTools" id="home" value="home" checked="checked" disabled="disabled" />				
+						#end
+					#end
+				</td>
+				<td><label for="home">$tlang.getString("java.home")</label></td><td>$tlang.getString("addrem.descrip")</td>
+			</tr>	
+			#set ($checkedNewsTool = 0)
+			#set ($checkedWCTool = 0)
+			#foreach($tool in $toolRegistrationList)
+				#set($toolId = $tool.getId())
+				#set ($toolfound=false)
+				#if($toolRegistrationSelectedList)
+					#foreach($tId in $toolRegistrationSelectedList)
+						#if($tId == $toolId)
+							#set($toolfound=true)
+						#end
+					#end
+				#end
+				#if ($!defaultTools.indexOf($toolId) != -1)
+					<input type="hidden" name="selectedTools" value="$toolId" />
+				#end
+				<tr>
+					<td>
+						#if (!$myworkspace_site || ($myworkspace_site && ($toolId.indexOf("sakai.rwiki") != -1 || $toolId.indexOf("sakai.news") != -1 || $toolId.indexOf("sakai.iframe") != -1 || $!defaultTools.indexOf($toolId) != -1)))
+							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"  
+								#if ($!defaultTools.indexOf($toolId) != -1)
+									checked="checked" disabled="disabled" 
+								#else
+									#if($toolRegistrationSelectedList)
+										#foreach($tId in $toolRegistrationSelectedList)
+											#if ($tId == $toolId)
+												checked="checked"
+											#end
+										#end
+									#end
+								#end
+							/>
+						#elseif ($myworkspace_site && $toolId.indexOf("sakai.rwiki") == -1 && $toolId.indexOf("sakai.news") == -1 && $toolId.indexOf("sakai.iframe") == -1)
+							<input type="hidden" name="selectedTools" value="$toolId" />
+						#else
+							<div style="display:block;clear:both"></div>
+						#end
+					</td>
+					<td>
+						#if ($toolId.indexOf("sakai.news") != -1)
+							## show title for News tool
+							#if ($toolRegistrationSelectedList.contains($toolId))
+								<label for="$toolId">$validator.escapeHtml($newsTitles.get($toolId))</label>
+							#else
+								<label for="$toolId">$validator.escapeHtml($tool.getTitle())</label>
+							#end
+						#elseif ($toolId.indexOf("sakai.iframe") != -1)
+							## show url for Web Content tool
+							#if ($toolRegistrationSelectedList.contains($toolId))
+								<label for="$toolId">$validator.escapeHtml($wcTitles.get($toolId))</label>
+							#else
+								<label for="$toolId">$validator.escapeHtml($tool.getTitle())</label>
+							#end
+						#else
+							<label for="$toolId" >$validator.escapeHtml($tool.getTitle())</label>
+						#end
+					</td>
+					<td>
+						#if ($toolId.indexOf("sakai.news") != -1)
+							## show url for News tool
+							#if ($toolRegistrationSelectedList.contains($toolId))
+								$newsUrls.get($toolId)
+							#else
+								$tool.getDescription()
+							#end
+						#elseif ($toolId.indexOf("sakai.iframe") != -1)
+							## show url for Web Content tool
+							#if ($toolRegistrationSelectedList.contains($toolId))
+								$wcUrls.get($toolId)
+							#else
+								$tool.getDescription()
+							#end
+						#else
+							$tool.getDescription()
+						#end
+					</td>
+				</tr>
+			#end
+		</table>
+		<input type="hidden" name="back" value="$backIndex" />
+		<input type="hidden" name="template-index" value="4" />
+		<input type="hidden" name="continue" value="45" />
+		<div class="act">
+			<input type="button" name="Continue" 
+					value="$tlang.getString('gen.continue')"
+					class="active"
+					onclick="document.addremovefeaturesForm.option.value='save';javascript:document.addremovefeaturesForm.submit();" />
+			<input type="button" name="Cancel" 
+					value="$tlang.getString('gen.cancel')" 
+					onclick="document.addremovefeaturesForm.option.value='cancel';javascript:document.addremovefeaturesForm.submit();" />
+		</div>
+	</form>
+</div>

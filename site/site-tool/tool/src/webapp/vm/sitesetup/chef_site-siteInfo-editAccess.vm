@@ -1,0 +1,111 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm,v 1.3 2005/05/15 17:05:00 gsilver.umich.edu Exp $ -->
+## Site list Sites list on worksite setup home page
+<div class ="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both"></div>
+	#end
+	#if ($!site)
+		<h3>
+			$tlang.getString("ediacc.chaacc") $validator.escapeHtml($site.Title)
+		</h3>
+	#else
+		<h3 class="insCol insBak insBor">
+			$tlang.getString("ediacc.setsitacc")
+		</h3>
+		<p class="step">
+			$tlang.getString("ediacc.setacc")
+		</p>
+	#end
+	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
+		<h4 class="insColor insBak insBor">
+			$tlang.getString("ediacc.sitsta")
+		</h4>
+		<p class="instruction">
+			$tlang.getString("ediacc.pubyousit")
+		</p>
+		<p class="checkbox indnt1">
+			#if ($!site)
+				<input type="checkbox" name="publishunpublish" id="publishunpublish" value="publish" #if ($site.isPublished())checked="checked"#end />	
+			#else
+				<input type="checkbox" name="publishunpublish" id="publishunpublish" value="publish" #if ($!published)checked="checked"#end />	
+			#end
+			<label for="publishunpublish">
+				$tlang.getString("ediacc.pubsit")
+			</label>
+		</p>	
+		#if (!$!disableJoinable || $!publicChangeable)
+			<h4 class="insColor insBak insBor">
+				$tlang.getString("ediacc.gloacc")
+			</h4>
+			<p class="instruction">
+				$tlang.getString("ediacc.yousitcan")
+			</p>
+		#end
+		#if ($!publicChangeable)
+			<p class="checkbox indnt1">
+				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end />
+				<label for="access_private">
+					$tlang.getString("ediacc.pri")
+				</label>
+			</p>
+			<p class="checkbox indnt1" style="margin-bottom:2em">
+				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end />
+				<label for="access_public">
+					$tlang.getString("ediacc.dismysit")
+				</label>
+	##			<tr>
+	##				<td>
+	##					<input type="radio" name="publicChoice" id="access" value="all" />
+	##				</td>
+	##				<td>
+	##					Public - All Materials Shared
+	##				</td>
+	##			</tr>
+			</p>
+		#end
+		#if (!$!disableJoinable)
+			## set site joinable and joiner role
+			<div style="display:block;clear:both"></div>
+			<div style="display:block;clear:both"></div>
+			<p class="checkbox indnt1">
+				<input type="checkbox" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end />
+				<label for="joinable">
+					$tlang.getString("ediacc.canbejoi")
+					<br />
+				</label>
+			</p>
+			<p class="checkbox indnt3">
+				<label for="joinerRole">
+					$tlang.getString("ediacc.rolforpep")
+				</label>
+				<select name="joinerRole" id="joinerRole">
+					<option value="">$tlang.getString("ediacc.plesel")</option>
+					#foreach($r in $roles)
+						<option value ="$r.Id"
+							#if($r.Id == $joinerRole)
+								selected="selected"
+							#end
+						>
+							$r.Id
+						</option>
+					#end
+				</select>
+			</p>
+		#end
+		<input type="hidden" name="continue" value="$!continue" />
+		<input type="hidden" name="template-index" value="18" />
+		<input type="hidden" name="back" value="$!back" />
+		<div class ="act">
+			#if($!site)
+				<input type="submit" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
+#else
+				<input type="submit" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" />
+				<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
+			#end
+		</div>
+	</form>
+</div>

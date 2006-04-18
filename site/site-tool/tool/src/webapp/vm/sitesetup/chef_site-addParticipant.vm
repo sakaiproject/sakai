@@ -1,0 +1,65 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addParticipant.vm,v 1.2 2005/05/13 16:19:44 gsilver.umich.edu Exp $ -->
+## Add a participant to ssite
+<div class ="portletBody">
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both"></div>
+	#end
+	<h3 class="insColor insBak insBor">
+ 		$tlang.getString("add.addpart") $validator.escapeHtml($title)...
+	</h3>
+	<p class="instruction">
+		$tlang.getString("add.enter")
+	</p>
+	<form action="#toolForm("SiteAction")" method="post">
+		<p class="longtext">
+			<label for="noEmailInIdAccount" class="block">
+				$!noEmailInIdAccountLabel
+			</label>
+			<textarea style="display:block" id="noEmailInIdAccount" name="noEmailInIdAccount"  cols="30" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!noEmailInIdAccountValue)</textarea>
+			<span class="instruction" style="padding:0;margin:0">
+				$tlang.getString("add.multiple")
+			</span>
+		</p>
+		<p class="longtext">
+			<label for="emailInIdAccount" class="block">
+				$!emailInIdAccountLabel
+			</label>
+			<textarea style="display:block" id="emailInIdAccount" name="emailInIdAccount"  cols="30" rows="4" wrap="virtual">$!validator.escapeHtmlTextarea($!emailInIdAccountValue)</textarea>
+			<span class="instruction" style="padding:0;margin:0">
+				$tlang.getString("add.multiple2")
+			</span>
+		</p>
+		
+		<h4>
+			$tlang.getString("add.participants")
+		</h4>
+		<p class="checkbox">
+			<input type="radio" id="same_role_true" name="same_role" value="true" 
+				#if ($!form_same_role == "true")
+					checked="checked"
+				#end
+			/>
+			<label for="same_role_true">
+				$tlang.getString("add.assign")
+			</label>
+		</p>
+		<p class="checkbox">
+			<input type="radio" id="same_role_false" name="same_role" value="false" 
+				#if ($!form_same_role == "false")
+					checked="checked"
+				#end
+			/>
+			<label for="same_role_false">
+				$tlang.getString("add.assign2")
+			</label>
+		</p>	
+		<input type="hidden" name="back" value="$backIndex" />
+		<input type="hidden" name="template-index" value="5" />
+		<div class ="act">
+			<input type="submit" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.back')" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</div>
+	</form>
+</div>

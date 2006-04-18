@@ -1,0 +1,36 @@
+##<!-- Exp $ -->
+## Changingthe status of a worksite to publsihed or unpublished
+<div class ="chefPortletContainer">
+	<h3>
+		$tlang.getString("pubunp.chathe")
+	</h3>
+	<div class ="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("pubunp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<form action="#toolForm("SiteAction")" method="post">
+			<div class ="chefPageviewTitle">
+				$tlang.getString("pubunp.pubyou")
+			</div>
+			<fieldset>
+				<legend>Status of site</legend>
+				<input type="radio" name="itemStatus" id="itemStatus" value="true" 
+					#if($publish) checked="checked" #end
+				/>
+				<label for = "class">
+					$tlang.getString("pubunp.pubwor")
+				</label><br />
+				<input type="radio" name="itemStatus" id="itemStatus" value="false" 
+					#if(!$publish) checked="checked" #end
+				/>
+				<label for = "project">
+					$tlang.getString("pubunp.unpwor")
+				</label>
+			</fieldset>
+				<input type="hidden" name="back" value="$backIndex" />		
+				<input type="hidden" name="template-index" value="9" />
+			<div class ="act">
+				<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString("pubunp.con")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("pubunp.can")" />
+			</div>
+		</form>				
+	</div>
+</div>	

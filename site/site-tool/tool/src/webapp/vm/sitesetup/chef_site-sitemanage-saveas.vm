@@ -1,0 +1,40 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-sitemanage-saveas.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["id"];
+</script>
+<div class="chefPortletContainer">
+	<h3>
+		$tlang.getString("sitmansav.savas")
+	</h3>
+	<div class="chefPortletContent">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmansav.savas") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="chefPageviewTitle">
+			$tlang.getString("sitmansav.entnew")
+		</div>
+		<form action="#toolForm("$action")" method="post">
+			<fieldset>
+				<legend>
+					$tlang.getString("sitmansav.site")
+				</legend>
+				<table class="chefEditItem" summary="$tlang.getString("sitmansav.entnew2")">
+					<tr>
+						<td class="chefLabel">
+							<label for="id">
+								<span class="reqStarInline">*</span> $tlang.getString("sitmansav.sitid")
+							</label>
+						</td>
+						<td>
+							<input type="text" name="id" id="id"/>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+			<input type="hidden" name="back" value="38" />
+			<input type="hidden" name="template-index" value="41" />
+			<div class="act">
+				<input type="submit" name="eventSubmit_doSitemanage_saveas" value="$tlang.getString("sitmansav.sav")" />		
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitmansav.can")" />
+			</div>
+		</form>
+	</div>
+</div>

@@ -1,0 +1,99 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_list.vm,v 1.4 2005/06/06 19:42:22 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("sitlis.theare")
+		</div>
+#if ($sites.size() > 0)
+	#set ($siteCount = 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitlis.lisofgro")">
+			<tr>
+				<th id="Id">$tlang.getString("sitlis.sitid")</th>
+				<th id="Title">$tlang.getString("sitlis.tit")</th>
+				<th id="Published">$tlang.getString("sitlis.pub")</th>
+				<th id="Joinable">$tlang.getString("sitlis.joi")</th>
+				<th id="Type">$tlang.getString("sitlis.typ")</th>
+				<th id="Description">$tlang.getString("sitlis.des")</th>
+			</tr>
+	#foreach ($site in $sites)
+##		#set ($realm = $realms.getAuthzGroup($site.Reference))
+			<tr>
+				<td headers="Id">
+					#if ($service.allowUpdateSite($site.Id))
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($site.Id)")">
+							$validator.escapeHtml($site.Id)
+						</a>
+					#else
+						$validator.escapeHtml($site.Id)
+					#end
+				</td>
+				<td headers="Title">$validator.escapeHtml($site.Title)</td>
+				<td headers="Published">&nbsp;#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
+				<td  headers="Joinable">&nbsp;#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joi")" />#end</td>
+				<td headers="Type">$validator.escapeHtml($site.Type)&nbsp;</td>
+				<td headers="Description">
+					#if ($site.ShortDescription && $site.ShortDescription !="")
+						<div class="instruction">
+							$tlang.getString("sitlis.shodes")
+						</div>
+						<div style="margin-left:2em">
+							$validator.escapeHtml($site.ShortDescription)
+						</div>
+					#end	
+					#if ($site.Description && $site.Description !="")
+						<div class="instruction">
+							$tlang.getString("sitlis.des2")
+						</div>
+						<div style="margin-left:2em">
+							$validator.escapeHtml($site.Description)
+						</div>
+					#end	
+					#if ($site.IconUrl && $site.IconUrl !="")
+						<div class="instruction">
+							$tlang.getString("sitlis.ico")
+						</div>
+						<div style="margin-left:2em">
+							$validator.escapeHtml($site.IconUrl)
+						</div>
+					#end
+					#if ($site.InfoUrl  && $site.InfoUrl !="")
+						<div class="instruction">
+							$tlang.getString("sitlis.sitinf")
+						</div>
+						<div style="margin-left:2em">
+							$validator.escapeHtml($site.InfoUrl)
+						</div>						
+					#end
+						<div class="instruction">
+							$tlang.getString("sitlis.cre")
+						</div>
+						<div style="margin-left:2em">
+							#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end by
+							#if ($site.CreatedBy) $site.CreatedBy.DisplayName #end
+						</div>
+##					#if ($realm.ProviderGroupId)
+##						<div class="instruction">
+##							Authorization Group External Group Id:
+##						</div>
+##						<div style="margin-left:2em">
+##							$realm.ProviderGroupId
+##						</div>
+##					#end
+					&nbsp;
+				</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("sitlis.nosit")
+		</div>
+#end
+	</div>
+

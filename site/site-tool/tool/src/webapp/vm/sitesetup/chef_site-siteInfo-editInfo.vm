@@ -1,0 +1,115 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfo.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
+## Edit Site Information
+<script language="JavaScript" type="text/javascript">
+function LimitText(fieldObj,maxChars)
+{
+	var result = true;
+  	if (fieldObj.value.length >= maxChars)
+  	{
+  		fieldObj.value = fieldObj.value.substring(0,maxChars);
+		result = false;
+   	}
+  
+  	if (window.event)
+    	window.event.returnValue = result;
+    
+  	return result;
+}
+</script>
+  
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<h3>
+		$tlang.getString("sitediinf.rev") $validator.escapeHtml($title)
+	</h3>
+	<form name = "classInformationForm" method = "post" action="#toolForm("SiteAction")">
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="title">
+				$tlang.getString("sitediinf.sittit")
+			</label>
+			#if ($!titleEditableSiteType.contains($!type))
+				<input type="text" name="title" id="title" size="20" value="$validator.escapeHtml($!title)" />
+			#else
+				$validator.escapeHtml($!title)
+			#end
+		</p>
+		#if ($!isCourseSite)
+			<p class="shorttext">
+				<label for="term">
+					$tlang.getString("sitediinf.term")
+				</label>
+				$!selectedTerm
+			</p>	
+		#end
+		<p class="longtext">
+			<label for="description" class="block">
+				$tlang.getString("sitediinf.des")
+			</label>
+			<textarea style="display:block;" id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$validator.escapeHtmlTextarea($!description)</textarea>
+				<span class="instruction" style="padding:0;margin:0">
+					$tlang.getString("sitediinf.dis")
+				</span>
+		</p>
+		<p class="longtext">
+			<label for="short_description" class="block">
+				$tlang.getString("sitediinf.shodes")
+			</label>
+			<textarea style="display:block;margin-bottom:0" name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
+			<span class="instruction" style="padding:0;margin:0">
+				$tlang.getString("sitediinf.dis2")
+			</span>
+		</p>	
+		#if ($!isCourseSite)
+			<p class ="shorttext">
+				<label for="skin">
+					$tlang.getString("sitediinf.app")
+				</label>			
+				#if($!disableCourseSelection)
+					#foreach ($s in $skins)
+						#set($url="")
+						#set($url=$!s.Url)
+							#if ($url == $selectedIcon)$s.Name#end
+					#end
+				#else		
+					<select name="skin" id="skin">
+						#foreach ($s in $skins)
+							#set($url="")
+							#set($url=$!s.Url)
+							<option value="$url" #if ($url == $selectedIcon)selected="selected"#end>$s.Name</option>
+						#end
+					</select>
+					<div class="labelindnt"
+						<span class="instruction">
+							$tlang.getString("sitediinf.sit")
+						</span>
+					</div>
+				#end
+			</p>
+		#else
+			<div class="shorttext">
+				<label for="icon">$tlang.getString("sitediinf.ico")</label>
+				<input type="text" name="icon" id="icon" size="40" value="$!validator.escapeHtml($!iconUrl)" />
+			</div>
+		#end
+		<p class="shorttext">
+			<label for="siteContactName">
+				$tlang.getString("sitediinf.sitconnam")
+			</label>
+			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!form_site_contact_name" />
+		</p>				
+		<p class="shorttext">
+			<label for="siteContactEmail">
+				$tlang.getString("sitediinf.sitconema")
+			</label>	
+			<input type="text" name="siteContactEmail" id="siteContactEmail" size="20" value="$!form_site_contact_email" />
+		</p>
+		<input type="hidden" name="back" value="12" />
+		<input type="hidden" name="template-index" value="13" />
+		<input type="hidden" name="continue" value="14" />
+		<div class="act">
+		<input type="submit" class= "active" name="eventSubmit_doContinue" value="$tlang.getString("sitediinf.con")" />
+		<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
+	</div>
+</form>
+	</div>

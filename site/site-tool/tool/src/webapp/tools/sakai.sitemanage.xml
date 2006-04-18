@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.sitemanage"
+			title="Admin: Site Management"
+			description="An administration tool to manage sites.">
+
+		<configuration name="pagesize" value="20" />
+
+ 		<configuration name="site_mode" value="sitemanage" type="final" />
+
+	</tool>
+
+</registration>
