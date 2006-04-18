@@ -620,14 +620,6 @@ public class ContentHostingService
 		return service.merge(param0, param1, param2, param3, param4, param5, param6);
 	}
 
-	public static void importResources(java.lang.String param0, java.lang.String param1, java.util.List param2)
-	{
-		org.sakaiproject.content.api.ContentHostingService service = getInstance();
-		if (service == null) return;
-
-		service.importEntities(param0, param1, param2);
-	}
-
 	public static java.lang.String getLabel()
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
