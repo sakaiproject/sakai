@@ -28,13 +28,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -52,7 +46,6 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 
 /**
  * Backing bean to export gradebook data. Currently we support two export
@@ -110,11 +103,17 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 
 		enrollments = getAvailableEnrollments();
 
+		Set studentUids = new HashSet();
+		for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			studentUids.add(enr.getUser().getUserUid());
+		}
+
 		List gradeRecords;
 		if (isCourseGrade) {
-			gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, FacadeUtils.getStudentUids(enrollments));
+			gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, studentUids);
 		} else {
-			gradeRecords = getGradebookManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), FacadeUtils.getStudentUids(enrollments));
+			gradeRecords = getGradebookManager().getPointsEarnedSortedAllGradeRecords(getGradebookId(), studentUids);
 		}
 
 		scoresMap = new HashMap();
@@ -227,7 +226,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 		}
 
 		// Fill the spreadsheet cells
-        Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
+        Collections.sort(enrollments, EnrollmentTableBean.ENROLLMENT_NAME_COMPARATOR);
 		for(Iterator enrollmentIter = enrollments.iterator(); enrollmentIter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord)enrollmentIter.next();
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
@@ -289,7 +288,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			}
 		}
 		// Add the data
-        Collections.sort(enrollments, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
+        Collections.sort(enrollments, EnrollmentTableBean.ENROLLMENT_NAME_COMPARATOR);
 
 		for(Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
 			EnrollmentRecord enr = (EnrollmentRecord)enrIter.next();

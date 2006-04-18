@@ -48,7 +48,6 @@ import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.springframework.orm.hibernate.HibernateCallback;
 import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
@@ -363,7 +362,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public boolean isExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
-    	final Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+    	final Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	if (studentUids.isEmpty()) {
     		return false;
     	}
@@ -464,12 +463,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
-    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
 		return getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
     }
 
     public List getAssignmentsAndCourseGradeWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
-    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradebookId));
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List assignments = getAssignmentsWithStatsInternal(gradebookId, sortBy, ascending, studentUids);
 
     	// Always put the Course Grade at the end.
@@ -552,7 +552,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     private GradableObject getGradableObjectWithStats(GradableObject gradableObject) {
-    	Set studentUids = FacadeUtils.getStudentUids(getAllEnrollments(gradableObject.getGradebook().getId()));
+    	Set studentUids = getAllStudentUids(gradableObject.getGradebook().getUid());
     	return getGradableObjectStatsInternal(gradableObject, studentUids);
     }
 

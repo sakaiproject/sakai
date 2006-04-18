@@ -33,7 +33,6 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.facade.Role;
 
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 
@@ -162,7 +161,12 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 				// The user has selected a particular section.
 				enrollments = getSectionEnrollments(gradebookUid, optionalSectionUid);
 			}
-			Set availableStudentUids = FacadeUtils.getStudentUids(enrollments);
+			Set availableStudentUids = new HashSet();
+			for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+				availableStudentUids.add(enr.getUser().getUserUid());
+			}
+
 			enrollments = new ArrayList();
 			for (Iterator iter = allEnrollmentsFilteredBySearch.iterator(); iter.hasNext(); ) {
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();

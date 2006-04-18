@@ -173,21 +173,20 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		// Need to fix any data contention before calling the recalculation.
 		session.flush();
 		session.clear();
-
-        List enrollments = getAllEnrollments(gradebook.getId());
-        Set studentIds = new HashSet();
-        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-            studentIds.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
-        }
-        recalculateCourseGradeRecords(gradebook, studentIds, session);
+        recalculateCourseGradeRecords(gradebook, getAllStudentUids(gradebook.getUid()), session);
     }
 
     public String getGradebookUid(Long id) {
         return ((Gradebook)getHibernateTemplate().load(Gradebook.class, id)).getUid();
     }
 
-	public List getAllEnrollments(Long gradebookId) {
-		return getSectionAwareness().getSiteMembersInRole(getGradebookUid(gradebookId), Role.STUDENT);
+	protected Set getAllStudentUids(String gradebookUid) {
+		List enrollments = getSectionAwareness().getSiteMembersInRole(gradebookUid, Role.STUDENT);
+        Set studentUids = new HashSet();
+        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
+        }
+        return studentUids;
 	}
 
     public Authn getAuthn() {

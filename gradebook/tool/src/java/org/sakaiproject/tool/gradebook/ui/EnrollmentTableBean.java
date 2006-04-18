@@ -38,7 +38,6 @@ import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.business.FacadeUtils;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
@@ -48,6 +47,37 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 public abstract class EnrollmentTableBean
     extends GradebookDependentBean implements Paging, Serializable {
 	private static final Log log = LogFactory.getLog(EnrollmentTableBean.class);
+
+    /**
+     * A comparator that sorts enrollments by student sortName
+     */
+    static final Comparator ENROLLMENT_NAME_COMPARATOR = new Comparator() {
+		public int compare(Object o1, Object o2) {
+            return ((EnrollmentRecord)o1).getUser().getSortName().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getSortName());
+		}
+	};
+
+    /**
+     * A comparator that sorts enrollments by student display UID (for installations
+     * where a student UID is not a number)
+     */
+    static final Comparator ENROLLMENT_DISPLAY_UID_COMPARATOR = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            return ((EnrollmentRecord)o1).getUser().getDisplayId().compareToIgnoreCase(((EnrollmentRecord)o2).getUser().getDisplayId());
+        }
+    };
+
+    /**
+     * A comparator that sorts enrollments by student display UID (for installations
+     * where a student UID is a number)
+     */
+    static final Comparator ENROLLMENT_DISPLAY_UID_NUMERIC_COMPARATOR = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            long user1DisplayId = Long.parseLong(((EnrollmentRecord)o1).getUser().getDisplayId());
+            long user2DisplayId = Long.parseLong(((EnrollmentRecord)o2).getUser().getDisplayId());
+            return (int)(user1DisplayId - user2DisplayId);
+        }
+    };
 
 	private static final int ALL_SECTIONS_SELECT_VALUE = -1;
 
@@ -76,8 +106,8 @@ public abstract class EnrollmentTableBean
 
     static {
         columnSortMap = new HashMap();
-        columnSortMap.put(PreferencesBean.SORT_BY_NAME, FacadeUtils.ENROLLMENT_NAME_COMPARATOR);
-        columnSortMap.put(PreferencesBean.SORT_BY_UID, FacadeUtils.ENROLLMENT_DISPLAY_UID_COMPARATOR);
+        columnSortMap.put(PreferencesBean.SORT_BY_NAME, ENROLLMENT_NAME_COMPARATOR);
+        columnSortMap.put(PreferencesBean.SORT_BY_UID, ENROLLMENT_DISPLAY_UID_COMPARATOR);
     }
 
     // Searching
