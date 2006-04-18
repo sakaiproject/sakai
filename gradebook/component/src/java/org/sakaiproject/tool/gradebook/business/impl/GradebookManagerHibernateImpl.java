@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -54,8 +55,6 @@ import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureExcept
 
 /**
  * Manages Gradebook persistence via hibernate.
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class GradebookManagerHibernateImpl extends BaseHibernateManager
     implements GradebookManager {

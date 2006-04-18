@@ -48,7 +48,6 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.business.impl.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.springframework.orm.hibernate.HibernateCallback;
 
