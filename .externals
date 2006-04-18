@@ -11,7 +11,7 @@ memory			https://source.sakaiproject.org/svn/memory/trunk
 db				https://source.sakaiproject.org/svn/db/trunk
 email			https://source.sakaiproject.org/svn/email/trunk
 alias			https://source.sakaiproject.org/svn/alias/trunk
-site			https://source.sakaiproject.org/svn/site/trunk
+site	-r7894	https://source.sakaiproject.org/svn/site/trunk
 master			https://source.sakaiproject.org/svn/master/trunk
 reference		https://source.sakaiproject.org/svn/reference/trunk
 login			https://source.sakaiproject.org/svn/login/trunk
