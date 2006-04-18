@@ -20,9 +20,6 @@
     init-method="init" >
 
     <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
-    <property name="siteService"><ref bean="org.sakaiproject.service.legacy.site.SiteService" /></property>
-    <property name="portalService"><ref bean="org.sakaiproject.service.framework.portal.PortalService" /></property>
-    <property name="renderService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RenderService" /></property>
     <property name="seedPages">
       <!--
       You can add a list of seed pages here, that are loaded into each context where they

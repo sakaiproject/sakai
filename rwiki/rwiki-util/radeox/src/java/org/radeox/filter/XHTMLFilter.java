@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xml.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
@@ -53,6 +55,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XHTMLFilter implements Filter, CacheFilter
 {
+
+	private static Log log = LogFactory.getLog(XHTMLFilter.class);
 
 	private static final Map blockElements = new HashMap();
 	static
@@ -129,7 +133,9 @@ public class XHTMLFilter implements Filter, CacheFilter
 		}
 		catch (Throwable t)
 		{
-			throw new RuntimeException("Failed to rationalise XHTML Stream", t);
+			log.error("Failed to XHTML check " + t.getMessage()
+					+ "\n Input======\n" + input + "\n=======");
+			return input;
 		}
 
 		return finalOutput;
