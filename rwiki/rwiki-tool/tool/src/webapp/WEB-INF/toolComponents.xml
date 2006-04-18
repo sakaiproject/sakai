@@ -5,8 +5,9 @@
   <!-- tool context -->
 
   <!-- A Wrapper for the Render Component used at tool level -->
-  <bean id="toolRenderService"
-    class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.ToolRenderServiceImpl">
+  <bean id="uk.ac.cam.caret.sakai.rwiki.tool.api.ToolRenderService"
+    class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.ToolRenderServiceImpl"
+    init-method="init" >
   </bean>
 </beans>	
 

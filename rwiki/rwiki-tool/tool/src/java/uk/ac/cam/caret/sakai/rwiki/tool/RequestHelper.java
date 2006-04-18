@@ -49,6 +49,11 @@ public class RequestHelper
 
 	private CommandService commandService;
 
+	public void init()
+	{
+
+	}
+
 	public HttpCommand getCommandForRequest(HttpServletRequest request)
 	{
 		String panel = request.getParameter(PANEL);

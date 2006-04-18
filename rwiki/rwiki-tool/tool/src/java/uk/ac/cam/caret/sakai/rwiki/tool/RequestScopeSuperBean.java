@@ -140,12 +140,12 @@ public class RequestScopeSuperBean
 	public void init()
 	{
 		securityService = (RWikiSecurityService) context
-				.getBean("securityService");
+				.getBean(RWikiSecurityService.class.getName());
 		objectService = (RWikiObjectService) context
 				.getBean(RWikiObjectService.class.getName());
 		toolRenderService = (ToolRenderService) context
-				.getBean("toolRenderService");
-		populateService = (PopulateService) context.getBean("populateService");
+				.getBean(ToolRenderService.class.getName());
+		populateService = (PopulateService) context.getBean(PopulateService.class.getName());
 		realmService = (AuthzGroupService) context
 				.getBean(AuthzGroupService.class.getName());
 		preferenceService = (PreferenceService) context

@@ -47,6 +47,7 @@ public class ToolRenderServiceImpl implements ToolRenderService
 				.getInstance();
 
 		renderService = (RenderService) load(cm, RenderService.class.getName());
+		log.error("Render Service is "+renderService);
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -125,21 +126,6 @@ public class ToolRenderServiceImpl implements ToolRenderService
 		return renderService.renderPage(rwo, localSpace, plr);
 	}
 
-	/**
-	 * @return Returns the renderService.
-	 */
-	public RenderService getRenderService()
-	{
-		return renderService;
-	}
-
-	/**
-	 * @param renderService
-	 *        The renderService to set.
-	 */
-	public void setRenderService(RenderService renderService)
-	{
-		this.renderService = renderService;
-	}
+	
 
 }

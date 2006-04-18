@@ -15,7 +15,7 @@
   -->
 
   <!-- Page Population service -->
-  <bean id="populateService"
+  <bean id="uk.ac.cam.caret.sakai.rwiki.tool.api.PopulateService"
     class="uk.ac.cam.caret.sakai.rwiki.tool.service.impl.PopulateServiceImpl" 
     init-method="init" >
 

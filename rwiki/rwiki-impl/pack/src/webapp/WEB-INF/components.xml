@@ -22,10 +22,7 @@
  
  
   
-  <!-- each transaction manager, and therefore session factory must have its own data source,
-  so overload here to avoid getting the central one -->
-  <!--<bean id="sakai-rwiki.javax.sql.DataSource" parent="javax.sql.DataSource">
-  </bean>-->
+ 
 
   <!-- extend the  sakai base session factory -->
   <!--
