@@ -123,8 +123,11 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		searchService = (SearchService) load(cm,
 				SearchService.class.getName());
 		
+		sessionManager = (SessionManager) load(cm,
+				SessionManager.class.getName());
+		
 		enabled = "true".equals(ServerConfigurationService
-				.getString("wiki.experimental"));
+				.getString("search.experimental"));
 		try
 		{
 			if (searchIndexBuilder == null)
