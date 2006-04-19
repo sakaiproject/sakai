@@ -54,91 +54,93 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sakaiproject.util.java.ResourceLoader;
-import org.sakaiproject.api.kernel.id.cover.IdManager;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.archive.api.ImportMetadata;
+import org.sakaiproject.archive.cover.ArchiveService;
+import org.sakaiproject.archive.cover.ImportMetadataService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.menu.Menu;
+import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
-import org.sakaiproject.cheftool.menu.MenuItem;
-import org.sakaiproject.exception.EmptyException;
+import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.service.framework.component.cover.ComponentManager;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.email.cover.EmailService;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.framework.session.SessionState;
-import org.sakaiproject.service.legacy.alias.Alias;
-import org.sakaiproject.service.legacy.alias.cover.AliasService;
-import org.sakaiproject.service.legacy.announcement.cover.AnnouncementService;
-import org.sakaiproject.service.legacy.archive.ImportMetadata;
-import org.sakaiproject.service.legacy.archive.cover.ArchiveService;
-import org.sakaiproject.service.legacy.archive.cover.ImportMetadataService;
-import org.sakaiproject.service.legacy.assignment.cover.AssignmentService;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.calendar.cover.CalendarService;
-import org.sakaiproject.service.legacy.content.ContentCollectionEdit;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.coursemanagement.Course;
-import org.sakaiproject.service.legacy.coursemanagement.CourseMember;
-import org.sakaiproject.service.legacy.coursemanagement.Term;
-import org.sakaiproject.service.legacy.coursemanagement.cover.CourseManagementService;
-import org.sakaiproject.service.legacy.discussion.cover.DiscussionService;
-import org.sakaiproject.service.legacy.email.cover.MailArchiveService;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.id.cover.IdService;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SitePage;
-import org.sakaiproject.service.legacy.site.ToolConfiguration;
-import org.sakaiproject.service.legacy.site.SiteService.SortType;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.TimeBreakdown;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.UserEdit;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.tool.helper.PermissionsAction;
+import org.sakaiproject.site.api.Course;
+import org.sakaiproject.site.api.CourseMember;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.Term;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.cover.CourseManagementService;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.SubjectAffiliates;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.java.StringUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-
 /**
 * <p>SiteAction controls the interface for worksite setup.</p>
-*
-* @author University of Michigan, Sakai Software Development Team
-* @version $Revision$
 */
-
-// Not all of the templates have been implemented.
-
 public class SiteAction extends PagedResourceActionII
 {
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(SiteAction.class);
+
 	/** portlet configuration parameter values**/
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
@@ -622,6 +624,9 @@ public class SiteAction extends PagedResourceActionII
 	*/
 	public void doPermissions(RunData data, Context context)
 	{
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), "sakai.permissions.helper");
+
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
 		String contextString = ToolManager.getCurrentPlacement().getContext();
@@ -641,18 +646,14 @@ public class SiteAction extends PagedResourceActionII
 		}
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsAction.STATE_REALM_ID, siteRef);
-		state.setAttribute(PermissionsAction.STATE_REALM_ROLES_ID, siteRef);
+		state.setAttribute(PermissionsHelper.SITE_REF, siteRef);
 
 		// ... with this description
-		state.setAttribute(PermissionsAction.STATE_DESCRIPTION, rb.getString("setperfor") + " "
+		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setperfor") + " "
 				+ SiteService.getSiteDisplay(contextString));
 
 		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsAction.STATE_PREFIX, "site.");
-				
-		// start the helper
-		state.setAttribute(PermissionsAction.STATE_MODE, PermissionsAction.MODE_MAIN);
+		state.setAttribute(PermissionsHelper.PREFIX, "site.");
 
 	}	// doPermissions
 	
@@ -665,6 +666,8 @@ public class SiteAction extends PagedResourceActionII
 											SessionState state)
 	{
 		context.put("tlang",rb);
+		// TODO: what is all this doing? if we are in helper mode, we are already setup and don't get called here now -ggolden
+		/*
 		String helperMode = (String) state.getAttribute(PermissionsAction.STATE_MODE);
 		if (helperMode != null)
 		{
@@ -698,7 +701,8 @@ public class SiteAction extends PagedResourceActionII
 				return template;
 			}
 		}
-		
+		*/
+
 		String template = null;
 		context.put ("action", CONTEXT_ACTION);
 		
@@ -905,7 +909,7 @@ public class SiteAction extends PagedResourceActionII
 				context.put("sortby_createdon", SortType.CREATED_ON_ASC.toString());
 				
 				// top menu bar
-				Menu bar = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+				Menu bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 				if (SiteService.allowAddSite(null))
 				{
 					bar.add( new MenuEntry(rb.getString("java.new"), "doNew_site"));
@@ -916,7 +920,7 @@ public class SiteAction extends PagedResourceActionII
 				// default to be no pageing
 				context.put("paged", Boolean.FALSE);
 				
-				Menu bar2 = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+				Menu bar2 = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 				
 				// add the search commands
 				addSearchMenus(bar2, state);
@@ -950,7 +954,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						if(Log.isWarnEnabled())
 						{
-							Log.warn("chef", this + ".buildContextForTemplate chef_site-type.vm " + e);
+							M_log.warn("buildContextForTemplate chef_site-type.vm " + e);
 						}
 					}
 				}
@@ -1118,7 +1122,7 @@ public class SiteAction extends PagedResourceActionII
 				context.put("newsUrls", state.getAttribute(STATE_NEWS_URLS));
 				//urls for web content tools
 				context.put("wcUrls", state.getAttribute(STATE_WEB_CONTENT_URLS));
-				context.put("sites", SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null));
+				context.put("sites", SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null));
 				context.put("import", state.getAttribute(STATE_IMPORT));
 				context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 				return (String)getContext(data).get("template") + TEMPLATE[3];
@@ -1161,7 +1165,7 @@ public class SiteAction extends PagedResourceActionII
 				context.put("check_home", state.getAttribute(STATE_TOOL_HOME_SELECTED));
 	
 				//get the email alias when an Email Archive tool has been selected
-				String channelReference = MailArchiveService.channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+				String channelReference = mailArchiveChannelReference(site.getId());
 				List aliases = AliasService.getAliases(channelReference, 1, 1);
 				if (aliases.size() > 0)
 				{
@@ -1242,11 +1246,11 @@ public class SiteAction extends PagedResourceActionII
 						}
 						context.put("removeableList", removeableParticipants);
 					}
-					catch (IdUnusedException ee)
+					catch (UserNotDefinedException ee)
 					{
 					}
 				}
-				catch (IdUnusedException e)
+				catch (GroupNotDefinedException e)
 				{
 				}
 				
@@ -1286,7 +1290,7 @@ public class SiteAction extends PagedResourceActionII
 							}
 							catch (IdUnusedException e)
 							{
-								Log.warn("chef", "SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
+								M_log.warn("SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
 								addAlert(state, rb.getString("java.sitewith")+" " + id + " "+rb.getString("java.couldnt")+" ");
 							}
 							if(SiteService.allowRemoveSite(id))
@@ -1298,7 +1302,7 @@ public class SiteAction extends PagedResourceActionII
 								}
 								catch (IdUnusedException e)
 								{
-									Log.warn("chef", "SiteAction.buildContextForTemplate chef_site-siteDeleteConfirm.vm: IdUnusedException");	
+									M_log.warn("SiteAction.buildContextForTemplate chef_site-siteDeleteConfirm.vm: IdUnusedException");	
 								}
 							}
 							else
@@ -1469,7 +1473,7 @@ public class SiteAction extends PagedResourceActionII
 					if (allowUpdateSite)
 					{	
 						// top menu bar
-						Menu b = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+						Menu b = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 						
 						if (!isMyWorkspace)
 						{
@@ -1508,7 +1512,7 @@ public class SiteAction extends PagedResourceActionII
 								// hide site duplicate and import for GRADTOOLS type of sites
 								b.add( new MenuEntry(rb.getString("java.duplicate"), "doMenu_siteInfo_duplicate"));
 							
-								List updatableSites = SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null);
+								List updatableSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null);
 								
                                   // import link should be visible even if only one site 
                                   if (updatableSites.size() > 0)
@@ -1532,7 +1536,7 @@ public class SiteAction extends PagedResourceActionII
 					if (allowUpdateGroupMembership)
 					{
 						// show Manage Groups menu
-						Menu b = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+						Menu b = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 						if (!isMyWorkspace
 								&& (ServerConfigurationService.getString("wsetup.group.support") == "" 
 									|| ServerConfigurationService.getString("wsetup.group.support").equalsIgnoreCase(Boolean.TRUE.toString())))
@@ -1546,7 +1550,7 @@ public class SiteAction extends PagedResourceActionII
 					if (allowUpdateSiteMembership)
 					{
 						// show add participant menu
-						Menu b = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+						Menu b = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 						if (!isMyWorkspace)
 						{
 							// show the Add Participant menu
@@ -1672,7 +1676,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", this + " site info list: " + e.toString());
+					M_log.warn(this + " site info list: " + e.toString());
 				}
 				
 				roles = getRoles(state);
@@ -1689,9 +1693,9 @@ public class SiteAction extends PagedResourceActionII
 					{
 						context.put("realm", AuthzGroupService.getAuthzGroup(realmId));
 					}
-					catch (IdUnusedException e)
+					catch (GroupNotDefinedException e)
 					{
-						Log.warn("chef", this + "  IdUnusedException " + realmId);
+						M_log.warn(this + "  IdUnusedException " + realmId);
 					}
 				}
 				else
@@ -1969,14 +1973,14 @@ public class SiteAction extends PagedResourceActionII
 					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
 					context.put("roles", r.getRoles());
 				}
-				catch (IdUnusedException e)
+				catch (GroupNotDefinedException e)
 				{
 					try
 					{
 						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
 						context.put("roles", rr.getRoles());
 					}
-					catch (IdUnusedException ee)
+					catch (GroupNotDefinedException ee)
 					{
 					}
 				}
@@ -2235,7 +2239,7 @@ public class SiteAction extends PagedResourceActionII
 			*/
 			context.put("currentSite", site);
 			context.put("importSiteList", state.getAttribute(STATE_IMPORT_SITES));
-			context.put("sites", SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null));
+			context.put("sites", SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null));
 			return (String)getContext(data).get("template") + TEMPLATE[28];
 		case 29: 
 			/*  buildContextForTemplate chef_siteinfo-duplicate.vm
@@ -2332,7 +2336,7 @@ public class SiteAction extends PagedResourceActionII
 		
 			pagingInfoToContext(state, context);
 
-			bar = new Menu();
+			bar = new MenuImpl();
 			if (SiteService.allowAddSite(""))
 			{
 				bar.add( new MenuEntry(rb.getString("java.newsite"), "doNew") );
@@ -2359,9 +2363,9 @@ public class SiteAction extends PagedResourceActionII
 						AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
 						rv = realm.getProviderGroupId();
 					}
-					catch (IdUnusedException e)
+					catch (GroupNotDefinedException e)
 					{
-						Log.warn("chef", "SiteAction.getExternalRealmId, site realm not found");
+						M_log.warn("SiteAction.getExternalRealmId, site realm not found");
 					}
 					List providerCourseList = getProviderCourseList(StringUtil.trimToNull(rv));
 					if (providerCourseList != null)
@@ -2391,7 +2395,7 @@ public class SiteAction extends PagedResourceActionII
 				site = SiteService.getSite(siteId);
 				context.put("site", site);
 			
-				bar = new Menu();
+				bar = new MenuImpl();
 				bar.add( new MenuEntry(rb.getString("java.addp"), null, true, MenuItem.CHECKED_NA, "doMenu_sitemanage_addParticipant", "site-form") );												
 				context.put(Menu.CONTEXT_MENU, bar);
 		
@@ -2431,9 +2435,9 @@ public class SiteAction extends PagedResourceActionII
 					{
 						context.put("realm", AuthzGroupService.getAuthzGroup(realmId));
 					}
-					catch (IdUnusedException e)
+					catch (GroupNotDefinedException e)
 					{
-						Log.warn("chef", this + "  IdUnusedException " + realmId);
+						M_log.warn(this + "  IdUnusedException " + realmId);
 					}
 				}
 				else
@@ -2643,7 +2647,7 @@ public class SiteAction extends PagedResourceActionII
 			/*  
 			* buildContextForTemplate chef_site-sitemanage-editInfo.vm
 			*/
-			bar = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+			bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 			if (state.getAttribute("siteId") != null)
 			{
 				if (SiteService.allowRemoveSite(state.getAttribute("siteId").toString()))
@@ -2711,7 +2715,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
-					Log.warn("chef", "SiteAction.doSitemanage_delete_confirmed - IdUnusedException " + id);
+					M_log.warn("SiteAction.doSitemanage_delete_confirmed - IdUnusedException " + id);
 					addAlert(state, rb.getString("java.sitewith")+" " + id + " "+ rb.getString("java.couldnt")+" ");
 				}
 				if(SiteService.allowRemoveSite(id))
@@ -2722,7 +2726,7 @@ public class SiteAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						Log.warn("chef", "SiteAction.buildContextForTemplate chef_site-sitemanage-siteDeleteConfirm.vm: IdUnusedException");	
+						M_log.warn("SiteAction.buildContextForTemplate chef_site-sitemanage-siteDeleteConfirm.vm: IdUnusedException");	
 					}
 				}
 				else
@@ -2771,7 +2775,7 @@ public class SiteAction extends PagedResourceActionII
 			/*  buildContextForTemplate chef_siteInfo-editClass.vm
 			* 
 			*/
-			bar = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+			bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 			if (SiteService.allowAddSite(null))
 			{
 				bar.add( new MenuEntry(rb.getString("java.addclasses"), "doMenu_siteInfo_addClass"));
@@ -2848,7 +2852,7 @@ public class SiteAction extends PagedResourceActionII
     		 * 
     		 */
     		context.put("site", site);
-    		bar = new Menu(portlet, data, (String) state.getAttribute(STATE_ACTION));
+    		bar = new MenuImpl(portlet, data, (String) state.getAttribute(STATE_ACTION));
 		if (SiteService.allowUpdateSite(site.getId()) || SiteService.allowUpdateGroupMembership(site.getId()))
 		{
 			bar.add( new MenuEntry(rb.getString("java.new"), "doGroup_new"));
@@ -2997,7 +3001,7 @@ public class SiteAction extends PagedResourceActionII
     }
     catch (Exception e4)
     {
-      Log.warn("chef-site import", e4.getMessage());
+      M_log.warn("chef-site import" +e4.getMessage());
     }
     
     // store import_mapping.xml file and Attachment type files
@@ -3070,7 +3074,7 @@ public class SiteAction extends PagedResourceActionII
     }
     catch (Exception e5)
     {
-      Log.warn("chef-site import", e5.getMessage());
+      M_log.warn("chef-site import" + e5.getMessage());
     }    
     //read site.xml for user permission
     File sitefile = new File(dir.getPath() + "/" + "site.xml");
@@ -3091,21 +3095,21 @@ public class SiteAction extends PagedResourceActionII
         }
         catch (SAXException e3)
         {
-          Log.warn("chef-site import", e3.getMessage());
+          M_log.warn("chef-site import" + e3.getMessage());
         }
       }
       catch (FileNotFoundException e1)
       {
-        Log.warn("chef-site import", e1.getMessage());
+        M_log.warn("chef-site import" + e1.getMessage());
       }
       catch (IOException e2)
       {
-        Log.warn("chef-site import", e2.getMessage());
+        M_log.warn("chef-site import" + e2.getMessage());
       }
     }
     catch (ParserConfigurationException e)
     {
-      Log.warn("chef-site import", e.getMessage());
+      M_log.warn("chef-site import" + e.getMessage());
     }
     if (sitedoc != null)
     {
@@ -3136,21 +3140,21 @@ public class SiteAction extends PagedResourceActionII
         }
         catch (SAXException e3)
         {
-          Log.warn("chef-site import", e3.getMessage());
+          M_log.warn("chef-site import" + e3.getMessage());
         }
       }
       catch (FileNotFoundException e1)
       {
-        Log.warn("chef-site import", e1.getMessage());
+        M_log.warn("chef-site import" + e1.getMessage());
       }
       catch (IOException e2)
       {
-        Log.warn("chef-site import", e2.getMessage());
+        M_log.warn("chef-site import" + e2.getMessage());
       }
     }
     catch (ParserConfigurationException e)
     {
-      Log.warn("chef-site import", e.getMessage());
+      M_log.warn("chef-site import" + e.getMessage());
     }
     if (doc != null)
     {
@@ -3176,7 +3180,7 @@ public class SiteAction extends PagedResourceActionII
     //htripath- Sep02 - option to select only tools available IM257143
     List toolzipList = new Vector();
     List pageList=new Vector();
-    String siteId=PortalService.getCurrentSiteId();//ToolConfiguration.getSiteId();    
+    String siteId=ToolManager.getCurrentPlacement().getContext(); 
     Site site=null;
     try
     {
@@ -3185,7 +3189,7 @@ public class SiteAction extends PagedResourceActionII
     }
     catch (IdUnusedException e1)
     {
-      Log.warn("chef-site import", e1.getMessage());
+      M_log.warn("chef-site import" + e1.getMessage());
     }
     //create toolzipList
     for (Iterator iter = allzipList.iterator(); iter.hasNext();)
@@ -3361,13 +3365,13 @@ public class SiteAction extends PagedResourceActionII
             }
             catch (IOException ioe)
             {
-              Log.warn("chef-site import", ioe.getMessage());
+              M_log.warn("chef-site import" + ioe.getMessage());
               return;
             }
           }
           catch (IOException ioe)
           {
-            Log.warn("chef-site import", ioe.getMessage());
+            M_log.warn("chef-site import" + ioe.getMessage());
             return;
           }
           entryStream.close();
@@ -3400,13 +3404,13 @@ public class SiteAction extends PagedResourceActionII
             }
             catch (IOException ioe)
             {
-              Log.warn("chef-site import", ioe.getMessage());
+              M_log.warn("chef-site import" + ioe.getMessage());
               return;
             }
           }
           catch (IOException ioe)
           {
-            Log.warn("chef-site import", ioe.getMessage());
+            M_log.warn("chef-site import" + ioe.getMessage());
             return;
           }
           entryStream.close();
@@ -3421,7 +3425,7 @@ public class SiteAction extends PagedResourceActionII
     }
     catch (IOException ioe)
     {
-      Log.warn("chef-site import", ioe.getMessage());
+      M_log.warn("chef-site import" + ioe.getMessage());
       return;
     }
 
@@ -3564,7 +3568,7 @@ public class SiteAction extends PagedResourceActionII
 					}
 					catch (Exception e)
 					{
-						Log.warn("chef", this + ": cannot find class " + course_nbr);
+						M_log.warn(this + ": cannot find class " + course_nbr);
 					}
 				}
 				else
@@ -3582,7 +3586,7 @@ public class SiteAction extends PagedResourceActionII
 						}
 						catch (Exception e)
 						{
-							Log.warn("chef", this + ": cannot find class " + key);
+							M_log.warn(this + ": cannot find class " + key);
 						}
 					}	
 				}
@@ -3590,7 +3594,7 @@ public class SiteAction extends PagedResourceActionII
 		}
 		catch (Exception ee)
 		{
-			Log.warn("chef", ee.getMessage());
+			M_log.warn(ee.getMessage());
 		}
 		return rv;
 	
@@ -3618,7 +3622,7 @@ public class SiteAction extends PagedResourceActionII
 					if (view.equals(ALL_MY_SITES))
 					{
 						//search for non-user sites, using the criteria
-						size = SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.NON_USER, null, search, null);
+						size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, null, search, null);
 					}
 					else if (view.equals(MYWORKSPACE))
 					{	
@@ -3633,12 +3637,12 @@ public class SiteAction extends PagedResourceActionII
 					else if (view.equalsIgnoreCase(GRADTOOLS))
 					{	
 						//search for gradtools sites
-						size = SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.NON_USER, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
+						size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
 					}
 					else
 					{	
 						//search for specific type of sites
-						size = SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.NON_USER, view, search, null);
+						size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER, view, search, null);
 					}
 				}
 			}
@@ -3651,7 +3655,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e) 
 				{
-					Log.warn("chef", "Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.");
+					M_log.warn("Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.");
 				}
 				
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
@@ -3675,17 +3679,17 @@ public class SiteAction extends PagedResourceActionII
 								size++;
 							}
 						}
-						size += SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS, null, search, null);
+						size += SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, search, null);
 					}
 					else if (view.equalsIgnoreCase(GRADTOOLS))
 					{	
 						//search for gradtools sites
-						size += SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
+						size += SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, state.getAttribute(GRADTOOLS_SITE_TYPES), search, null);
 					}
 					else
 					{
 						// search for specific type of sites
-						size += SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS, view, search, null);
+						size += SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, view, search, null);
 					}
 				}
 			}
@@ -3702,7 +3706,7 @@ public class SiteAction extends PagedResourceActionII
 			// search?
 			search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
 			
-			size = SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ANY,
+			size = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY,
 					state.getAttribute(STATE_SEARCH_SITE_TYPE), search, (HashMap)state.getAttribute(STATE_PROP_SEARCH_MAP));
 		}
 		// TODO: mode for participants list is needed
@@ -3758,7 +3762,7 @@ public class SiteAction extends PagedResourceActionII
 					if (view.equals(ALL_MY_SITES))
 					{
 						//search for non-user sites, using the criteria
-						return SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.NON_USER,
+						return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
 								null, search, null, sortType, new PagingPosition(first, last));
 					}
 					else if (view.equalsIgnoreCase(MYWORKSPACE))
@@ -3777,14 +3781,14 @@ public class SiteAction extends PagedResourceActionII
 					else if (view.equalsIgnoreCase(GRADTOOLS))
 					{	
 						//search for gradtools sites
-						return SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.NON_USER,
+						return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
 								state.getAttribute(GRADTOOLS_SITE_TYPES), search, null, sortType, new PagingPosition(first, last));
 	
 					}
 					else
 					{	
 						//search for a specific site
-						return SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ANY,
+						return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY,
 								view, search, null, sortType, new PagingPosition(first, last));
 					}
 				}
@@ -3801,7 +3805,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e) 
 				{
-					Log.warn("chef", "Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.");
+					M_log.warn("Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.");
 				}
 				
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
@@ -3825,19 +3829,19 @@ public class SiteAction extends PagedResourceActionII
 								rv.add(userWorkspaceSite);
 							}
 						}
-						rv.addAll(SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS,
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 								null, search, null, sortType, new PagingPosition(first, last)));
 					}
 					else if (view.equalsIgnoreCase(GRADTOOLS))
 					{	
 						//search for a specific user site for the particular user id in the criteria - exact match only
-						rv.addAll(SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS,
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 								state.getAttribute(GRADTOOLS_SITE_TYPES), search, null, sortType, new PagingPosition(first, last)));
 
 					}
 					else
 					{
-						rv.addAll(SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS,
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 								view, search, null, sortType, new PagingPosition(first, last)));
 					}
 				}
@@ -3861,7 +3865,7 @@ public class SiteAction extends PagedResourceActionII
 		{
 
 			search = StringUtil.trimToNull((String) state.getAttribute(STATE_SEARCH));
-			return SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.ANY,
+			return SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY,
 							state.getAttribute(STATE_SEARCH_SITE_TYPE), search, 
 							(HashMap)state.getAttribute(STATE_PROP_SEARCH_MAP), SortType.TITLE_ASC,
 							new PagingPosition(first, last));
@@ -4013,7 +4017,7 @@ public class SiteAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters ();
 		if (params.getStrings ("selectedMembers") == null)
 		{
-			Log.warn("chef", "SiteAction.doSite_delete_confirmed selectedMembers null");
+			M_log.warn("SiteAction.doSite_delete_confirmed selectedMembers null");
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0"); // return to the site list
 			return;
 		}
@@ -4030,7 +4034,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
-					Log.warn("chef", "SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
+					M_log.warn("SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
 					addAlert(state,rb.getString("java.sitewith") + " " + id + " "+ rb.getString("java.couldnt")+" ");
 				}
 				if(SiteService.allowRemoveSite(id))
@@ -4044,18 +4048,18 @@ public class SiteAction extends PagedResourceActionII
 					}
 					catch (IdUnusedException e)
 					{
-						Log.warn("chef", "SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
+						M_log.warn("SiteAction.doSite_delete_confirmed - IdUnusedException " + id);
 						addAlert(state, rb.getString("java.sitewith")+" " +  site_title + "(" + id + ") "+ rb.getString("java.couldnt")+" ");
 					}
 					catch (PermissionException e)
 					{
-						Log.warn("chef", "SiteAction.doSite_delete_confirmed -  PermissionException, site " +  site_title + "(" + id + ").");
+						M_log.warn("SiteAction.doSite_delete_confirmed -  PermissionException, site " +  site_title + "(" + id + ").");
 						addAlert(state, site_title + " "+ rb.getString("java.dontperm")+" ");
 					}
 				}
 				else
 				{
-					Log.warn("chef", "SiteAction.doSite_delete_confirmed -  allowRemoveSite failed for site " + id);
+					M_log.warn("SiteAction.doSite_delete_confirmed -  allowRemoveSite failed for site " + id);
 					addAlert(state, site_title + " "+ rb.getString("java.dontperm") +" ");
 				}
 			}
@@ -4090,18 +4094,18 @@ public class SiteAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				Log.warn("chef", "SiteAction.doSite_sitemanage_delete_confirmed - IdUnusedException " + id);
+				M_log.warn("SiteAction.doSite_sitemanage_delete_confirmed - IdUnusedException " + id);
 				addAlert(state, rb.getString("java.sitewith")+" " + id + " "+rb.getString("java.couldnt") +" ");
 			}
 			catch (PermissionException e)
 			{
-				Log.warn("chef", "SiteAction.doSite_sitemanage_delete_confirmed -  PermissionException, site " + id);
+				M_log.warn("SiteAction.doSite_sitemanage_delete_confirmed -  PermissionException, site " + id);
 				addAlert(state, title + " "+ rb.getString("java.dontperm")+" ");
 			}
 		}
 		else
 		{
-			Log.warn("chef", "SiteAction.doSitemanage_delete_confirmed -  allowRemoveSite failed for site " + id);
+			M_log.warn("SiteAction.doSitemanage_delete_confirmed -  allowRemoveSite failed for site " + id);
 			addAlert(state, id + " "+rb.getString("java.dontperm")+" ");
 		}
 
@@ -4188,7 +4192,7 @@ public class SiteAction extends PagedResourceActionII
 		String size = params.getString("size");
 		if (size != null)
 		{
-			String currentSiteId = PortalService.getCurrentSiteId();
+			String currentSiteId = ToolManager.getCurrentPlacement().getContext();
 			String rootCollectionId = ContentHostingService.getSiteCollection(currentSiteId);
 			
 			ContentCollectionEdit cedit = null;
@@ -4961,7 +4965,7 @@ public class SiteAction extends PagedResourceActionII
 						{
 							UserDirectoryService.getUser(uniqname);
 						}
-						catch (IdUnusedException e)
+						catch (UserNotDefinedException e)
 						{
 							addAlert(state, rb.getString("java.validAuthor1")+" "+ ServerConfigurationService.getString("noEmailInIdAccountName") + " "+ rb.getString("java.validAuthor2"));
 						}
@@ -5365,15 +5369,15 @@ public class SiteAction extends PagedResourceActionII
 						realmEdit.setProviderGroupId(providerRealm);
 						AuthzGroupService.save(realmEdit);
 					}
-					catch (IdUnusedException e)
+					catch (GroupNotDefinedException e)
 					{
-						Log.warn("chef", this + " IdUnusedException, not found, or not an AuthzGroup object");
+						M_log.warn(this + " IdUnusedException, not found, or not an AuthzGroup object");
 						addAlert(state, rb.getString("java.realm"));
 						return;
 					}
-//					catch (PermissionException e)
+//					catch (AuthzPermissionException e)
 //					{
-//						Log.warn("chef", this + " PermissionException, user does not have permission to edit AuthzGroup object.");
+//						M_log.warn(this + " PermissionException, user does not have permission to edit AuthzGroup object.");
 //						addAlert(state, rb.getString("java.notaccess"));
 //						return;
 //					}
@@ -5419,7 +5423,7 @@ public class SiteAction extends PagedResourceActionII
 			String alias = StringUtil.trimToNull((String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
 			if (alias != null)
 			{	
-				String channelReference = MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+				String channelReference = mailArchiveChannelReference(siteId);
 				try
 				{
 					AliasService.setAlias(alias, channelReference);
@@ -5472,7 +5476,7 @@ public class SiteAction extends PagedResourceActionII
 			}
 			catch (IdUnusedException e)
 			{
-				// Log.warn("chef", this + " cannot find course " + courseId + ". ");
+				// M_log.warn(this + " cannot find course " + courseId + ". ");
 			}
 		}
 		
@@ -5519,7 +5523,7 @@ public class SiteAction extends PagedResourceActionII
 			}
 			catch(Exception ignore)
 			{
-				Log.warn("chef", this + " cannot find affiliate " + affiliate);
+				M_log.warn(this + " cannot find affiliate " + affiliate);
 			}
 		}
 		
@@ -5707,7 +5711,7 @@ public class SiteAction extends PagedResourceActionII
 		String requestEmail = ServerConfigurationService.getString("setup.request", null);
 		if (requestEmail == null)
 		{
-			Log.warn("chef", this + " - no 'setup.request' in configuration");
+			M_log.warn(this + " - no 'setup.request' in configuration");
 		}
 		else
 		{
@@ -5815,7 +5819,7 @@ public class SiteAction extends PagedResourceActionII
 						// email has been sent successfully
 						sendEmailToRequestee = true;
 					}
-					catch (IdUnusedException ee)
+					catch (UserNotDefinedException ee)
 					{
 					}	// try
 				}
@@ -5920,7 +5924,7 @@ public class SiteAction extends PagedResourceActionII
 		String requestEmail = ServerConfigurationService.getString("setup.request", null);
 		if (requestEmail == null)
 		{
-			Log.warn("chef", this + " - no 'setup.request' in configuration");
+			M_log.warn(this + " - no 'setup.request' in configuration");
 		}
 		else
 		{
@@ -6207,7 +6211,7 @@ public class SiteAction extends PagedResourceActionII
 			SitePage page = site.addPage();
 			page.setTitle(params.getString("name")); // the visible label on the tool menu
 			ToolConfiguration tool = page.addTool();
-			tool.setTool(tr);
+			tool.setTool("sakai.iframe", tr);
 			tool.setTitle(params.getString("name"));
 			commitSite(site);
 		}
@@ -6277,7 +6281,7 @@ public class SiteAction extends PagedResourceActionII
 						if (toolId.equals("sakai.mailbox"))
 						{
 							//get the email alias when an Email Archive tool has been selected
-							String channelReference = MailArchiveService.channelReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID), SiteService.MAIN_CONTAINER);
+							String channelReference = mailArchiveChannelReference((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
 							List aliases = AliasService.getAliases(channelReference, 1, 1);
 							if (aliases.size() > 0)
 							{
@@ -6341,7 +6345,7 @@ public class SiteAction extends PagedResourceActionII
 		String alias = StringUtil.trimToNull((String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS));
 		if (alias != null)
 		{	
-			String channelReference = MailArchiveService.channelReference(id, SiteService.MAIN_CONTAINER);
+			String channelReference = mailArchiveChannelReference(id);
 			try
 			{
 				AliasService.setAlias(alias, channelReference);
@@ -6679,7 +6683,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				contactName = u.getDisplayName();
 			}
-			catch (IdUnusedException e)
+			catch (UserNotDefinedException e)
 			{
 			}
 		}
@@ -6753,7 +6757,7 @@ public class SiteAction extends PagedResourceActionII
 							}
 							contactName = u.getDisplayName();
 						}
-						catch (IdUnusedException e)
+						catch (UserNotDefinedException e)
 						{
 						}
 					}
@@ -6775,7 +6779,7 @@ public class SiteAction extends PagedResourceActionII
 				catch (IdUnusedException e)
 				{
 					addAlert(state, rb.getString("java.specif")+" " + siteId + ". ");
-					Log.warn("chef", this + e.toString());
+					M_log.warn(this + e.toString());
 				}
 			}
 			
@@ -6783,7 +6787,7 @@ public class SiteAction extends PagedResourceActionII
 			else
 			{
 				addAlert(state, rb.getString("java.permeditsite")+" " + siteId + ".");
-				Log.warn("chef", this + "no update permission to site : " + siteId);				
+				M_log.warn(this + "no update permission to site : " + siteId);				
 			}
 		}
 		else
@@ -6850,7 +6854,7 @@ public class SiteAction extends PagedResourceActionII
 				catch (IdUnusedException e)
 				{
 					addAlert(state, rb.getString("java.cannot")+" " + siteId + ". ");
-					Log.warn("chef", this + e.toString());
+					M_log.warn(this + e.toString());
 				}
 				
 				if (state.getAttribute(STATE_MESSAGE) == null)
@@ -6863,7 +6867,7 @@ public class SiteAction extends PagedResourceActionII
 			else
 			{
 				addAlert(state, rb.getString("java.permeditsite")+ " " + siteId + ".");
-				Log.warn("chef", this + "no update permission to site : " + siteId);				
+				M_log.warn(this + "no update permission to site : " + siteId);				
 			}
 		}
 		else
@@ -7167,7 +7171,7 @@ public class SiteAction extends PagedResourceActionII
 							{
 								UserDirectoryService.getUser(emailInIdAccount);
 							}
-							catch (IdUnusedException e) 
+							catch (UserNotDefinedException e) 
 							{
 								//if there is no such user yet, add the user
 								try
@@ -7190,20 +7194,20 @@ public class SiteAction extends PagedResourceActionII
 									// and save
 									UserDirectoryService.commitEdit(uEdit);
 								 }
-								 catch(IdInvalidException ee)
+								 catch(UserIdInvalidException ee)
 								 {
 									 addAlert(state, emailInIdAccountName + " " + emailInIdAccount + " " +rb.getString("java.isinval") );
-									 Log.debug("chef", this + ".doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
+									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
 								 }
-								 catch(IdUsedException ee)
+								 catch(UserAlreadyDefinedException ee)
 								 {
 									 addAlert(state, emailInIdAccountName + " " + emailInIdAccount + " " +rb.getString("java.beenused") );
-									 Log.debug("chef", this + ".doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
+									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
 								 }
-								 catch(PermissionException ee)
+								 catch(UserPermissionException ee)
 								 {
 									 addAlert(state, rb.getString("java.haveadd")+" " + emailInIdAccount);
-									 Log.debug("chef", this + ".doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
+									 M_log.warn("doSitemanage_participants_save: UserDirectoryService addUser exception " + e.getMessage());
 								 }	
 							}
 					
@@ -7329,7 +7333,7 @@ public class SiteAction extends PagedResourceActionII
 		else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO))
 		{
 			
-			String siteId = PortalService.getCurrentSiteId();
+			String siteId = ToolManager.getCurrentPlacement().getContext();
 			getReviseSite(state, siteId);
 			Hashtable h = (Hashtable) state.getAttribute(STATE_PAGESIZE_SITEINFO);
 			if (!h.containsKey(siteId))
@@ -7454,7 +7458,7 @@ public class SiteAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			Log.warn("chef", this + e.toString());
+			M_log.warn(this + e.toString());
 		}
 		 
 		//one site has been selected
@@ -7543,9 +7547,9 @@ public class SiteAction extends PagedResourceActionII
 							selected.uniqname = user.getId();
 							realmEdit.removeMember(user.getId());
 						}
-						catch (IdUnusedException e)
+						catch (UserNotDefinedException e)
 						{
-							Log.warn("chef", this + " IdUnusedException " + rId + ". ");
+							M_log.warn(this + " IdUnusedException " + rId + ". ");
 						}
 					}
 				}
@@ -7561,15 +7565,15 @@ public class SiteAction extends PagedResourceActionII
 					AuthzGroupService.save(realmEdit);
 				}
 			}
-			catch (IdUnusedException e)
+			catch (GroupNotDefinedException e)
 			{
 				addAlert(state, rb.getString("java.problem2"));
-				Log.warn("chef", this + "  IdUnusedException " + s.getTitle() + "(" + realmId + "). ");
+				M_log.warn(this + "  IdUnusedException " + s.getTitle() + "(" + realmId + "). ");
 			}
-			catch( PermissionException e)
+			catch(AuthzPermissionException e)
 			{
 				addAlert(state, rb.getString("java.changeroles"));
-				Log.warn("chef", this + "  PermissionException " + s.getTitle() + "(" + realmId + "). ");
+				M_log.warn(this + "  PermissionException " + s.getTitle() + "(" + realmId + "). ");
 			}
 		}
 		
@@ -8325,7 +8329,7 @@ public class SiteAction extends PagedResourceActionII
 							try
 							{
 								String oSiteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-								String nSiteId = IdService.getUniqueId();
+								String nSiteId = IdManager.createUuid();
 								Site site = SiteService.addSite(nSiteId, getStateSite(state));
 								
 								try
@@ -8357,42 +8361,14 @@ public class SiteAction extends PagedResourceActionII
 		
 											List pageToolList = page.getTools();
 											String toolId = ((ToolConfiguration)pageToolList.get(0)).getTool().getId();
-											if (toolId.equalsIgnoreCase("sakai.resources"))
-											{
-												String fromSiteCollectionId = ContentHostingService.getSiteCollection(oSiteId);
-												String toSiteCollectionId = ContentHostingService.getSiteCollection(nSiteId);
-												ContentHostingService.importResources(fromSiteCollectionId, toSiteCollectionId, new Vector());
-											}
-											else if (toolId.equalsIgnoreCase("sakai.announcements"))
-											{
-												AnnouncementService.importResources(oSiteId, nSiteId, new Vector());
-											}
-											else if (toolId.equalsIgnoreCase("sakai.discussion"))
-											{
-												DiscussionService.importResources(oSiteId, nSiteId, new Vector());
-											}
-											else if (toolId.equalsIgnoreCase("sakai.assignment") 
-													|| toolId.equalsIgnoreCase("sakai.assignment.grades"))
-											{
-												// for both Assignment with Grades tool and Assignment without Grades tool
-												AssignmentService.importResources(oSiteId, nSiteId, new Vector());
-											}
-											else if (toolId.equalsIgnoreCase("sakai.schedule"))
-											{
-												CalendarService.importResources(oSiteId, nSiteId, new Vector());
-											}
-											/*else if (toolId.equalsIgnoreCase("sakai.syllabus"))
-											{
-												SyllabusService.importResources(oSiteId, nSiteId, new Vector());
-											}*/
-
+											transferCopyEntities(toolId, oSiteId, nSiteId);
 										}
 									}
 								} 
 								catch (Exception e1) 
 								{
 									//if goes here, IdService or SiteService has done something wrong.
-									Log.warn("chef", this + "Exception" + e1 + ":"+ nSiteId + "when duplicating site");
+									M_log.warn(this + "Exception" + e1 + ":"+ nSiteId + "when duplicating site");
 								}
 
 								try
@@ -8611,7 +8587,7 @@ public class SiteAction extends PagedResourceActionII
 					String size = params.getString("size");
 					if (size != null)
 					{
-						String currentSiteId = PortalService.getCurrentSiteId();
+						String currentSiteId = ToolManager.getCurrentPlacement().getContext();
 						String rootCollectionId = ContentHostingService.getSiteCollection(currentSiteId);
 
 						try 
@@ -8860,15 +8836,15 @@ public class SiteAction extends PagedResourceActionII
 				realmEdit1.setProviderGroupId(NULL_STRING);
 				AuthzGroupService.save(realmEdit1);
 			}
-			catch (IdUnusedException e)
+			catch (GroupNotDefinedException e)
 			{
-				Log.warn("chef", this + " IdUnusedException, " + site.getTitle() + "(" + realmId + ") not found, or not an AuthzGroup object");
+				M_log.warn(this + " IdUnusedException, " + site.getTitle() + "(" + realmId + ") not found, or not an AuthzGroup object");
 				addAlert(state, rb.getString("java.cannotedit"));
 				return; 
 			}
-			catch (PermissionException e)
+			catch (AuthzPermissionException e)
 			{
-				Log.warn("chef", this + " PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + realmId + "). ");
+				M_log.warn(this + " PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + realmId + "). ");
 				addAlert(state, rb.getString("java.notaccess"));
 				return;
 			}
@@ -8883,15 +8859,15 @@ public class SiteAction extends PagedResourceActionII
 				realmEdit2.setProviderGroupId(externalRealm);
 				AuthzGroupService.save(realmEdit2);
 			}
-			catch (IdUnusedException e)
+			catch (GroupNotDefinedException e)
 			{
-				Log.warn("chef", this + " IdUnusedException, " + site.getTitle() + "(" + realmId + ") not found, or not an AuthzGroup object");
+				M_log.warn(this + " IdUnusedException, " + site.getTitle() + "(" + realmId + ") not found, or not an AuthzGroup object");
 				addAlert(state, rb.getString("java.cannotclasses"));
 				return;
 			}
-			catch (PermissionException e)
+			catch (AuthzPermissionException e)
 			{
-				Log.warn("chef", this + " PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + realmId + "). ");
+				M_log.warn(this + " PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + realmId + "). ");
 				addAlert(state, rb.getString("java.notaccess"));
 				return;
 			}
@@ -8939,7 +8915,7 @@ public class SiteAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.toString());
+				M_log.warn(this + e.toString());
 			}
 		}
 		if (notifyClasses != null && notifyClasses.size() > 0)
@@ -8951,7 +8927,7 @@ public class SiteAction extends PagedResourceActionII
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + e.toString());
+				M_log.warn(this + e.toString());
 			}
 		}
 	} // updateCourseClasses
@@ -9111,7 +9087,7 @@ public class SiteAction extends PagedResourceActionII
 		}
 		else
 		{
-			Log.warn("chef", "SiteAction.updateSiteAttributes STATE_SITE_INFO == null");
+			M_log.warn("SiteAction.updateSiteAttributes STATE_SITE_INFO == null");
 			return;
 		}
 		
@@ -9161,7 +9137,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (IdUnusedException e)
 				{
-					Log.warn("chef", "SiteAction.commitSite IdUnusedException " + siteInfo.getTitle() + "(" + id + ") not found");
+					M_log.warn("SiteAction.commitSite IdUnusedException " + siteInfo.getTitle() + "(" + id + ") not found");
 				}
 			}
 			
@@ -9169,7 +9145,7 @@ public class SiteAction extends PagedResourceActionII
 			else
 			{
 				addAlert(state, rb.getString("java.makechanges"));
-				Log.warn("chef", "SiteAction.commitSite PermissionException " + siteInfo.getTitle() + "(" + id + ")");
+				M_log.warn("SiteAction.commitSite PermissionException " + siteInfo.getTitle() + "(" + id + ")");
 			}
 		}
 		 
@@ -9258,9 +9234,9 @@ public class SiteAction extends PagedResourceActionII
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
 			rv = realm.getProviderGroupId();
 		}
-		catch (IdUnusedException e)
+		catch (GroupNotDefinedException e)
 		{
-			Log.warn("chef", "SiteAction.getExternalRealmId, site realm not found");
+			M_log.warn("SiteAction.getExternalRealmId, site realm not found");
 		}
 		return rv;
 		
@@ -9294,7 +9270,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					// Log.warn("chef", this + " Cannot find course " + courseId);
+					// M_log.warn(this + " Cannot find course " + courseId);
 				}
 			}
 		}
@@ -9340,16 +9316,16 @@ public class SiteAction extends PagedResourceActionII
 						}
 						participants.add(participant);
 					}
-					catch (IdUnusedException e)
+					catch (UserNotDefinedException e)
 					{
 						// deal with missing user quietly without throwing a warning message
 					}
 				}
 			}
 		}
-		catch (IdUnusedException e)
+		catch (GroupNotDefinedException e)
 		{
-			Log.warn("chef", this + "  IdUnusedException " + realmId);
+			M_log.warn(this + "  IdUnusedException " + realmId);
 		}
 		
 		state.setAttribute(STATE_PARTICIPANT_LIST, participants);
@@ -9372,9 +9348,9 @@ public class SiteAction extends PagedResourceActionII
 			roles.addAll(realm.getRoles());
 			Collections.sort(roles);
 		}
-		catch (IdUnusedException e)
+		catch (GroupNotDefinedException e)
 		{
-			Log.warn("chef", "SiteAction.getRoles IdUnusedException " + realmId);
+			M_log.warn("SiteAction.getRoles IdUnusedException " + realmId);
 		}
 		return roles;
 		
@@ -9427,7 +9403,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						try
 						{
-							String channelReference = MailArchiveService.channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+							String channelReference = mailArchiveChannelReference(site.getId());
 							//first, clear any alias set to this channel				
 							AliasService.removeTargetAliases(channelReference);	// check to see whether the alias has been used
 							try
@@ -9524,7 +9500,7 @@ public class SiteAction extends PagedResourceActionII
 				//Add worksite information tool
 				ToolConfiguration tool = page.addTool();
 				Tool reg = ToolManager.getTool("sakai.iframe.site");
-				tool.setTool(reg);
+				tool.setTool("sakai.iframe.site", reg);
 				tool.setTitle(rb.getString("java.workinfo"));
 				tool.setLayoutHints("0,0");
 			}	
@@ -9539,7 +9515,7 @@ public class SiteAction extends PagedResourceActionII
 						//Add synoptic announcements tool
 						ToolConfiguration tool = page.addTool();
 						Tool reg = ToolManager.getTool("sakai.synoptic.announcement");
-						tool.setTool(reg);	
+						tool.setTool("sakai.synoptic.announcement", reg);	
 						tool.setTitle(rb.getString("java.recann"));
 						tool.setLayoutHints("0,1");
 					}
@@ -9549,7 +9525,7 @@ public class SiteAction extends PagedResourceActionII
 						//Add synoptic discussion tool
 						ToolConfiguration tool = page.addTool();
 						Tool reg = ToolManager.getTool("sakai.synoptic.discussion");
-						tool.setTool(reg);
+						tool.setTool("sakai.synoptic.discussion", reg);
 						tool.setTitle(rb.getString("java.recdisc"));
 						tool.setLayoutHints("1,1");
 					}
@@ -9559,7 +9535,7 @@ public class SiteAction extends PagedResourceActionII
 						//Add synoptic chat tool
 						ToolConfiguration tool = page.addTool();
 						Tool reg = ToolManager.getTool("sakai.synoptic.chat");
-						tool.setTool(reg);
+						tool.setTool("sakai.synoptic.chat", reg);
 						tool.setTitle(rb.getString("java.recent"));
 						tool.setLayoutHints("2,1");
 					}
@@ -9575,7 +9551,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", "SiteAction.getFeatures Exception " + e.getMessage());
+					M_log.warn("SiteAction.getFeatures Exception " + e.getMessage());
 				}
 			}
 		} // add Home
@@ -9782,7 +9758,7 @@ public class SiteAction extends PagedResourceActionII
 					}
 					page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 					ToolConfiguration tool = page.addTool();
-					tool.setTool(toolRegFound);
+					tool.setTool(toolRegFound.getId(), toolRegFound);
 					addPage.toolId = toolId;
 					wSetupPageList.add(addPage);
 					
@@ -10087,7 +10063,7 @@ public class SiteAction extends PagedResourceActionII
 						page.setTitle(newsTitle); // the visible label on the tool menu
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 						ToolConfiguration tool = page.addTool();
-						tool.setTool(ToolManager.getTool("sakai.news"));
+						tool.setTool("sakai.news", ToolManager.getTool("sakai.news"));
 						tool.setTitle(newsTitle);
 						tool.setLayoutHints("0,0");
 					  	String urlString = (String) newsUrls.get(toolId);
@@ -10102,7 +10078,7 @@ public class SiteAction extends PagedResourceActionII
 						page.setTitle(wcTitle); // the visible label on the tool menu
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 						ToolConfiguration tool = page.addTool();
-						tool.setTool(ToolManager.getTool("sakai.iframe"));
+						tool.setTool("sakai.iframe", ToolManager.getTool("sakai.iframe"));
 						tool.setTitle(wcTitle);
 						tool.setLayoutHints("0,0");
 						String wcUrl = StringUtil.trimToNull((String) wcUrls.get(toolId));
@@ -10118,7 +10094,7 @@ public class SiteAction extends PagedResourceActionII
 						page.setTitle(toolRegFound.getTitle()); // the visible label on the tool menu
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
 						ToolConfiguration tool = page.addTool();
-						tool.setTool(toolRegFound);
+						tool.setTool(toolRegFound.getId(), toolRegFound);
 						tool.setLayoutHints("0,0");
 						
 					} // Other features
@@ -10166,7 +10142,7 @@ public class SiteAction extends PagedResourceActionII
 					
 					//Add worksite information tool
 					ToolConfiguration tool = page.addTool();
-					tool.setTool(ToolManager.getTool("sakai.iframe.site"));
+					tool.setTool("sakai.iframe.site", ToolManager.getTool("sakai.iframe.site"));
 					tool.setTitle(rb.getString("java.workinfo"));
 					tool.setLayoutHints("0,0");
 
@@ -10174,7 +10150,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						//Add synoptic announcements tool
 						tool = page.addTool();
-						tool.setTool(ToolManager.getTool("sakai.synoptic.announcement"));
+						tool.setTool("sakai.synoptic.announcement", ToolManager.getTool("sakai.synoptic.announcement"));
 						tool.setTitle(rb.getString("java.recann"));
 						tool.setLayoutHints("0,1");
 					}
@@ -10183,7 +10159,7 @@ public class SiteAction extends PagedResourceActionII
 					{ 
 						//Add synoptic announcements tool
 						tool = page.addTool();
-						tool.setTool(ToolManager.getTool("sakai.synoptic.discussion"));	
+						tool.setTool("sakai.synoptic.discussion", ToolManager.getTool("sakai.synoptic.discussion"));	
 						tool.setTitle("Recent Discussion Items");
 						tool.setLayoutHints("1,1");
 					}
@@ -10192,7 +10168,7 @@ public class SiteAction extends PagedResourceActionII
 					{		
 						//Add synoptic chat tool
 						tool = page.addTool();
-						tool.setTool(ToolManager.getTool("sakai.synoptic.chat"));
+						tool.setTool("sakai.synoptic.chat", ToolManager.getTool("sakai.synoptic.chat"));
 						tool.setTitle("Recent Chat Messages");
 						tool.setLayoutHints("2,1");
 					}
@@ -10200,7 +10176,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (Exception e)
 				{
-					Log.warn("chef", "SiteAction.getFeatures Exception " + e.getMessage());
+					M_log.warn("SiteAction.getFeatures Exception " + e.getMessage());
 				}
 				
 				state.setAttribute(STATE_TOOL_HOME_SELECTED, Boolean.TRUE);
@@ -10266,70 +10242,50 @@ public class SiteAction extends PagedResourceActionII
 	{
 		if (importTools != null)
 		{
-			//import resources first
+			// import resources first
 			boolean resourcesImported = false;
-			for (int i = 0; i<toolIds.size() && !resourcesImported;i++)
+			for (int i = 0; i < toolIds.size() && !resourcesImported; i++)
 			{
 				String toolId = (String) toolIds.get(i);
-				
-				if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId))
+
+				Object contentHosting = (Object) ContentHostingService.getInstance();
+				if (toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId)
+						&& contentHosting instanceof EntityTransferrer)
 				{
-				   List importSiteIds = (List) importTools.get(toolId);
-				   
-				   for (int k = 0; k < importSiteIds.size(); k++)
-				   {
-					   String fromSiteId = (String) importSiteIds.get(k);
-					   String toSiteId = site.getId();
-					   
-					   String fromSiteCollectionId = ContentHostingService.getSiteCollection(fromSiteId);
-					   String toSiteCollectionId = ContentHostingService.getSiteCollection(toSiteId);
-					   ContentHostingService.importResources(fromSiteCollectionId, toSiteCollectionId, new Vector());
-					   resourcesImported = true;
-				   }
-				}
-			}
-			
-			// ijmport other tools then
-			for (int i = 0; i<toolIds.size();i++)
-			{
-				String toolId = (String) toolIds.get(i);
-				if (!toolId.equalsIgnoreCase("sakai.resources") &&importTools.containsKey(toolId))
-				{
-				   List importSiteIds = (List) importTools.get(toolId);
-				   for (int k = 0; k < importSiteIds.size(); k++)
-				   {
+					EntityTransferrer et = (EntityTransferrer) contentHosting;
+
+					List importSiteIds = (List) importTools.get(toolId);
+
+					for (int k = 0; k < importSiteIds.size(); k++)
+					{
 						String fromSiteId = (String) importSiteIds.get(k);
 						String toSiteId = site.getId();
-						
-						// which tool?
-						if (toolId.equalsIgnoreCase("sakai.announcements"))
-						{
-							AnnouncementService.importResources(fromSiteId, toSiteId, new Vector());
-						}
-						else if (toolId.equalsIgnoreCase("sakai.discussion"))
-						{
-							DiscussionService.importResources(fromSiteId, toSiteId, new Vector());
-						}
-						else if (toolId.equalsIgnoreCase("sakai.assignment") 
-								|| toolId.equalsIgnoreCase("sakai.assignment.grades"))
-						{
-							// for both Assignment with Grades tool and Assignment without Grades tool
-							AssignmentService.importResources(fromSiteId, toSiteId, new Vector());
-						}
-						else if (toolId.equalsIgnoreCase("sakai.schedule"))
-						{
-							CalendarService.importResources(fromSiteId, toSiteId, new Vector());
-						}
-						/*else if (toolId.equalsIgnoreCase("sakai.syllabus"))
-						{
-						  	SyllabusService.importResources(fromSiteId, toSiteId, new Vector());					   
-						}*/
+
+						String fromSiteCollectionId = ContentHostingService.getSiteCollection(fromSiteId);
+						String toSiteCollectionId = ContentHostingService.getSiteCollection(toSiteId);
+						et.transferCopyEntities(fromSiteCollectionId, toSiteCollectionId, new Vector());
+						resourcesImported = true;
 					}
-					
+				}
+			}
+
+			// ijmport other tools then
+			for (int i = 0; i < toolIds.size(); i++)
+			{
+				String toolId = (String) toolIds.get(i);
+				if (!toolId.equalsIgnoreCase("sakai.resources") && importTools.containsKey(toolId))
+				{
+					List importSiteIds = (List) importTools.get(toolId);
+					for (int k = 0; k < importSiteIds.size(); k++)
+					{
+						String fromSiteId = (String) importSiteIds.get(k);
+						String toSiteId = site.getId();
+						transferCopyEntities(toolId, fromSiteId, toSiteId);
+					}
 				}
 			}
 		}
-	}	// importToolIntoSite
+	} // importToolIntoSite
 	
 	public void saveSiteStatus(SessionState state, boolean published)
 	{
@@ -10423,7 +10379,7 @@ public class SiteAction extends PagedResourceActionII
 						participant.uniqname = u.getId();
 						pList.add(participant);
 					}
-					catch (IdUnusedException e) 
+					catch (UserNotDefinedException e) 
 					{
 						addAlert(state, noEmailInIdAccount + " "+rb.getString("java.username")+" ");
 					}
@@ -10481,7 +10437,7 @@ public class SiteAction extends PagedResourceActionII
 							participant.uniqname = u.getId();
 							pList.add(participant);
 						}
-						catch (IdUnusedException e)
+						catch (UserNotDefinedException e)
 						{
 							// if the emailInIdAccount user is not in the system yet
 							participant.name = emailInIdAccount;
@@ -10597,9 +10553,9 @@ public class SiteAction extends PagedResourceActionII
 								emailId = u.getEmail();
 								userName = u.getDisplayName();
 							}
-							catch (IdUnusedException e)
+							catch (UserNotDefinedException e)
 							{
-								Log.debug("chef", this + ": cannot find user " + noEmailInIdAccount + ". ");
+								M_log.warn("cannot find user " + noEmailInIdAccount + ". ");
 							}
 							// send notification email
 							notifyAddedParticipant(false, emailId, userName, siteTitle);
@@ -10634,7 +10590,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						UserDirectoryService.getUser(emailInIdAccount);
 					}
-					catch (IdUnusedException e) 
+					catch (UserNotDefinedException e) 
 					{
 						//if there is no such user yet, add the user
 						try
@@ -10663,20 +10619,20 @@ public class SiteAction extends PagedResourceActionII
 								notifyNewUserEmail(uEdit.getId(), uEdit.getEmail(), pw, siteTitle);
 							}
 						 }
-						 catch(IdInvalidException ee)
+						 catch(UserIdInvalidException ee)
 						 {
 							 addAlert(state, emailInIdAccountName + " id " + emailInIdAccount + " "+rb.getString("java.isinval") );
-							 Log.debug("chef", this + ".doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
+							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
 						 }
-						 catch(IdUsedException ee)
+						 catch(UserAlreadyDefinedException ee)
 						 {
 							 addAlert(state, "The " + emailInIdAccountName + " " + emailInIdAccount + " " + rb.getString("java.beenused"));
-							 Log.debug("chef", this + ".doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
+							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
 						 }
-						 catch(PermissionException ee)
+						 catch(UserPermissionException ee)
 						 {
 							 addAlert(state, rb.getString("java.haveadd")+ " " + emailInIdAccount);
-							 Log.debug("chef", this + ".doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
+							 M_log.warn("doAdd_participant: UserDirectoryService addUser exception " + e.getMessage());
 						 }	
 					}
 					
@@ -10780,7 +10736,7 @@ public class SiteAction extends PagedResourceActionII
 		String from = ServerConfigurationService.getString("setup.request", null);
 		if (from == null)
 		{
-			Log.warn("chef", this + " - no 'setup.request' in configuration");
+			M_log.warn(this + " - no 'setup.request' in configuration");
 			from = "postmaster@".concat(ServerConfigurationService.getServerName());
 		}
 		String productionSiteName = ServerConfigurationService.getString("ui.service", "");
@@ -10819,7 +10775,7 @@ public class SiteAction extends PagedResourceActionII
 		String from = ServerConfigurationService.getString("setup.request", null);
 		if (from == null)
 		{
-			Log.warn("chef", this + " - no 'setup.request' in configuration");
+			M_log.warn(this + " - no 'setup.request' in configuration");
 		}
 		else
 		{
@@ -10888,7 +10844,7 @@ public class SiteAction extends PagedResourceActionII
 					realmEdit.addMember(user.getId(), role, true, false);
 					AuthzGroupService.save(realmEdit);
 				}
-				catch (IdUnusedException e)
+				catch (GroupNotDefinedException e)
 				{
 					message.append(id + " " +rb.getString("java.notvalidid")+" \n");
 				}
@@ -10902,7 +10858,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 			}
 		}
-		catch (IdUnusedException ee)
+		catch (UserNotDefinedException ee)
 		{
 			message.append(id + " " +rb.getString("java.account")+" \n");
 		}	// try
@@ -10941,7 +10897,7 @@ public class SiteAction extends PagedResourceActionII
 		if (id == null)
 		{
 			//get id
-			id = IdService.getUniqueId();
+			id = IdManager.createUuid();
 			siteInfo.site_id = id;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -11076,7 +11032,7 @@ public class SiteAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			Log.warn("chef", "SiteAction.sitePropertiesIntoState " + e.getMessage());
+			M_log.warn("SiteAction.sitePropertiesIntoState " + e.getMessage());
 		}
 		
 	} // sitePropertiesIntoState 
@@ -11238,7 +11194,7 @@ public class SiteAction extends PagedResourceActionII
 		
 		if (type == null)
 		{
-			Log.warn("chef", this + ": - unknown STATE_SITE_TYPE");
+			M_log.warn(this + ": - unknown STATE_SITE_TYPE");
 		}
 		else
 		{
@@ -11745,7 +11701,7 @@ public class SiteAction extends PagedResourceActionII
 									if (state.getAttribute(STATE_SITE_INSTANCE_ID) != null)
 									{
 										String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-										String channelReference = MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+										String channelReference = mailArchiveChannelReference(siteId);
 										if (!target.equals(channelReference))
 										{
 											// the email alias is not used by current site
@@ -12270,10 +12226,10 @@ public class SiteAction extends PagedResourceActionII
 				{
 					t1 = ((Site)o1).getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
 				}
-				catch (EmptyException e)
+				catch (EntityPropertyNotDefinedException e)
 				{
 				}
-				catch (TypeException e)
+				catch (EntityPropertyTypeException e)
 				{
 				}
 	
@@ -12281,10 +12237,10 @@ public class SiteAction extends PagedResourceActionII
 				{
 					t2 = ((Site)o2).getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
 				}
-				catch (EmptyException e)
+				catch (EntityPropertyNotDefinedException e)
 				{
 				}
-				catch (TypeException e)
+				catch (EntityPropertyTypeException e)
 				{
 				}
 				if (t1==null)
@@ -12611,7 +12567,7 @@ public class SiteAction extends PagedResourceActionII
 		Site template = null;
 		
 		//get a unique id
-		String id = IdService.getUniqueId();
+		String id = IdManager.createUuid();
 		
 		//get the Grad Tools student site template
 		try
@@ -12621,7 +12577,7 @@ public class SiteAction extends PagedResourceActionII
 		catch (Exception e)
 		{
 			if(Log.isWarnEnabled())
-				Log.warn("chef", this + ".addGradToolsFeatures template " + e);
+				M_log.warn("addGradToolsFeatures template " + e);
 		}
 		if(template != null)
 		{
@@ -12633,7 +12589,7 @@ public class SiteAction extends PagedResourceActionII
 			catch(Exception e)
 			{
 				if(Log.isWarnEnabled())
-					Log.warn("chef", this + ".addGradToolsFeatures add/edit site " + e);
+					M_log.warn("addGradToolsFeatures add/edit site " + e);
 			}
 			
 			//set the tab, etc.
@@ -12653,13 +12609,13 @@ public class SiteAction extends PagedResourceActionII
 				catch(Exception e)
 				{
 					if(Log.isWarnEnabled())
-						Log.warn("chef", this + ".addGradToolsFeartures commitEdit " + e);
+						M_log.warn("addGradToolsFeartures commitEdit " + e);
 				}
 				
 				//now that the site and realm exist, we can set the email alias
 				//set the GradToolsStudent site alias as: gradtools-uniqname@servername
 				String alias = "gradtools-" +  SessionManager.getCurrentSessionUserId();
-				String channelReference = MailArchiveService.channelReference(id, SiteService.MAIN_CONTAINER);
+				String channelReference = mailArchiveChannelReference(id);
 				try
 				{
 					AliasService.setAlias(alias, channelReference);
@@ -12674,7 +12630,7 @@ public class SiteAction extends PagedResourceActionII
 				}
 				catch (PermissionException ee) 
 				{
-					Log.warn("chef", SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
+					M_log.warn(SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ");
 				}
 			}
 		}
@@ -12749,7 +12705,7 @@ public class SiteAction extends PagedResourceActionII
 		int n = 0;
 		try
 		{
-			n = SiteService.countSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.UPDATE,
+			n = SiteService.countSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE,
 					SITE_TYPE_GRADTOOLS_STUDENT, null, null);
 			if(n > 0)
 				has = true;
@@ -12757,14 +12713,61 @@ public class SiteAction extends PagedResourceActionII
 		catch(Exception e)
 		{
 			if(Log.isWarnEnabled())
-				Log.warn("chef", this + ".hasGradToolsStudentSite "  + e);
+				M_log.warn("hasGradToolsStudentSite "  + e);
 		}
 	
 		return has;
 			
 	}//hasGradToolsStudentSite
 
-}	// SiteAction
+	/**
+	 * Get the mail archive channel reference for the main container placement for this site.
+	 * @param siteId The site id.
+	 * @return The mail archive channel reference for this site.
+	 */
+	protected String mailArchiveChannelReference(String siteId)
+	{
+		// TODO: restore this dependency, rather than code stealing -ggolden
+		//return MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+		return "/mailarchive/" + siteId +  SiteService.MAIN_CONTAINER;
+	}
 
+	/**
+	 * Transfer a copy of all entites from another context for any entity producer that claims this tool id.
+	 * 
+	 * @param toolId
+	 *        The tool id.
+	 * @param fromContext
+	 *        The context to import from.
+	 * @param toContext
+	 *        The context to import into.
+	 */
+	protected void transferCopyEntities(String toolId, String fromContext, String toContext)
+	{
+		// TODO: used to offer to resources first - why? still needed? -ggolden
 
+		// offer to all EntityProducers
+		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();)
+		{
+			EntityProducer ep = (EntityProducer) i.next();
+			if (ep instanceof EntityTransferrer)
+			{
+				try
+				{
+					EntityTransferrer et = (EntityTransferrer) ep;
 
+					// if this producer claims this tool id
+					if (ArrayUtil.contains(et.myToolIds(), toolId))
+					{
+						et.transferCopyEntities(fromContext, toContext, new Vector());
+					}
+				}
+				catch (Throwable t)
+				{
+					M_log.warn("Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext
+							+ " to: " + toContext, t);
+				}
+			}
+		}
+	}
+}
