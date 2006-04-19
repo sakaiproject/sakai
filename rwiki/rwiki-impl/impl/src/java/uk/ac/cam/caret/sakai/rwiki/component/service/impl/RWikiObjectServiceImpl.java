@@ -779,14 +779,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public void syncWithSiteChange(Site site, ChangeType change)
 	{
 		// stolen :) from BaseContentService
@@ -1089,10 +1081,19 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public String[] myToolIds()
+	{
+		String[] toolIds = { "sakai.rwiki" };
+		return toolIds;
+	}
+
+	/**
 	 * {@inheritDoc} Only the current version of a page is imported, history is
 	 * left behind.
 	 */
-	public void importEntities(String fromContext, String toContext, List ids)
+	public void transferCopyEntities(String fromContext, String toContext, List ids)
 	{
 		// TODO Will check admin on each rwiki object
 		if (fromContext.equals(toContext)) return;

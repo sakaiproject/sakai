@@ -740,7 +740,7 @@ public class ComponentIntegrationTest extends SakaiTestBase
 		rwikiObjectservice.update("HometestPage2IMPORT", site.getReference(),
 				rwo.getVersion(), content[1]);
 
-		rwikiObjectservice.importEntities(site.getReference(), targetSite
+		rwikiObjectservice.transferCopyEntities(site.getReference(), targetSite
 				.getReference(), l);
 		assertEquals("HometestPage failed to import",true,rwikiObjectservice
 				.exists("HometestPageIMPORT", targetSite.getReference()) );
@@ -780,8 +780,6 @@ public class ComponentIntegrationTest extends SakaiTestBase
 				.getLabel());
 		assertEquals("Expected to be able to archive  ", true,
 				rwikiObjectservice.willArchiveMerge());
-		assertEquals("Expected to be able to import  ", true,
-				rwikiObjectservice.willImport());
 	}
 
 	/**

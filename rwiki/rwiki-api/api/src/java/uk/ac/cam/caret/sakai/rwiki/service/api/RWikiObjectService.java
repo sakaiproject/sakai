@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.Reference;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
@@ -40,7 +41,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.exception.VersionException;
 
 // FIXME: Service
 
-public interface RWikiObjectService extends EntityProducer
+public interface RWikiObjectService extends EntityProducer, EntityTransferrer
 {
 
 	/** This string can be used to find the service in the service manager. */
