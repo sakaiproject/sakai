@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -93,6 +94,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
+
+	/** The layouts in human readable form (localized) */
+	static ResourceBundle rb = ResourceBundle.getBundle("site-impl");
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
@@ -457,6 +461,17 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * SiteService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * @inheritDoc
+	 */
+	public String[] getLayoutNames()
+	{
+		String[] rv = new String[2];
+		rv[0] = rb.getString("sitpag.lay_sngl");
+		rv[1] = rb.getString("sitpag.lay_dbl");
+		return rv;
+	}
 
 	/**
 	 * @inheritDoc

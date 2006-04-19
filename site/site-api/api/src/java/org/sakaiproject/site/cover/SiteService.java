@@ -430,4 +430,13 @@ public class SiteService
 
 		return service.findGroup(param0);
 	}
+	
+	public static java.lang.String[] getLayoutNames()
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.getLayoutNames();
+	}
+
 }

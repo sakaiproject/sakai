@@ -246,6 +246,13 @@ public interface SiteService extends EntityProducer
 	}
 
 	/**
+	 * Get an array of names to match the site page layout options.
+	 * 
+	 * @return The array of human readable layout titles possible for any site page.
+	 */
+	String[] getLayoutNames();
+
+	/**
 	 * check permissions for accessing (i.e. visiting) a site
 	 * 
 	 * @param id

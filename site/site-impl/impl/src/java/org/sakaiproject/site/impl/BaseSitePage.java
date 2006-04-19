@@ -366,7 +366,7 @@ public class BaseSitePage implements SitePage, Identifiable
 	 */
 	public String getLayoutTitle()
 	{
-		return LAYOUT_NAMES[m_layout];
+		return ((BaseSiteService) (SiteService.getInstance())).getLayoutNames()[m_layout];
 	}
 
 	/**

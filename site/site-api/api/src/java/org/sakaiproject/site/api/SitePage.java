@@ -42,11 +42,6 @@ public interface SitePage extends Edit, Serializable
 	/** Layout value for a double column layout. */
 	public static final int LAYOUT_DOUBLE_COL = 1;
 
-	/** The layouts in human readable form (localized) */
-	static ResourceBundle rb = ResourceBundle.getBundle("admin");
-
-	public static final String LAYOUT_NAMES[] = { rb.getString("sitpag.lay_sngl"), rb.getString("sitpag.lay_dbl") };
-
 	/** @return The human readable Title of this SitePage. */
 	public String getTitle();
 

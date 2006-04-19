@@ -1942,9 +1942,10 @@ public class AdminSitesAction extends PagedResourceActionII
 	private List layoutsList()
 	{
 		List rv = new Vector();
-		for (int i = 0; i < SitePage.LAYOUT_NAMES.length; i++)
+		String[] layoutNames = SiteService.getLayoutNames();
+		for (int i = 0; i < layoutNames.length; i++)
 		{
-			rv.add(SitePage.LAYOUT_NAMES[i]);
+			rv.add(layoutNames[i]);
 		}
 		return rv;
 
