@@ -44,7 +44,7 @@ import org.sakaiproject.util.StringUtil;
 public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAction
 {
 
-	protected static ResourceBundle rb = ResourceBundle.getBundle("pagedresourceaction");
+	protected static ResourceBundle rb = ResourceBundle.getBundle("velocity-tool");
 
 	/** The default number of messages per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 10;
