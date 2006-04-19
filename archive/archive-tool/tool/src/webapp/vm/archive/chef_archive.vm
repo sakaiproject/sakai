@@ -1,0 +1,40 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_archive.vm,v 1.3 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["archive-id"];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+
+	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("archive.vm.archive")
+	</h3>
+	<form action="#toolForm("$action")" method="post">
+		<h4>$tlang.getString("archive.vm.export")</h4>
+		<p class="shorttext">
+			<label for="archive-id">
+				$tlang.getString("archive.vm.from")
+			</label>	
+			<input type="text" size="80" name="archive-id" id="archive-id" />
+		</p>
+		<p class="act labelindnt" ><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" style="margin-left:1em"/></p>
+		<h4>$tlang.getString("archive.vm.import")</h4>
+			<p class="shorttext">
+				<label for="import-file">
+					$tlang.getString("archive.vm.file")
+				</label>	
+				<input type="text" size="80" name="import-file" id="import-file" />
+			</p>	
+			<p class="shorttext">
+				<label for="import-file">
+					$tlang.getString("archive.vm.site")
+				</label>	
+				<input type="text" size="80" name="import-id" id="import-id" />
+			</p>
+			<p class="act labelindnt" >	<input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")"  style="margin-left:1em"/></p>
+	</form>
+</div>
+
