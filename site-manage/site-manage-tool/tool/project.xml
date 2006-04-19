@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-site-tool</name>
+	<name>sakai-site-manage-tool</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-site-tool</id>
+	<id>sakai-site-manage-tool</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>The Sakai Foundation</name>
@@ -34,13 +34,13 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
+			<artifactId>sakai-site-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-site-cm-api</artifactId>
+			<artifactId>sakai-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
