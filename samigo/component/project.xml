@@ -89,6 +89,11 @@
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <!-- For integration with the gradebook -->
     <dependency>
       <groupId>sakaiproject</groupId>
