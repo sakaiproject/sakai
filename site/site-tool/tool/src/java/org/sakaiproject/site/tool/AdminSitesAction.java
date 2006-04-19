@@ -54,7 +54,6 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -396,9 +395,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		if (ServerConfigurationService.getString("courseSiteType") != null && site.getType() != null
 				&& site.getType().equals(ServerConfigurationService.getString("courseSiteType")))
 		{
-			context.put("isCourseSite", Boolean.TRUE);
+			// TODO: restore this? -ggolden
+			/*context.put("isCourseSite", Boolean.TRUE);
 			context.put("termList", CourseManagementService.getTerms());
-			context.put("term", site.getProperties().getProperty("term"));
+			context.put("term", site.getProperties().getProperty("term"));*/
 		}
 		else
 		{

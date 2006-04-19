@@ -24,7 +24,6 @@ package org.sakaiproject.site.api;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.tool.api.Tool;
