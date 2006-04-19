@@ -168,7 +168,7 @@ public class JsfUtil {
         
         // We need to be able to call this from tests.  Is there a way to manually construct a FacesContext?
         if(context == null) {
-        	bundleName = "org.sakaiproject.tool.section.bundle.Messages";
+        	bundleName = "sections";
         } else {
         	bundleName = context.getApplication().getMessageBundle();
         }

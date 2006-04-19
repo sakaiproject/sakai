@@ -7,7 +7,7 @@
             org.sakaiproject.jsf.app.SakaiVariableResolver
         </variable-resolver>
         <message-bundle>
-            org.sakaiproject.tool.section.bundle.Messages
+            sections
         </message-bundle>
         <locale-config>
             <default-locale>en</default-locale>
