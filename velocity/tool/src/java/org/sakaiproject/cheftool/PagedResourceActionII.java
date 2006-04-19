@@ -41,7 +41,7 @@ import org.sakaiproject.util.StringUtil;
  */
 public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 {
-	protected static ResourceLoader rb_praII = new ResourceLoader("pagedresourceaction");
+	protected static ResourceLoader rb_praII = new ResourceLoader("velocity-tool");
 
 	/** The default number of messages per page. */
 	protected final static int DEFAULT_PAGE_SIZE = 20;

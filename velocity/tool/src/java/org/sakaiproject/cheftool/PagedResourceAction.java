@@ -43,7 +43,7 @@ import org.sakaiproject.util.StringUtil;
 public abstract class PagedResourceAction extends VelocityPortletPaneledAction
 {
 
-	private static ResourceLoader rb = new ResourceLoader("pagedresourceaction");
+	private static ResourceLoader rb = new ResourceLoader("velocity-tool");
 
 	/** The default number of messages per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 10;
