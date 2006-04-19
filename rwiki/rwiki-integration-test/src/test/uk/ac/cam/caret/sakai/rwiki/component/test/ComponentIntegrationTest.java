@@ -26,6 +26,11 @@
 package uk.ac.cam.caret.sakai.rwiki.component.test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,19 +39,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.PropertyResourceBundle;
 import java.util.Set;
 import java.util.Stack;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.catalina.loader.WebappClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.impl.SpringCompMgr;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -56,7 +66,8 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.test.SakaiTestBase;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
@@ -82,7 +93,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SimpleCoverage;
  * 
  * @author ieb
  */
-public class ComponentIntegrationTest extends SakaiTestBase
+public class ComponentIntegrationTest extends TestCase
 {
 	private static Log logger = LogFactory
 			.getLog(ComponentIntegrationTest.class);
@@ -1267,6 +1278,121 @@ public class ComponentIntegrationTest extends SakaiTestBase
 
 		}
 
+	}
+
+	protected static ComponentManager compMgr;
+	
+	/**
+	 * Initialize the component manager once for all tests, and log in as admin.
+	 */
+	protected static void oneTimeSetup() throws Exception {
+		if(compMgr == null) {
+			// Find the sakai home dir
+			String tomcatHome = getTomcatHome();
+			String sakaiHome = tomcatHome + File.separatorChar + "sakai" + File.separatorChar;
+			String componentsDir = tomcatHome + "components/";
+			
+			// Set the system properties needed by the sakai component manager
+			System.setProperty("sakai.home", sakaiHome);
+			System.setProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP, componentsDir);
+
+			// Get a tomcat classloader
+			logger.debug("Creating a tomcat classloader for component loading");
+			WebappClassLoader wcloader = new WebappClassLoader(Thread.currentThread().getContextClassLoader());
+			wcloader.start();
+
+			// Initialize spring component manager
+			logger.debug("Loading component manager via tomcat's classloader");
+			Class clazz = wcloader.loadClass(SpringCompMgr.class.getName());
+			Constructor constructor = clazz.getConstructor(new Class[] {ComponentManager.class});
+			compMgr = (ComponentManager)constructor.newInstance(new Object[] {null});
+			Method initMethod = clazz.getMethod("init", new Class[0]);
+			initMethod.invoke(compMgr, new Object[0]);
+		}
+		 
+		// Sign in as admin
+		if(SessionManager.getCurrentSession() == null) {
+			SessionManager.startSession();
+			Session session = SessionManager.getCurrentSession();
+			session.setUserId("admin");
+		}
+	}
+
+	
+	
+	// Stolen shamelessly from test-harness, since I want to run these test inside exlipse
+	/**
+	 * Close the component manager when the tests finish.
+	 */
+	public static void oneTimeTearDown() {
+		if(compMgr != null) {
+			compMgr.close();
+		}
+	}
+
+	/**
+	 * Fetches the "maven.tomcat.home" property from the maven build.properties
+	 * file located in the user's $HOME directory.
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	private static String getTomcatHome() throws Exception {
+		String testTomcatHome = System.getProperty("test.tomcat.home");
+		if ( testTomcatHome != null && testTomcatHome.length() > 0 ) {
+			return testTomcatHome;
+		} else {
+			String homeDir = System.getProperty("user.home");
+			File file = new File(homeDir + File.separatorChar + "build.properties");
+			FileInputStream fis = new FileInputStream(file);
+			PropertyResourceBundle rb = new PropertyResourceBundle(fis);
+			return rb.getString("maven.tomcat.home");
+		}
+	}
+	
+	/**
+	 * Convenience method to get a service bean from the Sakai component manager.
+	 * 
+	 * @param beanId The id of the service
+	 * 
+	 * @return The service, or null if the ID is not registered
+	 */
+	public static final Object getService(String beanId) {
+		return org.sakaiproject.component.cover.ComponentManager.get(beanId);
+	}
+
+	/**
+	 * Convenience method to set the current user in sakai.  By default, the user
+	 * is admin.
+	 * 
+	 * @param userUid The user to become
+	 */
+	public static final void setUser(String userUid) {
+		Session session = SessionManager.getCurrentSession();
+		session.setUserId(userUid);
+	}
+	
+	/**
+	 * Convenience method to create a somewhat unique site id for testing.  Useful
+	 * in tests that need to create a site to run tests upon.
+	 * 
+	 * @return A string suitable for using as a site id.
+	 */
+	protected String generateSiteId() {
+		return "site-" + getClass().getName() + "-" + Math.floor(Math.random()*100000);
+	}
+	
+	/**
+	 * Returns a dynamic proxy for a service interface.  Useful for testing with
+	 * customized service implementations without needing to write custom stubs.
+	 * 
+	 * @param clazz The service interface class
+	 * @param handler The invocation handler that defines how the dynamic proxy should behave
+	 * 
+	 * @return The dynamic proxy to use as a collaborator
+	 */
+	public static final Object getServiceProxy(Class clazz, InvocationHandler handler) {
+		return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), new Class[] {clazz}, handler);
 	}
 
 }

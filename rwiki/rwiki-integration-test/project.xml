@@ -2,7 +2,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../test-harness/project.xml</extend>
+    <extend>../../master/project.xml</extend>
     <name>RWiki Integration Tests</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-rwiki-integration-test</id>

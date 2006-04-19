@@ -40,13 +40,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.section.cover.SectionAwareness;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -611,7 +611,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				String[] testuuid = paths[2].split("-");
 				String[] uuidparts = paths[4].split("-");
 				boolean isuuid = false;
-				String sectionID = Entity.SEPARATOR + paths[1]
+				String groupID = Entity.SEPARATOR + paths[1]
 						+ Entity.SEPARATOR + paths[2] + Entity.SEPARATOR
 						+ paths[3] + Entity.SEPARATOR + paths[4];
 				;
@@ -632,25 +632,26 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 					// could be a section name
 					Reference siteRef = entityManager.newReference(ref
 							.getContext());
-					List l = SectionAwareness.getSections(siteRef.getId());
+					Site s = (Site) siteRef.getEntity();
+					Collection l = s.getGroups();
 					for (Iterator is = l.iterator(); is.hasNext();)
 					{
-						CourseSection cs = (CourseSection) is.next();
-						if (paths[4].equalsIgnoreCase(cs.getTitle()))
+						Group g = (Group) is.next();
+						if (paths[4].equalsIgnoreCase(g.getTitle()))
 						{
-							sectionID = cs.getUuid();
-							log.debug("Found Match " + sectionID);
+							groupID = g.getId();
+							log.debug("Found Match " + groupID);
 							break;
 						}
 					}
-					log.debug("Converted ID " + sectionID);
+					log.debug("Converted ID " + groupID);
 
 				}
 				else
 				{
-					log.debug("Raw ID " + sectionID);
+					log.debug("Raw ID " + groupID);
 				}
-				rv.add(sectionID);
+				rv.add(groupID);
 
 			}
 

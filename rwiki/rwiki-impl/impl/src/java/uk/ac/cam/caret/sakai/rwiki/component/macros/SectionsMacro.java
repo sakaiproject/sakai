@@ -25,14 +25,14 @@ package uk.ac.cam.caret.sakai.rwiki.component.macros;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
-import org.sakaiproject.api.section.coursemanagement.CourseSection;
-import org.sakaiproject.component.section.cover.SectionAwareness;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -49,7 +49,6 @@ public class SectionsMacro extends BaseMacro
 {
 	private static String[] paramDescription = {
 			"1,useids: (optional) if true will generate with ID's otherwise will use names, names it the default ",
-			"2,categories: (optional) list of comma seperated categories to generate links for ",
 			"Remember if using positional parameters, you must include dummies for the optional parameters" };
 
 	private static String description = "Generate a list of links that point to section subsites";
@@ -83,7 +82,6 @@ public class SectionsMacro extends BaseMacro
 		RenderEngine engine = context.getRenderEngine();
 
 		String useids = params.get("useids", 0);
-		String categories = params.get("categories", 1);
 
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 		Site s = null;
@@ -96,37 +94,38 @@ public class SectionsMacro extends BaseMacro
 
 		}
 
-		List sections = null;
-		if (categories != null && categories.length() > 0)
+		Collection groups = null;
+		Site site;
+		try
 		{
-			sections = SectionAwareness.getSectionsInCategory(siteId,
-					categories);
+			site = SiteService.getSite(siteId);
 		}
-		else
+		catch (IdUnusedException e)
 		{
-			sections = SectionAwareness.getSections(siteId);
+			throw new IllegalArgumentException("Invalid Site Id "+e.getMessage());
 		}
+		groups = site.getGroups();
 
-		for (Iterator is = sections.iterator(); is.hasNext();)
+		for (Iterator is = groups.iterator(); is.hasNext();)
 		{
-			CourseSection cs = (CourseSection) is.next();
+			Group g = (Group) is.next();
 			String pageName = "";
 
 			if ("true".equals(useids))
 			{
-				pageName = cs.getUuid() + "/Home";
+				pageName = g.getId() + "/Home";
 			}
 			else
 			{
 				if (s != null)
 				{
-					pageName = s.getReference() + "/";
+					pageName = g.getReference() + "/";
 				}
-				pageName += "section/" + cs.getTitle() + "/Home";
+				pageName += "section/" + g.getTitle() + "/Home";
 			}
 			writer.write("\n");
 			writer.write("* [ Section: ");
-			writer.write(cs.getTitle());
+			writer.write(g.getTitle());
 			writer.write("|");
 			writer.write(pageName);
 			writer.write("]");
