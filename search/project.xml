@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
+
     <pomVersion>3</pomVersion>
     <name>Sakai Search Master</name>
     <extend>../master/project.xml</extend>
