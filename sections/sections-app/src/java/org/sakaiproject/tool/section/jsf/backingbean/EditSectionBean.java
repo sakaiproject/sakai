@@ -90,13 +90,13 @@ public class EditSectionBean extends CourseDependentBean implements Serializable
 				startTime = sdf.format(section.getStartTime());
 				Calendar cal = new GregorianCalendar();
 				cal.setTime(section.getStartTime());
-				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
+				startTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
 			}
 			if(section.getEndTime() != null) {
 				endTime = sdf.format(section.getEndTime());
 				Calendar cal = new GregorianCalendar();
 				cal.setTime(section.getEndTime());
-				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) < 11;
+				endTimeAm = cal.get(Calendar.HOUR_OF_DAY) <= 11;
 			}
 		}
 	}
