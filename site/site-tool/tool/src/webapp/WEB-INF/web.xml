@@ -2,8 +2,8 @@
 <web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>sakai-user-tool</display-name>
-    <description>sakai-user-tool</description>
+    <display-name>sakai-site-tool</display-name>
+    <description>sakai-site-tool</description>
 
 	<!-- Sakai request filter -->
     <filter>
@@ -13,7 +13,7 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.users</servlet-name>
+        <servlet-name>sakai.sites</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -21,7 +21,7 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.singleuser</servlet-name>
+        <servlet-name>sakai.sitemanage</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -29,7 +29,15 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.createuser</servlet-name>
+        <servlet-name>sakai.sitebrowser</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.sitesetup</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -50,44 +58,58 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-    <servlet>
+     <servlet>
         <servlet-name>
-           sakai.users
+           sakai.sites
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.user.tool.UsersAction
+            org.sakaiproject.site.tool.AdminSitesAction
         </servlet-class>
         <init-param>
             <param-name>template</param-name>
-            <param-value>user/chef_users</param-value>            
+            <param-value>adminsites/chef_sites</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+     <servlet>
+        <servlet-name>
+           sakai.sitemanage
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.site.tool.SiteAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>sitesetup/chef_site</param-value>            
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>
 
     <servlet>
         <servlet-name>
-          sakai.singleuser
+           sakai.sitebrowser
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.user.tool.UsersAction
+            org.sakaiproject.site.tool.SiteBrowserAction
         </servlet-class>
         <init-param>
             <param-name>template</param-name>
-            <param-value>user/chef_users</param-value>            
+            <param-value>sitebrowser/chef_sitebrowser</param-value>            
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>
 
     <servlet>
         <servlet-name>
-           sakai.createuser
+           sakai.sitesetup
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.user.tool.UsersAction
+            org.sakaiproject.site.tool.SiteAction
         </servlet-class>
         <init-param>
             <param-name>template</param-name>
-            <param-value>user/chef_users</param-value>            
+            <param-value>sitesetup/chef_site</param-value>            
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>
