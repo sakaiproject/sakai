@@ -1514,14 +1514,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return new HttpAccess()
@@ -1722,13 +1714,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			Set userListAllowImport)
 	{
 		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void importEntities(String fromContext, String toContext, List ids)
-	{
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
