@@ -167,7 +167,7 @@ public class BasicArchiveService
 			m_storagePath = m_storagePath + "/";
 		}
 
-		M_log.info(this + ".init(): storage path: " + m_storagePath);
+		M_log.info("init(): storage path: " + m_storagePath);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class BasicArchiveService
 	 */
 	public void destroy()
 	{
-		M_log.info(this + ".destroy()");
+		M_log.info("destroy()");
 	}
 
 	/*******************************************************************************
@@ -192,7 +192,7 @@ public class BasicArchiveService
 		StringBuffer results = new StringBuffer();
 
 		if (M_log.isDebugEnabled())
-			M_log.debug(this + ".archive(): site: " + siteId);
+			M_log.debug("archive(): site: " + siteId);
 
 		Site theSite = null;
 		try
@@ -202,7 +202,7 @@ public class BasicArchiveService
 		catch (IdUnusedException e)
 		{
 			results.append("Site: " + siteId + " not found.\n");
-			M_log.warn(this + ".archive(): site not found: " + siteId);
+			M_log.warn("archive(): site not found: " + siteId);
 			return results.toString();
 		}
 
@@ -370,7 +370,7 @@ public class BasicArchiveService
 		}
 		catch(Exception any)
 		{
-			// M_log.warn(this + ".archve: exception archiving site: "+ site.getId() + ": ", any);
+			// M_log.warn("archve: exception archiving site: "+ site.getId() + ": ", any);
 		}
 	
 		stack.pop();
@@ -417,7 +417,7 @@ public class BasicArchiveService
 		}
 		catch (Exception any)
 		{
-			//.M_log.warn(this + ".archve: exception archiving users: "
+			//.M_log.warn("archve: exception archiving users: "
 					//	+ site.getId() + ": ", any);
 		}
 	
@@ -447,7 +447,7 @@ public class BasicArchiveService
 		if ((file == null) || (!file.exists()))
 		{
 			results.append("file: " + file.getPath() + " not found.\n");
-			M_log.warn(this + ".merge(): file not found: " + file.getPath());
+			M_log.warn("merge(): file not found: " + file.getPath());
 			return results.toString();
 		}
 
@@ -645,7 +645,7 @@ public class BasicArchiveService
 		fileName = fileName.replace('\\', '/');
 
 		if (M_log.isDebugEnabled())
-			M_log.debug(this + ".merge(): processing file: " + fileName);
+			M_log.debug("merge(): processing file: " + fileName);
 
 		Site theSite = null;
 		try
@@ -809,7 +809,7 @@ public class BasicArchiveService
 		}
 		catch(Exception any)
 		{
-			M_log.warn(this + ".mergeSiteInfo(): exception caught");				
+			M_log.warn("mergeSiteInfo(): exception caught");				
 		}							
 		//edit.setTitle(title);
 		edit.setDescription(desc);
@@ -934,7 +934,7 @@ public class BasicArchiveService
 		}
 		catch(Exception err)
 		{
-			M_log.warn(this + ".()mergeSiteRoles realm edit exception caught" + realmId);
+			M_log.warn("()mergeSiteRoles realm edit exception caught" + realmId);
 		}
 		return;
 	
@@ -1274,7 +1274,7 @@ public class BasicArchiveService
 		}
 		catch (Exception any)
 		{
-			M_log.warn(this + ".mergeAttachments(): exception: ", any);
+			M_log.warn("mergeAttachments(): exception: ", any);
 		}
 	}	// mergeAttachments
 */
