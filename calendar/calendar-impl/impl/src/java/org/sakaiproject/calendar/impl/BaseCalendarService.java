@@ -84,6 +84,7 @@ import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -107,6 +108,9 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FormattedText;
@@ -114,9 +118,6 @@ import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -130,7 +131,7 @@ import org.w3c.dom.NodeList;
  * @author University of Michigan, CHEF Software Development Team
  * @version $Revision$
  */
-public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -987,14 +988,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return new HttpAccess()
@@ -1581,16 +1574,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	}
 
 	/**
-	 * import tool(s) contents from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param resourceIds
-	 *        when null, all resources will be imported; otherwise, only resources with those ids will be imported
+	 * {@inheritDoc}
 	 */
-	public void importEntities(String fromContext, String toContext, List resourceIds)
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
 	{
 		// get the channel associated with this site
 		String oCalendarRef = calendarReference(fromContext, SiteService.MAIN_CONTAINER);
