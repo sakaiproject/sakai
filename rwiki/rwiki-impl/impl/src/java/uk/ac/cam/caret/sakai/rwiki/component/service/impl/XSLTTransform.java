@@ -38,7 +38,6 @@ import javax.xml.transform.sax.TemplatesHandler;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.xalan.templates.OutputProperties;
 import org.apache.xml.serializer.OutputPropertiesFactory;
 import org.apache.xml.serializer.Serializer;
 import org.xml.sax.ContentHandler;
@@ -125,13 +124,13 @@ public class XSLTTransform
 		Serializer serializer = null;
 
 		String className = p
-				.getProperty(OutputProperties.S_KEY_CONTENT_HANDLER);
+				.getProperty(OutputPropertiesFactory.S_KEY_CONTENT_HANDLER);
 
 		if (null == className)
 		{
 			throw new IllegalArgumentException(
 					"The output format must have a '"
-							+ OutputProperties.S_KEY_CONTENT_HANDLER
+							+ OutputPropertiesFactory.S_KEY_CONTENT_HANDLER
 							+ "' property!");
 		}
 
