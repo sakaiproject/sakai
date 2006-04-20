@@ -26,6 +26,12 @@
       <property name="name"><value>Send Mail to Participants</value></property>
       <property name="location"><value>/sakai_mailbox/arew.html</value></property>
    </bean>
+
+   <bean id="controlEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>bree</value></property>
+      <property name="name"><value>Control Who Sends Email</value></property>
+      <property name="location"><value>/sakai_permissions/aree.html</value></property>
+   </bean>
    
    <bean id="manageEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arem</value></property>

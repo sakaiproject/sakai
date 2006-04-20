@@ -63,12 +63,6 @@
       <property name="location"><value>/sakai_permissions/ardk.html</value></property>
    </bean>
    
-   <bean id="controlEmail" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>bree</value></property>
-      <property name="name"><value>Control Who Sends Email</value></property>
-      <property name="location"><value>/sakai_permissions/aree.html</value></property>
-   </bean>
-   
    <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>brbp</value></property>
       <property name="name"><value>Types/Realms/Roles/Permissions Relationships</value></property>
