@@ -57,12 +57,6 @@
       <property name="location"><value>/sakai_permissions/aqzw.html</value></property>
    </bean>
    
-   <bean id="announcementPermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>bram</value></property>
-      <property name="name"><value>Set Announcement Permissions</value></property>
-      <property name="location"><value>/sakai_permissions/aram.html</value></property>
-   </bean>
-   
    <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>brdk</value></property>
       <property name="name"><value>Change Permissions for Tool</value></property>
