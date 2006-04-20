@@ -35,7 +35,7 @@
     
    <bean id="navigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzm</value></property>
-      <property name="name"><value>Sakai 2.0 Navigation</value></property>
+      <property name="name"><value>Navigation</value></property>
       <property name="location"><value>/sakai_course_sites/aqzm.html</value></property>
    </bean>
   
