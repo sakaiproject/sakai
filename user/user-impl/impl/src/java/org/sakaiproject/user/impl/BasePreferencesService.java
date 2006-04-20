@@ -456,14 +456,6 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	/**
 	 * @inheritDoc
 	 */
-	public boolean willImport()
-	{
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return null;
@@ -567,13 +559,6 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 			Set userListAllowImport)
 	{
 		return "";
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public void importEntities(String fromContext, String toContext, List ids)
-	{
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
