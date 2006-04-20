@@ -72,6 +72,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -100,6 +101,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -109,10 +114,6 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -123,7 +124,7 @@ import org.w3c.dom.NodeList;
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
  * </p>
  */
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver
+public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -3923,14 +3924,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean willImport()
-	{
-		return true;
-	}
-
 	/** stream content requests if true, read all into memory and send if false. */
 	protected static final boolean STREAM_CONTENT = true;
 
@@ -4730,16 +4723,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // merge
 
 	/**
-	 * import tool(s) contents from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param resourceIds
-	 *        when null, all resources will be imported; otherwise, only resources with those ids will be imported
+	 * {@inheritDoc}
 	 */
-	public void importEntities(String fromContext, String toContext, List resourceIds)
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
 	{
 		// default to import all resources
 		boolean toBeImported = true;
@@ -4832,7 +4818,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						{
 						}
 
-						importEntities(oResource.getId(), nId, resourceIds);
+						transferCopyEntities(oResource.getId(), nId, resourceIds);
 					}
 					else
 					{
