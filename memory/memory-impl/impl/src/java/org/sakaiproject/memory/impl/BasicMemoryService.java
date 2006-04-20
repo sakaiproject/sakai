@@ -30,6 +30,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -123,7 +124,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 */
 	public void destroy()
 	{
-		eventTrackingService().deleteObserver(this);
+		// if we are not in a global shutdown, remove my event notification registration
+		if (!ComponentManager.hasBeenClosed())
+		{
+			eventTrackingService().deleteObserver(this);
+		}
 
 		m_cachers.clear();
 

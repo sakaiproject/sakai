@@ -319,11 +319,15 @@ public class MemCache implements Cache, Runnable, Observer
 	{
 		clear();
 
-		// unregister as a cacher
-		m_memoryService.unregisterCacher(this);
-
-		// ungister to get events
-		m_eventTrackingService.deleteObserver(this);
+		// if we are not in a global shutdown
+		if (!ComponentManager.hasBeenClosed())
+		{
+			// remove my registration
+			m_memoryService.unregisterCacher(this);
+	
+			// remove my event notification registration
+			m_eventTrackingService.deleteObserver(this);
+		}
 
 		// stop our expiration thread (if any)
 		stop();
