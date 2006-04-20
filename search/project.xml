@@ -2,7 +2,7 @@
 <project>
 
     <pomVersion>3</pomVersion>
-    <name>Sakai Search Master</name>
+    <name>sakai-search-multiproject</name>
     <extend>../master/project.xml</extend>
 
     <groupId>sakaiproject</groupId>
