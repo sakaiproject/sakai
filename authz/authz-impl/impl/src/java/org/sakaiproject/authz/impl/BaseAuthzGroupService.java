@@ -889,14 +889,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return null;
@@ -993,13 +985,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			Set userListAllowImport)
 	{
 		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void importEntities(String fromContext, String toContext, List ids)
-	{
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
