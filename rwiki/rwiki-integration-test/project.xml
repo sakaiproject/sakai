@@ -3,7 +3,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../master/project.xml</extend>
-    <name>RWiki Integration Tests</name>
+    <name>sakai-rwiki-integration-test</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-rwiki-integration-test</id>
     <currentVersion>${sakai.version}</currentVersion>

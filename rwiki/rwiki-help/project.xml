@@ -3,7 +3,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../master/project.xml</extend>
-    <name>Sakai RWiki Help</name>
+    <name>sakai-rwiki-help</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-rwiki-help</id>
 	<currentVersion>${sakai.version}</currentVersion>

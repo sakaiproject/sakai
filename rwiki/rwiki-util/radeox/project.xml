@@ -2,7 +2,7 @@
 <project>
     <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
-  <name>Radeox Library</name>
+  <name>sakai-radeox</name>
   <artifactId>sakai-radeox</artifactId>
   <currentVersion>${sakai.version}</currentVersion>
   <shortDescription>Radeox Library for RWiki</shortDescription>

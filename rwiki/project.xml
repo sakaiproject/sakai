@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <pomVersion>3</pomVersion>
-    <name>Sakai RWiki</name>
+    <name>sakai-rwiki-multiproject</name>
     <extend>../master/project.xml</extend>
 
     <groupId>sakaiproject</groupId>

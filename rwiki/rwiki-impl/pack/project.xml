@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
     <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
-  <name>Sakai RWiki Component</name>
+  <name>sakai-rwiki-pack</name>
   <groupId>sakaiproject</groupId>
   <artifactId>sakai-rwiki-pack</artifactId>
     <currentVersion>${sakai.version}</currentVersion>
