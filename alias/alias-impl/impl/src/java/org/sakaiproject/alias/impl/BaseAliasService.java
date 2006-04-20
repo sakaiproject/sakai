@@ -844,14 +844,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return false;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return null;
@@ -939,13 +931,6 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			Set userListAllowImport)
 	{
 		return "";
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void importEntities(String fromContext, String toContext, List ids)
-	{
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
