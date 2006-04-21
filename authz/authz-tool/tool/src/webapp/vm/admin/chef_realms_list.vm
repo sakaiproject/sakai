@@ -1,0 +1,49 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_realms_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("realm.list.these")
+		</div>
+		<div class="instruction">
+			$tlang.getString("realm.list.youare") $startNumber - $endNumber $tlang.getString("realm.list.of") $totalNumber $tlang.getString("realm.list.results")
+		</div>
+#if ($realms.size() > 0)
+	#set ($realmCount = 0)
+		<table class="listHier" cellspacing="0" summary ="List of Groups">
+			<tr>
+				<th id="Id">$tlang.getString("realm.list.realmid")</th>
+##				<th id="Description">$tlang.getString("realm.list.used")</th>
+				<th id="Provider">$tlang.getString("realm.list.provide")</th>
+				<th id="Maintain">$tlang.getString("realm.list.maintain")</th>
+			</tr>
+	#foreach ($realm in $realms)
+		#set ($realmCount=$realmCount + 1)
+			<tr>
+				<td headers="Id" #if ($realmCount > 1) class="chefTopline" #end>
+					#if ($service.allowUpdate($realm.Id))
+						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")">
+							$validator.escapeHtml($realm.Id)
+						</a>
+					#else
+						$validator.escapeHtml($realm.Id)
+					#end
+				</td>
+##				<td headers="Description" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.Description)</td>
+				<td headers="Provider" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.ProviderGroupId)</td>
+				<td headers="Maintain" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.MaintainRole)</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("realm.list.norealms")
+		</div>
+#end
+	</div>
+</div>
