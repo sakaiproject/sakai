@@ -1,0 +1,28 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_aliases_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.remove.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="alertMessage">
+		$tlang.getString("alias.remove.sure")
+	</div>
+	<table class="listHier" cellspacing="0" summary ="List of Users">
+		<tr>
+			<th id="Id">$tlang.getString("alias.remove.alias")</th>
+			<th id="Target">$tlang.getString("alias.remove.target")</th>
+		</tr>
+		<tr>
+			<td headers="Id"> $validator.escapeHtml($alias.Id)</td>
+			<td headers="Target">$validator.escapeHtml($alias.Target)</td>
+		</tr>
+	</table>
+	<form action="#toolForm("$action")" method="post">
+		<div class="act">	
+			<input type="submit" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("alias.remove.remove")" />
+			<input type="submit" name="eventSubmit_doCancel_remove" value="$tlang.getString("alias.remove.cancel")" />
+		</div>
+	</form>
+</div>
+

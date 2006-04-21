@@ -1,0 +1,64 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_aliases_edit.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
+<script type="text/javascript" language="JavaScript">
+  focus_path = [#if(!$alias)"id"#else"target"#end];
+</script>
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.edit.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("alias.edit.review")
+		</div>
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h3>
+				$tlang.getString("alias.edit.alias")
+			</h3>	
+			<p class="shorttext">
+				#if(!$alias)<span class="reqStar">*</span>#end 
+				<label #if(!$alias) for="id" #end>
+					$tlang.getString("alias.edit.alias1")
+				</label>
+				#if(!$alias)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($alias.Id)#end
+			</p>	
+			<p class="shorttext">
+				<label for="target">
+					$tlang.getString("alias.edit.target")
+				</label>
+				<input type="text" name="target" id="target" #if($alias)value="$validator.escapeHtml($alias.Target)"#end/>
+#if ($alias)
+			<table class="itemSummary" summary="Review Alias">
+				<tr>
+					<th>$tlang.getString("alias.edit.createdby")</td>
+					<th>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreator))
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("alias.edit.created")</td>
+					<th >
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropCreationDate))
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("alias.edit.modby")</td>
+					<th>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedBy))
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("alias.edit.mod")</td>
+					<th>
+						$validator.escapeHtml($alias.Properties.getPropertyFormatted($alias.Properties.NamePropModifiedDate))
+					</td>
+				</tr>
+			</table>
+#end
+			<div class="act">
+				<input type="submit"class="active"  name="eventSubmit_doSave" value="$tlang.getString("alias.edit.save")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("alias.edit.cancel")" />
+			</div>
+		</form>
+	</div>
+
