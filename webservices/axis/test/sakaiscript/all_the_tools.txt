@@ -1,0 +1,60 @@
+Switch User,sakai.su
+R Wiki,sakai.rwiki
+AdminPrefs,sakai.admin.prefs
+Admin:Alias Editor,sakai.aliases
+Announcments,sakai.announcements
+Admin:Archive Tool,sakai.archive
+Assignments,sakai.assignment
+Assignments w Grades,sakai.assignment.grades
+Chat Room,sakai.chat
+Help,sakai.contactSupport
+New Account,sakai.createuser
+Discussion,sakai.discussion
+Drop Box,sakai.dropbox
+Choose File,sakai.filepicker
+Gradebook Test,sakai.gradebook.testservice
+Gradebook,sakai.gradebook.tool
+Help Documentation,sakai.help
+Web Content,sakai.iframe
+My Workspace HUD,sakai.iframe.myworkspace
+Service Info HUD,sakai.iframe.service
+Site Info HUD,sakai.iframe.site
+IMS Interop,sakai.imsproject.launch
+Login,sakai.login
+Email Archive,sakai.mailbox
+Membership,sakai.membership
+Admin: Memory,sakai.memory
+Meta Object,sakai.metaobj
+Today's Message,sakai.motd
+News,sakai.news
+Admin: On-Line,sakai.online
+Set Permissions,sakai.permissions.helper
+Preferences,sakai.preferences
+Presence,sakai.presence
+Presentation,sakai.presentation
+Profile,sakai.profile
+Admin: Realms,sakai.realms
+Resources,sakai.resources
+Samigo,sakai.samigo
+QA Helper,sakai.sample.qa
+JSF Acme,sakai.sample.tools.acme
+Browser,sakai.sample.tools.browser
+JSF One,sakai.sample.tools.jsf1
+Schedule,sakai.schedule
+Quartz Scheduler,sakai.scheduler
+Section Info,sakai.sections
+Sections Test,sakai.sections.testservice
+Account,sakai.singleuser
+Roster,sakai.site.roster
+Site Browser,sakai.sitebrowser
+Site Info,sakai.siteinfo
+Admin: Site Manage,sakai.sitemanage
+Admin: Sites Editor,sakai.sites
+Worksite Setup,sakai.sitesetup
+Syllabus,sakai.syllabus
+Recent Announce,sakai.synoptic.announcement
+Recent Chat,sakai.synoptic.chat
+Recent Discussion,sakai.synoptic.discussion
+Site Group Tests,sakai.test.group
+Options Helper Tool,sakai.tool_config.helper
+Admin: User Editor,sakai.users

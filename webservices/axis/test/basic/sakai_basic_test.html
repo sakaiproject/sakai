@@ -1,0 +1,59 @@
+<pre>
+class WebService_SakaiLoginService_SakaiLogin extends SOAP_Client
+{
+    function WebService_SakaiLoginService_SakaiLogin()
+{
+        $this->SOAP_Client("http://localhost:8081/sakai-axis/SakaiLogin.jws", 0);
+    }
+    function &login($id, $pw) {
+        return $this->call("login", 
+                        $v = array("id"=>$id, "pw"=>$pw), 
+                        array('namespace'=>'http://DefaultNamespace',
+                            'soapaction'=>'',
+                            'style'=>'rpc',
+                            'use'=>'encoded' ));
+    }
+}
+</pre>
+Session:8e679d36-40dd-4ede-00ce-562856bae2fc<pre>
+class WebService_SakaiSessionService_SakaiSession extends SOAP_Client
+{
+    function WebService_SakaiSessionService_SakaiSession()
+{
+        $this->SOAP_Client("http://localhost:8081/sakai-axis/SakaiSession.jws", 0);
+    }
+    function &checkSession($id) {
+        return $this->call("checkSession", 
+                        $v = array("id"=>$id), 
+                        array('namespace'=>'http://DefaultNamespace',
+                            'soapaction'=>'',
+                            'style'=>'rpc',
+                            'use'=>'encoded' ));
+    }
+}
+</pre>
+Info:session: 8e679d36-40dd-4ede-00ce-562856bae2fc user id: admin user enterprise id: admin started: Apr 15, 2005 2:12:12 PM accessed: Apr 15, 2005 2:12:13 PM inactive after: 1800<pre>
+class WebService_SakaiSiteService_SakaiSite extends SOAP_Client
+{
+    function WebService_SakaiSiteService_SakaiSite()
+{
+        $this->SOAP_Client("http://localhost:8081/sakai-axis/SakaiSite.jws", 0);
+    }
+    function &getSites($id, $search, $first, $last) {
+        return $this->call("getSites", 
+                        $v = array("id"=>$id, "search"=>$search, "first"=>$first, "last"=>$last), 
+                        array('namespace'=>'http://DefaultNamespace',
+                            'soapaction'=>'',
+                            'style'=>'rpc',
+                            'use'=>'encoded' ));
+    }
+}
+</pre>
+Sites:Array
+(
+    [0] => Gateway
+    [1] => Invalid URL
+    [2] => My Workspace
+    [3] => Site Unavailable
+    [4] => worksite
+)

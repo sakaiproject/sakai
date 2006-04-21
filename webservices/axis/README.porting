@@ -1,0 +1,32 @@
+Porting Steps
+
+(1) Create project.xml from 
+http://maven-plugins.sourceforge.net/maven-axis-plugin/index.html
+
+Comment out commons-logging and log4j because these already provided and provisioned by Sakai.
+
+Comment out xerces because it already provisioned in Tomcat
+
+(2) in src/webappps - pull the material form the maven distribution
+
+webapps/axis
+
+(3) Remove src/webapps/WEB-INF/lib/* because this all comes from Maven.
+
+(4) Remove src/webapps/WEB-INF/classes/samples/*  - Not is needed
+
+(5) Remove everything except that which is absolutely necessary for happyaxis.jsp
+
+Final contents of src:
+
+src/webapp/happyaxis.jsp
+src/webapp/i18nLib.jsp
+src/webapp/index.html
+src/webapp/index.jsp
+src/webapp/WEB-INF/classes/i18n.properties
+src/webapp/WEB-INF/classes/i18n_ja.properties
+src/webapp/WEB-INF/classes
+src/webapp/WEB-INF/web.xml
+
+I decided not to edit any files form the release - this could be reduced more
+by taking out the Japanese version but not worth the effort.

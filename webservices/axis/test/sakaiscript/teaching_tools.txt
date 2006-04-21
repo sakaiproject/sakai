@@ -1,0 +1,15 @@
+Announcments,sakai.announcements
+Assignments,sakai.assignment
+Assignments w Grades,sakai.assignment.grades
+Chat Room,sakai.chat
+Drop Box,sakai.dropbox
+Gradebook,sakai.gradebook.tool
+Email Archive,sakai.mailbox
+News,sakai.news
+Presentation,sakai.presentation
+Resources,sakai.resources
+Samigo,sakai.samigo
+Schedule,sakai.schedule
+Section Info,sakai.sections
+Roster,sakai.site.roster
+Syllabus,sakai.syllabus

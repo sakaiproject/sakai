@@ -1,0 +1,107 @@
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.kernel.session.Session;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+
+import org.sakaiproject.api.kernel.id.cover.IdManager;
+
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
+
+import org.apache.axis.AxisFault;
+
+/**
+ * class to support Sakai Login headers sent in request as a string array
+ */
+public class SakaiPortalLogin {
+
+    private static final Log LOG = LogFactory.getLog(SakaiPortalLogin.class);
+
+    private User getSakaiUser(String id, String pw)
+    {
+        User user = null ;
+
+	try {
+        	user = UserDirectoryService.getUser(id);
+	} catch (Exception e) {
+		user = null;
+	}
+	return user;
+    }
+
+    public String loginAndCreate(String id, String pw, String firstName, String lastName, String eMail)
+        throws AxisFault
+    {
+
+    	String portalSecret = ServerConfigurationService.getString("webservice.portalsecret");
+
+	// Leave this in for a while until this is better tested
+
+	System.out.println("SakaiPortalLogin.loginAndCreate id="+id+" pw="+pw+" sec="+portalSecret);
+	System.out.println("        fn="+firstName+" ln="+lastName+" em="+eMail);
+
+	if ( portalSecret == null || pw == null || 
+	     portalSecret.equals("") || ! portalSecret.equals(pw) ) {
+		// TODO: Should add IP address to this
+		LOG.info("SakaiPortalLogin secret mismatch");
+                throw new AxisFault("Failed login");
+	}
+
+        User user = getSakaiUser(id,pw);
+
+	if ( user == null && firstName != null && lastName != null && eMail != null ) {
+		System.out.println("Creating Sakai Account...");
+		try {
+			// Set password to something unguessable - they can set a new PW once they are logged in
+			String hiddenPW = IdManager.createUuid();
+ 			UserDirectoryService.addUser(id,firstName,lastName,eMail,hiddenPW,"portal", null);
+                        System.out.println("User Created...");
+		} catch(Exception e) {
+			System.out.println("Unable to create user...");
+        		throw new AxisFault("Failed login");
+		}
+        	user = getSakaiUser(id,pw);
+	}
+
+	if ( user != null ) {
+		System.out.println("Have User");
+                Session s = SessionManager.startSession();
+                SessionManager.setCurrentSession(s);
+                if (s == null)
+                {
+                        // System.out.println("no session established");
+                        LOG.warn("Web Services Login failed to establish session for - "+id);
+                        throw new AxisFault("Unable to establish session");
+                }
+                else
+                {
+			s.setUserId(id);
+			s.setUserEid(id);
+			try {
+				String siteId = SiteService.getUserSiteId(s.getUserId());
+				System.out.println("Site exists..."+siteId);
+			} catch(Exception e) {
+				System.out.println("Site does not exist...");
+        			throw new AxisFault("Failed login");
+			}
+			return s.getId();
+                }
+	}
+	// TODO: Should add IP address to this
+	LOG.info("SakaiPortalLogin Failed");
+        throw new AxisFault("Failed login");
+    }
+
+    public String login(String id,String pw) 
+        throws AxisFault
+    {
+	System.out.println("SakiaPortalLogin.login()");
+	return loginAndCreate(id, pw, null, null, null);
+    }
+}

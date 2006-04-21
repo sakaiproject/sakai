@@ -1,0 +1,773 @@
+/*
+ *   SakaiScript.jws - updated for Sakai 2.1
+ *
+ */
+ 
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Collection;
+import org.sakaiproject.api.kernel.session.Session;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
+import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.api.kernel.tool.Tool;
+import org.sakaiproject.service.legacy.site.ToolConfiguration;
+import org.sakaiproject.service.legacy.site.Site;
+import org.sakaiproject.service.legacy.site.SitePage;
+import org.sakaiproject.service.legacy.user.UserEdit;
+import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import java.util.Properties;
+import org.apache.axis.AxisFault;
+
+import org.sakaiproject.util.xml.Xml;
+//import org.w3c.dom.Document;
+//import org.w3c.dom.Element;
+//import org.w3c.dom.Node;
+//import org.w3c.dom.NodeList;
+
+public class SakaiScript {
+	
+	private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+	
+	/*
+	private String makeStringListDom(Collection strings)
+	{
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		if (strings == null)
+		{
+			return "<list/>";
+		}
+		
+		for (Iterator i = strings.iterator(); i.hasNext();)
+		{
+			Node item = dom.createElement("item");
+			item.appendChild(dom.createTextNode((String) i.next()));
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+	}
+	*/
+
+	/*
+public String login(String id,String pw) {
+	User user = UserDirectoryService.authenticate(id,pw);
+	if ( user != null ) {
+		Session s = SessionManager.startSession();
+		if (s == null)
+		{
+			return "sessionnull";
+		}
+		else
+		{
+			s.setUserId(id);
+			s.setUserEid(id);
+			return s.getId();
+		}
+	}
+	return "usernull";
+}
+	*/
+
+private Session establishSession(String id) throws AxisFault 
+{
+	Session s = SessionManager.getSession(id);
+	
+	if (s == null)
+	{
+		throw new AxisFault("Session "+id+" is not active");
+	}
+	s.setActive();
+	SessionManager.setCurrentSession(s);
+	return s;
+}
+
+public String checkSession(String id) {
+	Session s = SessionManager.getSession(id);
+	if (s == null)
+	{
+		return "null";
+	}
+	else
+	{
+		return id;
+	}
+}
+
+public String addNewUser( String sessionid, String userid, String firstname, String lastname, String email, String type, String password) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	if (!SecurityService.isSuperUser())
+	{
+		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+        throw new AxisFault("NonSuperUser trying to add accounts: " + session.getUserId());
+	}
+	try {
+
+		User addeduser = null;
+		addeduser = UserDirectoryService.addUser(userid, firstname, lastname, email, password, type, null);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String removeUser( String sessionid, String userid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		UserDirectoryService.removeUser(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String changeUserInfo( String sessionid, String userid, String firstname, String lastname, String email, String type, String password) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		userEdit.setFirstName(firstname);
+		userEdit.setLastName(lastname);
+		userEdit.setEmail(email);
+		userEdit.setType(type);
+		userEdit.setPassword(password);
+		UserDirectoryService.commitEdit(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String changeUserName( String sessionid, String userid, String firstname, String lastname) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		userEdit.setFirstName(firstname);
+		userEdit.setLastName(lastname);
+		UserDirectoryService.commitEdit(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String changeUserEmail( String sessionid, String userid, String email) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		userEdit.setEmail(email);
+		UserDirectoryService.commitEdit(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String changeUserType( String sessionid, String userid, String type) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		userEdit.setType(type);
+		UserDirectoryService.commitEdit(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String changeUserPassword( String sessionid, String userid, String password) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		UserEdit userEdit = null;
+		userEdit = UserDirectoryService.editUser(userid);
+		userEdit.setPassword(password);
+		UserDirectoryService.commitEdit(userEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//addNewRealm
+public String addNewAuthzGroup(String sessionid, String groupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = null;
+		authzgroup = AuthzGroupService.addAuthzGroup(groupid);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeRealm
+public String removeAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		AuthzGroupService.removeAuthzGroup(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//addNewRoleToRealm
+public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, String roleid, String description) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.addRole(roleid);
+		role.setDescription(description);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeAllRolesFromRealm
+public String removeAllRolesFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.removeRoles();
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeRolefromRealm
+public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.removeRole(roleid);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//addLockToRole
+public String allowFunctionForRole( String sessionid, String authzgroupid, String roleid, String function) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.allowFunction(function);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeAllLocksFromRole
+public String disallowAllFunctionsForRole( String sessionid, String authzgroupid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.disallowAll();
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeLockFromRole
+public String disallowFunctionForRole( String sessionid, String authzgroupid, String roleid, String function) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.disallowFunction(function);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String setRoleDescription( String sessionid, String authzgroupid, String roleid, String description) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.setDescription(description);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//addUserToRealmWithRole
+public String addMemberToAuthzGroupWithRole( String sessionid, String userid, String authzgroupid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.addMember(userid,roleid,true,false);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeUserFromRealm
+public String removeMemberFromAuthzGroup( String sessionid, String userid, String authzgroupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.removeMember(userid);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//removeAllUsersFromRealm
+public String removeAllMembersFromAuthzGroup( String sessionid, String authzgroupid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(authzgroupid);
+		realmEdit.removeMembers();
+		AuthzGroupService.save(realmEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//setRoleForRealmMaintenance
+public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgroupid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.setMaintainRole(roleid);
+		AuthzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String addMemberToSiteWithRole(String sessionid, String siteid, String userid, String roleid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		Site site = SiteService.getSite(siteid);
+		site.addMember(userid,roleid,true,false);
+		SiteService.save(site);
+	}
+	catch (Exception e) {
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String addNewSite( String sessionid, String siteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.addSite(siteid, "");
+		siteEdit.setTitle(title);
+		siteEdit.setDescription(description);
+		siteEdit.setShortDescription(shortdesc);
+		siteEdit.setIconUrl(iconurl);
+		siteEdit.setInfoUrl(infourl);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPublished(published);
+		siteEdit.setPubView(publicview);
+		siteEdit.setSkin(skin);
+		siteEdit.setType(type);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+public String removeSite( String sessionid, String siteid) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		SiteService.removeSite(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String copySite( String sessionid, String siteidtocopy, String newsiteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site site = SiteService.getSite(siteidtocopy);
+		Site siteEdit = SiteService.addSite(newsiteid, site);
+		siteEdit.setTitle(title);
+		siteEdit.setDescription(description);
+		siteEdit.setShortDescription(shortdesc);
+		siteEdit.setIconUrl(iconurl);
+		siteEdit.setInfoUrl(infourl);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPublished(published);
+		siteEdit.setPubView(publicview);
+		siteEdit.setSkin(skin);
+		siteEdit.setType(type);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String addNewPageToSite( String sessionid, String siteid, String pagetitle, int pagelayout) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		SitePage sitePageEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		sitePageEdit = siteEdit.addPage();
+		sitePageEdit.setTitle(pagetitle);
+		sitePageEdit.setLayout(pagelayout);
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String removePageFromSite( String sessionid, String siteid, String pagetitle) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = SiteService.getSite(siteid);
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+				siteEdit.removePage(pageEdit);
+		}
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+
+public String addNewToolToPage( String sessionid, String siteid, String pagetitle, String tooltitle, String toolid, String layouthints) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = SiteService.getSite(siteid);
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+			{
+				ToolConfiguration tool = pageEdit.addTool();
+				Tool t = tool.getTool();
+				
+				tool.setTool(ToolManager.getTool(toolid));
+				tool.setTitle(tooltitle);
+				//toolEdit.setTitle(tooltitle);
+				//toolEdit.setToolId(toolid);
+				//toolEdit.setLayoutHints(layouthints);
+			}
+		}
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+
+public String addConfigPropertyToTool( String sessionid, String siteid, String pagetitle, String tooltitle, String propname, String propvalue) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = SiteService.getSite(siteid);
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+			{
+				List toolEdits = pageEdit.getTools();
+				for (Iterator j = toolEdits.iterator(); j.hasNext();)
+				{
+					ToolConfiguration tool = (ToolConfiguration) j.next();
+					Tool t = tool.getTool();
+					if (tool.getTitle().equals(tooltitle))
+					{
+						Properties propsedit = tool.getPlacementConfig();
+						propsedit.setProperty(propname, propvalue);
+					}
+				}
+			}
+		}
+		SiteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+//checkForUser(): a call to check for an existing user
+public boolean checkForUser(String sessionid, String userid) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+		User u = null; 
+		u = UserDirectoryService.getUser(userid);
+		if (u != null)
+			return true;
+		else
+			return false;
+	}
+	catch (Exception e)
+	{
+		return false;
+	}
+}
+
+// checkForSite(): a call to check for an existing site
+public boolean checkForSite(String sessionid, String siteid) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+		Site site = null;
+		site = SiteService.getSite(siteid);
+		if (site != null)
+			return true;
+		else
+			return false;
+	}
+	catch (Exception e)
+	{
+		return false;
+	}
+}
+
+//checkForUserInRealmWithRole
+public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String userid, String authzgroupid, String role) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+		AuthzGroup authzgroup = null; 
+		authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		if (authzgroup == null)
+			return false;
+		else {
+			return authzgroup.hasRole(userid, role);
+		}
+	}
+	catch (Exception e) {
+		return false;
+	}
+}
+
+/*
+public String getSitesUserCanAccess(String sessionid, String userid) throws AxisFault
+{
+	Session s = establishSession(sessionid);
+	try {
+		Set realms = AuthzGroupService.isAllowed(userid, "site.visit", null);
+		if (realms == null)
+			return "<list/>";
+		
+		List worksites = new ArrayList();
+		for (Iterator i = realms.iterator(); i.hasNext();) {
+			String ref = (String) i.next();
+			if ((SiteService.isSpecialSite(ref) == false) &&
+				(SiteService.isUserSite(ref) == false))
+			{
+				//TODO: This is probably not the right way to get 
+				// the SiteID from a Site Reference
+				worksites.add(ref.substring(6));
+			}
+		}
+		
+		return makeStringListDom(worksites);
+	}
+	catch (Exception e) {
+		return "<exception/>";
+	}
+}
+*/
+
+}

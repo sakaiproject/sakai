@@ -1,0 +1,5 @@
+Should be run as:
+
+python addusers.py
+python trythemall.py
+python populate.py

@@ -1,0 +1,54 @@
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.api.kernel.session.Session;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+
+import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+
+import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+
+import org.apache.axis.AxisFault;
+
+/**
+ * class to support Sakai Login headers sent in request as a string array
+ */
+public class SakaiLogin 
+{
+
+    private static final Log LOG = LogFactory.getLog(SakaiLogin.class);
+
+    public String login(String id,String pw) 
+	throws AxisFault
+    {
+
+	boolean allowLogin = ServerConfigurationService.getBoolean("webservices.allowlogin", false);
+
+	if ( ! allowLogin ) {
+		throw new AxisFault("Web Services Login Disabled");
+	}
+
+        User user = UserDirectoryService.authenticate(id,pw);
+	if ( user != null ) {
+                Session s = SessionManager.startSession();
+                if (s == null)
+                {
+        		LOG.warn("Web Services Login failed to establish session for - "+id);
+                        throw new AxisFault("Unable to establish session");
+                }
+                else
+                {
+			s.setUserId(id);
+			s.setUserEid(id);
+                	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Web Services Login " + id );
+			return s.getId();
+                }
+	}
+	// TODO: Add IP address here
+        LOG.warn("Failed Web Services Login - "+id);
+        throw new AxisFault("Unable to login");
+    }
+}

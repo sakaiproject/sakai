@@ -1,0 +1,91 @@
+wma001,Wangari,Maathai
+seb001,Shirin,Ebadi
+jca001,Jimmy,Carter
+kan001,Kofi,Annan
+kda001,Kim,Dae-jung
+msa001,Medecins,Sans Frontieres
+jhu001,John,Hume
+dtr001,David,Trimble
+jwi001,Jody,Williams
+cxi001,Carlos Filipe,Ximenes Belo
+jra001,Jose,Ramos-Horta
+jro001,Joseph,Rotblat
+yar001,Yasser,Arafat
+spe001,Shimon,Peres
+yra001,Yitzhak,Rabin
+nma001,Nelson,Mandela
+fkl001,F.W.,de Klerk
+rme001,Rigoberta,Menchu Tum
+asu001,Aung San,Suu Kyi
+mgo001,Mikhail,Gorbachev
+dla001,Dalai,Lama
+oar001,Oscar,Arias Sanchez
+ewi001,Elie,Wiesel
+dtu001,Desmond,Tutu
+lwa001,Lech,Walesa
+amy001,Alva,Myrdal
+aro001,Alfonso Garcia,Robles
+aes001,Adolfo Perez,Esquivel
+mte001,Mother,Teresa
+aal002,Anwar,al-Sadat
+mbe002,Menachem,Begin
+bwi002,Betty,Williams
+mco002,Mairead,Corrigan
+asa002,Andrei,Sakharov
+sma002,Sean,MacBride
+esa002,Eisaku,Sato
+hki002,Henry,Kissinger
+lth002,Le Duc,Tho
+wbr002,Willy,Brandt
+nbo002,Norman,Borlaug
+rca002,Rene,Cassin
+mki002,Martin Luther,King
+lpa002,Linus,Pauling
+dha002,Dag,Hammarskjold
+alu002,Albert,Lutuli
+pno002,Philip,Noel-Baker
+gpi002,Georges,Pire
+lpe002,Lester Bowles,Pearson
+gma003,George C.,Marshall
+asc003,Albert,Schweitzer
+ljo003,Leon,Jouhaux
+rbu003,Ralph,Bunche
+lor003,Lord Boyd,Orr
+eba003,Emily Greene,Balch
+jmo003,John R.,Mott
+chu003,Cordell,Hull
+rce003,Robert,Cecil
+cla003,Carlos Saavedra,Lamas
+cos003,Carl,von Ossietzky
+ahe003,Arthur,Henderson
+nan003,Sir Norman,Angell
+jad003,Jane,Addams
+nbu003,Nicholas Murray,Butler
+nso004,Nathan,Soderblom
+fke004,Frank B.,Kellogg
+fbu004,Ferdinand,Buisson
+lqu004,Ludwig,Quidde
+abr004,Aristide,Briand
+gst004,Gustav,Stresemann
+ach004,Sir Austen,Chamberlain
+cda004,Charles G.,Dawes
+fna004,Fridtjof,Nansen
+hbr004,Hjalmar,Branting
+cla004,Christian,Lange
+lbo004,Leon,Bourgeois
+wwi004,Woodrow,Wilson
+hla004,Henri,La Fontaine
+ero004,Elihu,Root
+tas004,Tobias,Asser
+afr004,Alfred,Fried
+abe004,Auguste,Beernaert
+pde004,Paul Henri,d'Estournelles de Constant
+kar004,Klas Pontus,Arnoldson
+fba004,Fredrik,Bajer
+emo004,Ernesto Teodoro,Moneta
+lre004,Louis,Renault
+tro005,Theodore,Roosevelt
+bsu005,Bertha,von Suttner
+rcr005,Randal,Cremer
+hdu005,Henry,Dunant
+fpa005,Frederic,Passy

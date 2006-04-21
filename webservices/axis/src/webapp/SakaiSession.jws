@@ -1,0 +1,31 @@
+import java.util.Date;
+
+import org.sakaiproject.api.kernel.session.Session;
+import org.sakaiproject.api.kernel.session.cover.SessionManager;
+
+/**
+ * class to support Sakai Login headers sent in request as a string array
+ */
+public class SakaiSession {
+
+    public String checkSession(String id) {
+	System.out.println("session id="+id);
+        Session s = SessionManager.getSession(id);
+        if (s == null)
+        {
+        	System.out.println("no session established");
+		return "Session Null";
+        }
+        else
+        {
+		String resp = "session: " + s.getId()
+        		+ " user id: " + s.getUserId()
+        		+ " user enterprise id: " + s.getUserEid()
+        		+ " started: " + new Date(s.getCreationTime()).toLocaleString()
+        		+ " accessed: " + new Date(s.getLastAccessedTime()).toLocaleString()
+        		+ " inactive after: " + s.getMaxInactiveInterval();
+        	System.out.println(resp);
+		return resp;
+        }
+    }
+}
