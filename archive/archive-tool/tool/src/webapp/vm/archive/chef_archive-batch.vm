@@ -1,0 +1,30 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_archive-batch.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["archive-id"];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("archive.vm.import")
+	</h3>
+	<form 
+		name="batchImportForm" 
+		id="batchImportForm" 
+		action="#toolForm("$action")&special=upload" 
+		method="post" 
+		enctype="multipart/form-data">
+		<p class="shorttext">
+			<label for="importFile">
+				$tlang.getString("archive.vm.filebatchimport")
+			</label>	
+			<input type="file" name="importFile"   id="importFile" class ="upload" />
+		</p>	
+		<p class="act">
+			<input type="submit" name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")"/>
+		</p>	
+	</form>
+</div>
+
