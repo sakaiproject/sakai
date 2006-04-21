@@ -80,6 +80,7 @@
                <property name="resources">
                   <list>
                      <ref bean="permissionsOverview"/>
+                     <ref bean="siteInfoChangeRoles"/>
                      <ref bean="worksiteSetupChangeRoles"/>
 					 <ref bean="participantRoles"/>
 					 <ref bean="worksiteSetupAddParticipants"/>
@@ -87,9 +88,7 @@
 					 <ref bean="siteInfoControlAccess"/>
 					 <ref bean="createWorksites"/>
 					 <ref bean="worksiteSetupControlAccess"/>
-					 <ref bean="announcementPermissions"/>
 					 <ref bean="changePermissions"/>
-					 <ref bean="controlEmail"/>
 					 <ref bean="permissionsRelationships"/>
                   </list>
                </property>

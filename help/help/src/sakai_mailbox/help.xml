@@ -88,6 +88,7 @@
                      <ref bean="customizeEmailArchive"/>
                      <ref bean="readEmailArchive"/>
                      <ref bean="sendMail"/>
+                     <ref bean="controlEmail"/>
                      <ref bean="manageEmail"/>
                      <ref bean="searchMessages"/>
                      <ref bean="createEmailArchive"/>
