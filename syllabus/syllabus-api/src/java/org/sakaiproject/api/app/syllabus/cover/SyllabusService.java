@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.syllabus.cover;
 
 import java.util.List;
 
-import org.sakaiproject.service.framework.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 public class SyllabusService
 {
@@ -63,20 +63,20 @@ public static org.sakaiproject.api.app.syllabus.SyllabusService getInstance()
 		{
 			return (org.sakaiproject.api.app.syllabus.SyllabusService) ComponentManager.get(org.sakaiproject.api.app.syllabus.SyllabusService.class);
 		}*/
-  if (ComponentManager.CACHE_SINGLETONS)
-	{
+/*  if (ComponentManager.CACHE_SINGLETONS)
+	{*/
 		if (m_instance == null)
 		{
 		  m_instance = (org.sakaiproject.api.app.syllabus.SyllabusService) 
 		  	ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusService");
 		}
 		return m_instance;
-	}
+/*	}
 	else
 	{
 		return (org.sakaiproject.api.app.syllabus.SyllabusService) 
 			ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusService");
-	}
+	}*/
 	}
 
   public static java.lang.String merge(java.lang.String param0,

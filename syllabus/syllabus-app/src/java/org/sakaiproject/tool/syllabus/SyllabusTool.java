@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
@@ -41,21 +42,21 @@ import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.framework.portal.cover.PortalService;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.util.text.FormattedText;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.sun.faces.util.MessageFactory;
 
@@ -178,7 +179,7 @@ public class SyllabusTool
 
   protected DecoratedSyllabusEntry entry = null;
 
-  protected Logger logger = null;
+  protected Log logger = LogFactory.getLog(SyllabusTool.class);
 
   protected String filename = null;
 
@@ -224,7 +225,7 @@ public class SyllabusTool
     if (userId == null) userId = UserDirectoryService.getCurrentUser().getId();
     //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
     Placement placement = ToolManager.getCurrentPlacement();
-		String currentSiteId = placement.getContext();
+	String currentSiteId = placement.getContext();
 
 
     if ((entries == null) || (entries.isEmpty())
@@ -404,7 +405,7 @@ public class SyllabusTool
       {
         if (!this.checkAccess())
         {
-          throw new PermissionException("syllabus_access_athz", "");
+          throw new PermissionException("syllabus_access_athz", "", currentUserId);
         }
         else
         {
@@ -429,7 +430,7 @@ public class SyllabusTool
     this.syllabusItem = syllabusItem;
   }
 
-  public void setLogger(Logger logger)
+  public void setLogger(Log logger)
   {
     this.logger = logger;
   }
@@ -1299,14 +1300,17 @@ public String processDeleteCancel()
   {
     //sakai2 - use Placement to get context instead of getting currentSitePageId from PortalService in sakai.
     Placement placement = ToolManager.getCurrentPlacement();
-		String currentSiteId = placement.getContext();
-		boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
-		return SiteService.allowUpdateSite(currentSiteId);
+    String currentSiteId = placement.getContext();
+    boolean allowOrNot = SiteService.allowUpdateSite(currentSiteId);
+    return SiteService.allowUpdateSite(currentSiteId);
   }
   
   public String getTitle()
   {
-    return SiteService.findTool(PortalService.getCurrentToolId()).getTitle();
+    ////return SiteService.findTool(PortalService.getCurrentToolId()).getTitle();
+    Placement placement = ToolManager.getCurrentPlacement();
+    return SiteService.findTool(placement.getToolId()).getTitle();
+
   }
   
 /*test send email.  private void sendNotification()
@@ -1397,14 +1401,7 @@ public String processDeleteCancel()
       try
       {
         FileItem item = (FileItem) event.getNewValue();
-        String fieldName = item.getFieldName();
         String fileName = item.getName();
-        long fileSize = item.getSize();
-        
-        //logger.info(this + ".processUpload in SyllabusTool - " + fileName);
-        
-        InputStream fileAsStream = item.getInputStream();
-        
         byte[] fileContents = item.get();
         
         ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();

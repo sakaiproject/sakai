@@ -17,20 +17,6 @@
 			</list>
 		</property>
 	</bean>
-	<bean id="org.sakaiproject.api.app.syllabus.SyllabusService"
-		class="org.sakaiproject.component.app.syllabus.SyllabusServiceImpl"
-		singleton="true" init-method="init" destroy-method="destroy">
-		<property name="logger">
-			<ref bean="org.sakaiproject.service.framework.log.Logger" />
-		</property>
-		<property name="syllabusManager">
-			<ref
-				bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
-		</property>
-		<property name="notificationService">
-			<ref bean="org.sakaiproject.service.legacy.notification.NotificationService" />
-		</property>
-	</bean>
 
 	<bean id="org.sakaiproject.api.app.syllabus.SyllabusManager"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
@@ -53,6 +39,21 @@
 			</props>
 		</property>
 	</bean>
-
+	
+	<bean id="org.sakaiproject.api.app.syllabus.SyllabusService"
+		class="org.sakaiproject.component.app.syllabus.SyllabusServiceImpl"
+		singleton="true" init-method="init" destroy-method="destroy">
+<!-- 		<property name="logger">
+			<ref bean="org.sakaiproject.service.framework.log.Logger" />
+		</property>-->
+ 		<property name="syllabusManager">
+			<ref
+				bean="org.sakaiproject.api.app.syllabus.SyllabusManager" />
+		</property>
+ 		<property name="notificationService">
+<!-- 			<ref bean="org.sakaiproject.service.legacy.notification.NotificationService" />-->
+ 			<ref bean="org.sakaiproject.event.api.NotificationService" />
+		</property>
+	</bean>
 
 </beans>

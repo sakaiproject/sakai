@@ -23,8 +23,8 @@
 
 package org.sakaiproject.api.app.syllabus;
 
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
 
 import java.util.List;
 
@@ -50,4 +50,6 @@ public interface SyllabusService extends EntityProducer
 	public void deletePostedSyllabus(SyllabusData data);
 	
 	public List getMessages(String id);
+	
+	public void importEntities(String fromSiteId, String toSiteId, List resourceIds);
 }

@@ -32,20 +32,21 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.Vector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.exception.EmptyException;
+import org.sakaiproject.util.EmptyIterator;
+import org.sakaiproject.util.EnumerationIterator;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.service.legacy.content.cover.ContentTypeImageService;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.framework.log.cover.Logger;
-import org.sakaiproject.service.legacy.time.Time;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.util.java.EmptyIterator;
-import org.sakaiproject.util.java.EnumerationIterator;
-import org.sakaiproject.util.java.StringUtil;
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -60,11 +61,18 @@ import org.w3c.dom.NodeList;
  */
 public class BaseResourceProperties implements ResourceProperties
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** The hashtable of properties. */
 	protected Hashtable m_props = null;
 
 	/** If the full properties have not yet been read. */
 	protected transient boolean m_lazy = false;
+	
+	private Log m_log = LogFactory.getLog(BaseResourceProperties.class);
 
 	/**
 	 * Construct.
@@ -132,7 +140,7 @@ public class BaseResourceProperties implements ResourceProperties
 					// if it's not a list, it's wrong!
 					else
 					{
-						Logger.warn(this + "construct(el): value set not a list: " + name);
+						m_log.error(this + "construct(el): value set not a list: " + name);
 					}
 				}
 				else
@@ -188,13 +196,13 @@ public class BaseResourceProperties implements ResourceProperties
 					}
 					else
 					{
-						Logger.warn(this + ".toXml: in list not string: " + name);
+						m_log.error(this + ".toXml: in list not string: " + name);
 					}
 				}
 			}
 			else
 			{
-				Logger.warn(this + ".toXml: not a string, not a value: " + name);
+				m_log.error(this + ".toXml: not a string, not a value: " + name);
 			}
 		}
 
@@ -381,7 +389,7 @@ public class BaseResourceProperties implements ResourceProperties
 
 		else
 		{
-			Logger.warn(this + "getPropertyFormatted: value not string, not list: " + name);
+			m_log.error(this + "getPropertyFormatted: value not string, not list: " + name);
 			return "";
 		}
 
@@ -392,24 +400,31 @@ public class BaseResourceProperties implements ResourceProperties
 	 * 
 	 * @param name
 	 *        The property name.
-	 * @return the property value.
-	 * @exception EmptyException
-	 *            if not found.
-	 * @exception TypeException
-	 *            if the property is found but not a boolean.
 	 */
-	public boolean getBooleanProperty(String name) throws EmptyException, TypeException
+	public boolean getBooleanProperty(String name)
 	{
 		String p = getProperty(name);
-		if (p == null) throw new EmptyException();
+		if (p == null)
+			try {
+				throw new EmptyException();
+			} catch (EmptyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		try
 		{
 			return Boolean.valueOf(p).booleanValue();
 		}
 		catch (Exception any)
 		{
-			throw new TypeException(name);
+			try {
+				throw new TypeException(name);
+			} catch (TypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return m_lazy;
 
 	} // getBooleanProperty
 
@@ -419,23 +434,31 @@ public class BaseResourceProperties implements ResourceProperties
 	 * @param name
 	 *        The property name.
 	 * @return the property value.
-	 * @exception EmptyException
-	 *            if not found.
-	 * @exception TypeException
-	 *            if the property is found but not a long.
 	 */
-	public long getLongProperty(String name) throws EmptyException, TypeException
+	public long getLongProperty(String name)
 	{
 		String p = getProperty(name);
-		if (p == null) throw new EmptyException();
+		if (p == null)
+			try {
+				throw new EmptyException();
+			} catch (EmptyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		try
 		{
 			return Long.parseLong(p);
 		}
 		catch (Exception any)
 		{
-			throw new TypeException(name);
+			try {
+				throw new TypeException(name);
+			} catch (TypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return 0;
 
 	} // getLongProperty
 
@@ -445,23 +468,31 @@ public class BaseResourceProperties implements ResourceProperties
 	 * @param name
 	 *        The property name.
 	 * @return the property value
-	 * @exception EmptyException
-	 *            if not found.
-	 * @exception TypeException
-	 *            if the property is found but not a Time.
 	 */
-	public Time getTimeProperty(String name) throws EmptyException, TypeException
+	public Time getTimeProperty(String name)
 	{
 		String p = getProperty(name);
-		if (p == null) throw new EmptyException();
+		if (p == null)
+			try {
+				throw new EmptyException();
+			} catch (EmptyException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		try
 		{
 			return TimeService.newTimeGmt(p);
 		}
 		catch (Exception any)
 		{
-			throw new TypeException(name);
+			try {
+				throw new TypeException(name);
+			} catch (TypeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		return null;
 
 	} // getTimeProperty
 
@@ -840,7 +871,7 @@ public class BaseResourceProperties implements ResourceProperties
 		// if it's not a list, it's wrong!
 		else
 		{
-			Logger.warn(this + "addPropertyToList() value set not a list: " + name);
+			m_log.error(this + "addPropertyToList() value set not a list: " + name);
 		}
 
 	}	// addPropertyToList

@@ -18,11 +18,23 @@
 	</properties>
     
     <dependencies>
-		<dependency>
+<!-- 2.2		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-service</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>    
+		</dependency>    -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+		
+		
 	</dependencies>
     
     <build>

@@ -25,7 +25,7 @@
 package org.sakaiproject.component.app.syllabus;
 
 // imports
-import org.sakaiproject.service.legacy.entity.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.w3c.dom.Element;
 
 /**
@@ -39,6 +39,11 @@ public class BaseResourcePropertiesEdit
 	extends BaseResourceProperties
 	implements ResourcePropertiesEdit
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/**
 	* Construct.
 	*/

@@ -45,11 +45,11 @@
 			<value>#{Components["org.sakaiproject.api.app.syllabus.SyllabusManager"]}</value>
 		</managed-property>
 		
-		<managed-property>
+<!-- 		<managed-property>
 			<description>logger</description>
 			<property-name>logger</property-name>
 			<value>#{Components["org.sakaiproject.service.framework.log.Logger"]}</value>
-		</managed-property>
+		</managed-property>-->
 		<managed-property>
 			<description>syllabusService</description>
 			<property-name>syllabusService</property-name>

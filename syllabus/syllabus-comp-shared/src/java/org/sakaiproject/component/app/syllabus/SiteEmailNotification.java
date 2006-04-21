@@ -26,17 +26,16 @@ package org.sakaiproject.component.app.syllabus;
 import java.util.List;
 import java.util.Vector;
 
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.legacy.alias.Alias;
-import org.sakaiproject.service.legacy.alias.cover.AliasService;
-import org.sakaiproject.service.legacy.email.cover.MailArchiveService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.NotificationAction;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.Alias;
 
 /**
  * <p>Note: copied from legacy util SiteEmailNotification.java 3819</p>
@@ -155,7 +154,8 @@ public class SiteEmailNotification extends EmailNotification
 		String siteMailId = siteId;
 
 		// first check aliases for the site's main email channel
-		String channelRef = MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+		////String channelRef = MailArchiveService.channelReference(siteId, SiteService.MAIN_CONTAINER);
+		String channelRef = "/channel/" + siteId + "/" + "main";
 		List aliases = AliasService.getAliases(channelRef, 1, 1);
 		if (aliases.isEmpty())
 		{

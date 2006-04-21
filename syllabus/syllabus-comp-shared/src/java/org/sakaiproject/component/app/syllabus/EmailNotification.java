@@ -26,26 +26,24 @@ package org.sakaiproject.component.app.syllabus;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.util.prefs.Preferences;
 
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.EmptyException;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.framework.email.cover.EmailService;
-import org.sakaiproject.service.legacy.digest.DigestMessage;
-import org.sakaiproject.service.legacy.digest.cover.DigestService;
-import org.sakaiproject.service.legacy.email.cover.MailArchiveService;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.entity.ResourceProperties;
-import org.sakaiproject.service.legacy.event.Event;
-import org.sakaiproject.service.legacy.notification.Notification;
-import org.sakaiproject.service.legacy.notification.NotificationAction;
-import org.sakaiproject.service.legacy.notification.cover.NotificationService;
-import org.sakaiproject.service.legacy.preference.Preferences;
-import org.sakaiproject.service.legacy.preference.cover.PreferencesService;
-import org.sakaiproject.service.legacy.resource.cover.EntityManager;
-import org.sakaiproject.service.legacy.time.cover.TimeService;
-import org.sakaiproject.service.legacy.user.User;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.event.api.*;
+import org.sakaiproject.user.api.*;
+import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.cover.DigestService;
+import org.sakaiproject.email.api.*;
+import org.sakaiproject.archive.cover.ArchiveService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.w3c.dom.Element;
+
 
 /**
  * <p>Note: copied from legacy util EmailNotification.java 3819</p>
@@ -190,11 +188,11 @@ public class EmailNotification implements NotificationAction
 			Reference ref = EntityManager.newReference(event.getResource());
 			Entity r = ref.getEntity();
 			String title = (getSite() != null) ? getSite() : ref.getContext();
-			org.sakaiproject.service.legacy.site.SiteService siteService = org.sakaiproject.service.legacy.site.cover.SiteService
+			org.sakaiproject.site.api.SiteService siteService = org.sakaiproject.site.cover.SiteService
 					.getInstance();
 			try
 			{
-				org.sakaiproject.service.legacy.site.Site site = siteService.getSite(title);
+				org.sakaiproject.site.api.Site site = siteService.getSite(title);
 				title = site.getTitle();
 			}
 			catch (Exception ignore)
@@ -250,8 +248,8 @@ public class EmailNotification implements NotificationAction
 				User user = (User) iDigests.next();
 
 				// digest the message
-				DigestMessage msg = new DigestMessage(user.getId(), findHeaderValue("Subject", headers), messageForDigest);
-				DigestService.digest(msg);
+				////DigestMessage msg = new DigestMessage(user.getId(), findHeaderValue("Subject", headers), messageForDigest);
+				DigestService.digest(user.getId(), findHeaderValue("Subject", headers), messageForDigest);
 			}
 		}
 	}
@@ -399,7 +397,8 @@ public class EmailNotification implements NotificationAction
 				String type = EntityManager.newReference(notification.getResourceFilter()).getType();
 				if (type != null)
 				{
-					if (type.equals(MailArchiveService.SERVICE_NAME))
+					////if (type.equals(MailArchiveService.SERVICE_NAME))
+					if (type.equals(ArchiveService.SERVICE_NAME))
 					{
 						return true;
 					}
@@ -456,10 +455,10 @@ public class EmailNotification implements NotificationAction
 	{
 		String priStr = Integer.toString(event.getPriority());
 
-		Preferences prefs = PreferencesService.getPreferences(user.getId());
+		Preferences prefs = (Preferences) PreferencesService.getPreferences(user.getId());
 
 		// get the user's preference for this notification
-		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_NOTI + notification.getId());
+		ResourceProperties props = ((org.sakaiproject.user.api.Preferences) prefs).getProperties(NotificationService.PREFS_NOTI + notification.getId());
 		try
 		{
 			int option = (int) props.getLongProperty(priStr);
@@ -474,7 +473,7 @@ public class EmailNotification implements NotificationAction
 		String siteId = EntityManager.newReference(notification.getResourceFilter()).getContext();
 		if (siteId != null)
 		{
-			props = prefs.getProperties(NotificationService.PREFS_SITE + siteId);
+			props = ((org.sakaiproject.user.api.Preferences) prefs).getProperties(NotificationService.PREFS_SITE + siteId);
 			try
 			{
 				int option = (int) props.getLongProperty(priStr);
@@ -486,7 +485,7 @@ public class EmailNotification implements NotificationAction
 		}
 
 		// try the default
-		props = prefs.getProperties(NotificationService.PREFS_DEFAULT);
+		props = ((org.sakaiproject.user.api.Preferences) prefs).getProperties(NotificationService.PREFS_DEFAULT);
 		try
 		{
 			int option = (int) props.getLongProperty(priStr);
@@ -500,13 +499,13 @@ public class EmailNotification implements NotificationAction
 		String type = EntityManager.newReference(notification.getResourceFilter()).getType();
 		if (type != null)
 		{
-			props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
+			props = ((org.sakaiproject.user.api.Preferences) prefs).getProperties(NotificationService.PREFS_TYPE + type);
 			try
 			{
 				int option = (int) props.getLongProperty(Integer.toString(NotificationService.NOTI_OPTIONAL));
 				if (option != NotificationService.PREF_NONE) return option;
 			}
-			catch (EmptyException e)
+			catch (Exception e)
 			{
 				return NotificationService.PREF_IMMEDIATE;
 			}
