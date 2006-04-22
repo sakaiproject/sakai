@@ -28,6 +28,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Course;
@@ -76,7 +77,22 @@ public class BasicCourseManagementService implements CourseManagementService
 	 */
 	public void init()
 	{
-		// init
+		// if we didn't get a provider, use the registered one
+		if (m_provider == null)
+		{
+			// first see if one is registered
+			m_provider = (CourseManagementProvider) ComponentManager.get(CourseManagementProvider.class.getName());
+		}		
+		
+		// if still no provider, use the sample one
+		if (m_provider == null)
+		{
+			SampleCourseManagementProvider provider = new SampleCourseManagementProvider();
+			provider.init();
+			m_provider = provider;
+			M_log.info("init() : using the sample site-manage-impl CourseManagementProvider - NOT RECOMMENDED FOR PRODUCTION");
+		}
+
 		m_terms = new Vector();
 		List termTerms = new Vector();
 		List termYears = new Vector();
@@ -145,6 +161,8 @@ public class BasicCourseManagementService implements CourseManagementService
 			}
 
 			m_terms.add(term);
+			
+			M_log.info("init(): provider: " + m_provider.getClass().getName());
 		}
 
 	} // init
