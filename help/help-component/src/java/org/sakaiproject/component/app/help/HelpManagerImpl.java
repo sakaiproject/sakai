@@ -1030,7 +1030,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     helpClasspathRegList.add("/sakai_menubar/help.xml");
     helpClasspathRegList.add("/sakai_course_sites/help.xml");    
     helpClasspathRegList.add("/sakai_permissions/help.xml");
-    helpClasspathRegList.add("/sakai_samigo/help.xml");
     helpClasspathRegList.add("/sakai_accessibility/help.xml");
 
     //Set allCategories = new TreeSet();
