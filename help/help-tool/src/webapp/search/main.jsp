@@ -5,7 +5,6 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %> 
 <%-- Custom tag library just for this tool --%>
 <%@ taglib uri="http://sakaiproject.org/jsf/help" prefix="help" %>
- 
 <%
 		response.setContentType("text/html; charset=UTF-8");
 		response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
@@ -13,18 +12,18 @@
 		response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 		response.addHeader("Pragma", "no-cache");
 %>
-<script type="text/javascript">
- function clearText(thefield) { if (thefield.defaultValue == thefield.value) thefield.value = ""; else thefield.value = thefield.defaultValue }
-
-</script>
-
 <f:view>
 <sakai:view_container title="#{msgs.title_edit}">
+<script type="text/javascript">
+ function clearText(thefield) { if (thefield.defaultValue == thefield.value) thefield.value = ""; else thefield.value = thefield.defaultValue }
+</script>
+
 <div name="message" id="message" style="padding: 2px; background:#000000 none repeat scroll 0%; position: absolute; z-index: 3; 
 -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: white; font-size: 
 90%; top: 1px; left: 1px; display: none;">
 <h:outputText value="#{msgs.searching}" />
 </div>  
+
 <h:form>
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
