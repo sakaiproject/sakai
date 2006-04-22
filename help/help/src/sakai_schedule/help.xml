@@ -128,7 +128,7 @@
 				<bean id="scheduleCategory"
 					class="org.sakaiproject.component.app.help.model.CategoryBean">
 					<property name="name">
-						<value>Schedules</value>
+						<value>Schedule</value>
 					</property>
 					<property name="resources">
 						<list>
