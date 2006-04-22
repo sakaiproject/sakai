@@ -68,19 +68,20 @@ public class ContextSensitiveTreeRender extends Renderer
     String jsLibraryUrl = "../js";
     
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<html><head>");
-    writer.write("<head>");            
+    writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
+    writer.write("<html>");
+    writer.write("<head>\n");            
     writer.write("<script type=\"text/javascript\" src=\"" + jsLibraryUrl
         + "/csTree.js\"></script>\n");
     writer.write("<link href=\"" + skinRoot + "/tool_base.css\""
-        + " rel=\"stylesheet\">\n");
+        + " type=\"text/css\" rel=\"stylesheet\" />\n");
     writer.write("<link href=\"" + skinRoot + "/" + skin + "/tool.css\""
-        + " rel=\"stylesheet\">\n");
-    writer
-        .write("<link href=\"../css/csTree.css\" type=\"text/css\" rel=\"stylesheet\">");
+        + " type=\"text/css\" rel=\"stylesheet\" />\n");
+    writer.write("<link href=\"../css/csTree.css\" type=\"text/css\" rel=\"stylesheet\" />");
     //writer.write("<body onload='collapseAll([\"ol\"]); openBookMark();'>");
     writer.write("</head>\n");
-    writer.write("<body>");
+
+    writer.write("<body>\n");
     writer.write("<ol id=\"root\">");
     UIData data = (UIData) component;
     Object value = data.getValue();
@@ -103,7 +104,7 @@ public class ContextSensitiveTreeRender extends Renderer
 
     if (helpDocId != null)
     {
-      writer.write("<script language=\"JavaScript\" src=\"" + jsLibraryUrl
+      writer.write("<script type=\"text/javascript\" src=\"" + jsLibraryUrl
           + "/search.js\"></script>\n");
     }
     writer.write("</body></html>");
@@ -128,7 +129,7 @@ public class ContextSensitiveTreeRender extends Renderer
       
       writer.write("<li class=\"dir\">");
       writer.write("<table border=0 cellspacing=0 cellpadding=0><tr><td>");
-      writer.write("<img src=\"../image/toc_closed.gif\"></td>");      
+      writer.write("<img src=\"../image/toc_closed.gif\" /></td>");      
       writer.write("<td><a id=\"" + id + "\" href=\"#" + category.getName()
           + "\" onclick=\"toggle(this)\">" + category.getName() + "</a></td>");
       writer.write("</tr></table>");
@@ -154,7 +155,7 @@ public class ContextSensitiveTreeRender extends Renderer
             writer.write("<td><a id=\"default\"" + " href=\"content.hlp?docId="
                 + resource.getDocId() + "\" target = \"content\">"
                 + resource.getName() + "</a></td>");
-            writer.write("</tr></table></li>");            
+            writer.write("</tr></table></li>\n");            
           }
           else
           {
@@ -163,11 +164,11 @@ public class ContextSensitiveTreeRender extends Renderer
             writer.write("<td><a id=\"" + resource.getDocId()
                 + "\" href=\"content.hlp?docId=" + resource.getDocId()
                 + "\" target = \"content\">" + resource.getName() + "</a></td>");            
-            writer.write("</tr></table></li>");
+            writer.write("</tr></table></li>\n");
           }
         }
       }
-      writer.write("</ol></li>");
+      writer.write("</ol></li>\n");
     }
   }     
 
