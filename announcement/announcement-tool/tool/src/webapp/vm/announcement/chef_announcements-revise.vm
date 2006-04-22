@@ -1,0 +1,256 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["subject"];
+</script>
+<div class="portletBody">
+	<h3>
+		#if ( $newAnn =="true")
+			$tlang.getString("revise.add")
+		#else
+			$tlang.getString("revise.revise")
+		#end
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	<div class="indnt1">
+		<p class="instruction">
+				#if ( $newAnn =="true")
+					$tlang.getString("revise.complete")<br /><br /> $tlang.getString("revise.required") <span class="reqStarInline">*</span>
+				#else
+					$tlang.getString("revise.update") <br /><br /> $tlang.getString("revise.required") <span class="reqStarInline">*</span>
+				#end
+		</p>
+	</div>	
+		<form name="reviseForm" action="#toolForm("AnnouncementAction")" method="post" onsubmit="return true;" >
+				<input type="hidden" name="eventSubmit_doAnnouncement_form" value="" />
+				<input type="hidden" name="option" id="option" value="" />
+			<div class="indnt1">
+			<input type="hidden" name="fromInterface" value="revise" />
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="subject">
+					$tlang.getString("revise.subject") 
+				</label>
+				#if ($new=="true")
+					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" />                
+				#else
+					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" />
+				#end
+			</p>
+			<p class="longtext">
+				<label for="body" class="block">
+					<span class="reqStar">*</span>$tlang.getString("revise.announcement")
+				</label>
+				<table border="0" cellpadding="0" cellspacing="0" >
+					<tr>
+						<td>
+							#if ($new=="true")
+								#if ($!tempBody.length() != 0)
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($tempBody)</textarea>
+								#else
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
+								#end
+							#else
+								#set($messageBody = $message.body)
+								#if ($!messageBody.length() != 0)
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($message.body)</textarea>
+								#else
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
+								#end
+							#end
+							#chef_setupformattedtextarea("body")
+						</td>
+					</tr>
+				</table>
+			</p>	
+			#*if($pubviewset)
+				$tlang.getString("revise.setto")
+			#else
+				<p class="checkbox">
+					<input type="checkbox" id="pubview" name="pubview" value="true" #if ($pubview) checked="checked" #end/>
+					<label for="pubview">$tlang.getString("revise.displaynon")</label>
+				</p>	
+			#end
+			*#
+		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+		#if ($!publicDisable && ($show_group =="false"))
+			## no show this selection, but set default to site
+			<input type="hidden" name="announceTo" id="site" value="site" checked="checked" />
+		#else
+			#if ($allowAddChannelMessage)
+				#if (!$!publicDisable)
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="pubview" value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';" />
+					<label for="pubview">$tlang.getString("displayto.public")</label>
+				</p>
+				#end
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+					<label for="site">$tlang.getString("displayto.site")</label>
+				</p>	
+			#else
+				#if ($!groups.size() >1)
+					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+				#else
+					<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+				#end
+			#end
+			#if ($!groups)
+				## added group awareness
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
+					<label for="groups">$tlang.getString("displayto.selected")</label>
+				</p>	
+				#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
+					#set ($listDisplay="block")
+				#else
+					#set ($listDisplay="none")
+				#end
+					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+						<tr>
+							<th id ="selectAllGroups" class="attach">
+								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+							</th>
+					 		<th id ="groupname">
+								#if (!$currentSortedBy.equals("grouptitle"))
+									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title</a>
+								#else
+									#if ($currentSortAsc.equals("true"))
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+									#else
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+									#end
+								#end
+							</th>
+							<th id ="groupdescription">
+								#if (!$currentSortedBy.equals("groupdescription"))
+									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description</a>
+								#else
+									#if ($currentSortAsc.equals("true"))
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+									#else
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+									#end
+								#end
+							</th>
+						</tr>
+						#foreach ($group in $!groups)
+							<tr>
+								<td headers="selected" class="attach">
+									#set($selected=false)
+									#foreach($aGroupRef in $announceToGroups)
+										#set($aGroup = $!site.getGroup($!aGroupRef))
+										#if ($!group.Id == $!aGroup.Id)
+											#set($selected = true)
+										#end
+									#end
+									<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+								</td>
+								<td headers="name" nowrap="nowrap">
+									<label for="$group.Id">
+										$group.Title
+									</label>	
+								</td>
+								<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+									#set($description = "")
+									#set($description = $group.Description)
+									$!description
+								</td>
+							</tr>
+						#end
+					</table>
+			#end
+		#end
+			<p class="shorttext">
+				<h4>
+   				$tlang.getString("revise.attachments")
+				</h4>	
+				#set ($size = 0)
+				#if (!$attachments.isEmpty())
+					 #set ($props = false)
+					 #set ($size =  $attachments.size())
+					 <ul class="attachList">
+						 #foreach ($attachment in $attachments)
+							#set ($props = $attachment.Properties)
+							#if (!$props)
+								#if ($size > 0) #set ($size = $size - 1) #end
+							#else
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<li>
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
+								#else
+									<li>
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
+								#end
+								<a href="$attachment.Url" target="_blank">
+								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+								</li>
+							#end
+							#set ($props = false)
+						#end
+					</ul>	
+				#end
+			</p>
+			#if ($size == 0) <p class="instruction">$tlang.getString("revise.noattach")</p>
+				<div class="act">
+					 <input type="button" name="attach" value="$tlang.getString("revise.addatt")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+				</div>
+			#else
+				<div class="act">
+					 <input type="button" name="attach" value="$tlang.getString("revise.addrem")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+				</div>
+			#end
+			#if ($notification)
+				<hr class="itemSeparator" />
+				<p class="shorttext">
+					<label for="notify">
+      				$tlang.getString("revise.notify")
+					</label>
+					<select name="notify">
+						#if ($noti)
+							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
+							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>
+							<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("revise.notify_none")</option>
+						#else	
+							<option value="r">$tlang.getString("revise.notify_high")</option>
+							<option value="o">$tlang.getString("revise.notify_low")</option>
+							<option value="n" selected="selected">$tlang.getString("revise.notify_none")</option>
+						#end
+					</select>
+				</p>	
+			#end
+		</div>	
+		<p class="act">
+				<input type="button" class="active" name="post" accesskey="s" value=
+					#if ( $newAnn =="true")				
+						"$tlang.getString("revise.add")"
+					#else
+						"$tlang.getString("revise.savechanges")"
+					#end
+				 onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="d" name="save" value="$tlang.getString("revise.savedraft")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='save';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
+		</p>
+	</form>
+</div>
+<script language="JavaScript" type="text/JavaScript">
+	<!--
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+		}
+	-->
+</script>

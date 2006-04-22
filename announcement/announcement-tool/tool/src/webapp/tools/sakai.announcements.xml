@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.announcements"
+			title="Announcements"
+			description="For posting current, time-critical information.">
+
+		<configuration name="channel" value="" />
+		<configuration name="pagesize" value="10" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="myworkspace" />
+
+	</tool>
+
+</registration>

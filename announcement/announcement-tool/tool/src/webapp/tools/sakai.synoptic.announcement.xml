@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.synoptic.announcement"
+			title="Recent Announcements"
+			description="Display recent announcements, updated as messages arrive">
+
+		<configuration name="days" value="10" />
+		<configuration name="items" value="3" />
+		<configuration name="length" value="50" />
+		<configuration name="showAllColumns" value="false" />
+		<configuration name="showOnlyOptionsButton" value="true" />
+		<configuration name="showAnnouncementBody" value="true" />
+		<configuration name="channel" value="" />
+
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="help.id" value="sakai.announcements" type="final" />
+
+	</tool>
+
+</registration>

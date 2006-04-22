@@ -1,0 +1,56 @@
+<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-delete.vm,v 1.2 2005/05/15 04:54:19 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("del.deleting")
+	</h3>
+	<div class="alertMessage">$tlang.getString("del.areyou")</div>
+	<form name="forNotLetDeleteSelectedOnLoad"></form>
+		<table class="listHier" cellspacing="0">
+			<tr>
+				<th class="chefLabel">$tlang.getString("gen.subject")</th>
+				<th class="chefLabel">$tlang.getString("gen.from")</th>
+				<th class="chefLabel">$tlang.getString("gen.date")</th>
+				<th class="chefLabel">$tlang.getString("gen.visible")</th>
+			</tr>
+			#foreach ($delete_item in $delete_messages)
+				<tr>
+					<td>
+						#if ($delete_item.Header.draft)
+							<span class="highlight">$tlang.getString("gen.draft") - </span>
+						#end
+						$validator.escapeHtml($delete_item.Header.subject)
+					</td>
+					<td>$validator.escapeHtml($delete_item.Header.From.DisplayName)</td>
+					<td>$delete_item.Header.Date.toStringLocalFull()</td>
+					<td>
+						#set($publicProperty = $delete_item.getProperties().getProperty("SAKAI:pubview"))
+						#if ($!publicProperty && $publicProperty.equals("true"))
+							$tlang.getString("gen.public")
+						#elseif ($delete_item.getAnnouncementHeader().getAccess().equals($!channelAccess))
+							$tlang.getString("range.allgroups")
+						#else
+							#set($count = 0)
+							#set($allGroupString="")
+							#foreach ($aGroupRef in $delete_item.getAnnouncementHeader().getGroups())
+								#set($aGroup=$!site.getGroup($aGroupRef))
+								#set($count=$count+1)
+								#if ($count > 1)
+									#set($allGroupString = $allGroupString.concat(", ").concat($aGroup.getTitle()))
+								#else
+									#set($allGroupString = $aGroup.getTitle())
+								#end
+							#end
+							$allGroupString
+						#end
+					</td>
+				</tr>
+			#end
+		</table>
+	<form name="deleteTemplateForm" action="#toolForm("AnnouncementAction")" method="post">
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete" value="$tlang.getString("gen.delete")" />
+			<input type="submit" accesskey="x" value="$tlang.getString("gen.cancel")" name="eventSubmit_doCancel" />
+		</p>
+	</form>
+</div>

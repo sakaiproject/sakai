@@ -1,0 +1,69 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-preview.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $
+<div class="portletBody">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("pre.preview")
+	</h3>	
+	<table cellspacing="0" class="itemSummary indnt1" summary="">
+		<tr>
+			<th>$tlang.getString("gen.subject")</th>
+			<td>$validator.escapeHtml($subject)</td>
+		</tr>
+		<tr> 
+			<th>$tlang.getString("gen.from")</th>
+			<td>$validator.escapeHtml($user.DisplayName)</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("gen.date")</th>
+			<td>$date.toStringLocalFull()</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("meta.public")</th>
+			<td>$IsPubView</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("pre.notif")</th>
+			<td>$noti</td>
+		</tr>
+	</table>
+	<h4 class="indnt1">
+		$tlang.getString("meta.message")
+	</h4>
+	<p class="indnt1">$validator.escapeHtmlFormattedText($body)</p>
+	#set ($size = 0)
+	#if (!$attachments.isEmpty())
+		<h4 class="indnt1">$tlang.getString("meta.attach")</h4>
+		#set ($props = false)
+		#set ($size =  $attachments.size())
+		<ul class="attachList indnt2" >
+			#foreach ($attachment in $attachments)
+				#set ($props = $attachment.Properties)
+				#if (!$props)
+					#if ($size > 0) #set ($size = $size - 1) #end
+				#else
+					#if ($props.getBooleanProperty($props.NamePropIsCollection))
+					<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+					#else
+					<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" />
+					#end
+					<a href="$attachment.Url" target="_blank">
+					  $validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+					#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+					  ($props.getPropertyFormatted($props.NamePropContentLength))
+					#end
+					</li>
+				#end
+				#set ($props = false)
+			#end
+		</ul>
+	#end
+	<form name="form2" method="post" action="#toolForm("AnnouncementAction")">
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doPost" value="$tlang.getString("pre.post")" /> 
+			<input type="submit" accesskey="e" name="eventSubmit_doPreviewrevise" value="$tlang.getString("gen.revise")" />
+			<input type="submit" accesskey="d" name="eventSubmit_doSavedraft" value="$tlang.getString("gen.save") $tlang.getString("gen.draft")" /> 
+			<input type="submit" accesskey="x" name="eventSubmit_doPreviewrevise" value="$tlang.getString("gen.cancel")" />
+		</p>
+	</form>	
+</div>
+

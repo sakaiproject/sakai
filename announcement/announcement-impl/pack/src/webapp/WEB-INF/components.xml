@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.announcement.api.AnnouncementService"
+			class="org.sakaiproject.announcement.impl.DbAnnouncementService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="notificationService"><ref bean="org.sakaiproject.event.api.NotificationService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+ 		<property name="containerTableName"><value>ANNOUNCEMENT_CHANNEL</value></property>
+ 		<property name="resourceTableName"><value>ANNOUNCEMENT_MESSAGE</value></property>
+ 		<property name="locksInDb"><value>false</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+</beans>
