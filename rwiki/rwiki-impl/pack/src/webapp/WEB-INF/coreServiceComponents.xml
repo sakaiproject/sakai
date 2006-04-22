@@ -16,7 +16,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderEngineFactoryImpl"
        init-method="init" 
  	>  
-    <property name="externalImageLink"><value>&lt;img src="/sakai-rwiki/images/icklearrow.gif" alt="external link: " title="external link"/&gt;</value></property>
+    <property name="externalImageLink"><value>&lt;img src="/sakai-rwiki-tool/images/icklearrow.gif" alt="external link: " title="external link"/&gt;</value></property>
   </bean>
 
 
@@ -273,7 +273,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
-    <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/xml</value></entry>
@@ -302,7 +302,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
-    <property name="feedFormat"><value>&lt;a href="{0}09.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki/images/rss091.gif" border="0"  alt="RSS 0.91" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}09.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss091.gif" border="0"  alt="RSS 0.91" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/xml</value></entry>
@@ -336,7 +336,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
-    <property name="feedFormat"><value>&lt;a href="{0}20.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki/images/rss20.gif" border="0"  alt="RSS 2.0"/&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}20.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss20.gif" border="0"  alt="RSS 2.0"/&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/xml</value></entry>
@@ -370,7 +370,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
-    <property name="feedFormat"><value>&lt;a href="{0}atom" target="feeds"&gt;&lt;img src="/sakai-rwiki/images/atom03.gif" border="0" alt="Atom 0.3" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}atom" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/atom03.gif" border="0" alt="Atom 0.3" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/xml</value></entry>
