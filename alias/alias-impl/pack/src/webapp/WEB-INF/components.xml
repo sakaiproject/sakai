@@ -19,6 +19,7 @@
 		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
+		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 		<property name="cacheMinutes"><value>5</value></property>
