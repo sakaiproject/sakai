@@ -1,0 +1,98 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-view.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	
+	<div class="rightNav" style="margin:1em 0 0 0 ;float:none">
+		#if ($goPPButton)
+			<a href="#" title="Previous Email" onclick="location = '#toolLink("$action" "doView_prev")';return false;">
+				<input type="button" value="&lt; $tlang.getString('view.prev')" title="Go to Previous Email" />
+			</a>	
+		#else
+				<input type="button" value="&lt; Previous Email" disabled="disabled" />		
+		#end
+		<a href="#" title="Return to List" onclick="location = '#toolLink("$action" "doList")';return false;">
+			<input type="button" value="$tlang.getString('view.return')" title="Return to List" />	
+		</a>
+		#if ($goNPButton)
+			<a href="#" title="Next Email" onclick="location = '#toolLink("$action" "doView_next")';return false;">
+				<input type="button" value="$tlang.getString('view.next') &gt;" title="Go to Next Email" />
+			</a>
+		#end
+	</div>
+
+	#if ($alertMessage)<div class="alertMessage"><div style="display:block;clear:both" />$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	
+	<table class ="itemSummary">
+		<tr>
+			<th>$tlang.getString("gen.dat")</th>
+			<td>$email.Header.DateSent.toStringLocalFullZ()</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("gen.fro3")</th>
+			<td>$validator.escapeHtml($email.Header.FromAddress)</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("gen.sub2")</th>
+			<td>$validator.escapeHtml($email.Header.Subject)</td>
+		</tr>
+		#if ($viewheaders)
+			<tr>
+				<th>$tlang.getString("gen.hea")</th>
+				<td>
+					<ul class="attachList" style="font-size:.8em;color:gray;width:70em;overflow:hidden">
+						#set($headers = $email.Header.MailHeaders)
+						#foreach ($header in $headers)
+							<li>$validator.escapeHtml($header)</li>
+						#end
+					</ul>
+				</td>
+			</tr>
+		#end
+		<tr>
+			<th class="chefLabel">$tlang.getString("gen.bod2")</th>
+			<td>$validator.escapeHtmlFormattedText($email.Body)</td>
+		</tr>
+		#set ($attachments = $email.Header.Attachments)
+		#if (!$attachments.isEmpty())
+			<tr>
+				<th>$tlang.getString("gen.att")</th>
+				<td>
+					<ul class="attachList">
+						#foreach ($attachment in $attachments)                                        
+							#set ($props = $attachment.Properties)
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.fol")" />
+							#else
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
+							#end
+							<a href="$attachment.Url" target="_new">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+							</li>
+						#end
+					</ul>	
+				</td>
+			</tr>
+		#end
+	</table>
+	
+	<div class="rightNav" style="margin:1em 0 0 0 ;float:none">
+		#if ($goPPButton)
+			<a href="#" title="Previous Email" onclick="location = '#toolLink("$action" "doView_prev")';return false;">
+				<input type="button" value="&lt; $tlang.getString('view.prev')" title="Go to Previous Email" />
+			</a>	
+		#else
+				<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
+		#end
+		<a href="#" title="Return to List" onclick="location = '#toolLink("$action" "doList")';return false;">
+			<input type="button" value="$tlang.getString('view.return')" title="Return to List" />	
+		</a>
+		#if ($goNPButton)
+			<a href="#" title="Next Email" onclick="location = '#toolLink("$action" "doView_next")';return false;">
+				<input type="button" value="$tlang.getString('view.next') &gt;" title="Go to Next Email" />
+			</a>
+		#end
+	</div>
+</div>

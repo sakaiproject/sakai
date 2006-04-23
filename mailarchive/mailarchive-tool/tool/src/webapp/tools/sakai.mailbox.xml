@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.mailbox"
+			title="Email Archive"
+			description="For viewing email sent to the site.">
+
+		<configuration name="channel" value="" />
+		<configuration name="pagesize" value="20" />
+
+		<category name="course" />
+		<category name="project" />
+
+	</tool>
+
+</registration>

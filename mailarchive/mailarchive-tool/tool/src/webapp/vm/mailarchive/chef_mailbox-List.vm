@@ -1,0 +1,166 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-List.vm,v 1.9 2005/06/06 18:47:18 ggolden.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["search"];
+</script>
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<div class="rightNav" style="margin-top:.5em;display:block;clear:both;">
+		<form name="toolbar" action="#toolForm("$action")" method="post" class="inlineForm">
+			<label for="search" class="skip">$tlang.getString('lis.search')</label>
+			<input size="15" value="$!search" name="search" id="search" type="text" class="searchField" style="font-size:1em;padding: .2em;border:1px solid gray" onkeypress="formSubmitOnEnter(this, event)"/>
+			<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for emails" />
+			<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch")'+buildQueryString('toolbar');return false;">
+				<span class="act"><input type="button" value="$tlang.getString('lis.search')" /></span>
+			</a>
+			#if (($!search) && (!$search.equals("")))
+				<a href="#" title="Search" onclick="location = '#toolLink("$action" "doSearch_clear")';return false;" onkeypress="location = '#toolLink("$action" "doSearch_clear")';return false;">
+					<span class="act"><input type="button" value="$tlang.getString('lis.clear')" /></span>
+				</a>
+			#end
+		</form>
+	</div>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($sort-order)
+		#set ($sort-img = "sakai/sortascending.gif")
+		#set ($sort-dir = "ascending")
+	#else
+		#set ($sort-img = "sakai/sortdescending.gif")
+		#set ($sort-dir = "descending")
+	#end
+
+
+	<p class="instruction" style="margin-top:1em">
+		#if ($validFrom)
+			#if ($!validFrom.length() == 0)
+				$tlang.getString("lis.noemail")<br /><br />
+			#else
+				$tlang.getString("lis.youare")#if($validFrom != "*") $tlang.getString("gen.fro2") $validFrom#else.#end<br /><br /> 
+			#end
+			$tlang.getString("lis.emasen")<br />
+			<ul  style="margin:15px">
+				#foreach ($alias in $aliases)
+					<li style="margin:5px 5px 5px 15px;list-style-type: none;"><a href="mailto:${alias.getId()}@${serverName}">${alias.getId()}@${serverName}</a></li>
+				#end
+				<li style="margin:5px 5px 5px 15px;list-style-type: none;"><a href="mailto:${nonAlias}@${serverName}">${nonAlias}@${serverName}</a></li>
+			</ul>
+		#else
+			$tlang.getString("lis.youarenot")<hr />
+		#end
+	</p>	
+	#if($allMsgNumberInt > 0)
+
+	## J: first and last buttons seem to always be disabled (gsilver)
+
+		<div class="rightNav">
+			<span class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</span>
+			#if ($pagesize != 0)
+				#if ($goPPButton == "true")
+					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="First" />
+					</form>
+				#else
+					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+					</form>
+				#end
+				#if ($goPPButton == "true")
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="Previous $pagesize" />
+					</form>
+				#else
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+					</form>
+				#end
+			#end
+			<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+				<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+				<option value="5" #if($pagesize == 5) selected="selected" #end>$tlang.getString("lis.show5")</option>
+					<option value="10" #if($pagesize == 10) selected="selected" #end>$tlang.getString("lis.show10")</option>
+					<option value="20" #if($pagesize == 20) selected="selected" #end>$tlang.getString("lis.show20")</option>
+					<option value="50" #if($pagesize == 50) selected="selected" #end>$tlang.getString("lis.show50")</option>
+					<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("lis.show100")</option>
+					<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("lis.show200")</option>
+				</select>
+			</form>
+			#if ($pagesize != 0)
+				#if ($goNPButton == "true")
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="Next $pagesize" />
+					</form>
+				#else
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+					</form>
+				#end
+				#if ($goNPButton == "true")
+					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="Last" />
+					</form>
+				#else
+					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+					</form>
+
+				#end
+			#end
+
+		</div>
+		<table class ="listHier" cellspacing="0" summary ="$tlang.getString("lis.lisofarc")">
+			<caption class="skip">List of site email</caption>
+			<tr>
+				<th id="from">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_from")';return false;" onkeypress = "location = '#toolLink($action "doSort_from")';return false;" title ="$tlang.getString("lis.sortbysen")">
+						$tlang.getString("gen.fro")
+						#if ($sort-by == 0)<img border="0" src="#imageLink($sort-img)" alt="$tlang.getString("lis.sortbysen") $sort-dir" />#end
+					</a>
+				</th>
+				<th id="subject">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_subject")';return false;" onkeypress = "location = '#toolLink($action "doSort_subject")';return false;"  title = "$tlang.getString("lis.sortbysub")">
+						$tlang.getString("gen.sub")
+						#if ($sort-by == 2)<img border="0" src="#imageLink($sort-img)" alt="$tlang.getString("lis.sortbysub") $sort-dir" />#end
+					</a>
+				</th>
+				<th id="date">
+					<a href="#" onclick = "location = '#toolLink($action "doSort_date")';return false;" onkeypress = "location = '#toolLink($action "doSort_date")';return false;"  title ="$tlang.getString("lis.sortbydat")">
+						$tlang.getString("gen.datre")
+						#if ($sort-by == 1)<img border="0" src="#imageLink($sort-img)" alt ="$tlang.getString("lis.sortbydat") $sort-dir" />#end
+					</a>
+				</th>
+			</tr>
+			#foreach ($item in $messages)
+				<tr>
+					<td headers="from">$validator.escapeHtml($item.Header.FromAddress)</td>
+					<td headers="subject">
+						<a href="#" onclick="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;" onkeypress="location = '#toolLinkParam($action "doView" "$view-id=$validator.escapeUrl($item.Header.Id)")';return false;">
+							$validator.escapeHtml($item.Header.Subject)
+
+							## show the paperclip if existing
+							#set ($size = 0)
+							#if (!$item.Header.Attachments.isEmpty())
+								#set ($props = false)
+								#set ($size = $item.Header.Attachments.size())
+								#foreach ($attachment in $item.Header.Attachments)
+									#set ($props = $attachment.Properties)
+									#if (!$props)
+											#if ($size > 0) #set ($size = $size - 1) #end
+									#end
+								#end
+							#end
+							#if ($size == 0)
+							#else
+								<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="attachment" />
+							#end
+						</a>
+					</td>
+					<td headers="date">$item.Header.DateSent.toStringLocalFullZ()</td>
+				</tr>
+			#end		
+		</table>
+	#else
+		<p class="instruction">
+			$tlang.getString("lis.noema")
+		</p>
+	#end	
+</div>	
