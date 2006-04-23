@@ -44,13 +44,13 @@ import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -68,7 +68,6 @@ import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.impl.BaseMessageService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -83,7 +82,7 @@ import org.w3c.dom.Element;
  * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
  * </p>
  */
-public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService
+public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
@@ -516,34 +515,26 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChange(Site site, EntityProducer.ChangeType change)
+	public void startContext(String context)
+	{
+		enableMessageChannel(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void endContext(String context)
+	{
+		disableMessageChannel(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String[] myToolIds()
 	{
 		String[] toolIds = { "sakai.announcements" };
-
-		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change)
-		{
-			disableMessageChannel(site);
-		}
-
-		// otherwise enable if we now have the tool, disable otherwise
-		else
-		{
-			// collect the tools from the site
-			Collection tools = site.getTools(toolIds);
-
-			// if we have the tool
-			if (!tools.isEmpty())
-			{
-				enableMessageChannel(site);
-			}
-
-			// if we do not
-			else
-			{
-				disableMessageChannel(site);
-			}
-		}
+		return toolIds;
 	}
 
 	/**

@@ -1087,14 +1087,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean willImport()
-	{
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public HttpAccess getHttpAccess()
 	{
 		return null;
@@ -1670,20 +1662,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	} // merge
 
 	/**
-	 * import tool(s) contents from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param resourceIds
-	 *        when null, all resources will be imported; otherwise, only resources with those ids will be imported
-	 */
-	public void importEntities(String fromContext, String toContext, List resourceIds)
-	{
-	} // importResources
-
-	/**
 	 * {@inheritDoc}
 	 */
 	public void syncWithSiteChange(Site site, EntityProducer.ChangeType change)
@@ -1694,15 +1672,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	/**
 	 * Setup a main message channel for a site.
 	 * 
-	 * @param site
-	 *        The site.
-	 * @param serviceId
-	 *        The name of the message service.
+	 * @param siteId
+	 *        The site id.
 	 */
-	protected void enableMessageChannel(Site site)
+	protected void enableMessageChannel(String siteId)
 	{
 		// form the channel name
-		String channelRef = channelReference(site.getId(), SiteService.MAIN_CONTAINER);
+		String channelRef = channelReference(siteId, SiteService.MAIN_CONTAINER);
 
 		// see if there's a channel
 		try
@@ -1738,7 +1714,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	 * @param site
 	 *        The site.
 	 */
-	protected void disableMessageChannel(Site site)
+	protected void disableMessageChannel(String siteId)
 	{
 		// TODO: we do nothing now - channels hang around after the tool is removed from the site or the site is deleted -ggolden
 	}
