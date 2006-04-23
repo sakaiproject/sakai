@@ -21,12 +21,6 @@
       <property name="location"><value>/sakai_iframe_myworkspace/arbj.html</value></property>
    </bean>
    
-   <bean id="stopPageRefresh" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arat</value></property>
-      <property name="name"><value>Prevent Page Refresh</value></property>
-      <property name="location"><value>/sakai_iframe_myworkspace/arat.html</value></property>
-   </bean>
-   
    <bean id="searchUserProfile" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardb</value></property>
       <property name="name"><value>Search User's Profile</value></property>
@@ -130,7 +124,6 @@
                      <ref bean="workspaceOverview"/>
                      <ref bean="changeNotificationPreferences"/>
                      <ref bean="addTools"/>
-                     <ref bean="stopPageRefresh"/>
                      <ref bean="searchUserProfile"/>
                      <ref bean="setMOD"/>
                      <ref bean="clickBackButton"/>
