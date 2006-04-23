@@ -567,29 +567,29 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			}
 			catch (NoSuchMethodException e2)
 			{
-				getServletContext().log("Exception calling method " + methodName + " " + e2);
+				M_log.warn("Exception calling method " + methodName + " " + e2);
 			}
 			catch (IllegalAccessException e2)
 			{
-				getServletContext().log("Exception calling method " + methodName + " " + e2);
+				M_log.warn("Exception calling method " + methodName + " " + e2);
 			}
 			catch (InvocationTargetException e2)
 			{
 				String xtra = "";
 				if (e2.getCause() != null) xtra = " (Caused by " + e2.getCause() + ")";
-				getServletContext().log("Exception calling method " + methodName + " " + e2 + xtra);
+				M_log.warn("Exception calling method " + methodName + " " + e2 + xtra);
 
 			}
 		}
 		catch (IllegalAccessException e)
 		{
-			getServletContext().log("Exception calling method " + methodName + " " + e);
+			M_log.warn("Exception calling method " + methodName + " " + e);
 		}
 		catch (InvocationTargetException e)
 		{
 			String xtra = "";
 			if (e.getCause() != null) xtra = " (Caused by " + e.getCause() + ")";
-			getServletContext().log("Exception calling method " + methodName + " " + e + xtra);
+			M_log.warn("Exception calling method " + methodName + " " + e + xtra);
 		}
 
 	} // actionDispatch
@@ -635,21 +635,21 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 		catch (ClassNotFoundException e)
 		{
-			getServletContext().log("Exception helper class not found " + e);
+			M_log.warn("Exception helper class not found " + e);
 		}
 		catch (NoSuchMethodException e)
 		{
-			getServletContext().log("Exception calling method " + methodName + " " + e);
+			M_log.warn("Exception calling method " + methodName + " " + e);
 		}
 		catch (IllegalAccessException e)
 		{
-			getServletContext().log("Exception calling method " + methodName + " " + e);
+			M_log.warn("Exception calling method " + methodName + " " + e);
 		}
 		catch (InvocationTargetException e)
 		{
 			String xtra = "";
 			if (e.getCause() != null) xtra = " (Caused by " + e.getCause() + ")";
-			getServletContext().log("Exception calling method " + methodName + " " + e + xtra);
+			M_log.warn("Exception calling method " + methodName + " " + e + xtra);
 		}
 
 	} // helperActionDispatch
