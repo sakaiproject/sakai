@@ -71,7 +71,7 @@
    
    <bean id="publishAssessment" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>ardc</value></property>
-      <property name="name"><value>Give an Assessment</value></property>
+      <property name="name"><value>Publish an Assessment</value></property>
       <property name="location"><value>/sakai_samigo/ardc.html</value></property>
    </bean>
    
@@ -161,9 +161,9 @@
    
    
    <bean id="viewScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arha</value></property>
+      <property name="docId"><value>aszx</value></property>
       <property name="name"><value>View Student Scores And Answers</value></property>
-      <property name="location"><value>/sakai_samigo/arha.html</value></property>
+      <property name="location"><value>/sakai_samigo/aszx.html</value></property>
    </bean>
 
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
