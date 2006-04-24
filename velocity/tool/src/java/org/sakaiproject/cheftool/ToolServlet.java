@@ -21,6 +21,7 @@
 
 package org.sakaiproject.cheftool;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
@@ -36,7 +37,6 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -45,6 +45,8 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.vm.ActionURL;
 
 /**
  * <p>
@@ -97,6 +99,9 @@ public abstract class ToolServlet extends VmServlet
 
 	/** The special panel name for the title. */
 	protected final String TITLE_PANEL = "Title";
+
+	/** The special panel name for the main. */
+	protected final String MAIN_PANEL = "Main";
 
 	/**
 	 * Set the tool mode.
@@ -166,7 +171,23 @@ public abstract class ToolServlet extends VmServlet
 		{
 			// clear our helper id indicator from session
 			toolSession.removeAttribute(HELPER_ID);
-			// TODO: now what - we need to process the return from the helper - need a method to call -ggolden
+			
+			// redirect to the same URL w/o the helper done indication, otherwise this is left in the browser and can be re-processed later
+			String newUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo());			
+			String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+			if (panel !=  null)
+			{
+				newUrl += "?" + ActionURL.PARAM_PANEL + "=" + panel;
+			}
+			try
+			{
+				res.sendRedirect(newUrl);
+			}
+			catch (IOException e)
+			{
+				M_log.warn("redirecting after helper done detection  to: " + newUrl + " : " + e.toString());
+			}
+			return;
 		}
 
 		// get the sakai.tool.helper.id helper id from the tool session
@@ -209,9 +230,17 @@ public abstract class ToolServlet extends VmServlet
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		toolSession.setAttribute(HELPER_ID, helperId);
 
-		// the done URL
+		// the done URL - this url and the extra parameter to indicate done
 		String doneUrl = req.getContextPath() + req.getServletPath() + (req.getPathInfo() == null ? "" : req.getPathInfo()) + "?"
 				+ HELPER_ID + "=done";
+		
+		// also make sure the panel is indicated - assume that it needs to be main, assuming that helpers are taking over the entire tool response
+		String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+		if (panel !=  null)
+		{
+			doneUrl += "&" + ActionURL.PARAM_PANEL + "=" + MAIN_PANEL;
+		}
+
 		toolSession.setAttribute(helperId + Tool.HELPER_DONE_URL, doneUrl);
 	}
 
