@@ -91,6 +91,24 @@ public interface CalendarService
 	public static final int WEEK_VIEW = 2;
 	public static final int MONTH_VIEW = 3;
 	public static final int LIST_VIEW = 5;
+	
+	/** Security function / event for reading site / event. */
+	public static final String SECURE_READ = "read";
+
+	/** Security function / event for adding site / event. */
+	public static final String SECURE_ADD = "new";
+	
+	/** Security function / event for removing event */
+	public static final String SECURE_REMOVE = "delete";
+
+	/** Security function / event for updating event. */
+	public static final String SECURE_UPDATE = "revise";
+
+	/** Security function giving the user permission to all groups, if granted to at the calendar or calendar level. */
+	public static final String SECURE_ALL_GROUPS = "all.groups";
+
+	/** The Reference type for a calendar where site groups are to be considered in security computation. */
+	public static final String REF_TYPE_CALENDAR_GROUPS = "calendar-groups";
 
 
 	/**

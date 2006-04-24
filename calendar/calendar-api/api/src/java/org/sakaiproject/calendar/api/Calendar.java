@@ -21,6 +21,7 @@
 
 package org.sakaiproject.calendar.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.entity.api.Entity;
@@ -183,6 +184,20 @@ public interface Calendar
 	* @param edit The event from this calendar to remove.
 	*/
 	public void removeEvent(CalendarEventEdit edit);
+	
+	/**
+	 * Get the collection of Groups defined for the context of this calendar that the end user has add event permissions in.
+	 * 
+	 * @return The Collection (Group) of groups defined for the context of this calendar that the end user has add event permissions in, empty if none.
+	 */
+	Collection getGroupsAllowAddEvent();
+
+	/**
+	 * Get the collection of Group defined for the context of this calendar that the end user has get event permissions in.
+	 * 
+	 * @return The Collection (Group) of groups defined for the context of this calendar that the end user has get event permissions in, empty if none.
+	 */
+	Collection getGroupsAllowGetEvent();
 
 }	// Calendar
 

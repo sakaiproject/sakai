@@ -21,10 +21,18 @@
 
 package org.sakaiproject.calendar.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.service.legacy.calendar.Calendar;
 import org.sakaiproject.time.api.TimeRange;
 
+/*
+import org.sakaiproject.service.legacy.entity.AttachmentContainer;
+import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.service.legacy.time.TimeRange;
+*/
 /**
 * <p>CalendarEvent is the interface for events placed into a Calendar Service Calendar.</p>
 * <p>Each event has a time range, and other information in the event's (Resource) properties.</p>
@@ -86,6 +94,64 @@ public interface CalendarEvent
 	* @return The recurrence rule, or null if none.
 	*/
 	public RecurrenceRule getRecurrenceRule();
+	
+	/**
+	 * <p>
+	 * EventAccess enumerates different access modes for the event: site-wide or grouped.
+	 * </p>
+	 */
+	public class EventAccess
+	{
+		private final String m_id;
+
+		private EventAccess(String id)
+		{
+			m_id = id;
+		}
+
+		public String toString()
+		{
+			return m_id;
+		}
+
+		static public EventAccess fromString(String access)
+		{
+			// if (PUBLIC.m_id.equals(access)) return PUBLIC;
+			if (SITE.m_id.equals(access)) return SITE;
+			if (GROUPED.m_id.equals(access)) return GROUPED;
+			return null;
+		}
+
+		/** public access to the event: pubview */
+		// public static final EventAccess PUBLIC = new EventAccess("public");
+
+		/** site level access to the event */
+		public static final EventAccess SITE = new EventAccess("site");
+
+		/** grouped access; only members of the getGroup() groups (authorization groups) have access */
+		public static final EventAccess GROUPED = new EventAccess("grouped");
+	}
+	
+	/**
+	 * Access the groups defined for this .
+	 * 
+	 * @return A Collection (String) of group refs (authorization group ids) defined for this event; empty if none are defined.
+	 */
+	Collection getGroups();
+	
+	/**
+	 * Access the groups defined for this .
+	 * 
+	 * @return A Collection (String) of group refs (authorization group ids) defined for this event; empty if none are defined.
+	 */
+	String getGroupRangeForDisplay(Calendar calendar);
+
+	/**
+	 * Access the access mode for the event - how we compute who has access to the event.
+	 * 
+	 * @return The EventAccess access mode for the event.
+	 */
+	EventAccess getAccess();
 
 }	// CalendarEvent
 
