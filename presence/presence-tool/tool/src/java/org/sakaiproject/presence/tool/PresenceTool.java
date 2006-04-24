@@ -45,6 +45,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 

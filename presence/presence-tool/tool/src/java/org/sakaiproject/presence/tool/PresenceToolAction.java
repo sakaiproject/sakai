@@ -42,6 +42,7 @@ import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 
 /**

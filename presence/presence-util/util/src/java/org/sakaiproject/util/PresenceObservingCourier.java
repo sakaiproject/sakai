@@ -19,14 +19,12 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.presence.tool;
+package org.sakaiproject.util;
 
 import java.util.Observable;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.presence.cover.PresenceService;
-import org.sakaiproject.util.DirectRefreshDelivery;
-import org.sakaiproject.util.EventObservingCourier;
 
 /**
  * <p>
