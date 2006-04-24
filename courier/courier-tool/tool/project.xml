@@ -2,8 +2,8 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<name>Sakai Courier Tool</name>
+	<extend>../../../master/project.xml</extend>
+	<name>courier</name>
 	<groupId>sakaiproject</groupId>
 	<id>courier</id>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -28,39 +28,44 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
+			<artifactId>sakai-courier-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-thread_local</artifactId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-request</artifactId>
+			<artifactId>sakai-presence-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
-			<version>2.4-20040521</version>
+			<version>2.4</version>
 		</dependency>
 
 	</dependencies>
 
 	<build>
 
-		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
 
 	</build>
