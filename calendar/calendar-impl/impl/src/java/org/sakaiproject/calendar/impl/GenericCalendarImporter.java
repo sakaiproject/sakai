@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarImporterService;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -47,10 +49,12 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.ImportException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.exception.PermissionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -454,6 +458,51 @@ public class GenericCalendarImporter implements CalendarImporterService
 		public String getDescriptionFormatted()
 		{
 			return description;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#addGroup(org.sakaiproject.service.legacy.site.Group)
+		 */
+		public void addGroup(Group group) throws PermissionException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#removeGroup(org.sakaiproject.service.legacy.site.Group)
+		 */
+		public void removeGroup(Group group) throws PermissionException {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setAccess(org.sakaiproject.calendar.api.CalendarEvent.EventAccess)
+		 */
+		public void setAccess(EventAccess access) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getGroups()
+		 */
+		public Collection getGroups() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.calendar.api.CalendarEvent#getAccess()
+		 */
+		public EventAccess getAccess() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		public String getGroupRangeForDisplay(Calendar calendar) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

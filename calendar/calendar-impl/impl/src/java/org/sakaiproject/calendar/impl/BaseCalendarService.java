@@ -64,6 +64,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -80,7 +81,7 @@ import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityTransferrer;
+//import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -97,6 +98,7 @@ import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
@@ -124,7 +126,7 @@ import org.w3c.dom.NodeList;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver//, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -143,6 +145,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	/** DELIMETER used to separate the list of custom fields for this calendar. */
 	private final static String ADDFIELDS_DELIMITER = "_,_";
+	
+	/** Security lock / event root for generic message events to make it a mail event. */
+	public static final String SECURE_SCHEDULE_ROOT = "schedule.";
 
 	/**
 	 * Access this service from the inner classes.
@@ -320,6 +325,17 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		return calendarEventVector;
 	}
 
+	/**
+	* Form a tracking event string based on a security function string.
+	* @param secure The security function string.
+	* @return The event tracking string.
+	*/
+	protected String eventId(String secure)
+	{
+		return SECURE_SCHEDULE_ROOT + secure;
+
+	} // eventId
+	
 	/**
 	 * Access the id generating service and return a unique id.
 	 * 
@@ -2903,6 +2919,71 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			m_active = false;
 
 		} // closeEdit
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.Calendar#getGroupsAllowAddEvent()
+		 */
+		public Collection getGroupsAllowAddEvent() 
+		{
+			return getGroupsAllowFunction(SECURE_ADD);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.Calendar#getGroupsAllowGetEvent()
+		 */
+		public Collection getGroupsAllowGetEvent() 
+		{
+			return getGroupsAllowFunction(SECURE_READ);
+		}
+		
+		/**
+		 * Get the groups of this channel's contex-site that the end user has permission to "function" in.
+		 * @param function The function to check
+		 */
+		protected Collection getGroupsAllowFunction(String function)
+		{
+			Collection rv = new Vector();
+
+			try
+			{
+				// get the channel's site's groups
+				Site site = SiteService.getSite(m_context);
+				Collection groups = site.getGroups();
+				
+				// if the user has annc.allgrp for the channel (channel, site), and the function for the channel (channel,site), select all site groups
+				if (unlockCheck(SECURE_ALL_GROUPS, getReference()))
+				{
+					return groups;
+				}
+	
+				// otherwise, check the groups for function
+
+				// get a list of the group refs, which are authzGroup ids
+				Collection groupRefs = new Vector();
+				for (Iterator i = groups.iterator(); i.hasNext();)
+				{
+					Group group = (Group) i.next();
+					groupRefs.add(group.getReference());
+				}
+			
+				// ask the authzGroup service to filter them down based on function
+				groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(), eventId(function), groupRefs);
+				
+				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+				for (Iterator i = groups.iterator(); i.hasNext();)
+				{
+					Group group = (Group) i.next();
+					if (groupRefs.contains(group.getReference()))
+					{
+						rv.add(group);
+					}
+				}
+			}
+			catch (IdUnusedException e) {}
+
+			return rv;
+			
+		} // getGroupsAllowFunction
 
 		/******************************************************************************************************************************************************************************************************************************************************
 		 * SessionBindingListener implementation
@@ -2963,6 +3044,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		/** Active flag. */
 		protected boolean m_active = false;
+		
+		/** The Collection of groups (authorization group id strings). */
+		protected Collection m_groups = new Vector();
+		
+		/** The message access. */
+		protected EventAccess m_access = EventAccess.SITE;
 
 		/**
 		 * Construct.
@@ -3072,6 +3159,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						m_properties = new BaseResourcePropertiesEdit(element);
 					}
 
+					else if (element.getTagName().equals("group"))
+					{
+						m_groups.add(element.getAttribute("authzGroup"));
+					}
+					
 					// else look for rules
 					else if (element.getTagName().equals("rules"))
 					{
@@ -3639,7 +3731,21 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			event.setAttribute("id", getId());
 			event.setAttribute("range", getRange().toString());
-
+			// add access
+			event.setAttribute("access", m_access.toString());
+			
+			// add groups
+			if ((m_groups != null) && (m_groups.size() > 0))
+			{
+				for (Iterator i = m_groups.iterator(); i.hasNext();)
+				{
+					String group = (String) i.next();
+					Element sect = doc.createElement("group");
+					event.appendChild(sect);
+					sect.setAttribute("authzGroup", group);
+				}
+			}
+			
 			// properties
 			m_properties.toXml(doc, stack);
 
@@ -3809,6 +3915,70 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		} // clearAttachments
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#addGroup(org.sakaiproject.service.legacy.site.Group)
+		 */
+		public void addGroup(Group group) throws PermissionException 
+		{
+			if (group == null) throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
+
+			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
+			if (!unlockCheck(SECURE_ADD, group.getReference()))
+			{
+				if (!unlockCheck(SECURE_ALL_GROUPS,((BaseCalendarEdit) m_calendar).getReference()))
+				{
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group.getReference());					
+				}
+			}
+
+			if (!m_groups.contains(group.getReference())) m_groups.add(group.getReference());
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#removeGroup(org.sakaiproject.service.legacy.site.Group)
+		 */
+		public void removeGroup(Group group) throws PermissionException 
+		{
+			if (group == null) throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
+
+			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
+			if (!unlockCheck(SECURE_ADD, group.getReference()))
+			{
+				if (!unlockCheck(SECURE_ALL_GROUPS, ((BaseCalendarEdit) m_calendar).getReference()))
+				{
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD),  group.getReference());					
+				}
+			}
+
+			if (m_groups.contains(group.getReference())) m_groups.remove(group.getReference());
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#setAccess(org.sakaiproject.service.legacy.calendar.CalendarEvent.EventAccess)
+		 */
+		public void setAccess(EventAccess access) 
+		{
+			m_access = access;
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.CalendarEvent#getAccess()
+		 */
+		public EventAccess getAccess() {
+			return m_access;
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.service.legacy.calendar.CalendarEvent#getGroups()
+		 */
+		public Collection getGroups() 
+		{
+			return new Vector(m_groups);
+		}
+		
 		/******************************************************************************************************************************************************************************************************************************************************
 		 * SessionBindingListener implementation
 		 *****************************************************************************************************************************************************************************************************************************************************/
@@ -3839,6 +4009,44 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			return m_calendar.getReference();
 
 		} // getCalendarReference
+
+		public String getGroupRangeForDisplay(Calendar cal) 
+		{
+			if (m_access.equals(CalendarEvent.EventAccess.SITE))
+			{
+				return "";
+			}
+			else
+			{
+				int count = 0;
+				String allGroupString="";
+				try
+				{
+					Site site = SiteService.getSite(cal.getContext());
+					for (Iterator i= m_groups.iterator(); i.hasNext();)
+					{
+						Group aGroup = site.getGroup((String) i.next());
+						if (aGroup != null)
+						{
+							count++;
+							if (count > 1)
+							{
+								allGroupString = allGroupString.concat(", ").concat(aGroup.getTitle());
+							}
+							else
+							{
+								allGroupString = aGroup.getTitle();
+							}
+						}
+					}
+				}
+				catch (IdUnusedException e)
+				{
+					// No site available.
+				}
+				return allGroupString;
+			}
+		}
 
 	} // BaseCalendarEvent
 
