@@ -100,7 +100,7 @@ public class AuthzQueriesFacade
 
     if (!agent.isAccessViaUrl())
     {
-       currentSiteId =ToolManager.getCurrentPlacement().getId();
+       currentSiteId =ToolManager.getCurrentPlacement().getContext();
     }
 
     if(currentSiteId == null)
@@ -137,7 +137,7 @@ public class AuthzQueriesFacade
     {
       throw new IllegalArgumentException("Null Argument");
     }
-    final String queryAgentId = ToolManager.getCurrentPlacement().getId();
+    final String queryAgentId = ToolManager.getCurrentPlacement().getContext();
 
     HibernateCallback hcb = new HibernateCallback()
     {
