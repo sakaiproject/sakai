@@ -10,7 +10,7 @@
                          "authorization");
   System.out.println("***** roleCheck: authzBean="+authzBean);
   if (authzBean.getAuthzMap().size()==0){ 
-    authzBean.addAllPrivilege(ToolManager.getCurrentPlacement().getId());
+    authzBean.addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
   }
   boolean adminPrivilege = authzBean.getAdminPrivilege();
 
