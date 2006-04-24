@@ -149,30 +149,30 @@
 				<war.bundle>true</war.bundle>
 			</properties>        
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-text</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties> 
-		</dependency> 
-		<dependency>
+		</dependency> -->
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-web</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>        
-		</dependency>
-        <dependency>
+		</dependency>-->
+<!--         <dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-jsf-widgets</artifactId>
@@ -197,17 +197,17 @@
 			<version>${sakai.version}</version>
 		</dependency>  		  
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-active-tool</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>  		  
+		</dependency>  		  -->
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool-registration</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>  		  
+		</dependency>  		  -->
 
 <!--try for sakai tag and wysiwyg-->
 		<dependency>
@@ -243,11 +243,11 @@
 			</properties>        
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-session</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
+		</dependency>-->
 		
 
 	</dependencies>

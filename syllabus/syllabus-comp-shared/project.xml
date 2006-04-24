@@ -28,11 +28,11 @@
 			</properties>        
     	</dependency>
 
-		<dependency>
+<!--  		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-session</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
+		</dependency>-->
 
 <!-- 2.2		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -115,23 +115,23 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-component</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
+		</dependency>-->
 		
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-java</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
+		</dependency>-->
 		
-		<dependency>
+<!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-xml</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
+		</dependency>-->
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
