@@ -1,0 +1,14 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/chat/chef_chat-Presence.vm,v 1.2 2005/05/25 18:37:22 gsilver.umich.edu Exp $ 
+## show the list of users
+##
+
+## this is double deep
+<script type="text/javascript" language="JavaScript">
+doubleDeep = true;
+</script>
+
+<div style="font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em;margin-left:3px;white-space:nowrap;">
+#foreach ($user in $users)
+    $validator.escapeHtml($user.DisplayName)<br />
+#end
+</div>
