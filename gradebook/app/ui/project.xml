@@ -4,7 +4,7 @@
 	<extend>../project.xml</extend>
 	<id>sakai-gradebook-app-ui</id>
 	<name>sakai-gradebook-app-ui</name>
-	<shortDescription>Gradebook Application Common UI Classes and Resources</shortDescription>
+	<shortDescription>Gradebook Application Common Resources</shortDescription>
 
    	<properties>
 		<deploy.type>jar</deploy.type>
