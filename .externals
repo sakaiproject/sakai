@@ -23,7 +23,7 @@ calendar		https://source.sakaiproject.org/svn/calendar/tags/b4ga
 portal			https://source.sakaiproject.org/svn/portal/trunk
 jsf				https://source.sakaiproject.org/svn/jsf/trunk
 sections		https://source.sakaiproject.org/svn/sections/trunk
-gradebook		https://source.sakaiproject.org/svn/gradebook/tags/checkpoint-ray
+gradebook		https://source.sakaiproject.org/svn/gradebook/trunk
 course-management	https://source.sakaiproject.org/svn/course-management/trunk
 test-harness	https://source.sakaiproject.org/svn/test-harness/trunk
 help			https://source.sakaiproject.org/svn/help/trunk
