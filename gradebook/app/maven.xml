@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="sakai:build"
+	xmlns:j="jelly:core"
+	xmlns:ant="jelly:ant"
+	xmlns:maven="jelly:maven"
+	xmlns:u="jelly:util">
+
+	<postGoal name="war:war-resources">
+		<!-- Files common to both standalone and embedded builds -->
+		<ant:copy todir="${maven.war.webapp.dir}">
+			<ant:fileset dir="${basedir}/../ui/src/webapp" />
+		</ant:copy>
+	</postGoal>
+
+</project>

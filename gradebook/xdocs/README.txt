@@ -23,10 +23,10 @@ Building the Gradebook standalone
 standalone Gradebook depends. Start at the top sakai directory and run "maven
 sakai".
 
-2) Edit "gradebook/tool/project.properties" to match your build environment.
+2) Edit "gradebook/app/standalone-app/project.properties" to match your build environment.
 (Or you can override individual properties on the command line.) Edit a
 "hibernate.properties" file to set up the database you want. By default the one
-in "gradebook/tool/src/hibernate/hibernate.properties" is used, but you can
+in "gradebook/app/standalone-app/src/hibernate/" is used, but you can
 point to a different directory by changing the "hibernate.properties.dir"
 property. See "DatabaseSupport.txt" for sample database setups. Make sure that
 the database specified in your hibernate.properties file has been created.
@@ -40,10 +40,10 @@ build:
   cd ../sections
 
   # Build Section Management, Section Awareness, and integration support.
-  maven  -Dmode=standalone -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate cln bld
+  maven -Dmode=standalone -Dhibernate.properties.dir=C:/java/sakai/gradebook/app/standalone-app/src/hibernate cln bld
 
   # Initialize my local database with the Section Awareness tables.
-  maven  -Dmode=standalone -Dmem=false -Dhibernate.properties.dir=C:/java/sakai-trunk/sakai/gradebook/tool/src/hibernate schema
+  maven -Dmode=standalone -Dmem=false -Dhibernate.properties.dir=C:/java/sakai/gradebook/app/standalone-app/src/hibernate schema
 
   # Go back to the Gradebook.
   cd ../gradebook/
@@ -61,7 +61,7 @@ build:
 After starting your test Tomcat server, you can then go to the following URL
 and browse the test data as an instructor, student, or teaching assistant:
 
-  http://localhost:8080/sakai-gradebook-tool/
+  http://localhost:8080/sakai-gradebook-standalone-app/
 
 
 Standalone database settings
@@ -72,7 +72,7 @@ database, and the standalone Gradebook application uses a file-system-based
 Hypersonic database. Sakai licensing rules keep us from incorporating the
 Oracle or MySQL JDBC libraries in the application's standard build, and so if
 you wish to use either of those databases, you'll need to uncomment the
-appropriate Maven dependency lines in the file "gradebook/tool/project.xml".
+appropriate Maven dependency lines in the file "gradebook/app/project.xml".
 (Look for "<groupId>mysql</groupId>" and "<groupId>oracle</groupId>".) The
 Oracle JDBC libary isn't available through normal open source channels, and so
 you'll have to add that to your local Maven repository manually.
@@ -80,7 +80,7 @@ you'll have to add that to your local Maven repository manually.
 As mentioned above, you then need to create your database and set up a
 "hibernate.properties" file that can connect to it. You'll find a sample
 "hibernate.properties" file for Hypersonic (hsqldb) in
-"gradebook/tool/src/hibernate/hibernate.properties".
+"gradebook/app/standalone-app/src/hibernate/hibernate.properties".
 
 Here's a sample for MySQL:
 

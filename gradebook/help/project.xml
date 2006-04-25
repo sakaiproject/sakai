@@ -1,40 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../master/project.xml</extend>
-    <name>Sakai Gradebook Help</name>
-    <groupId>sakaiproject</groupId>
+    <extend>../project.xml</extend>
     <id>sakai-gradebook-help</id>
-	<currentVersion>${sakai.version}</currentVersion>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2004</inceptionYear>
+    <name>sakai-gradebook-help</name>
+    <shortDescription>Sakai Gradebook Help</shortDescription>
 
 	<properties>
 		<deploy.type>jar</deploy.type>
 		<deploy.target>shared</deploy.target>
 	</properties>
 
-	<dependencies>
-	</dependencies>
-
     <build>
-
-      <sourceDirectory>src</sourceDirectory>
-
       <resources>
         <resource>
           <directory>src</directory>
-            <includes>
-              <include>**/*.xml</include>
-              <include>**/*.html</include>
-              <include>**/*.htm</include>
-            </includes>
         </resource>
       </resources>
-
     </build>
 </project>

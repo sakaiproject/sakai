@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file specifies a Sakai + SectionAwareness implementation of the facades.
+	-->
+
+	<!-- External User Directory Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.UserDirectoryServiceSakai2Impl">
+	</bean>
+
+	<!-- External Authn Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
+	</bean>
+
+	<!-- External Authz Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
+		init-method="init">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+	</bean>
+
+	<!-- External Context Management Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.ContextManagementSakai2Impl">
+	</bean>
+
+</beans>

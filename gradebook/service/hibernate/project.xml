@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-gradebook-service-hibernate</id>
+	<name>sakai-gradebook-service-hibernate</name>
+	<shortDescription>Sakai Gradebook Component Data</shortDescription>
+
+   	<properties>
+		<deploy.type>jar</deploy.type>
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/hibernate</directory>
+			</resource>
+		</resources>
+	</build>
+</project>
+

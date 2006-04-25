@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-gradebook-standalone-app</id>
+	<name>sakai-gradebook-standalone-app</name>
+	<shortDescription>Gradebook Standalone Application</shortDescription>
+
+	<dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-app-ui</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-app-business</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/../ui/src/bundle</directory>
+			</resource>
+			<resource>
+				<directory>${hibernate.properties.dir}</directory>
+				<includes>
+					<include>hibernate.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/resources</directory>
+			</resource>
+		</resources>
+
+		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+		<unitTest>
+			<includes>
+				<include>**/*Test.java</include>
+<!--
+	With this setup, there's no way to restrict ourselves to a single
+	test on the command line. Instead, this file must be edited. For example,
+	the above line might be replaced with something like:
+				<include>**/GradeManagerTest.java</include>
+-->
+<!--
+	Include the following if you want to run the jcoverage goal.  Otherwise,
+	all of the database testing will be missed by the coverage tool.  The
+	TestManagers test assumes that the database is empty, so make sure you run
+	the schema goal before attempting to run jcoverage.
+-->
+<!--
+				<include>**/TestManagers.java</include>
+-->
+			</includes>
+			<resources>
+				<resource>
+					<directory>${basedir}/../ui/src/webapp/WEB-INF</directory>
+					<includes>
+						<include>spring-*.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>src/webapp/WEB-INF</directory>
+					<includes>
+						<include>spring-*.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>src/test</directory>
+					<includes>
+						<include>spring-hib-test.xml</include>
+						<include>spring-beans-test.xml</include>
+					</includes>
+				</resource>
+				<resource>
+					<directory>src/resource</directory>
+				</resource>
+				<!--
+					The hibernate.properties file to be used by testing will be
+					copied to the resource area based on runtime properties.
+					That logic is currently in maven.xml.
+				-->
+			</resources>
+		</unitTest>
+	</build>
+</project>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-gradebook-app-business</id>
+	<name>sakai-gradebook-app-business</name>
+	<shortDescription>Gradebook Application Business Logic</shortDescription>
+
+   	<properties>
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+
+	</dependencies>
+</project>
+

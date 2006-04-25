@@ -18,11 +18,12 @@ This document focuses on the Gradebook specifics.
 
 The Gradebook external service interface is defined at:
 
-  gradebook/service/src/java/org/sakaiproject/service/gradebook/shared/GradebookService.java
+  gradebook/service/api/src/java/org/sakaiproject/service/gradebook/shared/GradebookService.java
 
-In Sakai 2.1, the Gradebook has two programmatic clients: site management
-(which creates a new gradebook instance for the site) and Tests & Quizzes
-(which adds and scores externally-managed assignments).
+In Sakai 2.2, the Gradebook has four known programmatic clients: site management
+(which creates a new gradebook instance for the site), Tests & Quizzes and Assignments
+(which adds and scores externally-managed assignments), and Message Center
+(which gets assignment data and, if the user is permitted, updates scores).
 
 1.2 Facades
 
@@ -31,7 +32,7 @@ necessary (but not Gradebook-specific) data. Along with SectionAwareness, they
 specify all that's required to fully integrate the Gradebook application. The
 interfaces are defined in:
 
-  gradebook/component/src/java/org/sakaiproject/tool/gradebook/facades/
+  gradebook/service/api/src/java/org/sakaiproject/tool/gradebook/facades
     Authn.java
     Authz.java
     ContextManagement.java
@@ -40,7 +41,7 @@ interfaces are defined in:
 There are several implementations of these interfaces in the current code. For
 example, everything that's specific to the Sakai 2.1 framework can be found in:
 
-  gradebook/tool/src/java/org/sakaiproject/tool/gradebook/facades/sakai2impl
+  gradebook/service/impl/src/java/org/sakaiproject/tool/gradebook/facades/sakai2impl
 
 
 2. RESOURCES
@@ -49,15 +50,15 @@ example, everything that's specific to the Sakai 2.1 framework can be found in:
 Web pages and configuration files common across any deployment of the
 application are kept in:
 
-  gradebook/tool/src/webapp/common
+  gradebook/app/ui/src/webapp
 
-Resources specific to embedding in Sakai 2.1 are in:
+Resources specific to embedding in Sakai 2.2 are in:
 
-  gradebook/tool/src/webapp/sakai2
+  gradebook/app/sakai-tool/src/webapp
 
 Similarly, resources specific to the test standalone deployment are in:
 
-  gradebook/tool/src/webapp/standalone
+  gradebook/app/standalone-app/src/webapp
 
 Integrators will want to take special note of the configuration files in each
 directory's "WEB-INF".

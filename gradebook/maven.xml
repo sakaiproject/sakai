@@ -5,20 +5,15 @@
 	xmlns:maven="jelly:maven"
 	xmlns:u="jelly:util">
 
-	<goal name="javadoc">
-		<j:set var="goal" value="javadoc" />
-		<attainGoal name="multiproject:goal" />
-	</goal>
-
-	<goal name="load-full">
+	<goal name="load-full-standalone">
 		<j:set var="goal" value="load-full" />
-		<j:set var="maven.multiproject.includes" value="tool/project.xml" />
+		<j:set var="maven.multiproject.includes" value="app/standalone-app/project.xml" />
 		<attainGoal name="multiproject:goal" />
 	</goal>
 
-	<goal name="schema">
+	<goal name="schema-standalone">
 		<j:set var="goal" value="schema" />
-		<j:set var="maven.multiproject.includes" value="tool/project.xml" />
+		<j:set var="maven.multiproject.includes" value="app/standalone-app/project.xml" />
 		<attainGoal name="multiproject:goal" />
 	</goal>
 

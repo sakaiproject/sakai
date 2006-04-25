@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<!-- Hibernate mappings -->
+   <bean id="org.sakaiproject.service.gradebook.hibernateMappings"
+      class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+		    <list>
+				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+			</list>
+		</property>
+   </bean>
+
+	<!-- Required facade definitions -->
+	<!-- <import resource="spring-facades.xml" /> -->
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthnSakai2Impl">
+	</bean>
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.AuthzSakai2Impl"
+		init-method="init">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+	</bean>
+
+	<!-- Service implementation hook-up with Sakai DB -->
+
+	<bean id="org_sakaiproject_service_gradebook_GradebookServiceTarget"
+		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
+		name="org.sakaiproject.service.gradebook.GradebookServiceTarget">
+		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+		<property name="sectionAwareness">
+			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+		</property>
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+		</property>
+		<property name="authz">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
+		</property>
+	</bean>
+
+	<bean id="org_sakaiproject_service_gradebook_GradebookService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		name="org.sakaiproject.service.gradebook.GradebookService"
+		singleton="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+		</property>
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookServiceTarget"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="get*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+				<prop key="is*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+				<prop key="*">PROPAGATION_REQUIRED,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- ContextObserver to take action when the Gradebook is added to or removed from a site -->
+	<bean id="org_sakaiproject_service_gradebook_EntityProducer"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookEntityProducer"
+		init-method="init">
+		<property name="label" value="gradebook"/>
+		<property name="gradebookService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
+		</property>
+		<property name="toolIds">
+		    <list>
+				<value>sakai.gradebook.tool</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

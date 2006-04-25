@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file specifies a standalone implementation of the facades.
+	-->
+
+	<!-- External User Directory Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_UserDirectoryService"
+		class="org.sakaiproject.tool.gradebook.facades.sections.UserDirectoryServiceStandaloneSectionsImpl">
+		<property name="userManager"><ref bean="org.sakaiproject.component.section.support.UserManager"/></property>
+	</bean>
+
+	<!-- External Authn Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.AuthnStandaloneImpl">
+	</bean>
+
+	<!-- External Authz Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authz"
+		class="org.sakaiproject.tool.gradebook.facades.sections.AuthzSectionsImpl">
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.api.section.SectionAwareness"/></property>
+		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+	</bean>
+
+	<!-- External ContextManagement Service -->
+	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
+		class="org.sakaiproject.tool.gradebook.facades.standalone.ContextManagementStandaloneImpl">
+	</bean>
+
+	<!-- Framework Manager when running standalone -->
+	<bean id="org_sakaiproject_tool_gradebook_ui_standalone_FrameworkManager"
+		class="org.sakaiproject.tool.gradebook.ui.standalone.FrameworkManagerSectionsImpl">
+		<property name="integrationSupport"><ref bean="org.sakaiproject.component.section.support.IntegrationSupport"/></property>
+		<property name="gradebookManager"><ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager"/></property>
+	</bean>
+
+</beans>

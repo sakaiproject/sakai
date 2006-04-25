@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>../project.xml</extend>
+  <id>sakai-gradebook-service-api</id>
+  <name>sakai-gradebook-service-api</name>
+  <shortDescription>Sakai Gradebook Service</shortDescription>
+
+  <properties>
+    <deploy.type>jar</deploy.type>
+    <deploy.target>shared</deploy.target>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+  </dependencies>
+</project>
