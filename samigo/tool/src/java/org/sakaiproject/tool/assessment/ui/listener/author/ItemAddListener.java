@@ -82,7 +82,7 @@ public class ItemAddListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException {
       boolean correct=false;
-    log.info("ItemAdd LISTENER.");
+    //log.info("ItemAdd LISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
     String iText=item.getItemText();

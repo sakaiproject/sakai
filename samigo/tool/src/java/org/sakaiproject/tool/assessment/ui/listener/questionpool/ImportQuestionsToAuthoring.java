@@ -68,7 +68,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("ImportQuestionsToAuthoring:");
+    //log.info("ImportQuestionsToAuthoring:");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     if (!importItems(qpoolbean))
     {

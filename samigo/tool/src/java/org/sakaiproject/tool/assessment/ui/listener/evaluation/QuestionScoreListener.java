@@ -88,14 +88,13 @@ public class QuestionScoreListener
   public void processAction(ActionEvent event) throws
     AbortProcessingException
   {
-    log.info("QuestionScore LISTENER.");
+    log.debug("QuestionScore LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
       cu.lookupBean("questionScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
 
-    log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, false))
     {
       throw new RuntimeException("failed to call questionScores.");
@@ -108,7 +107,7 @@ public class QuestionScoreListener
    */
   public void processValueChange(ValueChangeEvent event)
   {
-    log.info("QuestionScore CHANGE LISTENER.");
+    log.debug("QuestionScore CHANGE LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
       cu.lookupBean("questionScores");
 
@@ -129,7 +128,6 @@ public class QuestionScoreListener
       }
     }
 
-    log.info("Calling questionScores.");
     if (!questionScores(publishedId, bean, toggleSubmissionSelection))
     {
       throw new RuntimeException("failed to call questionScores.");
@@ -158,7 +156,6 @@ public class QuestionScoreListener
       if (publishedAssessment == null){
         publishedAssessment = pubService.getPublishedAssessment(publishedId);
         questionBean.setPublishedAssessment(publishedAssessment);
-        System.out.println("**** goto DB ot get publishedAssessment");
       }
       //build a hashMap (publishedItemId, publishedItem)
       HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
@@ -285,11 +282,9 @@ public class QuestionScoreListener
       bean.setScoresByItem(scoresByItem);
 
       iter = scores.iterator();
-      //log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
-      //log.info("Next is: " + next);
 
       // Okay, here we get the first result set, which has a summary of
       // information and a pointer to the graded assessment we should be

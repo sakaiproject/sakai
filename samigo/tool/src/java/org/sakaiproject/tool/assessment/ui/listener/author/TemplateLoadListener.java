@@ -69,7 +69,7 @@ public class TemplateLoadListener
     FacesContext context = FacesContext.getCurrentInstance();
 
     TemplateBean templateBean = lookupTemplateBean(context);
-    log.info("id=" + cu.lookupParam("templateId"));
+    //log.info("id=" + cu.lookupParam("templateId"));
     String templateId = cu.lookupParam("templateId");
     loadAssessment(templateBean, templateId);
   }

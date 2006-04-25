@@ -87,7 +87,7 @@ public class HistogramListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("HistogramAggregate Statistics LISTENER.");
+    log.debug("HistogramAggregate Statistics LISTENER.");
 
     TotalScoresBean totalBean = (TotalScoresBean) cu.lookupBean(
                                 "totalScores");
@@ -100,7 +100,6 @@ public class HistogramListener
 	publishedId = (String) cu.lookupParam("publishedId");
     }
 
-    log.info("Calling histogramScores.");
     if (!histogramScores(publishedId, bean, totalBean))
     {
       throw new RuntimeException("failed to call questionScores.");
@@ -112,7 +111,7 @@ public class HistogramListener
    */
   public void processValueChange(ValueChangeEvent event)
   {
-    log.info("HistogramAggregate Statistics Value Change LISTENER.");
+    //log.info("HistogramAggregate Statistics Value Change LISTENER.");
 
     TotalScoresBean totalBean = (TotalScoresBean) cu.lookupBean(
                                 "totalScores");
@@ -136,7 +135,7 @@ public class HistogramListener
 
 
 
-    log.info("Calling histogramScores.");
+    //log.info("Calling histogramScores.");
     if (!histogramScores(publishedId, bean, totalBean))
     {
       throw new RuntimeException("failed to call questionScores.");
@@ -192,7 +191,7 @@ public class HistogramListener
       if (pub != null)
       {
         assessmentName = pub.getTitle();
-        log.info("ASSESSMENT NAME= " + assessmentName);
+        //log.info("ASSESSMENT NAME= " + assessmentName);
         // if section set is null, initialize it - daisyf , 01/31/05
         HashSet sectionSet = PersistenceService.getInstance().
             getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(pub);
@@ -292,6 +291,7 @@ public class HistogramListener
 
           ///////////////////////////////////////////////////////////
           // START DEBUGGING
+/*
           log.info("TESTING ASSESSMENT MAP");
           log.info("assessmentMap: =>");
           log.info(assessmentMap);
@@ -314,12 +314,14 @@ public class HistogramListener
             "bean.getQ4()=" + bean.getQ4());
           log.info("--------------------------------------------");
 
+*/
           // END DEBUGGING CODE
           ///////////////////////////////////////////////////////////
         }
         catch (Exception e)
         {
-          log.info("unable to populate bean" + e);
+          e.printStackTrace();
+          log.warn("unable to populate bean" + e);
         }
 
         bean.setAssessmentName(assessmentName);
@@ -431,7 +433,7 @@ public class HistogramListener
 
 
         } catch (Exception e) {
-          log.info("No results for " + answer.getId());
+          log.warn("No results for " + answer.getId());
         }
         if (num == null)
           num = new Integer(0);
@@ -558,7 +560,6 @@ public class HistogramListener
       }
     }
     //NEW
-    System.out.println("NUMBER OF RESPONSEDS IN getFIBMCMCScores IS: "+ responses);
     int[] heights = calColumnHeight(numarray,responses);
     // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
@@ -600,7 +601,7 @@ public class HistogramListener
 
 
         } catch (Exception e) {
-          log.info("No results for " + answer.getId());
+          log.warn("No results for " + answer.getId());
 	e.printStackTrace();
         }
         if (num == null)
@@ -645,7 +646,6 @@ public class HistogramListener
       //i++;
     }
     //NEW 
- System.out.println("NUMBER OF RESPONSEDS IN getTFMCScores IS: "+ responses);
     int[] heights = calColumnHeight(numarray,responses);
     // int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
@@ -774,7 +774,6 @@ if (answer != null)
 
 
     //NEW
-     System.out.println("NUMBER OF RESPONSEDS IN getMatchingScores IS: "+ responses);
     int[] heights = calColumnHeight(numarray,responses);
     //  int[] heights = calColumnHeight(numarray);
     for (i=0; i<bars.length; i++)
@@ -917,7 +916,6 @@ if (answer != null)
       "rangeCollection", calRange(scores, numStudents, min, max, interval));
     statMap.put("standDev", castingNum(calStandDev(scores, mean, total),2));
     //NEW
-    System.out.println("NUMBER OF RESPONSEDS IN MAPPING IS: "+ scoreList.size());
     //statMap.put("columnHeight", calColumnHeight(numStudents));
     statMap.put("columnHeight", calColumnHeight(numStudents,scoreList.size()));
   
@@ -1160,7 +1158,7 @@ if (answer != null)
 
     if(min > max)
     {
-      log.info("max(" + max + ") <min(" + min + ")");
+      //log.info("max(" + max + ") <min(" + min + ")");
       max = min;
     }
 

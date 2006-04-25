@@ -86,18 +86,18 @@ public class SubmissionStatusListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().
                         getRequestParameterMap();
-    log.info("requestParams: " + requestParams);
-    log.info("reqMap: " + reqMap);
+    //log.info("requestParams: " + requestParams);
+    //log.info("reqMap: " + reqMap);
 
-    log.info("Submission Status LISTENER.");
+    //log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
     TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedId");
-    log.info("Got publishedId " + publishedId);
+    //log.info("Got publishedId " + publishedId);
 
-    log.info("Calling totalScores.");
+    //log.info("Calling totalScores.");
     if (!submissionStatus(publishedId, bean, totalScoresBean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -130,7 +130,7 @@ public class SubmissionStatusListener
 
 /*
       String which = cu.lookupParam("allSubmissions");
-      log.info("Rachel: allSubmissions = " + which);
+      //log.info("Rachel: allSubmissions = " + which);
       if (which == null)
         which = "false";
       bean.setAllSubmissions(which);
@@ -141,7 +141,7 @@ public class SubmissionStatusListener
 
       ArrayList scores = delegate.getLastAssessmentGradingList(new Long(publishedId));
       Iterator iter = scores.iterator();
-      log.info("Has this many agents: " + scores.size());
+      //log.info("Has this many agents: " + scores.size());
       if (!iter.hasNext())
         return false;
       Object next = iter.next();
@@ -215,7 +215,7 @@ public class SubmissionStatusListener
         }
       }
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
-      log.info("Sort type is " + bean.getSortType() + ".");
+      //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
         (bean.getSortType()).equals("assessmentGradingId") )
@@ -227,7 +227,7 @@ public class SubmissionStatusListener
 
 
       bs.sort();
-      log.info("Listing agents.");
+      //log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }

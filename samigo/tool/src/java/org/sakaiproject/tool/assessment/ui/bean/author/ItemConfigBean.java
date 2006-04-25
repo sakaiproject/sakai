@@ -267,12 +267,9 @@ public class ItemConfigBean implements Serializable
   {
     ItemConfigBean bean = new ItemConfigBean();
     ArrayList list = bean.getItemTypeSelectList();
-    System.out.println("test 1: prompt only");
     for (int i = 0; i < list.size(); i++)
     {
       SelectItem sitem = (SelectItem)list.get(i);
-      System.out.println("sitem.getLabel()="+sitem.getLabel());
-      System.out.println("sitem.getValue()="+sitem.getValue());
     }
 
     bean.setSelectFromQuestionPool(true);
@@ -285,23 +282,17 @@ public class ItemConfigBean implements Serializable
     bean.setShowMultipleChoiceSingleCorrect(true);
     bean.setShowSurvey(true);
     bean.setShowTrueFalse(true);
-    System.out.println("test 2: all on");
     list = bean.getItemTypeSelectList();
     for (int i = 0; i < list.size(); i++)
     {
       SelectItem sitem = (SelectItem)list.get(i);
-      System.out.println("sitem.getLabel()="+sitem.getLabel());
-      System.out.println("sitem.getValue()="+sitem.getValue());
     }
-    System.out.println("test 3: turn off audio and upload");
     bean.setShowAudio(false);
     bean.setShowFileUpload(false);
     list = bean.getItemTypeSelectList();
     for (int i = 0; i < list.size(); i++)
     {
       SelectItem sitem = (SelectItem)list.get(i);
-      System.out.println("sitem.getLabel()="+sitem.getLabel());
-      System.out.println("sitem.getValue()="+sitem.getValue());
     }
 
 

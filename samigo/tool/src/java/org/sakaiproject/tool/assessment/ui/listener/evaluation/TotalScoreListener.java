@@ -103,7 +103,7 @@ public class TotalScoreListener
     AbortProcessingException
   {
 
-    log.info("TotalScore LISTENER.");
+    log.debug("TotalScore LISTENER.");
 
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
@@ -134,7 +134,7 @@ public class TotalScoreListener
     // set action mode
     delivery.setActionString("gradeAssessment");
 
-    log.info("Calling totalScores.");
+    //log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -151,7 +151,7 @@ public class TotalScoreListener
     ResetTotalScoreListener reset = new ResetTotalScoreListener();
     reset.processAction(null);
 
-    log.info("TotalScore CHANGE LISTENER.");
+    //log.info("TotalScore CHANGE LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
     QuestionScoresBean questionbean = (QuestionScoresBean) cu.lookupBean("questionScores");
     HistogramScoresBean histobean = (HistogramScoresBean) cu.lookupBean("histogramScores");
@@ -178,7 +178,7 @@ public class TotalScoreListener
 
     questionbean.setAllSubmissions(null);    // reset questionScores pulldown  
     histobean.setAllSubmissions(null);    // reset histogramScores pulldown  
-    log.info("Calling totalScores.");
+    //log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, true))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -412,7 +412,7 @@ public class TotalScoreListener
     GradingService delegate = new GradingService();
     ArrayList allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
-      System.out.println("**** need to get assessmentGradingList from DB");
+      //System.out.println("**** need to get assessmentGradingList from DB");
       allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
       bean.setAssessmentGradingList(allscores);
     }
@@ -523,7 +523,7 @@ public class TotalScoreListener
     }
  
     String sortProperty = bean.getSortType();
-    System.out.println("****Sort type is " + sortProperty);
+    //System.out.println("****Sort type is " + sortProperty);
     bs = new BeanSort(agents, sortProperty);
 
     if ((sortProperty).equals("lastName")) bs.toStringSort();

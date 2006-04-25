@@ -83,10 +83,10 @@ public class TemplateUpdateListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    log.info("DEBUG: TEMPLATE UPDATE LISTENER.");
-    log.info("debugging ActionEvent: " + ae);
-    log.info("debug requestParams: " + requestParams);
-    log.info("debug reqMap: " + reqMap);
+    //log.info("DEBUG: TEMPLATE UPDATE LISTENER.");
+    //log.info("debugging ActionEvent: " + ae);
+    //log.info("debug requestParams: " + requestParams);
+    //log.info("debug reqMap: " + reqMap);
     TemplateBean templateBean = lookupTemplateBean(context);
     IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean("templateIndex");
 
@@ -96,7 +96,7 @@ public class TemplateUpdateListener
     AssessmentService assessmentService = new AssessmentService();
 
     boolean isUnique=assessmentService.assessmentTitleIsUnique(templateBean.getIdString(),tempName,true);
-    System.out.println("*** is unique="+isUnique);
+    //System.out.println("*** is unique="+isUnique);
     if(tempName!=null && (tempName.trim()).equals("")){
      	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.TemplateMessages","templateName_empty");
 	context.addMessage(null,new FacesMessage(err1));

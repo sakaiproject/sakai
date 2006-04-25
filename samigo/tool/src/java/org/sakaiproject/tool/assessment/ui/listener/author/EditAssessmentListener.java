@@ -119,7 +119,7 @@ public class EditAssessmentListener
     if (!hasPrivilege){
        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 						 "denied_edit_assessment_error");
-       context.addMessage("authorIndexForm:edit_assessment_denied",new FacesMessage(err));
+       context.addMessage(null,new FacesMessage(err));
     }
     return hasPrivilege;
   }

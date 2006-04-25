@@ -64,7 +64,7 @@ public class ReviewActionListener implements ActionListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("ReviewActionListener.processAction() ");
+    //log.info("ReviewActionListener.processAction() ");
 
     try {
       // get managed bean

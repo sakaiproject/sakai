@@ -57,7 +57,7 @@ public class StartInsertItemListener implements ValueChangeListener
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
-    log.info("StartInsertItemListener valueChangeLISTENER.");
+    //log.info("StartInsertItemListener valueChangeLISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String olditemtype = (String) ae.getOldValue();
@@ -90,7 +90,7 @@ public class StartInsertItemListener implements ValueChangeListener
             {
               UISelectItem selectItem = (UISelectItem) children.get(i);
 //              log.info("***" + i + "***");
-              log.info("selectItem.getItemValue()="+selectItem.getItemValue());
+              //log.info("selectItem.getItemValue()="+selectItem.getItemValue());
               String itemValue =  (String) selectItem.getItemValue();
               String[] insertArray = itemValue.split(",");
               // add in p#,q#

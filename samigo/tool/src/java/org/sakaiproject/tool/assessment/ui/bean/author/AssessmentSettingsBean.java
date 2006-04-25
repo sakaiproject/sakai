@@ -940,16 +940,14 @@ public class AssessmentSettingsBean
     }
 
     try {
-      System.out.println("getDisplayFormatFromDate:  DATETIME=:" + date + ":");
       //dateString = displayFormat.format(date);
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, date);
-      System.out.println("getDisplayFormatFromDate dateSTring:" + dateString+ ":");
     }
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
     return dateString;
   }
@@ -962,24 +960,20 @@ public class AssessmentSettingsBean
   private Date getDateFromDisplayFormat(String dateString) {
     Date date = null;
     if (dateString == null || dateString.trim().equals("")) {
-      System.out.println("getDateFromDisplayFormat DATETIME=:" + dateString + ":");
-      System.out.println("getDateFromDisplayFormat DATE=:" + date + ":");
       return date;
     }
 
     try {
-      System.out.println("getDateFromDisplayFormat DATETIME=:" + dateString + ":");
       //Date date= (Date) displayFormat.parse(dateString);
 // dateString is in client timezone, change it to server time zone
       TimeUtil tu = new TimeUtil();
       date = tu.getServerDateTime(displayFormat, dateString);
-      System.out.println("getDateFromDisplayFormat date =:" + date+ ":");
     }
     catch (Exception ex) {
       // we will leave it as a null date
       log.warn("Unable to format date.");
       error=true;
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
 
     return date;

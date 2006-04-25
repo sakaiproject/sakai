@@ -64,12 +64,12 @@ public class EditTemplateListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("EDIT TEMPLATE LISTENER.");
+    //log.info("EDIT TEMPLATE LISTENER.");
 
     TemplateBean templateBean = (TemplateBean)ContextUtil.lookupBean("template");
     templateBean.setOutcome("newTemplate");
 
-    log.info("Editing new template.");
+    //log.info("Editing new template.");
     String tempName=templateBean.getNewName();
     AssessmentService assessmentService = new AssessmentService();
     IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(

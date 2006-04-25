@@ -97,7 +97,7 @@ public class EditPublishedSettingsListener
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                "denied_edit_publish_assessment_settings_error");
-      context.addMessage("authorIndexForm:publish_assessment_denied",new FacesMessage(err));
+      context.addMessage(null,new FacesMessage(err));
     }
     return hasPrivilege;
   }

@@ -65,10 +65,9 @@ public class SaveAssessmentSettings
     Long assessmentId = assessmentSettings.getAssessmentId();
     //log.info("**** save assessment assessmentId ="+assessmentId.toString());
     ItemAuthorBean iAuthor=new ItemAuthorBean();
-    System.out.println("HUONG's TESTING FB....");
-    System.out.println("assessmentSettings.getFeedbackAuthoring: "+assessmentSettings.getFeedbackAuthoring());
+    //System.out.println("assessmentSettings.getFeedbackAuthoring: "+assessmentSettings.getFeedbackAuthoring());
     iAuthor.setShowFeedbackAuthoring(assessmentSettings.getFeedbackAuthoring());
-    System.out.println("iAuthor.getShowFeedbackAuthoring :"+iAuthor.getShowFeedbackAuthoring());
+    //System.out.println("iAuthor.getShowFeedbackAuthoring :"+iAuthor.getShowFeedbackAuthoring());
     AssessmentService assessmentService = new AssessmentService();
     AssessmentFacade assessment = assessmentService.getAssessment(
         assessmentId.toString());

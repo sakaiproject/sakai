@@ -60,6 +60,6 @@ public class UpdateTimerFromTOCListener implements ActionListener
   {
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     delivery.syncTimeElapsedWithServer();
-    System.out.println("****time elapsed="+delivery.getTimeElapse());
+    //System.out.println("****time elapsed="+delivery.getTimeElapse());
   }
 }

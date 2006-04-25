@@ -185,7 +185,7 @@ public class ConfirmPublishAssessmentListener
          if(ipString.equals(""))
 	   ipErr=true;
         String[]arraysIp=(ipString.split("\n"));
-        System.out.println("arraysIp.length: "+arraysIp.length);
+        //System.out.println("arraysIp.length: "+arraysIp.length);
         for(int a=0;a<arraysIp.length;a++){
             String currentString=arraysIp[a];
 	    if(!currentString.trim().equals("")){
@@ -260,7 +260,7 @@ public class ConfirmPublishAssessmentListener
     if (!hasPrivilege){
       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 		     "denied_publish_assessment_error");
-      context.addMessage("authorIndexForm:publish_assessment_denied",new FacesMessage(err));
+      context.addMessage(null,new FacesMessage(err));
     }
     return hasPrivilege;
   }

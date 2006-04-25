@@ -333,11 +333,11 @@ public class SubmitToGradingActionListener implements ActionListener
           oldItem.setAutoScore(newItem.getAutoScore());
           oldItem.setOverrideScore(newItem.getOverrideScore());
           updateItemGradingSet.add(oldItem);
-          System.out.println("**** SubmitToGrading: need update "+oldItem.getItemGradingId());
+          //System.out.println("**** SubmitToGrading: need update "+oldItem.getItemGradingId());
 	}
       }
       else {  // itemGrading from new set doesn't exist, add to set in this case
-        System.out.println("**** SubmitToGrading: need add new item");
+        //System.out.println("**** SubmitToGrading: need add new item");
         updateItemGradingSet.add(newItem);
       }
     }
@@ -458,15 +458,17 @@ public class SubmitToGradingActionListener implements ActionListener
             String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
             Long questionId = item.getItemData().getItemId();
             String mediaLocation = repositoryPath+ContextUtil.lookupParam("mediaLocation_"+questionId.toString());           
-            System.out.println("**** mediaLocation="+mediaLocation);
+            //System.out.println("**** mediaLocation="+mediaLocation);
             try{
               File file = new File(mediaLocation); 
-              System.out.println("**** file exists="+file.exists());
+              //System.out.println("**** file exists="+file.exists());
               if (file.exists())
                 delivery.addMediaToItemGrading(mediaLocation);
 	    }
             catch(Exception e){
-              log.info("audio question not answered:"+e.getMessage());
+              
+              log.debug("audio question not answered:"+e.getMessage());
+              e.printStackTrace();
 	    }
             break;
     }

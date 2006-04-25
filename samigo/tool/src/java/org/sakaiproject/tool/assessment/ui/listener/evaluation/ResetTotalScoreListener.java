@@ -61,6 +61,6 @@ public class ResetTotalScoreListener implements ActionListener
   {
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
     bean.setAssessmentGradingList(new ArrayList());
-    System.out.println("****reset assessmentGradingList");
+    //System.out.println("****reset assessmentGradingList");
   }
 }

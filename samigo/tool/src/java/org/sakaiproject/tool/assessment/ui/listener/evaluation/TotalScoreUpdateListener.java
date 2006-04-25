@@ -122,7 +122,6 @@ public class TotalScoreUpdateListener
 
         boolean update = needUpdate(agentResults, map);
         if (update){
-          System.out.println("**** need to update id="+agentResults.getAssessmentGradingId());
           if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
 	    // these are students who have submitted for grades.
             // Add up new score
@@ -196,7 +195,6 @@ public class TotalScoreUpdateListener
       float oldScore = old.getFinalScore().floatValue();
       Boolean oldIsLate=old.getIsLate();
       if (oldScore==newScore && oldIsLate.equals(newIsLate)) {
-        System.out.println("**** no need to update");
         update = false;
       }
     }

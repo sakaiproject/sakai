@@ -929,7 +929,7 @@ public class DeliveryBean
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
     return dateString;
   }
@@ -1055,7 +1055,7 @@ public class DeliveryBean
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
     return dateString;
   }
@@ -1642,7 +1642,7 @@ public class DeliveryBean
       gradingService.saveOrUpdateAssessmentGrading(adata);
     }
     */
-    log.info("***1b. addMediaToItemGrading, adata=" + adata);
+    //log.info("***1b. addMediaToItemGrading, adata=" + adata);
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     // 3. get the questionId (which is the PublishedItemData.itemId)
@@ -1764,8 +1764,8 @@ public class DeliveryBean
     ExternalContext external = context.getExternalContext();
     Long fileSize = (Long)((ServletContext)external.getContext()).getAttribute("TEMP_FILEUPLOAD_SIZE");
     Long maxSize = (Long)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_SIZE_MAX");
-    log.info("**** filesize is ="+fileSize);
-    log.info("**** maxsize is ="+maxSize);
+    //log.info("**** filesize is ="+fileSize);
+    //log.info("**** maxsize is ="+maxSize);
     ((ServletContext)external.getContext()).removeAttribute("TEMP_FILEUPLOAD_SIZE");
     if (fileSize!=null){
       float fileSize_float = fileSize.floatValue()/1024;
@@ -1867,7 +1867,7 @@ public class DeliveryBean
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
     return dateString;
   }
@@ -2160,7 +2160,7 @@ public class DeliveryBean
       adata.setTimeElapsed(new Integer(i));
       GradingService gradingService = new GradingService();
       gradingService.saveOrUpdateAssessmentGrading(adata);
-      System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+      //System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
     }
   }
 
@@ -2177,7 +2177,7 @@ public class DeliveryBean
         GradingService gradingService = new GradingService();
         gradingService.saveOrUpdateAssessmentGrading(adata);
         setTimeElapse(diff+"");
-        System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
+        //System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
       }
     }
   }
@@ -2231,7 +2231,7 @@ public class DeliveryBean
         // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
         // later time, we need to account for the time taht he used before
         int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-        System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
+        //System.out.println("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
         adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
         GradingService gradingService = new GradingService();
         gradingService.saveOrUpdateAssessmentGrading(adata);

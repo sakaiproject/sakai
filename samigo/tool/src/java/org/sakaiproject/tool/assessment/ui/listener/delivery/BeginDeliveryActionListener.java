@@ -85,8 +85,8 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setActionString(actionString);
     }
     int action = delivery.getActionMode();
-    System.out.println("**** BeginDeliveryActionListener:actionString"+delivery.getActionString());
-    System.out.println("**** BeginDeliveryActionListener:action"+delivery.getActionMode());
+    //System.out.println("**** BeginDeliveryActionListener:actionString"+delivery.getActionString());
+    //System.out.println("**** BeginDeliveryActionListener:action"+delivery.getActionMode());
 
     // reset timer before begin
     delivery.setTimeElapse("0");
@@ -292,8 +292,8 @@ public class BeginDeliveryActionListener implements ActionListener
           publishedId = tempPub.getPublishedAssessmentId().toString();
           // clone pub from tempPub, clone is not in anyway bound to the DB session
           pub = tempPub.clonePublishedAssessment();
-          log.info("****publishedId="+publishedId);
-          log.info("****clone publishedId="+pub.getPublishedAssessmentId());
+          //log.info("****publishedId="+publishedId);
+          //log.info("****clone publishedId="+pub.getPublishedAssessmentId());
           RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
           thread.start();
         } 

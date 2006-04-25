@@ -58,7 +58,7 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
     FacesContext context = FacesContext.getCurrentInstance();
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().getRequestParameterMap();
-    log.info("DELETE TEMPLATE LISTENER.");
+    //log.info("DELETE TEMPLATE LISTENER.");
 //    log.info("debugging ActionEvent: " + ae);
 //    log.info("debug requestParams: " + requestParams);
 //    log.info("debug reqMap: " + reqMap);
@@ -82,7 +82,7 @@ public class DeleteTemplateListener extends TemplateBaseListener implements Acti
    */
   public boolean deleteTemplate(String deleteId)
   {
-    log.info("deleteTemplate (" + deleteId + ")");
+    //log.info("deleteTemplate (" + deleteId + ")");
 
     try
     {

@@ -54,24 +54,21 @@ public class ExportAssessmentListener implements ActionListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("ExportAssessmentListener");
-    log.info("ExportAssessmentListener processAction");
+    //log.info("ExportAssessmentListener");
+    //log.info("ExportAssessmentListener processAction");
     String assessmentId = (String) cu.lookupParam("assessmentId");
-    log.info("ExportAssessmentListener assessmentId="+assessmentId);
+    //log.info("ExportAssessmentListener assessmentId="+assessmentId);
     XMLController xmlController = (XMLController) cu.lookupBean(
                                           "xmlController");
-    log.info("ExportAssessmentListener xmlController.setId(assessmentId)");
+    //log.info("ExportAssessmentListener xmlController.setId(assessmentId)");
     xmlController.setId(assessmentId);
 // debug
 //    xmlController.setQtiVersion(2);
-    log.info("xmlController.setQtiVersion(1)");
+    //log.info("xmlController.setQtiVersion(1)");
     xmlController.setQtiVersion(1);
-    log.info(
-        "ExportAssessmentListener xmlController.getQtiVersion(): " +
-        xmlController.getQtiVersion());
-    log.info("ExportAssessmentListener xmlController.displayAssessmentXml");
+    //log.info("ExportAssessmentListener xmlController.displayAssessmentXml");
     xmlController.displayAssessmentXml();
-    log.info("ExportAssessmentListener processAction done");
+    //log.info("ExportAssessmentListener processAction done");
   }
 
 }

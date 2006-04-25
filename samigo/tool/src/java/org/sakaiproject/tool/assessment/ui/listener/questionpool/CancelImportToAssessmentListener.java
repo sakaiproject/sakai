@@ -53,7 +53,7 @@ public class CancelImportToAssessmentListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("CancelImportToAssessmentListener:");
+    //log.info("CancelImportToAssessmentListener:");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     qpoolbean.setImportToAuthoring(false);
 

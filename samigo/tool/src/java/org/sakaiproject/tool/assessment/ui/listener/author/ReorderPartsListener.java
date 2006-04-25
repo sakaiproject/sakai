@@ -59,7 +59,7 @@ public class ReorderPartsListener
    */
   public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
   {
-    log.info("ReorderQuestionsListener valueChangeLISTENER.");
+    //log.info("ReorderQuestionsListener valueChangeLISTENER.");
     SectionContentsBean partBean  = (SectionContentsBean) ContextUtil.lookupBean("partBean");
     AssessmentBean assessmentBean  = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 

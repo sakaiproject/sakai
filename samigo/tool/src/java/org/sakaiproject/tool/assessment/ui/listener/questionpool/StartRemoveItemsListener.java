@@ -60,7 +60,7 @@ public class StartRemoveItemsListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("StartRemoveItemsListener:");
+    //log.info("StartRemoveItemsListener:");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     if (!startRemoveItems(qpoolbean))
     {

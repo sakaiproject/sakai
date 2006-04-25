@@ -808,13 +808,12 @@ public class PublishedAssessmentSettingsBean
       //dateString = displayFormat.format(date);
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, date);
-      System.out.println("getDisplayFormatFromDate dateSTring:" + dateString+ ":");
 
     }
     catch (Exception ex) {
       // we will leave it as an empty string
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
     return dateString;
   }
@@ -835,13 +834,12 @@ public class PublishedAssessmentSettingsBean
       //date = (Date) displayFormat.parse(dateString);
       TimeUtil tu = new TimeUtil();
       date = tu.getServerDateTime(displayFormat, dateString);
-      System.out.println("getDateFromDisplayFormat date =:" + date+ ":");
 
     }
     catch (Exception ex) {
       // we will leave it as a null date
       log.warn("Unable to format date.");
-      ex.printStackTrace(System.out);
+      ex.printStackTrace();
     }
 
     return date;
@@ -904,7 +902,7 @@ public class PublishedAssessmentSettingsBean
     while (iter.hasNext()){
 	for (int m = 0; m < e.size(); m++) {
 	    String t = (String)iter.next();
-	    log.info("target "+m+"="+t);
+	    //log.info("target "+m+"="+t);
 	    titles[m] = t;
 	}
     }

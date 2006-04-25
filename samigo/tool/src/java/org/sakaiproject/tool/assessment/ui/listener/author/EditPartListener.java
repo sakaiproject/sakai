@@ -99,13 +99,13 @@ public class EditPartListener
     ArrayList poolidlist = sectionBean.getPoolsAvailable();
       String currpoolid= sectionBean.getSelectedPool();   // current pool used for random draw
     if (!("".equals(currpoolid)) && (currpoolid !=null)) {
-	System.out.println("current pool id not null or empty");
+	//System.out.println("current pool id not null or empty");
     //now we need to get the poolid and displayName
       QuestionPoolService delegate = new QuestionPoolService();//
       QuestionPoolFacade pool= delegate.getPool(new Long(currpoolid), AgentFacade.getAgentString());//
     // now add the current pool used  to the list, so it's available in the pulldown 
       poolidlist.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName()));//
-      System.out.println("added editing pool: "+ pool.getDisplayName());//
+      //System.out.println("added editing pool: "+ pool.getDisplayName());//
       sectionBean.setPoolsAvailable(poolidlist);//
     }
 */

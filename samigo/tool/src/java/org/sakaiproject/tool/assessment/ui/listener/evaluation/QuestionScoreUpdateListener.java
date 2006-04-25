@@ -73,10 +73,10 @@ public class QuestionScoreUpdateListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("Question Score Update LISTENER.");
+    log.debug("Question Score Update LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
     TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
-    log.info("Calling saveQuestionScores.");
+    log.debug("Calling saveQuestionScores.");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     try{
       if (!saveQuestionScores(bean, tbean))
@@ -114,8 +114,6 @@ public class QuestionScoreUpdateListener
       {
         // each agent has a list of modified itemGrading
         AgentResults ar = (AgentResults) iter.next();
-	System.out.println("****QuestionScoreUpadte, agent="+ar);
-	System.out.println("****QuestionScoreUpadte, itemId="+itemId);
         // Get the itemgradingdata list for this result
         ArrayList datas = (ArrayList) bean.getScoresByItem().get
           (ar.getAssessmentGradingId() + ":" + itemId);
@@ -124,7 +122,7 @@ public class QuestionScoreUpdateListener
         Iterator iter2 = datas.iterator();
         while (iter2.hasNext()){
           Object obj = iter2.next();
-          log.info("Data = " + obj);
+          //log.info("Data = " + obj);
           ItemGradingData data = (ItemGradingData) obj;
 
           // check if there is differnce in score, if so, update. Otherwise, do nothing
@@ -146,7 +144,6 @@ public class QuestionScoreUpdateListener
         }
       }
 
-      log.info("Saved question scores.");
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");

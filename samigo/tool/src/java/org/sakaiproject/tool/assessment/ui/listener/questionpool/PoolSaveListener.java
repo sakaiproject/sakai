@@ -71,7 +71,7 @@ public class PoolSaveListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("PoolSaveListener :");
+    //log.info("PoolSaveListener :");
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
     String currentName= qpoolbean.getCurrentPool().getDisplayName();
    

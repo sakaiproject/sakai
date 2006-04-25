@@ -47,7 +47,7 @@ public class RemovePublishedAssessmentThread extends Thread
 
   public void run(){
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-    log.info("** remove assessmentId= "+this.assessmentId);
+    //log.info("** remove assessmentId= "+this.assessmentId);
     assessmentService.removeAssessment(this.assessmentId);
   }
 

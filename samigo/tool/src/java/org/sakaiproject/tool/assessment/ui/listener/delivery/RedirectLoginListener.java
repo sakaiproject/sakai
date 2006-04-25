@@ -60,14 +60,14 @@ public class RedirectLoginListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("RedirectLoginListener.processAction() ");
+    //log.info("RedirectLoginListener.processAction() ");
 
     try {
       // if users is authenticated, goto selectAssessment
       // else go to login page
       // get managed bean
       String outcome = "select";
-      log.info("agentId="+AgentFacade.getAgentString());
+      //log.info("agentId="+AgentFacade.getAgentString());
       if (AgentFacade.getAgentString()==null || ("").equals(AgentFacade.getAgentString()))
         outcome = "index";
       DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
