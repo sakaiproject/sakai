@@ -111,7 +111,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     		if (gradebook.isCourseGradeDisplayed()) {
     			gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_all_viewable", new String[] {gradeMappingName});
     		} else {
-    			gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_assignments_viewable", new String[] {gradeMappingName});
+    			gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_assignments_viewable");
     		}
     	} else if (gradebook.isCourseGradeDisplayed()) {
     		gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_course_grade_viewable", new String[] {gradeMappingName});
