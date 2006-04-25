@@ -192,7 +192,7 @@
     <!-- For integration with the gradebook -->
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service</artifactId>
+      <artifactId>sakai-gradebook-service-api</artifactId>
       <version>${sakai.version}</version>
       <properties>
         <war.bundle>false</war.bundle>
