@@ -25,14 +25,8 @@ import java.util.Collection;
 
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.service.legacy.calendar.Calendar;
 import org.sakaiproject.time.api.TimeRange;
 
-/*
-import org.sakaiproject.service.legacy.entity.AttachmentContainer;
-import org.sakaiproject.service.legacy.entity.Entity;
-import org.sakaiproject.service.legacy.time.TimeRange;
-*/
 /**
 * <p>CalendarEvent is the interface for events placed into a Calendar Service Calendar.</p>
 * <p>Each event has a time range, and other information in the event's (Resource) properties.</p>
