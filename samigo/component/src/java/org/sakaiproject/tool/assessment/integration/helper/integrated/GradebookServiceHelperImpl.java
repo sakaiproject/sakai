@@ -116,19 +116,19 @@ public void removeExternalAssessment(String gradebookUId,
                                 GradebookService g) throws
     Exception
   {
-    log.info("total point(s) is/are =" +
-              publishedAssessment.getTotalScore().longValue());
-    log.info("gradebookId =" + GradebookFacade.getGradebookUId());
+    //log.info("total point(s) is/are =" +
+    //          publishedAssessment.getTotalScore().longValue());
+    //log.info("gradebookId =" + GradebookFacade.getGradebookUId());
     boolean added = false;
-    log.info("GradebookService instance=" + g);
+    //log.info("GradebookService instance=" + g);
     String gradebookUId = GradebookFacade.getGradebookUId();
     if (gradebookUId == null)
     {
       return false;
     }
 
-    log.info("inside addToGradebook, gradebook exists? " +
-              g.gradebookExists(gradebookUId));
+    //log.info("inside addToGradebook, gradebook exists? " +
+    //          g.gradebookExists(gradebookUId));
     if (g.gradebookExists(gradebookUId))
     {
 
@@ -175,7 +175,7 @@ public void removeExternalAssessment(String gradebookUId,
     Exception
   {
     boolean testErrorHandling=false;
-    log.info("GradebookService instance=" + g);
+    //log.info("GradebookService instance=" + g);
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     GradingService gradingService = new GradingService();
     PublishedAssessmentIfc pub = (PublishedAssessmentIfc) gradingService.getPublishedAssessmentByAssessmentGradingId(ag.getAssessmentGradingId().toString());

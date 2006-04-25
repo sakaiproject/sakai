@@ -122,7 +122,7 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentS).getDisplayName();
     }
     catch(Exception e){
-      System.out.println(e.getMessage());
+      e.printStackTrace();
     }
     return s;
   }
@@ -139,7 +139,7 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentString).getFirstName();
     }
     catch(Exception e){
-      System.out.println(e.getMessage());
+      e.printStackTrace();
     }
     return s;
   }
@@ -156,7 +156,7 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentString).getLastName();
     }
     catch(Exception e){
-      System.out.println(e.getMessage());
+      e.printStackTrace();
     }
     return s;
   }
@@ -199,7 +199,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch(Exception e)
     {
-      System.out.println(e.getMessage());
+      e.printStackTrace();
     }
     return role;
   }
@@ -265,7 +265,7 @@ public class AgentHelperImpl implements AgentHelper
           SiteService.getSite(getCurrentSiteId(accessViaUrl)).getTitle();
       }
       catch (Exception e){
-        System.out.println(e.getMessage());
+        e.printStackTrace();
       }
     }
     return currentSiteName;
@@ -281,7 +281,7 @@ public class AgentHelperImpl implements AgentHelper
    String siteName=null;
    try{
       siteName = SiteService.getSite(siteId).getTitle();
-      log.info("**** siteName="+siteName);
+      log.debug("**** siteName="+siteName);
     }
     catch (Exception ex){
       log.warn(ex);
@@ -303,7 +303,7 @@ public class AgentHelperImpl implements AgentHelper
       name = UserDirectoryService.getUser(agentId).getDisplayName();
     }
     catch (Exception e){
-      System.out.println(e.getMessage());
+      e.printStackTrace();
     }
     return name;
   }

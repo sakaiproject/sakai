@@ -188,16 +188,14 @@ public class PersistenceService{
 
 
       public int retryDeadlock(Exception e, int retryCount){
-        log.warn("Problem saving section: "+e.getMessage());
+        log.warn("PersistenceService.retryDeadlock....");
         String errorMessage = e.getMessage();
         int index = errorMessage.indexOf("ORA-00060"); // deadlock
         int index2 = errorMessage.indexOf("SQL state [61000]"); // deadlock
         if (index > -1 || index2 > -1){
-          log.warn("retry...."+Thread.currentThread());
           retryCount--;
           try {
             int ideadlockInterval = deadlockInterval.intValue();
-            System.out.println("****deadlockInterval="+ideadlockInterval);
             Thread.currentThread().sleep(ideadlockInterval);
           }
           catch(InterruptedException ex){

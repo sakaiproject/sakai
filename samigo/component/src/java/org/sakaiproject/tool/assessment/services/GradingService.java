@@ -130,7 +130,7 @@ public class GradingService
 
   public void saveTotalScores(ArrayList gdataList, PublishedAssessmentIfc pub)
   {
-      System.out.println("**** GradingService: saveTotalScores");
+      //System.out.println("**** GradingService: saveTotalScores");
     try {
      AssessmentGradingData gdata = null;
       if (gdataList.size()>0)
@@ -557,7 +557,7 @@ public class GradingService
    * false, we do everything from scratch.
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) throws GradebookServiceException {
-      System.out.println("**** regrade ="+regrade);
+      //System.out.println("**** regrade ="+regrade);
     //#0 - let's build a HashMap with (publishedItemId, publishedItem)
     PublishedAssessmentService pubService = new PublishedAssessmentService();
     HashMap publishedItemHash = pubService.preparePublishedItemHash(pub); 
@@ -605,7 +605,7 @@ public class GradingService
           // note that totalItems & fibAnswersMap would be modified by the following method
           autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                  totalItems, fibAnswersMap, publishedAnswerHash);
-          System.out.println("**!regrade, autoScore="+autoScore);
+          //System.out.println("**!regrade, autoScore="+autoScore);
           totalItems.put(itemId, new Float(autoScore));
 	}
         else{
@@ -654,7 +654,7 @@ public class GradingService
       Set fullItemGradingSet = getItemGradingSet(data.getAssessmentGradingId().toString());
       float totalAutoScore = getTotalAutoScore(fullItemGradingSet);
       data.setTotalAutoScore(new Float(totalAutoScore));
-      System.out.println("**#1 total AutoScore"+totalAutoScore);
+      //System.out.println("**#1 total AutoScore"+totalAutoScore);
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
@@ -669,16 +669,16 @@ public class GradingService
     data.setItemGradingSet(new HashSet());
     saveOrUpdateAssessmentGrading(data);
     notifyGradebookByScoringType(data, pub);
-    System.out.println("**#2 total AutoScore"+data.getTotalAutoScore());
+    //System.out.println("**#2 total AutoScore"+data.getTotalAutoScore());
   }
 
   private float getTotalAutoScore(Set itemGradingSet){
-      System.out.println("*** no. of itemGrading="+itemGradingSet.size());
+      //System.out.println("*** no. of itemGrading="+itemGradingSet.size());
     float totalAutoScore =0;
     Iterator iter = itemGradingSet.iterator();
     while (iter.hasNext()){
       ItemGradingIfc i = (ItemGradingIfc)iter.next();
-      System.out.println(i.getItemGradingId()+"->"+i.getAutoScore());
+      //System.out.println(i.getItemGradingId()+"->"+i.getAutoScore());
       if (i.getAutoScore()!=null)
 	totalAutoScore += i.getAutoScore().floatValue();
     }
@@ -852,7 +852,6 @@ public class GradingService
           retryCount--;
           try {
             int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
-            System.out.println("****deadlockInterval="+deadlockInterval);
             Thread.currentThread().sleep(deadlockInterval);
           }
           catch(InterruptedException ex){

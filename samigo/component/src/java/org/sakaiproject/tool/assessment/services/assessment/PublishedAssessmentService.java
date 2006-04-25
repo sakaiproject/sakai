@@ -85,7 +85,6 @@ public class PublishedAssessmentService {
     ArrayList assessmentList = PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
         getAllReviewableAssessments(orderBy, ascending);
-    log.info("Qingru***: for reviewable assessmentList.size() in publishedassessmentservice is " +
              assessmentList.size());
     ArrayList reviewableAssessmentList = new ArrayList();
     for (int i = 0; i < assessmentList.size(); i++) {
@@ -97,7 +96,6 @@ public class PublishedAssessmentService {
       if (NumberOfSubmissions == null) {
         NumberOfSubmissions = new Integer(0);
       }
-      log.info("Qingru***:Numberofsubmissions==" + NumberOfSubmissions);
       try {
         if (!PersistenceService.getInstance().getAuthzQueriesFacade().isAuthorized(null, "VIEW_PUBLISHED_ASSESSMENT",
                                               f.getPublishedAssessment().

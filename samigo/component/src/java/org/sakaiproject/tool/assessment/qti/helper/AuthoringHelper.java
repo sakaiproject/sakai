@@ -555,11 +555,11 @@ public class AuthoringHelper
 
       // and add ip address restriction, if any
       String allowIp = assessment.getAssessmentMetaDataByLabel("ALLOW_IP");
-      log.info("allowIp: " + allowIp);
+      //log.info("allowIp: " + allowIp);
 
       if (allowIp !=null && !allowIp.trim().equalsIgnoreCase("null"))
       {
-        log.info("NOT NULL: " + allowIp);
+        //log.info("NOT NULL: " + allowIp);
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
       }
 

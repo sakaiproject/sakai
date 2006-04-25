@@ -97,7 +97,6 @@ public class AuthzQueriesFacade
   public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment) {
     String query =
       res.getString("select_authdata_q_id") + qualifierId + "'";
-    log.info("query=" + query);
     String clause="";
     if (isPublishedAssessment){
       clause = " and (a.functionId='OWN_PUBLISHED_ASSESSMENT'"+
@@ -144,10 +143,8 @@ public class AuthzQueriesFacade
     {
       String query = res.getString("select_authdata_a_id") +
         agentId + res.getString("and_f_id") + functionId + "'";
-      log.info("query=" + query);
 
       List list = getHibernateTemplate().find(query);
-      log.info("list="+list);
       return list;
     }
     catch (DataAccessException ex)
@@ -169,10 +166,9 @@ public class AuthzQueriesFacade
       String query =
         res.getString("select_authdata_f_id") + functionId +
         res.getString("and_q_id") + qualifierId + "'";
-      log.info("query=" + query);
 
       List list = getHibernateTemplate().find(query);
-      System.out.println("list="+list);
+      //System.out.println("list="+list);
       return list;
     }
     catch (DataAccessException ex)

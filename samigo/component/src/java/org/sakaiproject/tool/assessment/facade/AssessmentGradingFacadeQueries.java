@@ -763,7 +763,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     List l = getHibernateTemplate().find(query,
              new Object[] { publishedAssessmentId },
              new net.sf.hibernate.type.Type[] { Hibernate.LONG });
-    System.out.println("****** assessmentGradinghash="+l.size());
+    //System.out.println("****** assessmentGradinghash="+l.size());
     HashMap h = new HashMap();
     for (int i=0; i<l.size();i++){
       ItemGradingData o = (ItemGradingData)l.get(i);

@@ -910,9 +910,9 @@ public class ExtractionHelper
     {
       securedIPAddressSet = new HashSet();
     }
-    log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
+    //log.info("Getting securedIPAddressSet=" + securedIPAddressSet);
 
-    log.info("ipList: " + ipList);
+    //log.info("ipList: " + ipList);
 
     if (ipList == null)
       ipList = "";
@@ -920,7 +920,7 @@ public class ExtractionHelper
 
     for (int j = 0; j < ip.length; j++)
     {
-      log.info("ip # " + j + ": " + ip[j]);
+      //log.info("ip # " + j + ": " + ip[j]);
       if (ip[j] != null)
       {
         SecuredIPAddress sip = new SecuredIPAddress(data, null, ip[j]);
@@ -929,10 +929,10 @@ public class ExtractionHelper
       }
     }
 
-    log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
+    //log.info("securedIPAddressSet.size()=" + securedIPAddressSet.size());
     if (securedIPAddressSet.size()>0)
     {
-      log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
+      //log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
       AssessmentService assessmentService = new AssessmentService();
 //      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
 //      assessment.getData().addAssessmentMetaData("hasIpAddress", "true");

@@ -55,7 +55,7 @@ public class PagingUtilQueries
            assessmentList.setRowNumber(first);
            assessmentList.beforeFirst();
            while ( (pageSize > i++) && assessmentList.next()){
-             log.info("**** add "+i);
+             log.debug("**** add "+i);
              page.add(assessmentList.get(0));
            }
          }

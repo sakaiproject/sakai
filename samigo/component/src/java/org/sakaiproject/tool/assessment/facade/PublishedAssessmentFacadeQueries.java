@@ -1147,13 +1147,13 @@ public class PublishedAssessmentFacadeQueries
             " a.title=? and a.publishedAssessmentId!=? and a.status!=2 and "+
             " z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
             " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
-    System.out.println("query" + query);
+    //System.out.println("query" + query);
     list = getHibernateTemplate().find(query,
            new Object[]{title,assessmentBaseId,currentSiteId},
            new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     if (list.size()>0)
       isUnique = false;
-    System.out.println("*** list size="+list.size());
+    //System.out.println("*** list size="+list.size());
     return isUnique;
   }
 
