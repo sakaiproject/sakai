@@ -21,7 +21,7 @@
 **********************************************************************************/
 --%>
 -->
- <h:dataTable cellpadding="0" cellspacing="0" headerClass="regHeading" value="#{questionpool.allItems}" var="question" styleClass="listHier">
+ <h:dataTable cellpadding="0" cellspacing="0" value="#{questionpool.allItems}" var="question" styleClass="listHier">
 
 
     <h:column>
@@ -67,7 +67,7 @@
 </h:commandLink>
 --%>
 <%-- export to popup --%>
-<h:outputLink value="#" rendered="#{questionpool.importToAuthoring != 'true'}"
+<h:outputLink title="#{msg.t_exportQuestion}" value="#" rendered="#{questionpool.importToAuthoring != 'true'}"
  onclick=
  "window.open( '/samigo/jsf/qti/exportItem.faces?exportItemId=#{question.itemId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
   ><h:outputText id="export" value="#{msg.export}"/>
