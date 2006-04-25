@@ -93,15 +93,7 @@
 
                 </h:column>
 
-                <h:column rendered="false">
-					<f:facet name="header">
-						<x:commandSortHeader columnName="grade" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.student_view_grade}"/>
-						</x:commandSortHeader>
-					</f:facet>
-					<h:outputText value="#{row.displayGrade}" />
 
-                </h:column>
 				<h:column>
 					<h:outputText value="#{row.assignment.externalAppName}" />
 				</h:column>

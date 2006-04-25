@@ -252,8 +252,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                     }
                 }
 
-				// Put the letter grade into the grade record
-				asnGr.setDisplayGrade(gradeMapping.getGrade(asnGr.getGradeAsPercentage()));
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
