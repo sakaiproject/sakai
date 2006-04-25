@@ -38,22 +38,7 @@
 		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
 		<unitTest>
 			<includes>
-				<include>**/*Test.java</include>
-<!--
-	With this setup, there's no way to restrict ourselves to a single
-	test on the command line. Instead, this file must be edited. For example,
-	the above line might be replaced with something like:
-				<include>**/GradeManagerTest.java</include>
--->
-<!--
-	Include the following if you want to run the jcoverage goal.  Otherwise,
-	all of the database testing will be missed by the coverage tool.  The
-	TestManagers test assumes that the database is empty, so make sure you run
-	the schema goal before attempting to run jcoverage.
--->
-<!--
-				<include>**/TestManagers.java</include>
--->
+				<include>**/*TestSuite.java</include>
 			</includes>
 			<resources>
 				<resource>
