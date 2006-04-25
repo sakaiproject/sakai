@@ -43,7 +43,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -51,7 +50,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
@@ -779,37 +777,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void syncWithSiteChange(Site site, ChangeType change)
+	public void startContext(String context)
 	{
-		// stolen :) from BaseContentService
+		enableWiki(context);
+	}
 
-		String[] toolIds = { "sakai.rwiki" };
-
-		// for a delete, just disable
-		if (EntityProducer.ChangeType.REMOVE == change)
-		{
-			disableWiki(site);
-		}
-
-		// otherwise enable if we now have the tool, disable otherwise
-		else
-		{
-			// collect the tools from the site
-			Collection tools = site.getTools(toolIds);
-
-			// if we have the tool
-			if (!tools.isEmpty())
-			{
-				enableWiki(site);
-			}
-
-			// if we do not
-			else
-			{
-				disableWiki(site);
-			}
-		}
-
+	/**
+	 * {@inheritDoc}
+	 */
+	public void endContext(String context)
+	{
+		disableWiki(context);
 	}
 
 	/**
@@ -1423,9 +1401,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * Disable the tool from the site
 	 * 
-	 * @param site
+	 * @param context
 	 */
-	private void disableWiki(Site site)
+	private void disableWiki(String context)
 	{
 		// ? we are not going to delete the content, so do nothing TODO
 	}
@@ -1433,9 +1411,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * Enable the tool in the site
 	 * 
-	 * @param site
+	 * @param context
 	 */
-	private void enableWiki(Site site)
+	private void enableWiki(String context)
 	{
 		// ? we are not going to delete the content, so do nothing TODO
 	}

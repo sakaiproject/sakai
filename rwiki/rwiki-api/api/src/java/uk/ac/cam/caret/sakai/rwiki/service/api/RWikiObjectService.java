@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -41,7 +42,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.exception.VersionException;
 
 // FIXME: Service
 
-public interface RWikiObjectService extends EntityProducer, EntityTransferrer
+public interface RWikiObjectService extends EntityProducer, EntityTransferrer, ContextObserver
 {
 
 	/** This string can be used to find the service in the service manager. */
