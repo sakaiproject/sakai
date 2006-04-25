@@ -201,9 +201,11 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:param name="sortBy" value="submittedDate" />
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.submittedDate}">
+        <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
+<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
+         
     </h:column>
 
     <h:column rendered="#{submissionStatus.sortType=='submittedDate'}">
