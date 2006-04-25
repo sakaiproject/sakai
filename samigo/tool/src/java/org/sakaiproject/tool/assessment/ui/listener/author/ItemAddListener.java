@@ -90,7 +90,7 @@ public class ItemAddListener
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
     if(!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||((iText.replaceAll("<.*?>", "")).trim().equals("")))){
-	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");
+	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
 
@@ -153,39 +153,49 @@ public class ItemAddListener
 	String[] corrChoices = new String[corrsize];
 	boolean correctChoice=false;
         int counter=0;
+
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
 		if((answerbean.getText()!=null) && (((answerbean.getText()).replaceAll("<.*?>", "")).trim()).equals(""))
                     answerbean.setText("");
-		
-	       	if ((answerbean.getText()!=null)&& (!answerbean.getText().equals(""))){
-		    label = answerbean.getLabel();
-		   
-		    countAnswerText++;
-		
-		    if(isCorrectChoice(item,label)){
-		
-			correct=true;
-			corrChoices[counter]=label;
-			counter++;
-                     
-		    }
-	       
-		    if(!label.equals(choiceLabels[indexLabel])){
-		
-			missingchoices= true;
-                        if( missingLabel.equals(""))
-			    missingLabel=missingLabel+" "+choiceLabels[indexLabel];
-                        else
-			    missingLabel=missingLabel+", "+choiceLabels[indexLabel];             
-			indexLabel++;
-		    }
-		    indexLabel++;
-			  
+		if(isCorrectChoice(item,answerbean.getLabel())&&((answerbean.getText()==null) ||( answerbean.getText().equals("")))){            
+		    System.out.println("EMPTY CORRECT CHOICE: label:  "+answerbean.getLabel());
+                    error=true;
+		    String empty_correct_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
+		    context.addMessage(null,new FacesMessage(empty_correct_err+answerbean.getLabel()));
+
 		}
+		
 	
+
+		label = answerbean.getLabel();
+		corrChoices[counter]=label;
 	
+		if ((answerbean.getText()!=null)&& (!answerbean.getText().equals("")))
+		    {
+			countAnswerText++;
+		
+			if(isCorrectChoice(item,label)){
+		
+			    correct=true;
+		   
+			    counter++;
+                     
+			}
+	      
+			if(!label.equals(choiceLabels[indexLabel])){
+		
+			    missingchoices= true;
+			    if( missingLabel.equals(""))
+				missingLabel=missingLabel+" "+choiceLabels[indexLabel];
+			    else
+				missingLabel=missingLabel+", "+choiceLabels[indexLabel];           
+			    indexLabel++;
+			}
+			indexLabel++;
+	
+		    }
 	    }
 	    item.setCorrAnswers(corrChoices);
 	    
