@@ -22,22 +22,6 @@
         <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
     </listener>
 
-    <!-- Initialize external services -->
-<!--
-    <servlet>
-        <servlet-name>sakai.gradebook.services</servlet-name>
-        <servlet-class>org.sakaiproject.tool.gradebook.ui.InitializeServicesServlet</servlet-class>
-        <init-param>
-        	<param-name>services</param-name>
- 			<param-value>
- 				org.sakaiproject.service.gradebook.GradebookService
- 				org_sakaiproject_service_gradebook_EntityProducer
- 			</param-value>
-        </init-param>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
--->
-
     <!-- Register jsf tool with sakai -->
     <servlet>
         <servlet-name>sakai.gradebook.tool</servlet-name>
