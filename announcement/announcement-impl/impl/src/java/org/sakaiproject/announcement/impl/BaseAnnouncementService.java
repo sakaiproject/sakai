@@ -51,6 +51,7 @@ import org.sakaiproject.entity.api.EntityAccessOverloadException;
 import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -82,7 +83,7 @@ import org.w3c.dom.Element;
  * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
  * </p>
  */
-public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver
+public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
@@ -663,16 +664,9 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	}
 
 	/**
-	 * import tool(s) contents from the source context into the destination context
-	 * 
-	 * @param fromContext
-	 *        The source context
-	 * @param toContext
-	 *        The destination context
-	 * @param resourceIds
-	 *        when null, all resources will be imported; otherwise, only resources with those ids will be imported
+	 * {@inheritDoc}
 	 */
-	public void importEntities(String fromContext, String toContext, List resourceIds)
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
 	{
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
@@ -840,7 +834,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		{
 			M_log.warn(".importResources(): exception in handling " + serviceName() + " : ", any);
 		}
-	} // importResources
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * AnnouncementChannel implementation
