@@ -27,6 +27,14 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.motd</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
 	<!-- the vm handling servlet : used direct by name, not by URL path -->
 	<servlet>
 		<servlet-name>
@@ -59,6 +67,20 @@
     <servlet>
         <servlet-name>
            sakai.synoptic.chat
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.message.tool.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.motd
         </servlet-name>
         <servlet-class>
             org.sakaiproject.message.tool.SynopticMessageAction
