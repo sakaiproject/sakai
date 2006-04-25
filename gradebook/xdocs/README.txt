@@ -19,6 +19,17 @@ directory and run "maven sakai".
 Building the Gradebook standalone
 ---------------------------------
 
+As of the 2.2 release, both the Sakai Gradebook tool and a standalone
+Gradebook application are produced by a normal build. Like other
+"artifacts" produced by Maven, the standalone WAR will be placed in
+your local repository and in the "target" subdirectory of the
+standalone application subproject. (It will not, however, be copied
+into your Sakai deployment!)
+
+If you use the "-standalone" flag in the Gradebook build (as shown below),
+the build will also copy the file "sakai-gradebook-standalone-app.war"
+to whatever directory is defined by the Maven property "standalone.deploy.dir".
+
 1) You'll need to build Sakai in order to generate some JARs on which the
 standalone Gradebook depends. Start at the top sakai directory and run "maven
 sakai".
@@ -52,11 +63,11 @@ build:
   maven -Dstandalone=true cln bld
 
   # Initialize my local database with the Gradebook tables.
-  maven -Dstandalone=true schema
+  maven schema-standalone
 
 4) If you want, you can load your local database with test data.
 
-  maven -Dstandalone=true load-full
+  maven load-full-standalone
 
 After starting your test Tomcat server, you can then go to the following URL
 and browse the test data as an instructor, student, or teaching assistant:
