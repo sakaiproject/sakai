@@ -67,6 +67,12 @@ public class HelpFrameSetRender extends Renderer
 
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
+
+    String welcomepage = ServerConfigurationService.getString("help.welcomepage");
+
+    if ("".equals(welcomepage)){
+        welcomepage = "html/help.html";
+    }
               
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
     
@@ -84,7 +90,7 @@ public class HelpFrameSetRender extends Renderer
     HelpManager manager  = (HelpManager) binding.getValue(context);    
                   
     if(manager.getWelcomePage() == null) {
-    	writer.write("<FRAME src=\"html/help.html\" name=\"content\"/>");
+    	writer.write("<FRAME src=\"" + welcomepage + "\" name=\"content\"/>");
     }
     else {
       writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\"/>");             
