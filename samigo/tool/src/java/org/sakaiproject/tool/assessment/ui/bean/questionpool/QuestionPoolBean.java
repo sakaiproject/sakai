@@ -295,7 +295,7 @@ public class QuestionPoolBean
       QuestionPoolService delegate = new QuestionPoolService();
       // getAllPools() returns pool in ascending order of poolId 
       // then a tree which represent the pool structure is built - daisyf
-      System.out.println("****** QPBean: build tree");
+      //System.out.println("****** QPBean: build tree");
       tree=
         new QuestionPoolTreeImpl(
           (QuestionPoolIteratorFacade) delegate.getAllPools(AgentFacade.getAgentString()));
@@ -315,7 +315,7 @@ public class QuestionPoolBean
     stars += "**";
     for (int i=0; i<children.size();i++){
       QuestionPoolDataIfc child = (QuestionPoolDataIfc) childrenMap.get(children.get(i).toString());
-      System.out.println(stars+child.getTitle()+":"+child.getLastModified());
+      //System.out.println(stars+child.getTitle()+":"+child.getLastModified());
       printChildrenPool(tree, child, stars);
     }  
   }
@@ -1773,7 +1773,7 @@ String poolid = ContextUtil.lookupParam("poolId");
     String ascending = ContextUtil.lookupParam("ascending");
     this.setSortProperty(sortString);
     this.setSortAscending((Boolean.valueOf(ascending)).booleanValue());
-    System.out.println("****sortByColumnHeader ="+ sortString);
+    //System.out.println("****sortByColumnHeader ="+ sortString);
     return "poolList";
   }
 
@@ -1910,8 +1910,8 @@ String poolid = ContextUtil.lookupParam("poolId");
     while(iter.hasNext())
     {
       QuestionPoolDataIfc pool = (QuestionPoolDataIfc) iter.next();
-      System.out.println();
-      System.out.println("****** QPBean: "+pool.getTitle()+":"+pool.getLastModified()); 
+      //System.out.println();
+      //System.out.println("****** QPBean: "+pool.getTitle()+":"+pool.getLastModified()); 
       printChildrenPool(tree, pool, stars);
     }
   }
