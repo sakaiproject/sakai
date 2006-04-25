@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.synoptic.discussion"
+			title="Recent Discussion Items"
+			description="Display recent discussion items, updated as items arrive">
+
+		<configuration name="days" value="10" />
+		<configuration name="items" value="3" />
+		<configuration name="length" value="50" />
+		<configuration name="show-subject" value="true" />
+		<configuration name="show-newlines" value="false" />
+		<configuration name="channel" value="" />
+
+		<configuration name="message-service" value="org.sakaiproject.discussion.api.DiscussionService" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="help.id" value="sakai.discussion" type="final" />
+
+	</tool>
+
+</registration>

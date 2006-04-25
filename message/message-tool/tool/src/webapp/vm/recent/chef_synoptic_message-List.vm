@@ -1,0 +1,99 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/recent/chef_synoptic_message-List.vm,v 1.6 2005/05/20 17:28:19 suiyy.umich.edu Exp $
+<div class="portletBody">
+	#if($menu)
+		#if ($toolId=="sakai.motd")
+			<div class="navIntraTool">
+				<a href="#" title="$tlang.getString("motd.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+					$tlang.getString("gen.options")
+				</a>
+			</div>
+		#else
+			#if ($toolId=="sakai.synoptic.chat")
+				<div class="navIntraTool">
+					<a href="#" title="$tlang.getString("chat.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+						$tlang.getString("gen.options")
+					</a>
+				</div>
+			#else
+				#if ($toolId=="sakai.synoptic.discussion")
+					<div class="navIntraTool">
+						<a href="#" title="$tlang.getString("disc.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+							$tlang.getString("gen.options")
+						</a>
+					</div>
+				#end
+			#end
+		#end
+	#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#set($counter = 0)
+	<div style="margin:1em -1em">
+		#foreach ($item in $messages)
+			#set ($counter = $counter + 1)
+			#if ($toolId=="sakai.synoptic.discussion")
+				#if ($!item.Header.Subject)
+					<h4 style="margin:1em 0 .4em 0;background:none;font-size:1em">$validator.escapeHtml($item.Header.Subject)</h4>
+					#if ($showBody)
+						#set ($text=$item.Body)
+					#end
+				#else
+					#set ($text=$item.Body)
+				#end
+			#else
+				#if ($showSubject)
+					#set ($text=$validator.escapeHtml($item.Header.Subject))
+				#else
+					#set ($text=$item.Body)
+				#end
+			#end
+
+			#if ($show_newlines)
+				#if ($toolId=="sakai.synoptic.chat")
+					<h4 style="margin:.4em 0;background:none;font-size:1em">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</h4>
+				#else
+					<p style="margin:0;background:none;font-size:1em">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</p>
+				#end
+			#else
+				$!{validator.escapeHtmlFormattedTextSupressNewlines($validator.limitFormattedText($text,$length))}
+			#end
+			
+			#if ($toolId=="sakai.motd")
+				#set ($size = 0)
+				#if (!$item.Header.Attachments.isEmpty())
+					<p>$tlang.getString("gen.attach")</p>
+					#set ($props = false)
+					#set ($size = $item.Header.Attachments.size())
+					<ul class="attachList">
+					#foreach ($attachment in $item.Header.Attachments)
+						#set ($props = $attachment.Properties)
+						#if (!$props)
+							#if ($size > 0) #set ($size = $size - 1) #end
+						#else
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" />
+								#end
+								<a href="$attachment.Url" target="_blank">
+									$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+					</ul>
+				#end
+			#end
+			<p style="margin:0 1em;font-size:smaller"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
+		#end
+	</div>	
+
+		#if ($counter == 0)
+			<p class="instruction" style="margin-top:2em">
+				$tlang.getString("lis.the")
+			</p>
+		#end
+</div>
+
