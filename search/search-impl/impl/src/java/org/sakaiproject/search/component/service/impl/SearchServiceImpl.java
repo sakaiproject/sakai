@@ -99,6 +99,7 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void init()
 	{
+		
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		notificationService = (NotificationService) load(cm,
@@ -321,12 +322,12 @@ public class SearchServiceImpl implements SearchService
 
 	public void refreshSite(String currentSiteId)
 	{
-		searchIndexBuilder.refreshIndex();
+		searchIndexBuilder.refreshIndex(currentSiteId);
 	}
 
 	public void rebuildSite(String currentSiteId)
 	{
-		searchIndexBuilder.rebuildIndex();
+		searchIndexBuilder.rebuildIndex(currentSiteId);
 
 	}
 

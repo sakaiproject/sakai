@@ -32,6 +32,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -159,6 +160,7 @@ public class SearchBeanImpl implements SearchBean
 			}
 		}
 		return sb.toString();
+
 	}
 
 	/**
@@ -200,6 +202,13 @@ public class SearchBeanImpl implements SearchBean
 		}
 
 		return sb.toString();
+	}
+
+	public boolean isEnabled()
+	{
+		return ("true".equals(ServerConfigurationService
+				.getString("search.experimental")));
+
 	}
 
 	/**
@@ -253,6 +262,7 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public List search()
 	{
+
 		if (searchResults == null)
 		{
 			if (search != null && search.trim().length() > 0)

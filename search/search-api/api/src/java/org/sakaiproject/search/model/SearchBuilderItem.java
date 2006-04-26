@@ -142,5 +142,24 @@ public interface SearchBuilderItem
 	 * @param lastupdate
 	 */
 	void setVersion(Date version);
+	
+	/**
+	 * The context of the index item
+	 * @return
+	 */
+	String getContext();
+	/**
+	 * The context of the index item
+	 * @param context
+	 */
+	void setContext(String context);
+	
+	public static final String GLOBAL_CONTEXT = "global";
+
+	public static final String GLOBAL_MASTER = SearchBuilderItem.INDEX_MASTER+"_"+SearchBuilderItem.GLOBAL_CONTEXT;
+	
+	public static final String SITE_MASTER_FORMAT = SearchBuilderItem.INDEX_MASTER+"_{0}";
+
+	public static final String SITE_MASTER_PATTERN = SearchBuilderItem.INDEX_MASTER+"_%";
 
 }

@@ -90,4 +90,16 @@ public interface SearchIndexBuilder
 	 */
 	int getPendingDocuments();
 
+	/** 
+	 * Rebuild the index for the supplied siteId
+	 * @param currentSiteId
+	 */
+	void rebuildIndex(String currentSiteId);
+
+	/**
+	 * Refresh the index for the supplied siteId
+	 * @param currentSiteId
+	 */
+	void refreshIndex(String currentSiteId);
+
 }

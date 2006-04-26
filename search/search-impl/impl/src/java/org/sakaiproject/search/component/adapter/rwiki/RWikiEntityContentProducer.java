@@ -1,4 +1,4 @@
-package org.sakaiproject.search.component.adapter;
+package org.sakaiproject.search.component.adapter.rwiki;
 
 import java.io.Reader;
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
@@ -39,26 +40,39 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	private SearchIndexBuilder searchIndexBuilder = null;
 
+	private EntityManager entityManager = null;
+
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-				.getInstance();
-		renderService = (RenderService) load(cm, RenderService.class.getName());
-		objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
-				.getName());
-		searchService = (SearchService) load(cm, SearchService.class.getName());
-		searchIndexBuilder = (SearchIndexBuilder) load(cm,
-				SearchIndexBuilder.class.getName());
-
-		if ("true".equals(ServerConfigurationService
-				.getString("search.experimental")))
+		try
 		{
+			ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+					.getInstance();
+			renderService = (RenderService) load(cm, RenderService.class
+					.getName());
+			objectService = (RWikiObjectService) load(cm,
+					RWikiObjectService.class.getName());
+			searchService = (SearchService) load(cm, SearchService.class
+					.getName());
+			searchIndexBuilder = (SearchIndexBuilder) load(cm,
+					SearchIndexBuilder.class.getName());
+			entityManager = (EntityManager) load(cm, EntityManager.class
+					.getName());
 
-			searchService
-					.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
-			searchService
-					.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
-			searchIndexBuilder.registerEntityContentProducer(this);
+			if ("true".equals(ServerConfigurationService
+					.getString("search.experimental")))
+			{
+
+				searchService
+						.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
+				searchService
+						.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
+				searchIndexBuilder.registerEntityContentProducer(this);
+			}
+		}
+		catch (Throwable t)
+		{
+			log.error("Failed to init ", t);
 		}
 
 	}
@@ -169,6 +183,25 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			context = context.substring(0, slash);
 		}
 		return context;
+	}
+
+	public String getSiteId(String resourceName)
+	{
+
+		return getSiteId(entityManager.newReference(resourceName));
+	}
+
+	public List getSiteContent(String context)
+	{
+		List allPages = objectService.findRWikiSubPages("/site/" + context);
+		List l = new ArrayList();
+		for (Iterator i = allPages.iterator(); i.hasNext();)
+		{
+			String pageName = (String) i.next();
+			String reference = objectService.createReference(pageName);
+			l.add(reference);
+		}
+		return l;
 	}
 
 }

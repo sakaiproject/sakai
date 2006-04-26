@@ -133,8 +133,8 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 						.find(
 								"select count(*) from "
 										+ SearchBuilderItemImpl.class.getName()
-										+ " where name <> ? and searchstate = ? and searchaction <> ?",
-								new Object[] { SearchBuilderItem.INDEX_MASTER,
+										+ " where searchstate = ? and searchaction <> ?",
+								new Object[] { 
 										SearchBuilderItem.STATE_PENDING,
 										SearchBuilderItem.ACTION_UNKNOWN },
 								new Type[] { Hibernate.STRING,

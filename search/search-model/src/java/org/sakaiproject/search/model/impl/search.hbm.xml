@@ -46,6 +46,14 @@
               type="string" 
               unique="true" 
               length="255" />
+          <property 
+              name="context" 
+              column="context" 
+              not-null="true" 
+              index="true" 
+              type="string" 
+              unique="false" 
+              length="255" />
           <!-- the action to perform add, update, delete -->
           <property name="searchaction" 
               column="searchaction" 

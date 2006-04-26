@@ -45,6 +45,7 @@
     </resources>
   </build>
   <dependencies>
+  
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
@@ -72,7 +73,7 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-            <dependency>
+    <dependency>
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
@@ -81,6 +82,32 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
-    
+   <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.0-alpha1-20060424</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+      <version>3.0-alpha1-20060424</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>0.7.1</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
   </dependencies>
 </project>

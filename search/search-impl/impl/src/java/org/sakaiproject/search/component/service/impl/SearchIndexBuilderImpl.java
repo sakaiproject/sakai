@@ -23,6 +23,7 @@
 
 package org.sakaiproject.search.component.service.impl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -63,8 +64,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	private SearchIndexBuilderWorker searchIndexBuilderWorker = null;
 
-	private List producers = new ArrayList();
 
+	private List producers = new ArrayList();
+	
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -106,7 +108,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 */
 	public void addResource(Notification notification, Event event)
 	{
-		log.debug("Add resource " + notification + "::" + event);
+		log.info("Add resource " + notification + "::" + event);
 		String resourceName = event.getResource();
 		EntityContentProducer ecp = newEntityContentProducer(event);
 		Integer action = ecp.getAction(event);
@@ -123,18 +125,26 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					sb = searchBuilderItemDao.create();
 					sb.setSearchaction(action);
 					sb.setName(resourceName);
+					sb.setContext(ecp.getSiteId(resourceName));
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
-					log.debug(" Didnt Find Resource, created new ");
+					log.info(" Didnt Find Resource, created new ");
 				}
 				else
 				{
 					sb.setSearchaction(action);
+					sb.setContext(ecp.getSiteId(resourceName));
 					sb.setName(resourceName);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 				}
+				log.info("Adding \n" +
+						"context:"+sb.getContext()+"\n" +
+						"name:"+sb.getName()+"\n" +
+						"Searchaction:"+sb.getSearchaction()+"\n" +
+						"Searchstate:"+sb.getSearchstate()+"\n" +
+						"Version:"+sb.getVersion());
 				searchBuilderItemDao.update(sb);
 				sb = searchBuilderItemDao.findByName(resourceName);
-				log.debug(" Added Resource " + action + " " + sb.getName());
+				log.info(" Added Resource " + action + " " + sb.getName());
 				break;
 			}
 			catch (Throwable t)
@@ -159,17 +169,19 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 */
 	public void refreshIndex()
 	{
+		
 		SearchBuilderItem sb = searchBuilderItemDao
-				.findByName(SearchBuilderItem.INDEX_MASTER);
+				.findByName(SearchBuilderItem.GLOBAL_MASTER);
 		if (sb == null)
 		{
-			log.debug("Created NEW " + SearchBuilderItem.INDEX_MASTER);
+			log.debug("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
 			sb = searchBuilderItemDao.create();
 		}
 		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()))
 		{
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
-			sb.setName(SearchBuilderItem.INDEX_MASTER);
+			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
+			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
 			restartBuilder();
@@ -204,14 +216,15 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		try
 		{
 			SearchBuilderItem sb = searchBuilderItemDao
-					.findByName(SearchBuilderItem.INDEX_MASTER);
+					.findByName(SearchBuilderItem.GLOBAL_MASTER);
 			if (sb == null)
 			{
-				log.info("Created NEW " + SearchBuilderItem.INDEX_MASTER);
+				log.info("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
 				sb = searchBuilderItemDao.create();
 			}
 			sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
-			sb.setName(SearchBuilderItem.INDEX_MASTER);
+			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
+			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
 		}
@@ -277,9 +290,13 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
 			if (ecp.matches(event))
 			{
+				log.info(" Matched Entity Content Producer for event "+event+" with "+ecp );
 				return ecp;
+			} else {
+				log.info("Skipped ECP "+ecp);
 			}
 		}
+		log.info("Failed to match any Entity Content Producer for event "+event);
 		return null;
 	}
 
@@ -313,7 +330,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return (n == 0);
 	}
 
-
 	/**
 	 * get all the producers registerd, as a clone to avoid concurrent
 	 * modification exceptions
@@ -328,6 +344,57 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public int getPendingDocuments()
 	{
 		return searchBuilderItemDao.countPending();
+	}
+
+	/**
+	 * Rebuild the index from the entities own stored state {@inheritDoc}, just the supplied siteId
+	 */
+	public void rebuildIndex(String currentSiteId)
+	{
+
+		try
+		{
+			String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT,new Object[] {currentSiteId});
+			SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
+			if (sb == null)
+			{
+				log.info("Created NEW " + siteMaster);
+				sb = searchBuilderItemDao.create();
+			}
+			sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
+			sb.setName(siteMaster);
+			sb.setContext(currentSiteId);
+			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			searchBuilderItemDao.update(sb);
+		}
+		catch (Exception ex)
+		{
+			log.warn(" rebuild index encountered a problme " + ex.getMessage());
+		}
+		restartBuilder();
+	}
+	/**
+	 * Refresh the index fo the supplied site.
+	 */
+	public void refreshIndex(String currentSiteId)
+	{
+		String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT,new Object[] {currentSiteId});
+		SearchBuilderItem sb = searchBuilderItemDao
+				.findByName(siteMaster);
+		if (sb == null)
+		{
+			log.debug("Created NEW " + siteMaster);
+			sb = searchBuilderItemDao.create();
+		}
+		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()))
+		{
+			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
+			sb.setName(siteMaster);
+			sb.setContext(currentSiteId);
+			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			searchBuilderItemDao.update(sb);
+			restartBuilder();
+		}
 	}
 
 }

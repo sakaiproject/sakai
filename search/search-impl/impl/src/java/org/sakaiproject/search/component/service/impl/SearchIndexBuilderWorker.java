@@ -3,6 +3,7 @@ package org.sakaiproject.search.component.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -56,6 +57,8 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	 * The lock we use to ensure single search index writer
 	 */
 	public static final String LOCKKEY = "searchlockkey";
+
+	protected static final Object GLOBAL_CONTEXT = null;
 
 	private static Log log = LogFactory.getLog(SearchIndexBuilderWorker.class);
 
@@ -120,12 +123,11 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 				UserDirectoryService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm,
 				SearchIndexBuilder.class.getName());
-		searchService = (SearchService) load(cm,
-				SearchService.class.getName());
-		
-		sessionManager = (SessionManager) load(cm,
-				SessionManager.class.getName());
-		
+		searchService = (SearchService) load(cm, SearchService.class.getName());
+
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+
 		enabled = "true".equals(ServerConfigurationService
 				.getString("search.experimental"));
 		try
@@ -157,7 +159,6 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		}
 	}
 
-
 	private Object load(ComponentManager cm, String name)
 	{
 		Object o = cm.get(name);
@@ -179,6 +180,8 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		log.debug("Index Builder Run " + tn + "_" + threadName);
 		int threadno = Integer.parseInt(tn);
 		String threadID = getThreadID();
+
+		org.sakaiproject.component.cover.ComponentManager.waitTillConfigured();
 
 		try
 		{
@@ -397,7 +400,6 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 					{
 						log.warn("Context is null for " + sbi);
 					}
-					doc.add(Field.Keyword("context", ref.getContext()));
 					String container = ref.getContainer();
 					if (container == null) container = "";
 					doc.add(Field.Keyword("container", container));
@@ -417,6 +419,8 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 								.newEntityContentProducer(ref);
 						if (sep != null)
 						{
+							doc.add(Field
+									.Keyword("context", sep.getSiteId(ref)));
 							if (sep.isContentFromReader(entity))
 							{
 								doc.add(Field.Text("contents", sep
@@ -438,6 +442,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 						}
 						else
 						{
+							doc.add(Field.Keyword("context", ref.getContext()));
 							doc.add(Field.Text("title", ref.getReference(),
 									true));
 							doc.add(Field.Keyword("tool", ref.getType()));
@@ -791,6 +796,43 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		return ((Integer) getHibernateTemplate().execute(callback)).intValue();
 	}
 
+	/**
+	 * Gets a list of all SiteMasterItems
+	 * 
+	 * @return
+	 */
+	private List getSiteMasterItems()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session)
+					throws HibernateException
+			{
+				List masterList = (List) session.createCriteria(
+						SearchBuilderItemImpl.class).add(
+						Expression.like("name",
+								SearchBuilderItem.SITE_MASTER_PATTERN)).add(
+						Expression.not(Expression.eq("context",
+								SearchBuilderItem.GLOBAL_CONTEXT))).list();
+
+				if (masterList == null || masterList.size() == 0)
+				{
+					return new ArrayList();
+				}
+				else
+				{
+					return masterList;
+				}
+			}
+		};
+		return (List) getHibernateTemplate().execute(callback);
+	}
+
+	/**
+	 * get the Instance Master
+	 * 
+	 * @return
+	 */
 	private SearchBuilderItem getMasterItem()
 	{
 		HibernateCallback callback = new HibernateCallback()
@@ -800,8 +842,9 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 			{
 				List master = (List) session.createCriteria(
 						SearchBuilderItemImpl.class).add(
-						Expression.eq("name", SearchBuilderItem.INDEX_MASTER))
+						Expression.eq("name", SearchBuilderItem.GLOBAL_MASTER))
 						.list();
+
 				if (master != null && master.size() != 0)
 				{
 					return (SearchBuilderItem) master.get(0);
@@ -809,6 +852,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 				SearchBuilderItem sbi = new SearchBuilderItemImpl();
 				sbi.setName(SearchBuilderItem.INDEX_MASTER);
 				sbi.setVersion(new Date());
+				sbi.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 				sbi.setSearchaction(SearchBuilderItem.ACTION_UNKNOWN);
 				sbi.setSearchstate(SearchBuilderItem.STATE_UNKNOWN);
 				return sbi;
@@ -817,14 +861,66 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		return (SearchBuilderItem) getHibernateTemplate().execute(callback);
 	}
 
+	/**
+	 * get the action for the site master
+	 * 
+	 * @param siteMaster
+	 * @return
+	 */
+	private Integer getSiteMasterAction(SearchBuilderItem siteMaster)
+	{
+		if (siteMaster.getName().startsWith(SearchBuilderItem.INDEX_MASTER)
+				&& !SearchBuilderItem.GLOBAL_CONTEXT.equals(siteMaster
+						.getContext()))
+		{
+			if (SearchBuilderItem.STATE_PENDING.equals(siteMaster
+					.getSearchstate()))
+			{
+				return siteMaster.getSearchaction();
+			}
+		}
+		return SearchBuilderItem.STATE_UNKNOWN;
+	}
+
+	/**
+	 * Get the site that the siteMaster references
+	 * 
+	 * @param siteMaster
+	 * @return
+	 */
+	private String getSiteMasterSite(SearchBuilderItem siteMaster)
+	{
+		if (siteMaster.getName().startsWith(SearchBuilderItem.INDEX_MASTER)
+				&& !SearchBuilderItem.GLOBAL_CONTEXT.equals(siteMaster
+						.getContext()))
+		{
+			// this depends on the pattern, perhapse it should be a parse
+			return siteMaster.getName().substring(
+					SearchBuilderItem.INDEX_MASTER.length() + 1);
+		}
+		return null;
+
+	}
+
+	/**
+	 * get the action of the master item
+	 * 
+	 * @return
+	 */
 	private Integer getMasterAction()
 	{
 		return getMasterAction(getMasterItem());
 	}
 
+	/**
+	 * get the master action of known master item
+	 * 
+	 * @param master
+	 * @return
+	 */
 	private Integer getMasterAction(SearchBuilderItem master)
 	{
-		if (SearchBuilderItem.INDEX_MASTER.equals(master.getName()))
+		if (master.getName().equals(SearchBuilderItem.GLOBAL_MASTER))
 		{
 			if (SearchBuilderItem.STATE_PENDING.equals(master.getSearchstate()))
 			{
@@ -972,136 +1068,54 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 						// if there are none, update the master action action to
 						// completed
 						// and return a blank list
-						List l = session.createCriteria(
-								SearchBuilderItemImpl.class).add(
-								Expression.lt("version", masterItem
-										.getVersion()))
-								.setMaxResults(batchSize).list();
-						if (l == null || l.size() == 0)
-						{
-							masterItem
-									.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-							session.saveOrUpdate(masterItem);
-						}
-						log
-								.debug("RESET NEXT 100 RECORDS ===========================================================");
 
-						for (Iterator i = l.iterator(); i.hasNext();)
-						{
-							SearchBuilderItem sbi = (SearchBuilderItem) i
-									.next();
-							sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-						}
-						log
-								.debug("DONE RESET NEXT 100 RECORDS ===========================================================");
+						return refreshIndex(session, masterItem, batchSize);
 
-						return l;
 					}
 					else if (SearchBuilderItem.ACTION_REBUILD
 							.equals(masterAction))
 					{
-						// delete all and return the master action only
-						// the caller will then rebuild the index from scratch
-						log
-								.debug("DELETE ALL RECORDS ==========================================================");
-						session.flush();
-						try
-						{
-							session.connection().createStatement().execute(
-									"delete from searchbuilderitem");
-						}
-						catch (SQLException e)
-						{
-							throw new HibernateException(
-									"Failed to perform delete ", e);
-						}
-
-						// THIS DOES NOT WORK IN H 2.1 session.delete("from
-						// "+SearchBuilderItemImpl.class.getName());
-						log
-								.debug("DONE DELETE ALL RECORDS ===========================================================");
-						log
-								.debug("ADD ALL RECORDS ===========================================================");
-						for (Iterator i = searchIndexBuilder
-								.getContentProducers().iterator(); i.hasNext();)
-						{
-							EntityContentProducer ecp = (EntityContentProducer) i
-									.next();
-							List contentList = ecp.getAllContent();
-							int added = 0;
-							for (Iterator ci = contentList.iterator(); ci
-									.hasNext();)
-							{
-								String resourceName = (String) ci.next();
-								List lx = session.find(" from "
-										+ SearchBuilderItemImpl.class.getName()
-										+ " where name = ? ", resourceName,
-										Hibernate.STRING);
-								if (lx == null || lx.size() == 0)
-								{
-									added++;
-									SearchBuilderItem sbi = new SearchBuilderItemImpl();
-									sbi.setName(resourceName);
-									sbi
-											.setSearchaction(SearchBuilderItem.ACTION_ADD);
-									sbi
-											.setSearchstate(SearchBuilderItem.STATE_PENDING);
-									sbi.setVersion(new Date());
-									session.saveOrUpdate(sbi);
-								}
-							}
-							log.debug(" Added " + added);
-						}
-						log
-								.debug("DONE ADD ALL RECORDS ===========================================================");
-
-						// return normal first set
-						return session
-								.createCriteria(SearchBuilderItemImpl.class)
-								.add(
-										Expression
-												.eq(
-														"searchstate",
-														SearchBuilderItem.STATE_PENDING))
-								.add(
-										Expression
-												.not(Expression
-														.eq(
-																"searchaction",
-																SearchBuilderItem.ACTION_UNKNOWN)))
-								.add(
-										Expression
-												.not(Expression
-														.eq(
-																"name",
-																SearchBuilderItem.INDEX_MASTER)))
-								.addOrder(Order.asc("version")).setMaxResults(
-										batchSize).list();
+						rebuildIndex(session, masterItem);
 					}
 					else
 					{
-						return session
-								.createCriteria(SearchBuilderItemImpl.class)
-								.add(
-										Expression
-												.eq(
-														"searchstate",
-														SearchBuilderItem.STATE_PENDING))
-								.add(
-										Expression
-												.not(Expression
-														.eq(
-																"searchaction",
-																SearchBuilderItem.ACTION_UNKNOWN)))
-								.add(
-										Expression
-												.not(Expression
-														.eq(
-																"name",
-																SearchBuilderItem.INDEX_MASTER)))
-								.addOrder(Order.asc("version")).setMaxResults(
-										batchSize).list();
+						// get all site masters and perform the required action.
+						List siteMasters = getSiteMasterItems();
+						for (Iterator i = siteMasters.iterator(); i.hasNext();)
+						{
+							SearchBuilderItem siteMaster = (SearchBuilderItem) i
+									.next();
+							Integer action = getSiteMasterAction(siteMaster);
+							if (SearchBuilderItem.ACTION_REBUILD.equals(action))
+							{
+								rebuildIndex(session, siteMaster);
+							}
+							else if (SearchBuilderItem.ACTION_REFRESH
+									.equals(action))
+							{
+								return refreshIndex(session, siteMaster,
+										batchSize);
+							}
+						}
 					}
+					return session
+							.createCriteria(SearchBuilderItemImpl.class)
+							.add(
+									Expression.eq("searchstate",
+											SearchBuilderItem.STATE_PENDING))
+							.add(
+									Expression.not(Expression.eq(
+											"searchaction",
+											SearchBuilderItem.ACTION_UNKNOWN)))
+							.add(
+									Expression
+											.not(Expression
+													.like(
+															"name",
+															SearchBuilderItem.SITE_MASTER_PATTERN)))
+							.addOrder(Order.asc("version")).setMaxResults(
+									batchSize).list();
+
 				}
 			};
 			List l = (List) getHibernateTemplate().execute(callback);
@@ -1113,6 +1127,118 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 			long finish = System.currentTimeMillis();
 			log.debug(" txfindPending took " + (finish - start) + " ms");
 		}
+	}
+
+	private void rebuildIndex(Session session, SearchBuilderItem controlItem)
+			throws HibernateException
+	{
+		// delete all and return the master action only
+		// the caller will then rebuild the index from scratch
+		log
+				.debug("DELETE ALL RECORDS ==========================================================");
+		session.flush();
+		try
+		{
+			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
+					.getContext()))
+			{
+				session.connection().createStatement().execute(
+						"delete from searchbuilderitem  ");
+			}
+			else
+			{
+				session.connection().createStatement().execute(
+						"delete from searchbuilderitem where context = '"
+								+ controlItem.getContext() + "' ");
+
+			}
+		}
+		catch (SQLException e)
+		{
+			throw new HibernateException("Failed to perform delete ", e);
+		}
+
+		// THIS DOES NOT WORK IN H 2.1 session.delete("from
+		// "+SearchBuilderItemImpl.class.getName());
+		log
+				.debug("DONE DELETE ALL RECORDS ===========================================================");
+		log
+				.debug("ADD ALL RECORDS ===========================================================");
+		for (Iterator i = searchIndexBuilder.getContentProducers().iterator(); i
+				.hasNext();)
+		{
+			EntityContentProducer ecp = (EntityContentProducer) i.next();
+			List contentList = null;
+			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
+					.getContext()))
+			{
+				contentList = ecp.getAllContent();
+			}
+			else
+			{
+				contentList = ecp.getSiteContent(controlItem.getContext());
+			}
+			int added = 0;
+			for (Iterator ci = contentList.iterator(); ci.hasNext();)
+			{
+				String resourceName = (String) ci.next();
+				List lx = session.find(" from "
+						+ SearchBuilderItemImpl.class.getName()
+						+ " where name = ?  ", resourceName, Hibernate.STRING);
+				if (lx == null || lx.size() == 0)
+				{
+					added++;
+					SearchBuilderItem sbi = new SearchBuilderItemImpl();
+					sbi.setName(resourceName);
+					sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
+					sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+					sbi.setContext(ecp.getSiteId(resourceName));
+					sbi.setVersion(new Date());
+					session.saveOrUpdate(sbi);
+				}
+			}
+			log.debug(" Added " + added);
+		}
+		log
+				.debug("DONE ADD ALL RECORDS ===========================================================");
+	}
+
+	private List refreshIndex(Session session, SearchBuilderItem controlItem,
+			int batchSize) throws HibernateException
+	{
+
+		List l = null;
+		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
+		{
+			l = session.createCriteria(SearchBuilderItemImpl.class).add(
+					Expression.lt("version", controlItem.getVersion()))
+					.setMaxResults(batchSize).list();
+		}
+		else
+		{
+			l = session.createCriteria(SearchBuilderItemImpl.class).add(
+					Expression.lt("version", controlItem.getVersion())).add(
+					Expression.eq("context", controlItem.getContext()))
+					.setMaxResults(batchSize).list();
+
+		}
+		if (l == null || l.size() == 0)
+		{
+			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+			session.saveOrUpdate(controlItem);
+		}
+		log
+				.debug("RESET NEXT 100 RECORDS ===========================================================");
+
+		for (Iterator i = l.iterator(); i.hasNext();)
+		{
+			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+		}
+		log
+				.debug("DONE RESET NEXT 100 RECORDS ===========================================================");
+
+		return l;
 	}
 
 	/**
@@ -1173,7 +1299,5 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	{
 		this.sleepTime = sleepTime;
 	}
-
-
 
 }

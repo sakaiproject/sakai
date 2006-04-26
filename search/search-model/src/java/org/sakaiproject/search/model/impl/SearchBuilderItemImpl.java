@@ -41,6 +41,8 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	private Integer searchstate = SearchBuilderItem.STATE_UNKNOWN;
 
 	private Date version = null;
+	
+	private String context = null;
 
 	/**
 	 * @return Returns the action.
@@ -126,4 +128,16 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	{
 		this.name = name;
 	}
+
+	public String getContext()
+	{
+		return context;
+	}
+
+	public void setContext(String context)
+	{
+		this.context = context;
+		
+	}
+	
 }

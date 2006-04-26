@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+ 
+
+  <bean id="org.sakaiproject.search.api.SearchService"
+    class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
+    init-method="init" >
+    <property name="indexDirectory"><value>${sakai.home}/searchindex</value></property>
+  </bean> 
+    
+  <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
+    class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" 
+    init-method="init" >
+    <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>
+  </bean>
+
+  <bean id="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker"
+    class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker" 
+    init-method="init" destroy-method="destroy">
+    <property name="sleepTime"><value>30000</value></property>
+    <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
+  </bean>
+  
+  <bean id="org.sakaiproject.search.SearchSessionFactory"
+    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+    
+    <property name="dataSource">
+      <ref bean="javax.sql.DataSource"/>
+    </property>
+    <property name="mappingResources">
+      <list>
+        <value>org/sakaiproject/search/model/impl/search.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="org.sakaiproject.search.SearchTransactionManager"
+    class="org.springframework.orm.hibernate.HibernateTransactionManager">
+    <property name="sessionFactory"><ref
+      bean="org.sakaiproject.search.SearchSessionFactory"/>
+    </property>
+  </bean>
+  
+  <!-- START NEW STUFF -->
+  <!-- Register the Data Access Object as a Transactional Interceptor -->
+  <bean id="searchBuilderItemDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+      bean="org.sakaiproject.search.SearchTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+        <!--
+          <prop key="exists">PROPAGATION_REQUIRED,readOnly</prop>
+          <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+        -->
+        <prop key="update*">PROPAGATION_REQUIRED</prop>
+        <prop key="delete*">PROPAGATION_REQUIRED</prop>
+        <!--. not needed for this version of create .-->
+        <!--<prop key="create*">PROPAGATION_REQUIRED</prop>-->
+      </props>
+    </property>
+    <property name="target"><ref bean="searchBuilderItemDaoImpl"/></property>
+  </bean>
+   
+  <bean id="searchBuilderItemDaoImpl"
+    class="org.sakaiproject.search.component.dao.impl.SearchBuilderItemDaoImpl" singleton="true">
+    <property name="sessionFactory"><ref
+      bean="org.sakaiproject.search.SearchSessionFactory"/>
+    </property>
+  </bean>
+  
+  
+</beans>

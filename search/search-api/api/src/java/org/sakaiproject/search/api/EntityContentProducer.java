@@ -97,12 +97,47 @@ public interface EntityContentProducer
 	 */
 	List getAllContent();
 
+	/**
+	 * Get the search builder action associated with the event
+	 * @param event
+	 * @return
+	 */
 	Integer getAction(Event event);
 
+	/**
+	 * Is the event owned by this EntityContentProducer
+	 * @param event
+	 * @return
+	 */
 	boolean matches(Event event);
 
+	/**
+	 * What is the name of the tool, 
+	 * @return
+	 */
 	String getTool();
 
+	/**
+	 * get the site Id from the reference, just incase there are any translations 
+	 * @param ref
+	 * @return
+	 */
 	String getSiteId(Reference ref);
+	
+	/**
+	 * get the site ID from the resource Name
+	 * @param resourceName
+	 * @return
+	 */
+	String getSiteId(String resourceName);
+
+	/**
+	 * get all the content associated with a site managed by this EntityContentProducer
+	 * @param context
+	 * @return
+	 */
+	List getSiteContent(String context);
+
+	
 
 }

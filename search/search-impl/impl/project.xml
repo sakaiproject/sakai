@@ -105,7 +105,7 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
@@ -135,16 +135,64 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
-        <dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-content-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-message-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jtidy</groupId>
+      <artifactId>jtidy</artifactId>
+      <version>4aug2000r7-dev</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.0-alpha1-20060424</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+      <version>3.0-alpha1-20060424</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>0.7.1</version>
       <type>jar</type>
     </dependency>
   </dependencies>

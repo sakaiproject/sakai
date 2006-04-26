@@ -89,4 +89,10 @@ public interface SearchBean
 	 * @return
 	 */
 	String getHeader(String headerFormat);
+	
+	/**
+	 * returns true if search isEnabled
+	 * @return
+	 */
+	boolean isEnabled();
 }

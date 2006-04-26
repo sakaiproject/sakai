@@ -82,6 +82,10 @@
 	  <% } %>
 	  </span>
     </div>
+    <%
+    if ( searchBean.isEnabled() ) 
+    {
+    %>
     
 	<form action="?#" method="get" class="searchForm"  >    
 	    <input type="hidden" name="panel" value="Main" />
@@ -99,6 +103,17 @@
     <%= searchBean.getPager(pagerFormat) %>
     </tr>
     </table>
+    <%
+    }
+    else
+    {
+    %>
+    <p>
+    The search tool is not enabled, please ask your administrator to set search.experimental = true in sakai.properties
+    </p>
+    <%
+    }
+    %>
 
 <%@include file="footer.jsp"%>
    </body>
