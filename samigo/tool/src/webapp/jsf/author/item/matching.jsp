@@ -111,7 +111,7 @@
 <div class="tier2">
   <!-- display existing pairs -->
 
-<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" width="100%" headerClass="regHeading" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
       
       <h:column>
         <f:facet name="header">
@@ -274,6 +274,7 @@
   <f:verbatim><span id="num8" class="number"></span></f:verbatim>
 <f:verbatim><div class="tier2"></f:verbatim>
   <h:outputLabel value="#{msg.correct_incorrect_an}" />
+<f:verbatim><br/></br/></f:verbatim>
   <h:outputText value="#{msg.correct_answer_opti}" /><f:verbatim><br/></f:verbatim>
 
   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}"  >

@@ -39,7 +39,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
                              || delivery.actionString=='takeAssessmentViaUrl')}">
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-    <h:commandLink title="#{msg.t_feedback}" action="#{delivery.getOutcome}" 
+    <h:commandLink immediate="true" title="#{msg.t_feedback}" action="#{delivery.getOutcome}" 
        id="showFeedback" onmouseup="saveTime(); disableFeedback();" 
        rendered="#{delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl'}" >
@@ -49,7 +49,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     </h:commandLink>
 
 <!-- SHOW FEEDBACK LINK FOR PREVIEW ASSESSMENT -->
-    <h:commandLink title="#{msg.t_feedback}" action="takeAssessment" onmouseup="saveTime();" 
+    <h:commandLink immediate="true" title="#{msg.t_feedback}" action="takeAssessment" onmouseup="saveTime();" 
        rendered="#{delivery.actionString=='previewAssessment'}" >
      <h:outputText value="#{msg.show_feedback}" />
      <f:param name="showfeedbacknow" value="true" />
@@ -65,7 +65,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
-  <h:commandLink title="#{msg.t_tableOfContents}" action="#{delivery.getOutcome}" 
+  <h:commandLink immediate="true" title="#{msg.t_tableOfContents}" action="#{delivery.getOutcome}" 
      id="showTOC" onmouseup="saveTime(); disableTOC()"
      rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
@@ -76,7 +76,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- TABLE OF CONTENT LINK FOR PREVIEW ASSESSMENT -->
- <h:commandLink title="#{msg.t_tableOfContents}" action="tableOfContents" onmouseup="saveTime();"
+ <h:commandLink immediate="true" title="#{msg.t_tableOfContents}" action="tableOfContents" onmouseup="saveTime();"
     rendered="#{delivery.actionString=='previewAssessment'
              && delivery.navigation ne '1'}">
     <h:outputText value="#{msg.table_of_contents}" />
@@ -85,7 +85,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <!-- RETURN TO ASSESSMENT PAGE LINK FOR REVIEW ASSESSMENT -->
-  <h:commandLink action="select" title="#{msg.t_returnAssessmentList}"
+  <h:commandLink immediate="true" action="select" title="#{msg.t_returnAssessmentList}"
      rendered="#{delivery.actionString=='reviewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
     <h:outputText value="#{msg.button_return_select}" />
@@ -138,7 +138,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
-<h:commandLink title="#{msg.t_submit}" id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
+<h:commandLink immediate="true" title="#{msg.t_submit}" id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
 <script language="javascript" style="text/JavaScript">
 <!--

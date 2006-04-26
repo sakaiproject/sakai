@@ -65,20 +65,18 @@
   <h5>
    <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
   </h5>
-    <div class="shorttext">
+   <h:panelGrid columns="2">
       <h:outputLabel for="newName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
+<h:panelGroup  rendered="#{authorization.createTemplate}" >
+      <h:inputText id="tempName" value="#{template.newName}" size="60"/>
 
-      <h:inputText id="tempName" value="#{template.newName}" size="60" rendered="#{authorization.createTemplate}"/>
-
-      <h:commandButton accesskey="#{msg.a_create}" type="submit" id="Submit" value="#{msg.index_button_create}"
-        rendered="#{authorization.createTemplate}"
-        action="#{template.getOutcome}">
+      <h:commandButton accesskey="#{msg.a_create}" type="submit" id="Submit" value="#{msg.index_button_create}" action="#{template.getOutcome}">
               <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>
-
-  </div>
+</h:panelGroup>
+ </h:panelGrid>
     </div>
     </div>
 </h:form>

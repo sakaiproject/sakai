@@ -37,7 +37,9 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br/></f:verbatim>
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
    disabled="#{delivery.actionString=='reviewAssessment'
-            || delivery.actionString=='gradeAssessment'}" />
+            || delivery.actionString=='gradeAssessment'}" >
+<f:validateLength maximum="4000"/>
+</h:inputTextarea>
 
 <f:verbatim><br /></f:verbatim>
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"

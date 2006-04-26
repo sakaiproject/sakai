@@ -69,40 +69,39 @@
 <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<h5>"/>
     <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
    <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h5>"/>
-   <div class="shorttext">
+   <h:panelGrid columns="2">
     <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" 
        rendered="#{authorization.createAssessment && author.showTemplateList}" />
-
+<h:panelGroup rendered="#{authorization.createAssessment && author.showTemplateList}">
       <h:selectOneMenu id="assessmentTemplate" accesskey="#{msg.a_options}"
-         rendered="#{authorization.createAssessment && author.showTemplateList}"
+         
         value="#{author.assessmentTemplateId}">
          <f:selectItem itemValue="" itemLabel="#{genMsg.select_menu}"/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
       </h:selectOneMenu>
 
-      <h:outputText value="#{msg.optional_paren}" styleClass="form_label"
-         rendered="#{authorization.createAssessment && author.showTemplateList}" />
-     <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<br/>"/>
-   </div>
-<div class="shorttext">
+      <h:outputText value="#{msg.optional_paren}" styleClass="form_label" />
+</h:panelGroup>
+    
     <h:outputLabel value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
-    <h:inputText id="title" value="#{author.assessTitle}" size="32" rendered="#{authorization.createAssessment}" accesskey="#{msg.a_title}">
+<h:panelGroup rendered="#{authorization.createAssessment}">
+    <h:inputText id="title" value="#{author.assessTitle}" size="32" />
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
       create the assessment  -->
-    </h:inputText>
+
     <!-- action=createAssessment if privilege is granted, otherwise =author --> 
-    <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}" rendered="#{authorization.createAssessment}" accesskey="#{msg.a_create}">
+    <h:commandButton type="submit" value="#{msg.button_create}" action="#{author.getOutcome}" accesskey="#{msg.a_create}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorAssessmentListener" />
     </h:commandButton>
-  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="<br/><br/>"/>
-
+</h:panelGroup>
    
     <h:outputLabel value="#{msg.assessment_import}" rendered="#{authorization.createAssessment}"/>
+
     <h:commandButton value="#{msg.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}" accesskey="#{msg.a_import}"
       action="importAssessment">
     </h:commandButton>
-</div>
+</h:panelGrid>
 
  <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</div>"/>
 	<!-- CORE ASSESSMENTS-->
@@ -378,7 +377,7 @@
 <h5>
   <h:outputText value="#{msg.assessment_inactive}" rendered="#{authorization.adminPublishedAssessment}"/>
 </h5>
-  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" headerClass="regHeading" 
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier"
      rendered="#{authorization.adminPublishedAssessment}"
      value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" 
      id="inactivePublishedAssessments">
