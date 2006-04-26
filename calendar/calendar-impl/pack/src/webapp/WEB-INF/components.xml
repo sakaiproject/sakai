@@ -18,5 +18,14 @@
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.calendar.api.CalendarImporterService"
+		class="org.sakaiproject.calendar.impl.GenericCalendarImporter"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+		<property name="calendarService"><ref bean="org.sakaiproject.calendar.api.CalendarService"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+	</bean>
 
 </beans>
