@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -44,6 +45,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.CourseManagementService;
@@ -381,8 +383,6 @@ public class SiteBrowserAction extends PagedResourceActionII
 
 			context.put("site", site);
 
-			// TODO: restore -ggolden
-			/*
 			// get the public announcements
 			String anncRef = AnnouncementService.channelReference(site.getId(), SiteService.MAIN_CONTAINER);
 			List announcements = null;
@@ -393,9 +393,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				announcements = new Vector();
-			}*/
-			List announcements = new Vector();
-			// TODO: restore above -ggolden
+			}
 
 			context.put("announcements", announcements);
 
