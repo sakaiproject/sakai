@@ -764,6 +764,14 @@ public class ContentHostingService
 
 		service.createDropboxCollection(param0);
 	}
+	
+	public static void createIndividualDropbox(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return;
+
+		service.createIndividualDropbox(param0);
+	}
 
 	public static java.lang.String getDropboxCollection()
 	{

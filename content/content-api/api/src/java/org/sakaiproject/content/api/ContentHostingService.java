@@ -1142,6 +1142,15 @@ public interface ContentHostingService extends EntityProducer
 	public String getDropboxCollection();
 
 	/**
+	 * Create an individual dropbox collection for the current user if the site-level dropbox exists
+	 * and the current user has EVENT_DROPBOX_OWN permission for the site.
+	 * 
+	 * @param siteId
+	 *        the Site id.
+	 */
+	public void createIndividualDropbox(String siteId);
+
+	/**
 	 * Access the default dropbox collection id for the current request.<br />
 	 * If the current user is a dropbox maintainer for the current site, return the site's dropbox area.<br />
 	 * Otherwis return the current user's collection within the site's dropbox.

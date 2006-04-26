@@ -6131,6 +6131,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// dropbox and all inner folders
 		if (!isDropboxMaintainer(siteId))
 		{
+			createIndividualDropbox(siteId);
 			return;
 		}
 
@@ -6203,15 +6204,75 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 
 	/**
-	 * Determine whether the default dropbox collection id for this user in this site is the site's entire dropbox collection or just the current user's collection within the site's dropbox.
+	 * Create an individual dropbox collection for the current user if the site-level dropbox exists
+	 * and the current user has EVENT_DROPBOX_OWN for the site.
 	 * 
-	 * @return True if user sees all dropboxes in the site, false otherwise.
+	 * @param siteId
+	 *        the Site id.
 	 */
+	protected void createIndividualDropbox(String siteId) 
+	{
+		String dropbox = COLLECTION_DROPBOX + siteId + "/";
+
+		try 
+		{
+			if (findCollection(dropbox) == null)
+			{
+				return;
+			}
+			
+			User user = UserDirectoryService.getCurrentUser();
+
+			// the folder id for this user's dropbox in this group
+			String userFolder = dropbox + user.getId() + "/";
+
+			if(SecurityService.unlock(EVENT_DROPBOX_OWN, getReference(dropbox)))
+			{
+				// see if it exists - add if it doesn't
+				try
+				{
+					if (findCollection(userFolder) == null)
+					{
+						ContentCollectionEdit edit = addValidPermittedCollection(userFolder);
+						ResourcePropertiesEdit props = edit.getPropertiesEdit();
+						props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, user.getSortName());
+						props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_MEMBER_DROPBOX_DESCRIPTION);
+						commitCollection(edit);
+					}
+				}
+				catch (TypeException e)
+				{
+					M_log.warn("createIndividualDropbox(): TypeException: " + userFolder);
+				}
+				catch (IdUsedException e)
+				{
+					M_log.warn("createIndividualDropbox(): idUsedException: " + userFolder);
+				}
+				catch (InconsistentException e)
+				{
+					M_log.warn("createIndividualDropbox(): InconsistentException: " + userFolder);
+				}
+			}
+
+		} 
+		catch (TypeException e) 
+		{
+			M_log.warn("createIndividualDropbox(): TypeException: " + dropbox);
+		}
+		
+	}
+
+	/**
+	* Determine whether the default dropbox collection id for this user in this site 
+	* is the site's entire dropbox collection or just the current user's collection 
+	* within the site's dropbox.	 
+	* @return True if user sees all dropboxes in the site, false otherwise.
+	*/
 	public boolean isDropboxMaintainer()
 	{
 		return isDropboxMaintainer(ToolManager.getCurrentPlacement().getContext());
 	}
-
+	
 	/**
 	 * Determine whether the default dropbox collection id for this user in some site is the site's entire dropbox collection or just the current user's collection within the site's dropbox.
 	 * 
