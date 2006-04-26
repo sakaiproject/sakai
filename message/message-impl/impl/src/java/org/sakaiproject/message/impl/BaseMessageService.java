@@ -1662,14 +1662,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	} // merge
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public void syncWithSiteChange(Site site, EntityProducer.ChangeType change)
-	{
-		// nothing at this level, may be overriden in an extension class
-	}
-
-	/**
 	 * Setup a main message channel for a site.
 	 * 
 	 * @param siteId
