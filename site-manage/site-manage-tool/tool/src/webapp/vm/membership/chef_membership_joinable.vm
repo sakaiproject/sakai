@@ -1,0 +1,120 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership_joinable.vm,v 1.13 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+## TODO: G - replace all strings with res bundle correlate
+<div class="portletBody">
+	<div class="navIntraTool">
+	<a href="#toolLink("$action" "doGoto_unjoinable")" title="$tlang.getString('mb.cursit')">$tlang.getString('mb.cursit')</a>
+	|
+	$tlang.getString("mb.joisit")
+	</div>
+	
+	<h3>
+		$tlang.getString("mb.joinable")
+	</h3>
+	## join/unjoin action info normally is the only value of "alertMessage"
+	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
+	
+	<div style="text-align:right;">
+		<form name="searchform" method="post" action="#toolForm("$action")">
+		<input type="text" size="15" name="search" value="$search"> 
+		<input type="submit" name="eventSubmit_doSearch" value="Search">
+		<input type="submit" name="eventSubmit_doSearch_clear" value="Clear">
+		</form> 
+	</div>
+
+	#if ($openSites.size()>0)
+		<span class="instruction leftNav">
+			$tlang.getString("mb.listjoin")
+		</span>
+		<div class="rightNav">
+			<span class="instruction" style="margin-bottom:.3em;">
+				 Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items
+			</span>
+			#if ($pagesize != 0)
+				#if ($goPPButton == "true")
+					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="First" />
+					</form>
+				#else
+					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+					</form>
+				#end
+				#if ($goPPButton == "true")
+				<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="Previous $pagesize" />
+					</form>
+				#else
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+					</form>
+				#end
+			#end
+			<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+				<select name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+				<option value="5" #if($pagesize == 5) selected="selected" #end>show 5 items per page</option>
+					<option value="10" #if($pagesize == 10) selected="selected" #end>show 10 items...</option>
+					<option value="20" #if($pagesize == 20) selected="selected" #end>show 20 items...</option>
+					<option value="50" #if($pagesize == 50) selected="selected" #end>show 50 items...</option>
+					<option value="100" #if($pagesize == 100) selected="selected" #end>show 100 items...</option>
+					<option value="200" #if($pagesize == 200) selected="selected" #end>show 200 items...</option>
+				</select>
+			</form>
+			#if ($pagesize != 0)
+				#if ($goNPButton == "true")
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="Next $pagesize" />
+					</form>
+				#else
+					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+					</form>
+				#end
+				#if ($goNPButton == "true")
+					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="Last" />
+					</form>
+				#else
+					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+					</form>
+
+				#end
+			#end
+		</div>
+		<form action="#toolForm("$action")" method="post">
+			<table class = "listHier" cellspacing="0" border="0"  summary ="Table holds a list of sites that you can get access to. Column 1 holds the site title and a link to join. Column 2 may have a description of the site.">
+				## TODO: J - it looks in the mockups like the columns are sortable  (gsilver)
+				<tr>
+					<th id="worksite">
+						<a href="#toolLink("$action" "doToggle_joinable_sort")" title ="$tlang.getString('list.sortbytitle')"> 
+							$tlang.getString("gen.worksite")
+							#if ($currentSortAsc) 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+							#else 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+							#end
+						</a>
+					</th>
+					<th id="description">$tlang.getString("gen.description")</th>
+				</tr>
+				#foreach ($site in $openSites)
+					<tr>
+					## TODO: G - as usual the mockups do not get into these details - but is the following column nowrap or not? Depends on the possible length of the text - find out (gsilver)
+					<td headers="worksite" style="white-space:nowrap">
+					## Note: joinable site shouldn't be clickable because of the permission issues
+					## <a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
+					$validator.escapeHtml($site.Title)
+						<div class="itemAction">
+							<a href="#toolLinkParam("$action" "doJoin" "itemReference=$validator.escapeUrl($site.Id)")" title="Join site $!validator.escapeHtml($!site.Title)">$tlang.getString('mb.join')</a>
+						</div>	
+						</td>
+						<td headers="description">$!validator.escapeHtml($!site.Description)</td>
+					</tr>
+				#end
+			</table>
+		</form>
+	#else
+		<p class="instruction">There are no joinable sites at the moment</p>
+	#end
+</div>

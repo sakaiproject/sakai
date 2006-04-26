@@ -1,0 +1,63 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/prefs/chef_membership.vm,v 1.10 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+	<div class="navIntraTool">
+	$tlang.getString("mb.cursit")
+	|
+	<a href="#toolLink("$action" "doGoto_joinable")" title="$tlang.getString('mb.joisit')">$tlang.getString('mb.joisit')</a>
+	</div>
+	
+	<h3>
+		$tlang.getString("mb.cursit") 
+	</h3>                                                                                           
+
+	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
+	
+	#if ($unjoinableSites.size()>0)
+		
+		<p class="instruction"  style="margin:.5em 0">
+		$tlang.getString("mb.listunjoin")
+		</p>
+		
+		<form action="#toolForm("$action")" method="post">
+			## TODO: J - it looks in the mockups like the columns are sortable  (gsilver)
+			<table class = "listHier" cellspacing="0" summary ="Table holds a list of sites that you can get access to. Column 1 holds the site title and a link to unjoin. Column 2 may have a description of the site.">
+				<tr>
+					<th id="worksite">
+						<a href="#toolLink("$action" "doToggle_sort")" title ="$tlang.getString('list.sortbytitle')"> 
+							$tlang.getString("gen.worksite")
+							#if ($currentSortAsc) 
+								<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+							#else 
+								<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+							#end
+						</a>
+					</th>
+					<th id="description">$tlang.getString("gen.description")</th>
+				</tr>
+				#foreach ($site in $unjoinableSites)
+					<tr>
+						## TODO: G - as usual the mockups do not get into these details - but is the following column nowrap or not? Depends on the possible length of the text - find out (gsilver)
+						<td headers="worksite" style="white-space:nowrap">
+							<a href="$site.Url" target="_top" title="Go to site $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a>
+							#if($disableUnjoinSelection)
+								<p class ="shorttext"></p>
+							#else		
+								#if ($SiteService.allowUnjoinSite($site.Id))
+									<div class="itemAction">
+										<a href="#toolLinkParam("$action" "doGoto_unjoinconfirm" "itemReference=$validator.escapeUrl($site.Id)")" title="$tlang.getString('mb.unjoin')">$tlang.getString('mb.unjoin')</a>
+									</div>	
+								#end
+							#end
+						</td>
+						<td headers="description">
+							$!validator.escapeHtml($!site.Description)
+						</td>
+					</tr>
+				#end
+			</table>
+		</form>
+	#else
+		<p class="instruction">You are not a member of any site.</p>
+	#end
+</div>	
+
