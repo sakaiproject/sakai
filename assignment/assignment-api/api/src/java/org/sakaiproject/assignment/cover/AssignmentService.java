@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.announcement.cover;
+package org.sakaiproject.assignment.cover;
 
 import java.util.Set;
 import java.util.Vector;
@@ -30,9 +30,6 @@ import org.sakaiproject.component.cover.ComponentManager;
  * <p>
  * AssignmentService is a static Cover for the {@link org.sakaiproject.assignment.api.AssignmentService AssignmentService}; see that interface for usage details.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class AssignmentService
 {
@@ -43,7 +40,7 @@ public class AssignmentService
 	 */
 	public static org.sakaiproject.assignment.api.AssignmentService getInstance()
 	{
-		if (ComponentManager.CACHE_SINGLETONS)
+		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null)
 				m_instance = (org.sakaiproject.assignment.api.AssignmentService) ComponentManager
@@ -423,7 +420,7 @@ public class AssignmentService
 		return service.editSubmission(param0);
 	}
 
-	public static java.util.Iterator getAssignmentContents(org.sakaiproject.service.legacy.user.User param0)
+	public static java.util.Iterator getAssignmentContents(org.sakaiproject.user.api.User param0)
 	{
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null) return null;
@@ -459,7 +456,7 @@ public class AssignmentService
 	}
 
 	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(java.lang.String param0,
-			org.sakaiproject.service.legacy.user.User param1) throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.user.api.User param1) throws org.sakaiproject.exception.IdUnusedException,
 			org.sakaiproject.exception.PermissionException
 	{
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
@@ -574,13 +571,5 @@ public class AssignmentService
 		if (service == null) return null;
 
 		return service.archive(param0, param1, param2, param3, param4);
-	}
-
-	public static void importResources(java.lang.String param0, java.lang.String param1, java.util.List param2)
-	{
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null) return;
-
-		service.importEntities(param0, param1, param2);
 	}
 }

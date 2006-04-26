@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.announcement.api;
+package org.sakaiproject.assignment.api;
 
 import java.util.Collection;
 import java.util.List;

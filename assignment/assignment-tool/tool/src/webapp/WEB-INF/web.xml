@@ -2,8 +2,8 @@
 <web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>sakai-chat-tool</display-name>
-    <description>sakai-chat-tool</description>
+    <display-name>sakai-assignment-tool</display-name>
+    <description>sakai-assignment-tool</description>
 
 	<!-- Sakai request filter -->
     <filter>
@@ -13,7 +13,15 @@
 
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
-        <servlet-name>sakai.chat</servlet-name>
+        <servlet-name>sakai.assignment</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.assignment.grades</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -36,14 +44,28 @@
 
     <servlet>
         <servlet-name>
-           sakai.chat
+           sakai.assignment
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.chat.tool.ChatAction
+            org.sakaiproject.assignment.tool.AssignmentAction
         </servlet-class>
         <init-param>
             <param-name>template</param-name>
-            <param-value>chat/chef_chat</param-value>            
+            <param-value>assignment/chef_assignments</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+	<servlet>
+        <servlet-name>
+           sakai.assignment.grades
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.assignment.tool.AssignmentAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>assignment/chef_assignments</param-value>            
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>

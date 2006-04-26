@@ -34,12 +34,6 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-alias-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -76,12 +70,6 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-message-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -106,13 +94,13 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
+			<artifactId>sakai-db-storage</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-message-impl</artifactId>
+			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -124,8 +112,14 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-db-storage</artifactId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>2.5.1</version>
 		</dependency>
 
 		<dependency>
@@ -152,6 +146,13 @@
 				<directory>${basedir}/src/sql</directory>
 				<includes>
 					<include>**/*.sql</include>
+				</includes>
+			</resource>
+
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
 				</includes>
 			</resource>
 

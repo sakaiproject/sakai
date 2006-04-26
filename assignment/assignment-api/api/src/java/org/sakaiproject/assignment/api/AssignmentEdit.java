@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.announcement.api;
+package org.sakaiproject.assignment.api;
 
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.PermissionException;
