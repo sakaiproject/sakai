@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.tool.preferences;
+package org.sakaiproject.user.tool.preferences;
 
 import java.util.Collection;
 import java.util.Iterator;
