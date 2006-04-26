@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<!-- =========== FACES CONFIGURATION FILE ================================== -->
+
+<faces-config>
+
+  <application>
+    <message-bundle>tool-tool-su</message-bundle>
+    <locale-config>
+      <default-locale>en</default-locale>
+    </locale-config>
+  </application>
+
+
+
+  <!-- =================== Tool Beans ============== -->
+
+	<managed-bean>
+		<description>Su Tool Bean</description>
+		<managed-bean-name>SuTool</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.su.SuTool</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+
+	<navigation-rule>
+          <from-view-id>/su/*</from-view-id>
+
+          <navigation-case>
+            <from-outcome>failed</from-outcome>
+            <to-view-id>/su/main.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+
+          <navigation-case>
+            <from-outcome>unconfirmed</from-outcome>
+            <to-view-id>/su/main.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+
+          <navigation-case>
+            <from-outcome>redirect</from-outcome>
+            <to-view-id>/su/redirect.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+
+          <navigation-case>
+            <from-outcome>unauthorized</from-outcome>
+            <to-view-id>/su/unauthorized.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+    </navigation-rule>
+    
+ 	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>msgs</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>tool-tool-su</value>
+		</managed-property>
+	</managed-bean>
+
+</faces-config>
