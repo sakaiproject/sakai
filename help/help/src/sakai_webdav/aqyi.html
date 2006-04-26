@@ -1,140 +1,140 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet" />
-<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet" />
-</head><body>
+<title>Uploading files to Drop Box and Resources
+using WebDAV with Mac OS X</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Uploading files to Drop Box and Resources
+using WebDAV with Mac OS X</h2>
 
-<h2>Using Sakai 2.0, how do I access files in
-Mac OS X using WebDAV?
-</h2>
-	  
-WebDAV stands for "Web-based Distributed Authoring and
-Versioning". It is a set of extensions to the HTTP protocol which allows
-users to collaboratively edit and manage files on remote web servers.
+  
+
+
+
+
+<p>You can use WebDAV to upload and access files in your site's Drop
+Box and Resources, if you have the required permissions. </p>
+
+<p>Also, consider the following:</p>
+
+<ul><li>Before you set up WebDAV, there must be at least one object (i.e.,
+file or folder) in the destination Drop Box or Resources tool. For
+instructions on adding files without using WebDAV , see the
+following:<br /><br />
+
+<ul><li><a href="/portal/help/TOCDisplay/content.hlp?docId=arcg">Creating/adding, editing, or deleting a resource item</a></li><li><a href="/portal/help/TOCDisplay/content.hlp?docId=aqyu">Adding, editing, or removing a Drop Box item</a>
+</li></ul><br />
+</li><li>Saving files to your site directly from within an application
+(e.g., Word or Excel) does not work reliably. For best results, save
+the file to your computer first, and then upload it to your site.
+</li></ul>
+
+
 
 <h3>Mac OS X 10.4 (Tiger)</h3>
 
-<p>
-To use WebDAV to access files in Mac OS X 10.4 (Tiger), follow
-these steps:
-</p>
 
-<ol>
-<li>In the Finder, press <code>Cmd-k&#160;</code>. (Alternatively,
+
+
+<p>To use WebDAV to upload and access files in Mac OS X 10.4 (Tiger),
+follow these steps:</p>
+
+<ol><li>In the Finder, press <code>Cmd-k </code>. (Alternatively,
 from the <strong><code>Go</code></strong> menu, choose <strong><code>Connect to Server</code></strong>.)
 
-<br><br>
-</li>
-<li>In the "Server Address:" field, enter the appropriate text:
+<br /><br />
+</li><li>In the "Server Address:" field, you'll enter a URL that points to
+the destination Drop Box or Resources tool.
 
-<br><br>
+<p>Contact your site
+administrator for the URL's format, it will likely include the siteID
+for your site.</p>
 
-<ul>
-<li>If you know the correct URL, you can connect to your personal resource
-space by entering it into the "Internet or network address"
-field. Contact your site administrator for the URL's format; it will
-likely include your username.
 
-<br><br>
-</li>
-<li>Similarly, you can connect to the Resources for a specific course,
-  and upload and download files to and from Resources, if you know the
-  correct URL and the unique site ID number. The ID number is the sequence of
-  numbers appearing immediately at the end of your site's URL. For
-  example, once you have clicked the tab for a particular site, the
-  URL field in your web browser will contain something similar to
-  this: 
- https://oncoursecl.iu.edu/portal/site/123456789-123
+</li></ol>
 
-<p>The site ID in this case would be <code>123456789-123</code>. To
-  save a site ID number, while you are in the site, click
-  <strong><code>File</code></strong>, then either <strong><code>Save as...</code></strong> or <strong><code>Save page
-  as...&#160;</code></strong>. Make sure the site ID number is in the "File
-  name:" field, and then save it to a place where you can easily
-  retrieve it.  </p>
+<p><strong>Note:</strong> For instructions on finding your siteID, see
+<a href="/portal/help/TOCDisplay/content.hlp?docId=atla">Determining your site's siteID</a>.</p>
 
-</li>
-</ul>
+<p>You may now drag and drop folders between your computer and the
+sites to which you just connected.
 
-</li>
-<li>Optionally, you may click the <strong><code>+</code></strong> (plus sign) to the right
+</p><p>Optionally, you may click the <strong><code>+</code></strong> (plus sign) to the right
 of the server address after you enter it, and the server will be added
-to your list of favorite servers.
+to your list of favorite servers.</p>
 
-<p>
-When you log in, you can choose to have the password remembered in
-your Keychain. If you do this, you will not be prompted for a
-password when you log into your personal Resources or the Resources
-for any site to which you have access. Do not do this unless your
-computer is secured from use by others.
-</p>
-</li>
-</ol>
+<p>When you log in, you can choose to have the password remembered in
+your Keychain. If you do this, you will not be prompted for a password
+when you log into your personal Resources, or the Resources and Drop
+Box for any site to which you have access. Do not do this unless your
+computer is secured from use by others.</p>
 
-<p>
+<p><strong>Note:</strong> When you use WebDAV to access resources using
+this method, you may notice that <code>.DS_store</code> files are
+being created. Apple's knowledge base provides instructions for
+eliminating this behavior:</p>
 
-You may now drag and drop folders between your hard drive and the
-Resources to which you just connected.
-</p>
+<span class="example">  <a href="http://docs.info.apple.com/article.html?artnum=301711" target="new">http://docs.info.apple.com/article.html?artnum=301711</a></span>
+
+
 
 <h3>Mac OS X 10.3 (Panther) and earlier</h3>
 
-<p>Using WebDAV to access files in Mac OS X 10.3 (Panther) and earlier
-requires a third-party client called Goliath. You can download a free
-copy of Goliath from:</p>
+<p>Using WebDAV to upload and access files in Mac OS X 10.3 (Panther) and earlier
+requires a third-party client called Goliath.</p>
 
-<a href="http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz">http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz</a>
+<p><strong>Note:</strong> Goliath has some known performance issues, and
+may not work 100% of the time. Because of this, only limited support
+is available if you experience problems. </p>
 
-<ol>
-<li>Once you have downloaded the file, double-click it to decompress
+<p>You can download a free copy of Goliath from:</p>
+
+<span class="example">  <a href="http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz" target="new">http://www.webdav.org/goliath/installs/Goliath1_0_1.dmg.gz</a></span>
+
+<p>Once you have downloaded the file, double-click it to decompress
 it. Then, double-click the resulting <code>.dmg</code> file.  A disk
-image named <code>Goliath 1.0.1</code> should now be available.
+image named <code>Goliath 1.0.1</code> should now be available. Then,
+follow these steps:</p>
 
-<br>
-<br>
-</li>
-<li>Drag and drop the Goliath folder contained within the disk image
+<ol><li>Drag and drop the Goliath folder contained within the disk image
 to your hard disk.
-<br>
-<br> 
-</li>
-<li>Open the Goliath application and follow the appropriate
-instructions below:
-<br>
-<br>
 
-<ul>
-<li>If you know the correct URL, you can connect to your personal resource
-space by entering it into the "Internet or network address"
-field. Contact your site administrator for the URL's format; it will
-likely include your username.
+<br /><br /> 
+</li><li>Open the Goliath application.<br /><br />
+</li><li>In the "Server Address:" field, you'll enter a URL that points to
+the destination Drop Box or Resources tool.
 
-<br><br>
-</li>
-
-<li>Similarly, you can connect to the Resources for a specific course,
-  and upload and download files to and from Resources, if you know the
-  correct URL and the unique site ID number. The ID number is the sequence of
-  numbers appearing immediately at the end of your site's URL. For
-  example, once you have clicked the tab for a particular site, the
-  URL field in your web browser will contain something similar to
-  this: 
-https://oncoursecl.iu.edu/portal/site/123456789-123
-
-<p>The site ID in this case would be <code>123456789-123</code>. To
-  save a site ID number, while you are in the site, click
-  <strong><code>File</code></strong>, then either <strong><code>Save as...</code></strong> or <strong><code>Save page
-  as...&#160;</code></strong>. Make sure the site ID number is in the "File
-  name:" field, and then save it to a place where you can easily
-  retrieve it.  </p>
-</li>
-</ul>
-
-<br>
-</li>
-<li>The first time you attempt to connect, you may be prompted to
-accept a certificate for the site. Click <strong><code>OK</code></strong> if prompted.</li>
-</ol>
+<p>Contact your site
+administrator for the URL's format, it will likely include the siteID
+for your site.</p>
 
 
+</li></ol>
+
+<p><strong>Note:</strong> For instructions on finding your siteID, see
+<a href="/portal/help/TOCDisplay/content.hlp?docId=atla">Determining your site's siteID</a>.</p>
+
+
+<p>The first time you attempt to connect, you may be prompted to
+accept a certificate for the site. Click <strong><code>OK</code></strong> if prompted.</p>
+
+<p>You may now drag and drop folders between your computer and the
+sites to which you just connected.</p>
+
+
+
+
+
+</div>
 </body></html>

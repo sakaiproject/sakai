@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet" />
-<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet" />
-</head><body>
-
-<h2>Sakai 2.0 Permissions and Roles: Overview
-</h2>
+<title>Permissions and Roles: Overview</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Permissions and Roles: Overview</h2>
 
 <h3>What they do</h3>
 
@@ -13,48 +22,66 @@
 project worksite, depending on their roles and on the decisions made
 by the site maintainer and the system administrator.</p>
 
-<p>When you create a worksite or when one is created for you, you as
-the maintainer of that site can choose (within the limits established
-by the system administrator) which tools or functions (e.g.,
-Discussion, Schedule, Resources) you want the site to have. For each
-of these tools or functions, you can set permissions that allow or
-prevent users from seeing or performing certain tasks depending on
-their roles.</p>
+<p>Roles are simply collections of permissions. Some roles allow the
+user to simply access or read content, while other roles allow for
+advanced changes, such as adding participants, editing the site's
+content, and changing permissions for other roles. All roles are not
+created equal.</p>
+
+<p>When you create a worksite or when one is created for you, you then
+have the role with the most permissions and the broadest level of
+access.  You can therefore choose (within the limits established by the system
+administrator) which tools or functions (e.g., Discussion, Schedule,
+Resources) you want the site to have. For each of these tools or
+functions, you can set permissions that allow or prevent users from
+seeing or performing certain tasks, depending on their roles.</p>
+
+<p>For a summary of participant roles and how to find out what your
+role is, see <a href="/portal/help/TOCDisplay/content.hlp?docId=arbu">Participant roles</a>. For a comprehensive
+list of all permissions associated with participant roles, see <a href="/portal/help/TOCDisplay/content.hlp?docId=armh">Permissions, roles, and tools</a>.</p>
 
 <h3>Key concepts</h3>
 
-<p>Roles may vary in name depending on the application
-implementation. However, in general, the "maintain" role (or its
-equivalent) has full administrative permission to create, edit, and
-delete within a worksite. The "access" role has fewer permissions, and
-cannot create content or delete in all tools. For example, by default
-the access role cannot upload files into Resources, but can create
-Chat messages and Discussion replies.</p>
+<p>Roles may vary in name, depending on the application. However, in
+general, the creator of a project site, or the instructor of a course
+site, has full permissions and can add or delete content within a
+worksite.</p>
 
-<p>Roles are given default permissions. However, someone with maintain
-rights can change the permissions for different roles to suit the
-site's needs.</p>
+<p>Users who join an existing site will have a more limited role. The
+permissions of this role allow for interaction in the site, such as
+creating Chat messages and Discussion replies, but do not allow for
+advanced tasks, such as uploading files into Resources or
+posting to the Calendar.
+</p>
+
+<p>However, each implementation of the application will be
+different. System administrators can decide during implementation
+which roles to install, and which permissions these roles will have.
+Roles, and the associated permissions, will vary.</p>
+
+
 
 <h3>Things to remember</h3>
 
-<ul>
-<li>The availability of a tool in a worksite depends upon the
+<ul><li>The availability of a tool in a worksite depends upon the
 particular implementation of the system administrator. If you have
-maintain rights to a worksite and find that a tool is not available
+broad rights to a worksite and find that a tool is not available
 through Worksite Setup, consult your administrator.
 
-<br><br>
-</li>
-<li>Default roles have default permissions; however, these defaults
-can be edited on the system level by the system administrator and on
-the worksite level by anyone with maintain rights to the site.
+<br /><br />
+</li><li>The Resources and Drop Box tools share the same permissions set;
+if you change permissions for one, you change them also for the other.
 
-<br><br>
-</li>
-<li>All users are assigned the maintain role in their respective My
+<br /><br />
+</li><li>Default roles have default permissions; however, these defaults
+can be edited on the system level by the system administrator and on
+the worksite level by anyone with full permissions to the site.
+<br /><br />
+</li><li>All users are assigned the broadest role in their respective My
 Workspaces; this gives a user edit control over his or her My
 Workspace.
-</li>
-</ul>
 
+</li></ul>
+
+</div>
 </body></html>

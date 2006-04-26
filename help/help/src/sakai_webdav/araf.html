@@ -1,149 +1,138 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<link type="text/css" href="/library/skin/tool_base.css" rel="stylesheet" />
-<link type="text/css" href="/library/skin/default/tool.css" rel="stylesheet" />
-</head><body>
+<title>Uploading files to Drop Box and Resources using WebDAV with Windows XP</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Uploading files to Drop Box and Resources using WebDAV with Windows XP</h2>
 
-<h2>In Windows XP, how do I access Sakai 2.0 using WebDAV?
-</h2>
-<p>On this page:</p>
+ 
 
 
 
-<ul>
-<li><a href="#intro">Introduction</a></li>
-<li><a href="#mycomp">Using My Network Places</a></li>
-<li><a href="ie">Using Internet Explorer</a></li>
 
-</ul>
 
-<hr>
+<ul><li><a href="#intro">Introduction</a></li><li><a href="#mycomp">Using the Add Network Place Wizard</a></li><li><a href="#ie">Using Internet Explorer</a></li></ul>
 
-<a name="intro"></a><h3>Introduction</h3>
+<hr />
 
-WebDAV stands for "Web-based Distributed Authoring and
-Versioning". It is a set of extensions to the HTTP protocol which allows
-users to collaboratively edit and manage files on remote web servers.
+<a name="intro"> </a><h3>Introduction</h3>
 
-<a name="mycomp"></a><h3>Using My Network Places</h3>
 
-<p>To access files in Resources  using WebDAV
-via <strong><code>My Network Places</code></strong>, follow these steps:</p>
 
-<ol>
 
-<li>On the desktop, double-click <strong><code>My Network Places</code></strong>.
+<p>In Windows XP, you can use the Add Network Place Wizard or Internet
+Explorer to upload and access your files via WebDAV, if you have the
+required permissions..</p>
 
-<br><br>
-</li>
-<li>In the <strong><code>Network Tasks</code></strong> pane, click <strong><code>Add a network
+
+
+
+
+<p>Also, consider the following:</p>
+
+<ul><li>Before you set up WebDAV, there must be at least one object (i.e.,
+file or folder) in the destination Drop Box or Resources tool. For
+instructions on adding files without using WebDAV, see the
+following:<br /><br />
+
+<ul><li><a href="/portal/help/TOCDisplay/content.hlp?docId=arcg">Creating/adding, editing, or deleting a resource item</a></li><li><a href="/portal/help/TOCDisplay/content.hlp?docId=aqyu">Adding, editing, or removing a Drop Box item</a>
+</li></ul><br />
+</li><li>Saving files directly to WebDAV (i.e., from within an application,
+such as Word, Excel, or Internet Explorer) does not work reliably. For
+best results, save the file to your computer first, and then upload it
+to your site.
+</li></ul>
+
+
+
+<a name="mycomp"> </a><h3>Using the Add Network Place Wizard</h3>
+
+<p>Using the Add Network Place Wizard in Windows XP, you can add a
+shortcut to your computer that allows you to upload and access files
+in Drop Box or Resources using WebDAV. To do so, follow these
+steps:</p>
+
+<ol><li>On the desktop, double-click <strong><code>My Network Places</code></strong>.
+
+<br /><br />
+</li><li>In the "Network Tasks" pane, click <strong><code>Add a network
 place</code></strong>.
 
-<br><br>
-</li>
-<li>When the Add Network Place Wizard appears, click <strong><code>Next</code></strong>.
+<br /><br />
+</li><li>On the welcome screen, click <strong><code>Next</code></strong>.
 
-<br><br>
+<br /><br />
+</li><li>Select <strong><code>Choose another network location</code></strong> and then click
+<strong><code>Next</code></strong>.<br /><br />
+</li><li>In the "Internet or network address:" field, you'll enter a URL
+that points to the destination Drop Box or Resources tool.
 
-</li>
-<li>Select <strong><code>Choose another network location</code></strong> and then click
-<strong><code>Next</code></strong>. In the "Internet or network address:" field, enter
-the appropriate text:
+<p>Contact your site
+administrator for the URL's format, it will likely include the siteID
+for your site.</p>
 
-<br><br>
 
-<ul>
-<li>If you know the correct URL, you can connect to your personal resource
-space by entering it into the "Internet or network address"
-field. Contact your site administrator for the URL's format; it will
-likely include your username.
+</li></ol>
 
-<br><br>
-</li>
-<li>Similarly, you can connect to the Resources for a specific course,
-  and upload and download files to and from Resources, if you know the
-  correct URL and the unique site ID number. The ID number is the sequence of
-  numbers appearing immediately at the end of your site's URL. For
-  example, once you have clicked the tab for a particular site, the
-  URL field in your web browser will contain something similar to
-  this: 
-https://oncoursecl.iu.edu/portal/site/123456789-123
+<p><strong>Note:</strong> For instructions on finding your siteID, see
+<a href="/portal/help/TOCDisplay/content.hlp?docId=atla">Determining your site's siteID</a>.</p>
 
-<p>The site ID in this case would be <code>123456789-123</code>. To
-  save a site ID number, while you are in the site, click
-  <strong><code>File</code></strong>, then either <strong><code>Save as...</code></strong> or <strong><code>Save page
-  as...&#160;</code></strong>. Make sure the site ID number is in the "File
-  name:" field, and then save it to a place where you can easily
-  retrieve it.  </p>
-</li>
-</ul>
+<p>You may now drag and drop folders between your computer and the
+sites to which you just connected. However, you cannot delete items
+from a site by dragging them to the Recycle Bin on your desktop. To
+delete an item, right-click it and select <strong><code>Delete</code></strong>.</p>
 
-</li>
 
-</ol>
+<a name="ie"> </a><h3>Using Internet Explorer</h3>
 
 <p>
-You may now drag and drop folders between your computer and the
-Resources to which you just connected. However, you cannot delete
-items in the Resources by dragging them to the Recycle Bin on your
-desktop. To delete an item, right-click it and select <strong><code>Delete</code></strong>.
+Using Internet Explorer, you can upload and access your files in via
+WebDAV. To do so, follow these steps:
 </p>
 
-<a name="ie"></a><h3>Internet Explorer</h3>
+<ol><li>In Internet Explorer, from the <strong><code>File</code></strong> menu, select
+<strong><code>Open... </code></strong>.
 
-<p>
-You can also use Internet Explorer to open your files in Oncourse CL
-as a Web folder via WebDAV. Follow these steps:
-</p>
+<br /><br />
+</li><li>In the window that appears, click the checkbox next to <strong><code>Open as
+Web folder</code></strong>. In the "Open:" field, you'll enter a URL that points
+to the destination Drop Box or Resources tool, and click <strong><code>OK</code></strong>.
 
-<ol>
-<li>In Internet Explorer, from the <strong><code>File</code></strong> menu, select
-<strong><code>Open...&#160;</code></strong>.
+<p>Contact your site
+administrator for the URL's format; it will likely include the siteID
+for your site.</p>
 
-<br><br>
-</li>
-<li>In the window that appears, click the checkbox next to <strong><code>Open
-as Web folder</code></strong>. In the "Open:" field, enter the appropriate text:
 
-<br><br>
+</li></ol>
 
-<ul>
-<li>If you know the correct URL, you can connect to your personal resource
-space by entering it into the "Internet or network address"
-field. Contact your site administrator for the URL's format; it will
-likely include your username.
+<p><strong>Note:</strong> For instructions on finding your siteID, see
+<a href="/portal/help/TOCDisplay/content.hlp?docId=atla">Determining your site's siteID</a>.</p>
 
-<br><br>
-</li>
-<li>Similarly, you can connect to the Resources for a specific course,
-  and upload and download files to and from Resources, if you know the
-  correct URL and the unique site ID number. The ID number is the sequence of
-  numbers appearing immediately at the end of your site's URL. For
-  example, once you have clicked the tab for a particular site, the
-  URL field in your web browser will contain something similar to
-  this: 
-https://oncoursecl.iu.edu/portal/site/123456789-123 
-
-<p>The site ID in this case would be <code>123456789-123</code>. To
-  save a site ID number, while you are in the site, click
-  <strong><code>File</code></strong>, then either <strong><code>Save as...</code></strong> or <strong><code>Save page
-  as...&#160;</code></strong>. Make sure the site ID number is in the "File
-  name:" field, and then save it to a place where you can easily
-  retrieve it.  </p>
-
-</li>
-</ul>
-
-<br>
-</li>
-<li>The contents of the resources folder will appear in a window where
+<p>The contents of the destination folder will appear in a window where
 you can open individual files, browse to other folders on your
-computer, and transfer files between folders.
+computer, and transfer files between folders.</p>
 
-<br><br>
-</li>
-<li>When you're finished, close the browser.
-</li>
-</ol>
+<p>When you're finished, exit Internet Explorer to close your connection.</p>
 
+<a name="demos"> </a>
+
+
+
+
+
+
+<p />
+
+</div>
 </body></html>
