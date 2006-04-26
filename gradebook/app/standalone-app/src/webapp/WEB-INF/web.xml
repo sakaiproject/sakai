@@ -41,6 +41,20 @@
 		<url-pattern>*.jsf</url-pattern>
 	</servlet-mapping>
 
+	<!-- Support for MyFaces component resources. -->
+	<filter>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<filter-class>org.apache.myfaces.component.html.util.ExtensionsFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
+	</filter-mapping>
+
 	<!-- Redirects the user to the appropriate starting page, based on their role -->
 	<servlet>
 		<servlet-name>Entry Servlet</servlet-name>

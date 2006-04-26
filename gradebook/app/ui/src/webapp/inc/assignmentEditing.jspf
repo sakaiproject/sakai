@@ -21,19 +21,9 @@
 
 	<h:panelGroup>
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
-		<h:outputText style="font-weight:normal;" value=" #{msgs.add_assignment_date_format}"/>
+		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 	</h:panelGroup>
-
-	<%/* Temporary workaround for lack of a date picker. */%>
-	<h:panelGroup>
-		<h:inputText id="dueDate" value="#{bean.assignment.dueDate}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-			<f:convertDateTime pattern="MM/dd/yy"/>
-		</h:inputText>
-		<f:verbatim>
-			<input type="image" id="dueDatePopup" src="images/calendar_icon.gif"
-				onclick="jscalendarPopUpCalendar(this,this.form.elements['gbForm:dueDate'],'M/d/yy'); return false;" />
-		</f:verbatim>
-	</h:panelGroup>
+    <x:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
 	<h:message for="dueDate" styleClass="validationEmbedded" />
 </h:panelGrid>
 

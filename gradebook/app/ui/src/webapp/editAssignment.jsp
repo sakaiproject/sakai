@@ -1,6 +1,3 @@
-<%/* Temporary workaround for lack of a date picker. */%>
-<link href="calendar/theme.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="calendar/popcalendar.js"></script>
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
