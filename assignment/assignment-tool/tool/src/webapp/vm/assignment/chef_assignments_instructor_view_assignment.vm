@@ -1,0 +1,354 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("viewassig.viewass1")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
+		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
+		#if ($allowAddAssignment && !$hideAssignmentFlag)
+		## show assignment content
+		<p class="discTria">
+			<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
+				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" />
+			</a>
+			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+		</p>
+		<table class="itemSummary indnt1" border="0" summary="$tlang.getString("gen.viewasstablesummary")">
+			<tr>
+				<th>	
+					$tlang.getString("gen.creby")
+				</th>	
+				<td>
+					$userDirectoryService.getUser($assignment.getCreator()).DisplayName
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("viewassig.datcre")
+				</th>
+				<td>
+					$assignment.TimeCreated.toStringLocalFull()
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.open2")
+				</th>
+				<td>
+					$assignment.OpenTime.toStringLocalFull()
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.due2")
+				</th>
+				<td>
+					$assignment.DueTime.toStringLocalFull()
+				</td>
+			</tr>
+			#set ($closeDate = $assignment.getCloseTime())
+			#if ($!closeDate)
+				<tr> 
+					<th>
+						$tlang.getString("gen.acesubunt")
+					</th>
+					<td>
+						$assignment.CloseTime.toStringLocalFull()
+					</td>
+				</tr>
+				##show alert when assignment is modified and the modified date is after its open date	
+				#set($alertTimeLastModified=false)
+				#set($newAssignment="false")
+				#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
+				#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+					#set($alertTimeLastModified=true)
+				#end
+				<tr>
+					<th #if($!alertTimeLastModified)class="highlight"#end>
+						$tlang.getString("gen.modbyins")
+					</th>
+					<td #if($!alertTimeLastModified)class="highlight"#end>
+						$assignment.TimeLastModified.toStringLocalFull()
+					</td>
+				</tr>
+			#end
+			<tr> 
+				<th>
+					$tlang.getString("gen.stusub2")
+				</th>
+				<td>
+					$submissionTypeTable.get($assignment.getContent().getTypeOfSubmission())
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.gra3")
+				</th>
+				<td>
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					$gradeScale
+					#if ($gradeScale == "Points")
+						(max $assignment.getContent().getMaxGradePointDisplay())
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.addduedat")
+				</th>
+				<td>
+					#set ($scheduled = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAddDueDate()))
+					#if ($!scheduled == "true")
+						$tlang.getString("gen.yes")
+					#else
+						$tlang.getString("gen.no")
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.alert")
+				</th>
+				<td>
+					#set ($announced = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAutoAnnounce()))
+					#if ($!announced == "true")
+						$tlang.getString("gen.yes")
+					#else
+						$tlang.getString("gen.no")
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.honple")
+				</th>
+				<td> 
+					#if ($assignment.getContent().HonorPledge == 1)
+						$tlang.getString("gen.no")
+					#else
+						$tlang.getString("gen.yes")
+					#end
+				</td>
+			</tr>
+		</table>
+		<h4>
+			$tlang.getString("gen.assinf")
+		</h4>
+		<div class="indnt1">					
+			#if ($assignment.getContent().getInstructions().length()==0)
+				&lt;none&gt;
+			#else
+				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
+			#end
+		</div>
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $assignment.getContent().getAttachments()) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size == 0)
+##			$tlang.getString("gen.noatt")
+		#else
+			<h4>
+				$tlang.getString("gen.addres2")
+			</h4>	
+			<ul class="attachList indnt1">
+				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+						</li>
+					#end
+				#end
+			</ul>
+		#end	
+		#elseif ($allowAddAssignment && $hideAssignmentFlag)
+			## hide the assignment content
+			<p class="discTria">
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
+				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+			</p>	
+		#end
+		## student view
+		#if (!$hideStudentViewFlag)
+			<p class="discTria">
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_student_view")'; return false;">
+				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" /></a>
+				$tlang.getString("gen.stuvieof") "$assignment.title"
+			</p>
+			<div class="inopBox">
+				<table class ="itemSummary indnt1" cellspacing="0" cellpadding ="0">
+					<tr>
+						<th>
+							$tlang.getString("gen.due2")
+						</th>
+						<td>
+							$!assignment.getDueTime().toStringLocalFull()
+						</td>
+					</tr>
+					<tr>
+						<th>
+							$tlang.getString("gen.status2")
+						</th>
+						<td>
+							#if ($!submission)
+								#if ($submission.getSubmitted())
+									#if ($submission.returned)
+										#if ($submission.TimeReturned.before($submission.TimeSubmitted))
+											$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+										#else
+											Re-submitted $submission.TimeSubmitted.toStringLocalFull()
+											#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+												<span class="highlight"> $tlang.getString("gen.late")</span>
+											#end
+										#end
+									#elseif ($submission.getGraded() && $submission.getGradeReleased())
+										$tlang.getString("gen.gra3")
+									#else
+										$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
+										#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+											<span class="highlight">$tlang.getString("gen.late2")</span>
+										#end
+									#end
+								#else
+									$tlang.getString("gen.inpro")
+								#end
+							#else
+								$tlang.getString("gen.notsta")
+							#end
+						</td>
+					</tr>
+					<tr>
+						<th>
+							Grade Scale:
+						</th>
+						<td>
+							#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+							$gradeScale
+							#if ($gradeScale == "Points")
+								(max $assignment.getContent().getMaxGradePointDisplay())
+							#end
+						</td>
+					</tr>
+					##show alert when assignment is modified and the modified date is after its open date
+					#if($!alertTimeLastModified)
+						<tr>
+							<th class="highlight">
+									$tlang.getString("gen.modbyins")
+							</th>
+							<td class="highlight">
+								$assignment.getTimeLastModified().toStringLocalFull()
+							</td>
+						</tr>
+					#end
+				</table>
+				<h4>
+					$tlang.getString("gen.assinf")
+				</h4>	
+				#if ($!assignment.getContent().getInstructions().length()>0)
+					<div class="indnt1">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+				#end
+				#set ($size = 0)
+				#set ($props = false)
+				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end
+				#if ($size == 0)
+	##			$tlang.getString("gen.noatt")
+				#else
+					<h4>
+						$tlang.getString("gen.addres2")
+					</h4>	
+					<ul class="attachList indnt1">
+						#foreach ($attachment in $assignment.getContent().getAttachments()) 
+							#set ($props = false)
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+										($props.getPropertyFormatted($props.NamePropContentLength))
+									#end
+								</li>
+							#end
+						#end
+					</ul>
+				#end	
+				<h4>
+					$tlang.getString("gen.staass")
+				</h4>	
+					## 1- text only; 2-attachment only; 3-text and attachment
+					#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+					#if (($submissionType==1) || ($submissionType==3))
+						<p class="instruction">
+							#if ($submissionType==1)
+								$tlang.getString("viewassig.theassall5")
+							#elseif ($submissionType==3)
+								$tlang.getString("viewassig.theassall1")
+							#end
+						</p>	
+						<textarea cols="80" rows="8" wrap="virtual" name="textarea" id="textarea" disabled="disabled">&nbsp;</textarea><br />
+					#end
+					#if (($submissionType==2) || ($submissionType==3)) 
+						#if ($submissionType==2)
+								$tlang.getString("viewassig.theassall3") 
+						#end
+						<h4>
+							$tlang.getString("gen.att")
+						</h4>
+						<p class="instruction">$tlang.getString("gen.noatt")</p> 
+						<p class="act">
+							<input type="button" name="eventSubmit_doAttachments" value="$tlang.getString("gen.addatt")" disabled="disabled" />
+						</p>
+					#end
+					## if honor pledge is required
+					#if ($assignment.getContent().HonorPledge != 1) 
+						<p class="checkbox">
+							<label for="yes">$tlang.getString("gen.honple2")</label>
+							<input name="Yes" type="checkbox" id="yes" value="" disabled="disabled" /><br />
+							$tlang.getString("gen.youmus")
+						</p>	
+					#end
+				</div>	
+		#else
+			<p class="discTria">
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_student_view")'; return false;">
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" /></a>
+				$tlang.getString("gen.stuvieof") "$assignment.title"
+			</p>	
+
+		#end
+		<p class="act">
+			#if ($assignment.Draft)
+				<input type="submit" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" />
+				 <input type="submit" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" />
+			#else
+				<input type="submit" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.don")" />
+		#end
+		</p>
+	</form>
+</div>
+

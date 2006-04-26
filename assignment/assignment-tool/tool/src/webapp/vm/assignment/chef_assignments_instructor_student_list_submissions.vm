@@ -1,0 +1,196 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_student_list_submissions.vm,v 1.8 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+		<div class="navIntraTool">
+			#if ($allowAddAssignment)
+				<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> | <span style="margin:.5em">$!tlang.getString("gen.liofass")</span>
+			#end
+			#if ($withGrade && $!allowGradeSubmission)
+				| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.grarep'))")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			#end
+			#if ($allowAddAssignment)
+				| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+			#end
+			#if ($allowUpdateSite)
+				| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+			#end
+	</div>
+	
+	#if ($alertMessage)<div class="reqStarBox">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$!tlang.getString('lisofass2')
+	</h3>
+		<div class="leftNav">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+				<input type="hidden" name="eventSubmit_doView" value="view" />
+				<label for="view">$tlang.getString("gen.view2")</label>
+				<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
+					<option value="$!tlang.getString('lisofass1')" >$!tlang.getString('lisofass1')</option>
+					<option value="$!tlang.getString('lisofass2')" selected="selected" >$!tlang.getString('lisofass2')</option>
+				</select>
+			</form>
+		</div>	
+			#if ($!studentMembers.size() == 0)
+				<p class="instruction" style="clear:both">
+					$tlang.getString("theisnostudent")
+				</p>
+			#else
+				<p class="instruction" style="clear:both">
+					$tlang.getString("stulistsunbm.chotri")
+				</p>
+			<div class="rightNav">
+				<span class="instruction">
+					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
+				</span>
+				#if ($pagesize != 0)
+					#if ($goFPButton == "true")
+						<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_first" value="|<" title="$tlang.getString("gen.first")" />
+						</form>
+					#else
+						<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_first" value="|<" disabled="disabled" />
+						</form>
+					#end
+					#if ($goPPButton == "true")
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_prev" value="<" title="$tlang.getString('gen.previous') $pagesize" />
+						</form>
+					#else
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_prev" value="<" disabled="disabled" />
+						</form>
+					#end
+				#end	
+				<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+					<label for="selectPageSize" class="skip">$tlang.getString("gen.view2")</label>
+					<select id="selectPageSize" name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
+						#foreach ($i in $!pagesizes)
+							<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
+						#end
+					</select>
+				</form>
+				#if ($pagesize != 0)
+					#if ($goNPButton == "true")
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_next" value=">" title="$tlang.getString('gen.next') $pagesize" />
+						</form>
+					#else
+						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_next" value=">" disabled="disabled" />
+						</form>
+					#end
+					#if ($goLPButton == "true")
+						<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_last" value=">|" title="$tlang.getString('gen.last')" />
+						</form>
+					#else
+						<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_last" value=">|" disabled="disabled" />
+						</form>
+					#end
+				#end
+			</div>
+		<form name="studentAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
+	## -> shows table headers when there are no submissions (gsilver - delete this comment when done, OK?)
+			#if ($assignments.size()==0)
+				<p class="instruction">
+					$tlang.getString("gen.theare2")
+				</p>	
+			#else
+				<table class="listHier" border="0" cellspacing="0" summary="$tlang.getString("stulistsunbm.listhestu")">
+					<tr>
+						<th id="studentname">
+							$tlang.getString("gen.student")
+						</th>
+						<th id="assignment">
+							$tlang.getString("gen.assig")
+						</th>
+						<th id="submitted">
+							$tlang.getString("gen.subm4")
+						</th>
+						<th id="status">
+							$tlang.getString("gen.status")
+						</th>
+						#if ($withGrade)
+							<th id="grade">
+								$tlang.getString("gen.gra")
+							</th>
+						#end
+					</tr>
+					#foreach ($member in $studentMembers)
+						<tr>
+							<td headers="studentname">	
+								#if (!$studentListShowTable.containsKey($member.Id))
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" /></a>
+								#else
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.chotri")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.chotri")" width="13" height="13" border="0" /></a>
+								#end
+								$member.DisplayName
+							</td>
+							<td colspan="4">
+							</td>
+						</tr>
+						#if ($studentListShowTable.containsKey($member.Id))
+							#foreach ($assignment in $assignments)
+								#set ($deleted = false)
+								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
+									## not show the draft assignment
+									#set($submission = false)
+									#set($submission = $assignmentService.getSubmission($assignment.Reference, $member))
+									<tr>
+										<td headers="studentname">
+											&nbsp;
+										</td>
+										<td headers="assignment">
+											$validator.limit($validator.escapeHtml($assignment.Title), 40)
+											&nbsp;
+										</td>
+										<td headers="submitted">
+											#if ($!submission.submitted)
+												$!submission.TimeSubmitted.toStringLocalFull()
+												#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="reqStar">- late</span>
+												#end
+											#end
+											&nbsp;
+										</td>
+										<td headers="status">
+											#if ($!submission.Returned)
+												Returned
+											#else
+												#if ($!submission.getGraded())
+													#if ($!submission.getGradeReleased())
+														$tlang.getString("gen.relea")
+													#else
+														$tlang.getString("gen.gra3")
+													#end
+												#else
+													#if ($!submission.Submitted)
+														$tlang.getString("gen.ung1")
+													#end
+												#end
+											#end
+											&nbsp;
+										</td>
+										#if ($withGrade)
+											<td headers="grade">
+												#if ($!submission.Graded && ($!submission.GradeReleased || $!submission.Returned))
+													##show grade when it is released or when submission is returned
+													#if ($assignment.getContent().TypeOfGrade == 1)
+														No Grade
+													#else
+														$!submission.gradeDisplay
+													#end
+												#end
+											</td>
+										#end
+									</tr>
+								#end
+							#end
+						#end
+					#end
+				</table>
+			#end
+	#end
+</div>

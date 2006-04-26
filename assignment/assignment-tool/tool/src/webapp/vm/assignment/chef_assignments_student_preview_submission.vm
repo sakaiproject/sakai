@@ -1,0 +1,207 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("stupresub.presub")
+	</h3>	
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<h4>
+		$tlang.getString("gen.assig")
+	</h4>	
+	<table class="itemSummary indnt1" summary="$tlang.getString("gen.assdet")" border="0" style="margin:0">
+		 <tr>
+			<th>
+				$tlang.getString("gen.tit2")
+			</th>
+			<td>
+				$validator.escapeHtml($assignment.getTitle())
+			</td>
+		</tr>
+		<tr>
+			<th>
+				$tlang.getString("due2"):
+			</th>
+			<td>
+				$!assignment.getDueTime().toStringLocalFull()
+			</td>
+		</tr>
+		#if ($withGrade)	
+			<tr>
+				<th>
+					$tlang.getString("gen.status2")
+				</th>
+				<td>
+					#if ($!submission)
+						#if ($!submission.getSubmitted())
+							#if ($submission.returned)
+								#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+									Returned $submission.timeReturned.toStringLocalFull()
+								#else
+									Re-submitted $submission.TimeSubmitted.toStringLocalFull()
+									#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+										<span class="reqStart"> $tlang.getString("gen.late")</span>
+									#end
+								#end
+							#elseif ($submission.getGraded() && $submission.getGradeReleased())
+								#if ($!withGrade)
+									$tlang.getString("grad3")
+								#else
+									$tlang.getString("gen.commented")
+								#end
+							#else
+								Submitted $submission.timeSubmitted.toStringLocalFull()
+								<!--missing -if saved...In progress-->
+							#end
+						#else
+							$tlang.getString("gen.inpro")
+						#end
+					#else
+						$tlang.getString("gen.notsta")
+					#end
+				</td>
+			</tr>	
+			<tr>
+				<th>
+					$tlang.getString("gen.grasca")
+				</th>
+				<td>
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					$gradeScale
+					#if ($gradeScale == "Points")
+						($tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())
+					#end
+				</td>
+			</tr>
+		#end
+		##show alert when assignment is modified and the modified date is after its open date
+		#set($newAssignment="false")
+		#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
+		#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+			<tr>
+				<th class="highlight">
+						$tlang.getString("gen.modbyins")
+					</span>
+				</th>
+				<td class="highlight">
+						$assignment.getTimeLastModified().toStringLocalFull()
+					</span>
+				</td>
+			</tr>	
+		#end
+	</table>
+
+	<h4>
+		$tlang.getString("gen.subm")
+	</h4>
+	#if ($!text.length()>0)
+		<div class="indnt1">
+			$validator.escapeHtmlFormattedText($text)
+		</div>	
+	#end
+	#set ($size = 0)
+	#set ($props = false)
+	#foreach ($attachment in $attachments) 
+		#set ($props = $attachment.Properties) 
+		#if ($!props)
+			#set ($size = $size + 1)
+		#end
+	#end
+	#if ($size == 0)
+	##							$tlang.getString("gen.noatt")
+	#else
+		<h4>
+			$tlang.getString("gen.att")
+		</h4>	
+			<ul class="attachList indnt1">
+				#foreach ($attachment in $attachments) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+						</li>
+					#end
+				#end
+			</ul>
+	#end	
+<p></p>
+	#if ($assignment.getContent().honorPledge!=1) 
+		#if ($honor_pledge_yes.equals("true"))
+			<p class="checkbox">
+				<label for="yes">$tlang.getString("gen.honple2")</label>
+				<input name="Yes" type="checkbox" value="" checked="checked" id="yes"  disabled="disabled" />
+			</p>	
+		#else
+			<div class="alertMessage indnt1" style="width:40%">
+				$tlang.getString("gen.honple2val")
+			</div>
+				<p class="checkbox infoBox">
+					<label for="yes">$tlang.getString("gen.honple2")</label>
+					<input name="Yes" type="checkbox" value="" disabled="disabled" />
+				</p>
+
+		#end
+		##	$tlang.getString("gen.tit1")
+		</p>
+	 #end
+	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+		<input type="hidden" name="assignmentId" value="$assignment.Id" />
+		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+		<div class="act">
+			#if ($!submission && $submission.getSubmitted() && !$submission.Returned)
+					<input name="eventSubmit_doSave_submission" type="submit" value="$tlang.getString("gen.sav")" disabled="disabled" />
+					<input name="eventSubmit_doPost_submission" type="submit" value="$tlang.getString("gen.subm3")" disabled="disabled" />
+					<input name="eventSubmit_doCancel_show_submission" type="submit" value="$tlang.getString("gen.revi")" disabled="disabled" />
+			#else
+				<input
+					class="disableme" 
+					type="button" 
+					name="save" 
+					id="save" 
+					value="$tlang.getString("gen.savdra")"
+					onclick="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
+					onkeypress="showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
+				/>
+				<input
+					type="button"
+					class="active"
+					#if (!$submission.getSubmitted())
+						#set($name = $tlang.getString("gen.subm3"))
+					#else
+						#set($name=$tlang.getString("resubmit"))
+					#end
+					name="post"
+					id="post" 
+					value="$!name"
+					onclick="showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
+				/>
+				<input
+					class="disableme" 
+					type="button" 
+					name="revise" 
+					id="revise" 
+					value="$tlang.getString("gen.revi")"
+					onclick="document.addSubmissionForm.option.value='revise';document.addSubmissionForm.submit(); return false;"
+				/>
+			#end
+			<input
+				class="disableme" 
+				type="button" 
+				name="revise" 
+				id="done" 
+				value="$tlang.getString("gen.don")"
+				onclick="document.addSubmissionForm.option.value='revise'; document.addSubmissionForm.submit(); return false;"
+			/>
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+		</div>
+	</form>
+</div>
+

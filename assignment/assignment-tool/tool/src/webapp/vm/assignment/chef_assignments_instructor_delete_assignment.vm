@@ -1,0 +1,68 @@
+<div class="portletBody">
+	<h3>
+		#if ($assignments.size()>1)
+			$tlang.getString("delete_assig.delass")
+		#else
+			$tlang.getString("delete_assig.delanass")
+		#end
+	</h3>
+
+		#if ($alertMessage)
+			<div class="alertMessage">  $tlang.getString("gen.alert")  $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />
+		#else
+			<div class="alertMessage">
+				$tlang.getString("delete_assig.areyousur") 
+				#if ($assignments.size() > 1)
+					$tlang.getString("delete_assig.theass")
+				#else
+					$tlang.getString("delete_assig.thiass")
+				#end
+			</div><div style="display:block;clear:both" />
+		#end
+		<form name="form1" method="post" action="#toolForm("AssignmentAction")">
+			<table class="listHier" cellspacing="0" summary="$tlang.getString("gen.lisofassto")">
+				<tr>
+					<th id="title">$tlang.getString("gen.tit1")</th>
+					<th id="duedate">$tlang.getString("gen.duedat")</th>
+					##<th id="section">$tlang.getString("gen.sect")</th>
+					<th id="status">$tlang.getString("gen.status")</th>
+					<th id="submissions">$tlang.getString("gen.subm2")</th>
+				</tr>
+				#foreach ($assignment in $assignments)
+					<tr>
+						<td headers="title">
+							#if ($assignment.draft)
+								<span class="highlight">$tlang.getString("gen.dra2") </span>
+							#end
+							$validator.escapeHtml($assignment.Title)</td>
+						<td headers="duedate">$assignment.DueTime.toStringLocalFull()</td>
+						##<td headers="section">$assignment.Section</td>
+						<td headers="status">
+							  #if ($assignment.getOpenTime().after($currentTime))
+								$tlang.getString("gen.notope")
+							  #elseif ($assignment.getDueTime().after($currentTime))
+								$tlang.getString("gen.open")
+							  #elseif (($!assignment.getCloseTime())&&($assignment.getCloseTime().before($currentTime)))
+								$tlang.getString("gen.closed")
+							  #else
+								$tlang.getString("gen.due1")
+							  #end
+						</td>
+						<td headers="submissions">
+							#set($count=0)
+							#foreach ($sub in $service.getSubmissions($assignment))
+								#if ($sub.getSubmitted())
+									#set($count=$count+1)
+								#end
+							#end
+							$count
+						</td>
+					</tr>
+				#end
+			</table>
+			<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delete_assig.del")" />
+				<input type="submit" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
+			</div>
+		</form>
+	</div>

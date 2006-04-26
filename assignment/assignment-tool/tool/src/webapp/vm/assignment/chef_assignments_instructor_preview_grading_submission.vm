@@ -1,0 +1,215 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_preview_grading_submission.vm,v 1.5 2005/05/16 02:26:05 zqian.umich.edu Exp $ -->
+<div class="portletBody">
+	<div class="navIntraTool">
+		#if ($allowAddAssignment)
+			<span style="margin:.5em">$!tlang.getString("new")</span> | <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.liofass'))")" title = "$!tlang.getString('gen.liofass')">$!tlang.getString("gen.liofass")</a>
+			#if ($withGrade && $!allowGradeSubmission)
+				| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.grarep'))")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			#end
+			| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+		#end
+		#if ($allowUpdateSite)
+			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
+		#end
+	</div>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+		
+		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment")</h3>
+		
+		<form action="#toolForm("AssignmentAction")" method="post" >   
+			<table class="itemSummary indnt1">
+				<tr>
+					<th>
+						$tlang.getString("gen.student")
+					</th>
+					<td>
+						#set ($submitterNames = "")
+						## start with recorded submitter id first
+						#set ($count = 1)
+						#foreach ($userId in $submission.SubmitterIds)
+							#if ($count > 1)
+								#set ($submitterNames = $submitterNames.concat(", "))
+							#end
+							#set ($submitterNames = $submitterNames.concat($!userId))
+							#set ($count = $count + 1)
+						#end
+						## replace it with submitter sort names
+						#set ($count = 1)
+						#foreach ($submitter in $submission.submitters)
+							#set($submitterName = $submitter.getSortName())
+							#if ($!submitterName)
+								#if ($count == 1)
+									#set ($submitterNames = $!submitterName)
+								#else
+									#set ($submitterNames = $submitterNames.concat(", ").concat($!submitterName))
+								#end
+							#end
+							#set ($count = $count + 1)
+						#end
+						$!submitterNames
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("gen.subm5") 
+					</th>
+					<td>
+						$submission.TimeSubmitted.toStringLocalFull()
+						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+							<span class="highlight"> - late</span>
+						#end
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("gen.status2") 
+					</th>
+					<td>
+						#if ($!grade && $grade.length()>0 && $grade!="ungraded")
+							$tlang.getString("gen.gra3")
+						#else
+							$tlang.getString("gen.ung1")
+						#end
+					</td>
+				</tr>
+			</table>
+			<h4>
+				$tlang.getString("gen.assinf")
+			</h4>	
+			#if ($assignment.getContent().getInstructions().length()>0)
+				<div class="indnt1">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
+			#else
+			#end
+
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $assignment.getContent().Attachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+			#if ($size == 0)
+			#else
+				<h4>
+					$tlang.getString("gen.addres2")
+				</h4>
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $assignment.getContent().Attachments) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+			#end	
+			#if ($!feedback_text.length()>0)
+				<h4>
+					Feedback
+				</h4>
+				<div class="indnt1">$cheffeedbackhelper.escapeAssignmentFeedback($feedback_text)</div>
+			 #end
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $submission.SubmittedAttachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+			#if ($size == 0)
+			#else
+				<h4> 
+					$tlang.getString("gen.stuatt")
+				</h4>	
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $submission.SubmittedAttachments) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+			#end	
+			#if ($!feedback_comment.length()>0)
+				<h4>$tlang.getString("gen.sumcom")</h4>	
+				<div class="indnt1">$validator.escapeHtmlFormattedText($feedback_comment)</div>
+			#else
+			#end
+				#set ($size = 0)
+				#set ($props = false)
+				#foreach ($attachment in $feedback_attachment) 
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end
+				#if ($size == 0)
+				#else
+					<h4>$tlang.getString("gen.attfprgra")</h4>
+					<ul class="attachList indnt1">
+						#foreach ($attachment in $feedback_attachment) 
+							#set ($props = false)
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+										($props.getPropertyFormatted($props.NamePropContentLength))
+									#end
+								</li>
+							#end
+						#end
+					</ul>
+				#end	
+			<div class="infoBox">
+				Grade:
+					#if ($!grade && $grade.length()>0 && $grade!="ungraded")
+						<span class="highlight">$grade</span>
+					#else
+						<span class="highlight">$tlang.getString("gen.ung1")</span>
+					#end
+					<br />
+					#if($!allowResubmit)
+						$tlang.getString("allowResubmitDisplay")
+					#else
+						$tlang.getString("allowNotResubmitDisplay")
+					#end	
+			</div>	
+			<p class="act">
+				<input name="eventSubmit_doRelease_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
+				<input name="eventSubmit_doSave_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
+				<input name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
+				<input name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
+			</p>
+
+												
+		</form>
+</div>

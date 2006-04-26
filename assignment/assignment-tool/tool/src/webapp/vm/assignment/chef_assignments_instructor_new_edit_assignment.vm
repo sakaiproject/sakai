@@ -1,0 +1,530 @@
+##<!-- $Header: Exp $ -->
+## Assignments - Instructor new Assignment view
+<script type="text/javascript">
+<!--
+    function SetMaxPoint(obj_option, obj_textfield)
+    {
+		if(obj_option.value==3)
+		{ 
+			obj_textfield.disabled = false;
+			obj_textfield.style.backgroundColor = 'white';
+			document.forms[0].new_assignment_grade_points.focus()
+		}
+		else
+		{ 
+			obj_textfield.disabled = true;
+			obj_textfield.style.backgroundColor = '#eee';
+		}
+	}
+
+#*
+## This function is deprecated
+	function SetCloseDate(obj_checkbox, obj_1, obj_2, obj_3, obj_4, obj_5, obj_6)
+	{
+		if (obj_checkbox.checked)
+		{
+			obj_1.disabled = false;
+			obj_2.disabled = false;
+			obj_3.disabled = false;
+			obj_4.disabled = false;
+			obj_5.disabled = false;
+			obj_6.disabled = false;
+		}
+		else
+		{
+			obj_1.disabled = true;
+			obj_2.disabled = true;
+			obj_3.disabled = true;
+			obj_4.disabled = true;
+			obj_5.disabled = true;
+			obj_6.disabled = true;
+		}
+	}
+*#
+-->
+</script>
+<script type="text/javascript">
+	focus_path = [ '$fField' ];
+</script>
+<div class="portletBody">
+	<div class="navIntraTool">
+		#if ($allowAddAssignment)
+			<span class="margin:.5em">$!tlang.getString("new")</span> | <a href="#" title = "$!tlang.getString('gen.liofass')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.liofass')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.liofass")</a>
+			#if ($withGrade && $!allowGradeSubmission)
+				| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.grarep')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+			#end
+			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.stuvie')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+		#end
+		#if ($allowUpdateSite)
+			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a>
+		#end
+	</div>
+	<h3>
+		$tlang.getString("new")
+	</h3>
+
+<p class="instruction">
+	$tlang.getString("newassig.comfor")			
+</p>
+	#if ($alertMessage)<div class="alertMessage" style="width:80%  !important">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+
+	<form name = "newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
+		<input type="hidden" name="assignmentContentId" value="$!assignment.ContentReference" />
+		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
+		<input type="hidden" name="option" id="option" value="" />
+		<input type="hidden" name="view" id="view" value="" />
+		<h4>$tlang.getString("gen.assig")</h4>
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="$name_title">
+				$tlang.getString("gen.tit2")
+			</label>	
+			<input name="$name_title" id="$name_title" type="text" value="$validator.escapeHtml($!value_title)" size="30" maxlength="100" />
+		</p>
+			#* placeholder for sections 
+				<p class="shorttext">
+					<label for="sectSelect">
+						$tlang.getString("gen.sect")
+					</label>
+					<select id="sectSelect" name="$name_Section" multiple="multiple" size = "3" onchange="blur()">
+						#foreach ($i in ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013", "014", "015", "all"])
+							#if ($value_Sections.indexOf($i)!=-1)
+								<option value="$i" selected ="selected">$i</option>
+							#else
+								<option value="$i">$i</option>
+							#end
+						#end
+					</select>
+					<span class="instruction">
+						$tlang.getString("newassig.tosel")
+					</span>
+				</p>	
+			*#
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="new_assignment_openmonth">
+				$tlang.getString("newassig.opedat")
+			</label>	
+			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay 2002 2007 $value_OpenYear $value_OpenMonth $value_OpenDay)
+			$tlang.getString("gen.at") 
+			<select name="$name_OpenHour" id="$name_OpenHour">
+				#foreach ($i in [1..12])
+					#if ($value_OpenHour==$i)
+						<option value="$i" selected="selected">$i</option>
+					#else
+						<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+			<select name="$name_OpenMin" id="$name_OpenMin">
+				#foreach ($i in [00, 15, 30, 45])
+					#if ($i == $value_OpenMin)
+						#if ($i == 0)
+							<option value="$i" selected="selected">00</option>
+						#else
+							<option value="$i" selected="selected">$i</option>
+						#end
+					#else
+						#if ($i == 0)
+							<option value="$i">00</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				#end
+			</select>
+			<select name="$name_OpenAMPM" id="$name_OpenAMPM">
+				#foreach ($i in ["AM", "PM"])
+					#if ($i == $value_OpenAMPM)
+						<option value="$i" selected="selected">$i</option>
+					#else
+							<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+		</p>	
+		<p class="instruction labelindnt" style="text-indent:2.5em">
+			$tlang.getString("gen.stuwonsee")
+		</p>
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="new_assignment_duemonth">
+				$tlang.getString("gen.duedat")
+			</label>
+			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay 2002 2007 $value_DueYear $value_DueMonth $value_DueDay)
+				$tlang.getString("gen.at") 
+			<select name="$name_DueHour" id="$name_DueHour">
+				#foreach ($i in [1..12])
+					#if ($i == $value_DueHour)
+						<option value="$i" selected="selected">$i</option>
+					#else
+						<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+			<select name="$name_DueMin" id="$name_DueMin">
+				#foreach ($i in [0, 15, 30, 45])
+					#if ($i == $value_DueMin)
+						#if ($i == 0)
+							<option value="$i" selected="selected">00</option>
+						#else
+							<option value="$i" selected="selected">$i</option>
+						#end
+					#else
+						#if ($i == 0)
+							<option value="$i">00</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				#end
+			</select>
+			<select name="$name_DueAMPM" id="$name_DueAMPM">
+				#foreach ($i in ["AM", "PM"])
+					#if ($i == $value_DueAMPM)
+						<option value="$i" selected="selected">$i</option>
+					#else
+						<option value="$i">$i</option>
+					#end
+				#end
+			</select>
+		</p>
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="new_assignment_closemonth">
+				$tlang.getString("gen.acesubunt")
+			</label>
+			#if ($value_EnableCloseDate)
+				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay 2002 2007 $value_CloseYear $value_CloseMonth $value_CloseDay)
+				$tlang.getString("gen.at") 
+				<select name="$name_CloseHour" id="$name_CloseHour">
+					#foreach ($i in [1..12])
+						#if ($i == $value_CloseHour)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+				<select name="$name_CloseMin" id="$name_CloseMin">
+					#foreach ($i in [0, 15, 30, 45])
+						#if ($i == $value_CloseMin)
+							#if ($i == 0)
+								<option value="$i" selected="selected">00</option>
+							#else
+								<option value="$i" selected="selected">$i</option>
+							#end
+						#else
+							#if ($i == 0)
+								<option value="$i">00</option>
+							#else
+								<option value="$i">$i</option>
+							#end
+						#end
+					#end
+				</select>
+				<select name="$name_CloseAMPM" id="$name_CloseAMPM">
+					#foreach ($i in ["AM", "PM"])
+						#if ($i == $value_CloseAMPM)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+			#else
+				<select name="$name_CloseMonth" id="$name_CloseMonth" disabled="disabled">
+					#foreach ($i in [1..12])
+						#if ($i == $value_CloseMonth)
+							<option value="$i" selected="selected">$monthTable.get($i)</option>
+						#else
+							<option value="$i">$monthTable.get($i)</option>
+						#end
+					#end
+				</select>
+				<select name="$name_CloseDay" id="$name_CloseDay" disabled="disabled">
+					#foreach ($i in [1..31])
+						#if ($i == $value_CloseDay)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+				<select name="$name_CloseYear" id="$name_CloseYear" disabled="disabled">
+					#foreach ($i in [2002..2007])
+						#if ($i == $value_CloseYear)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+				$tlang.getString("gen.at") 
+				<select name="$name_CloseHour" id="$name_CloseHour" disabled="disabled">
+					#foreach ($i in [1..12])
+						#if ($i == $value_CloseHour)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+				<select name="$name_CloseMin" id="$name_CloseMin" disabled="disabled">
+					#foreach ($i in [0, 15, 30, 45])
+						#if ($i == $value_CloseMin)
+							#if ($i == 0)
+								<option value="$i" selected="selected">00</option>
+							#else
+								<option value="$i" selected="selected">$i</option>
+							#end
+						#else
+							#if ($i == 0)
+								<option value="$i">00</option>
+							#else
+								<option value="$i">$i</option>
+							#end
+						#end
+					#end
+				</select>
+				<select name="$name_CloseAMPM" id="$name_CloseAMPM" disabled="disabled">
+					#foreach ($i in ["AM", "PM"])
+						#if ($i == $value_CloseAMPM)
+							<option value="$i" selected="selected">$i</option>
+						#else
+							<option value="$i">$i</option>
+						#end
+					#end
+				</select>
+			#end
+		</p>	
+		<p class="instruction labelindnt" style="text-indent:2.5em">
+			$tlang.getString("gen.noasscan")
+		</p>
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="subType">
+				$tlang.getString("gen.stusub")
+			</label>
+			<select name="$name_SubmissionType" id="subType">
+				#foreach ($i in [1..3])
+					#if ($i == $value_SubmissionType)
+						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
+					#else
+						<option value="$i">$submissionTypeTable.get($i)</option>
+					#end
+				#end
+			</select>
+		</p>
+		#if ($withGrade)
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="$name_GradeType">
+					$tlang.getString("gen.grasca")
+				</label>
+				<span class="skip">$tlang.getString("newassig.selectmessage")</span>				
+				<select id="$name_GradeType"  name="$name_GradeType" onchange="SetMaxPoint(this, $name_GradePoints)">
+					#foreach ($i in [1..5])
+						#if ($i == $value_GradeType)
+							<option value="$i" selected="selected">$gradeTypeTable.get($i)</option>
+						#else
+							<option value="$i">$gradeTypeTable.get($i)</option>
+						#end
+					#end
+				</select>
+			</p>
+			<p class="checkbox labelindnt" style="text-indent:.6em">
+				## enable the maxfield when it is points grade type
+				#if ($value_GradeType == 3)
+					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="20"/>
+				#else
+					<input name="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="20" disabled="disabled" style="background-color:#eee;border:1px solid gray"/>
+				#end
+				<label for="$name_GradePoints">$tlang.getString("gen.forpoi")</label>
+			</p>	
+		#end
+			<div class="longtext">
+				<label for="new_assignment_instructions" class="block">
+					$tlang.getString("gen.assinf")
+				</label>
+				<table border="0" style="margin:0"><tr><td>
+					<textarea name="$name_Description" id="$name_Description" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($value_Description)</textarea>
+					#chef_setupformattedtextarea($name_Description)
+					</td></tr></table>
+			</div>
+			<p class="checkbox">
+				#if ($value_CheckAddDueDate.equals("true"))
+					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
+				#else
+					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" />
+				#end
+				<label for="$name_CheckAddDueDate">
+					$tlang.getString("gen.addduedat")
+				</label>
+			</p>
+			<p class="checkbox">
+				#if ($value_CheckAutoAnnounce.equals("true"))
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
+				#else
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" />
+				#end
+				<label for="$name_CheckAutoAnnounce">
+					$tlang.getString("gen.anntheope") 
+				</label>
+			</p>
+			<p class="checkbox">
+				#if (!$!value_CheckAddHonorPledge.equals("1"))
+					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
+				#else
+					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" />
+				#end
+				<label for="$name_CheckAddHonorPledge">
+					$tlang.getString("gen.addhonple")
+				</label>
+			</p>
+			#if ($!withGrade && $!withGradebook)
+				<p class="checkbox">
+					#if ($!value_AddToGradebook.equalsIgnoreCase("true"))
+						<input id="$name_Addtogradebook" name="$name_Addtogradebook" type="checkbox" value="true" checked="checked"/>
+					#else
+						<input id="$name_Addtogradebook" name="$name_Addtogradebook" type="checkbox" value="true"/>
+					#end
+					<label for="$name_Addtogradebook">
+						$!tlang.getString('addtogradebook')
+					</label>
+				</p>
+			#end
+			## group/section support
+			#if ($allowAddSiteAssignment)
+				<p class="checkbox">
+					<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+					<label for="site">$tlang.getString("displayto.site")</label>
+				</p>	
+			#elseif ($allowAddAssignment)
+				#if ($!groups.size() >1)
+					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+				#else
+					<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+				#end
+			#end
+			#if ($!groups)
+				## added group awareness
+				<p class="checkbox">
+					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
+					<label for="groups">$tlang.getString("displayto.selected")</label>
+				</p>	
+				#if($!range == "groups" || $!assignment.Access == $groupAccess)
+					#set ($listDisplay="block")
+				#else
+					#set ($listDisplay="none")
+				#end
+					<table id="groupTable" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+						<tr>
+							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
+								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+							</th>
+					 		<th id ="groupname">
+								#if (!$sortedBy.equals("group_title"))
+									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title</a>
+								#else
+									#if ($sortedAsc.equals("true"))
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+									#else
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+									#end
+								#end
+							</th>
+							<th id ="groupdescription">
+								#if (!$sortedBy.equals("group_description"))
+									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description</a>
+								#else
+									#if ($sortedAsc.equals("true"))
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+									#else
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+									#end
+								#end
+							</th>
+						</tr>
+						#foreach ($group in $!groups)
+							<tr>
+								<td headers="selected" style="padding-bottom:0;" style="width:2em">
+									#set($selected=false)
+									#foreach($aGroupRef in $assignmentGroups)
+										#set($aGroup = $!site.getGroup($!aGroupRef))
+										#if ($!group.Id == $!aGroup.Id)
+											#set($selected = true)
+										#end
+									#end
+									<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+								</td>
+								<td headers="name" style="padding-bottom:0;" class="checkbox">
+									<label for="$group.Id">
+										$group.Title
+									</label>	
+								</td>
+								<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+									#set($description = "")
+									#set($description = $group.Description)
+									$!description
+								</td>
+							</tr>
+						#end
+					</table>
+			#end
+			<h4>
+				$tlang.getString("gen.addres")
+			</h4>
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $attachments) 
+				#set ($props = $attachment.Properties) 
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+			#if ($size == 0)
+				$tlang.getString("gen.noatt")
+
+				<div class="act">
+					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
+				</div>
+			#else
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $attachments) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+				<div class="act">
+					<input type="button" name="attach" value="$tlang.getString('gen.adddroatt2')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;" />
+				</div>
+			#end	
+			<p class="act">
+				#if (!$assignment.draft)
+					<input type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+					<input type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+					#else
+					<input type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+					<input type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+					<input type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
+				#end
+				<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
+			</p>
+	</form>
+</div>

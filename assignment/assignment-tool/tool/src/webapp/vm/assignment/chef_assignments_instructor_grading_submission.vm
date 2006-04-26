@@ -1,0 +1,357 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
+## no focus_path
+<div class="portletBody">
+	<div class="navIntraTool">
+		#if ($allowAddAssignment)
+			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
+		#end
+		<a href="#" title = "$!tlang.getString('gen.liofass')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.liofass')';document.gradeForm.submit();return false;">$!tlang.getString("gen.liofass")</a>
+		#if ($withGrade && $!allowGradeSubmission)
+			| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.grarep')';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+		#end
+		#if ($allowAddAssignment)
+			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.stuvie')';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+		#end
+		#if ($allowUpdateSite)
+			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a>
+		#end
+	</div>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<h3>
+		#if ($withGrade)
+			#if (!$!submission.getGraded())
+				$tlang.getString("gen.gra")
+			#else
+				$tlang.getString("gen.regra")
+			#end 
+		#else
+			$tlang.getString("gen.review")
+		#end
+		$assignment.title
+	</h3>
+	<h4>
+			$tlang.getString("gen.assdet")
+	</h4>		
+
+		## 1- text only; 2-attachment only; 3-text and attachment
+		#set ( $submissionType = $assignment.getContent().TypeOfSubmission)
+		<table class="itemSummary indnt1" cellspacing="0" summary="$tlang.getString("gen.assdet")">
+			<tr>
+				<th>
+						$tlang.getString("gen.tit2")
+				</th>
+				<td>
+					$validator.escapeHtml($assignment.title)
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("gen.student"):
+				</th>	
+				<td>
+					#set ($submitterNames = "")
+					## start with recorded submitter id first
+					#set ($count = 1)
+					#foreach ($userId in $submission.SubmitterIds)
+						#if ($count > 1)
+							#set ($submitterNames = $submitterNames.concat(", "))
+						#end
+						#set ($submitterNames = $submitterNames.concat($!userId))
+						#set ($count = $count + 1)
+					#end
+					## replace it with submitter sort names
+					#set ($count = 1)
+					#foreach ($submitter in $submission.submitters)
+						#set($submitterName = $submitter.getSortName())
+						#if ($!submitterName)
+							#if ($count == 1)
+								#set ($submitterNames = $!submitterName)
+							#else
+								#set ($submitterNames = $submitterNames.concat(", ").concat($!submitterName))
+							#end
+						#end
+						#set ($count = $count + 1)
+					#end
+					$!submitterNames
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("gen.subm5")
+				</th>	
+				<td>
+					$submission.TimeSubmitted.toStringLocalFull()
+					#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+						<span class="highlight">$tlang.getString("gen.late2")</span>
+					#end
+				</td>
+			</tr>
+			#if ($withGrade)
+				<tr>
+					<th>
+						$tlang.getString("gen.status2")
+					</th>	
+					<td>
+						#if ($submission.Graded)
+							$tlang.getString("gen.gra3")
+						#else
+							$tlang.getString("gen.ung1")
+						#end
+					</td>
+				</tr>
+			#end
+		</table>
+			#if ($assignment_expand_flag)
+				<p class="discTria">
+					<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_submission_assignment_instruction")'; return false;">
+					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top" /></a>
+					$tlang.getString("gen.assinf")
+				</p>	
+			#else
+				<p class="discTria">
+					<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_submission_assignment_instruction")'; return false;">
+					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top" /></a>
+					$tlang.getString("gen.assinf")
+				</p>	
+			#end
+
+			#if ($assignment_expand_flag)
+				#if ($assignment.getContent().getInstructions().length()>0)
+					<div class="indnt1">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
+				#else
+				#end
+				
+				## attachments of assignment
+				<h4>$tlang.getString("gen.addres2")</h4>
+				#set ($size = 0)
+				#set ($attachments = $assignment.getContent().Attachments)
+				#set ($props = false)
+				#foreach ($attachment in $attachments) 
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end 
+				#if ($size == 0)
+					<p class="instruction">$tlang.getString("gen.noatt")</p>
+				#else
+					<ul class="attachList indnt1">
+						#foreach ($attachment in $attachments) 
+							#set ($props = false)
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+										($props.getPropertyFormatted($props.NamePropContentLength))
+									#end
+								</li>
+							#end
+						#end
+					</ul>
+				#end	
+		#end	## show the assignment content
+		<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+			<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
+			<input type="hidden" name="option" id="option" value="" />
+			<input type="hidden" name="view" id="view" value="" />
+			<h4>$tlang.getString("gen.subm")</h4>
+				## if there is a text
+				#if ($submissionType!=2)
+					<h4>
+						$tlang.getString("gen.submittedtext")
+					</h4>
+					<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
+					<table border="0"><tr><td>
+					<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
+					#chef_setupformattedtextarea($name_feedback_text)
+					</td></tr></table>
+					## for returned submission, show the instructor comment as well
+					#if ($!prevFeedbackText)
+						<h4>$tlang.getString("gradingsub.prefeetex")</h4>
+						<p class="instruction">?????
+							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+						</p>
+					#end
+				#end
+				## submitted attachment
+				
+				 #if ($submissionType!=1) ## do not show attach messages if no attach are allowed...
+					<h4>$tlang.getString("gen.stuatt")</h4>
+					#set ($size = 0)
+					#set ($size = 0)
+					#set ($props = false)
+					#foreach ($attachment in $submission.SubmittedAttachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						<p class="instruction">$tlang.getString("gen.noatt")</p>
+					#else
+						<ul class="attachList indnt1">
+							#foreach ($attachment in $submission.SubmittedAttachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end
+				#end
+						<h4>
+							$tlang.getString("gen.instrcomment")
+						</h4>
+						<p class="instruction">
+							#if ($submissionType==2)
+								$tlang.getString("gradingsub.usethebel2")
+							#else
+								$tlang.getString("gradingsub.usethebel1")
+							#end
+						</p>
+						<table border="0"><tr><td>
+						<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
+						#chef_setupformattedtextarea($name_feedback_comment)
+						</td></tr></table>
+						## for returned (not resubmitted ) submission, show the instructor feedback
+						#if ($!prevFeedbackComment)
+							<h4>$tlang.getString("gradingsub.prefee")</h4>
+							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))<br/>
+						#end
+						<h4>
+							#if ($withGrade)
+								$tlang.getString("gen.atttoret")
+							#else
+								$tlang.getString("gen.atttoret2")
+							#end
+						</h4>
+						#set ($size = 0)
+							#set ($size = 0)
+							#set ($props = false)
+							#foreach ($attachment in $gradingAttachments) 
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									#set ($size = $size + 1)
+								#end
+							#end
+							#if ($size == 0)
+								<p class="instruction">$tlang.getString("gen.noatt")</p>
+							#else
+								<ul class="attachList indnt1">
+									#foreach ($attachment in $gradingAttachments) 
+										#set ($props = false)
+										#set ($props = $attachment.Properties) 
+										#if ($!props)
+											<li>
+												#if ($props.getBooleanProperty($props.NamePropIsCollection))
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+												#else
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+												#end
+												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+												#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+													($props.getPropertyFormatted($props.NamePropContentLength))
+												#end
+											</li>
+										#end
+									#end
+								</ul>
+							#end			
+							<p class="act">
+								#if ($!props)
+									<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+								#else
+									<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+								#end
+							</p>
+#*					<!-- Grade types
+						GRADE_TYPE_NOT_SET: -1; 
+						UNGRADED_GRADE_TYPE: 1; 
+						LETTER_GRADE_TYPE: 2; 
+						SCORE_GRADE_TYPE = 3; 
+						PASS_FAIL_GRADE_TYPE = 4;
+						CHECK_GRADE_TYPE = 5;
+					-->
+*#
+						#if ($withGrade)
+								#set ($gradeType = $assignment.getContent().TypeOfGrade)
+								#if ($gradeType == 1)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<input type="hidden" name="$name_grade" value="ungraded" />
+										<span class="highlight">$tlang.getString("gen.nograd")</span>
+									</p>	
+								#elseif ($gradeType == 2)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<select name="$name_grade" id="grade">
+											#foreach ($i in ["ungraded", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
+												#if ($value_grade.equals($i))
+													<option  value="$i" selected>$i</option>	
+												#else
+													<option  value="$i">$i</option>
+												#end
+											#end
+										</select>
+									</p>	
+								#elseif ($gradeType == 3)
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<input type="text" name="$name_grade" size="5" value="$value_grade" id="grade" /><span class="instruction">($tlang.getString("gen.outof") $assignment.getContent().getMaxGradePointDisplay())</span>
+									</p>	
+								#elseif ($gradeType == 4)
+								<p class="shorttext">
+									<label for="grade">$tlang.getString("gen.gra2")</label>
+									<select name="$name_grade" id="grade" >
+										#foreach ($i in ["ungraded", "Pass", "Fail"])
+											#if ($value_grade.equals($i))
+												<option  value="$i" selected>$i</option>	
+											#else
+												<option  value="$i">$i</option>
+											#end
+										#end
+									</select>
+								</p>	
+								#elseif ($gradeType == 5)
+									<p class="checkbox">
+										#if ($value_grade.equals("graded"))
+											<input name="$name_grade" type="checkbox" value="graded" checked="checked" id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+										#else
+											<input name="$name_grade" type="checkbox" value="graded" id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+										#end
+									</p>	
+								#end
+								#set ($previousGrades =  $submission.Properties.getProperty($submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
+								#if ($!previousGrades.length() != 0 )
+									<br />$tlang.getString("gradingsub.pregra") $previousGrades
+								#end
+							</p>	
+						#end
+			<p class="checkbox">			
+				<input type="checkbox" name="allowResubmit"  id="allowResubmit" #if($!value_allowResubmit) checked="checked" #end /> <label for="allowResubmit">$tlang.getString("allowResubmit")</label>
+			</p>	
+			<p class="act">
+				<input type="button" class="active" name="return" value="$tlang.getString('gen.retu')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" />
+				<input type="button" name="save" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" />
+				<input type="button" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
+				<input type="button" name="cancel" value="$tlang.getString('gen.can')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
+			</p>
+	</form>
+</div>

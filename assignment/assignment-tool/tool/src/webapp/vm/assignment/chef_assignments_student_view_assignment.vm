@@ -1,0 +1,146 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	<h3>
+		$tlang.getString("viewassig.viewass1") 
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
+		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
+		#if (!$hideAssignmentFlag)
+		<p class="discTria">
+			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+		</p>
+		<table class="itemSummary" border="0">
+			<tr>
+				<th>	
+					$tlang.getString("gen.creby")
+				</th>	
+				<td>
+					$userDirectoryService.getUser($assignment.getCreator()).DisplayName
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.open2")
+				</th>
+				<td>
+					$assignment.OpenTime.toStringLocalFull()
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("viewassig.datcre")
+				</th>
+				<td>
+					$assignment.TimeCreated.toStringLocalFull()
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.due2")
+				</th>
+				<td>
+					$assignment.DueTime.toStringLocalFull()
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("viewassig.datcre")
+				</th>
+				<td>
+					$assignment.TimeLastModified.toStringLocalFull()
+				</td>
+			</tr>
+			#set ($closeDate = $assignment.getCloseTime())
+			#if ($!closeDate)
+				<tr> 
+					<th>
+						$tlang.getString("gen.acesubunt")
+					</th>
+					<td>
+						$assignment.CloseTime.toStringLocalFull()
+					</td>
+				</tr>
+			#end
+			<tr> 
+				<th>
+					$tlang.getString("gen.gra3")
+				</th>
+				<td>
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					$gradeScale
+					#if ($gradeScale == "Points")
+						(max $assignment.getContent().getMaxGradePointDisplay())
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th>
+					$tlang.getString("gen.honple")
+				</td>
+				<td> 
+					#if ($assignment.getContent().HonorPledge == 1)
+						$tlang.getString("gen.no")
+					#else
+						$tlang.getString("gen.yes")
+					#end
+				</td>
+			</tr>
+		</table>
+		<h4>
+			$tlang.getString("gen.assinf")
+		</h4>
+		<p>					
+			#if ($assignment.getContent().getInstructions().length()==0)
+				&lt;none&gt;
+			#else
+				$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())
+			#end
+		</p>
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $assignment.getContent().getAttachments()) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size == 0)
+##			$tlang.getString("gen.noatt")
+		#else
+			<h4>
+				$tlang.getString("gen.addres2")
+			</h4>	
+			<ul class="attachList">
+				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+						</li>
+					#end
+				#end
+			</ul>
+		#end	
+		#else
+			<p class="discTria">
+				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
+				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
+			</p>	
+		#end
+			<div class="act">
+				<input type="submit" name="eventSubmit_doCancel_student_view_assignment" value="$tlang.getString("gen.don")" />
+			</div>
+		</form>
+	</div>

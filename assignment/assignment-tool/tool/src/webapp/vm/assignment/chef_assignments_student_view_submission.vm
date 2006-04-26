@@ -1,0 +1,621 @@
+<div class="portletBody">
+	#set($closeTime = false)
+	#set($closeTime = $assignment.CloseTime)
+	#if ($!closeTime && $currentTime.after($!closeTime) && (!$!submission.getSubmitted()))
+		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div style="display:block;clear:both" /></div>
+	#else
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+		#if ($!submission)
+			## get the properies
+		#if ($!allowAddAssignment)
+				<h3>$tlang.getString("viewexampleassign")</h3>
+			#else
+				<h3>$tlang.getString("viewassign")</h3>
+			#end
+			#if ($submission.getSubmitted())
+				#if ($submission.returned)
+					#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+						$tlang.getString("stuviewsubm.asshasbee4") $submission.TimeReturned.toStringLocalFull(). $tlang.getString("stuviewsubm.plesub")
+					#else
+						$tlang.getString("stuviewsubm.asshasbee3") $submission.TimeSubmitted.toStringLocalFull().
+						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+							<span class="reqStar"> $tlang.getString("gen.late")</span>
+						#end
+					#end
+				#elseif ($submission.getGraded() && ($submission.getGradeReleased() || $submission.Returned))
+					$tlang.getString("stuviewsubm.asshasbee2")
+				#else
+					<p class="instruction">$tlang.getString("gen.hasbee") $submission.TimeSubmitted.toStringLocalFull()</p>
+					#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+						<span class="reqStar"> $tlang.getString("gen.late")</span>
+					#end
+				#end
+			#else
+				$tlang.getString("stuviewsubm.assisin")
+			#end
+		#else
+			#if ($!allowAddAssignment)
+				<h3>$tlang.getString("subexampleassign")</h3>
+			#else
+				<h3>$tlang.getString("subassign")</h3>
+			#end
+			<p class="instruction">$tlang.getString("stuviewsubm.asshasnot")</p>	
+		#end
+	#end
+	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
+		<input type="hidden" name="option" value="cancel" />
+		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<h4>$tlang.getString("gen.assdet")</h4>
+			<table class="itemSummary indnt1"  summary="$tlang.getString("gen.theassinf")">
+				<tr>
+					<th>
+						$tlang.getString("gen.tit2")
+					</th>
+					<td>
+						$validator.escapeHtml($assignment.getTitle())
+						#set ($deleted = false)
+						#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+						#if ($!deleted.equalsIgnoreCase("true"))
+							<span class="highlight">(Assignment has been deleted)</span>
+						#end
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("gen.due2")
+					</th>
+					<td>
+						$!assignment.getDueTime().toStringLocalFull()
+					</td>
+				</tr>
+				<tr>
+					<th>
+						$tlang.getString("gen.status2")
+					</th>
+					<td>
+						#if ($!submission)
+							#if ($submission.getSubmitted())
+								#if ($submission.returned)
+									#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+										$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
+									#else
+										$tlang.getString("gen.resub") $submission.TimeSubmitted.toStringLocalFull()
+										#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+											<span class="highlight"> $tlang.getString("gen.late")</span>
+										#end
+									#end
+								#elseif ($submission.getGraded() && $submission.getGradeReleased())
+									#if ($!withGrade)
+										$tlang.getString("grad3")
+									#else
+										$tlang.getString("gen.commented")
+									#end
+								#else
+									$tlang.getString("gen.subm4") $submission.timeSubmitted.toStringLocalFull()
+									#if ($submission.getTimeSubmitted().after($assignment.DueTime))
+										<span class="highlight">$tlang.getString("gen.late2")</span>
+									#end
+								#end
+							#else
+								$tlang.getString("gen.inpro")
+							#end
+						#else
+							$tlang.getString("gen.notsta")
+						#end
+					</td>
+				</tr>				
+				#if ($withGrade)
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					#if ($submission.getGraded() && $submission.getGradeReleased())
+						<tr>	
+							<th>
+								$tlang.getString("gen.gra3")
+							</th>
+							<td>
+								#if ($assignment.getContent().TypeOfGrade != 1)
+									$submission.GradeDisplay
+								#else
+									$tlang.getString("gen.nograd")
+								#end
+								#if ($gradeScale == "Points")
+									(max $assignment.getContent().getMaxGradePointDisplay())
+								#end
+							</td>
+						</tr>
+					#else
+						<tr>	
+							<th>
+								$tlang.getString("gen.grasca")
+							</th>
+							<td>
+								$gradeScale
+								#if ($gradeScale == "Points")
+									(max $assignment.getContent().getMaxGradePointDisplay())
+								#end
+							</td>
+						</tr>
+					#end
+				#end
+				##show alert when assignment is modified and the modified date is after its open date	
+				#set($newAssignment="false")
+				#set($newAssignment=$assignment.getProperties().getProperty("newAssignment"))
+				#if ($assignment.getTimeLastModified().after($assignment.getOpenTime()) && !$!newAssignment.equalsIgnoreCase("true"))
+					<tr>
+						<th class="highlight">
+								$tlang.getString("gen.modbyins")
+						</th>
+						<td class="highlight">
+							$assignment.getTimeLastModified().toStringLocalFull()
+						</td>
+					</tr>
+				#end
+			</table>
+		<h4>
+			$tlang.getString("gen.assinf")
+		</h4>
+		
+		#if ($!assignment.getContent().getInstructions().length()>0)
+			<div class="indnt1">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+		#else
+		#end
+
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $assignment.getContent().getAttachments()) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size > 0)
+			<h4>
+				$tlang.getString("gen.addres2")
+			</h4>	
+				<ul class="attachList indnt1">
+					#foreach ($attachment in $assignment.getContent().getAttachments()) 
+						#set ($props = false)
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							<li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+									($props.getPropertyFormatted($props.NamePropContentLength))
+								#end
+							</li>
+						#end
+					#end
+				</ul>
+				##end	 
+		#end
+		<h3>$tlang.getString("gen.subm")</h3>
+		#if (!$submission.getSubmitted() || $submission.getReturned())
+			## if a draft submission or the submission has been returned and has not yet submitted
+			## 1- text only; 2-attachment only; 3-text and attachment
+			#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+			#if (($submissionType==1) || ($submissionType==3))
+				#if ($!deleted.equalsIgnoreCase("true"))
+					<h4>$tlang.getString("gen.yousub")</h4>
+					##if the assignment has been deleted, disable the action button
+					$validator.escapeHtmlFormattedText($!value_submission_text)
+				#else
+					#if (!$submission.Submitted)
+						## for draft submission
+						#if ($!closeTime && $currentTime.after($closeTime))
+							##disable input for submitted and not returned submission or when later than assignment close date
+							<h4>$tlang.getString("gen.yousub")</h4>
+							$validator.escapeHtmlFormattedText($!value_submission_text)
+						#else
+						#if ($submissionType==1)
+							$tlang.getString("gen.theassall6")
+						#elseif ($submissionType==3)
+							<h4>$tlang.getString("assignmenttext")</h4>
+							<p class="instruction">$tlang.getString("gen.theassall4")</p>
+						#end
+						<table border="0"><tr><td>
+						<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
+						#chef_setupformattedtextarea($name_submission_text)
+						</td></tr></table>
+					#end
+				#elseif ($submission.getReturned())
+						#if ($submission.TimeReturned.after($submission.TimeSubmitted))
+							## for returned submission, show the instructor commented text as well
+							#if ($!prevFeedbackText)
+								<h4>$tlang.getString("gradingsub.prefeetex")</h4>
+								<div>
+									$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+								</div>
+							#end
+							<h4>$tlang.getString("feedbacktext")</h4><br />
+							<div>
+								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
+							</div>
+							<br />	
+							<h4>$tlang.getString("stuviewsubm.entbelo")</h4>
+							<table border="0"><tr><td>
+							<textarea cols="80" rows="15" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>
+							#chef_setupformattedtextarea($name_submission_text)
+							</td></tr></table>
+						#else
+							## for resubmitted submission, show the input disabled
+							<div>
+								$tlang.getString("gen.yousub")
+							</div>
+							$validator.escapeHtmlFormattedText($!value_submission_text)
+						#end							
+					#end
+				#end
+			#end
+			#if (($submissionType==2) || ($submissionType==3)) 
+				#if ($submissionType==2)
+					<h4>
+						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $submission.TimeReturned.before($submission.TimeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
+							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
+							$tlang.getString("stuviewsubm.youatt")
+						#else
+							$tlang.getString("stuviewsubm.theassall2")
+						#end
+					</h4>
+				#end	
+				<h4>
+					$tlang.getString("gen.att")
+				</h4>	
+					#set ($size = 0)
+					#set ($props = false)
+					#foreach ($attachment in $attachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						<p class="instruction">$tlang.getString("gen.noatt")</p>
+					#else
+						<ul class="attachList indnt1">
+							#foreach ($attachment in $attachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end	 
+					<p class="act">
+						#if ($!deleted.equalsIgnoreCase("true"))
+							##if the assignment has been deleted, disable the action button
+							<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" />
+						#else
+							##if the submission has not been submitted or has been returned and not yet resubmitted
+							#if (!$submission.getSubmitted() || ($submission.getReturned() && $submission.TimeReturned.after($submission.TimeSubmitted)))
+								#if ($!closeTime)
+									## there is close date. Can only submit before the close date
+									#if ($currentTime.before($!closeTime))
+										<input
+											class="disableme" 
+											type="button" 
+											name="attach" 
+											id="attach"
+											#if ($size==0) 
+												value="$tlang.getString("gen.addatt")"
+											#else
+												value="$tlang.getString("gen.adddroatt2")"
+											#end
+											accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
+											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+										/>
+									#end
+								#else
+									## there is no close date. Still can submit after due date
+									<input
+										class="disableme" 
+										type="button" 
+										name="attach" 
+										id="attach"
+										#if ($size==0) 
+											value="$tlang.getString("gen.addatt")"
+										#else
+											value="$tlang.getString("gen.adddroatt2")"
+										#end
+										accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
+										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+									/>										
+								#end
+							#end
+						#end
+					</p>
+				#end
+				#if ($submission.getReturned() && $submission.TimeReturned.after($submission.TimeSubmitted))
+					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
+						<h5>$tlang.getString("gen.addinst")</h5>
+						<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+					#else
+					#end
+					## for returned (not resubmitted ) submission, show the instructor feedback
+					#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
+						<h5>$tlang.getString("gradingsub.prefee")</h5>
+						<div>$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+					#end					
+					#set ($size = 0)
+					#set ($props = false)
+					#set ($feedbackAttachments = $submission.FeedbackAttachments)	
+						#set ($size = 0)
+						#set ($props = false)
+						#foreach ($attachment in $feedbackAttachments) 
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								#set ($size = $size + 1)
+							#end
+						#end
+						#if ($size == 0)
+							##$tlang.getString("gen.noatt")
+						#else
+							<h5>$tlang.getString("gen.addinst")</h5>
+							<ul class="attachList">
+								#foreach ($attachment in $feedbackAttachments) 
+									#set ($props = false)
+									#set ($props = $attachment.Properties) 
+									#if ($!props)
+										<li>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+												($props.getPropertyFormatted($props.NamePropContentLength))
+											#end
+										</li>
+									#end
+								#end
+							</ul>
+						#end
+				#end
+				#if ($withGrade)
+					#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
+					#if ($!previousGrades.length() != 0 )
+					<br />$tlang.getString("gradingsub.pregra") $previousGrades
+					#else
+						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
+						#if ($!previousGrades.length() != 0 )
+							<br />$tlang.getString("gradingsub.pregra") $previousGrades
+						#end
+					#end
+				#end
+				#if ($!assignment.getContent().HonorPledge!=1)
+					<p class="checkbox">
+						<label for="$name_submission_honor_pledge_yes">
+							$tlang.getString("gen.honple2")
+						</label>
+						#if (($submission.getSubmitted() && !$submission.getReturned()) || ($submission.Returned && $submission.TimeReturned.before($submission.TimeSubmitted))||($!closeTime && $currentTime.after($closeTime)))
+							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
+							#if ($value_submission_honor_pledge_yes.equals("false"))
+								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
+							#else
+								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
+							#end
+						#else
+							#if ($value_submission_honor_pledge_yes.equals("false"))
+								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
+							#else
+								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
+							#end					
+						#end
+						<br />
+						$tlang.getString("gen.youmus")
+					</p>
+				#end
+			<div class="act">
+				## student role
+				#if ($!deleted.equalsIgnoreCase("true"))
+					##if the assignment has been deleted, disable the action button
+					<input 
+						type="button" 
+						name="cancel" 
+						id="cancel" 
+						value="$tlang.getString("gen.don")"
+						onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+					/>
+				#else
+					#if ($!closeTime && $currentTime.after($!closeTime) || !$allowSubmit)
+						<input 
+							type="button" 
+							name="cancel" 
+							id="cancel" 
+							value="$tlang.getString("gen.don")"
+							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+						/>
+					#else
+						#if (!$submission.getSubmitted() || ($submission.getReturned()&&$submission.TimeReturned.after($submission.TimeSubmitted)))
+							<input
+								type="button"
+								class="active"
+								#if (!$submission.getSubmitted())
+									#set($name = $tlang.getString("gen.subm3"))
+								#else
+									#set($name=$tlang.getString("resubmit"))
+								#end
+								name="post"
+								id="post" 
+								value="$!name"
+								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
+							/>
+							<input
+								class="disableme" 
+								type="button" 
+								name="preview" 
+								id="preview" 
+								value="$tlang.getString("gen.pre")"
+								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','preview','addSubmissionForm');document.addSubmissionForm.option.value='preview'; document.addSubmissionForm.submit(); return false;"
+							/>
+							<input
+								class="disableme" 
+								type="button" 
+								name="save" 
+								id="save" 
+								value="$tlang.getString("gen.savdra")"
+								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
+							/>
+							<input 
+								class="disableme"
+								type="button" 
+								name="cancel" 
+								id="cancel" 
+								value="$tlang.getString("gen.can")"
+								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+							/>
+						#else
+							<input 
+								type="button" 
+								name="cancel" 
+								id="cancel" 
+								value="$tlang.getString("gen.don")"
+								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+							/>
+						#end
+					#end
+				#end
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			</div>
+		#else
+				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
+					#set ($text = $submission.FeedbackText)
+					#if ($!text)
+						<p class="instruction">
+							$tlang.getString("gen.orisub2")
+						</p>
+						<div>$cheffeedbackhelper.escapeAssignmentFeedback($text)</div>
+						#end
+						#elseif ($!submission.submittedText && ($submission.SubmittedText.length()>0))
+							#set ($text = $submission.SubmittedText)
+							#if ($!text)
+								<div>$cheffeedbackhelper.escapeAssignmentFeedback($text)</div>
+							#end
+					#end
+					## for returned submission, show the instructor comment as well
+					#if ($!prevFeedbackText)
+						<h5>$tlang.getString("gradingsub.prefeetex")</h5>
+						<div>
+							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
+						</div>
+					#end
+					#set ($submittedAttachments = $submission.SubmittedAttachments)
+					#set ($size = 0)
+					#set ($props = false)
+					#foreach ($attachment in $submittedAttachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+					#if ($size == 0)
+						$tlang.getString("gen.noatt")
+					#else
+						<h5>$tlang.getString("gen.stuatt")</h5>
+						<ul class="attachList">
+							#foreach ($attachment in $submittedAttachments) 
+								#set ($props = false)
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									<li>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+											($props.getPropertyFormatted($props.NamePropContentLength))
+										#end
+									</li>
+								#end
+							#end
+						</ul>
+					#end	
+					#if ($withGrade && $submission.getGraded() && $submission.getGradeReleased())
+						#if ($submission.getGradeReleased() &&($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
+							<h5>$tlang.getString("gen.addinst")</h5>
+							<div>$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+						#else
+						#end
+						## for returned submission, show the instructor feedback
+						#if ($!prevFeedbackComment && $!prevFeedbackComment.trim().length() > 0)
+							<h5>$tlang.getString("gradingsub.prefee")</h5>
+							<div>$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
+						#end	
+						#set ($size = 0)
+						#set ($props = false)
+						#set ($feedbackAttachments = $submission.FeedbackAttachments)
+							#set ($size = 0)
+							#set ($props = false)
+							#foreach ($attachment in $feedbackAttachments) 
+								#set ($props = $attachment.Properties) 
+								#if ($!props)
+									#set ($size = $size + 1)
+								#end
+							#end
+							#if ($size == 0)
+								##$tlang.getString("gen.noatt")
+							#else
+								<h5>$tlang.getString("gen.addinst")</h5>
+								<ul class="attachList">
+									#foreach ($attachment in $feedbackAttachments) 
+										#set ($props = false)
+										#set ($props = $attachment.Properties) 
+										#if ($!props)
+											<li>
+												#if ($props.getBooleanProperty($props.NamePropIsCollection))
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+												#else
+													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+												#end
+												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+												#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+													($props.getPropertyFormatted($props.NamePropContentLength))
+												#end
+											</li>
+										#end
+									#end
+								</ul>
+							#end
+					#end
+					#if ($withGrade)
+						#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionScaledPreviousGrades()))
+						#if ($!previousGrades.length() != 0 )
+							<br />$tlang.getString("gradingsub.pregra") $previousGrades
+						#else
+							#set ($previousGrades =  $!submission.Properties.getProperty($!submission.Properties.getNamePropSubmissionPreviousGrades()))
+							#if ($!previousGrades.length() != 0 )
+								<br />$tlang.getString("gradingsub.pregra") $previousGrades
+							#end
+						#end
+					#end
+			<p class="act">
+				<input 
+					type="button" 
+					name="cancel" 
+					id="cancel" 
+					value="$tlang.getString("gen.don")"
+					onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+				/>
+			</p>
+		#end
+	</form>
+</div>
+

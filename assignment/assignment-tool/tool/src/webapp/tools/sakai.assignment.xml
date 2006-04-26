@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.assignment"
+			title="Assignments"
+			description="For posting and submitting assignment(s) online.">
+		<configuration name="withGrades" value="FALSE" />
+
+		<category name="course" />
+		<category name="project" />
+
+	</tool>
+
+</registration>
