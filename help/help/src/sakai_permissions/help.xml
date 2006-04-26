@@ -3,68 +3,74 @@
 
 <beans>
    <bean id="permissionsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brax</value></property>
+      <property name="docId"><value>arax</value></property>
       <property name="name"><value>Permissions/Roles Overview</value></property>
       <property name="location"><value>/sakai_permissions/arax.html</value></property>
       <property name="defaultForTool"><value>sakai.permissions</value></property>      
    </bean>
    
    <bean id="siteInfoChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brfb</value></property>
+      <property name="docId"><value>arfb</value></property>
       <property name="name"><value>Change Roles from Site Info</value></property>
       <property name="location"><value>/sakai_permissions/arfb.html</value></property>
    </bean>
    
    <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brdq</value></property>
+      <property name="docId"><value>ardq</value></property>
       <property name="name"><value>Change Roles from Worksite Setup</value></property>
       <property name="location"><value>/sakai_permissions/ardq.html</value></property>
    </bean>
    
    <bean id="participantRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brbu</value></property>
+      <property name="docId"><value>arbu</value></property>
       <property name="name"><value>Participant Roles</value></property>
       <property name="location"><value>/sakai_permissions/arbu.html</value></property>
    </bean>
    
+   <bean id="permissionsRolesTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>armh</value></property>
+      <property name="name"><value>Permissions, roles and tools</value></property>
+      <property name="location"><value>/sakai_permissions/armh.html</value></property>
+   </bean>
+   
    <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>bqyo</value></property>
+      <property name="docId"><value>aqyo</value></property>
       <property name="name"><value>Add/Edit/Delete Participants from Worksite Setup</value></property>
       <property name="location"><value>/sakai_permissions/aqyo.html</value></property>
    </bean>
    
    <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brav</value></property>
+      <property name="docId"><value>arav</value></property>
       <property name="name"><value>Add/Edit/Delete Participants</value></property>
       <property name="location"><value>/sakai_permissions/arav.html</value></property>
    </bean>
    
    <bean id="siteInfoControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brci</value></property>
+      <property name="docId"><value>arci</value></property>
       <property name="name"><value>Control Access from Site Info</value></property>
       <property name="location"><value>/sakai_permissions/arci.html</value></property>
    </bean>
    
    <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>bqzr</value></property>
+      <property name="docId"><value>aqzr</value></property>
       <property name="name"><value>Create/Add/Edit/Delete Worksites</value></property>
       <property name="location"><value>/sakai_permissions/aqzr.html</value></property>
    </bean>
    
    <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>bqzw</value></property>
+      <property name="docId"><value>aqzw</value></property>
       <property name="name"><value>Control Access from Worksite Setup</value></property>
       <property name="location"><value>/sakai_permissions/aqzw.html</value></property>
    </bean>
    
    <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brdk</value></property>
+      <property name="docId"><value>ardk</value></property>
       <property name="name"><value>Change Permissions for Tool</value></property>
       <property name="location"><value>/sakai_permissions/ardk.html</value></property>
    </bean>
    
    <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>brbp</value></property>
+      <property name="docId"><value>arbp</value></property>
       <property name="name"><value>Types/Realms/Roles/Permissions Relationships</value></property>
       <property name="location"><value>/sakai_permissions/arbp.html</value></property>
    </bean>
@@ -83,6 +89,7 @@
                      <ref bean="siteInfoChangeRoles"/>
                      <ref bean="worksiteSetupChangeRoles"/>
 					 <ref bean="participantRoles"/>
+					 <ref bean="permissionsRolesTools"/>
 					 <ref bean="worksiteSetupAddParticipants"/>
 					 <ref bean="addParticipants"/>
 					 <ref bean="siteInfoControlAccess"/>
