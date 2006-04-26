@@ -6210,7 +6210,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @param siteId
 	 *        the Site id.
 	 */
-	protected void createIndividualDropbox(String siteId) 
+	public void createIndividualDropbox(String siteId) 
 	{
 		String dropbox = COLLECTION_DROPBOX + siteId + "/";
 
