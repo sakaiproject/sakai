@@ -3,8 +3,8 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.service.legacy.assignment.AssignmentService"
-			class="org.sakaiproject.component.legacy.assignment.DbAssignmentService"
+	<bean id="org.sakaiproject.assignment.api.AssignmentService"
+			class="org.sakaiproject.assignment.impl.DbAssignmentService"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
