@@ -1,0 +1,49 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/news/chef_news-customize.vm,v 1.4 2005/05/24 20:13:51 suiyy.umich.edu Exp $
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = ["$formfield_channel_title"];
+</script>
+<div class="portletBody">
+	<h3>
+		$tlang.getString("cus.cus")
+	</h3>
+
+#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both" />
+#end
+<p class="instruction">
+	$tlang.getString("revise.required")  <span class="reqStarInline">*</span>
+</p>
+		<form name="customize" id="customize" action="#toolForm("$action")" method="post">
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="$formfield_channel_title" style="width:5em !important">
+					$tlang.getString("cus.franam")
+				</label>
+				<input 
+					type="text" 
+					name="$formfield_channel_title" 
+					id="$formfield_channel_title" 
+					value="$validator.escapeHtml($!current_channel_title)"
+					size="50" />
+				$tlang.getString("cus.sugleg")
+			</p>
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="$formfield_channel_url" style="width:5em !important">
+					$tlang.getString("cus.intadd")
+				</label>
+				<input 
+					type="text" 
+					name="$formfield_channel_url" 
+					id="$formfield_channel_url" 
+					value="$!current_channel_url"
+					size="50" />
+			</p>
+			<p class="act">
+				<input type="submit" name="$form-submit" value="$tlang.getString("gen.sav")" />
+				<input type="submit" name="$form-cancel" value="$tlang.getString("gen.can")" />
+			</p>
+		</form>
+	</div>

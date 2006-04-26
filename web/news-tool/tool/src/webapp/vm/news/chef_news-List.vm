@@ -1,0 +1,38 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/news/chef_news-List.vm,v 1.3 2005/05/25 20:39:38 gsilver.umich.edu Exp $ 
+## chef_news-List.vm, use with org.chefproject.NewsAction.java
+##     context: $news_items: iterator of NewsItems
+##
+	<!--[if gte IE 6]>
+		<script type="text/javascript" language="JavaScript">
+			document.body.style.width='97%'
+		</script>
+	<![endif]--> 
+
+
+	<div class="portletBody">
+		#if($alertMessage)
+			<div class="alertMessage">
+				$validator.escapeHtml($alertMessage)
+			</div>
+		#end
+		#foreach ($item in $news_items)
+				#if($item.Title)
+					<h5>
+					#set($title="$validator.escapeHtml($item.Title)")
+						$validator.escapeHtml($item.Title)
+					</h5>
+				#end
+				#if($item.Description)
+					<p style="margin-left:2em;margin-top:.5em">
+						$item.Description
+						#if($item.Link)
+							 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item") $title">($full_story)</a>
+						 #end
+						 #if($item.Pubdate && !$item.Pubdate == "")
+						 	($item.Pubdate)
+						#end
+					</p>	
+				#end	
+		#end
+	</div>
+

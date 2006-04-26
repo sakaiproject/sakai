@@ -1,0 +1,35 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/news/chef_news-Control.vm,v 1.2 2005/05/09 23:52:05 gsilver.umich.edu Exp $ 
+##<!-- chef_news-Controls.vm, use with org.chefproject.NewsAction.java
+##     context: $action: Action class name
+##              $form-submit: submit field event_submit value
+##              $panel-control: controls panel name
+##              $message: error message
+##-->
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	#if ($alertMessage)
+		<div class="alertMessage">
+			$validator.escapeHtml($alertMessage)
+		</div>
+		<div style="display:block;clear:both" />
+	#end
+	<form 
+		name="news_input" 
+		id="news_input" 
+		action="#toolForm("$action")" 
+		method="post">
+		<input 
+			type="hidden" 
+			name="$form-submit" 
+			id="$form-submit" 
+			value="x" />
+		<input 
+			type="submit" 
+			name="get_update" 
+			id="get_update" 
+			value="$tlang.getString("control.getupd")" 
+			style="visibility:hidden;" />
+	</form>
+</div>

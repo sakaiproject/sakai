@@ -1,0 +1,26 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe.vm,v 1.4 2005/05/15 17:05:28 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($options_title) 
+	<div class="navIntraTool">
+		<a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
+		$tlang.getString("gen.options") </a>
+	</div>
+#end
+
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	#if($options_title)
+	 	<div style="padding:0; margin:3px -2em -1em  -2em">
+	#else
+		<div style="padding:0; margin:-.3em -2em -1em -2em">
+	#end
+		<iframe 
+			width="100%"
+			style="width:100%;padding:0 !important; height:$height"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			src="$!url">
+		</iframe>
+	</div>
+</div>

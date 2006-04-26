@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.iframe.service"
+			title="Service Information Display"
+			description="For displaying information about this Service.">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="site" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+
+	</tool>
+
+</registration>

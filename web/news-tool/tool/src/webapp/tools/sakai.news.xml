@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.news"
+			title="News"
+			description="For viewing content from online sources.">
+
+		<configuration name="channel-url" value="http://www.sakaiproject.org/cms/index2.php?option=com_rss&amp;feed=RSS2.0&amp;no_html=1" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="myworkspace" />
+
+	</tool>
+
+</registration>

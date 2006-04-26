@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.iframe.myworkspace"
+			title="My Workspace Information Display"
+			description="For displaying information about a user's My Workspace.">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="workspace" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+
+	</tool>
+
+</registration>
