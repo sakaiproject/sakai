@@ -646,9 +646,9 @@ public class CharonPortal extends HttpServlet
 			out
 					.write("\t\t<a href=\"javascript:;\" onclick=\"window.open('"
 							+ helpActionUrl
-							+ "','Help','resizable=0,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('"
+							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('"
 							+ helpActionUrl
-							+ "','Help','resizable=0,toolbar=no,scrollbars=yes, width=800,height=600')\"><img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
+							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
 		out.write("\t</td>\n");
 		out.write("</tr>\n");
@@ -1678,8 +1678,10 @@ public class CharonPortal extends HttpServlet
 			}
 			else if (p.isPopUp())
 			{
-				out.print("javascript:;\" " + "onclick=\"window.open('" + pagePopupUrl + Web.escapeUrl(p.getId()) + "'" + ",'"
-						+ Web.escapeJavascript(p.getTitle()) + "','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')");
+				out
+						.print("javascript:;\" " + "onclick=\"window.open('" + pagePopupUrl + Web.escapeUrl(p.getId()) + "'" + ",'"
+								+ Web.escapeJavascript(p.getTitle())
+								+ "','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')");
 			}
 			else
 			{
@@ -1693,11 +1695,12 @@ public class CharonPortal extends HttpServlet
 		String helpUrl = ServerConfigurationService.getHelpUrl(null);
 		out.println("			<li>");
 
-		// gsilver Help gets its own accesskey - h
+		// help gets its own accesskey - h
 		out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
-				+ ",'Help','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
-				+ "'" + ",'Help','resize=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">" + rb.getString("sit.help")
+				+ ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
+				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">" + rb.getString("sit.help")
 				+ "</a>");
+
 		out.println("			</li>");
 
 		out.println("		</ul>");
