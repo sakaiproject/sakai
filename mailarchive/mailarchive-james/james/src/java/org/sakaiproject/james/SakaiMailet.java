@@ -251,14 +251,14 @@ public class SakaiMailet extends GenericMailet
 						Reference ref = EntityManager.newReference(AliasService.getTarget(mailId));
 
 						// if ref is a site
-						if (ref.getType().equals(SiteService.SERVICE_NAME))
+						if (ref.getType().equals(SiteService.APPLICATION_ID))
 						{
 							// now we have a site reference, try for it's channel
 							channelRef = MailArchiveService.channelReference(ref.getId(), SiteService.MAIN_CONTAINER);
 						}
 
 						// if ref is a channel
-						else if (ref.getType().equals(MailArchiveService.SERVICE_NAME))
+						else if (ref.getType().equals(MailArchiveService.APPLICATION_ID))
 						{
 							// ref is a channel
 							channelRef = ref.getReference();

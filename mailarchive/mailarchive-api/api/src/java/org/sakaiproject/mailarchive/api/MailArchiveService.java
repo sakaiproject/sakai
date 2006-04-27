@@ -53,8 +53,8 @@ import org.sakaiproject.message.api.MessageService;
  */
 public interface MailArchiveService extends MessageService
 {
-	/** This string can be used to find the service in the service manager. */
-	public static final String SERVICE_NAME = MailArchiveService.class.getName();
+	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:mailarchive";
 
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/mailarchive";

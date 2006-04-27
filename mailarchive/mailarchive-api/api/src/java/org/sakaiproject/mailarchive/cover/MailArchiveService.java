@@ -53,7 +53,7 @@ public class MailArchiveService
 
 	private static org.sakaiproject.mailarchive.api.MailArchiveService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.mailarchive.api.MailArchiveService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.mailarchive.api.MailArchiveService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.mailarchive.api.MailArchiveService.REFERENCE_ROOT;
 
