@@ -429,6 +429,13 @@
 											#set ($totalNumber = $totalNumber + 1)
 											#if (!$s.Graded)
 												#set ($ungradedNumber = $ungradedNumber + 1)
+											#elseif ($s.Returned)
+												#set ($returnedTime = $s.getTimeReturned())
+												#set ($submitTime = $s.getTimeSubmitted())
+												#if ($!returnedTime && $returnedTime.before($submitTime))
+													## has been resubmitted, and ungraded
+													#set ($ungradedNumber = $ungradedNumber + 1)
+												#end
 											#end
 										#end
 									#end
