@@ -3184,7 +3184,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 			}
 
-			ref.set(SERVICE_NAME, subType, id, container, context);
+			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
 		}
@@ -3206,7 +3206,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Collection rv = new Vector();
 

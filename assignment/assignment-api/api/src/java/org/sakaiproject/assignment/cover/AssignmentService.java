@@ -56,7 +56,7 @@ public class AssignmentService
 
 	private static org.sakaiproject.assignment.api.AssignmentService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.assignment.api.AssignmentService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.assignment.api.AssignmentService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.assignment.api.AssignmentService.REFERENCE_ROOT;
 
