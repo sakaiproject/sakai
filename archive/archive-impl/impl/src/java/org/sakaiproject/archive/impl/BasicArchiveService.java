@@ -329,7 +329,7 @@ public class BasicArchiveService
 	
 	protected static String archiveSite(Site site, Document doc, Stack stack)
 	{
-		Element element = doc.createElement(SiteService.SERVICE_NAME);
+		Element element = doc.createElement(SiteService.APPLICATION_ID);
 		((Element)stack.peek()).appendChild(element);
 		stack.push(element);
 		
@@ -388,7 +388,7 @@ public class BasicArchiveService
 	*/
 	protected static String archiveUsers(Site site, Document doc, Stack stack)
 	{
-		Element element = doc.createElement(UserDirectoryService.SERVICE_NAME);
+		Element element = doc.createElement(UserDirectoryService.APPLICATION_ID);
 		((Element)stack.peek()).appendChild(element);
 		stack.push(element);
 	
@@ -684,7 +684,7 @@ public class BasicArchiveService
 			Element element = (Element)child;
 
 			// look for site stuff
-			if (element.getTagName().equals(SiteService.SERVICE_NAME))
+			if (element.getTagName().equals(SiteService.APPLICATION_ID))
 			{	
 				//if the xml file is from WT site, merge it with the translated user ids
 				if (system.equalsIgnoreCase(FROM_WT))
@@ -692,7 +692,7 @@ public class BasicArchiveService
 				else
 					mergeSite(siteId, fromSite, element, new HashMap()/*empty userIdMap */, creatorId);
 			}
-			else if (element.getTagName().equals(UserDirectoryService.SERVICE_NAME))
+			else if (element.getTagName().equals(UserDirectoryService.APPLICATION_ID))
 			{
 				try
 				{
