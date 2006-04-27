@@ -1389,7 +1389,7 @@ public String startRemoveQuestions(){
             try
             {
                QuestionPoolFacade oldPool =delegate.getPool(sourceId, AgentFacade.getAgentString());
-	      //testing copy to same level - if not same level then throw error if duplicate
+	      //if dest != source's parent, then throw error if dest has a duplicate pool name 
 		if(!destId.equals((oldPool.getParentPoolId()).toString())){
 		    isUnique=delegate.poolIsUnique("0",currentName,destId);
 		    if(!isUnique){
@@ -1401,7 +1401,7 @@ public String startRemoveQuestions(){
 		    }
 		}
 
-		// TODO Uncomment the line below to test copyPool,
+              // if dest = source's parent,i.e copying to it's own parent ,  then if there is an existing pool with the same name, copyPool() will create a new pool with Copy prepended in the pool name
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
 				  sourceId, new Long(destId));
 	    }
@@ -1428,7 +1428,8 @@ public String startRemoveQuestions(){
       boolean isUnique=true;
 	destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
-        if((sourceId != null) && (destId != null))
+      // added check for "".equals(destId) SAK-4435 , when no dest is selected
+        if((sourceId != null) && (destId != null) && (!"".equals(destId)))
         {
           try
           {
