@@ -53,7 +53,7 @@ public class ContentHostingService
 
 	private static org.sakaiproject.content.api.ContentHostingService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.content.api.ContentHostingService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.content.api.ContentHostingService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.content.api.ContentHostingService.REFERENCE_ROOT;
 

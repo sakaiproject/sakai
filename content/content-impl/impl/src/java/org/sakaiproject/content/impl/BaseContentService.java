@@ -4287,7 +4287,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Entity rv = null;
 
@@ -4316,7 +4316,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String getEntityUrl(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		return getUrl(ref.getId());
 	}
@@ -4327,7 +4327,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		// use the resources realm, all container (folder) realms
 
@@ -4380,7 +4380,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		StringBuffer results = new StringBuffer();
 
 		// start with an element with our very own name
-		Element element = doc.createElement(ContentHostingService.SERVICE_NAME);
+		Element element = doc.createElement(APPLICATION_ID);
 		((Element) stack.peek()).appendChild(element);
 		stack.push(element);
 
@@ -4414,7 +4414,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		StringBuffer results = new StringBuffer();
 
 		// start with an element with our very own name
-		Element element = doc.createElement(ContentHostingService.SERVICE_NAME);
+		Element element = doc.createElement(APPLICATION_ID);
 		((Element) stack.peek()).appendChild(element);
 		stack.push(element);
 
@@ -4968,7 +4968,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							boolean changed = false;
 
 							// for a site reference
-							if (SiteService.SERVICE_NAME.equals(targetRef.getType()))
+							if (SiteService.APPLICATION_ID.equals(targetRef.getType()))
 							{
 								// use the ref's id, i.e. the site id
 								context = targetRef.getId();
@@ -4976,7 +4976,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							}
 
 							// for mail archive reference
-							else if ("org.sakaiproject.mailarchive.MailArchiveService".equals(targetRef.getType()))
+							// TODO: taken from MailArchiveService.APPLICATION_ID to (fake) reduce a dependency -ggolden
+							else if ("sakai:mailarchive".equals(targetRef.getType()))
 							{
 								// use the ref's context as the site id
 								context = targetRef.getContext();
@@ -5003,7 +5004,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		}
 
-		ref.set(SERVICE_NAME, null, id, null, context);
+		ref.set(APPLICATION_ID, null, id, null, context);
 
 		return true;
 	}
@@ -5014,7 +5015,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		String rv = "Content: " + ref.getId();
 
@@ -5054,7 +5055,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		ResourceProperties props = null;
 
