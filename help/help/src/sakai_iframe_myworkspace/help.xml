@@ -91,7 +91,7 @@
    
    <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arad</value></property>
-      <property name="name"><value>Pubish/Unpublish Site in Worksite Setup</value></property>
+      <property name="name"><value>Publish/Unpublish Site in Worksite Setup</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arad.html</value></property>
    </bean>
    
