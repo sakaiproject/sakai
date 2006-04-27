@@ -56,7 +56,7 @@ public class AnnouncementService
 
 	private static org.sakaiproject.announcement.api.AnnouncementService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.announcement.api.AnnouncementService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.announcement.api.AnnouncementService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.announcement.api.AnnouncementService.REFERENCE_ROOT;
 
