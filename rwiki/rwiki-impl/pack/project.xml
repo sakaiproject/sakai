@@ -87,6 +87,15 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
+      <artifactId>sakai-entity-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+	 <properties>
+	   <war.bundle>true</war.bundle>
+     </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
       <artifactId>sakai-rwiki-impl</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
