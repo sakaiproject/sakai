@@ -53,7 +53,7 @@ public class AuthzGroupService
 
 	private static org.sakaiproject.authz.api.AuthzGroupService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.authz.api.AuthzGroupService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.authz.api.AuthzGroupService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT;
 

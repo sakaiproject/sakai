@@ -56,8 +56,8 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.StorageUser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -792,7 +792,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		{
 			String azGroupId = (String) i.next();
 			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
 				updSites.add(ref.getId());
@@ -804,7 +804,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		{
 			String azGroupId = (String) i.next();
 			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
 				unpSites.add(ref.getId());
@@ -816,7 +816,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		{
 			String azGroupId = (String) i.next();
 			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
 					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 			{
 				visitSites.add(ref.getId());
@@ -836,7 +836,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		// Special code for the site service
 		Reference ref = entityManager().newReference(azGroup.getId());
-		if (SiteService.SERVICE_NAME.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
+		if (SiteService.APPLICATION_ID.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
 		{
 			// collect the users
 			Set updUsers = azGroup.getUsersIsAllowed(SiteService.SECURE_UPDATE_SITE);
@@ -857,7 +857,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		// Special code for the site service
 		Reference ref = entityManager().newReference(azGroup.getId());
-		if (ref.getType().equals(SiteService.SERVICE_NAME))
+		if (ref.getType().equals(SiteService.APPLICATION_ID))
 		{
 			// no azGroup, no users
 			Set empty = new HashSet();
@@ -905,7 +905,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			// the azGroup id may have separators - we use everything after "/realm/"
 			String id = reference.substring(REFERENCE_ROOT.length() + 1, reference.length());
 
-			ref.set(SERVICE_NAME, null, id, null, null);
+			ref.set(APPLICATION_ID, null, id, null, null);
 
 			return true;
 		}
@@ -943,7 +943,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Collection rv = new Vector();
 
