@@ -55,6 +55,7 @@
       <property name="docId"><value>arel</value></property>
       <property name="name"><value>Membership Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arel.html</value></property>
+      <property name="defaultForTool"><value>sakai.membership</value></property>
    </bean>
    
    <bean id="joinSites" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -67,6 +68,7 @@
       <property name="docId"><value>arer</value></property>
       <property name="name"><value>Worksite Setup Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arer.html</value></property>
+      <property name="defaultForTool"><value>sakai.sitesetup</value></property>
    </bean>
    
    <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
