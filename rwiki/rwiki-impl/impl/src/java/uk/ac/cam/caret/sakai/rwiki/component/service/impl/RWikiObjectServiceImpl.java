@@ -816,7 +816,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 							+ defaultRealm);
 			// start with an element with our very own name
 			Element element = doc
-					.createElement(RWikiObjectService.SERVICE_NAME);
+					.createElement(APPLICATION_ID);
 			((Element) stack.peek()).appendChild(element);
 			stack.push(element);
 
@@ -1145,7 +1145,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		EntityHandler eh = findEntityReferenceMatch(reference);
 		if (eh == null) return false;
-		eh.setReference(SERVICE_NAME, ref, reference);
+		eh.setReference(APPLICATION_ID, ref, reference);
 
 		return true;
 	}
@@ -1297,10 +1297,10 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private void checkReference(Reference ref)
 	{
-		if (!SERVICE_NAME.equals(ref.getType()))
+		if (!APPLICATION_ID.equals(ref.getType()))
 			throw new RuntimeException(
 					"Request Routed to incorrect EntityProducer by the kernel expected "
-							+ SERVICE_NAME + " got " + ref.getType());
+							+ APPLICATION_ID + " got " + ref.getType());
 
 	}
 
@@ -1313,7 +1313,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private EntityHandler findEntityHandler(Reference ref)
 	{
-		if (!SERVICE_NAME.equals(ref.getType())) return null;
+		if (!APPLICATION_ID.equals(ref.getType())) return null;
 		String subtype = ref.getSubType();
 		return (EntityHandler) m_handlers.get(subtype);
 	}

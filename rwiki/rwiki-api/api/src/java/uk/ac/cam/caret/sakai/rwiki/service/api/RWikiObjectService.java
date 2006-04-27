@@ -45,8 +45,8 @@ import uk.ac.cam.caret.sakai.rwiki.service.exception.VersionException;
 public interface RWikiObjectService extends EntityProducer, EntityTransferrer, ContextObserver
 {
 
-	/** This string can be used to find the service in the service manager. */
-	static final String SERVICE_NAME = RWikiObjectService.class.getName();
+	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:rwiki";
 
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = Entity.SEPARATOR + "wiki";
