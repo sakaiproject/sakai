@@ -5223,6 +5223,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		state.setAttribute(NEW_ASSIGNMENT_RANGE, "site");
 		state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
+		
+		// remove the edit assignment id if any
+		state.removeAttribute(EDIT_ASSIGNMENT_ID);
 
 	} // resetNewAssignment
 
