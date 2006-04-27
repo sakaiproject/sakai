@@ -52,7 +52,7 @@ public class SiteService
 
 	private static org.sakaiproject.site.api.SiteService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.site.api.SiteService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.site.api.SiteService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.site.api.SiteService.REFERENCE_ROOT;
 

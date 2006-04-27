@@ -75,13 +75,13 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -1585,7 +1585,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				}
 			}
 
-			ref.set(SERVICE_NAME, subType, id, container, null);
+			ref.set(APPLICATION_ID, subType, id, container, null);
 
 			return true;
 		}
@@ -1599,7 +1599,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		String rv = "Site: " + ref.getReference();
 
@@ -1635,7 +1635,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Entity rv = null;
 
@@ -1661,7 +1661,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Collection rv = new Vector();
 
@@ -2600,7 +2600,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		Reference ref = entityManager().newReference(refOrId);
 
 		// for ref, get the site from the cache, or cache it and get the group from the site
-		if (SERVICE_NAME.equals(ref.getType()))
+		if (APPLICATION_ID.equals(ref.getType()))
 		{
 			try
 			{

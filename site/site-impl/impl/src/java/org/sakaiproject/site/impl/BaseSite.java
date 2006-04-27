@@ -935,7 +935,7 @@ public class BaseSite implements Site
 		if (id.startsWith(Entity.SEPARATOR))
 		{
 			Reference ref = ((BaseSiteService) (SiteService.getInstance())).entityManager().newReference(id);
-			if ((SiteService.SERVICE_NAME.equals(ref.getType())) && (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
+			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))
 			{
 				return (Group) ((ResourceVector) getGroups()).getById(ref.getId());
