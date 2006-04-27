@@ -52,7 +52,7 @@ public class ChatService
 
 	private static org.sakaiproject.chat.api.ChatService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.chat.api.ChatService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.chat.api.ChatService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.chat.api.ChatService.REFERENCE_ROOT;
 

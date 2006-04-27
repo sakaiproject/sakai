@@ -432,7 +432,7 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 					M_log.warn("parse(): unknown message subtype: " + subType + " in ref: " + reference);
 			}
 
-			ref.set(SERVICE_NAME, subType, id, container, context);
+			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
 		}
