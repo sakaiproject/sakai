@@ -479,7 +479,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 				id = parts[2];
 			}
 
-			ref.set(SERVICE_NAME, null, id, null, null);
+			ref.set(APPLICATION_ID, null, id, null, null);
 
 			return true;
 		}
@@ -517,7 +517,7 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Collection rv = new Vector();
 

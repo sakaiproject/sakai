@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+	<application>
+      <message-bundle>org.sakaiproject.tool.preferences.bundle.Messages</message-bundle>
+        <locale-config>
+            <default-locale>en</default-locale>
+            <supported-locale>de</supported-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>es</supported-locale>
+        </locale-config>
+    </application>
+    
+	<navigation-rule>
+		<from-view-id>/prefs/tab.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>noti</from-outcome>
+			<to-view-id>/prefs/noti.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>timezone</from-outcome>
+			<to-view-id>/prefs/timezone.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>		
+		<navigation-case>
+			<from-outcome>locale</from-outcome>
+			<to-view-id>/prefs/locale.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/prefs/noti.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>tab</from-outcome>
+			<to-view-id>/prefs/tab.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>timezone</from-outcome>
+			<to-view-id>/prefs/timezone.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>locale</from-outcome>
+			<to-view-id>/prefs/locale.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/prefs/timezone.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>tab</from-outcome>
+			<to-view-id>/prefs/tab.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>noti</from-outcome>
+			<to-view-id>/prefs/noti.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>locale</from-outcome>
+			<to-view-id>/prefs/locale.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+		
+	<navigation-rule>
+		<from-view-id>/prefs/locale.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>tab</from-outcome>
+			<to-view-id>/prefs/tab.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>noti</from-outcome>
+			<to-view-id>/prefs/noti.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>timezone</from-outcome>
+			<to-view-id>/prefs/timezone.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+		
+	<managed-bean>
+		<description>
+			The Tool controller bean for the Admin Prefs Tool
+		</description>
+		<managed-bean-name>UserPrefsTool</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.user.tool.UserPrefsTool</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>API Dependency: session manager</description>
+			<property-name>sessionManager</property-name>
+			<value>#{Components["org.sakaiproject.tool.api.SessionManager"]}</value>
+		</managed-property>
+		<managed-property>
+			<description>API Dependency: preferences service</description>
+			<property-name>preferencesService</property-name>
+			<value>#{Components["org.sakaiproject.user.api.PreferencesService"]}</value>
+		</managed-property>
+	</managed-bean>
+   
+	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>msgs</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>user-tool-prefs</value>
+		</managed-property>
+	</managed-bean>
+   
+</faces-config>

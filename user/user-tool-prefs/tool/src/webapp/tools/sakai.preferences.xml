@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.preferences"
+			title="Preferences Tool"
+			description="Tool to view and modify user's Preferences.">
+
+		<category name="myworkspace" />
+		<configuration name="help.id" value="preferences_overview" />
+
+	</tool>
+
+</registration>

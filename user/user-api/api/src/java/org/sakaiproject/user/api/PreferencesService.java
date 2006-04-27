@@ -34,8 +34,8 @@ import org.sakaiproject.exception.PermissionException;
  */
 public interface PreferencesService extends EntityProducer
 {
-	/** This string can be used to find the service in the service manager. */
-	static final String SERVICE_NAME = PreferencesService.class.getName();
+	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:preferences";
 
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/prefs";

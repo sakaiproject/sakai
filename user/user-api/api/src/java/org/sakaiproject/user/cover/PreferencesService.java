@@ -53,7 +53,7 @@ public class PreferencesService
 
 	private static org.sakaiproject.user.api.PreferencesService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.user.api.PreferencesService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.user.api.PreferencesService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.user.api.PreferencesService.REFERENCE_ROOT;
 

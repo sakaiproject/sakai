@@ -56,7 +56,7 @@ public class UserDirectoryService
 
 	private static org.sakaiproject.user.api.UserDirectoryService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.user.api.UserDirectoryService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.user.api.UserDirectoryService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.user.api.UserDirectoryService.REFERENCE_ROOT;
 
