@@ -49,7 +49,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -197,7 +196,8 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			return siteService().allowUpdateSite(ref.getId());
 		}
 
-		else if (ref.getType().equals(MailArchiveService.APPLICATION_ID))
+		// TODO: fake this dependency (MailArchiveService.APPLICATION_ID) to keep the mailarchive dependencies away -ggolden
+		else if (ref.getType().equals("sakai:mailarchive"))
 		{
 			// base this on site update, too
 			return siteService().allowUpdateSite(ref.getContext());
