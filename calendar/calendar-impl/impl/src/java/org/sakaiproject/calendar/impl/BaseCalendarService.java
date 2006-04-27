@@ -1134,7 +1134,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					M_log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
 			}
 
-			ref.set(SERVICE_NAME, subType, id, container, context);
+			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
 		}
@@ -1148,7 +1148,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String getEntityDescription(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		String rv = "Calendar: " + ref.getReference();
 
@@ -1186,7 +1186,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		ResourceProperties props = null;
 
@@ -1234,7 +1234,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public Entity getEntity(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Entity rv = null;
 
@@ -1278,7 +1278,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		Collection rv = new Vector();
 
@@ -1320,7 +1320,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public String getEntityUrl(Reference ref)
 	{
 		// double check that it's mine
-		if (SERVICE_NAME != ref.getType()) return null;
+		if (APPLICATION_ID != ref.getType()) return null;
 
 		String rv = null;
 

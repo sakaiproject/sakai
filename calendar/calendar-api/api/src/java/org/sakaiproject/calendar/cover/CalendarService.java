@@ -49,7 +49,7 @@ public class CalendarService
 
 
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.calendar.api.CalendarService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.calendar.api.CalendarService.APPLICATION_ID;
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.calendar.api.CalendarService.REFERENCE_ROOT;
 	public static java.lang.String EVENT_ADD_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR;
 	public static java.lang.String EVENT_IMPORT_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_IMPORT_CALENDAR;

@@ -40,8 +40,8 @@ import org.sakaiproject.time.api.TimeRange;
 public interface CalendarService
 	extends EntityProducer
 {
-	/** This string can be used to find the service in the service manager. */
-	public static final String SERVICE_NAME = CalendarService.class.getName();
+	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:calendar";
 
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "calendar";
