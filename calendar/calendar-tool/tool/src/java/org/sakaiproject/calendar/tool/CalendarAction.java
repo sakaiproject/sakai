@@ -43,8 +43,8 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.calendar.api.cover.CalendarImporterService;
-import org.sakaiproject.calendar.api.cover.CalendarService;
+import org.sakaiproject.calendar.cover.CalendarImporterService;
+import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -73,6 +73,9 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
@@ -84,9 +87,6 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 
 
 /**

@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.calendar.api.cover;
+package org.sakaiproject.calendar.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
