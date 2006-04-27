@@ -37,8 +37,8 @@ import org.sakaiproject.exception.PermissionException;
  */
 public interface AliasService extends EntityProducer
 {
-	/** This string can be used to find the service in the service manager. */
-	static final String SERVICE_NAME = AliasService.class.getName();
+	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+	static final String APPLICATION_ID = "sakai:alias";
 
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/alias";

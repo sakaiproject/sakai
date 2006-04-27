@@ -49,11 +49,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
@@ -61,9 +65,6 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -73,8 +74,6 @@ import org.w3c.dom.NodeList;
  * <p>
  * BaseAliasService is ...
  * </p>
- * 
- * @author Sakai Software Development Team
  */
 public abstract class BaseAliasService implements AliasService, StorageUser
 {
@@ -193,12 +192,12 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 		// check the target for modify access.
 		// TODO: this is setup only for sites and mail archive channels, we need an Entity Model based generic "allowModify()" -ggolden.
 		Reference ref = entityManager().newReference(target);
-		if (ref.getType().equals(SiteService.SERVICE_NAME))
+		if (ref.getType().equals(SiteService.APPLICATION_ID))
 		{
 			return siteService().allowUpdateSite(ref.getId());
 		}
 
-		else if (ref.getType().equals("org.sakaiproject.mailarchive.api.MailArchiveService"))
+		else if (ref.getType().equals(MailArchiveService.APPLICATION_ID))
 		{
 			// base this on site update, too
 			return siteService().allowUpdateSite(ref.getContext());
@@ -867,7 +866,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 				id = parts[2];
 			}
 
-			ref.set(SERVICE_NAME, null, id, null, null);
+			ref.set(APPLICATION_ID, null, id, null, null);
 
 			return true;
 		}

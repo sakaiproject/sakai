@@ -52,7 +52,7 @@ public class AliasService
 
 	private static org.sakaiproject.alias.api.AliasService m_instance = null;
 
-	public static java.lang.String SERVICE_NAME = org.sakaiproject.alias.api.AliasService.SERVICE_NAME;
+	public static java.lang.String APPLICATION_ID = org.sakaiproject.alias.api.AliasService.APPLICATION_ID;
 
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.alias.api.AliasService.REFERENCE_ROOT;
 
