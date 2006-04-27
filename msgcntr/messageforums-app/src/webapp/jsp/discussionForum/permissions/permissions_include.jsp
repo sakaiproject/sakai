@@ -53,9 +53,9 @@
 		<f:verbatim></td><td></f:verbatim>
 		<h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
      	<h:outputText value="#{msgs.perm_read}" />
-        <%--<h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
+        <h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_post_to_gradebook}" />
-        --%>
+        
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:selectBooleanCheckbox  id="newR" value="#{permission.newResponse}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_new_response}" />
