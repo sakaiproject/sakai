@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Post-Installation Configuration</title>
+ <link href="styles/pos.css" rel="stylesheet" type="text/css" />
+ <link href="styles/styles3.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<div id="frame">
+
+	<div id="contentheader">
+	<a href="http://www.sakaiproject.org/">
+<img src="images/logoslate160x89.jpg" alt="Sakai Logo"
+ border="0" /></a>
+	</div>
+
+<div id="contentcenter">
+
+	<div id="contentleft">
+
+	<div id="bar">
+	  &nbsp;
+	  <!--END BAR-->
+	</div>
+
+<div class="pad">
+<h2>Installation Guide<br>Table of Contents</h2>
+<ol>
+<li>
+<a href="InstallGuide.html">Installation Overview</a></li>
+<ul class="toc">
+	<li><a href="#choose">1.1 Choose an Install Type</a></li>
+	<li><a href="#demo">1.2 Demo Installation</a></li>
+	<li><a href="#binary">1.3 Binary Installation</a></li>
+	<li><a href="#overview">1.4 Source Install Phases</a></li>
+	<li><a href="#migrating">1.5 Migrating from a Previous Release</a></li>
+</ul>
+<li>
+<a href="buildenv.html">Set Up Build Environment</a>
+<ul class="toc">
+  <li><a href="buildenv.html#verify">2.1 Verify Java installation</a></li>
+  <li><a href="buildenv.html#set">2.2 Set environment variables</a></li>
+  <li><a href="buildenv.html#tomcat">2.3 Install
+  Tomcat</a></li>
+  <li><a href="buildenv.html#configurationtc">2.4 Configure Tomcat</a></li>
+  <li><a href="buildenv.html#maven">2.5 Install Maven</a></li>
+  <li><a href="buildenv.html#configurationm">2.6 Configure Maven</a></li>
+  <li><a href="buildenv.html#testm">2.7 Test Maven</a></li>
+  </li>
+ </ul>
+<li>
+<a href="build.html">
+  Build and Deploy Sakai</a>
+<ul class="toc">
+<li><a href="build.html#download">3.1 Download source</a></li>
+  <li><a href="build.html#unpack">3.2 Unpack source</a></li>
+  <li><a href="build.html#runmaven">3.3 Run maven</a></li>
+</ul>
+</li>
+
+<li>
+  <a href="postconfig.html">Post-Installation Configuration</a>
+<ul class="toc">
+<li><a href="postconfig.html#folder">4.1 Create sakai folder <br />
+for properties files</a> </li>
+  <li> <a href="postconfig.html#properties">4.2 The
+sakai.properties file</a> </li>
+  <li><a href="postconfig.html#personalize">4.3 Personalizing Sakai</a> </li>
+  <li><a href="postconfig.html#email">4.4 Email configuration</a> </li>
+  <li><a href="postconfig.html#jvm">4.5 JVM tuning</a> </li>
+  <li><a href="postconfig.html#test">4.6 Test Sakai</a> </li>
+</ul>
+</li>
+
+<li>
+  <a href="dbconfig.html">Database Configuration</a>
+<ul class="toc">
+  <li><a href="dbconfig.html#updating">5.1 Migrating from a Previous Version</a></li>
+  <li><a href="dbconfig.html#deployd">5.2 Deploy drivers</a> </li>
+  <li><a href="dbconfig.html#create">5.3 Create Sakai database and user</a> </li>
+  <li><a href="dbconfig.html#sproperties">5.4 Database Properties</a> </li>
+</ul>
+</li>
+<li>
+  <a href="tshoot.html">Troubleshooting</a>
+<ul class="toc">
+  <li><a href="tshoot.html#common">6.1 Common Issues</a> </li>
+  <li><a href="tshoot.html#maven">6.2 Working with Maven</a> </li>
+  <li><a href="tshoot.html#logs">6.3 Tomcat logs</a> </li>
+</li>
+</ul>
+</li>
+</ol>
+<p>&nbsp;</p>
+
+    <!--END PAD-->
+  </div>
+
+   <!--END LEFT-->
+</div>
+
+<h1>4. Post-Installation Configuration</h1>
+<div class="pad">
+<a name="configuration"></a>
+
+<a name="folder"></a>
+<h2>4.1 Create sakai folder for properties files</h2>
+	<br />Sakai runs with a default
+set of properties for its various components. &nbsp;To override
+them you'll want to specify them in a <b>sakai.properties</b> file which
+should be located in $CATALINA_HOME/sakai by default. &nbsp;This
+directory is not created by maven, so you'll have to do so
+manually.
+&nbsp;Once this directory is created, there are several
+*.properties files you can place inside which can override default
+properties.&nbsp;</p>
+
+  <p></p>
+      <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+             <tbody>
+               <tr>
+                 <th>Choosing a different location for the properties files</th>
+               </tr>
+               <tr>
+                 <td class="white">You may find it advantageous to store sakai's configuration files outside of the Tomcat file structure.  In a development environment, for example, you may find yourself frequently blowing Tomcat away, and you may wish to avoid recreating the sakai folder and its contained properties files each time.
+                 <p></p>
+                 To accomplish this, you need only modify the java startup command (or the JAVA_OPTS environment variable) to set the system property sakai.home, e.g.:
+<p>-Dsakai.home=/path/to/desired/sakai/home/</p>
+
+<p>You'll need to make sure that this location is readable and writable to Tomcat.</p></td>
+               </tr>
+             </tbody>
+    </table>
+
+   <a name="properties"></a>
+
+	<h2>4.2 The sakai.properties file</h2>
+	<br />The main configuration file
+for Sakai is called sakai.properties, and you can either create it from
+scratch or copy in a known working copy. A sample sakai.properties file
+which self-documents many of the standard
+properties in its comments can be found in:
+<pre><span class="code">sakai-src/docs/sakai.properties</span></pre>
+    <p>sakai.properties can define two different types of settings. &nbsp;The first type sets those values that are made available to the running code from
+the Sakai configuration service. &nbsp;A line of sakai.properties sets this sort of value if it has the form:&nbsp;</p>
+    <pre><span class="code">name=value</span></pre>
+    <p>The second type of sakai.properties setting overrides the configuration defaults of individual sakai components. &nbsp;These defaults are set in the components.xml file of any particular
+component, and so this configuration can in principle be achieved by also editing a large number of components.xml files (one for each component), but it's a best practice to keep all configuration changes in sakai.properties. &nbsp;Override settings have the form:<br />
+<pre><span class="code">name@component-name=value</span></pre></p>
+    <p>New value settings can be freely added to the sakai.properties file, since any component property can in principle be overridden here, and so any sample sakai.properties will show only a small fraction of all the possible settings.</p>
+
+    <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+	             <tbody>
+	               <tr>
+	                 <th>Learning more about sakai.properties</th>
+	               </tr>
+	               <tr>
+	                 <td class="white">sakai.properties documentation: to find the most detailed documentation on the full variety of possible sakai.properties settings, look for sakai_properties.doc in docs/architecture of the source archive. A direct link to the documentation file in the 2-1-2 tag of subversion is below:<br/>
+https://source.sakaiproject.org/svn/tags/sakai_2-1-2/docs/architecture/sakai_properties.doc</td>
+	               </tr>
+	             </tbody>
+    </table>
+
+  <a name="personalize"></a>
+
+    <p><h2>4.3 Personalizing Sakai</h2></p>
+ Sakai has a number of
+places where your institution names, service names, and the host name
+of
+your service are used. These can be
+configured in sakai.properties:
+    <pre><span class="code"># identify your application server with a short name,
+unique among the servers in your cluster.
+
+# choose a server id even if you are running a single app server<br>serverId=localhost
+# the URL to the server, including transport, DNS name, and port, if any
+serverUrl=http://localhost:8080
+
+# the DNS name of the server
+serverName=localhost<br><br># the URL to send folks to after they logout
+loggedOutUrl=http://localhost:8080/portal
+
+# some fill-ins for the css/vm ui
+(Worksite Setup, Digest Service, Email notification, Worksite Setup, Contact Support, Portal)
+ui.institution = Your Institution<br>ui.service = SakaiOrWhatever
+
+#copyright text to appear in the bottom area of each web page.
+bottom.copyrighttext=(c) 2003, 2004, 2005 sakaiproject.org. All rights reserved.
+
+# links placed on the bottom nav - set the .count to the number of items,
+then add each item
+bottomnav.count = 2
+bottomnav.1 = &lt;a href="https://localhost/portal/site/!gateway"&gt;Gateway&lt;/a&gt;
+bottomnav.2 = &lt;a href="http://sakaiproject.org/cms" target="_blank"&gt;The Sakai Project&lt;/a&gt;
+</span></pre>
+You can add more or other links to the bottom navigation bar by setting
+the proper bottomnav.count
+value and adding bottomnav.N values (1 through the number of links).
+
+<table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+             <tbody>
+               <tr>
+                 <th>User Presence Enabled by Default</th>
+               </tr>
+               <tr>
+                 <td class="white">User presence is on automatically in this release, although it has not been in recent releases. If you do not wish to use it at your institution, you must explicitly set its value to be false in sakai.properties:
+
+<pre># to enable presence display in the portal
+display.users.present=false</pre></td>
+               </tr>
+             </tbody>
+    </table>
+
+<a name="email"></a>
+
+    <p><h2>4.4 Email Configuration</h2></p>
+Sakai needs to be set up for two
+email functions: receiving email sent to Sakai sites, and sending out
+email notifications.
+    <p>For sending mail Sakai
+needs the address (name or IP) of an SMTP server that will accept mail
+from Sakai. This needs to be
+set in your sakai.properties file:</p>
+    <pre><span class="code">smtp@org.sakaiproject.service.framework.email.EmailService=some.smtp.org</span></pre>
+    <p>To enable Sakai to receive
+mail there are a few settings needed in the sakai.properties file:</p>
+    <pre><span class="code"># dns addresses used for incoming email
+	<br/>smtp.dns.1 = 255.255.255.1<br/>smtp.dns.2 = 255.255.255.2
+	 <br/># SMTP port on which our SMTP server runs. Default is 25.
+#Recommend running on 8025, and using a standard mailer on 25 to forward mail to Sakai.<br/>smtp.port = 25<br/>
+# flag to enable or disable our SMTP server for incoming email (true | false)<br/>smtp.enabled = true</span></pre>
+    <p>To disable the SMTP server
+for incoming email, use this in sakai.properties:</p>
+    <pre><span class="code">smtp.enabled = false</span></pre>
+    <p>Sakai's SMTP server is
+'James,' and to run with the above
+configuration which runs James on the standard SMTP port 25 you must be
+running with admin privileges. Most production folks don't want to let
+Tomcat run with that, and would rather run a standard mailer like
+postfix on port 25 and configure it to forward requests to Sakai.
+You might also already have a mailer service running on port 25 (Linux
+usually has it running by default), and so you'd want to change the
+James port simply to avoid a conflict. You'll typically want to run
+James on another, non-restricted port, then. &nbsp;For example:</p>
+    <pre><span class="code">smtp.port = 8025</span></pre>
+
+    <a name="jvm"></a>
+
+    <p><h2>4.5 JVM Tuning</h2></p>
+    The Java virtual machine's configuration is very important to tune for best performance in any production environment, and some of Sakai's tools may not operate with the memory alloted by the default JVM.<br/>
+    <p/>
+    <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+	             <tbody>
+	               <tr>
+	                 <th>Disclaimer</th>
+	               </tr>
+	               <tr>
+	                 <td class="white">JVM tuning is, as a general rule, something of a black art, and we recommend that you take the time to experiment with different memory and garbage collection settings and see what works best in your environment. We can make some minimal recommendations that should serve as a foundation for further experimentation and testing, but the following details are however offered only as samples or suggestions, and we recommend that you consult a systems administrator or local Java guru before making any such changes to a production system. See Sun's <a href="http://java.sun.com/docs/hotspot/gc5.0/gc_tuning_5.html">Tuning Garbage Collection</a> documentation for more details.</td>
+	               </tr>
+	             </tbody>
+    </table>
+    <p>The standard way to control the JVM options when Tomcat starts up is to have an environment variable JAVA_OPTS defined with JVM startup options. Since any given Sakai instance may be deployed for a variety of purposes - ranging from developers doing private testing to large-scale deployments - it's hard to recommend a single set of such options as the preferred ones for every case. We can, however, start with a bare minimum which will at least avoid "Out of Memory" errors:</p>
+    <pre><span class="code">JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=128m"</span></pre>
+    <p>This is an adequate - if minimal - starting point: it selects server mode, sets an adequate heap size [We have found the best results when the min and max memory settings (Xms and Xmx, respectively) are set to be the same values], and sizes the permanent generation to accommodate more longer-persisting objects. These settings will allow things to be functional for testing, but will hardly be adequate for serving multiple concurrent users.  A more suitable production environment on a 32-bit machine might use a set of options like:</p>
+    <pre><span class="code">JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m<br>-XX:PermSize=128m -XX:MaxPermSize=128m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails"</span></pre>
+    <p>This is better: a larger heap size is set for smoother performance, and garbage collection messages are turned on.  Another important setting is the NewSize - actually, the ratio of it to the heap size.  We want as large a NewSize as we can fit in the total heap, while keeping the total heap significantly bigger than NewSize in order for Java to properly garbage collect.</p>
+    <p>As you can see, there's a lot to think about here, and in practice each implementing institution uses their own particular JAVA_OPTS that they've settled on for their deployment and hardware, and these typically use more option arguments than we've shown here. This discussion is meant only as a head start, and there is no replacement for doing your own testing.</p>
+    <p>In any event, once you set JAVA_OPTS Tomcat will see this environment variable upon startup and use it. Instead of putting this in an environment variable, you might modify the $CATALINA_HOME/bin/catalina.bat or $CATALINA_HOME/bin/catalina.sh file to automatically set these values during startup.</p>
+    <br/><table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+		             <tbody>
+		               <tr>
+		                 <th>JVM Tuning in Windows XP</th>
+		               </tr>
+		               <tr>
+		                 <td class="white">Windows users may set Java options in a "Tomcat Properties" dialog if Tomcat is installed as a service. But you may find that the permanent generation settings mentioned above will not work appropriately if set in the <em>Java Options:</em> field of the dialog window. That's because these settings have their own fields in the properties GUI, under the headings <em>Initial Memory Pool</em> and <em>Maximum memory pool</em>, respectively.  Windows apparently ignores attempts to alter these values through the <em>Java Options</em> field.</td>
+		               </tr>
+		             </tbody>
+    </table>
+
+    <a name="test"></a>
+
+      <p><h2>4.6 Test Sakai</h2></p>
+      At this stage your installation of Sakai has not yet been configured to use your preferred database (it will use its own HSQLDB by default), but you should now be able to bring it up as a working web application by simply starting Tomcat, and it can be helpful at this point to know if any problems exist before you try to connect it to another database. Tomcat will take a minute or so to start up, depending on the speed of your machine, and it's a good idea to watch the Tomcat log as it comes up to catch any errors (see <a href="tshoot.html">Troubleshooting</a>).</p>
+      <p>From $CATALINA_HOME you can start up Tomcat with the command:</p>
+      <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <th>OS</th>
+            <th>Sample
+  Output</th>
+          </tr>
+          <tr>
+            <td class="white"><strong>Windows:</strong></td>
+            <td class="white">
+            <pre><span class="code">bin\catalina.bat start</span></pre>
+            </td>
+          </tr>
+          <tr>
+            <td class="white"><strong>Mac/*nix:</strong></td>
+            <td class="white">
+            <pre><span class="code">bin/catalina.sh start</span></pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p>Once Tomcat has loaded the
+  Sakai application (again, this can take a minute or so) point your
+  browser to (assuming you're running the browser from the machine where Sakai is installed):
+  <pre><span style="code">http://localhost:8080/portal</span></pre>
+  <p/>
+  If the gateway page does not come up, check the Tomcat logs (see <a href="tshoot.html">Troubleshooting
+  </a>). &nbsp;If the gateway page does come up, log in with the default admin account:<br/>
+  <pre><span style="code">username = admin, password = admin.</span></pre>
+  <p/>If you can log in without errors you should be able to stop Tomcat and proceed with <a href="dbconfig.html">Database configuration</a>, if needed.</p>
+      <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr>
+            <th>OS</th>
+            <th>Sample Output</th>
+          </tr>
+          <tr>
+            <td class="white"><strong>Windows:</strong></td>
+            <td class="white">
+            <pre><span class="code">bin\catalina.bat stop</span></pre>
+            </td>
+          </tr>
+          <tr>
+            <td class="white"><strong>Mac/*nix:</strong></td>
+            <td class="white">
+            <pre><span class="code">bin/catalina.sh stop</span></pre>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+<p>
+</p>
+
+<!--END CONTENT-->
+</div>
+<br clear="all" /><!-- without this little <br /> NS6 and IE5PC do not stretch the frame div down to encopass the content DIVs -->
+  <!--END FRAME-->
+</div>
+</div>
+</body>
+</html>

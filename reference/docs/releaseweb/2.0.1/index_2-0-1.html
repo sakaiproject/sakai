@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Sakai Project Release Page</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1" />
+  <meta name="description"
+ content="Sakai - www.sakaiproject.org, Community Source Software for Education." />
+  <meta name="keywords"
+ content="sakai, sakaiproject.org, sakaiproject, Sakai, Community Source, Open Source, open-open, educational software, collaborative" />
+  <meta name="robots" content="index, follow" />
+ <link href="http://sakaiproject.org/templates/extralight/css/template_css.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<table bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0"
+ width="100%">
+  <tbody>
+    <tr>
+      <td class="mainHeader" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+          <tr>
+            <td><a href="http://www.sakaiproject.org/"><img
+ src="http://sakaiproject.org/images/stories/conferenceLogos/logoslate160x89.jpg" alt="Sakai Logo"
+ border="0" /></a></td>
+            <td class="topNav" align="right" valign="top" width="100%">
+            <table class="moduletable" cellpadding="0" cellspacing="0">
+              <tbody>
+                <tr>
+                  <td
+ style="color: rgb(255, 255, 255); font-size: x-large;" align="right"><br />
+2.1.0 Release&nbsp;&nbsp;</td>
+                </tr>
+              </tbody>
+            </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </td>
+    </tr>
+    <tr>
+      <td class="searchBar" style="height: 2em;" bgcolor="#eeeeee"> <span
+ class="pathway"> <img src="http://www.sakaiproject.org/images/M_images/arrow.png" height="9"
+ width="9" />
+      <a href="http://www.sakaiproject.org/">Home
+      </a> <img src="http://www.sakaiproject.org/images/M_images/arrow.png" height="9"
+ width="9" />Release
+      <img src="http://www.sakaiproject.org/images/M_images/arrow.png" height="9" width="9" />2.1.0</span> </td>
+    </tr>
+    <tr class="mainPageContent">
+      <td width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+        <tbody>
+          <tr>
+            <td width="16">
+            </td>
+            <td style="padding-left: 12px;">
+            <p>Welcome to the
+Sakai Release page for version 2.1.0</p>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left">Downloads</p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <th>Download</th>
+                  <th></th>
+                  <th>Windows</th>
+                  <th>Mac OSX /
+*nix</th>
+                </tr>
+                <tr>
+                  <td align="center">Demo</td>
+                  <td>The Sakai
+Demo is a pre-built Sakai with Tomcat 5.5.9 and a demo
+configuration, perfect for a quick and easy demo of Sakai.&nbsp;
+                  <ul>
+                    <li><i>Note:
+Demo uses an in-memory database; do not use it for any large scale
+evaluation or production.</i></li>
+                  </ul>
+                  </td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-demo_2-1-0.zip">sakai-demo_2-1-0.zip</a><br />
+(68.1M)</td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-demo_2-1-0.tar.gz">sakai-demo_2-1-0.tar.gz</a><br />
+(67.1M)</td>
+                </tr>
+                <tr>
+                  <td align="center">Source</td>
+                  <td> The Sakai
+Source is all the Sakai source code from this release.&nbsp; Start
+from
+Source if you plan to customize your Sakai
+system. </td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-src_2-1-0.zip">sakai-src_2-1-0.zip</a><br />
+(9.8M)</td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-src_2-1-0.tar.gz">sakai-src_2-1-0.tar.gz</a><br />
+(6.9M)</td>
+                </tr>
+                <tr>
+                  <td align="center">Binary</td>
+                  <td> The Sakai
+Binary is a pre-built Sakai without the Tomcat or configuration.
+Download the Binary release if you want to just drop Sakai into a
+pre-existing Tomcat environment. </td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-bin_2-1-0.zip">sakai-bin_2-1-0.zip</a><br />
+(61.0M)</td>
+                  <td style="white-space: nowrap;"><a
+ href="sakai_2-1-0/sakai-bin_2-1-0.tar.gz">sakai-bin_2-1-0.tar.gz</a><br />
+(60.8M)</td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left">Overview
+of System Requirements</p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td>Sakai is
+Java-based, and can therefore run on a wide variety of
+platforms. &nbsp;The specific platforms against which Sakai 2.1.0
+has been tested are:<br />
+                  <table border="0" cellpadding="0" cellspacing="16">
+                    <tbody>
+                      <tr>
+                        <th style="text-align: center;">Functional Test
+(Software
+Functionality) </th>
+                        <th style="text-align: center;" colspan="3"
+ rowspan="1">Deployment
+Test (Installation and Configuration) </th>
+                      </tr>
+                      <tr>
+                        <td>
+                        <ul>
+                          <li>Solaris/HSQLDB</li>
+                          <li>Solaris/MySQL</li>
+                          <li>Solaris/Oracle
+10g</li>
+                        </ul>
+                        </td>
+                        <td>
+                        <ul>
+                          <li>Linux/HSQLDB</li>
+                          <li>Linux/MySQL</li>
+                          <li>Linux/Oracle
+10g</li>
+                        </ul>
+                        </td>
+                        <td>
+                        <ul>
+                          <li>Solaris/HSQLDB</li>
+                          <li>Solaris/MySQL</li>
+                          <li>Solaris/Oracle
+9i (10g driver)</li>
+                        </ul>
+                        </td>
+                        <td>
+                        <ul>
+                          <li>Mac
+OS
+10.4 Tiger/MySQL</li>
+                          <li>WinXP/HSQLDB</li>
+                          <li>WinXP/MySQL</li>
+                        </ul>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <br />
+                  <br />
+The basic underlying requirements for a
+successful
+deployment of Sakai 2.1.0
+are:<br />
+                  <table border="0" cellpadding="0" cellspacing="16">
+                    <tbody>
+                      <tr>
+                        <th style="text-align: center;">Supporting
+Technology</th>
+                        <th style="text-align: center;">Notes</th>
+                        <th style="text-align: center;">Recommended
+versions</th>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center;">Java</td>
+                        <td>
+                        <p>While
+it
+is possible to run Sakai 2.0 with Java 1.5, some errors and problematic
+behavior have been reported, and until further testing is done Java 1.5
+is therefore
+not recommended for production.</p>
+                        </td>
+                        <td style="text-align: center;">1.4.2</td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center;">Tomcat</td>
+                        <td>Although
+Tomcat is not
+the only available web container, it is highly recommended and the
+documentation assumes Tomcat use.<br />
+                        <br />
+Tomcat 5.5 is the required version, but Tomcat 5.5 requires a
+compatibility patch in order to run with Java 1.4. This
+compatibility patch is also
+available from the Tomcat download page.</td>
+                        <td align="center">
+                        <p>5.5</p>
+                        <p>Compatibility
+patch</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center;">Maven</td>
+                        <td>Maven
+is
+the&nbsp;build tool used to deploy the source code, and is
+therefore not strictly necessary if all you're going to do is install
+a&nbsp;Demo with the default configuration, but it will be
+essential
+for a production deployment.</td>
+                        <td style="text-align: center;">Latest
+stable version
+(currently 1.0.2)</td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: center;">Database</td>
+                        <td>Sakai
+uses HSQLDB as its
+"out of the box" database, requiring no special installation
+steps to set up,&nbsp;but this database is not recommended for any
+level of production deployment. &nbsp;Both
+MySQL and Oracle are currently supported by Sakai 2.0, but setting them
+up to serve as Sakai's back end will require additional configuration
+(see the <a href="#Documentation">Documentation</a>).</td>
+                        <td align="center">
+                        <p>MySQL
+4.1 (with
+connector 3.1.10)</p>
+                        <p>OR</p>
+                        <p>Oracle
+9i+ (with 10g connector)</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div style="text-align: right;">*See the <a
+ href="#Documentation">Documentation</a>
+for more details on these requirements and
+configuration information </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center"></td>
+                  <td><span style="font-weight: bold;">Hardware
+note:</span> There are as yet no
+firm hardware
+recommendations.
+&nbsp;Sakai should run on an ordinary laptop for demo purposes, but
+at least 1GB of memory is recommended for Sakai to run smoothly for
+multiple
+users, while a typical production environment for an institution will
+involve multiple
+clustered application servers.</td>
+                </tr>
+                <tr>
+                  <td align="center"></td>
+                  <td><span style="font-weight: bold;">Browser
+note:</span> &nbsp;There isn't
+an officially supported list, but we can say that Sakai works well with
+Firefox (on all platforms), IE 6.0 and Netscape 7.1+ (on Windows).
+&nbsp;Browsers which may have issues (particularly with the WYSIWYG
+editor) include: Safari, IE for the
+Mac, Opera, Camino, and Netscape
+7.0 or older. </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Documentation</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center">HTML
+Guides</td>
+                  <td>
+                  <ul>
+                    <li><a href="demo_install_guide.html">Demo
+Installation
+Guide</a></li>
+                    <li><a href="source_install_guide.html">Source
+Installation
+Guide</a></li>
+                    <li><a href="binary_install_guide.html">Binary
+Installation Guide</a></li>
+                    <li><a href="troubleshooting.html">Troubleshooting
+Guide</a></li>
+                    <li><a href="production_config.html">Production
+Configuration Guide</a></li>
+                  </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">In
+The Releases</td>
+                  <td>See the
+readme files packaged in the releases:
+                  <ul>
+                    <li>In the
+demo, they are in the root directory.</li>
+                    <li>In the
+source and binary releases, they are in the /docs folder.</li>
+                  </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">On
+Sakai Collab</td>
+                  <td>Sakai
+Collab is a Sakai based service run by the Sakai Project to support
+Sakai development and use. To participate, create an account and join
+the <b>Sakai Development</b>
+site. You will find in-depth Sakai
+documentation in Resources, and receive Announcements (with email
+notification) about important Sakai developments. By joining this site
+you are automatically added to the <a
+ href="mailto:sakai-dev@collab.sakaiproject.org">sakai-dev@collab.sakaiproject.org</a>
+mailing list.
+                  <ul>
+                    <li><a href="http://collab.sakaiproject.org/">Sakai
+Collab</a></li>
+                  </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center">Support
+Docs</td>
+                  <td>JavaDocs and
+TagLibDocs are available on-line:
+                  <ul>
+                    <li><a
+ href="javadoc/">JavaDocs</a>
+or <a
+ href="javadoc/sakai-javadoc.zip">(download
+zip)</a></li>
+                    <li><a
+ href="taglibdoc/">TagLibDocs</a>
+or <a
+ href="taglibdoc/sakai-taglibdoc.zip">(download
+zip)</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Release
+Notes</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td>Release
+notes for this release are here:
+                  <ul>
+                    <li><a
+ href="changes.html">2.1.0
+Release Notes</a></li>
+                  </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center"></td>
+                  <td>Issues
+remaining in this release are documented here:
+                  <ul>
+                    <li><a href="important_issues.html"><span
+ style="color: rgb(255, 0, 0);">2.1.0 Important Issues</span></a></li>
+                    <li><a
+ href="open_issues.html">2.1.0
+Open Issues</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Getting
+the Latest Source Code</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td> Sakai is
+using Subversion. You can browse the code for this release using
+this URL:
+                  <ul>
+                    <li><a
+ href="https://source.sakaiproject.org/svn/tags/sakai_2-1-0">https://source.sakaiproject.org/svn/tags/sakai_2-1-0</a></li>
+                  </ul>
+                  <br />
+The same URL can be used with an SVN client to check out the code:
+                  <ul>
+                    <li><b>svn
+co https://source.sakaiproject.org/svn/tags/sakai_2-1-0</b></li>
+                  </ul>
+                  <br />
+The Sakai development trunk is located here:
+                  <ul>
+                    <li><a
+ href="https://source.sakaiproject.org/svn/trunk/sakai">https://source.sakaiproject.org/svn/trunk/sakai</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Issue
+Tracking</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td>The Sakai
+Project feature requests and bug reports are available from our Jira
+system:
+                  <ul>
+                    <li><a
+ href="http://bugs.sakaiproject.org/jira/secure/Dashboard.jspa">Sakai
+Jira</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Community</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td>Sakai
+Confluence is for members of the Sakai community to share their Sakai
+experience:
+                  <ul>
+                    <li><a
+ href="http://bugs.sakaiproject.org/confluence/homepage.action">Sakai
+Confluence</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">Releases</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td> Older Sakai
+Releases are still available:
+                  <ul>
+                    <li><a
+ href="http://cvs.sakaiproject.org/release/2.0.1/">2.0.1</a></li>
+ <li><a
+ href="http://cvs.sakaiproject.org/release/2.0.0/">2.0.0</a></li>
+                    <li><a
+ href="http://cvs.sakaiproject.org/release/1.5.1/">1.5.1</a></li>
+                    <li><a
+ href="http://cvs.sakaiproject.org/release/1.5.0/">1.5.0</a></li>
+                    <li><a
+ href="http://cvs.sakaiproject.org/release/1.0.0/">1.0.0</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <br />
+            <p style="font-size: larger; font-weight: bold;"
+ align="left"><a name="Documentation">License</a></p>
+            <table border="0" cellpadding="0" cellspacing="16">
+              <tbody>
+                <tr>
+                  <td align="center"></td>
+                  <td> The Sakai
+Project Software is Licensed under the:
+                  <ul>
+                    <li><a
+ href="http://cvs.sakaiproject.org/licenses/license_1_0.html">Educational
+Community License Version 1.0</a></li>
+                  </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p></p>
+            <p></p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

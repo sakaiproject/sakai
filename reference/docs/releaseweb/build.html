@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Build and Deploy Sakai</title>
+ <link href="styles/posu.css" rel="stylesheet" type="text/css" />
+ <link href="styles/styles3.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<div id="frame">
+
+	<div id="contentheader">
+	<a href="http://www.sakaiproject.org/">
+<img src="images/logoslate160x89.jpg" alt="Sakai Logo"
+ border="0" /></a>
+	</div>
+
+	<div id="contentleft">
+
+	<div id="bar">
+	  &nbsp;
+	  <!--END BAR-->
+	</div>
+
+<div class="pad">
+<h2>Installation Guide<br>Table of Contents</h2>
+<ol>
+<li>
+<a href="InstallGuide.html">Installation Overview</a></li>
+<ul class="toc">
+	<li><a href="InstallGuide.html#choose">1.1 Choose an Install Type</a></li>
+	<li><a href="InstallGuide.html#demo">1.2 Demo Installation</a></li>
+	<li><a href="InstallGuide.html#binary">1.3 Binary Installation</a></li>
+	<li><a href="InstallGuide.html#overview">1.4 Source Install Phases</a></li>
+	<li><a href="InstallGuide.html#migrating">1.5 Migrating from a Previous Release</a></li>
+</ul>
+<li>
+<a href="buildenv.html">Set Up Build Environment</a>
+<ul class="toc">
+  <li><a href="buildenv.html#verify">2.1 Verify Java installation</a></li>
+  <li><a href="buildenv.html#set">2.2 Set environment variables</a></li>
+  <li><a href="buildenv.html#tomcat">2.3 Install
+  Tomcat</a></li>
+  <li><a href="buildenv.html#configurationtc">2.4 Configure Tomcat</a></li>
+  <li><a href="buildenv.html#maven">2.5 Install Maven</a></li>
+  <li><a href="buildenv.html#configurationm">2.6 Configure Maven</a></li>
+  <li><a href="buildenv.html#testm">2.7 Test Maven</a></li>
+  </li>
+ </ul>
+<li>
+<a href="build.html">
+  Build and Deploy Sakai</a>
+<ul class="toc">
+<li><a href="build.html#download">3.1 Download source</a></li>
+  <li><a href="build.html#unpack">3.2 Unpack source</a></li>
+  <li><a href="build.html#runmaven">3.3 Run maven</a></li>
+</ul>
+</li>
+
+<li>
+  <a href="postconfig.html">Post-Installation Configuration</a>
+<ul class="toc">
+<li><a href="postconfig.html#folder">4.1 Create sakai folder <br />
+for properties files</a> </li>
+  <li> <a href="postconfig.html#properties">4.2 The
+sakai.properties file</a> </li>
+  <li><a href="postconfig.html#personalize">4.3 Personalizing Sakai</a> </li>
+  <li><a href="postconfig.html#email">4.4 Email configuration</a> </li>
+  <li><a href="postconfig.html#jvm">4.5 JVM tuning</a> </li>
+  <li><a href="postconfig.html#test">4.6 Test Sakai</a> </li>
+</ul>
+</li>
+
+<li>
+  <a href="dbconfig.html">Database Configuration</a>
+<ul class="toc">
+  <li><a href="dbconfig.html#updating">5.1 Migrating from a Previous Version</a></li>
+  <li><a href="dbconfig.html#deployd">5.2 Deploy drivers</a> </li>
+  <li><a href="dbconfig.html#create">5.3 Create Sakai database and user</a> </li>
+  <li><a href="dbconfig.html#sproperties">5.4 Database Properties</a> </li>
+</ul>
+</li>
+<li>
+  <a href="tshoot.html">Troubleshooting</a>
+<ul class="toc">
+  <li><a href="tshoot.html#common">6.1 Common Issues</a> </li>
+  <li><a href="tshoot.html#maven">6.2 Working with Maven</a> </li>
+  <li><a href="tshoot.html#logs">6.3 Tomcat logs</a> </li>
+</li>
+</ul>
+</li>
+</ol>
+<p>&nbsp;</p>
+
+
+    <!--END PAD-->
+  </div>
+
+   <!--END LEFT-->
+</div>
+
+<div id="contentcenter">
+<table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+          <tbody>
+            <tr>
+              <th>How Sakai uses Maven</th>
+            </tr>
+            <tr>
+              <td class="white">The steps below are limited to what you need to get started, but you may feel the need learn more about how Sakai uses Maven.  To find the most detailed documentation on how Sakai uses Maven, look for <b>sakai_maven.doc</b> in docs/architecture of the source archive. This includes directions for installing the Sakai plugin into your maven environment, so that you can run maven commands from the modules and projects within Sakai, instead of always building the entire code base. A direct link to the documentation file in subversion is below:<br/>
+<a href="https://source.sakaiproject.org/svn/tags/sakai_2-1-2/docs/architecture/sakai_maven.doc">sakai_maven.doc in subversion</a>.</td>
+            </tr>
+          </tbody>
+    </table>
+<h1>3. Build and Deploy Sakai</h1>
+<a name="download"></a>
+<h2>3.1 Download Source</h2>
+	<br />
+  Download the Sakai Source
+archive from: <a href="http://www.sakaiproject.org/release/">http://www.sakaiproject.org/release</a>
+<p></p>
+   <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+          <tbody>
+            <tr>
+              <th>Getting the Code from Subversion</th>
+            </tr>
+            <tr>
+              <td class="white">Alternatively, you may check out the source code from subversion with the command:</br>
+   <pre><span class="code">svn co https://source/sakaiproject.org/svn/tags/sakai_2-1-2</span></pre>
+   <p>In which case you could skip the unpacking step below, and your root directory would be sakai_2-1-2 instead of sakai-src.</td>
+            </tr>
+          </tbody>
+    </table>
+   <p>
+   <a name="unpack"></a>
+
+    <p><h2>3.2 Unpack Source</h2>
+	<br />Choose a location to unpack
+the Sakai source (your home directory is fine), and when you unpack it you will see a directory
+named sakai-src.<br /><br />
+
+  <a name="runmaven"></a>
+
+    <p><h2>3.3 Run Maven</h2>
+	<br />
+	From within sakai-src, run the command:<br />
+	<pre><span class="code">maven sakai</span></pre>
+    <p>This will run for quite some time with fairly verbose output, particularly if it's your first build. It may take 15 minutes or more, depending on your machine, connection speed, and responsiveness of the remote repositories that hold the jar dependencies. Maven will download any dependencies into the local repository, compile the Sakai code, and deploy Sakai to Tomcat in the form of .war files in the $CATALINA_HOME/webapps directory.</p>
+    <table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+	          <tbody>
+	            <tr>
+	              <th>*.jar Download Failures</th>
+	            </tr>
+	            <tr>
+	              <td class="white"><p>A first build of Maven on a fresh installation will warn of numerous jar download failures for sakai jars during the clean phase. This is not generally a problem. Even when doing a mere "clean", maven tries to download dependencies. Typically these jars are named according to the build release e.g. for Sakai 2.1 you will see:</p>
+
+<p><pre><span class="code">WARNING: Failed to download sakai-authentication-sakai_2-1.jar</span></pre></p>
+
+<p>Once these jars are built the errors will not reappear for subsequent builds.</p></td>
+	            </tr>
+	          </tbody>
+    </table>
+<p>If Maven completes with the message BUILD SUCCESSFUL, you should be able to move on to the next step. If you are greeted with the report BUILD FAILED, read the accompanying error message carefully to troubleshoot
+(see the <a href="tshoot.html">Troubleshooting</a> section).</p>
+    <p>You will probably be able to start up Tomcat and run Sakai with the default configuration at
+this point, but it might be better to take care of some basic post-installation configuration first.  Please continue on to the <a href="postconfig.html">Post-Installation Configuration</a> section.</p>
+
+
+
+<!--END CONTENT-->
+</div>
+<br clear="all" /><!-- without this little <br /> NS6 and IE5PC do not stretch the frame div down to encopass the content DIVs -->
+  <!--END FRAME-->
+</div>
+</body>
+</html>

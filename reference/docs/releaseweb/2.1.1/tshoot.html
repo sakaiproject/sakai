@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+
+<title>Basic Troubleshooting</title>
+ <link href="styles/pos.css" rel="stylesheet" type="text/css" />
+ <link href="styles/styles3.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+<div id="frame">
+
+	<div id="contentheader">
+	<a href="http://www.sakaiproject.org/">
+<img src="images/logoslate160x89.jpg" alt="Sakai Logo"
+ border="0" /></a>
+	</div>
+
+	<div id="contentcenter">
+	<div id="contentleft">
+
+	<div id="bar">
+	  &nbsp;
+	  <!--END BAR-->
+	</div>
+
+<div class="pad">
+<h2>Installation Guide<br>Table of Contents</h2>
+<ol>
+<li>
+<a href="InstallGuide.html">Installation Overview</a></li>
+<ul class="toc">
+	<li><a href="#choose">1.1 Choose an Install Type</a></li>
+	<li><a href="#demo">1.2 Demo Installation</a></li>
+	<li><a href="#binary">1.3 Binary Installation</a></li>
+	<li><a href="#overview">1.4 Source Install Phases</a></li>
+	<li><a href="#migrating">1.5 Migrating from a Previous Release</a></li>
+</ul>
+<li>
+<a href="buildenv.html">Set Up Build Environment</a>
+<ul class="toc">
+  <li><a href="buildenv.html#verify">2.1 Verify Java installation</a></li>
+  <li><a href="buildenv.html#set">2.2 Set environment variables</a></li>
+  <li><a href="buildenv.html#tomcat">2.3 Install
+  Tomcat</a></li>
+  <li><a href="buildenv.html#configurationtc">2.4 Configure Tomcat</a></li>
+  <li><a href="buildenv.html#maven">2.5 Install Maven</a></li>
+  <li><a href="buildenv.html#configurationm">2.6 Configure Maven</a></li>
+  <li><a href="buildenv.html#testm">2.7 Test Maven</a></li>
+  </li>
+ </ul>
+<li>
+<a href="build.html">
+  Build and Deploy Sakai</a>
+<ul class="toc">
+<li><a href="build.html#download">3.1 Download source</a></li>
+  <li><a href="build.html#unpack">3.2 Unpack source</a></li>
+  <li><a href="build.html#runmaven">3.3 Run maven</a></li>
+</ul>
+</li>
+
+<li>
+  <a href="postconfig.html">Post-Installation Configuration</a>
+<ul class="toc">
+<li><a href="postconfig.html#folder">4.1 Create sakai folder <br />
+for properties files</a> </li>
+  <li> <a href="postconfig.html#properties">4.2 The
+sakai.properties file</a> </li>
+  <li><a href="postconfig.html#personalize">4.3 Personalizing Sakai</a> </li>
+  <li><a href="postconfig.html#email">4.4 Email configuration</a> </li>
+  <li><a href="postconfig.html#jvm">4.5 JVM tuning</a> </li>
+  <li><a href="postconfig.html#test">4.6 Test Sakai</a> </li>
+</ul>
+</li>
+
+<li>
+  <a href="dbconfig.html">Database Configuration</a>
+<ul class="toc">
+  <li><a href="dbconfig.html#updating">5.1 Migrating from a Previous Version</a></li>
+  <li><a href="dbconfig.html#deployd">5.2 Deploy drivers</a> </li>
+  <li><a href="dbconfig.html#create">5.3 Create Sakai database and user</a> </li>
+  <li><a href="dbconfig.html#sproperties">5.4 Database Properties</a> </li>
+</ul>
+</li>
+<li>
+  <a href="tshoot.html">Troubleshooting</a>
+<ul class="toc">
+  <li><a href="tshoot.html#common">6.1 Common Issues</a> </li>
+  <li><a href="tshoot.html#maven">6.2 Working with Maven</a> </li>
+  <li><a href="tshoot.html#logs">6.3 Tomcat logs</a> </li>
+</li>
+</ul>
+</li>
+</ol>
+<p>&nbsp;</p>
+
+    <!--END PAD-->
+  </div>
+
+   <!--END LEFT-->
+</div>
+
+<div class="pad">
+<h1>6. Troubleshooting</h1>
+<a name="common"></a>
+
+<h2>6.1 Common Issues</h2>
+	<br />
+  <strong>Out of Memory Errors:</strong><br>
+  If the screen of a tool fails to load and catalina.out reports an "Out of Memory" error, then you'll likely need to alter your JVM settings. Many modern app-server technologies make use of objects that persist for longer periods of time, and therefore many Sakai deployments have found it beneficial to adjust the JVM with flags to specify enough permanent space to accommodate these objects. Programs that dynamically generate and load many classes (e.g. Hibernate, Struts, JSF, Spring etc.) usually need a larger permanent generation than the default 32MB maximum. The permanent generation is sized independently from the other generations because it's where the JVM allocates classes, methods, and other "reflection" objects.
+
+  Specify flag -XX:PermSize=16m to allow the JVM to start with enough memory so that it doesn't have to pause apps to allocate more memory. Specify -XX:MaxPermSize for the size of the permanent generation to be greater than the default 32MB maximum.
+
+  When running on servers with multiple cpus, you'd multiply the memory by the number of CPU's. For example, to run a quad-processor machine you'd set the flag to -XX:MaxPermSize=128m.
+
+See also the "JVM Tuning" discussion in the <a href="postconfig.html">Post-Installation Configuration</a> section.
+   <a name="maven"></a>
+
+    <p><h2>6.2 Working with Maven</h2>
+	<br /><table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+             <tbody>
+               <tr>
+                 <th>Maven in Sakai</th>
+               </tr>
+               <tr>
+                 <td class="white"> See the maven.pdf posted to the Architecture Docs folder of the sakai-dev site's resources (link below) for a more thorough examination of how maven is used with Sakai. You can also find the "source" of this document as an MSWord file in subversion:
+                 <ul>
+                 <li><a href="http://collab.sakaiproject.org/access/content/group/1097928811887-22636/Architecture%20Docs/Sakai%202/sakai_maven.pdf">PDF on sakai-dev</a></li>
+                 <li><a href="https://source.sakaiproject.org/svn/trunk/sakai/docs/architecture/sakai_maven.doc">Word .doc on subversion</a></li>
+                 </ul></td>
+               </tr>
+             </tbody>
+    </table>
+
+   <ul>
+   <li><strong>Newer versions of Maven:</strong><br>
+Sakai will fail to build with the latest beta versions of maven (currently 1-1-beta, and 2.0). Maven 1.0.2 has been working reliably with Sakai for over a year, and the Sakai plugins have not been altered to conform to the architecture of Maven 2, so that even if Maven 2 comes out of beta in the near future 1.0.2 should continue to be used.</li>
+<li><strong>Updating the plugin:</strong><br>
+You can install the Sakai plugin into your maven environment, which is useful for letting you run maven commands from the modules and projects within Sakai instead of always building the entire code base. Installing the plugin makes it available whenever you use maven, not just for those projects that declare a dependency on the plugin. You will need to do this once each time you upgrade a minor point version of sakai.
+<table bgcolor="#ccddff" border="0" cellpadding="2" cellspacing="2">
+             <tbody>
+               <tr>
+                 <th>Maven plugin install</th>
+               </tr>
+               <tr>
+                 <td class="white"> maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.1
+                 </td>
+               </tr>
+             </tbody>
+    </table>
+    Note that the plugin-version is not necessarily the same as the Sakai version. The correct version to use will be available as the value of the <strong>sakai.plugin.version</strong> property in the sakai/master/project.properties file.</li>
+   <li><strong>jar download failures:</strong><br />
+
+      A first build of Maven on a fresh installation will warn of numerous jar download failures during the clean phase. This is not a problem. Even when doing a clean, maven tries to download dependencies. When the repository is initially empty maven can freak out during the clean phase while looking for jars that the impending build phase has yet to build. Once they are built, maven clean is perfectly happy next "clean build" cycle.</li>
+   <li><strong>Tomcat write permissions:</strong><br />
+
+      The most common maven build failures stem from the user running maven not having write access to the Tomcat directories being deployed to. Maven's error messages should make this fairly plain when it happens, and will even specify which copy or delete operation failed.</li>
+      <li><strong>Maven -x:</strong><br/>
+      Running maven with the x argument runs it in debug mode, and produces even more verbose output, which can be very helpful if the standard output is not providing enough information about errors.</li>
+
+   </ul>
+
+  <a name="logs"></a>
+    <p><h2>6.3 Tomcat Logs</h2>
+	<br />
+	   <ul>
+	   <li><strong>Log overview </strong><br />
+	      Once you have Sakai installed, configured and started, you can monitor Sakai by watching the logs. The log level for the standard Sakai source code and the demo is set to show info and warnings only. If you need to see more information, you can change the logging level to enable debug messages as well for all of Sakai or merely specific components. Sakai uses log4j for logging: see the log4j documentation for more information about how to configure it. Watch for the WARN: messages. There are going to be some "normal" ones at startup, and some will likely slip by at runtime, but any warning is potentially something you might want to check out.</li>
+	   <li><strong>Finding the Logs</strong> <br />
+
+	      On Mac and *nix systems the most important log is catalina.out in $CATALINA_HOME/logs.
+
+	      On Windows systems the situation is a little more complicated. The logs are also stored in $CATALINA_HOME\logs, but there are more of them:
+	      <ul>
+	      <li>jakarta_service_%date%.log</li>
+	      <li>admin.%date%.log</li>
+	      <li>catalina.%date%.log</li>
+	      <li>host-manager.%date%.log</li>
+	      <li>localhost.%date%.log</li>
+	      <li>manager.%date%.log</li>
+	      </ul>
+
+	      The Windows equivalent of catalina.out is the catalina.%date%.log, so focus on that one.</li>
+	   <li><strong>Watching logs at startup</strong> <br />
+
+	      Tomcat can take a long time to load the Sakai application, and it's often a good idea to watch the log in real-time as Tomcat comes up. You can watch for errors, and it will also allow you to be sure when Tomcat is done starting up. To do so on Mac or *nix systems you can run the command:
+	<p></p>
+	tail -f $CATALINA_HOME/logs/catalina.out
+	<p>You can achieve something similar in Windows with Cygwin or other utilities.</p></li>
+
+	   <li><strong>Log Configuration</strong> <br />
+
+	      To change the logging for Sakai, you need to change Sakai source code and re-deploy sakai. The file you need to change is:
+	      <p></p>
+
+	 sakai-src/kernel/log-configure/src/conf/log4j.properties
+	 <p></p>
+
+	      The section that pertains to Sakai as distributed is:
+<p></p>
+	 log4j.logger.org.sakaiproject=INFO
+<p></p>
+	      To turn on debug logging for all of Sakai, change that to:
+<p></p>
+	 log4j.logger.org.sakaiproject=DEBUG
+<p></p>
+	      To turn on debugging only for one part of Sakai, add a line like the one below:
+<p></p>
+	log4j.logger.org.sakaiproject=INFO<br />
+	log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG
+<p></p>
+	      This, for example, will leave most of Sakai at INFO, but the legacy SQL service will generate DEBUG level messages.</li>
+
+	  <li><strong>Other logs</strong> <br />
+
+	      The SMTP server logs from Sakai will be written to the $CATALINA_HOME/sakai/logs directory.</li>
+	      </ul>
+
+
+<!--END CONTENT-->
+</div>
+</div>
+<br clear="all" /><!-- without this little <br /> NS6 and IE5PC do not stretch the frame div down to encopass the content DIVs -->
+  <!--END FRAME-->
+</div>
+</body>
+</html>

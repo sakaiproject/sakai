@@ -1,0 +1,121 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Creating Users and Sites</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Getting Started with Web Services in Sakai 2.1"><link rel="up" href="ch02.html" title="Chapter 2. 20 Minute Quick Start"><link rel="prev" href="ch02s02.html" title="Where are the web services?"><link rel="next" href="ch02s04.html" title="Wrapping Up"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Creating Users and Sites</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s02.html">Prev</a> </td><th width="60%" align="center">Chapter 2. 20 Minute Quick Start</th><td width="20%" align="right"> <a accesskey="n" href="ch02s04.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id4704329"></a>Creating Users and Sites</h2></div></div></div><p>
+	To demonstrate writing a client, we will write a python script
+	that adds a few users to Sakai, and then creates a site for them. First, the entire
+	contents of the example script.
+	</p><p>
+		</p><pre class="programlisting">
+	
+import os
+import sys
+from SOAPpy import WSDL
+
+loginsoap = WSDL.SOAPProxy("http://localhost:8080/sakai-axis/SakaiLogin.jws?wsdl")
+scriptsoap = WSDL.SOAPProxy("http://localhost:8080/sakai-axis/SakaiScript.jws?wsdl")
+
+sessionid = loginsoap.login("admin", "admin")
+
+print scriptsoap.addNewUser(sessionid, "teacher", "Bob", "Smith", "bob@pedagogy.edu", "", "password" )
+print scriptsoap.addNewUser(sessionid, "student1", "Laura", "Hope", "laura@pedagogy.edu", "", "password"
+print scriptsoap.addNewUser(sessionid, "student2", "Sam", "Goodman", "bob@pedagogy.edu", "", "password" )
+print scriptsoap.addNewSite(sessionid, "psych101", "Psych 101 ", "Psychology", \
+                            "Psych", "", "", True, "access", True, True, "", "" )
+
+print scriptsoap.addNewPageToSite(sessionid, "psych101", "Announcements", 0)
+print scriptsoap.addNewToolToPage(sessionid, "psych101", "Announcements", "Announcements", "sakai.announcements", "")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "teacher", "maintain")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student1", "access")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student2", "access")
+</pre><p>
+</p><p>
+Running this script on the command line will show results something like:
+</p><pre class="programlisting">
+sgithens@thumbtack$ python QuickExample.py
+success
+success
+success
+success
+success
+success
+success
+success
+sgithens@thumbtack$
+</pre><p>
+</p><div class="screenshot"><div class="mediaobject"><img src="images/simpleresults.png"><div class="caption"><p>Results of QuickExample.py</p></div></div></div><p>
+
+
+</p><p>
+Writing a script like the one above typically requires the following steps:
+</p><div class="orderedlist"><ol type="1"><li><p>Creating SOAP Proxies</p></li><li><p>Authenticating, getting a Session ID</p></li><li><p>Performing the work</p></li></ol></div><p>
+</p><p>
+In our case, we create two soap proxies. One of them is to the SakaiLogin web service that
+lets us login and returns a Session Id. The second is to the SakaiScript web service containing
+the methods we need to perform useful work. For Sakai 2.1, these are the primary 
+web services use you'll use (unless you create your own).
+
+The code to create these proxies is:
+</p><pre class="programlisting">
+loginsoap = WSDL.SOAPProxy("http://localhost:8080/sakai-axis/SakaiLogin.jws?wsdl")
+scriptsoap = WSDL.SOAPProxy("http://localhost:8080/sakai-axis/SakaiScript.jws?wsdl")
+</pre><p>
+</p><p>
+Next we authenticate to get a Session Id. A Session Id isn't strictly necessary to use
+Sakai Web Services. The majority of web service methods will take a Session Id since most
+parts of Sakai are restricted to users with certain permissions.
+
+To get a Session Id we use the SakaiLogin webservice:
+</p><pre class="programlisting">
+sessionid = loginsoap.login("admin", "admin")
+</pre><p>
+We use the admin user account in order to have permission for adding Users and 
+Sites to the system.
+</p><p>
+With our SOAP Proxies and Session ID in hand, we can now use methods from SakaiScript
+to add Users and Sites to our Sakai installation.
+
+Adding Users:
+</p><pre class="programlisting">
+print scriptsoap.addNewUser(sessionid, "teacher", "Bob", "Smith", "bob@pedagogy.edu", "", "password" )
+print scriptsoap.addNewUser(sessionid, "student1", "Laura", "Hope", "laura@pedagogy.edu", "", "password"
+print scriptsoap.addNewUser(sessionid, "student2", "Sam", "Goodman", "bob@pedagogy.edu", "", "password" )
+</pre><p>
+This adds 3 users to the system and prints the results (hopefully success). The Session Id is from
+our login web service. Try using this script and substituting "admin" with a normal Sakai user and 
+their password. It will fail.
+
+The methods also takes parameters for User ID, Firstname, Lastname, email, type, and password. We
+can leave the type blank. Some Sakai installations use this field for special purposes.
+</p><p>
+The next few lines create a Site, and a Page with a Tool for the site.
+</p><pre class="programlisting">
+print scriptsoap.addNewSite(sessionid, "psych101", "Psych 101 ", "Psychology", \
+                            "Psych", "", "", True, "access", True, True, "", "" )
+
+print scriptsoap.addNewPageToSite(sessionid, "psych101", "Announcements", 0)
+print scriptsoap.addNewToolToPage(sessionid, "psych101", "Announcements", "Announcements", "sakai.announcements", "")
+</pre><p>
+</p><p>
+The first thing to note is that we leave a lot of parameters blank. They are most or less
+optional for the purposes of this excercise, and some of their descriptions are out of the scope
+of a 20 minute getting started guide.
+</p><p>
+The first call adds a new Site with the ID "psych101". The other strings offer various labels
+for the course. See the Javadoc'd entries on SakaiScript.jws for a full description of the parameters.
+(note: I am still JavaDoc'ing it).
+</p><p>
+Next we add a new page. A page is one of the entries that shows up on the Sidebar in Sakai. We then
+add an Announcement tool to the page. For both methods we use the Site ID, "pysch101" to indicate
+which Site we are adding pages and tools to. For Pages and Tools though, the names of the ID's are not
+always so clear, so we use the human readable label, "Announcements" to add them. This is not
+the cleanest approach, but it works for now. Just be sure not to make multiple Pages with the same
+label, or multiple tools on a page with the same label. "sakai.announcements" is the type of tool
+we are adding.
+</p><p>
+Lastly, we add the users to the newly created site.
+</p><pre class="programlisting">
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student1", "access")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student2", "access")
+</pre><p>
+The second parameter is the Id of the Site we created, the 3rd that of the user that is
+being added to the site. The last parameter contains the name of the role for the new user. 
+For this exercise we give intructors the "maintain" role, and students the "access" role.
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s02.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ch02s04.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Where are the web services? </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Wrapping Up</td></tr></table></div></body></html>
