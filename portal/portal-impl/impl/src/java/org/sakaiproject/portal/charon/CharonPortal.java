@@ -1484,8 +1484,7 @@ public class CharonPortal extends HttpServlet
 		String message2 = null;
 		String image2 = null;
 
-		// check for the top.login (where the login fields are present instead of a login link,
-		// but ignore it if container.login is set
+		// check for the top.login (where the login fields are present instead of a login link, but ignore it if container.login is set
 		boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(ServerConfigurationService.getString("top.login"));
 		boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(ServerConfigurationService.getString("container.login"));
 		if (containerLogin) topLogin = false;
@@ -1497,7 +1496,10 @@ public class CharonPortal extends HttpServlet
 			if (!topLogin)
 			{
 				logInOutUrl += "/portal/login";
-				message = rb.getString("log.login");
+
+				// check for a login text override
+				message = StringUtil.trimToNull(ServerConfigurationService.getString("login.text"));
+				if (message == null) message = rb.getString("log.login");
 
 				// check for an image for the login
 				image1 = StringUtil.trimToNull(ServerConfigurationService.getString("login.icon"));
@@ -1505,6 +1507,7 @@ public class CharonPortal extends HttpServlet
 				// check for a possible second, xlogin link
 				if (Boolean.TRUE.toString().equalsIgnoreCase(ServerConfigurationService.getString("xlogin.enabled")))
 				{
+					// get the text and image as configured
 					message2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.text"));
 					image2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.icon"));
 					logInOutUrl2 = "/portal/xlogin";
@@ -1516,7 +1519,10 @@ public class CharonPortal extends HttpServlet
 		else
 		{
 			logInOutUrl += "/portal/logout";
-			message = rb.getString("sit.log");
+
+			// check for a logout text override
+			message = StringUtil.trimToNull(ServerConfigurationService.getString("logout.text"));
+			if (message == null) message = rb.getString("sit.log");
 
 			// check for an image for the logout
 			image1 = StringUtil.trimToNull(ServerConfigurationService.getString("logout.icon"));
