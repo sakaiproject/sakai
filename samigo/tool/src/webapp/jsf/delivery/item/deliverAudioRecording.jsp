@@ -78,7 +78,7 @@ should be included in file importing DeliveryMessages
   codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
   WIDTH = "500" HEIGHT = "450" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
   <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
-  <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-TRUNK.jar" >
+  <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-dev.jar" >
   <PARAM NAME = CODEBASE VALUE = "/samigo/applets/" >
   <PARAM NAME = NAME VALUE = "Record Audio" >
   <PARAM NAME = "type" VALUE = "application/x-java-applet;version=1.5">
@@ -90,13 +90,13 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = "saveAu" VALUE="true">
   <PARAM NAME = "saveWave" VALUE="false">
   <PARAM NAME = "saveAiff" VALUE="false">
-  <PARAM NAME = "saveAsFile" VALUE="false">
+  <PARAM NAME = "saveToFile" VALUE="false">
   <PARAM NAME = "saveToUrl" VALUE="true">
   <PARAM NAME = "fileName" VALUE="audio">
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
      value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
-  <PARAM NAME = "frequency" VALUE="8000">
+  <PARAM NAME = "frequency" VALUE="44100">
   <PARAM NAME = "bits" VALUE="8">
   <PARAM NAME = "signed" VALUE="true">
   <PARAM NAME = "bigendian" VALUE="true">
@@ -110,7 +110,7 @@ should be included in file importing DeliveryMessages
       type = "application/x-java-applet;version=1.5" \
       CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
       JAVA_CODEBASE = "/samigo/applets/" \
-      ARCHIVE = "sakai-samigo-audio-TRUNK.jar"
+      ARCHIVE = "sakai-samigo-audio-dev.jar"
       NAME = "Record Audio" \
       WIDTH = "450" \
       HEIGHT = "450" \
@@ -129,7 +129,7 @@ should be included in file importing DeliveryMessages
       fileName ="audio" \
       url ="/samigo/servlet/UploadAudio" \
       compression ="linear" \
-      frequency ="8000" \
+      frequency ="44100" \
       bits ="8" \
       signed ="true" \
       bigendian ="true6" \
