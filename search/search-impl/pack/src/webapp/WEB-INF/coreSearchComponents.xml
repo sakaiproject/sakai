@@ -21,6 +21,9 @@
     init-method="init" destroy-method="destroy">
     <property name="sleepTime"><value>30000</value></property>
     <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
+    <property name="dataSource">
+      <ref bean="javax.sql.DataSource"/>      
+    </property>
   </bean>
   
   <bean id="org.sakaiproject.search.SearchSessionFactory"

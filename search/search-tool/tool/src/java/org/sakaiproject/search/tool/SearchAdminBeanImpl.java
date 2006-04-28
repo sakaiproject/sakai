@@ -24,16 +24,19 @@
 package org.sakaiproject.search.tool;
 
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 
 /**
  * @author ieb
@@ -199,6 +202,22 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 				searchService.getStatus(),
 				new Integer(searchService.getNDocs()),
 				new Integer(searchService.getPendingDocs()) });
+	}
+	public String getIndexDocuments( String rowFormat ) {
+		StringBuffer sb = new StringBuffer();
+		List l = searchService.getAllSearchItems();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			sb.append(MessageFormat.format(rowFormat,
+					new Object[] {
+					sbi.getId(), 
+					sbi.getName(), 
+					sbi.getContext(), 
+					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
+					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.getVersion() }));
+		}
+		return sb.toString();
 	}
 
 	/**

@@ -102,4 +102,6 @@ public interface SearchIndexBuilder
 	 */
 	void refreshIndex(String currentSiteId);
 
+	List getAllSearchItems();
+
 }

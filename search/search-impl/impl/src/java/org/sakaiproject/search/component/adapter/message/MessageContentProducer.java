@@ -404,6 +404,7 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				
 				MessageChannel c = messageService.getChannel(chanellId);
+				log.info("Got chanelID "+chanellId);
 
 				List messages = c.getMessages(null, true);
 				// WARNING: I think the implementation caches on thread, if this
@@ -418,7 +419,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.warn("Failed to get channel "+chanellId);
+				log.debug("Failed to get channel "+chanellId);
 
 			}
 		}

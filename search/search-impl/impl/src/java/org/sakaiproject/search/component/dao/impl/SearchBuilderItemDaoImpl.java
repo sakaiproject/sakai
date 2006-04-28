@@ -137,8 +137,8 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 								new Object[] { 
 										SearchBuilderItem.STATE_PENDING,
 										SearchBuilderItem.ACTION_UNKNOWN },
-								new Type[] { Hibernate.STRING,
-										Hibernate.INTEGER, Hibernate.INTEGER });
+								new Type[] { Hibernate.INTEGER,
+										Hibernate.INTEGER });
 				if (l == null || l.size() == 0)
 				{
 					return new Integer(0);

@@ -36,7 +36,6 @@ public class HtmlContentDigester extends BaseContentDigester
 		}
 		catch (ServerOverloadException e)
 		{
-			log.error(e);
 			throw new RuntimeException("Failed get Resource Content ", e);
 		}
 		return DigestHtml.digest(new String(baos.toByteArray()));

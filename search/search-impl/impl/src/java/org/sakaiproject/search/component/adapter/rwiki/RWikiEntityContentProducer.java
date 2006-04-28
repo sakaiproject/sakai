@@ -197,8 +197,8 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		List l = new ArrayList();
 		for (Iterator i = allPages.iterator(); i.hasNext();)
 		{
-			String pageName = (String) i.next();
-			String reference = objectService.createReference(pageName);
+			RWikiObject page = (RWikiObject) i.next();		
+			String reference = objectService.createReference(page.getName());
 			l.add(reference);
 		}
 		return l;

@@ -2,21 +2,25 @@ package org.sakaiproject.search.component.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.LockMode;
 import net.sf.hibernate.Session;
+import net.sf.hibernate.SessionFactory;
 import net.sf.hibernate.Transaction;
 import net.sf.hibernate.expression.Expression;
 import net.sf.hibernate.expression.Order;
-import net.sf.hibernate.type.Type;
 
 import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.id.uuid.UUID;
@@ -46,11 +50,8 @@ import org.sakaiproject.search.model.impl.SearchWriterLockImpl;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
-		Runnable
+public class SearchIndexBuilderWorker implements Runnable
 {
 
 	/**
@@ -60,9 +61,11 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 
 	protected static final Object GLOBAL_CONTEXT = null;
 
+	private static final String NO_NODE = "none";
+
 	private static Log log = LogFactory.getLog(SearchIndexBuilderWorker.class);
 
-	private final int numThreads = 1;
+	private final int numThreads = 10;
 
 	/**
 	 * The maximum sleep time for the wait/notify semaphore
@@ -89,6 +92,8 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	 * index
 	 */
 	private SearchService searchService = null;
+	
+	private DataSource dataSource = null;
 
 	private IdentifierGenerator idgenerator = new VersionFourGenerator();
 
@@ -96,6 +101,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	 * Semaphore
 	 */
 	private Object sem = new Object();
+
 
 	/**
 	 * The number of items to process in a batch, default = 100
@@ -111,6 +117,30 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	private EntityManager entityManager;
 
 	private EventTrackingService eventTrackingService;
+
+	private SessionFactory sessionFactory = null;
+
+	private boolean runThreads = true;
+
+	private ThreadLocal nodeIDHolder = new ThreadLocal();;
+
+	private static String lockedTo = null;
+
+	private static String SELECT_LOCK_SQL = "select id, nodename, "
+			+ "lockkey, expires from searchwriterlock where lockkey = ?";
+
+	private static String UPDATE_LOCK_SQL = "update searchwriterlock set "
+			+ "nodename = ?, expires = ? where id = ? "
+			+ "and nodename = ? and lockkey = ? ";
+
+	private static String INSERT_LOCK_SQL = "insert into searchwriterlock "
+			+ "( id,nodename,lockkey, expires ) values ( ?, ?, ?, ? )";
+
+	private static String COUNT_WORK_SQL = " select count(*) "
+			+ "from searchbuilderitem where searchstate = ? and searchaction <> ? ";
+
+	private static String CLEAR_LOCK_SQL = "update searchwriterlock "
+			+ "set nodename = ?, expires = ? where nodename = ? and lockkey = ? ";
 
 	public void init()
 	{
@@ -179,7 +209,8 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		String tn = threadName.substring(0, 1);
 		log.debug("Index Builder Run " + tn + "_" + threadName);
 		int threadno = Integer.parseInt(tn);
-		String threadID = getThreadID();
+
+		String nodeID = getNodeID();
 
 		org.sakaiproject.component.cover.ComponentManager.waitTillConfigured();
 
@@ -189,60 +220,54 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 			while (runThreads)
 			{
 				log.debug("Run Processing Thread");
-				Session hsession = null;
+				boolean locked = false;
 				org.sakaiproject.tool.api.Session s = null;
-				try
+				if (s == null)
 				{
-					while (runThreads)
-					{
-						try
-						{
-							sessionManager.setCurrentSession(s);
-							hsession = getSession();
-							if (s == null)
-							{
-								s = sessionManager.startSession();
-								User u = userDirectoryService.getUser("admin");
-								s.setUserId(u.getId());
-							}
-							sessionManager.setCurrentSession(s);
-							// process the list
-							int pending = countPending(true);
-							if (pending == 0)
-							{
-								hsession.flush();
-								hsession.close();
-								break;
-							}
-							processToDoList();
-							clearLock();
-							hsession.flush();
-							hsession.close();
-							hsession = null;
-
-						}
-						catch (IOException e)
-						{
-							e.printStackTrace();
-						}
-					}
+					s = sessionManager.startSession();
+					User u = userDirectoryService.getUser("admin");
+					s.setUserId(u.getId());
 				}
-				finally
+
+				while (runThreads)
 				{
+					sessionManager.setCurrentSession(s);
 					try
 					{
-						if (hsession != null)
+						if (getLockTransaction())
 						{
-							// make certain to bin the lock
-							hsession = getSession();
-							clearLock();
-							hsession.flush();
-							hsession.close();
+
+							log.info("===" + nodeID
+									+ "=============PROCESSING ");
+							if (lockedTo != null && lockedTo.equals(nodeID))
+							{
+								log
+										.error("+++++++++++++++Local Lock Collision+++++++++++++");
+							}
+							lockedTo = nodeID;
+							processToDoListTransaction();
+							if (lockedTo.equals(nodeID))
+							{
+								lockedTo = null;
+							}
+							else
+							{
+								log
+										.error("+++++++++++++++++++++++++++Lost Local Lock+++++++++++");
+							}
+							log
+									.info("===" + nodeID
+											+ "=============COMPLETED ");
+
+						}
+						else
+						{
+							break;
 						}
 					}
-					catch (Exception ex)
+					finally
 					{
-
+						clearLockTransaction();
 					}
 				}
 				if (!runThreads)
@@ -254,12 +279,19 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 					log.debug("Sleeping Processing Thread");
 					synchronized (sem)
 					{
-						log.debug("++++++WAITING " + threadID);
+						log.debug("++++++WAITING " + nodeID);
 						sem.wait(sleepTime);
 
-						log.debug("+++++ALIVE " + threadID);
+						log.debug("+++++ALIVE " + nodeID);
 					}
 					log.debug("Wakey Wakey Processing Thread");
+
+					if (org.sakaiproject.component.cover.ComponentManager
+							.hasBeenClosed())
+					{
+						runThreads = false;
+						break;
+					}
 				}
 				catch (InterruptedException e)
 				{
@@ -280,19 +312,332 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		}
 	}
 
+	private String getNodeID()
+	{
+		String nodeID = (String) nodeIDHolder.get();
+		if (nodeID == null)
+		{
+			UUID uuid = (UUID) idgenerator.nextIdentifier();
+			nodeID = uuid.toString();
+			nodeIDHolder.set(nodeID);
+		}
+		return nodeID;
+	}
+
+	/**
+	 * @return
+	 * @throws HibernateException
+	 */
+	private boolean getLockTransaction()
+	{
+		String nodeID = getNodeID();
+		Connection connection = null;
+		boolean locked = false;
+		boolean autoCommit = false;
+		PreparedStatement selectLock = null;
+		PreparedStatement updateLock = null;
+		PreparedStatement insertLock = null;
+		PreparedStatement countWork = null;
+		ResultSet resultSet = null;
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		Timestamp expiryDate = new Timestamp(now.getTime()
+				+ (10L * 60L * 1000L));
+
+		try
+		{
+
+			
+			// I need to go direct to JDBC since its just too awful to
+			// try and do this in Hibernate.
+
+			connection = dataSource.getConnection();
+			autoCommit = connection.getAutoCommit();
+			if (autoCommit)
+			{
+				connection.setAutoCommit(false);
+			}
+
+			selectLock = connection.prepareStatement(SELECT_LOCK_SQL);
+			updateLock = connection.prepareStatement(UPDATE_LOCK_SQL);
+			insertLock = connection.prepareStatement(INSERT_LOCK_SQL);
+			countWork = connection.prepareStatement(COUNT_WORK_SQL);
+
+			SearchWriterLock swl = null;
+			selectLock.clearParameters();
+			selectLock.setString(1, LOCKKEY);
+			resultSet = selectLock.executeQuery();
+			if (resultSet.next())
+			{
+				swl = new SearchWriterLockImpl();
+				swl.setId(resultSet.getString(1));
+				swl.setNodename(resultSet.getString(2));
+				swl.setLockkey(resultSet.getString(3));
+				swl.setExpires(resultSet.getTimestamp(4));
+				log.debug("GOT Lock Record " + swl.getId() + "::"
+						+ swl.getNodename() + "::" + swl.getExpires());
+
+			}
+
+			resultSet.close();
+			resultSet = null;
+
+			boolean takelock = false;
+			if (swl == null)
+			{
+				log.debug("_-------------NO Lock Record");
+				takelock = true;
+			}
+			else if ("none".equals(swl.getNodename()))
+			{
+				takelock = true;
+				log.debug(nodeID + "_-------------no lock");
+			}
+			else if (nodeID.equals(swl.getNodename()))
+			{
+				takelock = true;
+				log.debug(nodeID + "_------------matched threadid ");
+			}
+			else if (swl.getExpires() == null || swl.getExpires().before(now))
+			{
+				takelock = true;
+				log.debug(nodeID + "_------------thread dead ");
+			}
+
+			if (takelock)
+			{
+				// any work ?
+				countWork.clearParameters();
+				countWork.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
+				countWork
+						.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
+				resultSet = countWork.executeQuery();
+				int nitems = 0;
+				if (resultSet.next())
+				{
+					nitems = resultSet.getInt(1);
+				}
+				resultSet.close();
+				resultSet = null;
+				if (nitems > 0)
+				{
+					if (swl == null)
+					{
+						insertLock.clearParameters();
+						insertLock.setString(1, nodeID);
+						insertLock.setString(2, nodeID);
+						insertLock.setString(3, LOCKKEY);
+						insertLock.setTimestamp(4, expiryDate);
+
+						if (insertLock.executeUpdate() == 1)
+						{
+							log.debug("INSERT Lock Record " + nodeID + "::"
+									+ nodeID + "::" + expiryDate);
+
+							locked = true;
+						}
+
+					}
+					else
+					{
+						updateLock.clearParameters();
+						updateLock.setString(1, nodeID);
+						updateLock.setTimestamp(2, expiryDate);
+						updateLock.setString(3, swl.getId());
+						updateLock.setString(4, swl.getNodename());
+						updateLock.setString(5, swl.getLockkey());
+						if (updateLock.executeUpdate() == 1)
+						{
+							log.debug("UPDATED Lock Record " + swl.getId()
+									+ "::" + nodeID + "::" + expiryDate);
+							locked = true;
+						}
+
+					}
+
+				}
+
+			}
+			connection.commit();
+
+		}
+		catch (Exception ex)
+		{
+			if (connection != null)
+			{
+				try
+				{
+					connection.rollback();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			log.error("Failed to get lock " + ex.getMessage());
+			locked = false;
+		}
+		finally
+		{
+			if (resultSet != null)
+			{
+				try
+				{
+					resultSet.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (selectLock != null)
+			{
+				try
+				{
+					selectLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (updateLock != null)
+			{
+				try
+				{
+					updateLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (insertLock != null)
+			{
+				try
+				{
+					insertLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (countWork != null)
+			{
+				try
+				{
+					countWork.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+
+			if (connection != null)
+			{
+				try
+				{
+					connection.setAutoCommit(autoCommit);
+				}
+				catch (SQLException e)
+				{
+				}
+				try
+				{
+					connection.close();
+				}
+				catch (SQLException e)
+				{
+				}
+				connection = null;
+			}
+		}
+		return locked;
+
+	}
+
+	/**
+	 * Count the number of pending documents waiting to be indexed on this
+	 * cluster node. All nodes will potentially perform the index in a cluster,
+	 * however only one must be doing the index, hence this method attampts to
+	 * grab a lock on the writer. If sucessfull it then gets the real number of
+	 * pending documents. There is a timeout, such that if the witer has not
+	 * been seen for 10 minutes, it is assumed that something has gon wrong with
+	 * it, and a new writer is elected on a first grab basis. Every time the
+	 * elected writer comes back, it updates its record to say its still active.
+	 * We could do some round robin timeout, or allow deployers to select a pool
+	 * of index writers in Sakai properties. {@inheritDoc}
+	 */
+
+	private void clearLockTransaction()
+	{
+		String nodeID = getNodeID();
+
+		Connection connection = null;
+		PreparedStatement clearLock = null;
+		try
+		{
+			connection = dataSource.getConnection();
+
+			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
+			clearLock.clearParameters();
+			clearLock.setString(1, NO_NODE);
+			clearLock
+					.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			clearLock.setString(3, nodeID);
+			clearLock.setString(4, LOCKKEY);
+			if (clearLock.executeUpdate() == 1)
+			{
+				log.info("UNLOCK - OK    ?::" + nodeID + "::now");
+
+			}
+			else
+			{
+				log.debug("UNLOCK - Failed?::" + nodeID + "::now");
+			}
+			connection.commit();
+
+		}
+		catch (Exception ex)
+		{
+			try
+			{
+				connection.rollback();
+			}
+			catch (SQLException e)
+			{
+			}
+			log.error("Failed to clear lock" + ex.getMessage());
+		}
+		finally
+		{
+			if (connection != null)
+			{
+				try
+				{
+					connection.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+		}
+
+	}
+
 	/**
 	 * This method processes the list of document modifications in the list
 	 * 
 	 * @param runtimeToDo
 	 * @throws IOException
+	 * @throws HibernateException
 	 */
-	protected void processToDoList() throws IOException
+	protected void processToDoListTransaction()
 	{
-		txstartTransaction();
+		Session session = null;
+		Transaction transaction = null;
 		long startTime = System.currentTimeMillis();
 		int totalDocs = 0;
 		try
 		{
+			session = sessionFactory.openSession();
+			transaction = session.beginTransaction();
+
 			String indexDirectory = ((SearchServiceImpl) searchService)
 					.getIndexDirectory();
 			log.debug("Starting process List on " + indexDirectory);
@@ -307,199 +652,239 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 
 			// Load the list
 
-			List runtimeToDo = txfindPending(indexBatchSize);
+			List runtimeToDo = findPending(indexBatchSize, session);
 			log.debug("Processing " + runtimeToDo.size() + " documents");
 			totalDocs = runtimeToDo.size();
 
 			if (totalDocs > 0)
 			{
-				if (IndexReader.indexExists(indexDirectory))
+				try
 				{
-					IndexReader indexReader = IndexReader.open(indexDirectory);
+					if (IndexReader.indexExists(indexDirectory))
+					{
+						IndexReader indexReader = null;
+						try
+						{
+							indexReader = IndexReader.open(indexDirectory);
 
-					// Open the index
+							// Open the index
+							for (Iterator tditer = runtimeToDo.iterator(); runThreads
+									&& tditer.hasNext();)
+							{
+								SearchBuilderItem sbi = (SearchBuilderItem) tditer
+										.next();
+								if (!SearchBuilderItem.STATE_PENDING.equals(sbi
+										.getSearchstate()))
+								{
+									// should only be getting pending items
+									log
+											.warn(" Found Item that was not pending "
+													+ sbi.getName());
+									continue;
+								}
+								if (SearchBuilderItem.ACTION_UNKNOWN.equals(sbi
+										.getSearchaction()))
+								{
+									sbi
+											.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+									continue;
+								}
+								// remove document
+								try
+								{
+									indexReader.delete(new Term("reference",
+											sbi.getName()));
+									if (SearchBuilderItem.ACTION_DELETE
+											.equals(sbi.getSearchaction()))
+									{
+										sbi
+												.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+									}
+									else
+									{
+										sbi
+												.setSearchstate(SearchBuilderItem.STATE_PENDING_2);
+									}
+
+								}
+								catch (IOException ex)
+								{
+									log.warn("Failed to delete Page ", ex);
+								}
+							}
+						}
+						finally
+						{
+							if (indexReader != null)
+							{
+								indexReader.close();
+								indexReader = null;
+							}
+						}
+						// open for update
+						if (runThreads)
+						{
+							indexWrite = new IndexWriter(indexDirectory,
+									new StandardAnalyzer(), false);
+						}
+					}
+					else if (runThreads)
+					{
+						// create for update
+						indexWrite = new IndexWriter(indexDirectory,
+								new StandardAnalyzer(), true);
+					}
 					for (Iterator tditer = runtimeToDo.iterator(); runThreads
 							&& tditer.hasNext();)
 					{
 						SearchBuilderItem sbi = (SearchBuilderItem) tditer
 								.next();
-						if (!SearchBuilderItem.STATE_PENDING.equals(sbi
+						// only add adds, that have been deleted sucessfully
+						if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi
 								.getSearchstate()))
 						{
-							// should only be getting pending items
-							log.warn(" Found Item that was not pending "
-									+ sbi.getName());
 							continue;
 						}
-						if (SearchBuilderItem.ACTION_UNKNOWN.equals(sbi
-								.getSearchaction()))
+						Reference ref = entityManager.newReference(sbi
+								.getName());
+
+						if (ref == null)
 						{
-							sbi
-									.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-							continue;
+							log
+									.error("Unrecognised trigger object presented to index builder "
+											+ sbi);
 						}
-						// remove document
+						Entity entity = ref.getEntity();
+
+						Document doc = new Document();
+						if (ref.getContext() == null)
+						{
+							log.warn("Context is null for " + sbi);
+						}
+						String container = ref.getContainer();
+						if (container == null) container = "";
+						doc.add(Field.Keyword("container", container));
+						doc.add(Field.UnIndexed("id", ref.getId()));
+						doc.add(Field.Keyword("type", ref.getType()));
+						doc.add(Field.Keyword("subtype", ref.getSubType()));
+						doc.add(Field.Keyword("reference", ref.getReference()));
+						Collection c = ref.getRealms();
+						for (Iterator ic = c.iterator(); ic.hasNext();)
+						{
+							String realm = (String) ic.next();
+							doc.add(Field.Keyword("realm", realm));
+						}
 						try
 						{
-							indexReader.delete(new Term("reference", sbi
-									.getName()));
-							if (SearchBuilderItem.ACTION_DELETE.equals(sbi
-									.getSearchaction()))
+							EntityContentProducer sep = searchIndexBuilder
+									.newEntityContentProducer(ref);
+							if (sep != null)
 							{
-								sbi
-										.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+								doc.add(Field.Keyword("context", sep
+										.getSiteId(ref)));
+								if (sep.isContentFromReader(entity))
+								{
+									doc.add(Field.Text("contents", sep
+											.getContentReader(entity), true));
+								}
+								else
+								{
+									doc.add(Field.Text("contents", sep
+											.getContent(entity), true));
+								}
+								doc.add(Field.Text("title", sep
+										.getTitle(entity), true));
+								doc.add(Field.Keyword("tool", sep.getTool()));
+								doc.add(Field
+										.Keyword("url", sep.getUrl(entity)));
+								doc.add(Field.Keyword("siteid", sep
+										.getSiteId(ref)));
+
 							}
 							else
 							{
-								sbi
-										.setSearchstate(SearchBuilderItem.STATE_PENDING_2);
+								doc.add(Field.Keyword("context", ref
+										.getContext()));
+								doc.add(Field.Text("title", ref.getReference(),
+										true));
+								doc.add(Field.Keyword("tool", ref.getType()));
+								doc.add(Field.Keyword("url", ref.getUrl()));
+								doc.add(Field.Keyword("siteid", ref
+										.getContext()));
 							}
-
 						}
-						catch (IOException ex)
+						catch (Exception e1)
 						{
-							log.warn("Failed to delete Page ", ex);
+							e1.printStackTrace();
 						}
-					}
-					indexReader.close();
-					// open for update
-					if (runThreads)
-					{
-						indexWrite = new IndexWriter(indexDirectory,
-								new StandardAnalyzer(), false);
+						log.debug("Indexing Document " + doc);
+						indexWrite.addDocument(doc);
+						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+
+						log.debug("Done Indexing Document " + doc);
+
 					}
 				}
-				else if (runThreads)
+				finally
 				{
-					// create for update
-					indexWrite = new IndexWriter(indexDirectory,
-							new StandardAnalyzer(), true);
+					if (indexWrite != null)
+					{
+						indexWrite.close();
+						indexWrite = null;
+					}
 				}
+
 				for (Iterator tditer = runtimeToDo.iterator(); runThreads
 						&& tditer.hasNext();)
 				{
 					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
-					// only add adds, that have been deleted sucessfully
-					if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi
+					if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
 							.getSearchstate()))
 					{
-						continue;
-					}
-					Reference ref = entityManager.newReference(sbi.getName());
-
-					if (ref == null)
-					{
-						log
-								.error("Unrecognised trigger object presented to index builder "
-										+ sbi);
-					}
-					Entity entity = ref.getEntity();
-
-					Document doc = new Document();
-					if (ref.getContext() == null)
-					{
-						log.warn("Context is null for " + sbi);
-					}
-					String container = ref.getContainer();
-					if (container == null) container = "";
-					doc.add(Field.Keyword("container", container));
-					doc.add(Field.UnIndexed("id", ref.getId()));
-					doc.add(Field.Keyword("type", ref.getType()));
-					doc.add(Field.Keyword("subtype", ref.getSubType()));
-					doc.add(Field.Keyword("reference", ref.getReference()));
-					Collection c = ref.getRealms();
-					for (Iterator ic = c.iterator(); ic.hasNext();)
-					{
-						String realm = (String) ic.next();
-						doc.add(Field.Keyword("realm", realm));
-					}
-					try
-					{
-						EntityContentProducer sep = searchIndexBuilder
-								.newEntityContentProducer(ref);
-						if (sep != null)
+						if (SearchBuilderItem.ACTION_DELETE.equals(sbi
+								.getSearchaction()))
 						{
-							doc.add(Field
-									.Keyword("context", sep.getSiteId(ref)));
-							if (sep.isContentFromReader(entity))
-							{
-								doc.add(Field.Text("contents", sep
-										.getContentReader(entity), true));
-							}
-							else
-							{
-								doc.add(Field.Text("contents", sep
-										.getContent(entity), true));
-							}
-							doc.add(Field.Text("title", sep.getTitle(entity),
-									true));
-							doc.add(Field.Keyword("tool", sep.getTool()));
-							doc.add(Field.Keyword("url", sep.getUrl(entity)));
-							doc
-									.add(Field.Keyword("siteid", sep
-											.getSiteId(ref)));
-
+							session.delete(sbi);
 						}
 						else
 						{
-							doc.add(Field.Keyword("context", ref.getContext()));
-							doc.add(Field.Text("title", ref.getReference(),
-									true));
-							doc.add(Field.Keyword("tool", ref.getType()));
-							doc.add(Field.Keyword("url", ref.getUrl()));
-							doc.add(Field.Keyword("siteid", ref.getContext()));
+							session.saveOrUpdate(sbi);
 						}
-					}
-					catch (Exception e1)
-					{
-						e1.printStackTrace();
-					}
-					log.debug("Indexing Document " + doc);
-					indexWrite.addDocument(doc);
-					sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-
-					log.debug("Done Indexing Document " + doc);
-
-				}
-				if (indexWrite != null)
-				{
-					indexWrite.close();
-				}
-
-				for (Iterator tditer = runtimeToDo.iterator(); runThreads
-						&& tditer.hasNext();)
-				{
-					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
-					try
-					{
-						if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
-								.getSearchstate()))
-						{
-							if (SearchBuilderItem.ACTION_DELETE.equals(sbi
-									.getSearchaction()))
-							{
-								txdelete(sbi);
-							}
-							else
-							{
-								txsave(sbi);
-							}
-						}
-					}
-					catch (Exception ex)
-					{
-						log.warn("Concurrent modification, will reindex "
-								+ sbi.getName());
 					}
 				}
 			}
-			txcommitTransaction();
+			transaction.commit();
+			transaction = null;
 		}
 		catch (Exception ex)
 		{
+			if (transaction != null)
+			{
+				try
+				{
+					transaction.rollback();
+				}
+				catch (HibernateException e)
+				{
+				}
+				transaction = null;
+			}
 			log.warn("Failed to Process Docs ", ex);
-			txrollbackTrasaction();
 			throw new RuntimeException("Failed to save State ", ex);
+		}
+		finally
+		{
+			if (session != null)
+			{
+				try
+				{
+					session.close();
+				}
+				catch (HibernateException e)
+				{
+				}
+				session = null;
+			}
 		}
 
 		if (runThreads)
@@ -523,342 +908,58 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	}
 
 	/**
-	 * Count the number of pending documents waiting to be indexed on this
-	 * cluster node. All nodes will potentially perform the index in a cluster,
-	 * however only one must be doing the index, hence this method attampts to
-	 * grab a lock on the writer. If sucessfull it then gets the real number of
-	 * pending documents. There is a timeout, such that if the witer has not
-	 * been seen for 10 minutes, it is assumed that something has gon wrong with
-	 * it, and a new writer is elected on a first grab basis. Every time the
-	 * elected writer comes back, it updates its record to say its still active.
-	 * We could do some round robin timeout, or allow deployers to select a pool
-	 * of index writers in Sakai properties. {@inheritDoc}
-	 */
-
-	private ThreadLocal writerThreadIDHolder = new ThreadLocal();
-
-	private String getThreadID()
-	{
-		String wtid = (String) writerThreadIDHolder.get();
-		if (wtid == null)
-		{
-
-			UUID u = (UUID) idgenerator.nextIdentifier();
-			wtid = u.toString();
-			writerThreadIDHolder.set(wtid);
-		}
-		return wtid;
-	}
-
-	private void clearLock()
-	{
-		final String writerThreadID = getThreadID();
-
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-
-				Transaction t = session.beginTransaction();
-				try
-				{
-					List lockRecord = session.createCriteria(
-							SearchWriterLockImpl.class).add(
-							Expression.eq("lockkey", LOCKKEY)).list();
-					if (lockRecord.size() == 0)
-					{
-						// no record, create one and release
-						SearchWriterLock swl = new SearchWriterLockImpl();
-						swl.setLockkey(LOCKKEY);
-						swl.setNodename("none");
-						session.saveOrUpdate(swl);
-					}
-					else
-					{
-						// there is a record
-						Date threadDeathDate = new Date();
-						threadDeathDate = new Date(threadDeathDate.getTime()
-								- (10L * 60L * 1000L));
-						SearchWriterLock swl = (SearchWriterLock) lockRecord
-								.get(0);
-						// Lock is granted to this node, clear it
-						if (writerThreadID.equals(swl.getNodename()))
-						{
-							swl.setNodename("none");
-							session.saveOrUpdate(swl);
-						}
-					}
-					t.commit();
-				}
-				catch (Exception ex)
-				{
-					t.rollback();
-					// failed to get lock , due to an optimistic locking
-					// failiure
-					return new Integer(0);
-				}
-
-				return null;
-			}
-		};
-		getHibernateTemplate().execute(callback);
-		return;
-	}
-
-	/**
-	 * Count the number of pending items
-	 * 
-	 * @param withLock
-	 *        if true an attempt to lock the thread as an IndexWriter will be
-	 *        made. If th lock is sucessfull, the number of pending items will
-	 *        be returned, if not 0 will be returned. If the withLock is false,
-	 *        then no lock will be made and the number will be returned
-	 * @return
-	 */
-	private int countPending(final boolean withLock)
-	{
-		final String writerThreadID = getThreadID();
-
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				// first try and get and lock the writer mutex
-				if (withLock)
-				{
-
-					Transaction t = session.beginTransaction();
-					try
-					{
-						List lockRecord = session.createCriteria(
-								SearchWriterLockImpl.class).add(
-								Expression.eq("lockkey", LOCKKEY)).setLockMode(
-								LockMode.UPGRADE).list();
-						SearchWriterLock swl = null;
-						if (lockRecord.size() == 0)
-						{
-							// no record, create one and grab it
-							swl = new SearchWriterLockImpl();
-							swl.setVersion(new Date());
-						}
-						else
-						{
-							// there is a record
-							Date threadDeathDate = new Date();
-							threadDeathDate = new Date(threadDeathDate
-									.getTime()
-									- (10L * 60L * 1000L));
-							swl = (SearchWriterLock) lockRecord.get(0);
-							if (swl.getVersion() == null)
-							{
-								swl.setVersion(new Date());
-							}
-							log.debug(" Lock Object " + swl.getId() + ":"
-									+ swl.getLockkey() + ":"
-									+ swl.getNodename() + ":"
-									+ swl.getVersion());
-							// if not this node and still active, dont grab
-							// the none allows a node to explicitly release the
-							// lock
-							// giving the node with the lowest CPU load the best
-							// chance of
-							// getting the lock
-							boolean takelock = false;
-							if ("none".equals(swl.getNodename()))
-							{
-								takelock = true;
-								log.debug(" no lock");
-							}
-							else if (writerThreadID.equals(swl.getNodename()))
-							{
-								takelock = true;
-								log.debug(" matched threadid ");
-							}
-							else if (swl.getVersion().before(threadDeathDate))
-							{
-								takelock = true;
-								log.debug(" thread dead ");
-							}
-							if (!takelock)
-							{
-								log.debug("No Lock, Other Thread "
-										+ swl.getNodename());
-								return new Integer(0);
-							}
-						}
-
-						// if we managed to get and lock the writer mutex, get
-						// the
-						// number
-						// check the master record
-						if (!SearchBuilderItem.STATE_UNKNOWN
-								.equals(getMasterAction()))
-						{
-							swl.setLockkey(LOCKKEY);
-							swl.setNodename(writerThreadID);
-							session.saveOrUpdate(swl);
-							log.debug(" Saved Master " + swl.getId() + ":"
-									+ swl.getLockkey() + ":"
-									+ swl.getNodename() + ":"
-									+ swl.getVersion());
-							t.commit();
-							return new Integer(-1);
-						}
-
-						List l = session
-								.find(
-										"select count(*) from "
-												+ SearchBuilderItemImpl.class
-														.getName()
-												+ " where searchstate = ? and searchaction <> ?",
-										new Object[] {
-												SearchBuilderItem.STATE_PENDING,
-												SearchBuilderItem.ACTION_UNKNOWN },
-										new Type[] { Hibernate.INTEGER,
-												Hibernate.INTEGER });
-						if (l == null || l.size() == 0
-								|| ((Integer) l.get(0)).intValue() == 0)
-						{
-							log
-									.debug("GOT NONE release from "
-											+ writerThreadID);
-							swl.setLockkey(LOCKKEY);
-							swl.setNodename("none");
-							session.saveOrUpdate(swl);
-							log.debug(" Saved " + swl.getId() + ":"
-									+ swl.getLockkey() + ":"
-									+ swl.getNodename() + ":"
-									+ swl.getVersion());
-							t.commit();
-							return new Integer(0);
-						}
-						else
-						{
-							log.debug("GOT " + l.get(0) + " Locking to  "
-									+ writerThreadID + " in " + session);
-							swl.setLockkey(LOCKKEY);
-							swl.setNodename(writerThreadID);
-							session.saveOrUpdate(swl);
-							log.debug(" Saved " + swl.getId() + ":"
-									+ swl.getLockkey() + ":"
-									+ swl.getNodename() + ":"
-									+ swl.getVersion());
-							t.commit();
-							return l.get(0);
-						}
-
-					}
-					catch (Exception ex)
-					{
-						t.rollback();
-						// failed to get lock , due to an optimistic locking
-						// failiure
-						log.debug("No Lock, Exception ", ex);
-						return new Integer(0);
-					}
-				}
-				else
-				{
-					if (!SearchBuilderItem.STATE_UNKNOWN
-							.equals(getMasterAction()))
-					{
-						return new Integer(-1);
-					}
-
-					List l = session
-							.find(
-									"select count(*) from "
-											+ SearchBuilderItemImpl.class
-													.getName()
-											+ " where searchstate = ? and searchaction <> ?",
-									new Object[] {
-											SearchBuilderItem.STATE_PENDING,
-											SearchBuilderItem.ACTION_UNKNOWN },
-									new Type[] { Hibernate.INTEGER,
-											Hibernate.INTEGER });
-					if (l == null || l.size() == 0)
-					{
-						return new Integer(0);
-					}
-					else
-					{
-						log.debug("GOT " + l.get(0) + " No Locking ");
-						return l.get(0);
-					}
-
-				}
-
-			}
-		};
-
-		return ((Integer) getHibernateTemplate().execute(callback)).intValue();
-	}
-
-	/**
 	 * Gets a list of all SiteMasterItems
 	 * 
 	 * @return
+	 * @throws HibernateException
 	 */
-	private List getSiteMasterItems()
+	private List getSiteMasterItems(Session session) throws HibernateException
 	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				List masterList = (List) session.createCriteria(
-						SearchBuilderItemImpl.class).add(
-						Expression.like("name",
-								SearchBuilderItem.SITE_MASTER_PATTERN)).add(
+		log.debug("Site Master Items with " + session);
+		List masterList = (List) session.createCriteria(
+				SearchBuilderItemImpl.class).add(
+				Expression.like("name", SearchBuilderItem.SITE_MASTER_PATTERN))
+				.add(
 						Expression.not(Expression.eq("context",
 								SearchBuilderItem.GLOBAL_CONTEXT))).list();
 
-				if (masterList == null || masterList.size() == 0)
-				{
-					return new ArrayList();
-				}
-				else
-				{
-					return masterList;
-				}
-			}
-		};
-		return (List) getHibernateTemplate().execute(callback);
+		if (masterList == null || masterList.size() == 0)
+		{
+			return new ArrayList();
+		}
+		else
+		{
+			return masterList;
+		}
+
 	}
 
 	/**
 	 * get the Instance Master
 	 * 
 	 * @return
+	 * @throws HibernateException
 	 */
-	private SearchBuilderItem getMasterItem()
+	private SearchBuilderItem getMasterItem(Session session)
+			throws HibernateException
 	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				List master = (List) session.createCriteria(
-						SearchBuilderItemImpl.class).add(
-						Expression.eq("name", SearchBuilderItem.GLOBAL_MASTER))
-						.list();
+		log.debug("get Master Items with " + session);
 
-				if (master != null && master.size() != 0)
-				{
-					return (SearchBuilderItem) master.get(0);
-				}
-				SearchBuilderItem sbi = new SearchBuilderItemImpl();
-				sbi.setName(SearchBuilderItem.INDEX_MASTER);
-				sbi.setVersion(new Date());
-				sbi.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
-				sbi.setSearchaction(SearchBuilderItem.ACTION_UNKNOWN);
-				sbi.setSearchstate(SearchBuilderItem.STATE_UNKNOWN);
-				return sbi;
-			}
-		};
-		return (SearchBuilderItem) getHibernateTemplate().execute(callback);
+		List master = (List) session
+				.createCriteria(SearchBuilderItemImpl.class).add(
+						Expression.eq("name", SearchBuilderItem.GLOBAL_MASTER))
+				.list();
+
+		if (master != null && master.size() != 0)
+		{
+			return (SearchBuilderItem) master.get(0);
+		}
+		SearchBuilderItem sbi = new SearchBuilderItemImpl();
+		sbi.setName(SearchBuilderItem.INDEX_MASTER);
+		sbi.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
+		sbi.setSearchaction(SearchBuilderItem.ACTION_UNKNOWN);
+		sbi.setSearchstate(SearchBuilderItem.STATE_UNKNOWN);
+		return sbi;
 	}
 
 	/**
@@ -907,9 +1008,9 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	 * 
 	 * @return
 	 */
-	private Integer getMasterAction()
+	private Integer getMasterAction(Session session) throws HibernateException
 	{
-		return getMasterAction(getMasterItem());
+		return getMasterAction(getMasterItem(session));
 	}
 
 	/**
@@ -931,103 +1032,6 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	}
 
 	/**
-	 * Contains the manual transaction management for free running threads
-	 */
-	private ThreadLocal txholder = new ThreadLocal();
-
-	private boolean runThreads = true;
-
-	/**
-	 * start a transaction and store the transaction on the thread
-	 */
-	private void txstartTransaction()
-	{
-		try
-		{
-			Transaction thisTransaction = (Transaction) txholder.get();
-			if (thisTransaction == null)
-			{
-				thisTransaction = getSession().beginTransaction();
-				txholder.set(thisTransaction);
-			}
-
-		}
-		catch (HibernateException e)
-		{
-			throw new RuntimeException("Failed to start Transaction ", e);
-		}
-	}
-
-	private void txsave(final SearchBuilderItem sbi)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				session.saveOrUpdate(sbi);
-				return null;
-			}
-		};
-		getHibernateTemplate().execute(callback);
-	}
-
-	private void txdelete(final SearchBuilderItem sbi)
-	{
-		HibernateCallback callback = new HibernateCallback()
-		{
-			public Object doInHibernate(Session session)
-					throws HibernateException
-			{
-				session.delete(sbi);
-				return null;
-			}
-		};
-		getHibernateTemplate().execute(callback);
-	}
-
-	/**
-	 * Use the transaction on the thread and commit
-	 */
-	private void txcommitTransaction()
-	{
-		try
-		{
-			Transaction thisTransaction = (Transaction) txholder.get();
-			if (thisTransaction != null)
-			{
-				thisTransaction.commit();
-				txholder.set(null);
-			}
-		}
-		catch (HibernateException e)
-		{
-			throw new RuntimeException("Failed to Commit Data ", e);
-		}
-	}
-
-	/**
-	 * use the transaction on the thread and rollback
-	 */
-	private void txrollbackTrasaction()
-	{
-		try
-		{
-			Transaction thisTransaction = (Transaction) txholder.get();
-			if (thisTransaction != null)
-			{
-				thisTransaction.rollback();
-				txholder.set(null);
-			}
-		}
-		catch (HibernateException e)
-		{
-			throw new RuntimeException("Failed to Commit Data ", e);
-		}
-
-	}
-
-	/**
 	 * get the next x pending items If there is a master record with index
 	 * refresh, the list will come back with only items existing before the
 	 * index refresh was requested, those requested after the index refresh will
@@ -1036,8 +1040,10 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	 * entitiescontentproviders polled to get all their entities
 	 * 
 	 * @return
+	 * @throws HibernateException
 	 */
-	private List txfindPending(final int batchSize)
+	private List findPending(int batchSize, Session session)
+			throws HibernateException
 	{
 		// Pending is the first 100 items
 		// State == PENDING
@@ -1045,87 +1051,64 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 		long start = System.currentTimeMillis();
 		try
 		{
-			HibernateCallback callback = new HibernateCallback()
+			log.debug("TXFind pending with " + session);
+
+			SearchBuilderItem masterItem = getMasterItem(session);
+			Integer masterAction = getMasterAction(masterItem);
+			log.debug(" Master Item is " + masterItem.getName() + ":"
+					+ masterItem.getSearchaction() + ":"
+					+ masterItem.getSearchstate() + "::"
+					+ masterItem.getVersion());
+			if (SearchBuilderItem.ACTION_REFRESH.equals(masterAction))
 			{
-				public Object doInHibernate(Session session)
-						throws HibernateException
+				log.debug(" Master Action is " + masterAction);
+				log.debug("  REFRESH = " + SearchBuilderItem.ACTION_REFRESH);
+				log.debug("  RELOAD = " + SearchBuilderItem.ACTION_REBUILD);
+				// get a complete list of all items, before the master
+				// action version
+				// if there are none, update the master action action to
+				// completed
+				// and return a blank list
+
+				return refreshIndex(session, masterItem, batchSize);
+
+			}
+			else if (SearchBuilderItem.ACTION_REBUILD.equals(masterAction))
+			{
+				rebuildIndex(session, masterItem);
+			}
+			else
+			{
+				// get all site masters and perform the required action.
+				List siteMasters = getSiteMasterItems(session);
+				for (Iterator i = siteMasters.iterator(); i.hasNext();)
 				{
-					SearchBuilderItem masterItem = getMasterItem();
-					Integer masterAction = getMasterAction(masterItem);
-					log.debug(" Master Item is " + masterItem.getName() + ":"
-							+ masterItem.getSearchaction() + ":"
-							+ masterItem.getSearchstate() + "::"
-							+ masterItem.getVersion());
-					if (SearchBuilderItem.ACTION_REFRESH.equals(masterAction))
+					SearchBuilderItem siteMaster = (SearchBuilderItem) i.next();
+					Integer action = getSiteMasterAction(siteMaster);
+					if (SearchBuilderItem.ACTION_REBUILD.equals(action))
 					{
-						log.debug(" Master Action is " + masterAction);
-						log.debug("  REFRESH = "
-								+ SearchBuilderItem.ACTION_REFRESH);
-						log.debug("  RELOAD = "
-								+ SearchBuilderItem.ACTION_REBUILD);
-						// get a complete list of all items, before the master
-						// action version
-						// if there are none, update the master action action to
-						// completed
-						// and return a blank list
-
-						return refreshIndex(session, masterItem, batchSize);
-
+						rebuildIndex(session, siteMaster);
 					}
-					else if (SearchBuilderItem.ACTION_REBUILD
-							.equals(masterAction))
+					else if (SearchBuilderItem.ACTION_REFRESH.equals(action))
 					{
-						rebuildIndex(session, masterItem);
+						return refreshIndex(session, siteMaster, batchSize);
 					}
-					else
-					{
-						// get all site masters and perform the required action.
-						List siteMasters = getSiteMasterItems();
-						for (Iterator i = siteMasters.iterator(); i.hasNext();)
-						{
-							SearchBuilderItem siteMaster = (SearchBuilderItem) i
-									.next();
-							Integer action = getSiteMasterAction(siteMaster);
-							if (SearchBuilderItem.ACTION_REBUILD.equals(action))
-							{
-								rebuildIndex(session, siteMaster);
-							}
-							else if (SearchBuilderItem.ACTION_REFRESH
-									.equals(action))
-							{
-								return refreshIndex(session, siteMaster,
-										batchSize);
-							}
-						}
-					}
-					return session
-							.createCriteria(SearchBuilderItemImpl.class)
-							.add(
-									Expression.eq("searchstate",
-											SearchBuilderItem.STATE_PENDING))
-							.add(
-									Expression.not(Expression.eq(
-											"searchaction",
-											SearchBuilderItem.ACTION_UNKNOWN)))
-							.add(
-									Expression
-											.not(Expression
-													.like(
-															"name",
-															SearchBuilderItem.SITE_MASTER_PATTERN)))
-							.addOrder(Order.asc("version")).setMaxResults(
-									batchSize).list();
-
 				}
-			};
-			List l = (List) getHibernateTemplate().execute(callback);
-			return l;
+			}
+			return session.createCriteria(SearchBuilderItemImpl.class).add(
+					Expression.eq("searchstate",
+							SearchBuilderItem.STATE_PENDING)).add(
+					Expression.not(Expression.eq("searchaction",
+							SearchBuilderItem.ACTION_UNKNOWN))).add(
+					Expression.not(Expression.like("name",
+							SearchBuilderItem.SITE_MASTER_PATTERN))).addOrder(
+					Order.asc("version")).setMaxResults(batchSize).list();
 
 		}
 		finally
 		{
 			long finish = System.currentTimeMillis();
-			log.debug(" txfindPending took " + (finish - start) + " ms");
+			log.debug(" findPending took " + (finish - start) + " ms");
 		}
 	}
 
@@ -1193,7 +1176,6 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 					sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 					sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
 					sbi.setContext(ecp.getSiteId(resourceName));
-					sbi.setVersion(new Date());
 					session.saveOrUpdate(sbi);
 				}
 			}
@@ -1206,6 +1188,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	private List refreshIndex(Session session, SearchBuilderItem controlItem,
 			int batchSize) throws HibernateException
 	{
+		log.debug("Refresh Index with " + session);
 
 		List l = null;
 		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
@@ -1274,7 +1257,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	{
 		if (!enabled) return;
 
-		log.info("Destroy SearchIndexBuilderWorker ");
+		log.debug("Destroy SearchIndexBuilderWorker ");
 		runThreads = false;
 
 		synchronized (sem)
@@ -1298,6 +1281,39 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 	public void setSleepTime(long sleepTime)
 	{
 		this.sleepTime = sleepTime;
+	}
+
+	/**
+	 * @return Returns the sessionFactory.
+	 */
+	public SessionFactory getSessionFactory()
+	{
+		return sessionFactory;
+	}
+
+	/**
+	 * @param sessionFactory
+	 *        The sessionFactory to set.
+	 */
+	public void setSessionFactory(SessionFactory sessionFactory)
+	{
+		this.sessionFactory = sessionFactory;
+	}
+
+	/**
+	 * @return Returns the dataSource.
+	 */
+	public DataSource getDataSource()
+	{
+		return dataSource;
+	}
+
+	/**
+	 * @param dataSource The dataSource to set.
+	 */
+	public void setDataSource(DataSource dataSource)
+	{
+		this.dataSource = dataSource;
 	}
 
 }

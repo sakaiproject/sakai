@@ -34,11 +34,12 @@ public class SearchWriterLockImpl implements SearchWriterLock
 {
 	private String nodename = null;
 
-	private Date version = null;
+	private Date expires = null;
 
 	private String id = null;
 
 	private String lockkey = null;
+	
 
 	/**
 	 * @return Returns the id.
@@ -57,22 +58,7 @@ public class SearchWriterLockImpl implements SearchWriterLock
 		this.id = id;
 	}
 
-	/**
-	 * @return Returns the lastUpdate.
-	 */
-	public Date getVersion()
-	{
-		return version;
-	}
 
-	/**
-	 * @param lastUpdate
-	 *        The lastUpdate to set.
-	 */
-	public void setVersion(Date version)
-	{
-		this.version = version;
-	}
 
 	/**
 	 * @return Returns the nodeName.
@@ -101,5 +87,22 @@ public class SearchWriterLockImpl implements SearchWriterLock
 	{
 		return lockkey;
 	}
+
+	/**
+	 * @return Returns the expires.
+	 */
+	public Date getExpires()
+	{
+		return expires;
+	}
+
+	/**
+	 * @param expires The expires to set.
+	 */
+	public void setExpires(Date expires)
+	{
+		this.expires = expires;
+	}
+
 
 }

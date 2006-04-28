@@ -57,4 +57,6 @@ public interface SearchAdminBean
 	 * @return
 	 */
 	String getAdminOptions(String adminOptionsFormat);
+	
+	String getIndexDocuments( String rowFormat );
 }

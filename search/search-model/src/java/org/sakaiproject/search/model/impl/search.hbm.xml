@@ -65,14 +65,13 @@
       </class>
       
       <class name="org.sakaiproject.search.model.impl.SearchWriterLockImpl"
-          table="searchwriterlock" 
-          optimistic-lock="version">
-          <id name="id" unsaved-value="null" >
+          table="searchwriterlock" >
+          
+          <id name="id" unsaved-value="null"  >
               <column name="id" length="36" not-null="true"/>
               <generator class="uuid.hex" />
+              
           </id>
-          <!-- the last update to the record used for optimistic locks -->    
-          <version name="version" type="timestamp" unsaved-value="null"/>
           
           <!-- this is the lock name -->
           <property 
@@ -88,6 +87,11 @@
               column="nodename"
               type="string"
               length="64" />
+          <property name="expires" 
+              column="expires"
+              type="timestamp"
+              not-null="true" />
+ 
       </class>
           
       

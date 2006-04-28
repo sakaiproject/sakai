@@ -7,6 +7,7 @@
 	
 	String adminOptionsFormat = "<li><a href=\"{0}\" >{1}</a></li>"; 
 	String indexStatusFormat = "Index Status: {0} <br /> {1} documents and {2} pending ";
+	String rowFormat = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td></tr>";
 %>
 <html>
   <head>
@@ -34,6 +35,10 @@
     <p>
 	<%= searchAdminBean.getIndexStatus(indexStatusFormat) %>
 	</p>
+	
+	<table>
+	<%= searchAdminBean.getIndexDocuments(rowFormat) %>
+	</table>
 <%@include file="footer.jsp"%>
    </body>
 </html>

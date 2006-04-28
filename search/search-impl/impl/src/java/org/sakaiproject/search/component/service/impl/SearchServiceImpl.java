@@ -47,6 +47,8 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+
 /**
  * The search service
  * 
@@ -99,7 +101,7 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void init()
 	{
-		
+
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		notificationService = (NotificationService) load(cm,
@@ -230,13 +232,10 @@ public class SearchServiceImpl implements SearchService
 			query.add(contextQuery, true, false);
 			query.add(textQuery, true, false);
 			log.info("Query is " + query.toString());
-			if (runningIndexSearcher == null)
+			IndexSearcher indexSearcher = getIndexSearcher(false);
+			if (indexSearcher != null)
 			{
-				reload();
-			}
-			if (runningIndexSearcher != null)
-			{
-				Hits h = runningIndexSearcher.search(query);
+				Hits h = indexSearcher.search(query);
 				log.info("Got " + h.length() + " hits");
 
 				return new SearchListImpl(h, textQuery, start, end);
@@ -264,27 +263,38 @@ public class SearchServiceImpl implements SearchService
 	public void reload()
 	{
 		log.info("Reload");
+		getIndexSearcher(true);
 
-		reloadStart = System.currentTimeMillis();
-		try
+	}
+
+	public IndexSearcher getIndexSearcher(boolean reload)
+	{
+		if (runningIndexSearcher == null || reload)
 		{
-			File indexDirectoryFile = new File(indexDirectory);
-			indexDirectoryFile.mkdirs();
-
-			IndexSearcher indexSearcher = new IndexSearcher(indexDirectory);
-			if (indexSearcher != null)
+			reloadStart = System.currentTimeMillis();
+			try
 			{
-				runningIndexSearcher = indexSearcher;
-			}
-			reloadEnd = System.currentTimeMillis();
-			log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
-					+ (reloadEnd - reloadStart));
+				File indexDirectoryFile = new File(indexDirectory);
+				if ( !indexDirectoryFile.exists() ) {
+					indexDirectoryFile.mkdirs();
+				}
 
+				IndexSearcher indexSearcher = new IndexSearcher(indexDirectory);
+				if (indexSearcher != null)
+				{
+					runningIndexSearcher = indexSearcher;
+				}
+				reloadEnd = System.currentTimeMillis();
+				log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
+						+ (reloadEnd - reloadStart));
+
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		return runningIndexSearcher;
 
 	}
 
@@ -343,7 +353,7 @@ public class SearchServiceImpl implements SearchService
 	{
 		try
 		{
-			return runningIndexSearcher.maxDoc();
+			return getIndexSearcher(false).maxDoc();
 		}
 		catch (IOException e)
 		{
@@ -356,4 +366,8 @@ public class SearchServiceImpl implements SearchService
 		return searchIndexBuilder.getPendingDocuments();
 	}
 
+	public List getAllSearchItems()
+	{
+		return searchIndexBuilder.getAllSearchItems();
+	}
 }

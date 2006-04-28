@@ -33,6 +33,8 @@ import java.util.Date;
  */
 public interface SearchBuilderItem
 {
+	String getId();
+	void setId(String id);
 	/**
 	 * Name of the resource in the search index
 	 * 
@@ -161,5 +163,27 @@ public interface SearchBuilderItem
 	public static final String SITE_MASTER_FORMAT = SearchBuilderItem.INDEX_MASTER+"_{0}";
 
 	public static final String SITE_MASTER_PATTERN = SearchBuilderItem.INDEX_MASTER+"_%";
+
+	public static final String[] states = new String[] {
+		"U",
+		"P",
+		"P2",
+		"C"
+	};
+	public static final String[] actions = new String[] {
+		"U",
+		"A",
+		"D",
+		"-",
+		"-",
+		"-",
+		"-",
+		"-",
+		"-",
+		"-",
+		"RF",
+		"RB"
+	};
+	
 
 }

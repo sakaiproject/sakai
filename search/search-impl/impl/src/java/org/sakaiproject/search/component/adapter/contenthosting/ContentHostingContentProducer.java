@@ -173,7 +173,24 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
-		return getDigester(contentResource).getContentReader(contentResource);
+		ContentDigester digester = getDigester(contentResource);
+		Reader reader = null;
+		try {
+			reader = digester.getContentReader(contentResource);
+		} catch ( Exception ex) {
+			log.debug("Failed to generate content with "+digester,ex);
+			if ( !digester.equals(defaultDigester) ) {
+				try {
+					reader = defaultDigester.getContentReader(contentResource);
+				} catch ( Exception ex2) {
+					log.debug("Failed to extract content from "+contentResource+" using "+defaultDigester,ex2);
+					throw new RuntimeException("Failed to extract content from "+contentResource+" using "+defaultDigester+" and "+digester,ex);
+				}
+			} else {
+				throw new RuntimeException("Failed to extract content from "+contentResource+" using "+digester,ex);
+			}
+		}
+		return reader;
 	}
 
 	public String getContent(Entity cr)
@@ -187,7 +204,24 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
-		return getDigester(contentResource).getContent(contentResource);
+		ContentDigester digester = getDigester(contentResource);
+		String content = null;
+		try {
+			content = digester.getContent(contentResource);
+		} catch ( Exception ex) {
+			log.debug("Failed to generate content with "+digester,ex);
+			if ( !digester.equals(defaultDigester) ) {
+				try {
+					content = defaultDigester.getContent(contentResource);
+				} catch ( Exception ex2) {
+					log.debug("Failed to extract content from "+contentResource+" using "+defaultDigester,ex2);
+					throw new RuntimeException("Failed to extract content from "+contentResource+" using "+defaultDigester+" and "+digester,ex);
+				}
+			} else {
+				throw new RuntimeException("Failed to extract content from "+contentResource+" using "+digester,ex);
+			}
+		}
+		return content;
 
 	}
 

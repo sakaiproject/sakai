@@ -109,4 +109,6 @@ public interface SearchService
 	 */
 	int getPendingDocs();
 
+	List getAllSearchItems();
+
 }

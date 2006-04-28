@@ -127,7 +127,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					sb.setName(resourceName);
 					sb.setContext(ecp.getSiteId(resourceName));
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
-					log.info(" Didnt Find Resource, created new ");
 				}
 				else
 				{
@@ -136,15 +135,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					sb.setName(resourceName);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 				}
-				log.info("Adding \n" +
-						"context:"+sb.getContext()+"\n" +
-						"name:"+sb.getName()+"\n" +
-						"Searchaction:"+sb.getSearchaction()+"\n" +
-						"Searchstate:"+sb.getSearchstate()+"\n" +
-						"Version:"+sb.getVersion());
 				searchBuilderItemDao.update(sb);
 				sb = searchBuilderItemDao.findByName(resourceName);
-				log.info(" Added Resource " + action + " " + sb.getName());
+				log.info("SEARCHBUILDER: Added Resource " + action + " " + sb.getName());
 				break;
 			}
 			catch (Throwable t)
@@ -177,14 +170,19 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			log.debug("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
 			sb = searchBuilderItemDao.create();
 		}
-		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()))
+		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()) && 
+			!SearchBuilderItem.STATE_PENDING.equals(sb.getSearchaction()) &&
+			!SearchBuilderItem.STATE_PENDING_2.equals(sb.getSearchaction()))
 		{
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
 			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
+			log.info("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " " + sb.getName());
 			restartBuilder();
+		} else {
+			log.info("SEARCHBUILDER: REFRESH ALL IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
 		}
 	}
 
@@ -219,7 +217,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					.findByName(SearchBuilderItem.GLOBAL_MASTER);
 			if (sb == null)
 			{
-				log.info("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
 				sb = searchBuilderItemDao.create();
 			}
 			sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
@@ -227,6 +224,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
+			log.info("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " " + sb.getName());
+
 		}
 		catch (Exception ex)
 		{
@@ -358,7 +357,6 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
 			if (sb == null)
 			{
-				log.info("Created NEW " + siteMaster);
 				sb = searchBuilderItemDao.create();
 			}
 			sb.setSearchaction(SearchBuilderItem.ACTION_REBUILD);
@@ -366,6 +364,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
+			log.info("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+
 		}
 		catch (Exception ex)
 		{
@@ -393,8 +393,18 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
+			log.info("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+
 			restartBuilder();
+		} else {
+			log.info("SEARCHBUILDER: REFRESH CONTEXT IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
 		}
+	}
+
+	public List getAllSearchItems()
+	{
+
+		return searchBuilderItemDao.getAll();
 	}
 
 }

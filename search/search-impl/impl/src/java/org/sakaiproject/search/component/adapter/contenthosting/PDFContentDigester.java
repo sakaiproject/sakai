@@ -34,8 +34,7 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 		catch (Exception ex)
 		{
-			log.error(ex);
-			throw new RuntimeException("Failed to get content for indexing");
+			throw new RuntimeException("Failed to get content for indexing",ex);
 		}
 	}
 

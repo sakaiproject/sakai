@@ -37,8 +37,7 @@ public class PPTContentDigester extends BaseContentDigester
 		}
 		catch (Exception e)
 		{
-			log.error(e);
-			throw new RuntimeException("Failed to read content for indexing ");
+			throw new RuntimeException("Failed to read content for indexing ",e);
 		}
 	}
 

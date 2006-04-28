@@ -34,12 +34,6 @@ public interface SearchWriterLock
 
 	void setId(String id);
 
-	/**
-	 * Optimistic locking version
-	 * 
-	 * @return
-	 */
-	Date getVersion();
 
 	/**
 	 * the name of the node holding the lock
@@ -70,10 +64,15 @@ public interface SearchWriterLock
 	String getLockkey();
 
 	/**
-	 * Version
-	 * 
-	 * @param date
+	 * The date when the lock will expire
+	 * @param exopiry
 	 */
-	void setVersion(Date date);
+	void setExpires(Date expires);
+	
+	/**
+	 * The date when the lock will expire
+	 * @return
+	 */
+	Date getExpires();
 
 }
