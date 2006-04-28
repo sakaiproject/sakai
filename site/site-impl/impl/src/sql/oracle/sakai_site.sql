@@ -338,7 +338,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!user-700', '!user', 'Account', '0', 9, '0' 
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-710', '!user-700', '!user', 'sakai.singleuser', 1, 'Account', NULL );
 INSERT INTO SAKAI_SITE_TOOL_PROPERTY VALUES('!user', '!user-710', 'include-password', 'true' );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-800', '!user', 'Wiki', '0', 10, '0' );
-INSERT INTO SAKAI_SITE_TOOL VALUES('!user-810', '!user-800', '!user', 'sakai.wiki', 1, 'Wiki', NULL );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-810', '!user-800', '!user', 'sakai.rwiki', 1, 'Wiki', NULL );
 
 -- Create the !worksite site.
 
