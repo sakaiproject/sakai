@@ -316,7 +316,7 @@ public class KerberosUserDirectoryProvider
 		UserData existingUser = (UserData)users.get(userId);
 
 		boolean authUser = false;
-		String hpassword = encode(password);
+		String hpassword = encodeSHA(password);
 
 		// Check for user in in-memory hashtable. To be a "valid, previously authenticated" user,
 		// 3 conditions must be met:
@@ -693,7 +693,7 @@ public class KerberosUserDirectoryProvider
 	* @return encoded hash of string
 	*/
 
-	public synchronized String encode(String plaintext) {
+	private synchronized String encodeSHA(String plaintext) {
       
     		try {
 			MessageDigest md = MessageDigest.getInstance("SHA");
@@ -707,7 +707,7 @@ public class KerberosUserDirectoryProvider
 			m_logger.warn(this + ".encode(): exception: " + e);
 			return null;
 		}
-  	} // encode
+  	} // encodeSHA
 	
 }	// KerberosUserDirectoryProvider
 	
