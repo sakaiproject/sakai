@@ -27,29 +27,36 @@ import java.util.*;
 /**
  * This is the externally exposed API of the gradebook application.
  *
- * For the Sakai 2.0 Baseline, the gradebook has two programmatic clients: site
- * management (to be able to create a new gradebook instance and associate it
- * with other parts of the site) and Samigo (to add and score externally-managed
- * assignments).
+ * The Gradebook project has three types of programmatic clients.
+ *
+ * 1. The framework. This manages the application, performing various
+ * administrative functions which aren't handled by the application itself,
+ * including creating and removing gradebooks.
+ *
+ * 2. External assessment engines. These use the Gradebook as a passive
+ * mirror of their own assignments and scores. Gradebook users will thus
+ * be able to see those assignments alongside Gradebook-managed assignments,
+ * and combine them when calculating a course grade. The Gradebook application
+ * itself will not change the externally-managed assignments and scores.
+ *
+ * 3. Clients of application services -- that is, clients who want to "act
+ * like the Gradebook would" to automate what would normally be done in the UI.
+ *
+ * Currently all three clients are served by this single interface. The Gradebook
+ * team plans to split the interface by client type in a future release.
  *
  * <p>
- * <b>WARNING</b>: Unlike some external services in Sakai, the caller of the
- * Gradebook is responsible for "doing the right thing" as far as authorization
- * goes. No unauthorized person should be allowed to reach code that calls these
- * services, so don't just go wrapping this API in an open web service and expect
- * things to work out!
+ * <b>WARNING</b>: Because the Gradebook project team is not responsible
+ * for defining the first two types of client, the Gradebook service
+ * does not attempt to guess at their authorization needs. Our administrative
+ * and external-assessment methods simply follow orders and assume that the caller
+ * has taken the responsibility of "doing the right thing." DO NOT wrap these
+ * methods in an open web service!
  * <p>
- * The reason is that one of our principal service consumers is an online
- * assessment application which will be updating a student's scores automatically
- * based on the student's performance in the application. In other words, as
- * far as the Gradebook Service code can tell, the student is changing their
- * own grades. Since this is probably the primary security problem that any
- * online gradebook has to be worry about, there's really not much point in
- * going further.
- * <p>
- * Of course, the Gradebook application (as opposed to the external service)
- * does guard against students having such free access. Any other applications
- * that use the business logic need to take the same precautions.
+ * The behave-like-the-application service methods DO mimic normal Gradebook
+ * authorization as part of mimicking normal Gradebook behavior. These methods
+ * may throw security exceptions. Call the service's authorization-check methods
+ * if you want to avoid them.
  */
 public interface GradebookService {
 	// Site management hooks.
@@ -86,7 +93,7 @@ public interface GradebookService {
      */
     public boolean gradebookExists(String gradebookUid);
 
-    // Assessment management hooks.
+    // External assessment management hooks.
 
 	/**
 	 * Add an externally-managed assessment to a gradebook to be treated as a
@@ -155,12 +162,30 @@ public interface GradebookService {
             throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
+     * Updates a set of external scores for an external assignment in the gradebook.
+     *
+	 * @param gradebookUid
+	 *	The Uid of the gradebook
+	 * @param externalId
+	 *	The external ID of the assignment/assessment
+	 * @param studentUidsToScores
+	 *	A map whose String keys are the unique ID strings of the students and whose
+	 *  Double values are points earned on this assessment or null if the score
+	 *  should be removed.
+	 */
+	public void updateExternalAssessmentScores(String gradebookUid,
+		String externalId, Map studentUidsToScores)
+		throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
 	 * Check to see if an assignment with the given name already exists
 	 * in the given gradebook. This will give external assessment systems
 	 * a chance to avoid the ConflictingAssignmentNameException.
 	 */
 	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle)
         throws GradebookNotFoundException;
+
+    // Application service hooks.
 
     /**
      * Check to see if the current user is allowed to grade the given student
@@ -204,5 +229,3 @@ public interface GradebookService {
         throws GradebookNotFoundException, AssessmentNotFoundException;
 
 }
-
-

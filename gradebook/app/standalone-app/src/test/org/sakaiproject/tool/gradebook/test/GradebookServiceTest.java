@@ -22,9 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import junit.framework.Assert;
 
@@ -62,9 +60,20 @@ public class GradebookServiceTest extends GradebookTestBase {
         super.onSetUpInTransaction();
 
         gradebookService.addGradebook(GRADEBOOK_UID, GRADEBOOK_UID);
+        Gradebook gradebook = gradebookManager.getGradebook(GRADEBOOK_UID);
+
+        // Set up a holder for enrollments, teaching assignments, and sections.
+        integrationSupport.createCourse(GRADEBOOK_UID, GRADEBOOK_UID, false, false, false);
+
+		List studentUidsList = Arrays.asList(new String[] {
+			"student1",
+			"student2",
+			"student3",
+		});
+		addUsersEnrollments(gradebook, studentUidsList);
 
         // Add an internal assignment
-        Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
+        Long gbId = gradebook.getId();
         asn_1Id = gradebookManager.createAssignment(gbId, ASN_1, new Double(10), null, Boolean.FALSE);
 
         // Add a score for the internal assignment
@@ -135,8 +144,6 @@ public class GradebookServiceTest extends GradebookTestBase {
             }
         }
         Assert.assertEquals(asn.getPointsPossible(), new Double(floatingPoints));
-
-
     }
 
     public void testModifyExternalAssessment() throws Exception {
@@ -186,6 +193,30 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Ensure that the course grade record for student1 has been updated
         CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
+    }
+
+    public void testUpdateMultpleScores() throws Exception {
+        // Add an external assessment
+        gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
+
+        // Add the external assessment score
+        Gradebook gb = gradebookManager.getGradebook(GRADEBOOK_UID);
+        gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", new Double(2));
+
+        // Ensure that the course grade record for student1 has been updated
+        CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
+        Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
+
+        // Update multiple scores at once.
+        Map studentUidsToScores = new HashMap();
+        studentUidsToScores.put("student1", null);
+        studentUidsToScores.put("student2", new Double(4));
+        studentUidsToScores.put("student3", new Double(5));
+        gradebookService.updateExternalAssessmentScores(gb.getUid(), EXT_ID_1, studentUidsToScores);
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
+        Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student2");
+        Assert.assertTrue(cgr.getPointsEarned().equals(new Double(4)));
     }
 
     public void testRemoveExternalAssignment() throws Exception {

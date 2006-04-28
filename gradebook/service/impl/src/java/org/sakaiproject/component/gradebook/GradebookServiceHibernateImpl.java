@@ -27,6 +27,7 @@ import java.util.*;
 
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.StaleObjectStateException;
 import net.sf.hibernate.type.Type;
@@ -351,6 +352,57 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         getHibernateTemplate().execute(hc);
 		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
 	}
+
+	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores)
+		throws GradebookNotFoundException, AssessmentNotFoundException {
+
+        final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+        if (assignment == null) {
+            throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+        }
+		final Set studentIds = studentUidsToScores.keySet();
+		final Date now = new Date();
+		final String graderId = getUserUid();
+
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
+                q.setParameter("go", assignment);
+                q.setParameterList("studentIds", studentIds);
+				List existingScores = q.list();
+
+				Set unscoredStudents = new HashSet(studentIds);
+				for (Iterator iter = existingScores.iterator(); iter.hasNext(); ) {
+					AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+					String studentUid = agr.getStudentId();
+					agr.setDateRecorded(now);
+					agr.setGraderId(graderId);
+					agr.setPointsEarned((Double)studentUidsToScores.get(studentUid));
+					session.update(agr);
+					unscoredStudents.remove(studentUid);
+				}
+				for (Iterator iter = unscoredStudents.iterator(); iter.hasNext(); ) {
+					String studentUid = (String)iter.next();
+					AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, (Double)studentUidsToScores.get(studentUid));
+					agr.setDateRecorded(now);
+					agr.setGraderId(graderId);
+					session.save(agr);
+				}
+
+				// Need to sync database before recalculating.
+				session.flush();
+				session.clear();
+                try {
+                    recalculateCourseGradeRecords(assignment.getGradebook(), studentIds, session);
+                } catch (StaleObjectStateException e) {
+                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
+                    throw new StaleObjectModificationException(e);
+                }
+                return null;
+            }
+        });
+	}
+
 
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
