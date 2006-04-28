@@ -11541,7 +11541,7 @@ public class SiteAction extends PagedResourceActionII
 		for (Iterator i = icons.iterator(); i.hasNext();)
 		{
 			Icon icon = (Icon) i.next();
-			if (StringUtil.different(icon.getUrl(), iconUrl))
+			if (!StringUtil.different(icon.getUrl(), iconUrl))
 			{
 				edit.setSkin(icon.getSkin());
 				return;
