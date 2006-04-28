@@ -198,7 +198,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		buffer.append("," + newResponse);
 		buffer.append("," + newResponseToResponse);
 		buffer.append("," + newTopic);
-		//buffer.append("," + postToGradebook);
+		buffer.append("," + postToGradebook);
 		buffer.append("," + read);
 		buffer.append("," + reviseAny);
 		buffer.append("," + reviseOwn);
