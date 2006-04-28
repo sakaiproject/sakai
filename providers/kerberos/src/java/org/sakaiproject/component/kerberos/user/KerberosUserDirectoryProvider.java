@@ -703,8 +703,7 @@ public class KerberosUserDirectoryProvider
 			return hash;
 		}
 		catch (Exception e) {
-			//System.out.println(this + ".encode(): exception: " + e);
-			m_logger.warn(this + ".encode(): exception: " + e);
+			m_logger.warn(this + ".encodeSHA(): exception: " + e);
 			return null;
 		}
   	} // encodeSHA
