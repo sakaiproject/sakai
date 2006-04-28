@@ -244,7 +244,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 										.error("+++++++++++++++Local Lock Collision+++++++++++++");
 							}
 							lockedTo = nodeID;
-							 processToDoListTransaction();
+							processToDoListTransaction();
 							if (lockedTo.equals(nodeID))
 							{
 								lockedTo = null;
@@ -538,7 +538,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 				try
 				{
 					connection.close();
-					log.info("Connection Closed ");
+					log.debug("Connection Closed ");
 				}
 				catch (SQLException e)
 				{
@@ -611,7 +611,7 @@ public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
 				try
 				{
 					connection.close();
-					log.info("Connection Closed");
+					log.debug("Connection Closed");
 				}
 				catch (SQLException e)
 				{
