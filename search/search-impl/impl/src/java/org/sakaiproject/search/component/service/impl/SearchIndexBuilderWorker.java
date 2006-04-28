@@ -17,8 +17,6 @@ import javax.sql.DataSource;
 import net.sf.hibernate.Hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
-import net.sf.hibernate.Transaction;
 import net.sf.hibernate.expression.Expression;
 import net.sf.hibernate.expression.Order;
 
@@ -50,8 +48,11 @@ import org.sakaiproject.search.model.impl.SearchWriterLockImpl;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
-public class SearchIndexBuilderWorker implements Runnable
+public class SearchIndexBuilderWorker extends HibernateDaoSupport implements
+		Runnable
 {
 
 	/**
@@ -92,7 +93,7 @@ public class SearchIndexBuilderWorker implements Runnable
 	 * index
 	 */
 	private SearchService searchService = null;
-	
+
 	private DataSource dataSource = null;
 
 	private IdentifierGenerator idgenerator = new VersionFourGenerator();
@@ -101,7 +102,6 @@ public class SearchIndexBuilderWorker implements Runnable
 	 * Semaphore
 	 */
 	private Object sem = new Object();
-
 
 	/**
 	 * The number of items to process in a batch, default = 100
@@ -118,7 +118,6 @@ public class SearchIndexBuilderWorker implements Runnable
 
 	private EventTrackingService eventTrackingService;
 
-	private SessionFactory sessionFactory = null;
 
 	private boolean runThreads = true;
 
@@ -245,7 +244,7 @@ public class SearchIndexBuilderWorker implements Runnable
 										.error("+++++++++++++++Local Lock Collision+++++++++++++");
 							}
 							lockedTo = nodeID;
-							processToDoListTransaction();
+							 processToDoListTransaction();
 							if (lockedTo.equals(nodeID))
 							{
 								lockedTo = null;
@@ -346,7 +345,6 @@ public class SearchIndexBuilderWorker implements Runnable
 		try
 		{
 
-			
 			// I need to go direct to JDBC since its just too awful to
 			// try and do this in Hibernate.
 
@@ -540,9 +538,11 @@ public class SearchIndexBuilderWorker implements Runnable
 				try
 				{
 					connection.close();
+					log.info("Connection Closed ");
 				}
 				catch (SQLException e)
 				{
+					log.error("Error Closing Connection ", e);
 				}
 				connection = null;
 			}
@@ -611,9 +611,11 @@ public class SearchIndexBuilderWorker implements Runnable
 				try
 				{
 					connection.close();
+					log.info("Connection Closed");
 				}
 				catch (SQLException e)
 				{
+					log.error("Error Closing Connection", e);
 				}
 			}
 		}
@@ -629,263 +631,263 @@ public class SearchIndexBuilderWorker implements Runnable
 	 */
 	protected void processToDoListTransaction()
 	{
-		Session session = null;
-		Transaction transaction = null;
 		long startTime = System.currentTimeMillis();
-		int totalDocs = 0;
-		try
+		HibernateCallback callback = new HibernateCallback()
 		{
-			session = sessionFactory.openSession();
-			transaction = session.beginTransaction();
 
-			String indexDirectory = ((SearchServiceImpl) searchService)
-					.getIndexDirectory();
-			log.debug("Starting process List on " + indexDirectory);
-			File f = new File(indexDirectory);
-			if (!f.exists())
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException
 			{
-				f.mkdirs();
-				log.debug("Indexing in " + f.getAbsolutePath());
-			}
 
-			IndexWriter indexWrite = null;
-
-			// Load the list
-
-			List runtimeToDo = findPending(indexBatchSize, session);
-			log.debug("Processing " + runtimeToDo.size() + " documents");
-			totalDocs = runtimeToDo.size();
-
-			if (totalDocs > 0)
-			{
+				int totalDocs = 0;
 				try
 				{
-					if (IndexReader.indexExists(indexDirectory))
+					String indexDirectory = ((SearchServiceImpl) searchService)
+							.getIndexDirectory();
+					log.debug("Starting process List on " + indexDirectory);
+					File f = new File(indexDirectory);
+					if (!f.exists())
 					{
-						IndexReader indexReader = null;
+						f.mkdirs();
+						log.debug("Indexing in " + f.getAbsolutePath());
+					}
+
+					IndexWriter indexWrite = null;
+
+					// Load the list
+
+					List runtimeToDo = findPending(indexBatchSize, session);
+					log
+							.debug("Processing " + runtimeToDo.size()
+									+ " documents");
+					totalDocs = runtimeToDo.size();
+
+					if (totalDocs > 0)
+					{
 						try
 						{
-							indexReader = IndexReader.open(indexDirectory);
+							if (IndexReader.indexExists(indexDirectory))
+							{
+								IndexReader indexReader = null;
+								try
+								{
+									indexReader = IndexReader
+											.open(indexDirectory);
 
-							// Open the index
+									// Open the index
+									for (Iterator tditer = runtimeToDo
+											.iterator(); runThreads
+											&& tditer.hasNext();)
+									{
+										SearchBuilderItem sbi = (SearchBuilderItem) tditer
+												.next();
+										if (!SearchBuilderItem.STATE_PENDING
+												.equals(sbi.getSearchstate()))
+										{
+											// should only be getting pending
+											// items
+											log
+													.warn(" Found Item that was not pending "
+															+ sbi.getName());
+											continue;
+										}
+										if (SearchBuilderItem.ACTION_UNKNOWN
+												.equals(sbi.getSearchaction()))
+										{
+											sbi
+													.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+											continue;
+										}
+										// remove document
+										try
+										{
+											indexReader
+													.delete(new Term(
+															"reference", sbi
+																	.getName()));
+											if (SearchBuilderItem.ACTION_DELETE
+													.equals(sbi
+															.getSearchaction()))
+											{
+												sbi
+														.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+											}
+											else
+											{
+												sbi
+														.setSearchstate(SearchBuilderItem.STATE_PENDING_2);
+											}
+
+										}
+										catch (IOException ex)
+										{
+											log.warn("Failed to delete Page ",
+													ex);
+										}
+									}
+								}
+								finally
+								{
+									if (indexReader != null)
+									{
+
+										indexReader.close();
+										indexReader = null;
+									}
+								}
+								// open for update
+								if (runThreads)
+								{
+									indexWrite = new IndexWriter(
+											indexDirectory,
+											new StandardAnalyzer(), false);
+								}
+							}
+							else if (runThreads)
+							{
+								// create for update
+								indexWrite = new IndexWriter(indexDirectory,
+										new StandardAnalyzer(), true);
+							}
 							for (Iterator tditer = runtimeToDo.iterator(); runThreads
 									&& tditer.hasNext();)
 							{
 								SearchBuilderItem sbi = (SearchBuilderItem) tditer
 										.next();
-								if (!SearchBuilderItem.STATE_PENDING.equals(sbi
-										.getSearchstate()))
+								// only add adds, that have been deleted
+								// sucessfully
+								if (!SearchBuilderItem.STATE_PENDING_2
+										.equals(sbi.getSearchstate()))
 								{
-									// should only be getting pending items
+									continue;
+								}
+								Reference ref = entityManager.newReference(sbi
+										.getName());
+
+								if (ref == null)
+								{
 									log
-											.warn(" Found Item that was not pending "
-													+ sbi.getName());
-									continue;
+											.error("Unrecognised trigger object presented to index builder "
+													+ sbi);
 								}
-								if (SearchBuilderItem.ACTION_UNKNOWN.equals(sbi
-										.getSearchaction()))
+								Entity entity = ref.getEntity();
+
+								Document doc = new Document();
+								if (ref.getContext() == null)
 								{
-									sbi
-											.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-									continue;
+									log.warn("Context is null for " + sbi);
 								}
-								// remove document
+								String container = ref.getContainer();
+								if (container == null) container = "";
+								doc.add(Field.Keyword("container", container));
+								doc.add(Field.UnIndexed("id", ref.getId()));
+								doc.add(Field.Keyword("type", ref.getType()));
+								doc.add(Field.Keyword("subtype", ref
+										.getSubType()));
+								doc.add(Field.Keyword("reference", ref
+										.getReference()));
+								Collection c = ref.getRealms();
+								for (Iterator ic = c.iterator(); ic.hasNext();)
+								{
+									String realm = (String) ic.next();
+									doc.add(Field.Keyword("realm", realm));
+								}
 								try
 								{
-									indexReader.delete(new Term("reference",
-											sbi.getName()));
-									if (SearchBuilderItem.ACTION_DELETE
-											.equals(sbi.getSearchaction()))
+									EntityContentProducer sep = searchIndexBuilder
+											.newEntityContentProducer(ref);
+									if (sep != null)
 									{
-										sbi
-												.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+										doc.add(Field.Keyword("context", sep
+												.getSiteId(ref)));
+										if (sep.isContentFromReader(entity))
+										{
+											doc.add(Field.Text("contents", sep
+													.getContentReader(entity),
+													true));
+										}
+										else
+										{
+											doc.add(Field.Text("contents", sep
+													.getContent(entity), true));
+										}
+										doc.add(Field.Text("title", sep
+												.getTitle(entity), true));
+										doc.add(Field.Keyword("tool", sep
+												.getTool()));
+										doc.add(Field.Keyword("url", sep
+												.getUrl(entity)));
+										doc.add(Field.Keyword("siteid", sep
+												.getSiteId(ref)));
+
 									}
 									else
 									{
-										sbi
-												.setSearchstate(SearchBuilderItem.STATE_PENDING_2);
+										doc.add(Field.Keyword("context", ref
+												.getContext()));
+										doc.add(Field.Text("title", ref
+												.getReference(), true));
+										doc.add(Field.Keyword("tool", ref
+												.getType()));
+										doc.add(Field.Keyword("url", ref
+												.getUrl()));
+										doc.add(Field.Keyword("siteid", ref
+												.getContext()));
 									}
-
 								}
-								catch (IOException ex)
+								catch (Exception e1)
 								{
-									log.warn("Failed to delete Page ", ex);
+									e1.printStackTrace();
 								}
+								log.debug("Indexing Document " + doc);
+								indexWrite.addDocument(doc);
+								sbi
+										.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+
+								log.debug("Done Indexing Document " + doc);
+
 							}
 						}
 						finally
 						{
-							if (indexReader != null)
+							if (indexWrite != null)
 							{
-								indexReader.close();
-								indexReader = null;
+								indexWrite.close();
+								indexWrite = null;
 							}
 						}
-						// open for update
-						if (runThreads)
-						{
-							indexWrite = new IndexWriter(indexDirectory,
-									new StandardAnalyzer(), false);
-						}
-					}
-					else if (runThreads)
-					{
-						// create for update
-						indexWrite = new IndexWriter(indexDirectory,
-								new StandardAnalyzer(), true);
-					}
-					for (Iterator tditer = runtimeToDo.iterator(); runThreads
-							&& tditer.hasNext();)
-					{
-						SearchBuilderItem sbi = (SearchBuilderItem) tditer
-								.next();
-						// only add adds, that have been deleted sucessfully
-						if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi
-								.getSearchstate()))
-						{
-							continue;
-						}
-						Reference ref = entityManager.newReference(sbi
-								.getName());
 
-						if (ref == null)
+						for (Iterator tditer = runtimeToDo.iterator(); runThreads
+								&& tditer.hasNext();)
 						{
-							log
-									.error("Unrecognised trigger object presented to index builder "
-											+ sbi);
-						}
-						Entity entity = ref.getEntity();
-
-						Document doc = new Document();
-						if (ref.getContext() == null)
-						{
-							log.warn("Context is null for " + sbi);
-						}
-						String container = ref.getContainer();
-						if (container == null) container = "";
-						doc.add(Field.Keyword("container", container));
-						doc.add(Field.UnIndexed("id", ref.getId()));
-						doc.add(Field.Keyword("type", ref.getType()));
-						doc.add(Field.Keyword("subtype", ref.getSubType()));
-						doc.add(Field.Keyword("reference", ref.getReference()));
-						Collection c = ref.getRealms();
-						for (Iterator ic = c.iterator(); ic.hasNext();)
-						{
-							String realm = (String) ic.next();
-							doc.add(Field.Keyword("realm", realm));
-						}
-						try
-						{
-							EntityContentProducer sep = searchIndexBuilder
-									.newEntityContentProducer(ref);
-							if (sep != null)
+							SearchBuilderItem sbi = (SearchBuilderItem) tditer
+									.next();
+							if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
+									.getSearchstate()))
 							{
-								doc.add(Field.Keyword("context", sep
-										.getSiteId(ref)));
-								if (sep.isContentFromReader(entity))
+								if (SearchBuilderItem.ACTION_DELETE.equals(sbi
+										.getSearchaction()))
 								{
-									doc.add(Field.Text("contents", sep
-											.getContentReader(entity), true));
+									session.delete(sbi);
 								}
 								else
 								{
-									doc.add(Field.Text("contents", sep
-											.getContent(entity), true));
+									session.saveOrUpdate(sbi);
 								}
-								doc.add(Field.Text("title", sep
-										.getTitle(entity), true));
-								doc.add(Field.Keyword("tool", sep.getTool()));
-								doc.add(Field
-										.Keyword("url", sep.getUrl(entity)));
-								doc.add(Field.Keyword("siteid", sep
-										.getSiteId(ref)));
-
-							}
-							else
-							{
-								doc.add(Field.Keyword("context", ref
-										.getContext()));
-								doc.add(Field.Text("title", ref.getReference(),
-										true));
-								doc.add(Field.Keyword("tool", ref.getType()));
-								doc.add(Field.Keyword("url", ref.getUrl()));
-								doc.add(Field.Keyword("siteid", ref
-										.getContext()));
 							}
 						}
-						catch (Exception e1)
-						{
-							e1.printStackTrace();
-						}
-						log.debug("Indexing Document " + doc);
-						indexWrite.addDocument(doc);
-						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-
-						log.debug("Done Indexing Document " + doc);
-
 					}
+					return new Integer(totalDocs);
 				}
-				finally
+				catch (IOException ex)
 				{
-					if (indexWrite != null)
-					{
-						indexWrite.close();
-						indexWrite = null;
-					}
-				}
-
-				for (Iterator tditer = runtimeToDo.iterator(); runThreads
-						&& tditer.hasNext();)
-				{
-					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
-					if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
-							.getSearchstate()))
-					{
-						if (SearchBuilderItem.ACTION_DELETE.equals(sbi
-								.getSearchaction()))
-						{
-							session.delete(sbi);
-						}
-						else
-						{
-							session.saveOrUpdate(sbi);
-						}
-					}
+					throw new HibernateException(" Failed to create index ", ex);
 				}
 			}
-			transaction.commit();
-			transaction = null;
-		}
-		catch (Exception ex)
-		{
-			if (transaction != null)
-			{
-				try
-				{
-					transaction.rollback();
-				}
-				catch (HibernateException e)
-				{
-				}
-				transaction = null;
-			}
-			log.warn("Failed to Process Docs ", ex);
-			throw new RuntimeException("Failed to save State ", ex);
-		}
-		finally
-		{
-			if (session != null)
-			{
-				try
-				{
-					session.close();
-				}
-				catch (HibernateException e)
-				{
-				}
-				session = null;
-			}
-		}
+
+		};
+		int totalDocs = 
+		((Integer)getHibernateTemplate().execute(callback)).intValue();
 
 		if (runThreads)
 		{
@@ -1283,22 +1285,6 @@ public class SearchIndexBuilderWorker implements Runnable
 		this.sleepTime = sleepTime;
 	}
 
-	/**
-	 * @return Returns the sessionFactory.
-	 */
-	public SessionFactory getSessionFactory()
-	{
-		return sessionFactory;
-	}
-
-	/**
-	 * @param sessionFactory
-	 *        The sessionFactory to set.
-	 */
-	public void setSessionFactory(SessionFactory sessionFactory)
-	{
-		this.sessionFactory = sessionFactory;
-	}
 
 	/**
 	 * @return Returns the dataSource.
@@ -1309,7 +1295,8 @@ public class SearchIndexBuilderWorker implements Runnable
 	}
 
 	/**
-	 * @param dataSource The dataSource to set.
+	 * @param dataSource
+	 *        The dataSource to set.
 	 */
 	public void setDataSource(DataSource dataSource)
 	{
