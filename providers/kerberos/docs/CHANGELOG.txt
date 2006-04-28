@@ -2,7 +2,13 @@ Kerberos UserDirectoryProvider
 
 Changes/features:
 
-- for 2.1.x/2.2
+- for 2.2
+
+ o change license to new "Sakai Foundation" language (slt)
+
+ o fix: compare entered username (userID) to cache (from scott amerson)
+
+- for 2.1.x
 
  o uses configurable, in-memory caching mechanism to alleviate load
    on KDCs caused by WebDAV usage (slt)

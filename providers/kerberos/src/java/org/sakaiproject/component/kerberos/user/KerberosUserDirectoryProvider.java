@@ -313,7 +313,7 @@ public class KerberosUserDirectoryProvider
 		// The in-memory caching mechanism is implemented here
 		// try to get user from in-memory hashtable
 	 try {
-		UserData existingUser = (UserData)users.get(edit.getId());
+		UserData existingUser = (UserData)users.get(userId);
 
 		boolean authUser = false;
 		String hpassword = encode(password);
@@ -341,10 +341,10 @@ public class KerberosUserDirectoryProvider
 					m_logger.debug(this + ".authenticateUser(): putting authenticated user (" + userId + ") in table for caching");
 
 				UserData u = new UserData();			// create entry for authenticated user in cache
-				u.setId(edit.getId());
+				u.setId(userId);
 				u.setHpw(hpassword);
 				u.setTimeStamp(System.currentTimeMillis());
-				users.put(edit.getId(),u);			// put entry for authenticated user into cache
+				users.put(userId,u);				// put entry for authenticated user into cache
 
 			} else { 
 				users.remove(userId);
