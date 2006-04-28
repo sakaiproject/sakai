@@ -19,7 +19,7 @@ languages, as follows:
    Local ID: ko_KR
    
 3) Japanese
-   Status: in progress
+   Status: partially available (complete translaton to be released in 2.2)
    Translated by: Tatsuki Sugura
    Contact: Shoji Kajita   kajita@nagoya-u.jp
    Local ID: ja_JP
@@ -72,14 +72,14 @@ languages, as follows:
     Contact: Max Tsai  mj_tsai@yahoo.com
     Local ID: zh_TW
     
-12) French
-    Status: ??
+12) French (Canadian)
+    Status: to be released in 2.2
     Translated by: n/a
-    Contact: Yves Epelboin (yves.epelboin@upmc.fr)
-    Local ID: fr_FR
+    Contact Mustapha Es-salihe (Mustapha.Es-salihe@crim.ca)
+    Local ID: fr_CA
 	 
 13) Spanish (Spain)
-    Status: to be released in 2.1.2 (mostly completed)
+    Status: released in 2.1.2 (mostly completed)
     Translated by: David Roldán Martínez, Diego del Blanco, Raúl Mengod
     Contact: David Roldan Martinez (darolmar@abierta.upv.es)
     Local ID: es_ES
@@ -115,6 +115,12 @@ languages, as follows:
     Contact: Wolf Hilzensauer (wolf.hilzensauer@salzburgresearch.at)
     Local ID: de_AT
 
+18) Swedish
+    Status: ??
+    Translated by: n/a
+    Contact: Magnus Tagesson (magnus.tagesson@it.su.se)
+    Local ID: sv_SE
+                
 The default language locale must be defined at boot time, by
 setting the tomcat JAVA_OPTS property as follows:
 
