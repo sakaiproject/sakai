@@ -1496,6 +1496,10 @@ public class CharonPortal extends HttpServlet
 			if (!topLogin)
 			{
 				logInOutUrl += "/portal/login";
+				
+				// let the login url be overridden by configuration
+				String overrideLoginUrl = StringUtil.trimToNull(ServerConfigurationService.getString("login.url"));
+				if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
 				// check for a login text override
 				message = StringUtil.trimToNull(ServerConfigurationService.getString("login.text"));
