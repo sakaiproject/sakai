@@ -1590,7 +1590,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// exception are indication that the assessment is already in the Gradebook or there is nothing
 		// to remove.
 		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.shared.GradebookService");
+				.get("org.sakaiproject.service.gradebook.GradebookService");
 		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 		boolean gradebookExists = isGradebookDefined();
 
