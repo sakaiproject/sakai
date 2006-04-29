@@ -1721,10 +1721,10 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
 								User[] submitters = aSubmission.getSubmitters();
 								String submitterId = submitters[0].getId();
-								String grade = StringUtil.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,aSubmission.getGrade())) : null
+								Double grade = StringUtil.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,aSubmission.getGrade())) : null;
 								m.put(submitterId, grade);
 							}
-							g.updateExternalAssessmentScore(gradebookUid, assignmentRef, m);
+							g.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
 						}
 						else
 						{
