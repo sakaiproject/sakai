@@ -201,7 +201,7 @@ public class LoginTool extends HttpServlet
 				+ "    <link href=\"SKIN_ROOT/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />"
 				+ "    <link href=\"SKIN_ROOT/DEFAULT_SKIN/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />"
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
-				+ "    <title>Sakai</title>"
+				+ "    <title>UI.SERVICE</title>"
 				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>"
 				+ "  </head>"
 				+ "  <body onload=\" setFocus(focus_path);parent.updCourier(doubleDeep, ignoreCourier);\">"
@@ -244,6 +244,7 @@ public class LoginTool extends HttpServlet
 
 		String defaultSkin = ServerConfigurationService.getString("skin.default");
 		String skinRoot = ServerConfigurationService.getString("skin.repo");
+		String uiService = ServerConfigurationService.getString("ui.service");
 
 		// get our response writer
 		PrintWriter out = res.getWriter();
@@ -253,6 +254,7 @@ public class LoginTool extends HttpServlet
 			// start our complete document
 			String head = headHtml.replaceAll("DEFAULT_SKIN", defaultSkin);
 			head = head.replaceAll("SKIN_ROOT", skinRoot);
+			head = head.replaceAll("UI.SERVICE", uiService);
 			out.println(head);
 		}
 
