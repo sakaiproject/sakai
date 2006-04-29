@@ -30,6 +30,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -1708,18 +1710,21 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						if (submissionRef == null)
 						{
-							// add all grades for assignment into gradebook
+							// bulk add all grades for assignment into gradebook
 							Iterator submissions = AssignmentService.getSubmissions(a);
 
+							Map m = new HashMap();
+							
 							// any score to copy over? get all the assessmentGradingData and copy over
 							while (submissions.hasNext())
 							{
 								AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
 								User[] submitters = aSubmission.getSubmitters();
-								g.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), StringUtil
-										.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,
-										aSubmission.getGrade())) : null);
+								String submitterId = submitters[0].getId();
+								String grade = StringUtil.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,aSubmission.getGrade())) : null
+								m.put(submitterId, grade);
 							}
+							g.updateExternalAssessmentScore(gradebookUid, assignmentRef, m);
 						}
 						else
 						{
