@@ -1464,27 +1464,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 							{
 								Element element3 = (Element) child3;
 
-// TODO: how to do discussion's channel category... also how did this ever work? -ggolden
-//								if (element3.getTagName().equals("categories"))
-//								{
-//									NodeList children4 = element3.getChildNodes();
-//									final int length4 = children4.getLength();
-//									for (int i4 = 0; i4 < length4; i4++)
-//									{
-//										Node child4 = children4.item(i4);
-//										if (child4.getNodeType() == Node.ELEMENT_NODE)
-//										{
-//											Element element4 = (Element) child4;
-//											if (element4.getTagName().equals("category"))
-//											{
-//												MessageChannelEdit c = editChannel(channelRef);
-//												String category = element4.getAttribute("name");
-//												commitChannel(c);
-//												((DiscussionChannel) c).addCategory(category);
-//											}
-//										}
-//									}
-//								}
+								parseMergeChannelExtra(element3, channelRef);
 
 								// for "message" children
 								if (element3.getTagName().equals("message"))
@@ -1659,6 +1639,16 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		return results.toString();
 
 	} // merge
+
+	/**
+	 * Handle the extra "categtories" stuff in the channel part of the merge xml.
+	 * 
+	 * @param element The "channel" node child.
+	 * @param channelRef The message channel ref.
+	 */
+	protected void parseMergeChannelExtra(Element element3, String channelRef)
+	{
+	}
 
 	/**
 	 * Setup a main message channel for a site.
