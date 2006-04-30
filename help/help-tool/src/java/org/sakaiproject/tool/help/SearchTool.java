@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.api.app.help.HelpManager;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -100,6 +101,8 @@ public class SearchTool
     //  getHelpManager().reInitialize();
     //  return "main";
     //}
+
+    EventTrackingService.post(EventTrackingService.newEvent("help.search", this.searchString, false));
     
     Set resultSet = getHelpManager().searchResources(this.searchString);
     TreeSet treeSet = new TreeSet(resultSet);

@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * render help frame set 
@@ -68,14 +69,16 @@ public class HelpFrameSetRender extends Renderer
     String helpParameter = ((HttpServletRequest) context.getExternalContext()
         .getRequest()).getParameter("help");
 
-    String welcomepage = ServerConfigurationService.getString("help.welcomepage");
-
+    String welcomepage = ServerConfigurationService.getString("help.welcomepage");  
+    
     if ("".equals(welcomepage)){
         welcomepage = "html/help.html";
     }
               
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
-    
+
+    EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
+
     helpWindowTitle = ServerConfigurationService.getString("ui.service") + " Help";
     
     writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
