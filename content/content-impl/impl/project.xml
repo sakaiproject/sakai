@@ -28,6 +28,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-lock-hbm</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -132,6 +138,18 @@
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
 			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${sakai.spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>2.1.8</version>
 		</dependency>
 
 	</dependencies>

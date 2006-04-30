@@ -15,6 +15,7 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="lockManager"><ref bean="org.sakaiproject.content.api.LockManager"/></property>
  		<property name="collectionTableName"><value>CONTENT_COLLECTION</value></property>
  		<property name="resourceTableName"><value>CONTENT_RESOURCE</value></property>
  		<property name="resourceBodyTableName"><value>CONTENT_RESOURCE_BODY_BINARY</value></property>
@@ -40,6 +41,39 @@
 			class="org.sakaiproject.content.impl.BaseExtensionResourceFilter">
 		<property name="viewAll"><value>true</value></property>
 		<property name="mimeTypes"><list/></property>
+	</bean>
+
+	<bean id="lockManagerHibernateMappings"
+			class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/content/hbm/LockManager.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.content.impl.LockManagerTarget"
+			class="org.sakaiproject.content.impl.LockManagerImpl"
+			singleton="true">
+		<property name="sessionFactory">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.content.api.LockManager"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+			singleton="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+		</property>
+		<property name="target">
+			<ref bean="org.sakaiproject.content.impl.LockManagerTarget"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
 	</bean>
 
 </beans>

@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +39,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -98,13 +98,12 @@ public class DbContentService extends BaseContentService
 	/** Table name for resources delete. */
 	protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BODY_BINARY_DELETE";
 
-	// htripath-end
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** Dependency: LockManager */
-	//LockManager m_lockManager;
+	LockManager m_lockManager = null;
 
 	/**
 	 * Dependency: LockManager
@@ -112,11 +111,11 @@ public class DbContentService extends BaseContentService
 	 * @param service
 	 *        The LockManager
 	 */
-/*	public void setLockManager(LockManager lockManager)
+	public void setLockManager(LockManager lockManager)
 	{
 		m_lockManager = lockManager;
 	}
-*/
+
 	/** Dependency: SqlService */
 	protected SqlService m_sqlService = null;
 
@@ -247,8 +246,8 @@ public class DbContentService extends BaseContentService
 				convertToFile();
 			}
 
-			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " "
-					+ m_resourceBodyTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
+			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName
+					+ " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
 		}
 		catch (Throwable t)
 		{
@@ -302,8 +301,7 @@ public class DbContentService extends BaseContentService
 		}
 
 		int fileCount = countQuery("select count(IN_COLLECTION) from CONTENT_RESOURCE where IN_COLLECTION like ?", wildcard);
-		int folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION like ?", wildcard);
-		;
+		int folderCount = countQuery("select count(IN_COLLECTION) from CONTENT_COLLECTION where IN_COLLECTION like ?", wildcard);;
 		return fileCount + folderCount;
 	}
 
@@ -665,70 +663,7 @@ public class DbContentService extends BaseContentService
 
 			// update properties in xml and delete locks
 			m_resourceDeleteStore.commitDeleteResource(edit, uuid);
-
-			// store Body/content
-			// if (body != null)
-			// {
-			// if (m_bodyPath != null)
-			// {
-			// File file = new File(externalResourceDeleteFileName(edit));
-			//
-			// // delete the old
-			// if (file.exists())
-			// {
-			// file.delete();
-			// }
-			// // add the new
-			// try
-			// {
-			// // make sure all directories are there
-			// File container = file.getParentFile();
-			// if (container != null)
-			// {
-			// container.mkdirs();
-			// }
-			//
-			// // write the file
-			// FileOutputStream out = new FileOutputStream(file);
-			// out.write(body);
-			// out.close();
-			// }
-			// catch (Throwable t)
-			// {
-			// M_log.warn(": failed to write resource: " + edit.getId()
-			// + " : " + t);
-			// }
-			// }
-			// else
-			// {
-			// // delete the old
-			// String statement = "delete from " + m_resourceBodyDeleteTableName
-			// + " where resource_uuid = ? ";
-			//
-			// Object[] fields = new Object[1];
-			// fields[0] = uuid;
-			//
-			// m_sqlService.dbWrite(statement, fields);
-			//
-			// // add the new
-			// Object[] flds = new Object[2];
-			// flds[0] = edit.getId();
-			// flds[1] = uuid;
-			//
-			// statement = "insert into " + m_resourceBodyDeleteTableName
-			// + " (RESOURCE_ID,RESOURCE_UUID,BODY)" + " values (? ,?, ? )";
-			//
-			// m_sqlService.dbWriteBinary(statement, flds, body, 0, body.length);
-			// }
-			// }
 		}
-
-		// protected String externalResourceDeleteFileName(ContentResource resource)
-		// {
-		// return m_bodyPath + "/delete/" + ((BaseResourceEdit) resource).m_filePath;
-		// }
-
-		// htripath -end
 
 		public void cancelResource(ContentResourceEdit edit)
 		{
@@ -775,8 +710,8 @@ public class DbContentService extends BaseContentService
 		{
 			if (((BaseResourceEdit) resource).m_contentLength <= 0)
 			{
-				M_log.warn("getResourceBody(): non-positive content length: "
-						+ ((BaseResourceEdit) resource).m_contentLength + "  id: " + resource.getId());
+				M_log.warn("getResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength
+						+ "  id: " + resource.getId());
 				return null;
 			}
 
@@ -861,8 +796,8 @@ public class DbContentService extends BaseContentService
 		{
 			if (((BaseResourceEdit) resource).m_contentLength <= 0)
 			{
-				M_log.warn("getResourceBody(): non-positive content length: "
-						+ ((BaseResourceEdit) resource).m_contentLength + "  id: " + resource.getId());
+				M_log.warn("getResourceBody(): non-positive content length: " + ((BaseResourceEdit) resource).m_contentLength
+						+ "  id: " + resource.getId());
 				return null;
 			}
 
@@ -1271,9 +1206,7 @@ public class DbContentService extends BaseContentService
 
 	public Collection getLocks(String id)
 	{
-		// TODO: restore! -ggolden
-		//return m_lockManager.getLocks(id);
-		return new Vector();
+		return m_lockManager.getLocks(id);
 	}
 
 	public void lockObject(String id, String lockId, String subject, boolean system)
@@ -1281,8 +1214,7 @@ public class DbContentService extends BaseContentService
 		if (M_log.isDebugEnabled()) M_log.debug("lockObject has been called on: " + id);
 		try
 		{
-			// TODO: restore! -ggolden
-			// m_lockManager.lockObject(id, lockId, subject, system);
+			m_lockManager.lockObject(id, lockId, subject, system);
 		}
 		catch (Exception e)
 		{
@@ -1295,15 +1227,12 @@ public class DbContentService extends BaseContentService
 
 	public void removeLock(String id, String lockId)
 	{
-		// TODO: restore! -ggolden
-		// m_lockManager.removeLock(id, lockId);
+		m_lockManager.removeLock(id, lockId);
 	}
 
 	public boolean isLocked(String id)
 	{
-		// TODO: restore! -ggolden
-		//return m_lockManager.isLocked(id);
-		return false;
+		return m_lockManager.isLocked(id);
 	}
 
 	public boolean containsLockedNode(String id)
@@ -1313,14 +1242,11 @@ public class DbContentService extends BaseContentService
 
 	public void removeAllLocks(String id)
 	{
-		// TODO: restore! -ggolden
-		//m_lockManager.removeAllLocks(id);
+		m_lockManager.removeAllLocks(id);
 	}
 
 	protected List getFlatResources(String parentId)
 	{
 		return m_storage.getFlatResources(parentId);
 	}
-
-} // DbCachedContentService
-
+}

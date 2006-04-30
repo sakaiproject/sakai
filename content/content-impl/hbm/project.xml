@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../../master/project.xml</extend>
+	<name>sakai-content-lock-hbm</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-content-lock-hbm</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>The Sakai Foundation</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+
+	<properties>
+		<!-- deploy as a jar -->
+		<deploy.type>jar</deploy.type>
+		<!-- deploy to "shared", "common" or "server" : shared for hibernate/spring visibility -->
+		<deploy.target>shared</deploy.target>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+
+		</resources>
+
+	</build>
+
+</project>
