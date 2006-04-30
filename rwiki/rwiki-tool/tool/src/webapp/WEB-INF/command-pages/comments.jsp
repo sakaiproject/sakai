@@ -1,4 +1,4 @@
-<!-- To Turn Comments on, uncomment this 
+<c:if test="${requestScope.rsacMap.withcomments}" >
 <div class="rwiki_comments" >
 <a href="#" onclick="ajaxRefPopup(this,'<c:out value="${renderBean.newCommentURL}" />',0); return false;" >Comment</a>
 <c:forEach var="comment"
@@ -19,7 +19,7 @@
 	    </div>
 </c:forEach>
 </div>
--->
+</c:if>
 <!-- To Turn AJAX Comments on, uncomment this and change the commandComponents.xml to use EditSaveAction 
 	    <script type="text/javascript" >
 var commentsShowing = false;

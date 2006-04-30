@@ -117,6 +117,8 @@ public class RequestScopeSuperBean
 	private boolean experimental = false;
 
 	private boolean withnotification = false;
+	
+	private boolean withcomments = false;
 
 	public static RequestScopeSuperBean getFromRequest(
 			HttpServletRequest request)
@@ -176,6 +178,8 @@ public class RequestScopeSuperBean
 				"wiki.experimental", false);
 		withnotification = ServerConfigurationService.getBoolean(
 				"wiki.notification", false);
+		withcomments = ServerConfigurationService.getBoolean(
+				"wiki.comments", false);
 
 	}
 
@@ -766,5 +770,21 @@ public class RequestScopeSuperBean
 	public void setWithnotification(boolean withnotification)
 	{
 		this.withnotification = withnotification;
+	}
+
+	/**
+	 * @return Returns the withcomments.
+	 */
+	public boolean isWithcomments()
+	{
+		return withcomments;
+	}
+
+	/**
+	 * @param withcomments The withcomments to set.
+	 */
+	public void setWithcomments(boolean withcomments)
+	{
+		this.withcomments = withcomments;
 	}
 }
