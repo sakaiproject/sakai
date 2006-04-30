@@ -165,15 +165,15 @@ public interface SearchBuilderItem
 	public static final String SITE_MASTER_PATTERN = SearchBuilderItem.INDEX_MASTER+"_%";
 
 	public static final String[] states = new String[] {
-		"U",
-		"P",
-		"P2",
-		"C"
+		"Update",
+		"Pending",
+		"Pending2",
+		"Complete"
 	};
 	public static final String[] actions = new String[] {
-		"U",
-		"A",
-		"D",
+		"Update",
+		"Add",
+		"Delete",
 		"-",
 		"-",
 		"-",
@@ -181,8 +181,8 @@ public interface SearchBuilderItem
 		"-",
 		"-",
 		"-",
-		"RF",
-		"RB"
+		"Refresh",
+		"Rebuild"
 	};
 	
 

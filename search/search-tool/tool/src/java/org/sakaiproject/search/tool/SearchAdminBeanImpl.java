@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -198,11 +199,32 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	public String getIndexStatus(String statusFormat)
 	{
 		doCommand();
-		return MessageFormat.format(statusFormat, new Object[] {
-				searchService.getStatus(),
-				new Integer(searchService.getNDocs()),
-				new Integer(searchService.getPendingDocs()) });
+		SearchStatus ss = searchService.getSearchStatus();
+		
+			
+		return MessageFormat.format(statusFormat,
+				new Object[] {
+				ss.getLastLoad(),
+				ss.getLoadTime(),
+				ss.getCurrentWorker(),
+				ss.getCurrentWorkerETC(),
+				ss.getNDocuments(),
+				ss.getPDocuments()
+		});
 	}
+
+	public String getWorkers(String rowFormat) {
+		SearchStatus ss = searchService.getSearchStatus();
+		StringBuffer sb = new StringBuffer();
+		List l = ss.getWorkerNodes();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			Object[] worker = (Object[]) i.next();
+			sb.append(MessageFormat.format(rowFormat,
+					worker));
+		}
+		return sb.toString();
+	}
+
 	public String getIndexDocuments( String rowFormat ) {
 		StringBuffer sb = new StringBuffer();
 		List l = searchService.getAllSearchItems();
@@ -218,6 +240,39 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 					sbi.getVersion() }));
 		}
 		return sb.toString();
+	}
+	public String getGlobalMasterDocuments( String rowFormat ) {
+		StringBuffer sb = new StringBuffer();
+		List l = searchService.getGlobalMasterSearchItems();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			sb.append(MessageFormat.format(rowFormat,
+					new Object[] {
+					sbi.getId(), 
+					sbi.getName(), 
+					sbi.getContext(), 
+					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
+					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.getVersion() }));
+		}
+		return sb.toString();		
+	}
+	
+	public String getSiteMasterDocuments( String rowFormat ) {
+		StringBuffer sb = new StringBuffer();
+		List l = searchService.getSiteMasterSearchItems();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			sb.append(MessageFormat.format(rowFormat,
+					new Object[] {
+					sbi.getId(), 
+					sbi.getName(), 
+					sbi.getContext(), 
+					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
+					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
+					sbi.getVersion() }));
+		}
+		return sb.toString();		
 	}
 
 	/**

@@ -39,8 +39,10 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
+import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * Search index builder is expected to be registered in spring as
@@ -81,6 +83,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			log.error("Failed to init ", t);
 		}
+		log.info(this+" completed init()");
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -261,7 +264,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * @throws IdUnusedException
 	 * @throws TypeException
 	 */
-	protected EntityContentProducer newEntityContentProducer(Reference ref)
+	public EntityContentProducer newEntityContentProducer(Reference ref)
 	{
 		log.debug(" new entitycontent producer");
 		for (Iterator i = producers.iterator(); i.hasNext();)
@@ -281,7 +284,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * @param event
 	 * @return
 	 */
-	protected EntityContentProducer newEntityContentProducer(Event event)
+	public EntityContentProducer newEntityContentProducer(Event event)
 	{
 		log.debug(" new entitycontent producer");
 		for (Iterator i = producers.iterator(); i.hasNext();)
@@ -405,6 +408,25 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	{
 
 		return searchBuilderItemDao.getAll();
+	}
+
+	public List getGlobalMasterSearchItems()
+	{
+		return searchBuilderItemDao.getGlobalMasters();
+	}
+	public List getSiteMasterSearchItems()
+	{
+		return searchBuilderItemDao.getSiteMasters();
+	}
+
+	public SearchWriterLock getCurrentLock()
+	{
+		return searchIndexBuilderWorker.getCurrentLock();
+	}
+
+	public List getNodeStatus()
+	{
+		return searchIndexBuilderWorker.getNodeStatus();
 	}
 
 }

@@ -3,6 +3,9 @@
  */
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -22,19 +25,44 @@ public class PDFContentDigester extends BaseContentDigester
 
 	public String getContent(ContentResource contentResource)
 	{
+		InputStream contentStream = null;
+		StringWriter sw = null;
 		try
 		{
+			contentStream = contentResource.streamContent();
 			PDFTextStripper stripper = new PDFTextStripper();
-			StringWriter sw = new StringWriter();
-			PDDocument pddoc = PDDocument.load(contentResource.streamContent()); 
-			stripper.writeText(pddoc
-					, sw);
+			sw = new StringWriter();
+			PDDocument pddoc = PDDocument.load(contentStream);
+			stripper.writeText(pddoc, sw);
 			pddoc.close();
 			return sw.toString();
 		}
 		catch (Exception ex)
 		{
-			throw new RuntimeException("Failed to get content for indexing",ex);
+			throw new RuntimeException("Failed to get content for indexing", ex);
+		}
+		finally
+		{
+			if (sw != null)
+			{
+				try
+				{
+					sw.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+			if (contentStream != null)
+			{
+				try
+				{
+					contentStream.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
 		}
 	}
 

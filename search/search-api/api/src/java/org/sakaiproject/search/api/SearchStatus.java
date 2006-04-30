@@ -21,51 +21,27 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.dao;
+package org.sakaiproject.search.api;
 
+import java.util.Date;
 import java.util.List;
-
-import org.sakaiproject.search.model.SearchBuilderItem;
 
 /**
  * @author ieb
  */
-public interface SearchBuilderItemDao
+public interface SearchStatus
 {
+	String getLastLoad();
 
-	/**
-	 * create a new item
-	 * 
-	 * @return
-	 */
-	SearchBuilderItem create();
+	String getLoadTime();
 
-	/**
-	 * Update a single item
-	 * 
-	 * @param sb
-	 */
-	void update(SearchBuilderItem sb);
+	String getCurrentWorker();
 
-	/**
-	 * Locate the resource entry
-	 * 
-	 * @param resourceName
-	 * @return
-	 */
-	SearchBuilderItem findByName(String resourceName);
+	Date getCurrentWorkerETC();
 
-	/**
-	 * count the number of entries pending
-	 * 
-	 * @return
-	 */
-	int countPending();
+	List getWorkerNodes();
 
-	List getAll();
+	String getNDocuments();
 
-	List getGlobalMasters();
-
-	List getSiteMasters();
-
+	String getPDocuments();
 }

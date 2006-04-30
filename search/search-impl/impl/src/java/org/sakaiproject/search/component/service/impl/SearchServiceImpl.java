@@ -25,6 +25,7 @@ package org.sakaiproject.search.component.service.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -46,8 +47,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
-
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
+import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * The search service
@@ -343,11 +344,17 @@ public class SearchServiceImpl implements SearchService
 
 	public String getStatus()
 	{
+		
 		String lastLoad = (new Date(reloadEnd)).toString();
 		String loadTime = String
 				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+		SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
+		List lockNodes = searchIndexBuilder.getNodeStatus();
+		
+		
 		return "Index Last Loaded " + lastLoad + " in " + loadTime + " seconds";
 	}
+	
 
 	public int getNDocs()
 	{
@@ -366,8 +373,73 @@ public class SearchServiceImpl implements SearchService
 		return searchIndexBuilder.getPendingDocuments();
 	}
 
+	
 	public List getAllSearchItems()
 	{
 		return searchIndexBuilder.getAllSearchItems();
 	}
+
+	public List getSiteMasterSearchItems()
+	{
+		return searchIndexBuilder.getSiteMasterSearchItems();
+	}
+	public List getGlobalMasterSearchItems()
+	{
+		return searchIndexBuilder.getGlobalMasterSearchItems();
+	}
+
+	public SearchStatus getSearchStatus()
+	{
+		final String lastLoad = (new Date(reloadEnd)).toString();
+		final String loadTime = String
+				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+		final SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
+		final List lockNodes = searchIndexBuilder.getNodeStatus();
+		final String pdocs = String.valueOf(getPendingDocs());
+		final String ndocs = String.valueOf(getNDocs());
+		
+		return new SearchStatus() {
+			public String getLastLoad() {
+				return lastLoad;
+			}
+			public String getLoadTime() {
+				return loadTime;
+			}
+			public String getCurrentWorker() {
+				return lock.getNodename();
+			}
+			public Date getCurrentWorkerETC() {
+				return lock.getExpires();
+			}
+			public List getWorkerNodes() {
+				List l = new ArrayList();
+				for ( Iterator i = lockNodes.iterator(); i.hasNext();) {
+					SearchWriterLock swl = (SearchWriterLock) i.next();
+					Object[] result = new Object[3];
+					result[0] = swl.getNodename();
+					result[1] = swl.getExpires();
+					if ( lock.getNodename().equals(swl.getNodename())) {
+						result[2] = "running";
+					} else {
+						result[2] = "idle";
+					}
+					l.add(result);
+				}
+				return l;
+			}
+			public String getNDocuments()
+			{
+				return ndocs;
+			}
+			public String getPDocuments()
+			{
+				return pdocs;
+			}
+			
+						
+		};
+		
+	}
+	
+	
 }

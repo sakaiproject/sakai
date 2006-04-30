@@ -25,8 +25,10 @@ package org.sakaiproject.search.api;
 
 import java.util.List;
 
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
  * A SearchIndexBuilder builds a search index, it must manage its own list of
@@ -103,5 +105,18 @@ public interface SearchIndexBuilder
 	void refreshIndex(String currentSiteId);
 
 	List getAllSearchItems();
+	
+	EntityContentProducer newEntityContentProducer(Event event);
+	
+	EntityContentProducer newEntityContentProducer(Reference ref);
+
+	List getSiteMasterSearchItems();
+
+	List getGlobalMasterSearchItems();
+
+	SearchWriterLock getCurrentLock();
+
+	List getNodeStatus();
+	
 
 }

@@ -129,16 +129,12 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 			{
 				// first try and get and lock the writer mutex
 
-				List l = session
-						.find(
-								"select count(*) from "
-										+ SearchBuilderItemImpl.class.getName()
-										+ " where searchstate = ? and searchaction <> ?",
-								new Object[] { 
-										SearchBuilderItem.STATE_PENDING,
-										SearchBuilderItem.ACTION_UNKNOWN },
-								new Type[] { Hibernate.INTEGER,
-										Hibernate.INTEGER });
+				List l = session.find("select count(*) from "
+						+ SearchBuilderItemImpl.class.getName()
+						+ " where searchstate = ? and searchaction <> ?",
+						new Object[] { SearchBuilderItem.STATE_PENDING,
+								SearchBuilderItem.ACTION_UNKNOWN }, new Type[] {
+								Hibernate.INTEGER, Hibernate.INTEGER });
 				if (l == null || l.size() == 0)
 				{
 					return new Integer(0);
@@ -153,5 +149,40 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		};
 
 		return ((Integer) getHibernateTemplate().execute(callback)).intValue();
+	}
+
+	public List getGlobalMasters()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session)
+					throws HibernateException
+			{
+				return session.createCriteria(SearchBuilderItemImpl.class).add(
+						Expression.eq("name", SearchBuilderItem.GLOBAL_MASTER))
+						.list();
+			}
+		};
+
+		return (List) getHibernateTemplate().execute(callback);
+	}
+
+	public List getSiteMasters()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session)
+					throws HibernateException
+			{
+				return session.createCriteria(
+						SearchBuilderItemImpl.class).add(
+						Expression.like("name", SearchBuilderItem.SITE_MASTER_PATTERN))
+						.add(
+								Expression.not(Expression.eq("context",
+										SearchBuilderItem.GLOBAL_CONTEXT))).list();
+			}
+		};
+
+		return (List) getHibernateTemplate().execute(callback);
 	}
 }

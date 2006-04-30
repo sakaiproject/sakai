@@ -3,6 +3,9 @@
  */
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -30,23 +33,26 @@ public class XLContentDigester extends BaseContentDigester
 	public String getContent(ContentResource contentResource)
 	{
 
+		InputStream contentStream = null;
 		try
 		{
-			 HSSFWorkbook workbook = new HSSFWorkbook(contentResource
-					.streamContent());
+			contentStream = contentResource.streamContent();
+			HSSFWorkbook workbook = new HSSFWorkbook(contentStream);
 			StringBuffer sb = new StringBuffer();
 			int nsheets = workbook.getNumberOfSheets();
-			
+
 			for (int i = 0; i < nsheets; i++)
 			{
 				HSSFSheet sheet = workbook.getSheetAt(i);
 				int r = sheet.getFirstRowNum();
 				int lr = sheet.getLastRowNum();
-				for ( ; r <= lr; r++ ) {
-					HSSFRow  row = sheet.getRow(r);
+				for (; r <= lr; r++)
+				{
+					HSSFRow row = sheet.getRow(r);
 					short c = row.getFirstCellNum();
 					short lc = row.getLastCellNum();
-					for ( ; c <= lc; c++ ) {
+					for (; c <= lc; c++)
+					{
 						HSSFCell cell = row.getCell(c);
 						HSSFRichTextString cstr = cell.getRichStringCellValue();
 						sb.append(cstr.getString()).append(" ");
@@ -57,8 +63,23 @@ public class XLContentDigester extends BaseContentDigester
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to read content for indexing ",e);
+			throw new RuntimeException("Failed to read content for indexing ",
+					e);
 		}
+		finally
+		{
+			if (contentStream != null)
+			{
+				try
+				{
+					contentStream.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
+
 	}
 
 	/*

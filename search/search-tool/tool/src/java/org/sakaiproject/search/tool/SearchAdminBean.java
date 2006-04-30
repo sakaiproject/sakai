@@ -23,6 +23,10 @@
 
 package org.sakaiproject.search.tool;
 
+import java.text.MessageFormat;
+
+import org.sakaiproject.search.api.SearchStatus;
+
 /**
  * A backing bean for the search admin page. The implementation of this bean
  * should enfoce any authz that is required.
@@ -43,11 +47,24 @@ public interface SearchAdminBean
 	 * get an HTML fragment representing the status of the index
 	 * 
 	 * @param statusFormatString
-	 *        a format string for the status {0} is the status, {1} is the
-	 *        number of docs, {2} is the number waiting to be indexed
+	 * 			{0} is the Last Load time
+	 *           {1} is how long it took to load
+	 *           {2} is the current worker node (none if none)
+	 *           {3} is the Latest time of completion of the worker
 	 * @return
 	 */
 	String getIndexStatus(String statusFormatString);
+	
+	/**
+	 * 
+	 * @param rowFormat
+	 *      {0} is the worker name
+	 *      {1} is the latest time the node should reaapear, after which 
+	 *      time the node will be considered overdue and removed from the 
+	 *      list of worker nodes.
+	 * @return
+	 */
+	String getWorkers(String rowFormat);
 
 	/**
 	 * Get admin options formatted according to pattern
@@ -58,5 +75,23 @@ public interface SearchAdminBean
 	 */
 	String getAdminOptions(String adminOptionsFormat);
 	
+	/**
+	 * get a BIG list of all documents in the index
+	 * @param rowFormat
+	 * @return
+	 */
 	String getIndexDocuments( String rowFormat );
+	/**
+	 * get a list of Global Master documents
+	 * @param rowFormat
+	 * @return
+	 */
+	String getGlobalMasterDocuments( String rowFormat );
+	/**
+	 * get a list of Site Master Documents
+	 * @param rowFormat
+	 * @return
+	 */
+	String getSiteMasterDocuments( String rowFormat );
+
 }

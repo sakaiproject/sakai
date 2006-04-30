@@ -7,6 +7,9 @@
   <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
+    <!-- This is used by the reader, there is also a location defiend by the writer
+    If you want to have the writer write somewhere different and ship the index
+    make then different, otherwise they should be the same -->
     <property name="indexDirectory"><value>${sakai.home}/searchindex</value></property>
   </bean> 
     
@@ -16,15 +19,16 @@
     <property name="searchBuilderItemDao"><ref bean="searchBuilderItemDao" /></property>
   </bean>
 
-  <bean id="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker"
-    class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorker" 
+  <bean id="org.sakaiproject.search.api.SearchIndexBuilderWorker"
+    class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerImpl" 
     init-method="init" destroy-method="destroy">
     <property name="sleepTime"><value>30000</value></property>
-    <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
     <property name="dataSource">
       <ref bean="javax.sql.DataSource"/>      
     </property>
+    <property name="searchIndexBuilderWorkerDao"><ref bean="searchIndexBuilderWorkerDao" /></property>
   </bean>
+  
   
   <bean id="org.sakaiproject.search.SearchSessionFactory"
     parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
@@ -55,25 +59,42 @@
     </property>
     <property name="transactionAttributes">
       <props>
-        <!--
-          <prop key="exists">PROPAGATION_REQUIRED,readOnly</prop>
-          <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
-        -->
         <prop key="update*">PROPAGATION_REQUIRED</prop>
         <prop key="delete*">PROPAGATION_REQUIRED</prop>
-        <!--. not needed for this version of create .-->
-        <!--<prop key="create*">PROPAGATION_REQUIRED</prop>-->
       </props>
     </property>
     <property name="target"><ref bean="searchBuilderItemDaoImpl"/></property>
   </bean>
-   
+  
   <bean id="searchBuilderItemDaoImpl"
     class="org.sakaiproject.search.component.dao.impl.SearchBuilderItemDaoImpl" singleton="true">
     <property name="sessionFactory"><ref
       bean="org.sakaiproject.search.SearchSessionFactory"/>
     </property>
   </bean>
+
+  <bean id="searchIndexBuilderWorkerDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+      bean="org.sakaiproject.search.SearchTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+        <prop key="processToDoListTransaction">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="searchIndexBuilderWorkerDaoImpl"/></property>
+  </bean>
   
+  <bean id="searchIndexBuilderWorkerDaoImpl"
+    class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoImpl" 
+    init-method="init" >
+    <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
+    <!--
+    This is the location where the index is written. Normally its the same as the reader
+    location, but it can be different if you are prepared to implement a shipping process 
+    -->
+    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
+  </bean>
   
 </beans>

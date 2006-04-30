@@ -3,7 +3,10 @@
  */
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -28,17 +31,43 @@ public class HtmlContentDigester extends BaseContentDigester
 	 */
 	public String getContent(ContentResource contentResource)
 	{
+		InputStream contentStream = null;
 		Tidy tidy = new Tidy();
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 		{
-			tidy.parse(contentResource.streamContent(), baos);
+			contentStream = contentResource.streamContent();
+			tidy.parse(contentStream, baos);
+			return DigestHtml.digest(new String(baos.toByteArray()));
+			
 		}
 		catch (ServerOverloadException e)
 		{
 			throw new RuntimeException("Failed get Resource Content ", e);
 		}
-		return DigestHtml.digest(new String(baos.toByteArray()));
+		finally
+		{
+			if (baos != null)
+			{
+				try
+				{
+					baos.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+			if (contentStream != null)
+			{
+				try
+				{
+					contentStream.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
 	}
 
 	/*

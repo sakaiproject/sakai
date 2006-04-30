@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,10 +44,13 @@ public class DefaultContentDigester implements ContentDigester
 	}
 
 	public Reader getContentReader(ContentResource contentResource)
-	{
+	{ 
+ 		InputStream contentStream = null;
+ 		// we dont close this as its used to stream,
+ 		// the caller MUST close the stream
 		try
 		{
-			InputStream contentStream = contentResource.streamContent();
+			contentStream = contentResource.streamContent();
 			FilterStreamReader filterReader = new FilterStreamReader(
 					contentStream);
 			return filterReader;
@@ -54,8 +58,8 @@ public class DefaultContentDigester implements ContentDigester
 		catch (Exception e)
 		{
 			throw new RuntimeException("Failed to stream content ", e);
-
 		}
+		
 	}
 
 	public boolean accept(String mimeType)
@@ -65,6 +69,8 @@ public class DefaultContentDigester implements ContentDigester
 
 	public class FilterStreamReader extends FilterReader
 	{
+
+		private InputStream inputStream = null;
 
 		/*
 		 * (non-Javadoc)
@@ -96,6 +102,7 @@ public class DefaultContentDigester implements ContentDigester
 			}
 			return size;
 		}
+		
 
 		protected FilterStreamReader(Reader arg0)
 		{
@@ -105,6 +112,24 @@ public class DefaultContentDigester implements ContentDigester
 		public FilterStreamReader(InputStream stream)
 		{
 			super(new InputStreamReader(stream));
+			inputStream = stream;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.io.FilterReader#close()
+		 */
+		public void close() throws IOException
+		{
+			super.close();
+			try {
+				this.in.close();
+			} catch ( Exception ex ) {
+			}
+			try { 
+				inputStream.close();
+			} catch ( Exception ex ) {
+			}
+			inputStream = null;
 		}
 
 	}

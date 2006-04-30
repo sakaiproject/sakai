@@ -111,4 +111,14 @@ public interface SearchService
 
 	List getAllSearchItems();
 
+	List getSiteMasterSearchItems();
+
+	List getGlobalMasterSearchItems();
+
+	SearchStatus getSearchStatus();
+	
+	
+
+
+
 }

@@ -3,6 +3,9 @@
  */
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -25,11 +28,12 @@ public class PPTContentDigester extends BaseContentDigester
 	 */
 	public String getContent(ContentResource contentResource)
 	{
+		InputStream contentStream = null;
 
 		try
 		{
-			PowerPointExtractor pptExtractor = new PowerPointExtractor(
-					contentResource.streamContent());
+			contentStream = contentResource.streamContent();
+			PowerPointExtractor pptExtractor = new PowerPointExtractor(contentStream);
 			StringBuffer sb = new StringBuffer();
 			sb.append(pptExtractor.getText()).append(" ").append(
 					pptExtractor.getNotes());
@@ -37,7 +41,21 @@ public class PPTContentDigester extends BaseContentDigester
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to read content for indexing ",e);
+			throw new RuntimeException("Failed to read content for indexing ",
+					e);
+		}
+		finally
+		{
+			if (contentStream != null)
+			{
+				try
+				{
+					contentStream.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
 		}
 	}
 
