@@ -585,7 +585,7 @@ public class CharonPortal extends HttpServlet
 		// for the help button
 		// get the help document ID from the tool config (tool registration usually).
 		// The help document ID defaults to the tool ID
-		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean("helpEnabled", true);
+		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean("display.help.icon", true);
 		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
 		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
 
@@ -1630,6 +1630,7 @@ public class CharonPortal extends HttpServlet
 		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(site.getId()) + "/page/");
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
+		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu", true);
 		boolean loggedIn = session.getUserId() != null;
 		String iconUrl = site.getIconUrlFull();
 		boolean published = site.isPublished();
@@ -1702,16 +1703,19 @@ public class CharonPortal extends HttpServlet
 			count++;
 		}
 
-		String helpUrl = ServerConfigurationService.getHelpUrl(null);
-		out.println("			<li>");
+		if (showHelp)
+		{
+			String helpUrl = ServerConfigurationService.getHelpUrl(null);
+			out.println("			<li>");
 
-		// help gets its own accesskey - h
-		out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
+			// help gets its own accesskey - h
+			out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
 				+ ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
 				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">" + rb.getString("sit.help")
 				+ "</a>");
 
-		out.println("			</li>");
+			out.println("			</li>");
+		}
 
 		out.println("		</ul>");
 		out.println("	</div>");
