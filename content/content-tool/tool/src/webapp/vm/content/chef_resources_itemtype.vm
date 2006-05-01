@@ -336,6 +336,7 @@
 	function seedValue(obj_seed, id, trim)
 	{
 		var theElement = document.getElementById(id);
+		alert("theElement = " + theElement + "\nobj_seed = " + obj_seed + "\nobj_seed.value = " + obj_seed.value);
 		if(theElement && obj_seed && obj_seed.value)
 		{
 			var nonWhitespaceChar = /\S/;
@@ -686,25 +687,101 @@
 				#end
 			#end
 		
-			#if (!$dropboxMode && !$preventPublicDisplay)
-				## do not show the public view option in dropbox or when public view is not allowed
-				<table border="0">
-					<tr>
-						<td style="width:180px;padding-left:1em;vertical-align:top">
-							<label for="pubview$i">
-								$tlang.getString("edit.access1")
-							</label>	
-						</td>
-						<td style="vertical-align:top">
-							#if ($item.isPubviewset())
-								$tlang.getString("gen.setyes")
-							#else
-								<input type="checkbox" name="pubview$i" id="pubview$i" value="true" #if($item.isPubview()) checked="checked"#end  style="border:none" />
-								$tlang.getString("edit.access2")
-							#end
-						</td>
-					</tr>
-				</table>
+			## do not show any access options if in dropbox
+			#if(!$dropboxMode)
+				## show access options only if public view is allowed or there are groups in the site
+				#if(!$preventPublicDisplay || $siteHasGroups)
+					<p class="shorttext">
+						<span class="reqStar">*</span>
+						<label for="access_mode$i">
+							$tlang.getString("edit.access1")
+						</label>	
+						#if(!$preventPublicDisplay && $item.isPubviewset())
+							$tlang.getString("gen.setyes")
+						#else
+							<table border="0">
+								#if(!$preventPublicDisplay)
+									<tr>
+										<td class="checkbox">
+											<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" />
+											<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
+										</td>
+									</tr>
+								#end
+								<tr>
+									<td class="checkbox">
+										<input type="radio" name="access_mode$i" id="access_mode${i}_site" value="site" #if("$!item.access" == "site") checked="checked"#end  style="border:none" />
+										<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
+									</td>
+								</tr>
+								#if($siteHasGroups)
+									#if("$!item.access" == "group")
+										#set ($listDisplay="block")
+									#else
+										#set ($listDisplay="none")
+									#end
+									<tr>
+										<td class="checkbox">
+											<input type="radio" name="access_mode$i" id="access_mode${i}_group" value="group" #if("$!item.access" == "group") checked="checked"#end  style="border:none" />
+											<label for="access_mode${i}_group">$tlang.getString("edit.access4")</label>
+											<table id="groupTable" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
+												<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
+												<tr>
+													<th id="selectAllGroups" style="width:2em;padding-left:.4em">
+														<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+													</th>
+											 		<th id="groupname">
+														#if(!$sortedBy.equals("group_title"))
+															<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1")</a>
+														#else
+															#if ($sortedAsc.equals("true"))
+																<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+															#else
+																<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+															#end
+														#end
+													</th>
+													<th id ="groupdescription">
+														#if (!$sortedBy.equals("group_description"))
+															<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2")</a>
+														#else
+															#if ($sortedAsc.equals("true"))
+																<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+															#else
+																<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+															#end
+														#end
+													</th>
+												</tr>
+												#foreach ($group in $!theGroupsDefinedInThisSite)
+													<tr>
+														<td headers="selected" style="padding-bottom:0;" style="width:2em">
+															#set($selected=false)
+															#if($item.hasGroup($group.id))
+																#set($selected=true)
+															#end
+															<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+														</td>
+														<td headers="name" style="padding-bottom:0;" class="checkbox">
+															<label for="$group.Id">
+																$group.Title
+															</label>	
+														</td>
+														<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+															#set($description = "")
+															#set($description = $group.Description)
+															$!description
+														</td>
+													</tr>
+												#end
+											</table>
+										</td>
+									</tr>
+								#end
+							</table>
+						#end
+					</p>
+				#end
 			#end
 			#if($setQuota)
 				<p class="shorttext">

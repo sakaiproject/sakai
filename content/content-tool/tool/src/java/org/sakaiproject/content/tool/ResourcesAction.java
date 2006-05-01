@@ -68,6 +68,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
@@ -1137,7 +1138,6 @@ public class ResourcesAction
 		initStateAttributes(state, portlet);
 		Map current_stack_frame = peekAtStack(state);
 
-
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if(mode == null || mode.trim().length() == 0)
 		{
@@ -1174,7 +1174,7 @@ public class ResourcesAction
 			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 		}
 		context.put("collectionId", collectionId);
-
+		
 		String itemType = (String) current_stack_frame.get(STATE_STACK_CREATE_TYPE);
 		if(itemType == null || "".equals(itemType))
 		{
@@ -1229,6 +1229,13 @@ public class ResourcesAction
 		}
 		context.put("new_items", new_items);
 		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+		
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
+		}
 
 		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
@@ -2253,6 +2260,13 @@ public class ResourcesAction
 			context.put("dropboxMode", Boolean.TRUE);
 		}
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
+		}
 
 		// String template = (String) getContext(data).get("template");
 
@@ -4741,6 +4755,13 @@ public class ResourcesAction
 			context.put("dropboxMode", Boolean.TRUE);
 		}
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
+		}
 
 		if(TYPE_FORM.equals(itemType))
 		{
@@ -10278,6 +10299,8 @@ public class ResourcesAction
 		private boolean m_isMoved;
 		private boolean m_canUpdate;
 		private boolean m_toobig;
+		protected String m_access;
+		protected List m_groups;
 
 
 		/**
@@ -10322,6 +10345,10 @@ public class ResourcesAction
 			m_canAddItem = false;
 			m_canAddFolder = false;
 			m_canUpdate = false;
+			
+			m_access = AccessMode.SITE.toString();
+			m_groups = new Vector();
+		
 		}
 
 		public void setIsTooBig(boolean toobig)
@@ -10822,6 +10849,69 @@ public class ResourcesAction
 		public boolean inheritsHighlighted()
 		{
 			return m_inheritsHighlight;
+		}
+
+		/**
+		 * Access the access mode for this item.
+		 * @return The access mode.
+		 */
+		public String getAccess()
+		{
+			return m_access;
+		}
+
+		/**
+		 * Set the access mode for this item.
+		 * @param access
+		 */
+		public void setAccess(String access)
+		{
+			m_access = access;
+		}
+
+		/**
+		 * Access a list of identifiers for groups that can access this item.
+		 * @return Returns the groups.
+		 */
+		public List getGroups()
+		{
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			return m_groups;
+		}
+		
+		/**
+		 * Determine whether a group has access to this item. 
+		 * @param groupId The id of the group.
+		 * @return true if the group has access, false otherwise.
+		 */
+		public boolean hasGroup(String groupId)
+		{
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			return m_groups.contains(groupId);
+		}
+
+		/**
+		 * Replace the current list of groups with this list of identifiers for groups that have access to this item.
+		 * @param groups The groups to set.
+		 */
+		public void setGroups(List groups)
+		{
+			m_groups = new Vector(groups);
+		}
+		
+		public void addGroup(String groupId)
+		{
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			m_groups.add(groupId);
 		}
 
 	}	// inner class BrowseItem

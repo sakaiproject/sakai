@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +63,8 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
@@ -97,12 +100,15 @@ import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -525,9 +531,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			Object[] rv = new Object[1];
+			Object[] rv = new Object[5];
 			rv[0] = StringUtil.referencePath(((ContentCollection) r).getId());
-
+			rv[1] = ((GroupAwareEntity) r).getAccess();
+			rv[2] = ((ContentCollection) r).getReleaseDate();
+			rv[3] = ((ContentCollection) r).getRetractDate();
+			rv[4] = new Integer(0);
 			return rv;
 		}
 
@@ -650,17 +659,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// include the file path field if we are doing body in the file system
 			if (m_bodyPath != null)
 			{
-				Object[] rv = new Object[2];
+				Object[] rv = new Object[6];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 				rv[1] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
+				rv[2] = ((GroupAwareEntity) r).getAccess();
+				rv[3] = ((ContentResource) r).getReleaseDate();
+				rv[4] = ((ContentResource) r).getRetractDate();
+				rv[5] = new Integer(0);
 				return rv;
 			}
 
 			// otherwise don't include the file path field
 			else
 			{
-				Object[] rv = new Object[1];
+				Object[] rv = new Object[5];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
+				rv[1] = ((GroupAwareEntity) r).getAccess();
+				rv[2] = ((ContentResource) r).getReleaseDate();
+				rv[3] = ((ContentResource) r).getRetractDate();
+				rv[4] = new Integer(0);
 				return rv;
 			}
 		}
@@ -3884,7 +3901,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return false;
 
 	} // isRootCollection
-
+	
 	/**
 	 * Construct a stand-alone, not associated with any particular resource, ResourceProperties object.
 	 * 
@@ -6030,6 +6047,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	protected static final String DROPBOX_ID = " Drop Box";
 
+	public static final String EVENT_SITE_UPDATE = null;
+
+	protected static final String GROUP_LIST = "sakai:authzGroup";
+
+	protected static final String GROUP_NAME = "sakai:group_name";
+
+	public static final String ACCESS_MODE = "sakai:access_mode";
+
+	public static final String RELEASE_DATE = "sakai:release_date";
+
+	public static final String RETRACT_DATE = "sakai:retract_date";
+
 	/**
 	 * @inheritDoc
 	 */
@@ -6164,6 +6193,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (InconsistentException e)
 		{
 			M_log.warn("createDropboxCollection(): InconsistentException: " + dropbox);
+			M_log.warn("createDropboxCollection(): InconsistentException: " + e.getMessage());
 			return;
 		}
 
@@ -6293,12 +6323,209 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
 		return SecurityService.unlock(EVENT_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
 	}
+	
+	/******************************************************************************************************************************************************************************************************************************************************
+	 * Group awareness implementation
+	 *****************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * Get a list of groups that are defined in the containing context of a collection and that this user can access. 
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithReadAccess(String collectionId)
+	{
+		Collection rv = new HashSet();
+		String refString =getReference(collectionId);
+		Reference ref = m_entityManager.newReference(refString);
+		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_READ, ref.getReference());
+		if(groups != null && ! groups.isEmpty())
+		{
+			rv.addAll(groups);
+		}
+		return rv;
+	}
+	
+	/**
+	 * Get a list of groups that are defined in the containing context of a resource and that this user can access 
+	 * in the way described by a function string.
+	 * 
+	 * @param function
+	 *        The function to check
+	 * @param refString
+	 *        The reference for the resource.
+	 */
+	protected Collection getGroupsAllowFunction(String function, String refString)
+	{
+		Collection rv = new Vector();
+		
+		Reference ref = m_entityManager.newReference(refString);
+		String context = ref.getContext();
+		
+		try
+		{
+			// get the channel's site's groups
+			Site site = m_siteService.getSite(context);
+			Collection groups = site.getGroups();
+
+			// if the user has permission to access all resources of all groups for the site, select all site groups
+			if (unlockCheck(EVENT_GROUP_RESOURCE_READ, context))
+			{
+				return groups;
+			}
+
+			// otherwise, check the groups for function
+
+			// get a list of the group refs, which are authzGroup ids
+			Collection groupRefs = new Vector();
+			for (Iterator i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				groupRefs.add(group.getReference());
+			}
+
+			// ask the authzGroup service to filter them down based on function
+			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(UserDirectoryService.getCurrentUser().getId(), function,
+					groupRefs);
+
+			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+			for (Iterator i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				if (groupRefs.contains(group.getReference()))
+				{
+					rv.add(group);
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		return rv;
+	}
+
+	public abstract class BasicGroupAwareEntity implements GroupAwareEntity
+	{
+		/** The access mode for this entity (e.g., "group" vs "site") */ 
+		protected AccessMode m_access = AccessMode.SITE;
+
+		/** The Collection of group-ids for groups with access to this entity. */
+		protected Collection m_groups = new Vector();
+
+		/**
+		 * @inheritDoc
+		 */
+		public Collection getGroups()
+		{
+			return new Vector(m_groups);
+		}
+	
+		/**
+		 * @inheritDoc
+		 */
+		public AccessMode getAccess()
+		{
+			return m_access;
+		}
+	
+		/**
+		 * @inheritDoc
+		 */
+		public void addGroup(Group group) throws PermissionException
+		{
+			if (group == null)
+			{
+				// throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
+				return;
+			}
+	
+			// does the current user have SECURE_ADD permission in this group's authorization group, or EVENT_RESOURCE_WRITE in the containing collection?
+			if (!unlockCheck(EVENT_RESOURCE_ADD, group.getReference()))
+			{
+				String collectionId = getContainingCollectionId(getReference());
+				if (!unlockCheck(EVENT_RESOURCE_WRITE, collectionId))
+				{
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, group.getReference());
+				}
+			}
+	
+			if (!m_groups.contains(group.getReference())) 
+			{
+				m_groups.add(group.getReference());
+			}
+		}
+	
+		/**
+		 * @inheritDoc
+		 */
+		public void removeGroup(Group group) throws PermissionException
+		{
+			if (group == null)
+			{
+				// throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
+				return;
+			}
+
+			// does the current user have SECURE_ADD permission in this group's authorization group, or EVENT_RESOURCE_ADD in the site?
+			if (!unlockCheck(EVENT_RESOURCE_ADD, group.getReference()))
+			{
+				String collectionId = getContainingCollectionId(getReference());
+				if (!unlockCheck(EVENT_RESOURCE_WRITE, collectionId))
+				{
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, group.getReference());
+				}
+			}
+
+			if (m_groups.contains(group.getReference()))
+			{
+				m_groups.remove(group.getReference());
+			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void setAccess(AccessMode access)
+		{
+			m_access = access;
+		}
+		
+		/** 
+		 * Determine whether current user can update the group assignments (add/remove groups) for the current resource.
+		 * This is based on whether the user has adequate rights defined for the group (EVENT_RESOURCE_ADD) or for the 
+		 * containing collection of the resource (EVENT_RESOURCE_ADD).  
+		 * @param group The group ionvolved in the query.
+		 * @return true if allowed, false otherwise.
+		 */
+		protected boolean allowGroupUpdate(Group group)
+		{
+			String resourceRef = getReference();
+			return allowGroupUpdate(group, resourceRef);
+		}
+
+		/** 
+		 * Determine whether current user can update the group assignments (add/remove groups) for a specified resource.
+		 * This is based on whether the user has adequate rights defined for the group (EVENT_RESOURCE_ADD) or for the 
+		 * containing collection of the resource (EVENT_RESOURCE_ADD).  
+		 * @param group The group ionvolved in the query.
+		 * @param resourceRef A reference string for the resource.
+		 * @return true if allowed, false otherwise.
+		 */
+		protected boolean allowGroupUpdate(Group group, String resourceRef)
+		{
+			String collectionId = getContainingCollectionId(resourceRef);
+			return unlockCheck(EVENT_RESOURCE_ADD, group.getReference()) || unlockCheck(EVENT_RESOURCE_ADD, collectionId);
+		}
+
+	}	// BasicGroupAwareEntity
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentCollection implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseCollectionEdit implements ContentCollectionEdit, SessionBindingListener
+	public class BaseCollectionEdit extends BasicGroupAwareEntity implements ContentCollectionEdit, SessionBindingListener
 	{
 		/** Store the resource id */
 		protected String m_id = null;
@@ -6314,6 +6541,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/** When true, the collection has been removed. */
 		protected boolean m_isRemoved = false;
+
+		/** The date/time after which the entity should no longer be generally available */
+		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
+
+		/** The date/time before which the entity should not be generally available */
+		protected Time m_releaseDate = TimeService.newTime(0);
 
 		/**
 		 * Construct with an id.
@@ -6371,8 +6604,38 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					// re-create properties
 					m_properties = new BaseResourcePropertiesEdit(element);
 				}
+				// look for groups 
+				else if(element.getTagName().equals(GROUP_LIST))
+				{
+					m_groups.add(element.getAttribute(GROUP_NAME)); 
+				}
 			}
 
+			// extract access
+			AccessMode access = AccessMode.SITE;
+			String access_mode = el.getAttribute(ACCESS_MODE);
+			if(access_mode != null && !access_mode.trim().equals(""))
+			{
+				access = AccessMode.fromString(access_mode);
+			}
+			m_access = access;
+			
+			// extract release date
+			m_releaseDate = TimeService.newTime(0);
+			String date0 = el.getAttribute(RELEASE_DATE);
+			if(date0 != null && !date0.trim().equals(""))
+			{
+				m_releaseDate = TimeService.newTimeGmt(date0);
+			}
+			
+			// extract retract date
+			m_retractDate = TimeService.newTimeGmt(9999,12, 31, 23, 59, 59, 999);
+			String date1 = el.getAttribute(RETRACT_DATE);
+			if(date1 != null && !date1.trim().equals(""))
+			{
+				m_retractDate = TimeService.newTimeGmt(date1);
+			}
+			
 		} // BaseCollectionEdit
 
 		/**
@@ -6386,9 +6649,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// set the id
 			m_id = other.getId();
 
+			// copy other's access mode and list of groups
+			m_access = other.getAccess();
+			m_groups.clear();
+			m_groups.addAll(other.getGroups());
+
 			// setup for properties
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
+			
+			m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+			m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
 
 		} // set
 
@@ -6676,11 +6947,27 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			stack.push(collection);
 
 			collection.setAttribute("id", m_id);
+			collection.setAttribute(ACCESS_MODE, m_access.toString());
+			collection.setAttribute(RELEASE_DATE, m_releaseDate.toString());
+			collection.setAttribute(RETRACT_DATE, m_retractDate.toString());
 
 			// properties
 			m_properties.toXml(doc, stack);
-
+			
 			stack.pop();
+
+			// add groups
+			if ((m_groups != null) && (m_groups.size() > 0))
+			{
+				Iterator groupIt = m_groups.iterator();
+				while( groupIt.hasNext())
+				{
+					String group = (String) groupIt.next();
+					Element sect = doc.createElement(GROUP_LIST);
+					sect.setAttribute(GROUP_NAME, group);
+					collection.appendChild(sect);
+				}
+			}
 
 			return collection;
 
@@ -6767,13 +7054,36 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		} // valueUnbound
 
+		public void setReleaseDate(Time time)
+		{
+			m_releaseDate = TimeService.newTime(time.getTime());
+			
+		}
+
+		public void getRetractDate(Time time)
+		{
+			m_retractDate = TimeService.newTime(time.getTime());
+			
+		}
+
+		public Time getReleaseDate()
+		{
+			return m_releaseDate;
+		}
+
+		public Time getRetractDate()
+		{
+			// TODO Auto-generated method stub
+			return m_retractDate;
+		}
+
 	} // class BaseCollection
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ContentResource implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseResourceEdit implements ContentResourceEdit, SessionBindingListener
+	public class BaseResourceEdit extends BasicGroupAwareEntity implements ContentResourceEdit, SessionBindingListener
 	{
 		/** The resource id. */
 		protected String m_id = null;
@@ -6804,6 +7114,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/** The file system path, post root, for file system stored body binary. */
 		protected String m_filePath = null;
+
+		/** The date/time after which the entity should no longer be generally available */
+		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
+
+		/** The date/time before which the entity should not be generally available */
+		protected Time m_releaseDate = TimeService.newTime(0);
 
 		/**
 		 * Construct.
@@ -6883,9 +7199,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 			m_filePath = ((BaseResourceEdit) other).m_filePath;
 
+			// copy other's access mode and list of groups
+			m_access = other.getAccess();
+			m_groups.clear();
+			m_groups.addAll(other.getGroups());
+
 			// setup for properties
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
+
+			m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+			m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
 
 		} // set
 
@@ -6935,6 +7259,37 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					// re-create properties
 					m_properties = new BaseResourcePropertiesEdit(element);
 				}
+				// look for groups
+				else if(element.getTagName().equals(GROUP_LIST))
+				{
+					m_groups.add(element.getAttribute(GROUP_NAME)); 
+				}
+
+				// extract access
+				AccessMode access = AccessMode.SITE;
+				String access_mode = el.getAttribute(ACCESS_MODE);
+				if(access_mode != null && !access_mode.trim().equals(""))
+				{
+					access = AccessMode.fromString(access_mode);
+				}
+				m_access = access;
+				
+				// extract release date
+				m_releaseDate = TimeService.newTime(0);
+				String date0 = el.getAttribute(RELEASE_DATE);
+				if(date0 != null && !date0.trim().equals(""))
+				{
+					m_releaseDate = TimeService.newTimeGmt(date0);
+				}
+				
+				// extract retract date
+				m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
+				String date1 = el.getAttribute(RETRACT_DATE);
+				if(date1 != null && !date1.trim().equals(""))
+				{
+					m_retractDate = TimeService.newTimeGmt(date1);
+				}
+				
 			}
 
 		} // BaseResourceEdit
@@ -7219,10 +7574,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				resource.setAttribute("body", enc);
 			}
 
+			// add access
+			resource.setAttribute(ACCESS_MODE, m_access.toString());
+			
+			// add release-date and retract-date
+			resource.setAttribute(RELEASE_DATE, m_releaseDate.toString());
+			resource.setAttribute(RETRACT_DATE, m_retractDate.toString());
+
 			// properties
 			m_properties.toXml(doc, stack);
 
 			stack.pop();
+
+			// add groups
+			if ((m_groups != null) && (m_groups.size() > 0))
+			{
+				Iterator groupIt = m_groups.iterator();
+				while( groupIt.hasNext())
+				{
+					String group = (String) groupIt.next();
+					Element sect = doc.createElement(GROUP_LIST);
+					sect.setAttribute(GROUP_NAME, group);
+					resource.appendChild(sect);
+				}
+			}
 
 			return resource;
 
@@ -7309,6 +7684,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		} // valueUnbound
 
+		public void setReleaseDate(Time time)
+		{
+			m_releaseDate = TimeService.newTime(time.getTime());
+			
+		}
+
+		public void getRetractDate(Time time)
+		{
+			m_retractDate = TimeService.newTime(time.getTime());
+			
+		}
+
+		public Time getReleaseDate()
+		{
+			return m_releaseDate;
+		}
+
+		public Time getRetractDate()
+		{
+			return m_retractDate;
+		}
+		
 	} // BaseResource
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7429,6 +7826,47 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void commitDeleteResource(ContentResourceEdit edit, String uuid);
 
 		public ContentResourceEdit putDeleteResource(String resourceId, String uuid, String userId);
+		
+		/**
+		 * Create a relationship between a group and an entity.
+		 * @param entityId The identifier for the entity.
+		 * @param groupId The identifier for the group.
+		 */
+		public void putEntityGroupRelationship(String entityId, String groupId);
+		
+		/**
+		 * Remove the relationship between a group and an entity.
+		 * @param entityId The identifier for the entity.
+		 * @param groupId The identifier for the group.
+		 */
+		public void delEntityGroupRelationship(String entityId, String groupId);
+		
+		/**
+		 * Remove all relationships between a group and any entities.
+		 * @param groupId The identifier for the group.
+		 */
+		public void delEntitiesForGroup(String groupId);
+		
+		/**
+		 * Remove all relationships between an entity and all groups.
+		 * @param entityId The identifier for the entity.
+		 */
+		public void delGroupsForEntity(String entityId);
+		
+		/**
+		 * Access a list of the groups that have access to a collection or resource.
+		 * @param entityId The identifier for the collection or resource.
+		 * @return The list of (String) id's for groups having access to the entity. 
+		 */
+		public List getGroupsForEntity(String entityId);
+		
+		/**
+		 * Access a list of all entities to which a group has access.
+		 * @param groupId The identifier for the group.
+		 * @return A list of (String) id's of collections and resources to which the group has access.
+		 */
+		public List getEntitiesForGroup(String groupId);
+		
 	} // Storage
 
 	/**********************************************************************************************************************************************************************************************************************************************************

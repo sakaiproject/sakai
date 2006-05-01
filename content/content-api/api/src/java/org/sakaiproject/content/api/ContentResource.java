@@ -23,14 +23,16 @@ package org.sakaiproject.content.api;
 
 import java.io.InputStream;
 
+import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.time.api.Time;
 
 /**
 * <p>ContentResource is the core interface for a Resource object in the GenericContentHostingService.</p>
 */
 public interface ContentResource
-	extends Entity
+	extends Entity, GroupAwareEntity
 {
 	/**
 	* Access the content byte length.
@@ -53,6 +55,20 @@ public interface ContentResource
 	*/
 	public byte[] getContent() throws ServerOverloadException;
 
+	/**
+	 * Access the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which the entity may be accessed by all users.
+	 */
+	public Time getReleaseDate();
+	
+	/**
+	 * Access the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which access to the entity should be restricted.
+	 */
+	public Time getRetractDate();
+	
 	/**
 	 * Access the content as a stream.
 	 * Please close the stream when done as it may be holding valuable system resources.

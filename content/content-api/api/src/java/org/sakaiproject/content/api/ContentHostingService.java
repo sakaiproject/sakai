@@ -108,7 +108,10 @@ public interface ContentHostingService extends EntityProducer
 
 	/** Name of the event when removing a resource. */
 	public static final String EVENT_RESOURCE_REMOVE = "content.delete";
-
+	
+	/** Name of the event when accessing a resource belonging to a group. */
+	public static final String EVENT_GROUP_RESOURCE_READ = "content.read_group_resources";
+	
 	/** Security function for those who may OWN a dropbox. */
 	public static final String EVENT_DROPBOX_OWN = "dropbox.own";
 
@@ -1201,4 +1204,13 @@ public interface ContentHostingService extends EntityProducer
 	 *        true if the sort is to be ascending (false for descending).
 	 */
 	public Comparator newContentHostingComparator(String property, boolean ascending);
+	
+	/**
+	 * Get a list of groups that are defined in the containing context of a collection and that this user can access. 
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithReadAccess(String collectionId);
+
 }

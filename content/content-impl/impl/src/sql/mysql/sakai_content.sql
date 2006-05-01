@@ -6,6 +6,10 @@ CREATE TABLE CONTENT_COLLECTION
 (
     COLLECTION_ID VARCHAR (255) NOT NULL,
 	IN_COLLECTION VARCHAR (255),
+	ACCESS_MODE VARCHAR(12), 
+	RELEASE_DATE DATETIME, 
+	RETRACT_DATE DATETIME, 
+	SORT_ORDER INT,	
     XML LONGTEXT
 );
 
@@ -20,7 +24,7 @@ CREATE INDEX CONTENT_IN_COLLECTION_INDEX ON CONTENT_COLLECTION
 );
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/',
-'',
+'','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/">
 	<properties>
@@ -33,9 +37,11 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/',
 	</properties>
 </collection>
 ');
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/';
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group/',
-'/',
+'/','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/group/">
 	<properties>
@@ -48,10 +54,11 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group/',
 	</properties>
 </collection>
 ');
-
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/group/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/group/';
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/public/',
-'/',
+'/','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/public/">
 	<properties>
@@ -64,9 +71,11 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/public/',
 	</properties>
 </collection>
 ');
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/public/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/public/';
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/',
-'/',
+'/','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/attachment/">
 	<properties>
@@ -79,9 +88,11 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/',
 	</properties>
 </collection>
 ');
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/attachment/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/attachment/';
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/user/',
-'/',
+'/','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/user/">
 	<properties>
@@ -94,9 +105,11 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/user/',
 	</properties>
 </collection>
 ');
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/user/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/user/';
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/',
-'/',
+'/','site',null,null,0,
 '<?xml version="1.0" encoding="UTF-8"?>
 	<collection id="/group-user/">
 		<properties>
@@ -109,6 +122,8 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/group-user/',
 		</properties>
 	</collection>
 ');
+UPDATE CONTENT_COLLECTION SET RELEASE_DATE='19700101000000000' WHERE COLLECTION_ID = '/group-user/';
+UPDATE CONTENT_COLLECTION SET RETRACT_DATE='99991231235959999' WHERE COLLECTION_ID = '/group-user/';
 
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE
@@ -120,6 +135,10 @@ CREATE TABLE CONTENT_RESOURCE
     RESOURCE_UUID VARCHAR (36),
 	IN_COLLECTION VARCHAR (255),
 	FILE_PATH VARCHAR (128),
+	ACCESS_MODE VARCHAR(12), 
+	RELEASE_DATE DATETIME, 
+	RETRACT_DATE DATETIME, 	
+	SORT_ORDER INT,
     XML LONGTEXT
 -- for BLOB body, add BODY BLOB -- and drop the content_resource_body_binary tables -ggolden
 );
@@ -152,4 +171,14 @@ CREATE TABLE CONTENT_RESOURCE_BODY_BINARY
 CREATE UNIQUE INDEX CONTENT_RESOURCE_BB_INDEX ON CONTENT_RESOURCE_BODY_BINARY
 (
 	RESOURCE_ID
+);
+
+-----------------------------------------------------------------------------
+-- CONTENT_ENTITY_GROUPS
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_ENTITY_GROUPS
+(
+    ENTITY_ID VARCHAR (255) NOT NULL,
+    GROUP_ID VARCHAR (255) NOT NULL
 );

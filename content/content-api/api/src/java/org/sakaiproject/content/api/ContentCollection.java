@@ -23,7 +23,9 @@ package org.sakaiproject.content.api;
 
 import java.util.List;
 
+import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.time.api.Time;
 
 /**
 * <p>ContentCollection is the core interface for a Collection object in the GenericContentHostingService.</p>
@@ -33,7 +35,7 @@ import org.sakaiproject.entity.api.Entity;
 * @version $Revision$
 */
 public interface ContentCollection
-	extends Entity
+	extends Entity, GroupAwareEntity
 {
 	/**
 	* Access a List of the collection's internal members, each a resource id String.
@@ -53,7 +55,21 @@ public interface ContentCollection
 	* @return The size of all the resource body bytes within this collection in Kbytes.
 	*/
 	public long getBodySizeK();
-
+	
+	/**
+	 * Access the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which the entity may be accessed by all users.
+	 */
+	public Time getReleaseDate();
+	
+	/**
+	 * Access the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which access to the entity should be restricted.
+	 */
+	public Time getRetractDate();
+	
 }	// ContentCollection
 
 

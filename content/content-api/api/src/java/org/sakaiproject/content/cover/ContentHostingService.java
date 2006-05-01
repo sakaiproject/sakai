@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.cover;
 
+import java.util.Collection;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -828,4 +830,13 @@ public class ContentHostingService
 
 		return service.newContentHostingComparator(param0, param1);
 	}
+	
+	public static java.util.Collection getGroupsWithReadAccess(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.getGroupsWithReadAccess(param0);
+	}
+	
 }

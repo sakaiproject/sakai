@@ -21,13 +21,15 @@
 
 package org.sakaiproject.content.api;
 
+import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.time.api.Time;
 
 /**
 * <p>ContentResource is an editable ContentResource.</p>
 */
 public interface ContentResourceEdit
-	extends ContentResource, Edit
+	extends ContentResource, Edit, GroupAwareEdit
 {
 	/**
 	* Set the content byte length.
@@ -46,6 +48,20 @@ public interface ContentResourceEdit
 	* @param content An array containing the bytes of the resource's content.
 	*/
 	public void setContent(byte[] content);
+
+	/**
+	 * Set the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @param time The date/time at which the entity may be accessed by all users.
+	 */
+	public void setReleaseDate(Time time);
+	
+	/**
+	 * Set the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @param time The date/time at which access to the entity should be restricted.
+	 */
+	public void getRetractDate(Time time);
 
 }	// ContentResourceEdit
 

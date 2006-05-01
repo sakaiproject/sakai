@@ -39,6 +39,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
@@ -78,18 +79,24 @@ public class DbContentService extends BaseContentService
 
 	/** Table name for resources. */
 	protected String m_resourceBodyTableName = "CONTENT_RESOURCE_BODY_BINARY";
+	
+	/** Table name for entity-group relationships. */
+	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_locksInDb = true;
 
 	/** The extra field(s) to write to the database - collections. */
-	protected static final String[] COLLECTION_FIELDS = { "IN_COLLECTION" };
+	protected static final String[] COLLECTION_FIELDS = { "IN_COLLECTION", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
 
 	/** The extra field(s) to write to the database - resources - when we are doing bodys in files. */
-	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION", "FILE_PATH" };
+	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION", "FILE_PATH", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
 
 	/** The extra field(s) to write to the database - resources - when we are doing bodys the db. */
-	protected static final String[] RESOURCE_FIELDS = { "IN_COLLECTION" };
+	protected static final String[] RESOURCE_FIELDS = { "IN_COLLECTION", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
+	
+	/** The extra field(s) to write to the database - entity-group relationships */
+	protected static final String[] GROUP_FIELDS = { "GROUP_ID" };
 
 	// htripath -start
 	/** Table name for resources delete. */
@@ -214,6 +221,12 @@ public class DbContentService extends BaseContentService
 	}
 
 	// htripath-end
+	
+	public void setEntityGroupTableName(String name)
+	{
+		m_groupTableName = name;
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -246,8 +259,8 @@ public class DbContentService extends BaseContentService
 				convertToFile();
 			}
 
-			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName
-					+ " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
+			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " " 
+					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
 		}
 		catch (Throwable t)
 		{
@@ -470,6 +483,9 @@ public class DbContentService extends BaseContentService
 
 		/** htripath- Storage for resources delete */
 		protected BaseDbSingleStorage m_resourceDeleteStore = null;
+		
+		/** A storage for entity-group relationships */
+		protected BaseDbSingleStorage m_groupStore = null;
 
 		/**
 		 * Construct.
@@ -492,6 +508,10 @@ public class DbContentService extends BaseContentService
 			// htripath-build the resource for store of deleted record-single level store
 			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID",
 					(bodyInFile ? RESOURCE_FIELDS_FILE : RESOURCE_FIELDS), m_locksInDb, "resource", resourceUser, m_sqlService);
+			
+			// build the entity-groups store
+			m_groupStore = new BaseDbSingleStorage(m_groupTableName, "ENTITY_ID", GROUP_FIELDS, m_locksInDb, 
+					"resource", resourceUser, m_sqlService);
 
 		} // DbStorage
 
@@ -503,6 +523,7 @@ public class DbContentService extends BaseContentService
 			m_collectionStore.open();
 			m_resourceStore.open();
 			m_resourceDeleteStore.open();
+			m_groupStore.open();
 		} // open
 
 		/**
@@ -513,7 +534,8 @@ public class DbContentService extends BaseContentService
 			m_collectionStore.close();
 			m_resourceStore.close();
 			m_resourceDeleteStore.close();
-		} // open
+			m_groupStore.close();
+		} // close
 
 		/** Collections * */
 
@@ -555,6 +577,22 @@ public class DbContentService extends BaseContentService
 		public ContentCollectionEdit editCollection(String id)
 		{
 			return (ContentCollectionEdit) m_collectionStore.editResource(id);
+		}
+
+		// protected String externalResourceDeleteFileName(ContentResource resource)
+		// {
+		// return m_bodyPath + "/delete/" + ((BaseResourceEdit) resource).m_filePath;
+		// }
+		
+		// htripath -end
+		
+		public void cancelResource(ContentResourceEdit edit)
+		{
+			// clear the memory image of the body
+			byte[] body = ((BaseResourceEdit) edit).m_body;
+			((BaseResourceEdit) edit).m_body = null;
+		
+			m_resourceStore.cancelResource(edit);
 		}
 
 		public void commitCollection(ContentCollectionEdit edit)
@@ -663,15 +701,6 @@ public class DbContentService extends BaseContentService
 
 			// update properties in xml and delete locks
 			m_resourceDeleteStore.commitDeleteResource(edit, uuid);
-		}
-
-		public void cancelResource(ContentResourceEdit edit)
-		{
-			// clear the memory image of the body
-			byte[] body = ((BaseResourceEdit) edit).m_body;
-			((BaseResourceEdit) edit).m_body = null;
-
-			m_resourceStore.cancelResource(edit);
 		}
 
 		public void removeResource(ContentResourceEdit edit)
@@ -977,6 +1006,94 @@ public class DbContentService extends BaseContentService
 			{
 				file.delete();
 			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void putEntityGroupRelationship(String entityId, String groupId)
+		{
+			String statement = "insert into " + m_groupTableName + " (ENTITY_ID, GROUP_ID) values (? , ? )";
+			
+			Object[] fields = new Object[2];
+			fields[0] = entityId;
+			fields[1] = groupId;
+
+			m_sqlService.dbWrite(statement, fields);
+			
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void delEntityGroupRelationship(String entityId, String groupId)
+		{
+			String statement = "delete from " + m_groupTableName + " where (ENTITY_ID = ?) && (GROUP_ID = ?)";
+			
+			Object[] fields = new Object[2];
+			fields[0] = entityId;
+			fields[1] = groupId;
+
+			m_sqlService.dbWrite(statement, fields);
+						
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void delEntitiesForGroup(String groupId)
+		{
+			String statement = "delete from " + m_groupTableName + " where (GROUP_ID = ?)";
+			
+			Object[] fields = new Object[1];
+			fields[0] = groupId;
+
+			m_sqlService.dbWrite(statement, fields);
+						
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void delGroupsForEntity(String entityId)
+		{
+			String statement = "delete from " + m_groupTableName + " where (ENTITY_ID = ?)";
+			
+			Object[] fields = new Object[1];
+			fields[0] = entityId;
+
+			m_sqlService.dbWrite(statement, fields);
+						
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public List getGroupsForEntity(String entityId)
+		{
+			String statement = "select GROUP_ID from " + m_groupTableName + " where (ENTITY_ID = ?)";
+
+			Object[] fields = new Object[1];
+			fields[0] = entityId;
+
+			List result = m_sqlService.dbRead(statement, fields, null);
+
+			return result;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public List getEntitiesForGroup(String groupId)
+		{
+			String statement = "select ENTITY_ID from " + m_groupTableName + " where (GROUP_ID = ?)";
+
+			Object[] fields = new Object[1];
+			fields[0] = groupId;
+
+			List result = m_sqlService.dbRead(statement, fields, null);
+
+			return result;
 		}
 
 	} // DbStorage
