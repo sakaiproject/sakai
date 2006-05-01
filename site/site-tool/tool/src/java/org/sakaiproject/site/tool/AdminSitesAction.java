@@ -43,7 +43,6 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.cheftool.menu.MenuImpl;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
@@ -399,30 +398,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		Site site = (Site) state.getAttribute("site");
 		context.put("site", site);
 
-		if (ServerConfigurationService.getString("courseSiteType") != null && site.getType() != null
-				&& site.getType().equals(ServerConfigurationService.getString("courseSiteType")))
-		{
-			// TODO: restore this? -ggolden
-			/*context.put("isCourseSite", Boolean.TRUE);
-			context.put("termList", CourseManagementService.getTerms());
-			context.put("term", site.getProperties().getProperty("term"));*/
-		}
-		else
-		{
-			context.put("isCourseSite", Boolean.FALSE);
-		}
-
-		// get the site's realm
-		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-		// context.put("realm", realm);
-
-		// get the list of members - those with roles in the realm
-		// Set members = realm.collectUsers();
-		// List mbrsSorted = new Vector();
-		// mbrsSorted.addAll(members);
-		// Collections.sort(mbrsSorted);
-		// context.put("members", mbrsSorted);
-
 		// name the html form for user edit fields
 		context.put("form-name", "site-form");
 
@@ -451,10 +426,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		// get the site to edit
 		Site site = (Site) state.getAttribute("site");
 		context.put("site", site);
-
-		// get the site's realm
-		// RealmEdit realm = (RealmEdit) state.getAttribute("realm");
-		// context.put("realm", realm);
 
 		return "_confirm_remove";
 
@@ -1046,7 +1017,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
 		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
 		String type = StringUtil.trimToNull(data.getParameters().getString("type"));
-		String term = StringUtil.trimToNull(data.getParameters().getString("term"));
 		String shortDescription = StringUtil.trimToNull(data.getParameters().getString("shortDescription"));
 		String description = StringUtil.trimToNull(data.getParameters().getString("description"));
 		boolean joinable = data.getParameters().getBoolean("joinable");
@@ -1155,13 +1125,6 @@ public class AdminSitesAction extends PagedResourceActionII
 			site.setType(type);
 			site.setPubView(pubView);
 			site.setPublished(published);
-
-			if (ServerConfigurationService.getString("courseSiteType") != null && type != null
-					&& type.equals(ServerConfigurationService.getString("courseSiteType")))
-			{
-				// update term information
-				site.getPropertiesEdit().addProperty("term", term);
-			}
 		}
 
 		return true;
