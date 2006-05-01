@@ -191,11 +191,11 @@
 			</properties>        
 		</dependency>
 
-		<dependency>
+<!--		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-tool</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>  		  
+		</dependency>  		  -->
 
 <!-- 		<dependency>
 			<groupId>sakaiproject</groupId>
