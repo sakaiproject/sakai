@@ -3474,20 +3474,17 @@ public class AssignmentAction extends PagedResourceActionII
 						ac.setAllowAttachments(false);
 					}
 
-					Boolean attachMod = (Boolean) state.getAttribute(ATTACHMENTS_MODIFIED);
-					if (attachMod.booleanValue())
-					{
-						// clear attachments
-						ac.clearAttachments();
+					// clear attachments
+					ac.clearAttachments();
 
-						// add each attachment
-						Iterator it = EntityManager.newReferenceList(attachments1).iterator();
-						while (it.hasNext())
-						{
-							ac.addAttachment((Reference) it.next());
-						}
-						state.setAttribute(ATTACHMENTS_MODIFIED, new Boolean(false));
+					// add each attachment
+					Iterator it = EntityManager.newReferenceList(attachments1).iterator();
+					while (it.hasNext())
+					{
+						Reference r = (Reference) it.next();
+						ac.addAttachment(r);
 					}
+					state.setAttribute(ATTACHMENTS_MODIFIED, new Boolean(false));
 
 					// commit the changes
 					AssignmentService.commitEdit(ac);
