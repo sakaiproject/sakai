@@ -24,6 +24,7 @@ package org.sakaiproject.site.tool;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -44,6 +45,7 @@ import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -262,6 +264,11 @@ public class AdminSitesAction extends PagedResourceActionII
 		else if (mode.equals("editPage"))
 		{
 			template = buildEditPageContext(state, context);
+		}
+
+		else if (mode.equals("properties"))
+		{
+			template = buildPropertiesContext(state, context);
 		}
 
 		else if (mode.equals("groups"))
@@ -545,6 +552,19 @@ public class AdminSitesAction extends PagedResourceActionII
 	} // buildEditPageContext
 
 	/**
+	 * Build the context for the properties edit in edit mode.
+	 */
+	private String buildPropertiesContext(SessionState state, Context context)
+	{
+		context.put("tlang", rb);
+		// get the site to edit
+		Site site = (Site) state.getAttribute("site");
+		context.put("site", site);
+
+		return "_properties";
+	}
+
+	/**
 	 * Build the context for the groups display in edit mode.
 	 */
 	private String buildGroupsContext(SessionState state, Context context)
@@ -772,6 +792,19 @@ public class AdminSitesAction extends PagedResourceActionII
 		doSave_edit(data, context);
 
 	} // doSave
+
+	/**
+	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
+	 */
+	public void doSave_props_edit(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// read the properties form
+		readPropertiesForm(data, state);
+
+		doSave_edit(data, context);
+	}
 
 	/**
 	 * Handle a request to save the edit from either page or tools list mode - no form to read in.
@@ -1150,6 +1183,19 @@ public class AdminSitesAction extends PagedResourceActionII
 	} // doPages
 
 	/**
+	 * Switch to property edit mode within a site edit.
+	 */
+	public void doProperties(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the form - if rejected, leave things as they are
+		if (!readSiteForm(data, state)) return;
+
+		state.setAttribute("mode", "properties");
+	}
+
+	/**
 	 * Handle a request to create a new page in the site edit.
 	 */
 	public void doNew_page(RunData data, Context context)
@@ -1166,6 +1212,17 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.setAttribute("newPage", "true");
 
 	} // doNew_page
+
+	/**
+	 * Handle a request to create a new property in the site edit.
+	 */
+	public void doNew_property(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the properties form
+		readPropertiesForm(data, state);
+	}
 
 	/**
 	 * Edit an existing page.
@@ -1449,6 +1506,19 @@ public class AdminSitesAction extends PagedResourceActionII
 	} // doEdit_to_main
 
 	/**
+	 * Switch back to edit main info mode properties edit mode
+	 */
+	public void doEdit_props_to_main(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// read the properties form
+		readPropertiesForm(data, state);
+
+		state.setAttribute("mode", "edit");
+	}
+
+	/**
 	 * Read the page form and update the site in state.
 	 * 
 	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
@@ -1487,6 +1557,49 @@ public class AdminSitesAction extends PagedResourceActionII
 		}
 
 	} // readPageForm
+
+	/**
+	 * Read the properties form and update the site in state.
+	 * 
+	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
+	 */
+	private boolean readPropertiesForm(RunData data, SessionState state)
+	{
+		// get the site
+		Site site = (Site) state.getAttribute("site");
+
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+		
+		// check each property for possible update
+		for (Iterator i = props.getPropertyNames(); i.hasNext();)
+		{
+			String name = (String) i.next();
+			String formValue = StringUtil.trimToNull(data.getParameters().getString("param_" + name));
+			
+			// update the properties or remove
+			if (formValue != null)
+			{
+				props.addProperty(name, formValue);
+			}
+			else
+			{
+				props.removeProperty(name);
+			}
+		}
+		
+		// see if there's a new one
+		String formName = StringUtil.trimToNull(data.getParameters().getString("new_name"));
+		if (formName != null)
+		{
+			String formValue = StringUtil.trimToNull(data.getParameters().getString("new_value"));
+			if (formValue != null)
+			{
+				props.addProperty(formName, formValue);
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Read the group form and update the site in state.

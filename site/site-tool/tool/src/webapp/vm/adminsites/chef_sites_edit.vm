@@ -50,28 +50,6 @@
 					<input type="text" name="type" id="type" #if($site) value="$!validator.escapeHtml($site.Type)"#end />
 				</td>
 			</tr>
-			#if ($!isCourseSite)
-				<tr>
-					<td>
-						<label for="type">
-							$tlang.getString("sitedi.term")
-						</label>
-					</td>
-					<td>
-						<select name="term">
-							#foreach($t in $termList)
-								<option value ="$t.Id"
-									#if($t.id == $term)
-										selected="selected"
-									#end
-								>
-								$t.Id
-								</option>
-							#end
-						</select>
-					</td>
-				</tr>
-			#end
 			<tr>
 				<td>
 					<label for="shortDescription">
@@ -206,7 +184,7 @@
 					<tr>
 						<th>
 							<label for="param_$paramName">
-								$tlang.getString($paramName):
+								$paramName:
 							</label>
 						</th>
 						<td>
@@ -219,6 +197,10 @@
 		<h4>
 			$tlang.getString("sitedi.conedi")
 		</h4>	
+		$tlang.getString("sitedi.addeditprops")
+		<div class="act">
+			<input type="submit" name="eventSubmit_doProperties" value="$tlang.getString("sitedi.props")" />
+		</div>
 		$tlang.getString("sitedi.addeditpages")
 		<div class="act">
 			<input type="submit" name="eventSubmit_doPages" value="$tlang.getString("sitedi.pag")" />
@@ -227,11 +209,11 @@
 		<div class="act">
 			<input type="submit" name="eventSubmit_doGroups" value="$tlang.getString("sitedi.grp")" />
 		</div>
-		$tlang.getString("sitedi.specon")
-		<div class="alertMessage">$tlang.getString("sitedi.sitcre")</div>
-		<div class="act">
-			<input type="submit" name="eventSubmit_doIds" value="$tlang.getString("sitedi.assnew")" />
-		</div>
+##		$tlang.getString("sitedi.specon")
+##		<div class="alertMessage">$tlang.getString("sitedi.sitcre")</div>
+##		<div class="act">
+##			<input type="submit" name="eventSubmit_doIds" value="$tlang.getString("sitedi.assnew")" />
+##		</div>
 		<h4>
 			$tlang.getString("sitedi.comthesit")
 		</h4>	
