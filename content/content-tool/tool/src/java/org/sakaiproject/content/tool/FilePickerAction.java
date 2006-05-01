@@ -190,7 +190,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
 		if (message == null)
 		{
-			message = (String) rb.get(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
+			message = rb.getString(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
 		}
 		sstate.setAttribute(ResourcesAction.STATE_ATTACH_TITLE, message);
 
@@ -198,7 +198,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
 		if (message == null)
 		{
-			message = (String) rb.get(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
+			message = rb.getString(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
 		}
 		sstate.setAttribute(ResourcesAction.STATE_ATTACH_INSTRUCTION, message);
 	}
