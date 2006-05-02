@@ -284,6 +284,8 @@ public class SearchServiceImpl implements SearchService
 				if (indexSearcher != null)
 				{
 					runningIndexSearcher = indexSearcher;
+				} else {
+					log.warn("No search Index exists at this time");
 				}
 				reloadEnd = System.currentTimeMillis();
 				log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
@@ -362,7 +364,7 @@ public class SearchServiceImpl implements SearchService
 		{
 			return getIndexSearcher(false).maxDoc();
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			return -1;
 		}
