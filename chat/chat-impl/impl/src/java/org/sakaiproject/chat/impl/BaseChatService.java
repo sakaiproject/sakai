@@ -443,15 +443,23 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 	/**
 	 * {@inheritDoc}
 	 */
-	public void startContext(String context)
+	public void contextCreated(String context, boolean toolPlacement)
 	{
-		enableMessageChannel(context);
+		if (toolPlacement) enableMessageChannel(context);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void endContext(String context)
+	public void contextUpdated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement) enableMessageChannel(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableMessageChannel(context);
 	}
