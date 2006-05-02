@@ -166,7 +166,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
-    JPanel savePanel = new JPanel(); //new ColorBackgroundPanel();
+    JPanel savePanel = new JPanel(); 
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
     JPanel saveTFpanel = makeSaveTFPanel();
     savePanel.add(saveTFpanel);
@@ -229,7 +229,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   private JPanel makeAudioButtonsPanel()
   {
-    JPanel buttonsPanel = new ColorBackgroundPanel();
+    JPanel buttonsPanel = new JPanel();
     captB = addButton(res.getString("Record"), buttonsPanel, true,
                       params.isEnableRecord());
     playB = addButton(res.getString("Play"), buttonsPanel, false,
@@ -589,50 +589,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
       // No caching, we want the real thing.
       urlConn.setUseCaches(false);
 
-      int audioCount = getAudioInputStreamCount();
-      System.out.println("****1. printMap");
-      printMap(urlConn);
-      System.out.println("***2. set content header, audioCount= "+audioCount);
-      urlConn.setRequestProperty("CONTENT-LENGTH", audioCount+"");
       urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
       // Send binary POST output.
       System.out.println("***3. write to servlet");
       OutputStream outputStream = urlConn.getOutputStream();
 
-      /*
-      BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
-      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
-
-      int i = 0;
-      int count = 0;
-      if (buf_inputStream != null){
-        while ( (i = buf_inputStream.read()) != -1){
-          buf_outputStream.write(i);
-          count++;
-        }
-      }
-
-      String reportStr = res.getString("contentlenw") + ": " +
-        count + " " + res.getString("bytes") + ".\n  ";
-      buf_outputStream.flush();
-      buf_outputStream.close();
-      // Get response data.
-      DataInputStream input = new DataInputStream(urlConn.getInputStream());
-
-      String str;
-      while (null != ( (str = input.readLine())))
-      {
-        reportStr += str;
-      }
-      input.close();
-      reportStatus(reportStr + "\n");
-
-      */
-
       try{
         audioInputStream.reset();
         int c = AudioSystem.write(audioInputStream, audioType, outputStream);
-        System.out.println("content length written: "+c);
         if (c <= 0){
           throw new IOException(res.getString("Problems_writing_to"));
         }
@@ -641,7 +605,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
         // Get response data.
         String reportStr = res.getString("contentlenw") + ": " +
-          audioCount + " " + res.getString("bytes") + ".\n  ";
+          c + " " + res.getString("bytes") + ".\n  ";
         DataInputStream input = new DataInputStream(urlConn.getInputStream());
 
         // need to check that acknowlegement from server matches or display
@@ -1220,23 +1184,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
     }
   }
 
-  private int getAudioInputStreamCount(){
-    int count = 0;
-    try{
-      BufferedInputStream buf_inputStream = new BufferedInputStream(audioInputStream);
-      int i = 0;
-      if (buf_inputStream != null){
-        while ( (i = buf_inputStream.read()) != -1){
-          count++;
-        }
-      }
-    }
-    catch(Exception ex){
-      reportStatus(ex.toString());
-    }
-    return count;
-  }
-
   private String getMimeType(AudioFileFormat.Type audioType){
       String mimeType = "audio/basic";
 
@@ -1251,21 +1198,4 @@ public class AudioRecorder extends JPanel implements ActionListener,
       return mimeType;
   }  
 
-    private void printMap(URLConnection conn){
-	try{
-      java.util.Map map = conn.getRequestProperties();
-      java.util.Set keys = map.keySet();
-      java.util.Iterator iter = keys.iterator();
-      while (iter.hasNext()){
-        String s = (String)iter.next();
-        System.out.println(s);
-        String p = (String)map.get(s);
-        System.out.println(s+" : "+p);
-      }
-	}
-	catch(Exception e){
-	    System.out.println(e.getMessage());
-	}
-    }
-  
 }

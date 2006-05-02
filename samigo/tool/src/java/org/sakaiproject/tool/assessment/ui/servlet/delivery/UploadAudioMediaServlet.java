@@ -98,6 +98,8 @@ public class UploadAudioMediaServlet extends HttpServlet
       try
       {
         inputStream = req.getInputStream();
+        System.out.println("req content length ="+req.getContentLength());
+        System.out.println("req content type ="+req.getContentType());
         fileOutputStream = getFileOutputStream(mediaLocation);
 
         // buffered input for servlet
