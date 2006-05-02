@@ -24,6 +24,7 @@ package org.sakaiproject.calendar.api;
 import java.util.Collection;
 import java.util.List;
 
+import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -97,7 +98,7 @@ public interface Calendar
 	* @exception PermissionException If the user does not have permission to modify the calendar.
 	*/
 	public CalendarEvent addEvent(TimeRange range, String displayName, String description,
-									String type, String location, List attachments)
+									String type, String location, EventAccess access, Collection groups,  List attachments)
 		throws PermissionException;
 
 	/**
