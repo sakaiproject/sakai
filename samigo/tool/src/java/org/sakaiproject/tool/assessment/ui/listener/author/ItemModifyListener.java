@@ -71,7 +71,7 @@ public class ItemModifyListener implements ActionListener
    */
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    log.info("ItemModify LISTENER.");
+    //log.info("ItemModify LISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
 
     String itemId= cu.lookupParam("itemid");

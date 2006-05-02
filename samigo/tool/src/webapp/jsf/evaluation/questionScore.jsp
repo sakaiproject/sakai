@@ -223,9 +223,11 @@ $Id$
       prevText="Previous" nextText="Next" numItems="10" />
  </span>
 END OF TEMPORARY OUT FOR THIS RELEASE --%>
+   <h:panelGroup rendered="#{questionScores.anonymous eq 'false'}">
     <span class="abc rightNav">
       <samigo:alphaIndex initials="#{questionScores.agentInitials}" />
     </span>
+   </h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
