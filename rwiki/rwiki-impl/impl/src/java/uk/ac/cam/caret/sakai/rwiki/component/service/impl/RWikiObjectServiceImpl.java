@@ -777,15 +777,23 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void startContext(String context)
+	public void contextCreated(String context, boolean toolPlacement)
 	{
-		enableWiki(context);
+		if (toolPlacement) enableWiki(context);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void endContext(String context)
+	public void contextUpdated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement) enableWiki(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableWiki(context);
 	}
