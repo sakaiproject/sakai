@@ -68,6 +68,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -341,7 +342,8 @@ public class ResourcesAction
 	/** The name of the state attribute for the title when a tool uses Resources as attachment helper (for create or attach but not for edit mode) */
 	public static final String STATE_ATTACH_TITLE = "resources.attach_title";
 
-	/** The name of the state attribute for the instructions when a tool uses Resources as attachment helper (for create or attach but not for edit mode) */
+	/** The name of the state attribute for the instructions when a tool uses Resources as attachment helper 
+	 * (for create or attach but not for edit mode) */
 	public static final String STATE_ATTACH_INSTRUCTION = "resources.attach_instruction";
 
 	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
@@ -353,20 +355,24 @@ public class ResourcesAction
 	/** The name of the state attribute for "new-item" attachment indicating the id of the item to edit */
 	public static final String STATE_ATTACH_ITEM_ID = "resources.attach_collection_id";
 
-	/** The name of the state attribute for "new-item" attachment indicating the id of the form-type if item-type is TYPE_FORM (ignored otherwise) */
+	/** The name of the state attribute for "new-item" attachment indicating the id of the form-type if item-type 
+	 * is TYPE_FORM (ignored otherwise) */
 	public static final String STATE_ATTACH_FORM_ID = "resources.attach_form_id";
 
 	/** The name of the state attribute indicating which form field a resource should be attached to */
 	public static final String STATE_ATTACH_FORM_FIELD = "resources.attach_form_field";
 
-	/** The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. */
-	public static final String STATE_ATTACH_CARDINALITY = "resources.attach_cardinality";
+	/** 
+	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
+	 * usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. 
+	 */
+	public static final String STATE_ATTACH_CARDINALITY = FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS;
 
 	/** A constant indicating maximum of one item can be attached. */
-	public static final Integer CARDINALITY_SINGLE = new Integer(1);
+	public static final Integer CARDINALITY_SINGLE = FilePickerHelper.CARDINALITY_SINGLE;
 
 	/** A constant indicating any the number of attachments is unlimited. */
-	public static final Integer CARDINALITY_MULTIPLE = new Integer(Integer.MAX_VALUE);
+	public static final Integer CARDINALITY_MULTIPLE = FilePickerHelper.CARDINALITY_MULTIPLE;
 
 	/************** the delete context *****************************************/
 

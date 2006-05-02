@@ -48,15 +48,29 @@ public interface FilePickerHelper
 	static final String FILE_PICKER_SUBTITLE_TEXT = "sakaiproject.filepicker.subtitle";
 
 	/**
-	 * The name of the state attribute indicating that the file picker should return links to existing resources in an existing collection rather than copying it to the hidden attachments area. If this value is not set, all attachments are to copies in
-	 * the hidden attachments area.
+	 * The name of the state attribute indicating that the file picker should return links to existing resources 
+	 * in an existing collection rather than copying it to the hidden attachments area. If this value is not set, 
+	 * all attachments are to copies in the hidden attachments area.
 	 */
 	static final String FILE_PICKER_ATTACH_LINKS = "sakaiproject.filepicker.attachLinks";
 
 	/**
-	 * State Attribute for the org.sakaiproject.service.legacy.content.ContentResourceFilter object that the current filter should honor. If this is set to null, then all files will be selectable and viewable
+	 * State Attribute for the ContentResourceFilter object that the current filter should honor. 
+	 * If this is set to null, then all files will be selectable and viewable
 	 */
 	static final String FILE_PICKER_RESOURCE_FILTER = "sakaiproject.filepicker.contentResourceFilter";
 
+	/** 
+	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
+	 * usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. 
+	 */
 	static final String FILE_PICKER_MAX_ATTACHMENTS = "sakaiproject.filepicker.maxAttachments";
+	
+	/** A constant indicating maximum of one item can be attached. */
+	public static final Integer CARDINALITY_SINGLE = new Integer(1);
+
+	/** A constant indicating any the number of attachments is unlimited. */
+	public static final Integer CARDINALITY_MULTIPLE = new Integer(Integer.MAX_VALUE);
+
+
 }
