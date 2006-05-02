@@ -343,10 +343,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
           if (timerThread == null){ 
             timerThread = new Thread();
             timerThread.start(); 
-            System.out.println("start timer");
           }
           try{
-            System.out.println("sleeping");
             timerThread.sleep(1000);
 	  }
           catch(Exception ex){
@@ -354,7 +352,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	  }
 	}
         timerThread = null;
-        System.out.println("before saveMedia, audioInputStream"+audioInputStream);
         saveMedia();
       }
     }
@@ -440,7 +437,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
     }
     */
-    System.out.println("*** end of action performed, audioInputStream"+audioInputStream);
   }
 
   private void resetAttempts(int attempts)
@@ -483,8 +479,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   public void createAudioInputStream(File file, boolean updateComponents)
   {
-      System.out.println("createAudioInputStream, file="+file);
-      System.out.println("createAudioInputStream, audioInput="+audioInputStream);
     if (file != null && file.isFile())
     {
       try
@@ -591,7 +585,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
       urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
       // Send binary POST output.
-      System.out.println("***3. write to servlet");
       OutputStream outputStream = urlConn.getOutputStream();
 
       try{
@@ -721,7 +714,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     public void run()
     {
-	System.out.println("***run");
       // reload the file if loaded by file
       if (file != null)
       {
@@ -1168,11 +1160,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
       }
       else if (params.isSaveToUrl()){  //<-- this is what we want for samigo 2.2  -daisyf
-	  System.out.println("before saveAndpost audioInputStream"+audioInputStream);
         saveAndPost(audioInputStream, type, params.getUrl(), attempts);
       }
       else if (params.isSaveToFile()){
-	  System.out.println("before saveToFile audioInputStream"+audioInputStream);
         saveToFile(textField.getText().trim(), type);
       }
 
