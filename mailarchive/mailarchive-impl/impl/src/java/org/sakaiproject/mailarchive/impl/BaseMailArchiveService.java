@@ -495,15 +495,23 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 	/**
 	 * {@inheritDoc}
 	 */
-	public void startContext(String context)
+	public void contextCreated(String context, boolean toolPlacement)
 	{
-		enableMailbox(context);
+		if (toolPlacement) enableMailbox(context);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void endContext(String context)
+	public void contextUpdated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement) enableMailbox(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableMailbox(context);
 	}
