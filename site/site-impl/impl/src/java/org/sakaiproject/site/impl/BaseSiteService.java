@@ -660,7 +660,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 					// copy in the template
 					site.set(template, false);
 
-					doSave(site, true, EntityProducer.ChangeType.ADD);
+					doSave(site, true);
 
 					return site;
 				}
@@ -746,7 +746,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			throw new IdUnusedException(site.getId());
 		}
 
-		doSave((BaseSite) site, false, EntityProducer.ChangeType.UPDATE);
+		doSave((BaseSite) site, false);
 	}
 
 	/**
@@ -803,7 +803,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 * @param site
 	 *        The site to save.
 	 */
-	protected void doSave(BaseSite site, boolean isNew, EntityProducer.ChangeType change)
+	protected void doSave(BaseSite site, boolean isNew)
 	{
 		if (isNew)
 		{
@@ -824,7 +824,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		// sync up with all other services
 		// TODO: do this under the security advisor, too, so we don't need all the various service security on site creation? -ggolden
-		enableRelated(site, change);
+		enableRelated(site, isNew);
 
 		// track it
 		String event = site.getEvent();
@@ -962,7 +962,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
-		doSave((BaseSite) site, true, EntityProducer.ChangeType.ADD);
+		doSave((BaseSite) site, true);
 
 		return site;
 	}
@@ -1020,7 +1020,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
-		doSave((BaseSite) site, true, EntityProducer.ChangeType.ADD);
+		doSave((BaseSite) site, true);
 
 		return site;
 	}
@@ -1725,7 +1725,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 * @param site
 	 *        The site.
 	 */
-	protected void enableRelated(BaseSite site, EntityProducer.ChangeType change)
+	protected void enableRelated(BaseSite site, boolean isNew)
 	{
 		// skip if special
 		if (isSpecialSite(site.getId()))
@@ -1738,7 +1738,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		enableAzg(site);
 		securityService().clearAdvisors();
 
-		// offer to all EntityProducers
+		// offer to all EntityProducers that are ContexObservers
 		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
@@ -1748,15 +1748,17 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				{
 					ContextObserver co = (ContextObserver) ep;
 
-					// collect the site's appropriate tool placements
-					Collection tools = site.getTools(co.myToolIds());
-					if (!tools.isEmpty())
+					// is this CO's tools in the site?
+					boolean toolPlacement = !site.getTools(co.myToolIds()).isEmpty();
+
+					if (isNew)
 					{
-						co.startContext(site.getId());
+						co.contextCreated(site.getId(), toolPlacement);
 					}
+
 					else
 					{
-						co.endContext(site.getId());
+						co.contextUpdated(site.getId(), toolPlacement);
 					}
 				}
 				catch (Throwable t)
@@ -1781,7 +1783,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			return;
 		}
 
-		// offer to all EntityProducers
+		// send to all EntityProducers that are ContextObservers
 		for (Iterator i = entityManager().getEntityProducers().iterator(); i.hasNext();)
 		{
 			EntityProducer ep = (EntityProducer) i.next();
@@ -1790,7 +1792,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				try
 				{
 					ContextObserver co = (ContextObserver) ep;
-					co.endContext(site.getId());
+
+					// is this CO's tools in the site?
+					boolean toolPlacement = !site.getTools(co.myToolIds()).isEmpty();
+					co.contextDeleted(site.getId(), toolPlacement);
 				}
 				catch (Throwable t)
 				{
