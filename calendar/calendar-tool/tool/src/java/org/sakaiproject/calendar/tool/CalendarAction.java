@@ -23,6 +23,8 @@ package org.sakaiproject.calendar.tool;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,14 +70,13 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FileItem;
@@ -87,6 +88,9 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 
 /**
@@ -164,7 +168,11 @@ extends VelocityPortletStateAction
 	
 	/** for sorting in list view */
 	private static final String STATE_DATE_SORT_DSC = "dateSortedDsc";
-
+	
+	// for group/section awareness
+	private final static String STATE_SCHEDULE_TO = "scheduleTo";
+	private final static String STATE_SCHEDULE_TO_GROUPS = "scheduleToGroups";
+	private static final String STATE_SELECTED_GROUPS_FILTER = "groups_filters";
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -2108,6 +2116,10 @@ extends VelocityPortletStateAction
       TimeZone timeZone = TimeService.getLocalTimeZone();
       context.put("timezone", timeZone.getDisplayName(true, TimeZone.SHORT) );
       
+		// group realted variables
+		context.put("siteAccess", CalendarEvent.EventAccess.SITE);
+		context.put("groupAccess", CalendarEvent.EventAccess.GROUPED);
+		
 		context.put("message", state.getState());
 		context.put("state", state.getKey());
 		context.put("tlang",rb);
@@ -2132,6 +2144,60 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		// Set the imported events into the context.
 		context.put("wizardImportedEvents", state.getWizardImportedEvents());
+		
+		String calId = state.getPrimaryCalendarReference();
+		StringBuffer exceptionMessage = new StringBuffer();
+		try
+		{
+			Calendar calendarObj = CalendarService.getCalendar(calId);
+			String scheduleTo = (String)state2.getAttribute(STATE_SCHEDULE_TO);
+			if (scheduleTo != null && scheduleTo.length() != 0)
+			{
+				context.put("scheduleTo", scheduleTo);
+			}
+			else
+			{
+				if (calendarObj.allowAddEvent())
+				{
+					// default to make site selection
+					context.put("scheduleTo", "site");
+				}
+				else if (calendarObj.getGroupsAllowAddEvent().size() > 0)
+				{
+					// to group otherwise
+					context.put("scheduleTo", "groups");
+				}
+			}
+		
+			Collection groups = calendarObj.getGroupsAllowAddEvent();
+			if (groups.size() > 0)
+			{
+				/*
+				String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
+				boolean asc = sstate.getAttribute(STATE_CURRENT_SORT_ASC)!=null?((Boolean) sstate.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue():true;;
+				if (sort == null || (!sort.equals(SORT_GROUPTITLE) && !sort.equals(SORT_GROUPDESCRIPTION)))
+				{
+					sort = SORT_GROUPTITLE;
+					sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
+					state.setCurrentSortedBy(sort);
+					state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
+				}
+				context.put("groups", new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)));
+				*/
+				//TODO:render the group list better
+				context.put("groups", groups);
+			}
+		}
+		catch(IdUnusedException e)
+		{
+			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			M_log.debug(".buildImportContext(): " + e);
+		}
+		catch (PermissionException e)
+		{
+			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			M_log.debug(".buildImportContext(): " + e);
+		}
 	}
 
 	/**
@@ -2346,6 +2412,48 @@ extends VelocityPortletStateAction
 			} // if (rule != null)
 		} //if ((String) sstate.getAttribute(FREQUENCY_SELECT).equals(FREQ_ONCE))
 		
+		try
+		{
+			calendarObj = CalendarService.getCalendar(calId);
+			
+			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+			if (scheduleTo != null && scheduleTo.length() != 0)
+			{
+				context.put("scheduleTo", scheduleTo);
+			}
+			else
+			{
+				if (calendarObj.allowAddEvent())
+				{
+					// default to make site selection
+					context.put("scheduleTo", "site");
+				}
+				else if (calendarObj.getGroupsAllowAddEvent().size() > 0)
+				{
+					// to group otherwise
+					context.put("scheduleTo", "groups");
+				}
+			}
+		
+			Collection groups = calendarObj.getGroupsAllowAddEvent();
+			if (groups.size() > 0)
+			{
+				List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
+				context.put("scheduleToGroups", schToGroups);
+				
+				context.put("groups", groups);
+			}
+		}
+		catch(IdUnusedException e)
+		{
+			exceptionMessage.append(rb.getString("java.alert.thereis"));
+			M_log.debug(".buildNewContext(): " + e);
+		}
+		catch (PermissionException e)
+		{
+			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			M_log.debug(".buildNewContext(): " + e);
+		}
 		context.put("tlang",rb);
 		context.put("event", calEvent);
 		context.put("helper",new Helper());
@@ -2447,6 +2555,13 @@ extends VelocityPortletStateAction
 					context.put("freq", rule.getFrequencyDescription());
 					
 					context.put("rule", rule);
+				}
+				
+				// show all the groups in this calendar that user has get event in
+				Collection groups = calendarObj.getGroupsAllowGetEvent();
+				if (groups != null)
+				{
+					context.put("groupRange", calEvent.getGroupRangeForDisplay(calendarObj));
 				}
 			}
 			catch (IdUnusedException  e)
@@ -3375,6 +3490,37 @@ extends VelocityPortletStateAction
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
+			
+			String peid = ((JetspeedRunData)runData).getJs_peid();
+			SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		
+			String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+			if (scheduleTo != null && scheduleTo.length() != 0)
+			{
+				context.put("scheduleTo", scheduleTo);
+			}
+			else
+			{
+				if (calendarObj.allowAddEvent())
+				{
+					// default to make site selection
+					context.put("scheduleTo", "site");
+				}
+				else if (calendarObj.getGroupsAllowAddEvent().size() > 0)
+				{
+					// to group otherwise
+					context.put("scheduleTo", "groups");
+				}
+			}
+		
+			Collection groups = calendarObj.getGroupsAllowAddEvent();
+			if (groups.size() > 0)
+			{
+				List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
+				context.put("scheduleToGroups", schToGroups);
+				
+				context.put("groups", groups);
+			}
 		}
 		catch(IdUnusedException e)
 		{
@@ -3449,6 +3595,13 @@ extends VelocityPortletStateAction
 			
 			context.put("message","delete");
 			context.put("event",calEvent);
+			
+			// show all the groups in this calendar that user has get event in
+			Collection groups = calendarObj.getGroupsAllowGetEvent();
+			if (groups != null)
+			{
+				context.put("groupRange", calEvent.getGroupRangeForDisplay(calendarObj));
+			}
 		}
 		catch (IdUnusedException  e)
 		{
@@ -3703,6 +3856,8 @@ extends VelocityPortletStateAction
 		type = rundata.getParameters().getString("eventType");
 		String location = "";
 		location = rundata.getParameters().getString("location");
+		
+		readEventGroupForm(rundata, context);
 		
 		// read the recurrence modification intention
 		String intentionStr = rundata.getParameters().getString("intention");
@@ -4171,6 +4326,9 @@ extends VelocityPortletStateAction
 			
 			List wizardCandidateEventList = state.getWizardImportedEvents();
 			
+			// for group awareness - read user selection
+			readEventGroupForm(data, context);
+			
 			for ( int i =0; i < wizardCandidateEventList.size(); i++ )
 			{
 				// The line numbers are one-based.
@@ -4226,6 +4384,73 @@ extends VelocityPortletStateAction
 							}
 						} 
 
+						// group awareness
+						// schedule to site?
+						// section awareness
+						try
+						{
+							Site site = SiteService.getSite(calendarObj.getContext());
+							
+							String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+			
+							// schedule to site?
+							if (scheduleTo.equals("site"))
+							{
+								newEvent.setAccess(CalendarEvent.EventAccess.SITE);
+								for (Iterator s = newEvent.getGroups().iterator(); s.hasNext(); )
+								{
+									try
+									{
+										newEvent.removeGroup(site.getGroup((String) s.next()));
+									}
+									catch (PermissionException e){}
+								}
+							}
+							else if (scheduleTo.equals("groups"))
+							{
+								Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
+							
+								// if group has been dropped, remove it from the edit
+								for (Iterator oSIterator=newEvent.getGroups().iterator(); oSIterator.hasNext();)
+								{
+									Reference oGRef = EntityManager.newReference((String) oSIterator.next());
+									boolean selected = false;
+									for(Iterator gIterator = groupChoice.iterator(); gIterator.hasNext() && !selected; )
+									{
+										if (oGRef.getId().equals((String) gIterator.next()))
+										{
+											selected = true;
+										}
+									}
+									if (!selected)
+									{
+										try
+										{
+											newEvent.removeGroup(site.getGroup(oGRef.getId()));
+										}
+										catch (Exception ignore){}
+									}
+								}
+								
+								// add group to newEvent
+								if (groupChoice != null )
+								{
+									newEvent.setAccess(CalendarEvent.EventAccess.GROUPED);
+									for(Iterator gIterator2=groupChoice.iterator(); gIterator2.hasNext(); )
+									{
+										String gString = (String) gIterator2.next();
+										try
+										{
+											newEvent.addGroup(site.getGroup(gString));
+										}
+										catch (Exception eIgnore){}
+									}
+								}
+							}
+						}
+						catch (Exception ignore){}
+						
+						
 						calendarObj.commitEvent(newEvent);
 						state.setEdit(null);
 						
@@ -5021,6 +5246,11 @@ extends VelocityPortletStateAction
 	public void doImport(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
+		String peid = ((JetspeedRunData)data).getJs_peid();
+		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
+		
+		sstate.removeAttribute(STATE_SCHEDULE_TO);
+		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 		
 		// Remember the state prior to entering the wizard.
 		state.setPrevState(state.getState());
@@ -5062,6 +5292,39 @@ extends VelocityPortletStateAction
 		
 	}   // doNew
 	
+	/**
+	 * Read user inputs in announcement form
+	 * @param data
+	 * @param checkForm need to check form data or not
+	 */
+	protected void readEventGroupForm(RunData rundata, Context context)
+	{
+		String peid = ((JetspeedRunData) rundata).getJs_peid();
+		SessionState state =
+			((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+		String scheduleTo = rundata.getParameters().getString("scheduleTo");
+		state.setAttribute(STATE_SCHEDULE_TO, scheduleTo);
+		if (scheduleTo.equals("groups"))
+		{
+			String[] groupChoice = rundata.getParameters().getStrings("selectedGroups");
+			if (groupChoice != null)
+			{
+				state.setAttribute(STATE_SCHEDULE_TO_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
+			}
+			
+			if (groupChoice== null || groupChoice.length == 0)
+			{
+				state.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
+				addAlert(state,rb.getString("java.alert.youchoosegroup"));
+			}
+		}
+		else
+		{
+			state.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
+		}
+		
+	}	// readEventGroupForm
 	
 	/**
 	 * Action doAdd is requested when the user click on the add in the new view to add an event into a calendar.
@@ -5076,6 +5339,10 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, runData, CalendarActionState.class);
 		String peid = ((JetspeedRunData)runData).getJs_peid();
 		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		
+		//clean group awareness state info
+		sstate.removeAttribute(STATE_SCHEDULE_TO);
+		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
 		
 		StringBuffer exceptionMessage = new StringBuffer();
 		
@@ -5134,6 +5401,9 @@ extends VelocityPortletStateAction
 			exceptionMessage.append(rb.getString("java.alert.youdont")); 
 			M_log.debug(".doAdd(): " + e);
 		}
+		
+		// for section awareness - read user selection
+		readEventGroupForm(runData, context);
 		
 		Map addfieldsMap = new HashMap();
 		
@@ -5267,6 +5537,70 @@ extends VelocityPortletStateAction
 				else
 					edit.setRecurrenceRule(null);
 				
+				// section awareness
+				try
+				{
+					Site site = SiteService.getSite(calendarObj.getContext());
+					
+					String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+	
+					// schedule to site?
+					if (scheduleTo.equals("site"))
+					{
+						edit.setAccess(CalendarEvent.EventAccess.SITE);
+						for (Iterator s = edit.getGroups().iterator(); s.hasNext(); )
+						{
+							try
+							{
+								edit.removeGroup(site.getGroup((String) s.next()));
+							}
+							catch (PermissionException e){}
+						}
+					}
+					else if (scheduleTo.equals("groups"))
+					{
+						Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
+					
+						// if group has been dropped, remove it from the edit
+						for (Iterator oSIterator=edit.getGroups().iterator(); oSIterator.hasNext();)
+						{
+							Reference oGRef = EntityManager.newReference((String) oSIterator.next());
+							boolean selected = false;
+							for(Iterator gIterator = groupChoice.iterator(); gIterator.hasNext() && !selected; )
+							{
+								if (oGRef.getId().equals((String) gIterator.next()))
+								{
+									selected = true;
+								}
+							}
+							if (!selected)
+							{
+								try
+								{
+									edit.removeGroup(site.getGroup(oGRef.getId()));
+								}
+								catch (Exception ignore){}
+							}
+						}
+						
+						// add group to edit
+						if (groupChoice != null )
+						{
+							edit.setAccess(CalendarEvent.EventAccess.GROUPED);
+							for(Iterator gIterator2=groupChoice.iterator(); gIterator2.hasNext(); )
+							{
+								String gString = (String) gIterator2.next();
+								try
+								{
+									edit.addGroup(site.getGroup(gString));
+								}
+								catch (Exception eIgnore){}
+							}
+						}
+					}
+				}
+				catch (Exception ignore){}
+				
 				// save it
 				calendarObj.commitEvent(edit);
 				state.setEdit(null);
@@ -5325,6 +5659,19 @@ extends VelocityPortletStateAction
 		}   // elseif
 	}   // doAdd
 	
+	/**
+	 * Action doUpdateGroupView is requested when the user click on the Update button on the list view.
+	 */
+	
+	public void doUpdateGroupView(RunData runData, Context context)
+	{
+		String peid = ((JetspeedRunData)runData).getJs_peid();
+		SessionState sstate = ((JetspeedRunData)runData).getPortletSessionState(peid);
+		
+		readEventGroupForm(runData, context);
+		
+		//stay at the list view
+	}
 	
 	/**
 	 * Action doUpdate is requested when the user click on the save button on the revise screen.
@@ -5436,6 +5783,9 @@ extends VelocityPortletStateAction
 					exceptionMessage.append(rb.getString("java.alert.youdont"));
 					M_log.debug(".doUpdate() Other: " + e);
 				}
+				
+				// for group/section awareness
+				readEventGroupForm(runData, context);
 				
 				Map addfieldsMap = new HashMap();
 				
@@ -5593,6 +5943,70 @@ extends VelocityPortletStateAction
 							{
 								edit.setRecurrenceRule(rule);
 							}
+							
+							// group awareness
+							try
+							{
+								Site site = SiteService.getSite(calendarObj.getContext());
+								
+								String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+				
+								// schedule to site?
+								if (scheduleTo.equals("site"))
+								{
+									edit.setAccess(CalendarEvent.EventAccess.SITE);
+									for (Iterator s = edit.getGroups().iterator(); s.hasNext(); )
+									{
+										try
+										{
+											edit.removeGroup(site.getGroup((String) s.next()));
+										}
+										catch (PermissionException e){}
+									}
+								}
+								else if (scheduleTo.equals("groups"))
+								{
+									Collection groupChoice = (Collection) sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS);
+								
+									// if group has been dropped, remove it from the edit
+									for (Iterator oSIterator=edit.getGroups().iterator(); oSIterator.hasNext();)
+									{
+										Reference oGRef = EntityManager.newReference((String) oSIterator.next());
+										boolean selected = false;
+										for(Iterator gIterator = groupChoice.iterator(); gIterator.hasNext() && !selected; )
+										{
+											if (oGRef.getId().equals((String) gIterator.next()))
+											{
+												selected = true;
+											}
+										}
+										if (!selected)
+										{
+											try
+											{
+												edit.removeGroup(site.getGroup(oGRef.getId()));
+											}
+											catch (Exception ignore){}
+										}
+									}
+									
+									// add group to edit
+									if (groupChoice != null )
+									{
+										edit.setAccess(CalendarEvent.EventAccess.GROUPED);
+										for(Iterator gIterator2=groupChoice.iterator(); gIterator2.hasNext(); )
+										{
+											String gString = (String) gIterator2.next();
+											try
+											{
+												edit.addGroup(site.getGroup(gString));
+											}
+											catch (Exception eIgnore){}
+										}
+									}
+								}
+							}
+							catch (Exception ignore){}
 
 							calendarObj.commitEvent(edit, intention);
 							state.setPrimaryCalendarEdit(null);
@@ -6047,6 +6461,9 @@ extends VelocityPortletStateAction
 		String endingDateStr   = eM + "/" + eD + "/" + eY;
 		state.getCalendarFilter().setListViewFilterMode(CalendarFilter.SHOW_CUSTOM_RANGE);
 		
+		sstate.removeAttribute(STATE_SCHEDULE_TO);
+		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
+		
 		// Pass in a buffer for a possible error message.
 		StringBuffer errorMessage = new StringBuffer();
 		
@@ -6267,6 +6684,94 @@ extends VelocityPortletStateAction
 					state.getPrimaryCalendarReference(),
 					isOnWorkspaceTab()),
 				fullTimeRange);
+		
+		// groups awareness - filtering
+		String calId = state.getPrimaryCalendarReference();
+		String scheduleTo = (String)sstate.getAttribute(STATE_SCHEDULE_TO);
+		
+		try
+		{
+			Calendar calendarObj = CalendarService.getCalendar(calId);
+			context.put("cal", calendarObj);
+			
+			if (scheduleTo != null && scheduleTo.length() != 0)
+			{
+				context.put("scheduleTo", scheduleTo);
+			}
+			else
+			{
+				if (calendarObj.allowGetEvents())
+				{
+					// default to make site selection
+					context.put("scheduleTo", "site");
+				}
+				else if (calendarObj.getGroupsAllowGetEvent().size() > 0)
+				{
+					// to group otherwise
+					context.put("scheduleTo", "groups");
+				}
+			}
+		
+			Collection groups = calendarObj.getGroupsAllowGetEvent();
+			if (groups.size() > 0)
+			{
+				/*
+				String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
+				boolean asc = sstate.getAttribute(STATE_CURRENT_SORT_ASC)!=null?((Boolean) sstate.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue():true;;
+				if (sort == null || (!sort.equals(SORT_GROUPTITLE) && !sort.equals(SORT_GROUPDESCRIPTION)))
+				{
+					sort = SORT_GROUPTITLE;
+					sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
+					state.setCurrentSortedBy(sort);
+					state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
+				}
+				context.put("groups", new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)));
+				*/
+				//TODO:render the group list better
+				context.put("groups", groups);
+				
+				List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
+				context.put("scheduleToGroups", schToGroups);
+				
+				if ((schToGroups != null) && (schToGroups.size()>0))
+				{
+					CalendarEventVector newEventVectorObj = new CalendarEventVector();
+					newEventVectorObj.addAll(masterEventVectorObj);
+					
+					for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
+					{
+						CalendarEvent e = (CalendarEvent)(i.next());
+						for (Iterator j = schToGroups.iterator(); j.hasNext();)
+						{
+							String groupRangeForDispaly = e.getGroupRangeForDisplay(calendarObj);
+							String groupId = j.next().toString();
+							try
+							{
+								Site site = SiteService.getSite(calendarObj.getContext());
+								Group group = site.getGroup(groupId);
+								if (groupRangeForDispaly.equals("")||groupRangeForDispaly.equals("site")) break;
+								if (groupRangeForDispaly.indexOf(group.getTitle()) == -1)
+								{
+									newEventVectorObj.remove(e);
+									break;
+								}
+							}
+							catch(Exception ignore){}
+						}	
+					}
+					masterEventVectorObj.clear();
+					masterEventVectorObj.addAll(newEventVectorObj);
+				}
+			}
+		}
+		catch(IdUnusedException e)
+		{
+			M_log.debug(".buildListContext(): " + e);
+		}
+		catch (PermissionException e)
+		{
+			M_log.debug(".buildListContext(): " + e);
+		}
 		
 		boolean dateDsc = sstate.getAttribute(STATE_DATE_SORT_DSC) != null;
 		context.put("currentDateSortAsc", new Boolean(!dateDsc));
@@ -6779,6 +7284,8 @@ extends VelocityPortletStateAction
 		String location = "";
 		location = rundata.getParameters().getString("location");
 
+		readEventGroupForm(rundata, context);
+		
 		// read the recurrence modification intention
 		String intentionStr = rundata.getParameters().getString("intention");
 		if (intentionStr == null) intentionStr = "";
