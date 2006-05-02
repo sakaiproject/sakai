@@ -1,39 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../master/project.xml</extend>
-    <name>Sakai Syllabus API</name>
+    <name>sakai-syllabus-hbm</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-syllabus-api</id>
+    <id>sakai-syllabus-hbm</id>
 	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2004</inceptionYear>
-    
-   	<properties>
+
+	<properties>
 		<deploy.type>jar</deploy.type>
 		<deploy.target>shared</deploy.target>
 	</properties>
-    
+
     <dependencies>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
+	    <dependency>
+  	  		<groupId>sakaiproject</groupId>
+        	<artifactId>sakai-syllabus-api</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
+    	</dependency>
 
 	</dependencies>
-    
+
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
+
+      <sourceDirectory>src/java</sourceDirectory>
+
+      <resources>
+          <resource>
+            <directory>src/java</directory>
+              <includes>
+                <include>**/*.xml</include>
+              </includes>
+          </resource>
+      </resources>     
+      
     </build>
 </project>

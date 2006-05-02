@@ -64,7 +64,7 @@ public class SyllabusItemImpl implements SyllabusItem
    * @param redirectURL
    *        SyllabusEntry Constructor. Package protected.
    */
-  SyllabusItemImpl(String userId, String contextId,
+  public SyllabusItemImpl(String userId, String contextId,
       String redirectURL)
   {
 

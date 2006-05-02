@@ -3,9 +3,9 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../master/project.xml</extend>
-    <name>Sakai Syllabus Components Shared</name>
+    <name>sakai-syllabus-impl</name>
     <groupId>sakaiproject</groupId>
-    <id>sakai-syllabus-component-shared</id>
+    <id>sakai-syllabus-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
@@ -15,7 +15,6 @@
 
 	<properties>
 		<deploy.type>jar</deploy.type>
-		<deploy.target>shared</deploy.target>
 	</properties>
 
     <dependencies>
@@ -23,22 +22,14 @@
   	  		<groupId>sakaiproject</groupId>
         	<artifactId>sakai-syllabus-api</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<deploy.target>shared</deploy.target>
-			</properties>        
     	</dependency>
 
-<!--  		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
+	    <dependency>
+  	  		<groupId>sakaiproject</groupId>
+        	<artifactId>sakai-syllabus-hbm</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>-->
+    	</dependency>
 
-<!-- 2.2		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>-->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
@@ -114,36 +105,12 @@
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-
-<!-- 		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>-->
-		
-<!-- 		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>-->
-		
-<!-- 		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-xml</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>-->
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>		
-		
-<!--		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>  		  -->
 		
 		<dependency>
   			<groupId>hibernate</groupId>
@@ -170,6 +137,7 @@
       <sourceDirectory>src/java</sourceDirectory>
 
         <resources>
+
           <resource>
             <directory>${basedir}/src/bundle</directory>
               <includes>
@@ -177,15 +145,6 @@
               </includes>
           </resource>
 
-          <resource>
-            <directory>src/java</directory>
-              <includes>
-                <include>**/*.xml</include>
-              </includes>
-              <excludes>
-                <exclude>**/web.xml</exclude>
-              </excludes>
-          </resource>
       </resources>     
       
     </build>
