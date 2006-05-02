@@ -99,7 +99,7 @@
       <list>
         <bean id="wiki1" class="org.sakaiproject.component.app.help.model.CategoryBean">
           <property name="name">
-            <value>Wiki Overview</value>
+            <value>Wiki</value>
           </property>
           <property name="resources">
             <list>
