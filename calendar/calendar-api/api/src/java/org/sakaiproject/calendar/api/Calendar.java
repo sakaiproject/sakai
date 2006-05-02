@@ -93,6 +93,8 @@ public interface Calendar
 	* @param description The event's description (PROP_DESCRIPTION) property value.
 	* @param type The event's calendar event type (PROP_CALENDAR_TYPE) property value.
 	* @param location The event's calendar event location (PROP_CALENDAR_LOCATION) property value.
+	* @param access The event's access type site or grouped
+	* @param groups The groups which can access this event
 	* @param attachments The event attachments, a vector of Reference objects.
 	* @return The newly added event.
 	* @exception PermissionException If the user does not have permission to modify the calendar.
@@ -101,6 +103,21 @@ public interface Calendar
 									String type, String location, EventAccess access, Collection groups,  List attachments)
 		throws PermissionException;
 
+	/**
+	* Add a new event to this calendar.
+	* @param range The event's time range.
+	* @param displayName The event's display name (PROP_DISPLAY_NAME) property value.
+	* @param description The event's description (PROP_DESCRIPTION) property value.
+	* @param type The event's calendar event type (PROP_CALENDAR_TYPE) property value.
+	* @param location The event's calendar event location (PROP_CALENDAR_LOCATION) property value.
+	* @param attachments The event attachments, a vector of Reference objects.
+	* @return The newly added event.
+	* @exception PermissionException If the user does not have permission to modify the calendar.
+	*/
+	public CalendarEvent addEvent(TimeRange range, String displayName, String description,
+									String type, String location, List attachments)
+		throws PermissionException;
+	
 	/**
 	* Add a new event to this calendar.
 	* Must commitEvent() to make official, or cancelEvent() when done!

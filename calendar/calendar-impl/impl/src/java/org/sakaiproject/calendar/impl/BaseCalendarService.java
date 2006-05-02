@@ -2261,6 +2261,46 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			return edit;
 
 		} // addEvent
+		
+		/**
+		 * Add a new event to this calendar.
+		 * 
+		 * @param range
+		 *        The event's time range.
+		 * @param displayName
+		 *        The event's display name (PROP_DISPLAY_NAME) property value.
+		 * @param description
+		 *        The event's description as plain text (PROP_DESCRIPTION) property value.
+		 * @param type
+		 *        The event's calendar event type (PROP_CALENDAR_TYPE) property value.
+		 * @param location
+		 *        The event's calendar event location (PROP_CALENDAR_LOCATION) property value.
+		 * @param attachments
+		 *        The event attachments, a vector of Reference objects.
+		 * @return The newly added event.
+		 * @exception PermissionException
+		 *            If the user does not have permission to modify the calendar.
+		 */
+		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location, 
+				List attachments) throws PermissionException
+		{
+			// make one
+			CalendarEventEdit edit = addEvent();
+
+			// set it up
+			edit.setRange(range);
+			edit.setDisplayName(displayName);
+			edit.setDescription(description);
+			edit.setType(type);
+			edit.setLocation(location);
+			edit.replaceAttachments(attachments);
+
+			// commit it
+			commitEvent(edit);
+
+			return edit;
+
+		} // addEvent
 
 		/**
 		 * Add a new event to this calendar. Must commitEvent() to make official, or cancelEvent() when done!
