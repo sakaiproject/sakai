@@ -36,9 +36,11 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.SiteEmailNotification;
 
 public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 {

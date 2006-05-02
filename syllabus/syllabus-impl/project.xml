@@ -37,12 +37,22 @@
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-user-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-event-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>

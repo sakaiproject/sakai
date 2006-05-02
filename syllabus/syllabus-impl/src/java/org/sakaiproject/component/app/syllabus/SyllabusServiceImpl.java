@@ -58,6 +58,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Placement;
@@ -863,7 +864,7 @@ public class SyllabusServiceImpl implements SyllabusService
 		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		////EventTrackingService.post(event);
+		EventTrackingService.post(event);
   }
   
   public class BaseResourceEdit implements Entity, Edit
@@ -1043,7 +1044,7 @@ public class SyllabusServiceImpl implements SyllabusService
 		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		////EventTrackingService.post(event);
+		EventTrackingService.post(event);
 	}
 
 	public void deletePostedSyllabus(SyllabusData data)
@@ -1079,7 +1080,7 @@ public class SyllabusServiceImpl implements SyllabusService
 		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
 			    true, priority);
 		
-		////EventTrackingService.post(event);
+		EventTrackingService.post(event);
 	}
 	
 	public String trimToNull(String value)
