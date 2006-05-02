@@ -22,9 +22,9 @@ public class TimedAssessmentChangeListener implements ValueChangeListener
 	{
 	    
 	    //fix bug SAK-4439
-            if(ae.getOldValue()==null && ae.getNewValue().equals("false"))
+            if(ae.getOldValue()==null && ae.getNewValue()!=null && ae.getNewValue().equals("false"))
 		return;
-	    else if(ae.getOldValue().equals(ae.getNewValue()))
+	    if(ae.getOldValue()!=null && ae.getNewValue()!=null && ae.getOldValue().equals(ae.getNewValue()))
 		return;
 
 	    //  if(((Boolean)ae.getNewValue()).booleanValue() == false && ae.getOldValue() == null)
