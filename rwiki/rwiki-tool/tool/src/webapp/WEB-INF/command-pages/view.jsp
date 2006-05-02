@@ -108,7 +108,7 @@
 	      </div>
 	    </div>
 	  </div>
-	 <div style="font-size: smaller;" >
+	 <div class="lastmodified" >
 	 last modified by <rwiki:formatDisplayName name="${currentRWikiObject.user }"/> on <fmt:formatDate type="both" value="${currentRWikiObject.version}" /> 
 	 </div>
 	</div>
