@@ -68,6 +68,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -5646,6 +5647,12 @@ public class ResourcesAction
 			item.setCanAddFolder(canAddFolder);
 			item.setCanDelete(canDelete);
 			// item.setIsUrl(isUrl);
+			
+			AccessMode access = resource.getAccess();
+			item.setAccess(access.toString());
+			
+			List access_groups = new Vector(resource.getGroups());
+			item.setGroups(access_groups);
 
 			if(item.isUrl())
 			{
@@ -6580,6 +6587,20 @@ public class ResourcesAction
 				item.setCopyrightAlert(copyrightAlert != null);
 			}
 		}
+		
+		String access_mode = params.getString("access_mode");
+		if(access_mode != null)
+		{
+			item.setAccess(access_mode);
+			if(AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				String[] access_groups = params.getStrings("access_groups");
+				for(int gr = 0; gr < access_groups.length; gr++)
+				{
+					item.addGroup(access_groups[gr]);
+				}
+			}
+		}
 
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 		if(preventPublicDisplay == null)
@@ -7045,6 +7066,20 @@ public class ResourcesAction
 				{
 					pubview = params.getBoolean("pubview");
 					item.setPubview(pubview);
+				}
+			}
+		}
+
+		String access_mode = params.getString("access_mode" + index);
+		if(access_mode != null)
+		{
+			item.setAccess(access_mode);
+			if(AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				String[] access_groups = params.getStrings("access_groups" + index);
+				for(int gr = 0; gr < access_groups.length; gr++)
+				{
+					item.addGroup(access_groups[gr]);
 				}
 			}
 		}
@@ -9211,6 +9246,12 @@ public class ResourcesAction
 			{
 				folder.setRoot(parent.getRoot());
 			}
+			
+			AccessMode access = collection.getAccess();
+			folder.setAccess(access.toString());
+			
+			List access_groups = new Vector(collection.getGroups());
+			folder.setGroups(access_groups);
 
 			if(highlightedItems == null || highlightedItems.isEmpty())
 			{
@@ -9339,6 +9380,12 @@ public class ResourcesAction
 						String itemType = ((ContentResource)resource).getContentType();
 						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
+
+						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
+						newItem.setAccess(access_mode.toString());
+						
+						List groups = new Vector(((GroupAwareEntity) resource).getGroups());
+						newItem.setGroups(groups);
 
 						newItem.setContainer(collectionId);
 						newItem.setRoot(folder.getRoot());
@@ -10905,13 +10952,20 @@ public class ResourcesAction
 			m_groups = new Vector(groups);
 		}
 		
+		/**
+		 * Add a group-id to the list of groups that have access to this item.
+		 * @param groupId
+		 */
 		public void addGroup(String groupId)
 		{
 			if(m_groups == null)
 			{
 				m_groups = new Vector();
 			}
-			m_groups.add(groupId);
+			if(! m_groups.contains(groupId))
+			{
+				m_groups.add(groupId);
+			}
 		}
 
 	}	// inner class BrowseItem

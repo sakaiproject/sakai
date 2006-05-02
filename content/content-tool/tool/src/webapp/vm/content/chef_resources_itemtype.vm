@@ -336,7 +336,6 @@
 	function seedValue(obj_seed, id, trim)
 	{
 		var theElement = document.getElementById(id);
-		alert("theElement = " + theElement + "\nobj_seed = " + obj_seed + "\nobj_seed.value = " + obj_seed.value);
 		if(theElement && obj_seed && obj_seed.value)
 		{
 			var nonWhitespaceChar = /\S/;
@@ -760,7 +759,7 @@
 															#if($item.hasGroup($group.id))
 																#set($selected=true)
 															#end
-															<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+															<input type="checkbox" name="access_groups$i" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 														</td>
 														<td headers="name" style="padding-bottom:0;" class="checkbox">
 															<label for="$group.Id">
