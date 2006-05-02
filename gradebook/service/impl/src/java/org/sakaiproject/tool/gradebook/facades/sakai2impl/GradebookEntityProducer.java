@@ -52,14 +52,21 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		return toolIdArray;
 	}
 
-	public void startContext(String context) {
+	public void contextCreated(String context, boolean toolPlacement) {
 		if (!gradebookService.isGradebookDefined(context)) {
 			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
 			gradebookService.addGradebook(context, context);
 		}
 	}
 
-	public void endContext(String context) {
+	public void contextUpdated(String context, boolean toolPlacement) {
+		if (!gradebookService.isGradebookDefined(context)) {
+			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
+			gradebookService.addGradebook(context, context);
+		}
+	}
+
+	public void contextDeleted(String context, boolean toolPlacement) {
 		if (gradebookService.isGradebookDefined(context)) {
 			if (log.isInfoEnabled()) log.info("Gradebook being deleted from context " + context);
 			try {
