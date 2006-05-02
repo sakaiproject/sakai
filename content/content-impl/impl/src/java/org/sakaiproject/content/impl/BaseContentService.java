@@ -64,7 +64,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
@@ -103,12 +102,10 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -5102,16 +5099,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * {@inheritDoc}
 	 */
-	public void startContext(String context)
-	{	
-		enableResources(context);
-		enableDropbox(context);
+	public void contextCreated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement)
+		{
+			enableResources(context);
+			enableDropbox(context);
+		}
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public void endContext(String context)
+	public void contextUpdated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement)
+		{
+			enableResources(context);
+			enableDropbox(context);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableResources(context);
 		disableDropbox(context);
