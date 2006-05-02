@@ -81,7 +81,7 @@ import org.sakaiproject.entity.api.EntityCopyrightException;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
-//import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -126,7 +126,7 @@ import org.w3c.dom.NodeList;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver//, EntityTransferrer
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -1753,15 +1753,23 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/**
 	 * {@inheritDoc}
 	 */
-	public void startContext(String context)
+	public void contextCreated(String context, boolean toolPlacement)
 	{
-		enableSchedule(context);
+		if (toolPlacement) enableSchedule(context);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void endContext(String context)
+	public void contextUpdated(String context, boolean toolPlacement)
+	{
+		if (toolPlacement) enableSchedule(context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void contextDeleted(String context, boolean toolPlacement)
 	{
 		disableSchedule(context);
 	}
