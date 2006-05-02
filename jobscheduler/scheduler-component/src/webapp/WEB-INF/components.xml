@@ -23,7 +23,7 @@
         </property>
         <property name="serverId">
             <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-                <property name="targetObject"><ref bean="org.sakaiproject.service.framework.config.ServerConfigurationService"/></property>
+                <property name="targetObject"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
                 <property name="targetMethod"><value>getString</value></property>
                 <property name="arguments">
                     <list>
