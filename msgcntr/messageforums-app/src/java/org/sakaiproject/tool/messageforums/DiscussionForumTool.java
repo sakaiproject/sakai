@@ -1994,22 +1994,44 @@ public class DiscussionForumTool
       else if(selectedTopic.getTopic().getDefaultAssignName() != null &&
           selectedTopic.getTopic().getDefaultAssignName().trim().length() > 0)
       {
-        gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+        if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+            selectedTopic.getTopic().getDefaultAssignName(),
+            UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
+        { 
+          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
             selectedTopic.getTopic().getDefaultAssignName(),
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
-        gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
-        String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
-        setSelectedAssignForMessage(thisGradeAssign);
+          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
+          setSelectedAssignForMessage(thisGradeAssign);
+       }
+        else
+        {
+            gradePoint = "";
+            String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
+            setSelectedAssignForMessage(thisGradeAssign);
+        }
       }
       else if(selectedForum.getForum().getDefaultAssignName() != null &&
           selectedForum.getForum().getDefaultAssignName().trim().length() > 0)
       {
-        gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+        if( (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+            selectedForum.getForum().getDefaultAssignName(),  
+            UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
+        { 
+          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
             selectedForum.getForum().getDefaultAssignName(),  
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
-        gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
-        String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
-        setSelectedAssignForMessage(thisGradeAssign);
+          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
+          setSelectedAssignForMessage(thisGradeAssign);
+        }
+        else
+        {
+          gradePoint = "";
+          String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
+          setSelectedAssignForMessage(thisGradeAssign);
+        }
       }
     }
     catch(Exception e) 
