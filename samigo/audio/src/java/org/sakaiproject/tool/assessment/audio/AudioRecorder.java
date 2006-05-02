@@ -128,9 +128,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   AudioInputStream audioInputStream;
   SamplingGraph samplingGraph;
+  Thread timerThread;
 
   JButton playB, captB, pausB, loadB;
-  JButton auB, aiffB, waveB;
+  //JButton auB, aiffB, waveB;
   JTextField textField;
   JTextField rtextField;
 
@@ -165,23 +166,19 @@ public class AudioRecorder extends JPanel implements ActionListener,
     JPanel samplingPanel = makeAudioSamplingPanel(b);
     p2.add(samplingPanel);
 
-    JPanel savePanel = new ColorBackgroundPanel(); //new JPanel();
+    JPanel savePanel = new JPanel(); //new ColorBackgroundPanel();
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
-    p2.setPreferredSize(new Dimension(450, 150));
-    p2.add(BorderLayout.WEST, makeAttemptsRemainingLabel());
-
     JPanel saveTFpanel = makeSaveTFPanel();
     savePanel.add(saveTFpanel);
-
-    JPanel saveBpanel = makeSaveBPanel();
-    savePanel.add(saveBpanel);
-
+    //JPanel saveBpanel = makeSaveBPanel();
+    //savePanel.add(saveBpanel);
     p2.add(savePanel);
 
     p1.add(p2);
     add(p1);
   }
 
+    /*
   private JPanel makeSaveBPanel()
   {
     JPanel saveBpanel = new ColorBackgroundPanel(false);
@@ -208,26 +205,25 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     return saveBpanel;
   }
+    */
 
   private JPanel makeSaveTFPanel()
   {
-    JPanel saveTFpanel = new ColorBackgroundPanel(false);
-    JLabel flabel = new JLabel(res.getString("File_to_save_"));
-    JLabel rlabel = new JLabel(res.getString("retries"));
+    GridLayout grid = new GridLayout(2, 2);
+    JPanel saveTFpanel = new JPanel(grid);
+    JLabel flabel = new JLabel(res.getString("current_recordig_length"), SwingConstants.LEFT);
+    JLabel rlabel = new JLabel(res.getString("attempts_remaining"), SwingConstants.LEFT);
     saveTFpanel.add(flabel);
-    saveTFpanel.add(textField = new JTextField(fileName));
+    saveTFpanel.add(textField = new JTextField(""+params.getCurrentRecordingLength()));
     saveTFpanel.add(rlabel);
     saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
-
-    saveTFpanel.setPreferredSize(new Dimension(140, 25));
+    textField.setEditable(false);
     rtextField.setEditable(false);
-
-    if (!params.isSaveToFile())
-    {
-      flabel.setVisible(false);
-      textField.setVisible(false);
-    }
-
+    Font font = new Font("Ariel", Font.PLAIN, 11);
+    flabel.setFont(font);
+    rlabel.setFont(font); 
+    textField.setFont(font);
+    rtextField.setFont(font);
     return saveTFpanel;
   }
 
@@ -291,48 +287,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     Object obj = e.getSource();
 
-    if (obj.equals(auB) || obj.equals(aiffB) || obj.equals(waveB))
-    {
-      AudioFileFormat.Type type = getTypeFromButton(obj);
-      String TEST_LOCATION = "/tmp/test/audio." + type.getExtension();
-
-      int attempts = params.getAttemptsAllowed();
-
-      if (attempts > 0)
-      {
-        if (params.isSaveToFile() && params.isSaveToUrl())
-        {
-          saveToFileAndPost(textField.getText().trim(), type, params.getUrl(),
-                            TEST_LOCATION, attempts);
-        }
-        else if (params.isSaveToUrl())
-        {
-          saveAndPost(audioInputStream, type, params.getUrl(),
-                      TEST_LOCATION, attempts);
-        }
-        else if (params.isSaveToFile())
-        {
-          saveToFile(textField.getText().trim(), type);
-        }
-
-        params.setAttemptsAllowed(--attempts);
-        rtextField.setText("" + attempts);
-        if (attempts==0) captB.setEnabled(false); ;
-
-      }
-    }
-    else if (obj.equals(waveB))
-    {
-      saveToFile(textField.getText().trim(), AudioFileFormat.Type.WAVE);
-    }
-    else if (obj.equals(playB))
+    if (obj.equals(playB))
     {
       if (playB.getText().startsWith(res.getString("Play")))
       {
         playback.start();
         samplingGraph.start();
         captB.setEnabled(false);
-        pausB.setEnabled(true);
+        //pausB.setEnabled(true);
         playB.setText(" " + res.getString("playB_Text"));
       }
       else
@@ -343,7 +305,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         {
           captB.setEnabled(true);
         }
-        pausB.setEnabled(false);
+        //pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
     }
@@ -358,9 +320,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         //loadB.setEnabled(false);
         playB.setEnabled(false);
         //pausB.setEnabled(true);
-        auB.setEnabled(false);
-        aiffB.setEnabled(false);
-        waveB.setEnabled(false);
+        //auB.setEnabled(false);
+        //aiffB.setEnabled(false);
+        //waveB.setEnabled(false);
         captB.setText(" " + res.getString("playB_Text"));
       }
       else
@@ -371,12 +333,32 @@ public class AudioRecorder extends JPanel implements ActionListener,
         //loadB.setEnabled(true);
         playB.setEnabled(true);
         //pausB.setEnabled(false);
-        auB.setEnabled(true);
-        aiffB.setEnabled(true);
-        waveB.setEnabled(true);
+        //auB.setEnabled(true);
+        //aiffB.setEnabled(true);
+        //waveB.setEnabled(true);
         captB.setText(res.getString("Record"));
+        int retry = 1; 
+        while (audioInputStream == null && retry < 5){
+          retry ++;
+          if (timerThread == null){ 
+            timerThread = new Thread();
+            timerThread.start(); 
+            System.out.println("start timer");
+          }
+          try{
+            System.out.println("sleeping");
+            timerThread.sleep(1000);
+	  }
+          catch(Exception ex){
+            System.out.println(ex.getMessage());
+	  }
+	}
+        timerThread = null;
+        System.out.println("before saveMedia, audioInputStream"+audioInputStream);
+        saveMedia();
       }
     }
+    /* comment out this control, we don't use it - daisyf
     else if (obj.equals(pausB))
     {
       if (pausB.getText().startsWith(res.getString("Pause")))
@@ -410,7 +392,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         pausB.setText(res.getString("Pause"));
       }
     }
-    /*
     else if (obj.equals(loadB))
     {
       try
@@ -459,6 +440,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
     }
     */
+    System.out.println("*** end of action performed, audioInputStream"+audioInputStream);
   }
 
   private void resetAttempts(int attempts)
@@ -474,6 +456,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
    * @param obj
    * @return
    */
+    /*
   private AudioFileFormat.Type getTypeFromButton(Object obj)
   {
     AudioFileFormat.Type type = null;
@@ -492,7 +475,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     return type;
   }
-
+    */
   public JPanel getFormatControlsPanel()
   {
     return formatControls;
@@ -500,6 +483,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   public void createAudioInputStream(File file, boolean updateComponents)
   {
+      System.out.println("createAudioInputStream, file="+file);
+      System.out.println("createAudioInputStream, audioInput="+audioInputStream);
     if (file != null && file.isFile())
     {
       try
@@ -512,9 +497,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                     audioInputStream.getFormat().getFrameRate());
         duration = milliseconds / 1000.0;
-        auB.setEnabled(true);
-        aiffB.setEnabled(true);
-        waveB.setEnabled(true);
+        //auB.setEnabled(true);
+        //aiffB.setEnabled(true);
+        //waveB.setEnabled(true);
         if (updateComponents)
         {
           formatControls.setFormat(audioInputStream.getFormat());
@@ -545,14 +530,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
   public void saveToFileAndPost(String tempFileName,
                                 AudioFileFormat.Type audioType,
                                 String urlString,
-                                String filePath,
                                 int attemptsLeft)
   {
     try
     {
       saveToFile(tempFileName, audioType);
       FileInputStream inputStream = new FileInputStream(tempFileName);
-      saveAndPost( inputStream, audioType,  urlString,  filePath, attemptsLeft);
+      saveAndPost(inputStream, audioType,  urlString, attemptsLeft);
     }
     catch (Exception ex)
     {
@@ -573,7 +557,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
   public void saveAndPost(InputStream inputStream,
                                 AudioFileFormat.Type audioType,
                                 String urlString,
-                                String filePath,
                                 int attemptsLeft)
   {
     if (audioInputStream == null)
@@ -598,10 +581,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
     {
       // URL of audio processing servlet
       // note for applet security, this must be on same host
-      /**
-       * @todo need to fix the MalformedUrl exception, need to get
-       * host and protocol!!!!!!!
-       */
       url = new URL(urlString);
       urlConn = url.openConnection();
       urlConn.setDoInput(true);
@@ -610,47 +589,24 @@ public class AudioRecorder extends JPanel implements ActionListener,
       // No caching, we want the real thing.
       urlConn.setUseCaches(false);
 
-      // determine the content type and extension
-      String mimeExtension = audioType.getExtension();
-      String mimeType = "audio/basic";
-
-      if (audioType.equals(AudioFileFormat.Type.AIFF))
-      {
-        mimeType = "audio/x-aiff";
-      }
-      else if (audioType.equals(AudioFileFormat.Type.WAVE))
-      {
-        mimeType = "audio/x-wav";
-      }
-
-      // Specify the content type.
-      urlConn.setRequestProperty("Content-Type", mimeType);
-
-      // Specify meta-information in "From:" header
-
-      // audio test delivery path is in the form:
-      // assessmentXXX/questionXXX/agentId/audio.ext
-
-      String fileName = filePath + "/" + "audio" + "." + mimeExtension;
-
-      /**
-       * @todo deal with attemptsLeft version later
-       */
-//      urlConn.setRequestProperty("From", fileName + "|" +attemptsLeft);
-      urlConn.setRequestProperty("From", fileName);
-
+      int audioCount = getAudioInputStreamCount();
+      System.out.println("****1. printMap");
+      printMap(urlConn);
+      System.out.println("***2. set content header, audioCount= "+audioCount);
+      urlConn.setRequestProperty("CONTENT-LENGTH", audioCount+"");
+      urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
       // Send binary POST output.
+      System.out.println("***3. write to servlet");
       OutputStream outputStream = urlConn.getOutputStream();
+
+      /*
       BufferedInputStream buf_inputStream = new BufferedInputStream(inputStream);
-      BufferedOutputStream buf_outputStream = new BufferedOutputStream(
-        outputStream);
+      BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
 
       int i = 0;
       int count = 0;
-      if (buf_inputStream != null)
-      {
-        while ( (i = buf_inputStream.read()) != -1)
-        {
+      if (buf_inputStream != null){
+        while ( (i = buf_inputStream.read()) != -1){
           buf_outputStream.write(i);
           count++;
         }
@@ -660,14 +616,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
         count + " " + res.getString("bytes") + ".\n  ";
       buf_outputStream.flush();
       buf_outputStream.close();
-
       // Get response data.
       DataInputStream input = new DataInputStream(urlConn.getInputStream());
-
-      /**@todo
-       * need to check that acknowlegement from server matches or display
-       * an error.
-       */
 
       String str;
       while (null != ( (str = input.readLine())))
@@ -676,13 +626,42 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
       input.close();
       reportStatus(reportStr + "\n");
+
+      */
+
+      try{
+        audioInputStream.reset();
+        int c = AudioSystem.write(audioInputStream, audioType, outputStream);
+        System.out.println("content length written: "+c);
+        if (c <= 0){
+          throw new IOException(res.getString("Problems_writing_to"));
+        }
+        outputStream.flush();
+        outputStream.close();
+
+        // Get response data.
+        String reportStr = res.getString("contentlenw") + ": " +
+          audioCount + " " + res.getString("bytes") + ".\n  ";
+        DataInputStream input = new DataInputStream(urlConn.getInputStream());
+
+        // need to check that acknowlegement from server matches or display
+        String str;
+        while (null != ( (str = input.readLine())))
+        {
+          reportStr += str;
+        }
+        input.close();
+        reportStatus(reportStr + "\n");
+      }
+      catch (Exception ex){
+        reportStatus(ex.toString());
+      }
     }
     catch (IOException ex)
     {
       reportStatus(ex.toString());
     }
     samplingGraph.repaint();
-
   }
 
   public void saveToFile(String name, AudioFileFormat.Type fileType)
@@ -709,7 +688,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
       return;
     }
 
-    File file = new File(fileName = name);
+    File file = new File("/tmp/daisyf.au");
+    //File file = new File(fileName = name);
     try
     {
       if (AudioSystem.write(audioInputStream, fileType, file) == -1)
@@ -770,14 +750,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
         {
           captB.setEnabled(true);
         }
-        pausB.setEnabled(false);
+        //pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
     }
 
     public void run()
     {
-
+	System.out.println("***run");
       // reload the file if loaded by file
       if (file != null)
       {
@@ -913,9 +893,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
         //loadB.setEnabled(true);
         playB.setEnabled(true);
         //pausB.setEnabled(false);
-        auB.setEnabled(true);
-        aiffB.setEnabled(true);
-        waveB.setEnabled(true);
+        //auB.setEnabled(true);
+        //aiffB.setEnabled(true);
+        //waveB.setEnabled(true);
         captB.setText(res.getString("Record"));
         System.err.println(errStr);
         samplingGraph.repaint();
@@ -1081,6 +1061,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       data.setSeconds(seconds);
 
       paintData(g, data);
+
     }
 
     public void start()
@@ -1189,22 +1170,102 @@ public class AudioRecorder extends JPanel implements ActionListener,
     panel.add(label2);
     return panel;
   }
-
+  /*
   private JPanel makeAttemptsRemainingLabel()
   {
     GridLayout grid = new GridLayout(2, 1);
     JPanel panel = new JPanel(grid);
+    JPanel panel2 = new JPanel(grid);
     panel.setPreferredSize(new Dimension(400, 50));
+    panel2.setPreferredSize(new Dimension(400, 50));
     JLabel label1 = new JLabel(res.getString("time_limit")+" "+
                       params.getCurrentRecordingLength()+" sec", SwingConstants.LEFT);
-    JLabel label2 = new JLabel(res.getString("attempts_remaining")+" "+
-                      params.getAttemptsRemaining(), SwingConstants.LEFT);
+    JLabel label2 = new JLabel(res.getString("attempts_remaining")+" ", SwingConstants.LEFT);
     Font font = new Font("Ariel", Font.PLAIN, 11);
     label1.setFont(font); 
     label2.setFont(font); 
     panel.add(label1);
-    panel.add(label2);
+    panel.add(panel2);
+    panel2.add(label2);
+    panel2.add(atextField = new JTextField(""+params.getAttemptsAllowed()));
+    atextField.setEditable(false);
+    panel.setPreferredSize(new Dimension(140, 25));
     return panel;
   }
+  */
 
+  private void saveMedia(){
+    AudioFileFormat.Type type = AudioFileFormat.Type.AU;
+
+    int attempts = params.getAttemptsAllowed();
+
+    if (attempts > 0){
+      if (params.isSaveToFile() && params.isSaveToUrl()){
+        saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
+      }
+      else if (params.isSaveToUrl()){  //<-- this is what we want for samigo 2.2  -daisyf
+	  System.out.println("before saveAndpost audioInputStream"+audioInputStream);
+        saveAndPost(audioInputStream, type, params.getUrl(), attempts);
+      }
+      else if (params.isSaveToFile()){
+	  System.out.println("before saveToFile audioInputStream"+audioInputStream);
+        saveToFile(textField.getText().trim(), type);
+      }
+
+      textField.setText("" + duration);
+      params.setAttemptsAllowed(--attempts);
+      rtextField.setText("" + attempts);
+      if (attempts==0) captB.setEnabled(false); ;
+      System.out.println("****attempts left = "+attempts);
+    }
+  }
+
+  private int getAudioInputStreamCount(){
+    int count = 0;
+    try{
+      BufferedInputStream buf_inputStream = new BufferedInputStream(audioInputStream);
+      int i = 0;
+      if (buf_inputStream != null){
+        while ( (i = buf_inputStream.read()) != -1){
+          count++;
+        }
+      }
+    }
+    catch(Exception ex){
+      reportStatus(ex.toString());
+    }
+    return count;
+  }
+
+  private String getMimeType(AudioFileFormat.Type audioType){
+      String mimeType = "audio/basic";
+
+      if (audioType.equals(AudioFileFormat.Type.AIFF))
+      {
+        mimeType = "audio/x-aiff";
+      }
+      else if (audioType.equals(AudioFileFormat.Type.WAVE))
+      {
+        mimeType = "audio/x-wav";
+      }
+      return mimeType;
+  }  
+
+    private void printMap(URLConnection conn){
+	try{
+      java.util.Map map = conn.getRequestProperties();
+      java.util.Set keys = map.keySet();
+      java.util.Iterator iter = keys.iterator();
+      while (iter.hasNext()){
+        String s = (String)iter.next();
+        System.out.println(s);
+        String p = (String)map.get(s);
+        System.out.println(s+" : "+p);
+      }
+	}
+	catch(Exception e){
+	    System.out.println(e.getMessage());
+	}
+    }
+  
 }
