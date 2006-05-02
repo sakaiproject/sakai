@@ -160,10 +160,10 @@ public class BasicCourseManagementService implements CourseManagementService
 				term.setEndTime(TimeService.newTimeGmt((String) termEndTimes.get(i)));
 			}
 
-			m_terms.add(term);
-			
-			M_log.info("init(): provider: " + m_provider.getClass().getName());
+			m_terms.add(term);			
 		}
+
+		M_log.info("init(): provider: " + m_provider.getClass().getName());
 
 	} // init
 
