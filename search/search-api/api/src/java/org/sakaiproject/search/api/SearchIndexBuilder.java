@@ -117,6 +117,8 @@ public interface SearchIndexBuilder
 	SearchWriterLock getCurrentLock();
 
 	List getNodeStatus();
+
+	boolean removeWorkerLock();
 	
 
 }

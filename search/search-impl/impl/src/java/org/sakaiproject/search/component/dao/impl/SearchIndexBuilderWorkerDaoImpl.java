@@ -14,6 +14,7 @@ import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.expression.Expression;
 import net.sf.hibernate.expression.Order;
+import net.sf.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,6 +24,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -34,7 +36,6 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
@@ -159,6 +160,19 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					{
 						try
 						{
+							if (IndexReader.isLocked(searchIndexDirectory))
+							{
+								// this could be dangerous, I am assuming that
+								// the locking mechanism implemented here is
+								// robust and
+								// already prevents multiple modifiers.
+								// A more
+
+								IndexReader.unlock(FSDirectory.getDirectory(
+										searchIndexDirectory, true));
+								log
+										.warn("Unlocked Lucene Directory for update, hope this is Ok");
+							}
 							if (IndexReader.indexExists(searchIndexDirectory))
 							{
 								IndexReader indexReader = null;
@@ -344,13 +358,15 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									{
 										e1.printStackTrace();
 									}
+
 									log.debug("Indexing Document " + doc);
 									indexWrite.addDocument(doc);
 									sbi
 											.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 
 									log.debug("Done Indexing Document " + doc);
-									// update this node lock to indicate its still alove, no document should
+									// update this node lock to indicate its
+									// still alove, no document should
 									// take more than 2 mins to process
 									worker.updateNodeLock(null);
 								}
@@ -399,7 +415,9 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								}
 							}
 						}
+						session.flush();
 					}
+
 					return new Integer(totalDocs);
 				}
 				catch (IOException ex)
@@ -598,7 +616,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				// completed
 				// and return a blank list
 
-				return refreshIndex(session, masterItem, batchSize);
+				refreshIndex(session, masterItem);
 
 			}
 			else if (SearchBuilderItem.ACTION_REBUILD.equals(masterAction))
@@ -619,7 +637,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					}
 					else if (SearchBuilderItem.ACTION_REFRESH.equals(action))
 					{
-						return refreshIndex(session, siteMaster, batchSize);
+						refreshIndex(session, siteMaster);
 					}
 				}
 			}
@@ -640,6 +658,38 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		}
 	}
 
+	public int countPending()
+	{
+		HibernateCallback callback = new HibernateCallback()
+		{
+
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException
+			{
+				List l = session.find("select count(*) from "
+						+ SearchBuilderItemImpl.class.getName()
+						+ " where searchstate = ? and searchaction <> ?",
+						new Object[] { SearchBuilderItem.STATE_PENDING,
+								SearchBuilderItem.ACTION_UNKNOWN }, new Type[] {
+								Hibernate.INTEGER, Hibernate.INTEGER });
+				if (l == null || l.size() == 0)
+				{
+					return new Integer(0);
+				}
+				else
+				{
+					log.debug("Found " + l.get(0) + " Pending Documents ");
+					return l.get(0);
+				}
+			}
+
+		};
+
+		Integer np = (Integer) getHibernateTemplate().execute(callback);
+		return np.intValue();
+
+	}
+
 	private void rebuildIndex(Session session, SearchBuilderItem controlItem)
 			throws HibernateException
 	{
@@ -654,13 +704,15 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					.getContext()))
 			{
 				session.connection().createStatement().execute(
-						"delete from searchbuilderitem  ");
+						"delete from searchbuilderitem where name <> '"
+								+ SearchBuilderItem.GLOBAL_MASTER+"' ");
 			}
 			else
 			{
 				session.connection().createStatement().execute(
 						"delete from searchbuilderitem where context = '"
-								+ controlItem.getContext());
+								+ controlItem.getContext() + "' and name <> '"
+								+ controlItem.getName() + "' ");
 
 			}
 		}
@@ -711,46 +763,50 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		}
 		log
 				.debug("DONE ADD ALL RECORDS ===========================================================");
+		controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+		session.saveOrUpdate(controlItem);
+
 	}
 
-	private List refreshIndex(Session session, SearchBuilderItem controlItem,
-			int batchSize) throws HibernateException
+	private void refreshIndex(Session session, SearchBuilderItem controlItem)
+			throws HibernateException
 	{
-		log.debug("Refresh Index with " + session);
-
-		List l = null;
-		if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
-		{
-			l = session.createCriteria(SearchBuilderItemImpl.class).add(
-					Expression.lt("version", controlItem.getVersion()))
-					.setMaxResults(batchSize).list();
-		}
-		else
-		{
-			l = session.createCriteria(SearchBuilderItemImpl.class).add(
-					Expression.lt("version", controlItem.getVersion())).add(
-					Expression.eq("context", controlItem.getContext()))
-					.setMaxResults(batchSize).list();
-
-		}
-		if (l == null || l.size() == 0)
-		{
-			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-			session.saveOrUpdate(controlItem);
-
-		}
+		// delete all and return the master action only
+		// the caller will then rebuild the index from scratch
 		log
-				.debug("RESET NEXT 100 RECORDS ===========================================================");
-
-		for (Iterator i = l.iterator(); i.hasNext();)
+				.debug("UPDATE ALL RECORDS ==========================================================");
+		session.flush();
+		try
 		{
-			SearchBuilderItem sbi = (SearchBuilderItem) i.next();
-			sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-		}
-		log
-				.debug("DONE RESET NEXT 100 RECORDS ===========================================================");
+			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem
+					.getContext()))
+			{
+				session.connection().createStatement().execute(
+						"update searchbuilderitem set searchstate = "
+								+ SearchBuilderItem.STATE_PENDING
+								+ " where name not like '"
+								+ SearchBuilderItem.SITE_MASTER_PATTERN
+								+ "' and name <> '"
+								+ SearchBuilderItem.GLOBAL_MASTER + "' ");
 
-		return l;
+			}
+			else
+			{
+				session.connection().createStatement().execute(
+						"update searchbuilderitem set searchstate = "
+								+ SearchBuilderItem.STATE_PENDING
+								+ " where context = '"
+								+ controlItem.getContext() + "' and name <> '"
+								+ controlItem.getName() + "'");
+
+			}
+		}
+		catch (SQLException e)
+		{
+			throw new HibernateException("Failed to perform delete ", e);
+		}
+		controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+		session.saveOrUpdate(controlItem);
 	}
 
 	/**

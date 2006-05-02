@@ -712,10 +712,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			clearLock.setString(4, LOCKKEY);
 			if (clearLock.executeUpdate() == 1)
 			{
-				log.info("UNLOCK - OK    ?::" + nodeID + "::now");
+				log.debug("UNLOCK - OK    ?::" + nodeID + "::now");
 
 			}
-			else
+			else 
 			{
 				log.debug("UNLOCK - Failed?::" + nodeID + "::now");
 			}
@@ -752,6 +752,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	}
 	
 	public boolean isRunning() {
+		if ( org.sakaiproject.component.cover.ComponentManager.hasBeenClosed() ) {
+			runThreads = false;
+		}
 		return runThreads;
 	}
 
@@ -1031,6 +1034,150 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			}
 		}
 
+	}
+
+	public boolean removeWorkerLock()
+	{
+		Connection connection = null;
+		PreparedStatement selectLock = null;
+		PreparedStatement selectNodeLock = null;
+		PreparedStatement clearLock = null;
+		ResultSet resultSet = null;
+		ArrayList locks = new ArrayList();
+
+		try
+		{
+
+			// I need to go direct to JDBC since its just too awful to
+			// try and do this in Hibernate.
+
+			connection = dataSource.getConnection();
+
+			selectNodeLock = connection.prepareStatement(SELECT_NODE_LOCK_SQL);
+			selectLock = connection.prepareStatement(SELECT_LOCK_SQL);
+			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
+
+			SearchWriterLock swl = null;
+			selectLock.clearParameters();
+			selectLock.setString(1, LOCKKEY);
+			resultSet = selectLock.executeQuery();
+			if (resultSet.next())
+			{
+				swl = new SearchWriterLockImpl();
+				swl.setId(resultSet.getString(1));
+				swl.setNodename(resultSet.getString(2));
+				swl.setLockkey(resultSet.getString(3));
+				swl.setExpires(resultSet.getTimestamp(4));
+			} else {
+				return true;
+			}
+
+			resultSet.close();
+			resultSet = null;
+			
+			selectNodeLock.clearParameters();
+			resultSet = selectLock.executeQuery();
+			
+			while (resultSet.next())
+			{
+				SearchWriterLock node = new SearchWriterLockImpl();
+				node.setId(resultSet.getString(1));
+				node.setNodename(resultSet.getString(2));
+				node.setLockkey(resultSet.getString(3));
+				node.setExpires(resultSet.getTimestamp(4));
+				if ( swl.getNodename().equals(node.getNodename())) {
+					log.info("Cant remove Lock to node "+node.getNodename()+" node exists ");
+					return false;
+				}
+			}
+
+			resultSet.close();
+			resultSet = null;
+			
+			clearLock.clearParameters();
+			clearLock.setString(1, NO_NODE);
+			clearLock
+					.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			clearLock.setString(3, swl.getNodename());
+			clearLock.setString(4, LOCKKEY);
+			if (clearLock.executeUpdate() == 1)
+			{
+				log.warn("NODE UNLOCKED BY USER " + swl.getNodename());
+
+			}
+			else 
+			{
+				log.info("NODE NOT UNLOCKED BY USER " + swl.getNodename());
+				return false;
+			}
+			
+			
+			
+			return true;
+
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to unlock ",ex);
+			return false;
+		}
+		finally
+		{
+			if (resultSet != null)
+			{
+				try
+				{
+					resultSet.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (selectLock != null)
+			{
+				try
+				{
+					selectLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (selectNodeLock != null)
+			{
+				try
+				{
+					selectNodeLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+			if (clearLock != null)
+			{
+				try
+				{
+					clearLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
+
+			if (connection != null)
+			{
+				try
+				{
+					connection.close();
+					log.debug("Connection Closed ");
+				}
+				catch (SQLException e)
+				{
+					log.error("Error Closing Connection ", e);
+				}
+				connection = null;
+			}
+		}
 	}
 
 }

@@ -167,8 +167,8 @@ public interface SearchBuilderItem
 	public static final String[] states = new String[] {
 		"Update",
 		"Pending",
-		"Pending2",
-		"Complete"
+		"Complete",
+		"Pending2"
 	};
 	public static final String[] actions = new String[] {
 		"Update",

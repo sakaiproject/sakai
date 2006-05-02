@@ -116,6 +116,8 @@ public interface SearchService
 	List getGlobalMasterSearchItems();
 
 	SearchStatus getSearchStatus();
+
+	boolean removeWorkerLock();
 	
 	
 

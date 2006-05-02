@@ -440,6 +440,12 @@ public class SearchServiceImpl implements SearchService
 		};
 		
 	}
+
+	public boolean removeWorkerLock()
+	{
+		return searchIndexBuilder.removeWorkerLock();
+		
+	}
 	
 	
 }

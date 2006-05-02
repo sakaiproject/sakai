@@ -429,4 +429,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return searchIndexBuilderWorker.getNodeStatus();
 	}
 
+	public boolean removeWorkerLock()
+	{
+		return searchIndexBuilderWorker.removeWorkerLock();
+	}
+
 }

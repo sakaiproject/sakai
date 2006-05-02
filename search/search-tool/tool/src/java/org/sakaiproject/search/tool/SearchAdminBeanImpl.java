@@ -72,6 +72,11 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private static final Object COMMAND_REFRESHSTATUS = "?" + COMMAND + "="
 			+ REFRESHSTATUS;
 
+	private static final String REMOVELOCK = "removelock";
+
+	private static final Object COMMAND_REMOVELOCK = "?" + COMMAND + "="
+	+ REMOVELOCK;
+
 	private SearchService searchService = null;
 
 	private SiteService siteService = null;
@@ -79,6 +84,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private String internCommand = null;
 
 	private String siteId;
+
+	private String commandFeedback = "";
 
 	/**
 	 * Construct a SearchAdminBean, checking permissions first
@@ -139,8 +146,21 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			doRefreshStatus();
 
 		}
+		else if (internCommand == REMOVELOCK)
+		{
+			doRemoveLock();
+
+		}
 		internCommand = null;
 
+	}
+
+	private void doRemoveLock()
+	{
+		if ( !searchService.removeWorkerLock() ) {
+			commandFeedback  = "Failed to remove worker lock";
+		}
+		
 	}
 
 	/**
@@ -148,7 +168,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	private void doRefreshStatus()
 	{
-		// TODO Auto-generated method stub
+		commandFeedback = "Ok";
 
 	}
 
@@ -158,6 +178,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRefreshInstance()
 	{
 		searchService.refreshInstance();
+		commandFeedback = "Ok";
+
 	}
 
 	/**
@@ -167,6 +189,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRebuildInstance()
 	{
 		searchService.rebuildInstance();
+		commandFeedback = "Ok";
+
 	}
 
 	/**
@@ -175,6 +199,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRefreshSite()
 	{
 		searchService.refreshSite(siteId);
+		commandFeedback = "Ok";
+
 	}
 
 	/**
@@ -183,6 +209,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private void doRebuildSite()
 	{
 		searchService.rebuildSite(siteId);
+		commandFeedback = "Ok";
+
 	}
 
 	/**
@@ -291,7 +319,13 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 				COMMAND_REFRESHINSTANCE, "Refresh Whole Index" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REFRESHSTATUS, "Refresh Status" }));
+		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+				COMMAND_REMOVELOCK, "Remove Lock, only use if you <b>know</b> there is no worker running" }));
 		return sb.toString();
+	}
+	
+	public String getCommandFeedback() {
+		return commandFeedback;
 	}
 
 }

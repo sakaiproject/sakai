@@ -40,4 +40,6 @@ public interface SearchIndexBuilderWorker
 
 	void destroy();
 
+	boolean removeWorkerLock();
+
 }
