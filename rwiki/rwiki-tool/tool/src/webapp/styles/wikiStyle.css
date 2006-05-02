@@ -507,26 +507,113 @@ div.float-right {
 	overflow-y: auto;
 }
 
-.heading-1, .heading-h1, .heading-h2 {
+h1 {
+	
+}
+
+h2 {
+
+}
+
+h3 {
+	
+}
+
+h4 {
+	
+}
+
+h4.search {
+	font-size: 12px;
+	line-height: normal;
+	font-weight: normal;
+	background-color: #f0f0f0;
+	padding: 4px;
+	margin: 18px 0px 4px 0px;
+}
+
+h5 {
+	font-size: 10px;
+	line-height: normal;
+	font-weight: bold;
+	background-color: #f0f0f0;
+	padding: 2px;
+	margin: 14px 0px 4px 0px;
+}
+
+h6 {
+	font-size: 8px;
+	line-height: normal;
+	font-weight: bold;
+	background-color: #f0f0f0;
+	padding: 2px;
+	margin: 14px 0px 4px 0px;
+}
+
+
+.heading-1, .heading-h1 {
+	
   color: #000000;
   background-color: inherit;
   font-weight: bold;
-  font-size: 120%;
+  font-size: 150%;
   font-variant: small-caps;
+  border-bottom: 1px solid #3c78b5;
+  padding: 2px;
+  margin: 36px 0px 4px 0px;
 }
-
-.heading-1-1, .heading-h3, .heading-h4 {
+.heading-h2 {	
   color: #000000;
   background-color: inherit;
-  font-size: 115%;
+  font-weight: bold;
+  font-size: 140%;
   font-variant: small-caps;
+  border-bottom: 1px dotted #3c78b5;
+  padding: 2px;
+  margin: 36px 0px 4px 0px;
 }
 
-.heading-1-1-1, .heading-h6, .heading-h5 {
+
+
+.heading-1-1, .heading-h3 {
+	line-height: normal;
+	font-weight: bold;
+	  color: #000000;
+  background-color: inherit;
+  font-size: 130%;
+  font-variant: small-caps;
+	padding: 2px;
+	margin: 21px 0px 4px 0px;
+}
+
+.heading-h4 {	
+	line-height: normal;
+	font-weight: bold;
+	color: #000000;
+    background-color: inherit;
+    font-size: 120%;
+    font-variant: small-caps;
+	padding: 2px;
+	margin: 18px 0px 4px 0px;
+}
+
+.heading-1-1-1, .heading-h5 {
   color: #000000;
   background-color: inherit;
   font-size: 110%;
+  font-variant: small-caps;	
+  font-weight: bold;
+  padding: 2px;
+  margin: 14px 0px 4px 0px;	
+}
+.heading-h6 {
+  color: #000000;
+  background-color: inherit;
+  font-size: 100%;
   font-variant: small-caps;		
+  font-weight: bold;
+  padding: 2px;
+  margin: 14px 0px 4px 0px;	
 }
 
 .quote {
@@ -845,4 +932,9 @@ ul.tree li A:link, ul.tree li A:hover, ul.tree li A:visited {
 
 ul.tree li .over{
 	background-color : pink;
+}
+
+
+.lastmodified {
+  font-size:smaller;
 }
