@@ -191,8 +191,8 @@ $Id$
      <h:outputText value="#{msg.view}:" />
 
 
-     <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker"
-        required="true" onchange="document.forms[0].submit();" >
+     <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" rendered="#{totalScores.anonymous eq 'false'}"
+     required="true" onchange="document.forms[0].submit();" >
         <f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />

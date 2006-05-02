@@ -57,7 +57,6 @@
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
 
-
   <p class="navViewAction">
     <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true"
       rendered="#{totalScores.anonymous eq 'true'}" >
@@ -103,7 +102,7 @@
      <h:outputText value="#{msg.view}" />
      <h:outputText value="#{msg.column} " />
      <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker"
-        required="true" onchange="document.forms[0].submit();" >
+        rendered="#{totalScores.anonymous eq 'false'}" required="true" onchange="document.forms[0].submit();" >
 	<f:selectItems value="#{totalScores.sectionFilterSelectItems}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />

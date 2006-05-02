@@ -185,6 +185,13 @@ public class QuestionScoreListener
       }
 
       totalBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());   // set section pulldown
+
+      if ("true".equalsIgnoreCase(totalBean.getAnonymous())){
+      //reset sectionaware pulldown to -1 all sections
+      totalBean.setSelectedSectionFilterValue(totalBean.ALL_SECTIONS_SELECT_VALUE);
+      }
+
+
       bean.setPublishedId(publishedId);
       Date dueDate = null;
 
@@ -203,7 +210,15 @@ public class QuestionScoreListener
       ArrayList scores = new ArrayList();  // filtered list
       Map useridMap= totalBean.getUserIdMap();
 
-      if (!totalBean.getReleaseToAnonymous()) {
+    if ("true".equalsIgnoreCase(totalBean.getAnonymous())){
+    // skip section filter if it is anonymous grading, SAK-4395, 
+      scores.addAll(allscores);
+    }
+    else if (totalBean.getReleaseToAnonymous()) {
+    // skip section filter if it's published to anonymous users
+      scores.addAll(allscores);
+    }
+    else { 
         Iterator allscores_iter = allscores.iterator();
         // get the Map of all users(keyed on userid) belong to the selected sections
         while (allscores_iter.hasNext())
@@ -217,10 +232,6 @@ public class QuestionScoreListener
             scores.add(idata);
           }
         }
-      }
-      else {
-        // if releasedTo anonymous users then skip section filtering.
-	scores.addAll(allscores);
       }
 
 

@@ -175,6 +175,7 @@ public class SavePartListener
 
     // if author-type is random draw from pool, add all items from pool now
     // Note: a pool can only be randomly drawn by one part.  if part A is created to randomly draw from pool 1, and you create part B, and select  the same pool 1, all items from part A will be removed.  (item.sectionId will be set to sectionId of part B.
+    // currently if a pool is selected by one random draw part it will no longer show up in the poollist for random draw 
 
     if (addItemsFromPool)
     {

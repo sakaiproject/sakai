@@ -34,6 +34,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.event.ValueChangeEvent;
+import javax.faces.event.ValueChangeListener;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
@@ -67,7 +69,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
  */
 
 public class SubmissionStatusListener
-  implements ActionListener
+  implements ActionListener, ValueChangeListener
 {
   private static Log log = LogFactory.getLog(SubmissionStatusListener.class);
   private static EvaluationListenerUtil util;
@@ -86,9 +88,6 @@ public class SubmissionStatusListener
     Map reqMap = context.getExternalContext().getRequestMap();
     Map requestParams = context.getExternalContext().
                         getRequestParameterMap();
-    //log.info("requestParams: " + requestParams);
-    //log.info("reqMap: " + reqMap);
-
     //log.info("Submission Status LISTENER.");
     SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
     TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
@@ -97,10 +96,35 @@ public class SubmissionStatusListener
     String publishedId = cu.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
 
-    //log.info("Calling totalScores.");
     if (!submissionStatus(publishedId, bean, totalScoresBean, false))
     {
-      throw new RuntimeException("failed to call totalScores.");
+      throw new RuntimeException("failed to call submissionStatus.");
+    }
+  }
+
+  /**
+   * Process a value change.
+   */
+  public void processValueChange(ValueChangeEvent event)
+  {
+    log.debug("QuestionScore CHANGE LISTENER.");
+    SubmissionStatusBean bean = (SubmissionStatusBean) cu.lookupBean("submissionStatus");
+    TotalScoresBean totalScoresBean = (TotalScoresBean) cu.lookupBean("totalScores");
+
+    // we probably want to change the poster to be consistent
+    String publishedId = cu.lookupParam("publishedId");
+
+    String selectedvalue= (String) event.getNewValue();
+    if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
+      if (event.getComponent().getId().indexOf("sectionpicker") >-1 )
+      {
+        bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
+      }
+    }
+
+    if (!submissionStatus(publishedId, bean, totalScoresBean, false))
+    {
+      throw new RuntimeException("failed to call questionScores.");
     }
   }
 
@@ -128,27 +152,33 @@ public class SubmissionStatusListener
           !cu.lookupParam("sortBy").trim().equals(""))
         bean.setSortType(cu.lookupParam("sortBy"));
 
-/*
-      String which = cu.lookupParam("allSubmissions");
-      //log.info("Rachel: allSubmissions = " + which);
-      if (which == null)
-        which = "false";
-      bean.setAllSubmissions(which);
-*/
-
+      totalScoresBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());
+      
       bean.setPublishedId(publishedId);
       // we are only interested in showing last submissions
 
       ArrayList scores = delegate.getLastAssessmentGradingList(new Long(publishedId));
+      ArrayList agents = new ArrayList();
       Iterator iter = scores.iterator();
-      //log.info("Has this many agents: " + scores.size());
+      if (!iter.hasNext())
+      {
+        // this section has no students
+      bean.setAgents(agents);
+      bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
+      return true;
+      }
+
+/*
       if (!iter.hasNext())
         return false;
+*/
       Object next = iter.next();
       Date dueDate = null;
 
       // - Collect a list of all the users in the scores list
       Map useridMap= totalScoresBean.getUserIdMap();
+
+
       ArrayList agentUserIds = totalScorelistener.getAgentIds(useridMap);
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
@@ -177,9 +207,9 @@ public class SubmissionStatusListener
 
 
       /* Dump the grading and agent information into AgentResults */
-      ArrayList agents = new ArrayList();
       ArrayList students_submitted= new ArrayList();
       iter = scores.iterator();
+
       while (iter.hasNext())
       {
         AgentResults results = new AgentResults();
@@ -202,8 +232,10 @@ public class SubmissionStatusListener
           results.setLastInitial("A");
         results.setIdString(agent.getIdString());
         results.setRole((String)userRoles.get(agentid));
-        agents.add(results);
-        students_submitted.add(agentid);
+        if (useridMap.containsKey(agentid) ) {
+          agents.add(results);
+          students_submitted.add(agentid);
+        }
       }
 
       ArrayList students_not_submitted= new ArrayList();
@@ -215,7 +247,6 @@ public class SubmissionStatusListener
         }
       }
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
-      //log.info("Sort type is " + bean.getSortType() + ".");
       bs = new BeanSort(agents, bean.getSortType());
       if (
         (bean.getSortType()).equals("assessmentGradingId") )
@@ -227,7 +258,6 @@ public class SubmissionStatusListener
 
 
       bs.sort();
-      //log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
     }
@@ -240,7 +270,6 @@ public class SubmissionStatusListener
 
     return true;
   }
-
 
 
   //add those students that have not submitted scores, need to display them

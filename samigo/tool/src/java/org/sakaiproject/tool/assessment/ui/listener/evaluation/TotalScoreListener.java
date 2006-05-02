@@ -134,7 +134,6 @@ public class TotalScoreListener
     // set action mode
     delivery.setActionString("gradeAssessment");
 
-    //log.info("Calling totalScores.");
     if (!totalScores(pubAssessment, bean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -216,6 +215,14 @@ public class TotalScoreListener
       // scores is a filtered list contains last AssessmentGradingData submitted for grade
       ArrayList scores = new ArrayList();  
       ArrayList students_not_submitted= new ArrayList();  
+      
+      // if for anonymous, reset totalscorebean.getselectedsectionfiltervalue = ALL_SECTIONS_SELECT_VALUE 
+    if ("true".equalsIgnoreCase(bean.getAnonymous())){
+      //reset sectionaware pulldown to -1 all sections
+      bean.setSelectedSectionFilterValue(bean.ALL_SECTIONS_SELECT_VALUE);
+    }
+
+
       Map useridMap= bean.getUserIdMap(); 
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
@@ -371,6 +378,10 @@ public class TotalScoreListener
     // skip section filter if it's published to anonymous users
       scores.addAll(allscores);
     }
+    else if ("true".equalsIgnoreCase(bean.getAnonymous())){
+    // skip section filter if it's anonymous grading, SAK-4395 
+      scores.addAll(allscores);
+    }
     else {
       // now we need filter by sections selected 
       ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test
@@ -412,7 +423,6 @@ public class TotalScoreListener
     GradingService delegate = new GradingService();
     ArrayList allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
-      //System.out.println("**** need to get assessmentGradingList from DB");
       allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
       bean.setAssessmentGradingList(allscores);
     }
@@ -475,7 +485,6 @@ public class TotalScoreListener
         results.setStatus(new Integer(4));
       }
       AgentFacade agent = new AgentFacade(gdata.getAgentId());
-      //log.info("Rachel: agentid = " + gdata.getAgentId());
       results.setLastName(agent.getLastName());
       results.setFirstName(agent.getFirstName());
       if (results.getLastName() != null &&

@@ -70,6 +70,7 @@ public class SubmissionStatusBean
   private String firstItem;
   private HashMap answeredItems;
   private static Log log = LogFactory.getLog(SubmissionStatusBean.class);
+  private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
 
   /**
    * Creates a new SubmissionStatusBean object.
@@ -504,4 +505,14 @@ public class SubmissionStatusBean
   {
     answeredItems = newItems;
   }
+
+
+  public String getSelectedSectionFilterValue() {
+    return selectedSectionFilterValue;
+  }
+
+  public void setSelectedSectionFilterValue(String param ) {
+      this.selectedSectionFilterValue = param;
+  }
+
 }

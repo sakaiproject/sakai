@@ -92,6 +92,16 @@ $Id$
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
      <br />
 
+
+  <!-- SECTION AWARE -->
+     <h:outputText value="#{msg.view}"/>
+     <h:outputText value="#{msg.column}"/>
+     <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
+        <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
+     <f:valueChangeListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
+     </h:selectOneMenu>
+
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
   <span class="rightNav">
