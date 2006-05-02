@@ -76,7 +76,7 @@ should be included in file importing DeliveryMessages
 <object
   classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
   codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
-  WIDTH = "500" HEIGHT = "450" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
+  WIDTH = "500" HEIGHT = "350" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
   <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
   <PARAM NAME = ARCHIVE VALUE = "sakai-samigo-audio-dev.jar" >
   <PARAM NAME = CODEBASE VALUE = "/samigo/applets/" >
@@ -112,8 +112,8 @@ should be included in file importing DeliveryMessages
       JAVA_CODEBASE = "/samigo/applets/" \
       ARCHIVE = "sakai-samigo-audio-dev.jar"
       NAME = "Record Audio" \
-      WIDTH = "450" \
-      HEIGHT = "450" \
+      WIDTH = "500" \
+      HEIGHT = "350" \
       ALIGN = "middle" \
       VSPACE = "2" \
       HSPACE = "2" \

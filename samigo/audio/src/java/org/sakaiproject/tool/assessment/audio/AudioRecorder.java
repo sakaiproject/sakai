@@ -153,13 +153,15 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
+    /* samigo 2.2 does not require format control
     JPanel p1 = new JPanel();
     p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
     p1.add(formatControls);
+    */
 
     JPanel p2 = new JPanel();
     p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
-    p2.setPreferredSize(new Dimension(450, 150));
+    //p2.setPreferredSize(new Dimension(450, 100));
     p2.add(BorderLayout.WEST, makeAttemptsAllowedLabel());
     p2.add(makeAudioButtonsPanel());
 
@@ -174,8 +176,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
     //savePanel.add(saveBpanel);
     p2.add(savePanel);
 
-    p1.add(p2);
-    add(p1);
+    //p1.add(p2);
+    //add(p1);
+    add(p2);
   }
 
     /*
@@ -1113,8 +1116,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     GridLayout grid = new GridLayout(2, 1);
     JPanel panel = new JPanel(grid);
-    panel.setPreferredSize(new Dimension(400, 50));
-    //panel.setLayout(new BoxLayout(p1, BoxLayout.Y_AXIS));
+    //panel.setPreferredSize(new Dimension(400, 50));
     JLabel label1 = new JLabel(res.getString("attempts_allowed")+" "+
                       params.getAttemptsAllowed(), SwingConstants.LEFT);
     JLabel label2 = new JLabel(res.getString("time_limit")+" "+
