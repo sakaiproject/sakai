@@ -26,7 +26,7 @@
 			<artifactId>quartz</artifactId>
 			<version>1.5.1</version>
 			<properties>
-				<deploy.target>shared</deploy.target>>
+				<deploy.target>shared</deploy.target>
 			</properties>
 		</dependency>
 
