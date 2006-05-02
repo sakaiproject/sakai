@@ -114,12 +114,18 @@ $Id$
    <f:verbatim></h4></f:verbatim>
 
 
- <h:dataTable value="#{histogramScores.histogramBars}" var="bar" footerClass="alignCenter">
+ <h:dataTable value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
 
     <h:column>
-        <h:outputText value=" #{bar.rangeInfo} #{msg.pts} " />
+        <f:facet name="header">
+        <h:outputText value="#{msg.num_points}" /> 
+      </f:facet>
+        <h:outputText value=" #{bar.rangeInfo}" />
     </h:column>
      <h:column>
+<f:facet name="header">
+         <h:outputText value="#{msg.num_students}" />
+      </f:facet>
 <h:panelGroup>
         <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
         <h:outputText value=" #{bar.numStudents}" />
@@ -127,9 +133,7 @@ $Id$
 
 </h:column>
 
-       <f:facet name="footer">
-          <h:outputText value="#{msg.num_students}" />
-      </f:facet>
+      
   </h:dataTable>
 
     </h:panelGroup>

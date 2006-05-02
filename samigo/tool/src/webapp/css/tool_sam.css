@@ -36,9 +36,6 @@
 .navViewAction
 {background-color:#CCC;text-align:left;padding:.3em;vertical-align:right font-size:1.2ems}
 
-.regHeading {
-        background-color: #dde3eb;text-align:left
-}
 .textTable
 {vertical-align:top;margin-left:2em}
 
@@ -75,9 +72,6 @@
 }
 .navView{
         text-align: left;
-}
-.alignRight{ 
-text-align:center;
 }
 
 .validate{
