@@ -1649,7 +1649,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					try
 					{
 						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
-								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
+								oEvent.getType(), oEvent.getLocation(), oEvent.getAccess(), oEvent.getGroups(), oEvent.getAttachments());
 
 						try
 						{
@@ -1658,6 +1658,22 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							ResourcePropertiesEdit p = eEdit.getPropertiesEdit();
 							p.clear();
 							p.addAll(oEvent.getProperties());
+							
+							EventAccess ea = oEvent.getAccess();
+							eEdit.setAccess(ea);
+							if (ea.toString().equals(CalendarEvent.EventAccess.GROUPED.toString()))
+							{
+								Collection groups = oEvent.getGroups();
+								for(Iterator gIterator2=groups.iterator(); gIterator2.hasNext(); )
+								{
+									String gString = (String) gIterator2.next();
+									try
+									{
+										eEdit.addGroup((Group)(gIterator2.next()));
+									}
+									catch (Exception eIgnore){}
+								}
+							}
 							// attachment
 							List oAttachments = eEdit.getAttachments();
 							List nAttachments = m_entityManager.newReferenceList();
@@ -2220,7 +2236,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * @exception PermissionException
 		 *            If the user does not have permission to modify the calendar.
 		 */
-		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location,
+		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location, EventAccess access, Collection groups,
 				List attachments) throws PermissionException
 		{
 			// make one
@@ -2232,6 +2248,11 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
+			edit.setAccess(access);
+			for (Iterator gIterator = (Iterator)groups; gIterator.hasNext();)
+			{
+				edit.addGroup((Group)(gIterator.next()));
+			}
 			edit.replaceAttachments(attachments);
 
 			// commit it
@@ -3109,6 +3130,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			// point at the properties
 			m_properties = ((BaseCalendarEventEdit) other).m_properties;
+			
+			m_access = ((BaseCalendarEventEdit) other).m_access;
+			m_groups = ((BaseCalendarEventEdit) other).m_groups;
 
 			// point at the attachments
 			m_attachments = ((BaseCalendarEventEdit) other).m_attachments;
@@ -3135,6 +3159,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			m_id = el.getAttribute("id");
 			m_range = TimeService.newTimeRange(el.getAttribute("range"));
+			
+			m_access = CalendarEvent.EventAccess.SITE;
+			String access_str = el.getAttribute("access").toString();
+			if (access_str.equals(CalendarEvent.EventAccess.GROUPED.toString()))
+				m_access = CalendarEvent.EventAccess.GROUPED;
+					
 
 			// the children (props / attachments / rules)
 			NodeList children = el.getChildNodes();
@@ -3277,6 +3307,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// copy the properties
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
+			
+			m_access = other.getAccess();
+			m_groups.addAll(other.getGroups());
 
 			// copy the attachments
 			m_attachments = m_entityManager.newReferenceList();
@@ -3303,7 +3336,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// copy the properties
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
-
+			
+			m_access = other.getAccess();
+			m_groups.addAll(other.getGroups());
+			
 			// copy the attachments
 			m_attachments = m_entityManager.newReferenceList();
 			replaceAttachments(other.getAttachments());

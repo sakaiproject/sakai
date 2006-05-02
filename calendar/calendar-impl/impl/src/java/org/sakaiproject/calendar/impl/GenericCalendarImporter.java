@@ -53,6 +53,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.exception.PermissionException;
 import org.w3c.dom.Document;
@@ -135,6 +136,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 		private String displayName;
 		private TimeRange timeRange;
 		private int lineNumber;
+		private EventAccess access;
+		private Collection groups;
 		
 		/**
 		 * Default constructor
@@ -464,7 +467,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#addGroup(org.sakaiproject.service.legacy.site.Group)
 		 */
 		public void addGroup(Group group) throws PermissionException {
-			// TODO Auto-generated method stub
+			groups.add(group);
 			
 		}
 
@@ -472,7 +475,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#removeGroup(org.sakaiproject.service.legacy.site.Group)
 		 */
 		public void removeGroup(Group group) throws PermissionException {
-			// TODO Auto-generated method stub
+			if (group == null) throw new PermissionException(SessionManager.getCurrentSessionUserId(), "", "null");
+			if (groups.contains(group.getReference())) groups.remove(group.getReference());
 			
 		}
 
@@ -480,7 +484,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 * @see org.sakaiproject.calendar.api.CalendarEventEdit#setAccess(org.sakaiproject.calendar.api.CalendarEvent.EventAccess)
 		 */
 		public void setAccess(EventAccess access) {
-			// TODO Auto-generated method stub
+			this.access = access;
 			
 		}
 
@@ -489,7 +493,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 */
 		public Collection getGroups() {
 			// TODO Auto-generated method stub
-			return null;
+			return groups;
 		}
 
 		/* (non-Javadoc)
@@ -497,7 +501,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		 */
 		public EventAccess getAccess() {
 			// TODO Auto-generated method stub
-			return null;
+			return access;
 		}
 		
 		public String getGroupRangeForDisplay(Calendar calendar) {
