@@ -62,7 +62,7 @@
   <!-- 1 POINTS -->
   <div class="tier2">
    <span id="num1" class="number"></span>
-    <div class="shorttext">  <h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
+    <div class="shorttext">  <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
 <f:validateDoubleRange/>
 </h:inputText>
@@ -72,7 +72,7 @@
   <!-- 2 TEXT -->
 
   <span id="num2" class="number"></span>
-   <div class="longtext"><h:outputLabel for="qtextarea" value="#{msg.q_text}" />
+   <div class="longtext"><h:outputLabel value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
 
