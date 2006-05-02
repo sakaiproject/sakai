@@ -197,7 +197,7 @@
 				</tr>
 			#end
 			#set ($calObj = $CalendarService.getCalendar($event.CalendarReference))
-			#if ($calObj.getContext() != $Context )
+			#if ($calObj.getContext() != $PortalService.CurrentSiteId )
 				<tr> 
 					<th>$tlang.getString("gen.fromsite")</th>
 					<td>$SiteService.getSiteDisplay($calObj.getContext())</td>
@@ -208,6 +208,13 @@
 			<tr>
 				<th>$validator.escapeHtml($fieldEntry)</th>
 				<td>$validator.escapeHtml($event.getField($fieldEntry))</td>
+			</tr>
+			#end
+			
+			#if ($!groupRange && !($!groupRange == ""))
+			<tr>
+				<th class="chefLabel">$tlang.getString("groups")</th>
+				<td>$!groupRange</td>
 			</tr>
 			#end
 		</table>

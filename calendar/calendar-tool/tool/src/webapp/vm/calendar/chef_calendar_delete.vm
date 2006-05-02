@@ -65,6 +65,12 @@
 				#end
 			</td>
 		</tr>
+		#if ($!groupRange && !($!groupRange == ""))
+		<tr>
+			<th class="chefLabel">$tlang.getString("groups")</th>
+			<td>$!groupRange</td>
+		</tr>
+		#end
 		<tr>
 			<th>$tlang.getString("gen.freq")</th> 
 			<td>

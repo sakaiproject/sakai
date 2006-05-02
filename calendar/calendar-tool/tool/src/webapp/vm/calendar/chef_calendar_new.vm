@@ -440,7 +440,87 @@ function ampmChange(FieldName)
 					</tr>
 				</table>
 			#end
-		</p>		
+		</p>
+		
+		<p class="checkbox">
+			<input type="radio" name="scheduleTo" id="site" value="site" #if($!scheduleTo == "site" || $!event.Access == $siteAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+			<label for="site">$tlang.getString("displayto.site")</label>
+		</p>	
+		#*
+		#if ($!groups.size() >1)
+			<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+		#else
+			<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+		#end
+		*#
+		#if ($!groups)
+			## added group awareness
+			<p class="checkbox">
+				<input type="radio" name="scheduleTo" id="groups" value="groups" #if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
+				<label for="groups">$tlang.getString("displayto.selected")</label>
+			</p>	
+			#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
+				#set ($listDisplay="block")
+			#else
+				#set ($listDisplay="none")
+			#end
+			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+			<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+				<tr>
+					<th id ="selectAllGroups" class="attach">
+						<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+					</th>
+			 		<th id ="groupname">
+						#if (!$currentSortedBy.equals("grouptitle"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title</a>
+						#else
+							#if ($currentSortAsc.equals("true"))
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+							#else
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+							#end
+						#end
+					</th>
+					<th id ="groupdescription">
+						#if (!$currentSortedBy.equals("groupdescription"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description</a>
+						#else
+							#if ($currentSortAsc.equals("true"))
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+							#else
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+							#end
+						#end
+					</th>
+				</tr>
+				#foreach ($group in $!groups)
+					<tr>
+						<td headers="selected" class="attach">
+							#set($selected=false)
+							#foreach($aGroupRef in $scheduleToGroups)
+								## #set($aGroup = $!site.getGroup($!aGroupRef))
+								## #if ($!group.Id == $!aGroup.Id)
+								#if ($!group.Id == $!aGroupRef)
+									#set($selected = true)
+								#end
+							#end
+							<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+						</td>
+						<td headers="name" nowrap="nowrap">
+							<label for="$group.Id">
+								$group.Title
+							</label>	
+						</td>
+						<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							#set($description = "")
+							#set($description = $group.Description)
+							$!description
+						</td>
+					</tr>
+				#end
+			</table>
+		#end
+			
 		<p class="shorttext">
 			<label for="">
 				$tlang.getString("new.freq")
