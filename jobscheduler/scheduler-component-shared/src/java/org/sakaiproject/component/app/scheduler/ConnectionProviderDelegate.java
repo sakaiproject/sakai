@@ -31,34 +31,34 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.utils.ConnectionProvider;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 public class ConnectionProviderDelegate implements ConnectionProvider
 {
-  
+
   private static final Log LOG = LogFactory.getLog(ConnectionProviderDelegate.class);
   private static DataSource ds;
 
-  
+
   /**
-   * @see org.quartz.util.ConnectionProvider#getConnection()
+   * @see org.quartz.utils.ConnectionProvider#getConnection()
    */
   public Connection getConnection() throws SQLException {
-	
-	  if (LOG.isDebugEnabled()){
-	    LOG.debug("quartz getConnection()");	
-	  }
-	  
-	  if (ds == null){
-	    ds = (DataSource) ComponentManager.get("javax.sql.DataSource");
-	  }
-	  return ds.getConnection();		
+
+     if (LOG.isDebugEnabled()){
+       LOG.debug("quartz getConnection()");
+     }
+
+     if (ds == null){
+       ds = (DataSource) ComponentManager.get("javax.sql.DataSource");
+     }
+     return ds.getConnection();
   }
 
   /**
-   * @see org.quartz.util.ConnectionProvider#shutdown()
+   * @see org.quartz.utils.ConnectionProvider#shutdown()
    */
   public void shutdown() throws SQLException {
   }
-  
+
 }

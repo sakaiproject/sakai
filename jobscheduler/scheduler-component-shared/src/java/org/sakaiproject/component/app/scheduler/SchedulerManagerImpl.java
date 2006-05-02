@@ -37,7 +37,7 @@ import org.quartz.TriggerListener;
 import org.quartz.impl.StdSchedulerFactory;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
-import org.sakaiproject.service.framework.sql.SqlService;
+import org.sakaiproject.db.api.SqlService;
 
 public class SchedulerManagerImpl implements SchedulerManager
 {
@@ -64,8 +64,8 @@ public void init()
 
     try
     {
-      
-      SqlService sqlService = org.sakaiproject.service.framework.sql.cover.SqlService
+
+      SqlService sqlService = org.sakaiproject.db.cover.SqlService
       .getInstance();
 
       // load quartz properties file
@@ -74,7 +74,7 @@ public void init()
       qrtzProperties = new Properties();
       qrtzProperties.load(propertiesInputStream);
 
-      
+
       // now replace properties from those loaded in from components.xml
 //      qrtzProperties.setProperty("org.quartz.dataSource.myDS.driver",
 //          dataSource.getDriverClassName());
@@ -85,7 +85,7 @@ public void init()
 //      qrtzProperties.setProperty("org.quartz.dataSource.myDS.password",
 //          dataSource.getPassword());
         qrtzProperties.setProperty("org.quartz.scheduler.instanceId", serverId);
-      
+
 //      if ("hsqldb".equalsIgnoreCase(sqlService.getVendor())){
 //        qrtzProperties.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.HSQLDBDelegate"); 
 //      }
@@ -136,9 +136,9 @@ public void init()
       // run ddl            
       if (autoDdl.booleanValue()){
         try
-        {                        
+        {
            sqlService.ddl(this.getClass().getClassLoader(), "quartz");
-        }       
+        }
         catch (Throwable t)
         {
           LOG.warn(this + ".init(): ", t);
@@ -188,24 +188,24 @@ public void init()
     }
     return false;
   }
-  
-  
+
+
   /**
    * @see org.sakaiproject.api.app.scheduler.SchedulerManager#destroy()
    */
   public void destroy()
-  {   
+  {
     try{
       if (!scheduler.isShutdown()){
         scheduler.shutdown();
       }
-    }       
+    }
     catch (Throwable t){
       LOG.error("An error occurred while stopping the scheduler", t);
-    }    
+    }
   }
-  
-  
+
+
   /**
    * @return Returns the globalTriggerListener.
    */
@@ -311,7 +311,7 @@ public void init()
   }
 
   /**
-   * @param sched The sched to set.
+   * @param scheduler The sched to set.
    */
   public void setScheduler(Scheduler scheduler)
   {

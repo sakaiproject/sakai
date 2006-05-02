@@ -24,7 +24,7 @@ package org.sakaiproject.component.app.scheduler.jobs;
 
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -68,7 +68,7 @@ public final class SpringJobBeanWrapper implements JobBeanWrapper, Job {
 
    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
       String beanId = jobExecutionContext.getJobDetail().getJobDataMap().getString(SPRING_BEAN_NAME);
-      Job job = (Job)ComponentManager.get(beanId);
+      Job job = (Job) ComponentManager.get(beanId);
       job.execute(jobExecutionContext);
    }
 

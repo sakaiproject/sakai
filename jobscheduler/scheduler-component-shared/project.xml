@@ -30,17 +30,23 @@
 			</properties>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-scheduler-api</artifactId>
+         <version>${sakai.version}</version>
+      </dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-scheduler-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-component-api</artifactId>
+         <version>${sakai.version}</version>
+      </dependency>
+
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-db-api</artifactId>
+         <version>${sakai.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>sakaiproject</groupId>

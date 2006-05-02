@@ -45,12 +45,6 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -114,16 +108,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-text</artifactId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -148,17 +133,17 @@
 			</properties>        
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>  		  
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-tool-api</artifactId>
+         <version>${sakai.version}</version>
+      </dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-registration</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>  		  
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-util-api</artifactId>
+         <version>${sakai.version}</version>
+      </dependency>
 
 		<dependency>
 			<groupId>commons-digester</groupId>
@@ -187,12 +172,6 @@
 			</properties>        
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
 	</dependencies>
 
 	<build>
