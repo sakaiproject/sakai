@@ -6733,64 +6733,51 @@ extends VelocityPortletStateAction
 			Collection groups = calendarObj.getGroupsAllowGetEvent();
 			if (groups.size() > 0)
 			{
-				/*
-				String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
-				boolean asc = sstate.getAttribute(STATE_CURRENT_SORT_ASC)!=null?((Boolean) sstate.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue():true;;
-				if (sort == null || (!sort.equals(SORT_GROUPTITLE) && !sort.equals(SORT_GROUPDESCRIPTION)))
-				{
-					sort = SORT_GROUPTITLE;
-					sstate.setAttribute(STATE_CURRENT_SORTED_BY, sort);
-					state.setCurrentSortedBy(sort);
-					state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-				}
-				context.put("groups", new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)));
-				*/
-				//TODO:render the group list better
 				context.put("groups", groups);
 				
-				List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
-				context.put("scheduleToGroups", schToGroups);
+			}
+			List schToGroups = (List)(sstate.getAttribute(STATE_SCHEDULE_TO_GROUPS));
+			context.put("scheduleToGroups", schToGroups);
+			
+			CalendarEventVector newEventVectorObj = new CalendarEventVector();
+			newEventVectorObj.addAll(masterEventVectorObj);
+			
+			for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
+			{
+				CalendarEvent e = (CalendarEvent)(i.next());
 				
-				CalendarEventVector newEventVectorObj = new CalendarEventVector();
-				newEventVectorObj.addAll(masterEventVectorObj);
-				
-				for (Iterator i = masterEventVectorObj.iterator(); i.hasNext();)
+				String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
+				if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
 				{
-					CalendarEvent e = (CalendarEvent)(i.next());
-					
-					String origSiteId = (CalendarService.getCalendar(e.getCalendarReference())).getContext();
-					if (!origSiteId.equals(ToolManager.getCurrentPlacement().getContext()))
-					{
-						context.put("fromColExist", Boolean.TRUE);
-					}
-					
-					if ((schToGroups != null) && (schToGroups.size()>0))
-					{
-						for (Iterator j = schToGroups.iterator(); j.hasNext();)
-						{
-							String groupRangeForDispaly = e.getGroupRangeForDisplay(calendarObj);
-							String groupId = j.next().toString();
-							try
-							{
-								Site site = SiteService.getSite(calendarObj.getContext());
-								Group group = site.getGroup(groupId);
-								if (groupRangeForDispaly.equals("")||groupRangeForDispaly.equals("site")) break;
-								if (groupRangeForDispaly.indexOf(group.getTitle()) == -1)
-								{
-									newEventVectorObj.remove(e);
-									break;
-								}
-							}
-							catch(Exception ignore){}
-						}
-					}
+					context.put("fromColExist", Boolean.TRUE);
 				}
-					
+				
 				if ((schToGroups != null) && (schToGroups.size()>0))
 				{
-					masterEventVectorObj.clear();
-					masterEventVectorObj.addAll(newEventVectorObj);
+					for (Iterator j = schToGroups.iterator(); j.hasNext();)
+					{
+						String groupRangeForDispaly = e.getGroupRangeForDisplay(calendarObj);
+						String groupId = j.next().toString();
+						try
+						{
+							Site site = SiteService.getSite(calendarObj.getContext());
+							Group group = site.getGroup(groupId);
+							if (groupRangeForDispaly.equals("")||groupRangeForDispaly.equals("site")) break;
+							if (groupRangeForDispaly.indexOf(group.getTitle()) == -1)
+							{
+								newEventVectorObj.remove(e);
+								break;
+							}
+						}
+						catch(Exception ignore){}
+					}
 				}
+			}
+				
+			if ((schToGroups != null) && (schToGroups.size()>0))
+			{
+				masterEventVectorObj.clear();
+				masterEventVectorObj.addAll(newEventVectorObj);
 			}
 		}
 		catch(IdUnusedException e)
