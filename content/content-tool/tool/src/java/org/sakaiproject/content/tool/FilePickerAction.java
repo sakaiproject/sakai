@@ -180,7 +180,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 		initMessage(toolSession, sstate);
 
-		sstate.setAttribute(ResourcesAction.STATE_RESOURCE_FILTER, toolSession
+		sstate.setAttribute(ResourcesAction.STATE_ATTACH_FILTER, toolSession
 				.getAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER));
 	}
 

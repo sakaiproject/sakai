@@ -300,22 +300,8 @@ public class ResourcesAction
 	private static final String INTENT_REVISE_FILE = "revise";
 	private static final String INTENT_REPLACE_FILE = "replace";
 
-	/************** the helper context (file-picker) *****************************************/
-
-	/** State attribute for the Vector of References, one for each attachment.
-	Using tools can pre-populate, and can read the results from here. */
-	public static final String STATE_ATTACHMENTS = "resources.attachments";
-
-   /** State Attribute for the org.sakaiproject.content.api.ContentResourceFilter
-    * object that the current filter should honor.  If this is set to null, then all files will
-    * be selectable and viewable */
-   public static final String STATE_RESOURCE_FILTER = "resources.contentResourceFilter";
-
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
 	public static final String STATE_HAS_ATTACHMENT_BEFORE = "resources.has_attachment_before";
-
-	/** The part of the message after "Attachments for:", set by the client tool. */
-	public static final String STATE_FROM_TEXT = "attachment.from_text";
 
 	/** The name of the state attribute containing a list of new items to be attached */
 	private static final String STATE_HELPER_NEW_ITEMS = "resources.helper_new_items";
@@ -323,28 +309,9 @@ public class ResourcesAction
 	/** The name of the state attribute indicating that the list of new items has changed */
 	private static final String STATE_HELPER_CHANGED = "resources.helper_changed";
 
-	/** the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. */
-	public static final String STATE_HELPER_CANCELED_BY_USER = "resources.user_canceled_helper";
-
-	/** The name of the state attribute indicating which dropbox(es) the items should be saved in */
-	public static final String STATE_SAVE_ATTACHMENT_IN_DROPBOX = "resources.save_attachment_in_dropbox";
 
 	/** The name of the optional state attribute indicating the id of the collection that should be treated as the "home" collection */
 	public static final String STATE_ATTACH_COLLECTION_ID = "resources.attach_collection_id";
-
-	/**
-	 *  The name of the state attribute indicating that the file picker should return links to
-	 *  existing resources in an existing collection rather than copying it to the hidden attachments
-	 *  area.  If this value is not set, all attachments are to copies in the hidden attachments area.
-	 */
-	public static final String STATE_ATTACH_LINKS = "resources.attach_links";
-
-	/** The name of the state attribute for the title when a tool uses Resources as attachment helper (for create or attach but not for edit mode) */
-	public static final String STATE_ATTACH_TITLE = "resources.attach_title";
-
-	/** The name of the state attribute for the instructions when a tool uses Resources as attachment helper 
-	 * (for create or attach but not for edit mode) */
-	public static final String STATE_ATTACH_INSTRUCTION = "resources.attach_instruction";
 
 	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
 	public static final String STATE_ATTACH_TOOL_NAME = "resources.attach_tool_name";
@@ -362,6 +329,21 @@ public class ResourcesAction
 	/** The name of the state attribute indicating which form field a resource should be attached to */
 	public static final String STATE_ATTACH_FORM_FIELD = "resources.attach_form_field";
 
+	/************** the helper context (file-picker) *****************************************/
+
+	/**
+	 *  State attribute for the Vector of References, one for each attachment.
+	 *  Using tools can pre-populate, and can read the results from here. 
+	 */
+	public static final String STATE_ATTACHMENTS = FilePickerHelper.FILE_PICKER_ATTACHMENTS;
+	
+	/**
+	 *  The name of the state attribute indicating that the file picker should return links to
+	 *  existing resources in an existing collection rather than copying it to the hidden attachments
+	 *  area.  If this value is not set, all attachments are to copies in the hidden attachments area.
+	 */
+	public static final String STATE_ATTACH_LINKS = FilePickerHelper.FILE_PICKER_ATTACH_LINKS;
+
 	/** 
 	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
 	 * usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. 
@@ -374,6 +356,50 @@ public class ResourcesAction
 	/** A constant indicating any the number of attachments is unlimited. */
 	public static final Integer CARDINALITY_MULTIPLE = FilePickerHelper.CARDINALITY_MULTIPLE;
 
+	/**
+	 *  The name of the state attribute for the title when a tool uses Resources as attachment helper (for create or attach but not for edit mode) 
+	 */
+	public static final String STATE_ATTACH_TITLE = FilePickerHelper.FILE_PICKER_TITLE_TEXT;
+
+	/** 
+	 * The name of the state attribute for the instructions when a tool uses Resources as attachment helper 
+	 * (for create or attach but not for edit mode) 
+	 */
+	public static final String STATE_ATTACH_INSTRUCTION = FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT;
+
+	/** 
+	 * State Attribute for the org.sakaiproject.content.api.ContentResourceFilter
+	 * object that the current filter should honor.  If this is set to null, then all files will
+	 * be selectable and viewable 
+	 */
+	   public static final String STATE_ATTACH_FILTER = FilePickerHelper.FILE_PICKER_RESOURCE_FILTER;
+
+	/**
+	 * @deprecated use STATE_ATTACH_TITLE and STATE_ATTACH_INSTRUCTION instead
+	 */
+	public static final String STATE_FROM_TEXT = "attachment.from_text";
+
+	/**
+	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
+	 */
+	public static final String STATE_HELPER_CANCELED_BY_USER = FilePickerHelper.FILE_PICKER_CANCEL;
+	
+	/**
+	 *  The name of the state attribute indicating that dropboxes should be shown as places from which
+	 *  to select attachments. The value should be a List of user-id's.  The file picker will attempt to show 
+	 *  the dropbox for each user whose id is included in the list. If this 
+	 */
+	public static final String STATE_ATTACH_SHOW_DROPBOXES = FilePickerHelper.FILE_PICKER_SHOW_DROPBOXES;
+
+	/**
+	 *  The name of the state attribute indicating that the current user's workspace Resources collection 
+	 *  should be shown as places from which to select attachments. The value should be "true".  The file picker will attempt to show 
+	 *  the dropbox for each user whose id is included in the list. 
+	 */
+	public static final String STATE_ATTACH_SHOW_WORKSPACE = FilePickerHelper.FILE_PICKER_SHOW_WORKSPACE;
+
+	
+	
 	/************** the delete context *****************************************/
 
 	/** The delete ids */
@@ -1634,7 +1660,7 @@ public class ResourcesAction
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
 			List this_site = new Vector();
-			User[] submitters = (User[]) state.getAttribute(STATE_SAVE_ATTACHMENT_IN_DROPBOX);
+			User[] submitters = (User[]) state.getAttribute(STATE_ATTACH_SHOW_DROPBOXES);
 			if(submitters != null)
 			{
 				String dropboxId = ContentHostingService.getDropboxCollection();
@@ -8424,7 +8450,7 @@ public class ResourcesAction
 	{
 		state.removeAttribute(STATE_FROM_TEXT);
 		state.removeAttribute(STATE_HAS_ATTACHMENT_BEFORE);
-		state.removeAttribute(STATE_SAVE_ATTACHMENT_IN_DROPBOX);
+		state.removeAttribute(STATE_ATTACH_SHOW_DROPBOXES);
 		state.removeAttribute(STATE_ATTACH_COLLECTION_ID);
 
 		state.removeAttribute(COPYRIGHT_FAIRUSE_URL);
@@ -9508,7 +9534,7 @@ public class ResourcesAction
 
 	protected static boolean checkItemFilter(ContentResource resource, BrowseItem newItem, SessionState state) 
 	{
-		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_RESOURCE_FILTER);
+		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
 	
 	      if (filter != null) 
 	      {
@@ -9528,7 +9554,7 @@ public class ResourcesAction
 
    protected static boolean checkSelctItemFilter(ContentResource resource, SessionState state) 
    {
-      ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_RESOURCE_FILTER);
+      ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
 
       if (filter != null) {
          return filter.allowSelect(resource);

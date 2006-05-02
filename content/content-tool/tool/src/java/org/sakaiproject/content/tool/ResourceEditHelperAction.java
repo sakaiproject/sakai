@@ -85,7 +85,6 @@ public class ResourceEditHelperAction extends FilePickerAction
 		sstate.removeAttribute(ResourcesAction.STATE_EDIT_ID);
 		sstate.removeAttribute(ResourcesAction.STATE_EDIT_COLLECTION_ID);
 		sstate.removeAttribute(ResourcesAction.STATE_ATTACH_LINKS);
-		sstate.removeAttribute(ResourcesAction.STATE_ATTACH_ITEM_ID);
 		// sstate.removeAttribute(ResourcesAction.STATE_STRUCTOBJ_HOMES);
 		// sstate.removeAttribute(ResourcesAction.STATE_EDIT_ITEM);
 		// sstate.removeAttribute(ResourcesAction.STATE_SHOW_FORM_ITEMS);
