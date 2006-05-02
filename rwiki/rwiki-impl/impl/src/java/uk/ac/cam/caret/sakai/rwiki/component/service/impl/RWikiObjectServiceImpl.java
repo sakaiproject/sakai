@@ -1270,7 +1270,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					log.warn("Error getting wiki page via access :"
 							+ ref.getReference());
 					log.debug("Stack trace was ", t);
-					throw new RuntimeException(ref.getReference());
+					throw new RuntimeException(ref.getReference(),t);
 				}
 			}
 		};
