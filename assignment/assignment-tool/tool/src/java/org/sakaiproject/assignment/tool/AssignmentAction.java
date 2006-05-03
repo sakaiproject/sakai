@@ -4483,11 +4483,10 @@ public class AssignmentAction extends PagedResourceActionII
 				sEdit.setTimeReturned(null);
 
 				AssignmentService.commitEdit(sEdit);
-
-				// add grades into Gradebook
-				integrateGradebook(state, aReference, null, null, -1, null, null, "update");
-
 			} // while
+			
+			// add grades into Gradebook
+			integrateGradebook(state, aReference, null, null, -1, null, null, "update");
 		}
 		catch (IdUnusedException e)
 		{
