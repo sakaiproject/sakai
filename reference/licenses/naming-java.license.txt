@@ -1,0 +1,70 @@
+
+
+
+The Apache Software Foundation uses various licenses to distribute software and documentation, to accept regular contributions from individuals and corporations, and to accept larger grants of existing software products. We are also in the process of updating the Apache licenses to reflect changes in the community regarding patents and contributing. 
+
+These licenses help us achieve our goal of providing reliable and long-lived software products through collaborative open source software development. In all cases, contributors retain full rights to use their original contributions for any other purpose outside of Apache while providing the ASF and its projects the right to distribute and build upon their work within Apache. 
+
+Licensing of Distributions 
+All software produced by The Apache Software Foundation or any of its projects or subjects is licensed according to the terms of the documents listed below. 
+
+Apache License, Version 2.0 (current) 
+http://www.apache.org/licenses/LICENSE-2.0 (TXT or HTML)
+
+The 2.0 version of the Apache License was approved by the ASF in 2004. The goals of this license revision have been to reduce the number of frequently asked questions, to allow the license to be reusable without modification by any project (including non-ASF projects), to allow the license to be included by reference instead of listed in every file, to clarify the license on submission of contributions, to require a patent license on contributions that necessarily infringe the contributor's own patents, and to move comments regarding Apache and other inherited attribution notices to a location outside the license terms (the NOTICE file).
+
+The result is a license that is supposed to be compatible with other open source licenses while remaining true to the original goals of the Apache Group and supportive of collaborative development across both nonprofit and commercial organizations. The Apache Software Foundation is still trying to determine if this version of the Apache License is compatible with the GPL. 
+
+All packages produced by the ASF are implicitly licensed under the Apache License, Version 2.0, unless otherwise explicitly stated. More developer documentation on how to apply the Apache License to your work can be found in Applying the Apache License, Version 2.0.
+
+Apache License, Version 1.1 (historic) 
+http://www.apache.org/licenses/LICENSE-1.1
+
+The 1.1 version of the Apache License was approved by the ASF in 2000. The primary change from the 1.0 license is in the 'advertising clause' (section 3 of the 1.0 license); derived products are no longer required to include attribution in their advertising materials, but only in their documentation.
+
+Individual packages licensed under the 1.1 version may use different wording due to varying requirements for attribution or mark identification, but the binding terms were all the same.
+
+Apache License, Version 1.0 (historic) 
+http://www.apache.org/licenses/LICENSE-1.0
+
+This is the original Apache License which applies only to older versions of Apache packages (such as version 1.2 of the Web server). 
+
+Contributor License Agreements 
+The ASF desires that all contributors of ideas, code, or documentation to the Apache projects complete, sign, and submit (via snailmail or fax) a Individual Contributor License Agreement (CLA) [PDF form]. The purpose of this agreement is to clearly define the terms under which intellectual property has been contributed to the ASF and thereby allow us to defend the project should there be a legal dispute regarding the software at some future time. A signed CLA is required to be on file before an individual is given commit rights to an ASF project. 
+
+For a corporation that has assigned employees to work on an Apache project, a Corporate CLA (CCLA) is available for contributing intellectual property via the corporation that may have been assigned as part of an employment agreement. Note that a Corporate CLA does not remove the need for every developer to sign their own CLA as an individual, to cover their contributions that are not owned by the corporation signing the CCLA. 
+
+Note: If you choose to send this document via fax, rather than via traditional postal mail, then be absolutely sure that you have sent it correctly. Often faxes are received back-to-front, blank, or totally illegible. 
+
+Software Grants 
+When an individual or corporation decides to donate a body of existing software or documentation to one of the Apache projects, they need to execute a formal Software Grant agreement with the ASF. Typically, this is done after negotiating approval with the ASF Incubator or one of the PMCs, since the ASF will not accept software unless there is a viable community available to support a collaborative project. 
+ Foundation
+FAQ 
+Licenses 
+Public Records 
+Donations 
+Thanks 
+Contact 
+News
+Conferences 
+Other Events 
+How it works
+Introduction 
+Meritocracy 
+Structure 
+Roles 
+Collaboration 
+Infrastructure 
+Incubator 
+Other entities 
+Glossary 
+Voting 
+Get Involved
+Mailing Lists 
+Version Control 
+Developer Info 
+Download
+from a mirror 
+Search apache.org
+ 
+ 
