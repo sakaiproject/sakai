@@ -40,8 +40,7 @@ public class XHTMLSerializer extends ToXMLStream
 		// separator els
 		emptyTag.put("br", "br");
 		emptyTag.put("hr", "hr");
-		// here because our current p implementation is broken
-		emptyTag.put("p", "p");
+
 	}
 
 	public void endElement(String namespaceURI, String localName, String name)
