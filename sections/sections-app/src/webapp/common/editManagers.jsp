@@ -62,10 +62,12 @@
                 action="#{editManagersBean.update}"
                 onclick="highlightUsers()"
                 value="#{msgs.edit_manager_update}"
+                immediate="true"
                 styleClass="active" />
         
             <h:commandButton
                 action="#{editManagersBean.cancel}"
+                immediate="true"
                 value="#{msgs.edit_manager_cancel}"/>
         </x:div>
 </h:form>

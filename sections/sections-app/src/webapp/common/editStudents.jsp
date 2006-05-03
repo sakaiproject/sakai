@@ -53,10 +53,12 @@
                 action="#{editStudentsBean.update}"
                 onclick="highlightUsers()"
                 value="#{msgs.edit_student_update}"
+                immediate="true"
                 styleClass="active" />
         
             <h:commandButton
                 action="overview"
+                immediate="true"
                 value="#{msgs.edit_student_cancel}"/>
         </x:div>
 </h:form>
