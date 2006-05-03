@@ -223,10 +223,11 @@ $Id$
       prevText="Previous" nextText="Next" numItems="10" />
  </span>
 END OF TEMPORARY OUT FOR THIS RELEASE --%>
+
    <h:panelGroup rendered="#{questionScores.anonymous eq 'false'}">
-    <span class="abc rightNav">
+   <f:verbatim> <span class="abc"></f:verbatim> 
       <samigo:alphaIndex initials="#{questionScores.agentInitials}" />
-    </span>
+  <f:verbatim> </span></f:verbatim> 
    </h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
