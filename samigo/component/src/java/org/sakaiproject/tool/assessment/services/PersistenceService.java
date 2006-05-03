@@ -188,11 +188,12 @@ public class PersistenceService{
 
 
       public int retryDeadlock(Exception e, int retryCount){
-        log.warn("PersistenceService.retryDeadlock....");
+        log.warn("calling retryDeadlock() ....");
         String errorMessage = e.getMessage();
         int index = errorMessage.indexOf("ORA-00060"); // deadlock
-        int index2 = errorMessage.indexOf("SQL state [61000]"); // deadlock
-        if (index > -1 || index2 > -1){
+        int index2 = errorMessage.indexOf("SQL state [61000]"); // oracle deadlock
+        int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock
+        if (index > -1 || index2 > -1 || index3 > -1){
           retryCount--;
           try {
             int ideadlockInterval = deadlockInterval.intValue();
