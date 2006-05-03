@@ -6540,6 +6540,9 @@ public class ResourcesAction
 
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
+			BasicRightsAssignment rightsObj = item.getRights();
+			rightsObj.captureValues(params);
+
 			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
 			
 			if(usingCreativeCommons)
@@ -7000,6 +7003,9 @@ public class ResourcesAction
 		}
 		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
 		{
+			BasicRightsAssignment rightsObj = item.getRights();
+			rightsObj.captureValues(params);
+			
 			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());
 			
 			if(usingCreativeCommons)
@@ -10380,6 +10386,7 @@ public class ResourcesAction
 		private boolean m_toobig;
 		protected String m_access;
 		protected List m_groups;
+		protected BasicRightsAssignment m_rights;
 
 
 		/**
@@ -10389,6 +10396,8 @@ public class ResourcesAction
 		 */
 		public BrowseItem(String id, String name, String type)
 		{
+			// TODO: Fix name/id for rightsObj
+			m_rights = new BasicRightsAssignment("XXXX", true);
 			m_name = name;
 			m_id = id;
 			m_type = type;
@@ -10998,6 +11007,22 @@ public class ResourcesAction
 			{
 				m_groups.add(groupId);
 			}
+		}
+
+		/**
+		 * @return Returns the rights.
+		 */
+		public BasicRightsAssignment getRights()
+		{
+			return m_rights;
+		}
+
+		/**
+		 * @param rights The rights to set.
+		 */
+		public void setRights(BasicRightsAssignment rights)
+		{
+			this.m_rights = rights;
 		}
 
 	}	// inner class BrowseItem

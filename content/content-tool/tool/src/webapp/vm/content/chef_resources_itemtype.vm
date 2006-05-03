@@ -1,6 +1,109 @@
 <!-- chef_resources_itemtype.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 ############################################# macro getPropertyValues 
 ##
+## start of getRightsAssignment macro
+#macro(getRightsAssignment $rightsObj)
+	<p class="shorttext">
+		<span class="reqStar">*</span>
+		<label for="$rightsObj.fieldNameAuthorship">
+			$rightsObj.getString("$rightsObj.keyCcAuthorshipLabel")
+		</label>	
+		<select name="$rightsObj.fieldNameAuthorship" id ="$rightsObj.fieldNameAuthorship" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
+			#foreach ($option in $rightsObj.ccAuthorshipKeys)
+				<option value="$option"#if("$!{rightsObj.ccOwnership}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
+			#end
+		</select>
+		##if ($!ccInfoUrl)
+		##	(<a href="$ccInfoUrl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
+		##end
+	</p>
+	<div id="copyright_div_1_$!{rightsObj.name}">
+		#if("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorMe}")
+			<p class="shorttext"> 
+				<span class="reqStar">*</span> 
+				<label for="$!{rightsObj.fieldNameMyTerms}">$rightsObj.getString($rightsObj.keyMyTermsLabel)</label>
+				<select name="$!{rightsObj.fieldNameMyTerms}" id=\"$!{rightsObj.FieldNameMyTerms}" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
+				#foreach ($option in $rightsObj.myTermsKeys)
+					<option value="$option"#if("$!{rightsObj.ccTerms}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
+				#end
+				</select> 
+			</p>
+		#elseif("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorOther}")
+			<p class="shorttext"> 
+				<span class="reqStar">*</span> 
+				<label for="$!{rightsObj.fieldNameCcOtherTerms}">$rightsObj.getString("$rightsObj.")</label>
+				<select name="$!{rightsObj.fieldNameCcOtherTerms}" id="$!{rightsObj.FieldNameCcOtherTerms}" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
+					#foreach ($option in $rightsObj.otherTermsKeys))
+						<option value="$option"#if("$!{rightsObj.otherLicense}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
+					#end
+				</select> 
+			</p> 
+		#end
+	</div>
+	<div id="copyright_div_2_$!{rightsObj.name}">
+		#if("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorMe}")
+			#if("$!{rightsObj.ccTerms}" == "$!{rightsObj.keyMyCopyright}")
+				<table border="0"> 
+					<tr> 
+						<td style="width:180px;padding-left:1em;vertical-align:top"> 
+						</td>
+						<td> 
+						</td> 
+						<td style="vertical-align:top"> 
+							<label for="$!{rightsObj.fieldNameCcRightsYear}">$rightsObj.getString("$!{rightsObj.keyCopyrightYearLabel}")</label> 
+						</td>
+						<td style="vertical-align:top"> 
+							<label for="$!{rightsObj.fieldNameCcRightsOwner}">$rightsObj.getString("$!{rightsObj.keyCopyrightOwnerLabel}")</label> 
+						</td> 
+					</tr>
+					<tr> 
+						<td style="width:180px;padding-left:1em;vertical-align:top"> 
+						</td> 
+						<td>&copy;</td>
+						<td style="vertical-align:top"> 
+							<input type="text" name="$!{rightsObj.fieldNameCcRightsYear}" id="$!{rightsObj.fieldNameCcRightsYear}" size="5" value="#if("$!{rightsObj.ccRightsYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.ccRightsYear}#end" /> 
+						</td> 
+						<td style="vertical-align:top"> 
+							<input type="text" name="$!{rightsObj.fieldNameCcRightsOwner}" id="$!{rightsObj.fieldNameCcRightsOwner}" size="40" value="#if("$!{rightsObj.ccRightsOwner}" == "")$!{rightsObj.defaultCopyrightOwner}#else$!{rightsObj.ccRightsOwner}#end" /> 
+						</td> 
+					</tr> 
+				</table>
+			#elseif("$!{rightsObj.ccTerms}" == "$!{rightsObj.keyCreativeCommons}")
+				<div class="labelindnt">
+					<h5>$rightsObj.getString("$!{rightsObj.keyCcCommercialLabel}")</h5>
+					<p class="checkbox">
+						<input type="radio" name="$rightsObj.fieldNameCcCommercial" id="$!{rightsObj.name}$!{rightsObj.keyCcCommercialYes}" value="$!{rightsObj.keyCcCommercialYes}" #if("$!{rightsObj.ccCommercial}" == "$!{rightsObj.keyCcCommercialYes}")checked="checked" #end/>
+						<label for="$!{rightsObj.name}$!{rightsObj.keyCcCommercialYes}">$rightsObj.getString("$!{rightsObj.keyCcCommercialYes}")</label>
+					</p>
+					<p class="checkbox">
+						<input type="radio" name="$rightsObj.fieldNameCcCommercial" id="$!{rightsObj.name}$!{rightsObj.keyCcCommercialNo}" value="$!{rightsObj.keyCcCommercialNo}" #if("$!{rightsObj.ccCommercial}" == "$!{rightsObj.keyCcCommercialNo}")checked="checked" #end/>
+						<label for="$!{rightsObj.name}$!{rightsObj.keyCcCommercialNo}">$rightsObj.getString("$!{rightsObj.keyCcCommercialNo}")</label>
+					</p>
+				</div>
+				<div class="labelindnt">
+					<h5>$rightsObj.getString("$!{rightsObj.keyCcModifyLabel}")</h5>
+					<p class="checkbox">
+						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyYes}" value="$!{rightsObj.keyCcModifyYes}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyYes}")checked="checked" #end/>
+						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyYes}">$rightsObj.getString("$!{rightsObj.keyCcModifyYes}")</label>
+					</p>
+					<p class="checkbox">
+						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyShare}" value="$!{rightsObj.keyCcModifyShare}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyShare}")checked="checked" #end/>
+						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyShare}">$rightsObj.getString("$!{rightsObj.keyCcModifyShare}")</label>
+					</p>
+					<p class="checkbox">
+						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyNo}" value="$!{rightsObj.keyCcModifyNo}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyNo}")checked="checked" #end/>
+						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyNo}">$rightsObj.getString("$!{rightsObj.keyCcModifyNo}")</label>
+					</p>
+				</div>
+			#end
+		#elseif("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorOther}")
+			
+		#end
+	</div>
+	
+#end 
+## end of getRightsAssignment macro
+
 ## start of getCreativeCommons macro
 #macro(getCreativeCommons $cItem $cIndex)
 	<p class="shorttext">
@@ -636,54 +739,7 @@
 				<textarea id="description$i" name="description$i" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
 			</p>	
 			#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
-				#if($usingCreativeCommons)
-					#getCreativeCommons($item $i)
-				#else
-					#if ($!copyrightTypes)
-						<p class="shorttext">
-							<span class="reqStar">*</span>
-							<label for="copyright$i">
-								$tlang.getString("edit.cstatus")
-							</label>	
-							<select name="copyright$i" id ="copyright$i" onchange="javascript:updateCopyright(this, '$i');">
-								#foreach ($copyright in $copyrightTypes)
-									<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
-								#end
-							</select>
-							#if ($!fairuseurl)
-								(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
-							#end
-						</p>
-						<div id="copyright_status_$i">
-							#if("$item.copyrightStatus" == "$!{USE_THIS_COPYRIGHT}")
-								<p class="shorttext">
-									<span class="reqStar">*</span>
-									<label for="newcopyright$i">
-										$tlang.getString("edit.cinfo")
-									</label>	
-									<textarea name="newcopyright$i" id="newcopyright$i" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
-								</p>	
-							#else
-								<input type="hidden" name="newcopyright$i" id="newcopyright$i" value="$!item.copyrightInfo" />
-							#end
-						</div>
-						<table border="0">
-							<tr>
-								<td style="width:180px;padding-left:1em;vertical-align:top">
-									<label for="copyrightAlert$i">
-										$tlang.getString("edit.calert")
-									</label>
-								</td>
-								<td style="vertical-align:top">
-									<input type="checkbox" name="copyrightAlert$i" id ="copyrightAlert$i" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
-									$tlang.getString("edit.display1")
-									<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
-									$tlang.getString("edit.display3")
-								</td>
-							</tr>
-						</table>
-					#end
-				#end
+				#getRightsAssignment($item.rights)			
 			#end
 		
 			## do not show any access options if in dropbox
