@@ -31,27 +31,25 @@
 		<attainGoal name="sakai:deploy" />
 
 		<!-- add in demo stuff -->
-		<copy file="${basedir}/demo/sakai.properties" tofile="${maven.tomcat.home}sakai/sakai.properties" />
-		<copy file="${basedir}/demo/toolOrder.xml" tofile="${maven.tomcat.home}sakai/toolOrder.xml" />
-		<copy file="${basedir}/demo/readme.txt" tofile="${maven.tomcat.home}demo_readme.txt" />
-		<copy file="${basedir}/docs/readme_2-1-0.txt" tofile="${maven.tomcat.home}sakai_readme.txt" />
-		<copy todir="${maven.tomcat.home}licenses/">
+		<copy file="${basedir}/reference/demo/sakai.properties" tofile="${maven.tomcat.home}sakai/sakai.properties" />
+		<copy file="${basedir}/reference/demo/toolOrder.xml" tofile="${maven.tomcat.home}sakai/toolOrder.xml" />
+		<copy file="${basedir}/reference/demo/readme.txt" tofile="${maven.tomcat.home}demo_readme.txt" />
+		<copy file="${basedir}/reference/docs/readme.txt" tofile="${maven.tomcat.home}sakai_readme.txt" />
+		<copy todir="${maven.tomcat.home}/reference/licenses/">
 			<fileset dir="${basedir}/licenses">
 				<exclude name="CVS/**"/>
 			</fileset>
 		</copy>
 
-		<copy file="${basedir}/demo/bin/start-sakai.bat" tofile="${maven.tomcat.home}start-sakai.bat" />
-		<copy file="${basedir}/demo/bin/start-sakai.sh" tofile="${maven.tomcat.home}start-sakai.sh" />
-		<copy file="${basedir}/demo/bin/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
-		<copy file="${basedir}/demo/bin/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
+		<copy file="${basedir}/reference/demo/bin/start-sakai.bat" tofile="${maven.tomcat.home}start-sakai.bat" />
+		<copy file="${basedir}/reference/demo/bin/start-sakai.sh" tofile="${maven.tomcat.home}start-sakai.sh" />
+		<copy file="${basedir}/reference/demo/bin/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
+		<copy file="${basedir}/reference/demo/bin/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
 
-		<delete file="${maven.tomcat.home}licenses/.project" />
-		<ant:copy file="${basedir}/sakai_license_1_0.txt" tofile="${maven.tomcat.home}sakai_license_1_0.txt" overwrite="true" />
-		<ant:copy file="${basedir}/sakai_license_1_0.html" tofile="${maven.tomcat.home}sakai_license_1_0.html" overwrite="true" />
+		<ant:copy file="${basedir}/ECLv1.txt" tofile="${maven.tomcat.home}ECLv1.txt" overwrite="true" />
 
 		<!-- custom Tomcat mods -->
-		<copy file="${basedir}/demo/index.html" tofile="${maven.tomcat.home}webapps/ROOT/index.html" />
+		<copy file="${basedir}/reference/demo/index.html" tofile="${maven.tomcat.home}webapps/ROOT/index.html" />
 		<copy overwrite="true"
 				file="${maven.tomcat.home}conf/server.xml"
 				tofile="${maven.tomcat.home}conf/server-orig.xml" />
