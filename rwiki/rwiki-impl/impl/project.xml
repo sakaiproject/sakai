@@ -185,9 +185,9 @@
     </dependency>
     
     <dependency>
-      <groupId>hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>2.1.8</version>
+      <groupId>${sakai.hibernate.groupId}</groupId>
+      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+      <version>${sakai.hibernate.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
