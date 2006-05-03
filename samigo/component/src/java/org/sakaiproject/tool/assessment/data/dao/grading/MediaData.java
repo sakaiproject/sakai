@@ -46,6 +46,7 @@ public class MediaData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
+  private String duration;
 
   public MediaData()
   {
@@ -55,7 +56,7 @@ public class MediaData
                    String mimeType, String description, String location,
                    String filename, boolean isLink, boolean isHtmlInline,
                    Integer status, String createdBy, Date createdDate,
-                   String lastModifiedBy, Date lastModifiedDate){
+                   String lastModifiedBy, Date lastModifiedDate, String duration){
     this.itemGradingData = itemGradingData;
     this.media = media;
     this.fileSize = fileSize;
@@ -70,6 +71,7 @@ public class MediaData
     this.createdDate = createdDate;
     this.lastModifiedBy = lastModifiedBy;
     this.lastModifiedDate = lastModifiedDate;
+    this.duration = duration;
   }
 
   public MediaData(byte[] media, String mimeType)
@@ -215,6 +217,13 @@ public class MediaData
 
   public void setLastModifiedDate(Date lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
+  }
+
+  public String getDuration() {
+    return duration;
+  }
+  public void setDuration(String duration) {
+    this.duration = duration;
   }
 
 }

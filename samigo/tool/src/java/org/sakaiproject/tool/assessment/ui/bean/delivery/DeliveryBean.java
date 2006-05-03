@@ -1715,7 +1715,7 @@ public class DeliveryBean
                                 mimeType, "description", null,
                                 media.getName(), false, false, new Integer(1),
                                 agent, new Date(),
-                                agent, new Date());
+                                agent, new Date(), null);
     }
     else
     { // put the location in
@@ -1724,7 +1724,7 @@ public class DeliveryBean
                                 mimeType, "description", mediaLocation,
                                 media.getName(), false, false, new Integer(1),
                                 agent, new Date(),
-                                agent, new Date());
+                                agent, new Date(), null);
 
     }
     Long mediaId = gradingService.saveMedia(mediaData);

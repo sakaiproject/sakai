@@ -35,27 +35,26 @@ should be included in file importing DeliveryMessages
 <input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false"/>
-<f:verbatim><br /></f:verbatim>
 
 <h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
-  <h:dataTable value="#{question.mediaArray}" var="media">
+  <h:dataTable value="#{question.mediaArray}" var="media" cellpadding="10">
     <h:column>
       <h:outputText escape="false" value="
          <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" 
-                volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/>
+                volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
-    </h:column>
-    <h:column>
+      <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{msg.open_bracket}"/>
+      <h:outputText value="#{media.duration} sec, recorded on " />
       <h:outputText value="#{media.createdDate}">
-        <f:convertDateTime pattern="#{msg.delivery_date_no_time_format}" />
+        <f:convertDateTime pattern="#{msg.delivery_date_format}" />
       </h:outputText>
       <h:outputText value="#{msg.close_bracket}"/>
     </h:column>
     <h:column rendered="#{delivery.actionString=='takeAssessment' 
                         || delivery.actionString=='takeAssessmentViaUrl'}">
       <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
-        <h:outputText value="#{msg.remove}" />
+        <h:outputText value="   #{msg.remove}" />
         <f:param name="mediaId" value="#{media.mediaId}"/>
         <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
         <f:param name="mediaFilename" value="#{media.filename}"/>
@@ -64,11 +63,6 @@ should be included in file importing DeliveryMessages
     </h:column>
   </h:dataTable>
 </h:panelGroup>
-
-
-<h:outputLabel value="#{msg.time_limit}#{msg.column} "  />
-<h:outputText value="#{question.duration} "  escape="false"/>
-<f:verbatim><br /></f:verbatim>
 
 <f:verbatim>
 <object
