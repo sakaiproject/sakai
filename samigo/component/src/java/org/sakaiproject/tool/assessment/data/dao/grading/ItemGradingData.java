@@ -62,6 +62,9 @@ public class ItemGradingData
   private String gradedBy;
   private Date gradedDate;
   private Boolean review;
+  // these two properties are used by audio question in Samigo 2.2
+  private Integer attemptsRemaining;
+  private String lastDuration;
 
   public ItemGradingData() {
   }
@@ -206,4 +209,17 @@ public class ItemGradingData
       return new ArrayList();
   }
 
+  public Integer getAttemptsRemaining() {
+    return attemptsRemaining;
+  }
+  public void setAttemptsRemaining(Integer attemptsRemaining) {
+    this.attemptsRemaining = attemptsRemaining;
+  }
+
+  public String getLastDuration() {
+    return lastDuration;
+  }
+  public void setLastDuration(String lastDuration) {
+    this.lastDuration = lastDuration;
+  }
 }

@@ -801,6 +801,11 @@ public class DeliveryActionListener
         itemBean.setPoints(itemBean.getPoints() +
                            data.getAutoScore().floatValue());
       }
+      // set attempts remaining for audio, there is only one itemGradingData
+      // per question in this case  
+      if (data.getAttemptsRemaining() !=null ){
+        itemBean.setAttemptsRemaining(data.getAttemptsRemaining());
+      }
     }
 
     if (item.getTypeId().toString().equals("5") ||

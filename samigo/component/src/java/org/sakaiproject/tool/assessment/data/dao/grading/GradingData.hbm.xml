@@ -60,6 +60,12 @@
     <property name="review">
       <column name="REVIEW" not-null="false" sql-type="integer" />
     </property>
+    <property name="attemptsRemaining">
+      <column name="ATTEMPTSREMAINING" not-null="false" sql-type="integer" />
+    </property>
+    <property name="lastDuration">
+      <column name="LASTDURATION" not-null="false" sql-type="varchar(36)" />
+    </property>
   </class>
 
   <class name="org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData" table="SAM_ASSESSMENTGRADING_T">

@@ -73,8 +73,8 @@ public class ShowMediaServlet extends HttpServlet
     String mediaLocation = mediaData.getLocation();
     int fileSize = mediaData.getFileSize().intValue();
     byte[] media = mediaData.getMedia();
-    log.info("****1. media file size="+mediaData.getFileSize());
-    log.info("****2. media length="+media.length);
+    log.debug("****1. media file size="+mediaData.getFileSize());
+    log.debug("****2. media length="+media.length);
 
     // get assessment's ownerId
     String assessmentCreatedBy = req.getParameter("createdBy");
@@ -93,8 +93,8 @@ public class ShowMediaServlet extends HttpServlet
     }
 
     // some log checking
-    log.info("agentIdString ="+agentIdString);
-    log.info("****current site Id ="+currentSiteId);
+    log.debug("agentIdString ="+agentIdString);
+    log.debug("****current site Id ="+currentSiteId);
 
     if (agentIdString !=null && mediaData != null &&
          (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
@@ -114,7 +114,7 @@ public class ShowMediaServlet extends HttpServlet
         displayType="attachment";
         res.setContentType("application/octet-stream");
       }
-      log.info("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
+      log.debug("****"+displayType+";filename=\""+mediaData.getFilename()+"\";");
       res.setHeader("Content-Disposition", displayType+";filename=\""+mediaData.getFilename()+"\";");
 
       //** note that res.setContentType() must be called before res.getOutputStream(). see javadoc on this
@@ -124,7 +124,7 @@ public class ShowMediaServlet extends HttpServlet
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
       if (mediaLocation == null || (mediaLocation.trim()).equals("")){
         buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
-        log.info("**** media.length="+media.length);
+        log.debug("**** media.length="+media.length);
       }
       else{
         inputStream = getFileStream(mediaLocation);
@@ -140,8 +140,8 @@ public class ShowMediaServlet extends HttpServlet
         }
       }
 
-      log.info("**** mediaLocation="+mediaLocation);
-      log.info("**** count="+count);
+      log.debug("**** mediaLocation="+mediaLocation);
+      log.debug("**** count="+count);
       res.setContentLength(count);
       res.flushBuffer();
       buf_outputStream.close();

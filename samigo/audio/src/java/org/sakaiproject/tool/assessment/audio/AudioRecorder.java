@@ -219,7 +219,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     saveTFpanel.add(flabel);
     saveTFpanel.add(textField = new JTextField(""+params.getCurrentRecordingLength()));
     saveTFpanel.add(rlabel);
-    saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
+    saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
     textField.setEditable(false);
     rtextField.setEditable(false);
     Font font = new Font("Ariel", Font.PLAIN, 11);
@@ -578,6 +578,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     {
       // URL of audio processing servlet
       // note for applet security, this must be on same host
+      urlString += "&lastDuration="+duration;
       url = new URL(urlString);
       urlConn = url.openConnection();
       urlConn.setDoInput(true);
@@ -1158,6 +1159,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     int attempts = params.getAttemptsAllowed();
 
     if (attempts > 0){
+      params.setAttemptsAllowed(--attempts);
       if (params.isSaveToFile() && params.isSaveToUrl()){
         saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
       }
@@ -1169,7 +1171,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
 
       textField.setText("" + duration);
-      params.setAttemptsAllowed(--attempts);
       rtextField.setText("" + attempts);
       if (attempts==0) captB.setEnabled(false); ;
       System.out.println("****attempts left = "+attempts);

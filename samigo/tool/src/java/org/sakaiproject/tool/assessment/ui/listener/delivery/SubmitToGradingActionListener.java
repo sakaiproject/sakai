@@ -415,6 +415,7 @@ public class SubmitToGradingActionListener implements ActionListener
     case 4: // T/F
     case 5: // SAQ
     case 6: // File Upload
+    case 7: // Audio
     case 8: // FIB
     case 9: // Matching
 	    for (int m=0;m<grading.size();m++){
@@ -448,6 +449,7 @@ public class SubmitToGradingActionListener implements ActionListener
 	      }
 	    }
             break;   
+	    /*
     case 7: // Audio
             // audio is uploaded by UploadAudioMediaServlet to 
             // {repositoryPath}/jsf/upload_tmp/assessmentId/questionId/agentId
@@ -471,6 +473,7 @@ public class SubmitToGradingActionListener implements ActionListener
               e.printStackTrace();
 	    }
             break;
+	    */
     }
   }
 

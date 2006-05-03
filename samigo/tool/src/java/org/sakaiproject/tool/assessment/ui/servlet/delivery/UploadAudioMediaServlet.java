@@ -26,6 +26,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -39,8 +40,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+
+import java.util.Date;
+import java.util.ArrayList;
 
 /**
  * <p>Title: Samigo</p>
@@ -71,12 +83,24 @@ public class UploadAudioMediaServlet extends HttpServlet
   public void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException
   {
+    boolean mediaIsValid = true;
     ServletContext context = super.getServletContext();
     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
+    String saveToDb = (String)context.getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
     // writer for status message
     PrintWriter pw = res.getWriter();
     // default status message, if things go wrong
     String status = "Upload failure: empty media location.";
+
+    String mimeType = req.getContentType();
+    System.out.println("req content length ="+req.getContentLength());
+    System.out.println("req content type ="+req.getContentType());
+
+    // read parameters passed in
+    String lastDuration  = req.getParameter("lastDuration");
+    String assessmentGradingId  = req.getParameter("assessmentGrading");
+    System.out.println("****lastDuration="+lastDuration);
+    System.out.println("****assessmentGradingId="+assessmentGradingId);
 
     // we get media location in assessmentXXX/questionXXX/agentId/audio.au form
     String mediaLocation = req.getParameter("media");
@@ -88,7 +112,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       File mediaDir = mediaFile.getParentFile(); 
       if (!mediaDir.exists())
         mediaDir.mkdirs();
-      System.out.println("*** directory exist="+mediaDir.exists());
+      //System.out.println("*** directory exist="+mediaDir.exists());
       ServletInputStream inputStream = null;
       FileOutputStream fileOutputStream = null;
       BufferedInputStream bufInputStream = null;
@@ -98,8 +122,6 @@ public class UploadAudioMediaServlet extends HttpServlet
       try
       {
         inputStream = req.getInputStream();
-        System.out.println("req content length ="+req.getContentLength());
-        System.out.println("req content type ="+req.getContentType());
         fileOutputStream = getFileOutputStream(mediaLocation);
 
         // buffered input for servlet
@@ -129,6 +151,8 @@ public class UploadAudioMediaServlet extends HttpServlet
         }
         fileOutputStream.close();
         status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
+        if (count > 0) 
+          mediaIsValid = true;
       }
       catch (Exception ex)
       {
@@ -141,12 +165,11 @@ public class UploadAudioMediaServlet extends HttpServlet
     res.flushBuffer();
 
     //#2 - record media as question submission
-    if (mediaLocation!=null && !("").equals(mediaLocation)){
-      Object delivery = ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
-      System.out.println("**** deliveryBean="+delivery);
-      //DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
-      //delivery.setpublishedAssessment();
-      //delivery.addMediaToItemGrading(mediaLocation);
+    if (mediaIsValid){
+      // note that this delivery bean is empty. this is not the same one created for the
+      // user during take assessment.
+      DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBeanFromExternalServlet("delivery", req, res);
+      submitMediaAsAnswer(mimeType, mediaLocation, lastDuration, saveToDb, delivery);
     }
   }
 
@@ -160,6 +183,178 @@ public class UploadAudioMediaServlet extends HttpServlet
       log.warn("file not found="+ex.getMessage());
     }
     return outputStream;
+  }
+
+  private void submitMediaAsAnswer(String mimeType, String mediaLocation, String lastDuration, String saveToDb, DeliveryBean delivery){
+    int attemptsRemaining =0;
+    GradingService gradingService = new GradingService();
+    PublishedAssessmentService pubService = new PublishedAssessmentService();
+    int assessmentIndex = mediaLocation.indexOf("assessment");
+    int questionIndex = mediaLocation.indexOf("question");
+    int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+    int myfileIndex = mediaLocation.lastIndexOf("/");
+    String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
+						     questionIndex - 1);
+    String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
+    String agentId = mediaLocation.substring(agentIndex+1, myfileIndex);
+    System.out.println("****pubAss="+pubAssessmentId);
+    System.out.println("****questionId="+questionId);
+    System.out.println("****agent="+agentId);
+
+    PublishedItemData item = pubService.loadPublishedItem(questionId);
+    PublishedItemText itemText = (PublishedItemText)(item.getItemTextSet()).iterator().next();
+
+    // 1. get assessmentGrading form DB
+    AssessmentGradingData adata = gradingService.getLastSavedAssessmentGradingByAgentId(
+                                  pubAssessmentId, agentId);
+
+    if (adata == null){ 
+      // adata should already be created by BeginAssessment
+      // lets throws exception
+      adata = new AssessmentGradingData();
+      adata.setAgentId(agentId);
+      adata.setPublishedAssessmentId(new Long(pubAssessmentId));
+      adata.setIsLate(Boolean.FALSE);
+      adata.setForGrade(Boolean.FALSE);
+      adata.setAttemptDate(new Date());
+      gradingService.saveOrUpdateAssessmentGrading(adata);
+    }
+
+    // 2. get itemGrading from DB, remove any attached media
+    //    also work out no. of attempts remaining 
+    ItemGradingData itemGrading = gradingService.getItemGradingData(
+                                  adata.getAssessmentGradingId().toString(), questionId);
+    if (itemGrading != null){
+      // just need update itemGrading, and media.media 
+      ArrayList mediaList = itemGrading.getMediaArray();
+      if (mediaList.size()>0){
+        System.out.println("*** delete old audio");
+        gradingService.deleteAll(mediaList);
+      }
+      if (itemGrading.getAttemptsRemaining() == null){
+        // this is not possible unless the question is submitted without the
+        // attempt set correctly
+        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
+      }
+      else{
+        attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
+      }
+    }
+    else{
+      // create an itemGrading
+      attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
+      itemGrading = new ItemGradingData();
+      itemGrading.setAssessmentGradingId(adata.getAssessmentGradingId());
+      itemGrading.setPublishedItemId(item.getItemId());
+      itemGrading.setPublishedItemTextId(itemText.getId());
+      itemGrading.setSubmittedDate(new Date());
+      itemGrading.setAgentId(agentId);
+      itemGrading.setOverrideScore(new Float(0));
+      itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
+      itemGrading.setLastDuration(lastDuration);
+    }
+    System.out.println("****1. assessmentGradingId="+adata.getAssessmentGradingId());
+    System.out.println("****2. attemptsRemaining="+attemptsRemaining);
+    System.out.println("****3. itemGradingDataId="+itemGrading.getItemGradingId());
+    // 3. save Media and fix up itemGrading
+    saveMedia(attemptsRemaining, mimeType, agentId, mediaLocation, itemGrading, saveToDb);
+  }
+
+  private void saveMedia(int attemptsRemaining, String mimeType, String agent,
+                         String mediaLocation, ItemGradingData itemGrading,
+                        String saveToDb){
+    boolean SAVETODB = false;
+    if (saveToDb.equals("true"))
+      SAVETODB = true;
+
+    System.out.println("****4. saveMedia, saveToDB"+SAVETODB);
+    System.out.println("****5. saveMedia, mediaLocation"+mediaLocation);
+
+    GradingService gradingService = new GradingService();
+    // 1. create a media record
+    File media = new File(mediaLocation);
+    byte[] mediaByte = getMediaStream(mediaLocation);
+    log.debug("**** SAVETODB=" + SAVETODB);
+    MediaData mediaData = null;
+
+    if (SAVETODB)
+    { // put the byte[] in
+      mediaData = new MediaData(itemGrading, mediaByte,
+                                new Long(mediaByte.length + ""),
+                                mimeType, "description", null,
+                                media.getName(), false, false, new Integer(1),
+                                agent, new Date(),
+                                agent, new Date());
+    }
+    else
+    { // put the location in
+      mediaData = new MediaData(itemGrading, null,
+                                new Long(mediaByte.length + ""),
+                                mimeType, "description", mediaLocation,
+                                media.getName(), false, false, new Integer(1),
+                                agent, new Date(),
+                                agent, new Date());
+
+    }
+    Long mediaId = gradingService.saveMedia(mediaData);
+    System.out.println("mediaId=" + mediaId);
+
+    // 2. store mediaId in itemGradingRecord.answerText
+    itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
+    itemGrading.setSubmittedDate(new Date());
+    itemGrading.setAnswerText(mediaId + "");
+    gradingService.saveItemGrading(itemGrading);
+
+    // 3. if saveToDB, remove file from file system
+    try{
+      if (SAVETODB) media.delete();
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
+  }
+
+  private byte[] getMediaStream(String mediaLocation)
+  {
+    FileInputStream mediaStream = null;
+    FileInputStream mediaStream2 = null;
+    byte[] mediaByte = new byte[0];
+    try
+    {
+      int i = 0;
+      int size = 0;
+      mediaStream = new FileInputStream(mediaLocation);
+      if (mediaStream != null)
+      {
+        while ( (i = mediaStream.read()) != -1)
+        {
+          size++;
+        }
+      }
+      mediaStream2 = new FileInputStream(mediaLocation);
+      mediaByte = new byte[size];
+      mediaStream2.read(mediaByte, 0, size);
+
+    }
+    catch (FileNotFoundException ex)
+    {
+      log.debug("file not found=" + ex.getMessage());
+    }
+    catch (IOException ex)
+    {
+      log.debug("io exception=" + ex.getMessage());
+    }
+    finally
+    {
+      try
+      {
+        mediaStream.close();
+      }
+      catch (IOException ex1)
+      {
+      }
+    }
+    return mediaByte;
   }
 
 }

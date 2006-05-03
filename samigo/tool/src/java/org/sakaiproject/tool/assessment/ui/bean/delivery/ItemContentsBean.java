@@ -71,9 +71,9 @@ public class ItemContentsBean
   private ArrayList mediaArray;
 
   // for audio
-
   private Integer duration;
   private Integer triesAllowed;
+  private Integer attemptsRemaining;
 
   // for display/hide score
   private boolean showStudentScore;  // this is to show student assessment score 
@@ -760,6 +760,16 @@ public class ItemContentsBean
   public void setTriesAllowed(Integer param)
   {
     triesAllowed = param;
+  }
+
+  public Integer getAttemptsRemaining()
+  {
+    return attemptsRemaining;
+  }
+
+  public void setAttemptsRemaining(Integer param)
+  {
+    attemptsRemaining = param;
   }
 
   public Integer getDuration()

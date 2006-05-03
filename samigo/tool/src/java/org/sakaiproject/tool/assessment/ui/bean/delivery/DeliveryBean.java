@@ -1629,26 +1629,12 @@ public class DeliveryBean
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
-    // 1. create assessmentGrading is not null when it gets here
-    /*
-    if (this.adata == null)
-    {
-      adata = new AssessmentGradingData();
-      adata.setAgentId(agent);
-      adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
-      log.debug("***1a. addMediaToItemGrading, getForGrade()=" + getForGrade());
-      adata.setForGrade(new Boolean(getForGrade()));
-      adata.setAttemptDate(getBeginTime());
-      gradingService.saveOrUpdateAssessmentGrading(adata);
-    }
-    */
-    //log.info("***1b. addMediaToItemGrading, adata=" + adata);
-
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     // 3. get the questionId (which is the PublishedItemData.itemId)
     int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
     int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
+    int myfileIndex = mediaLocation.lastIndexOf("/");
     //cwen
     if(agentIndex < 0 )
     {
@@ -1659,6 +1645,12 @@ public class DeliveryBean
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     log.debug("***3a. addMediaToItemGrading, questionId =" + questionId);
     log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);
+    if (agent == null){
+      String agentId = mediaLocation.substring(agentIndex, myfileIndex -1);
+      System.out.println("**** agentId="+agentId);
+      agent = agentId;
+    }
+    log.debug("***3c. addMediaToItemGrading, agent =" + agent);
 
     // 4. prepare itemGradingData and attach it to assessmentGarding
     PublishedItemData item = (PublishedItemData)itemHash.get(new Long(questionId));

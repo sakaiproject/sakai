@@ -69,9 +69,7 @@ should be included in file importing DeliveryMessages
 <h:outputLabel value="#{msg.time_limit}#{msg.column} "  />
 <h:outputText value="#{question.duration} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
-<h:outputLabel value="#{msg.NoOfTries}#{msg.column} " />
-<h:outputText value="#{question.triesAllowed} "  escape="false"/>
-<f:verbatim><br /></f:verbatim>
+
 <f:verbatim>
 <object
   classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
@@ -105,6 +103,10 @@ should be included in file importing DeliveryMessages
      value="#{question.duration}" escape="false"/><f:verbatim>">
   <PARAM NAME = "attemptsAllowed" VALUE="</f:verbatim><h:outputText
      value="#{question.triesAllowed}" escape="false"/><f:verbatim>">
+  <PARAM NAME = "attemptsRemaining" VALUE="</f:verbatim><h:outputText
+     value="#{question.attemptsRemaining}" escape="false"/><f:verbatim>">
+  <PARAM NAME = "assessmentGrading" VALUE="</f:verbatim><h:outputText
+     value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>">
   <comment>
    <embed
       type = "application/x-java-applet;version=1.5" \
@@ -138,6 +140,10 @@ should be included in file importing DeliveryMessages
          value="#{question.duration}" escape="false"/><f:verbatim>" \
       attemptsAllowed ="</f:verbatim><h:outputText
          value="#{question.triesAllowed}" escape="false"/><f:verbatim>" \
+      attemptsRemaining ="</f:verbatim><h:outputText
+         value="#{question.attemptsRemaining}" escape="false"/><f:verbatim>" \
+      aassessmentGrading ="</f:verbatim><h:outputText
+         value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>" \
       scriptable = false
       pluginspage = "http://java.sun.com/products/plugin/index.html#download">
       <noembed>

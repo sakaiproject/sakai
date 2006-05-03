@@ -77,6 +77,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // get managed bean and set its action accordingly
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
+    log.info("****DeliveryBean= "+delivery);
     String actionString = cu.lookupParam("actionString");
     if (actionString != null) {
       // if actionString is null, likely that action & actionString has been set already, 
@@ -85,9 +86,6 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setActionString(actionString);
     }
     int action = delivery.getActionMode();
-    //System.out.println("**** BeginDeliveryActionListener:actionString"+delivery.getActionString());
-    //System.out.println("**** BeginDeliveryActionListener:action"+delivery.getActionMode());
-
     // reset timer before begin
     delivery.setTimeElapse("0");
     delivery.setTimeElapseAfterFileUpload(null);
