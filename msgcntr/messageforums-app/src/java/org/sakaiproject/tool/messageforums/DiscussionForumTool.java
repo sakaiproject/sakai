@@ -1985,7 +1985,7 @@ public class DiscussionForumTool
           gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
               selectedMessage.getMessage().getGradeAssignmentName(),  
               UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
-          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          gradePoint = new Double(gradePoint).toString();
           gradeComment = selectedMessage.getMessage().getGradeComment();
           String thisGradeAssign = selectedMessage.getMessage().getGradeAssignmentName();
           setSelectedAssignForMessage(thisGradeAssign);
@@ -2001,7 +2001,7 @@ public class DiscussionForumTool
           gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
             selectedTopic.getTopic().getDefaultAssignName(),
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
-          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          gradePoint = new Double(gradePoint).toString();
           String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
           setSelectedAssignForMessage(thisGradeAssign);
        }
@@ -2022,7 +2022,7 @@ public class DiscussionForumTool
           gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
             selectedForum.getForum().getDefaultAssignName(),  
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())).toString();
-          gradePoint = new Integer((int)new Double(gradePoint).doubleValue()).toString();
+          gradePoint = new Double(gradePoint).toString();
           String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
           setSelectedAssignForMessage(thisGradeAssign);
         }
