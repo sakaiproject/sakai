@@ -46,6 +46,9 @@
 		<copy file="${basedir}/reference/demo/bin/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
 		<copy file="${basedir}/reference/demo/bin/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
 
+		<!-- Replace the favorite icon from tomcat -->
+		<copy file="${basedir}/reference/library/src/webapp/icon/favicon.ico" tofile="${maven.tomcat.home}webapps/ROOT/favicon.ico" />
+
 		<ant:copy file="${basedir}/ECLv1.txt" tofile="${maven.tomcat.home}ECLv1.txt" overwrite="true" />
 
 		<!-- custom Tomcat mods -->
