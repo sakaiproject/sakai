@@ -92,7 +92,7 @@
     </h:column>
   </h:dataTable>
   
-    <f:verbatim>Gradebook Assignment</f:verbatim>    
+    <f:verbatim>Gradebook Assignment:&nbsp;&nbsp;</f:verbatim>    
   	<h:selectOneMenu value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
    	  <f:selectItems value="#{ForumTool.assignments}" />
     </h:selectOneMenu>
