@@ -153,26 +153,25 @@ public class ItemAddListener
 	String[] corrChoices = new String[corrsize];
 	boolean correctChoice=false;
         int counter=0;
+       
 
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
 		if((answerbean.getText()!=null) && (((answerbean.getText()).replaceAll("<.*?>", "")).trim()).equals(""))
                     answerbean.setText("");
-		if(isCorrectChoice(item,answerbean.getLabel())&&((answerbean.getText()==null) ||( answerbean.getText().equals("")))){            
-		    System.out.println("EMPTY CORRECT CHOICE: label:  "+answerbean.getLabel());
+		label = answerbean.getLabel();
+                txt=answerbean.getText();
+		corrChoices[counter]=label;
+		if(isCorrectChoice(item,label)&&((txt==null) ||(txt.equals("")))){          
                     error=true;
 		    String empty_correct_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","empty_correct_error");
-		    context.addMessage(null,new FacesMessage(empty_correct_err+answerbean.getLabel()));
+		    context.addMessage(null,new FacesMessage(empty_correct_err+label));
 
 		}
 		
 	
-
-		label = answerbean.getLabel();
-		corrChoices[counter]=label;
-	
-		if ((answerbean.getText()!=null)&& (!answerbean.getText().equals("")))
+		if ((txt!=null)&& (!txt.equals("")))
 		    {
 			countAnswerText++;
 		
@@ -198,7 +197,8 @@ public class ItemAddListener
 		    }
 	    }
 	    item.setCorrAnswers(corrChoices);
-	    
+	    if(!error){
+        
 	    if(correct==false){
                 if(isSingleSelect){
 		    String singleCorrect_error=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","singleCorrect_error");
@@ -212,15 +212,13 @@ public class ItemAddListener
 		}
 		error=true;
 
-	    }
-	    if(countAnswerText<=1){
+	    } else if(countAnswerText<=1){
 		String answerList_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","answerList_error");
 		context.addMessage(null,new FacesMessage(answerList_err));
 		error=true;
 
 	    }
-	
-	    if(missingchoices){
+	    else if(missingchoices){
       
             	String selectionError=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","missingChoices_error");
 		context.addMessage(null,new FacesMessage(selectionError+missingLabel));
@@ -229,6 +227,7 @@ public class ItemAddListener
 	    }
 	
            
+	    }
 	}
 	if(error){
 	    item.setOutcome("multipleChoiceItem");
