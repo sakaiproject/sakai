@@ -52,20 +52,19 @@
         <h:outputText value="#{msgs.perm_new_topic}" />
 		<f:verbatim></td><td></f:verbatim>
 		<h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
-     	<h:outputText value="#{msgs.perm_read}" />
-        <h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
-        <h:outputText value="#{msgs.perm_post_to_gradebook}" />
-        
+     	<h:outputText value="#{msgs.perm_read}" />    	
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:selectBooleanCheckbox  id="newR" value="#{permission.newResponse}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
         <h:outputText value="#{msgs.perm_new_response}" />
 		<f:verbatim></td><td></f:verbatim>
-		<h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_mark_as_read}" />        
+		<h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
+        <h:outputText value="#{msgs.perm_post_to_gradebook}" />
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<h:selectBooleanCheckbox id="newRtoR"  value="#{permission.responseToResponse}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_response_to_response}" />
-		<f:verbatim></td><td></f:verbatim>		
+		<f:verbatim></td><td></f:verbatim>	
+		<h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+		<h:outputText value="#{msgs.perm_mark_as_read}" /> 	
 		<f:verbatim></td></tr><tr><td></f:verbatim>
 		<%--<h:selectBooleanCheckbox id="movePosting" value="#{permission.movePosting}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_move_postings}" />
