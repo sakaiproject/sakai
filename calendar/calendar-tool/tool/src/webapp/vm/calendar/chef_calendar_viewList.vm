@@ -325,19 +325,6 @@
 	## no show this selection, but set default to site
 	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
 #else
-#*	 #if ($allowAddEvent)
-		<p class="checkbox">
-			<input type="radio" name="scheduleTo" id="site" value="site" #if(!$!pubview && ($!scheduleTo == "site" || $!event.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
-			<label for="site">$tlang.getString("displayto.site")</label>
-		</p>	
-	## #else
-		#if ($!groups.size() >1)
-			<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
-		#else
-			<label for="$tlang.getString('group')">$tlang.getString("group")</label>
-		#end
-	#end
-*#
 	<p class="checkbox">
 		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
 		<label for="site">$tlang.getString("displayto.site")</label>
@@ -407,11 +394,11 @@
 			#end
 		</table>
 	#end
-#end
 <p class="act">
 <input type="submit" class="active"  name="eventSubmit_doUpdateGroupView" value="$tlang.getString('viewl.update')" />
 <input type="submit" name="eventSubmit_doCancelGroupView" value="$tlang.getString('gen.cancel')" />
 </p>
+#end
 
 ## if there is at least one event shown, then the legend should be shown too
 #if ($showLegend == "true")
