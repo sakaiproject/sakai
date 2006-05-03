@@ -87,6 +87,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -109,6 +110,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.FormattedText;
@@ -1679,7 +1681,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							List nAttachments = m_entityManager.newReferenceList();
 							for (int n = 0; n < oAttachments.size(); n++)
 							{
-								Reference oAttachment = (Reference) oAttachments.get(n);
+								Reference oAttachmentRef = (Reference) oAttachments.get(n);
 								String oAttachmentId = ((Reference) oAttachments.get(n)).getId();
 								if (oAttachmentId.indexOf(fromContext) != -1)
 								{
@@ -1690,15 +1692,58 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 										ContentResource attachment = ContentHostingService.getResource(nAttachmentId);
 										nAttachments.add(m_entityManager.newReference(attachment.getReference()));
 									}
+									catch (IdUnusedException ee)
+									{
+										try
+										{
+											ContentResource oAttachment = ContentHostingService.getResource(oAttachmentId);
+											try
+											{
+												if (ContentHostingService.isAttachmentResource(nAttachmentId))
+												{
+													// add the new resource into attachment collection area
+													ContentResource attachment = ContentHostingService.addAttachmentResource(
+															oAttachment.getProperties().getProperty(
+																	ResourceProperties.PROP_DISPLAY_NAME), ToolManager
+																	.getCurrentPlacement().getContext(), ToolManager.getTool(
+																	"sakai.schedule").getTitle(), oAttachment.getContentType(),
+															oAttachment.getContent(), oAttachment.getProperties());
+													// add to attachment list
+													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+												}
+												else
+												{
+													// add the new resource into resource area
+													ContentResource attachment = ContentHostingService.addResource(oAttachment
+															.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME),
+															ToolManager.getCurrentPlacement().getContext(), 1, oAttachment
+																	.getContentType(), oAttachment.getContent(), oAttachment
+																	.getProperties(), NotificationService.NOTI_NONE);
+													// add to attachment list
+													nAttachments.add(m_entityManager.newReference(attachment.getReference()));
+												}
+											}
+											catch (Exception eeAny)
+											{
+												// if the new resource cannot be added
+												M_log.warn(" cannot add new attachment with id=" + nAttachmentId);
+											}
+										}
+										catch (Exception eAny)
+										{
+											// if cannot find the original attachment, do nothing.
+											M_log.warn(" cannot find the original attachment with id=" + oAttachmentId);
+										}
+									}
 									catch (Exception any)
 									{
-
+										M_log.warn(this + any.getMessage());
 									}
 
 								}
 								else
 								{
-									nAttachments.add(oAttachment);
+									nAttachments.add(oAttachmentRef);
 								}
 							}
 							eEdit.replaceAttachments(nAttachments);
