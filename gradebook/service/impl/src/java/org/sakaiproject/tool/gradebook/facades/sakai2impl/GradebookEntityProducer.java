@@ -32,7 +32,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 
 /**
- * Implements the Sakai 2.1 EntityProducer approach to integration of tool-specific
+ * Implements the Sakai EntityProducer approach to integration of tool-specific
  * storage with site management.
  */
 public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver {
@@ -53,16 +53,27 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 	}
 
 	public void contextCreated(String context, boolean toolPlacement) {
-		if (!gradebookService.isGradebookDefined(context)) {
+		// Only create Gradebook storage if the Gradebook tool is actually
+		// part of the new site.
+		if (toolPlacement && !gradebookService.isGradebookDefined(context)) {
 			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
 			gradebookService.addGradebook(context, context);
 		}
 	}
 
 	public void contextUpdated(String context, boolean toolPlacement) {
-		if (!gradebookService.isGradebookDefined(context)) {
-			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
-			gradebookService.addGradebook(context, context);
+		if (toolPlacement) {
+			if (!gradebookService.isGradebookDefined(context)) {
+				if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
+				gradebookService.addGradebook(context, context);
+			}
+		} else {
+			if (gradebookService.isGradebookDefined(context)) {
+				// We've been directed to leave Gradebook data in place when
+				// the tool is removed from a site, just in case the site
+				// owner changes their mind later.
+				if (log.isInfoEnabled()) log.info("Gradebook removed from context " + context + " but associated data will remain until context deletion");
+			}
 		}
 	}
 
@@ -75,20 +86,6 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 				if (log.isWarnEnabled()) log.warn(e);
 			}
 		}
-/*
-		boolean isGradebookDefined = gradebookService.isGradebookDefined(context);
-		// See if this tool is now in the site.
-		String[] toolsToSearchFor = {getToolId()};
-		Collection matchingTools = site.getTools(myToolIds());
-		if (matchingTools.isEmpty() && isGradebookDefined) {
-			// We've been directed to leave Gradebook data in place when
-			// the tool is removed from a site.
-			if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
-		} else if (!matchingTools.isEmpty() && !isGradebookDefined) {
-			if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
-			gradebookService.addGradebook(gradebookUid, gradebookUid);
-		}
-*/
 	}
 
 	public void setGradebookService(GradebookService gradebookService) {
