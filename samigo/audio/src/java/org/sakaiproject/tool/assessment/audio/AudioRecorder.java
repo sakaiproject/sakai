@@ -86,6 +86,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.Action;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -94,6 +96,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -129,6 +132,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   AudioInputStream audioInputStream;
   SamplingGraph samplingGraph;
   Thread timerThread;
+  Timer timer;
 
   JButton playB, captB, pausB, loadB;
   //JButton auB, aiffB, waveB;
@@ -219,7 +223,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     saveTFpanel.add(flabel);
     saveTFpanel.add(textField = new JTextField(""+params.getCurrentRecordingLength()));
     saveTFpanel.add(rlabel);
-    saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
+    if (params.getAttemptsRemaining() >= 0)
+      saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
+    else
+      saveTFpanel.add(rtextField = new JTextField("0"));
     textField.setEditable(false);
     rtextField.setEditable(false);
     Font font = new Font("Ariel", Font.PLAIN, 11);
@@ -233,8 +240,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private JPanel makeAudioButtonsPanel()
   {
     JPanel buttonsPanel = new JPanel();
-    captB = addButton(res.getString("Record"), buttonsPanel, true,
-                      params.isEnableRecord());
+    if (params.getAttemptsRemaining() > 0){
+      captB = addButton(res.getString("Record"), buttonsPanel, true,
+                        params.isEnableRecord());
+    }
+    else{
+      captB = addButton(res.getString("Record"), buttonsPanel, false,
+                        params.isEnableRecord());
+    }
     playB = addButton(res.getString("Play"), buttonsPanel, false,
                       params.isEnablePlay());
     return buttonsPanel;
@@ -327,35 +340,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
         //aiffB.setEnabled(false);
         //waveB.setEnabled(false);
         captB.setText(" " + res.getString("playB_Text"));
+        startTimer();
       }
       else
       {
-        lines.removeAllElements();
-        capture.stop();
-        samplingGraph.stop();
-        //loadB.setEnabled(true);
-        playB.setEnabled(true);
-        //pausB.setEnabled(false);
-        //auB.setEnabled(true);
-        //aiffB.setEnabled(true);
-        //waveB.setEnabled(true);
-        captB.setText(res.getString("Record"));
-        int retry = 1; 
-        while (audioInputStream == null && retry < 5){
-          retry ++;
-          if (timerThread == null){ 
-            timerThread = new Thread();
-            timerThread.start(); 
-          }
-          try{
-            timerThread.sleep(1000);
-	  }
-          catch(Exception ex){
-            System.out.println(ex.getMessage());
-	  }
-	}
-        timerThread = null;
-        saveMedia();
+        captureAudio();
       }
     }
     /* comment out this control, we don't use it - daisyf
@@ -1190,5 +1179,52 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
       return mimeType;
   }  
+
+  private void captureAudio(){
+    // timer was started by clicking Record to enforce time limit
+    if (timer != null) {
+      timer.stop();
+      reportStatus(res.getString("time_passed")+"\n" );
+    }
+
+    lines.removeAllElements();
+    capture.stop();
+    samplingGraph.stop();
+    //loadB.setEnabled(true);
+    playB.setEnabled(true);
+    //pausB.setEnabled(false);
+    //auB.setEnabled(true);
+    //aiffB.setEnabled(true);
+    //waveB.setEnabled(true);
+    captB.setText(res.getString("Record"));
+    int retry = 1; 
+    while (audioInputStream == null && retry < 5){
+      retry ++;
+      if (timerThread == null){ 
+        timerThread = new Thread();
+        timerThread.start(); 
+      }
+      try{
+        timerThread.sleep(1000);
+      }
+      catch(Exception ex){
+        System.out.println(ex.getMessage());
+      }
+    }
+    timerThread = null;
+    saveMedia();
+  }
+
+  private void startTimer(){
+    Action stopRecordingAction = new AbstractAction(){
+      public void actionPerformed(ActionEvent e) {
+        captureAudio();
+      }
+    };
+    // allow 1sec for leeway in case the page loads slow
+    timer = new Timer(params.getMaxSeconds()*1000+1000, stopRecordingAction);
+    timer.start();
+  }
+
 
 }

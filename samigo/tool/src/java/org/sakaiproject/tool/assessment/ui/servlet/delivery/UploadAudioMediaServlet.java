@@ -165,10 +165,11 @@ public class UploadAudioMediaServlet extends HttpServlet
       try{
         submitMediaAsAnswer(req, mediaLocation, saveToDb);
         status = "Audio has been saved and submitted as answer to the question. The old audio has been removed from the system.";
+        pw.write(status);
       }
       catch (Exception ex){
         log.info(ex.getMessage());
-        status = "Failed to submit media as answer.";
+        pw.write(ex.getMessage());
       }
     }
   }
@@ -237,7 +238,10 @@ public class UploadAudioMediaServlet extends HttpServlet
         attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       }
       else{
-        attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
+        if (itemGrading.getAttemptsRemaining().intValue() > 0 )
+          attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
+        else
+          throw new Exception("This page must have been reached by mistake. Our record shows that no more attempt for this question is allowed.");
       }
     }
     else{
