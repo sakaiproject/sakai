@@ -3032,7 +3032,7 @@ public class DiscussionForumTool
                 UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId(),  
                 new Double(gradePoint),  
                 "");
-            setErrorMessage("Grade submission successful.");
+            setGradeNoticeMessage();
             selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
             selectedMessage.getMessage().setGradeComment(gradeComment);
             forumManager.saveMessage(selectedMessage.getMessage());
@@ -3485,6 +3485,12 @@ public class DiscussionForumTool
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage("Alert: " + errorMsg));
+  }
+  
+  private void setGradeNoticeMessage()
+  {
+    FacesContext.getCurrentInstance().addMessage(null,
+        new FacesMessage(" Grade submission successful. "));
   }
   
  
