@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project
+        xmlns:j="jelly:core"
+        xmlns:license="license"
+        xmlns:util="jelly:util"
+        xmlns:ant="jelly:ant"
+        xmlns:artifact="artifact"
+        xmlns:maven="jelly:maven"
+        default="sakai:build">
+
+<preGoal name="war:webapp">
+
+
+  <ant:available file="${maven.tomcat.home}/webapps/ROOT/favicon.ico" property="favicon.exists" />
+
+  <j:if test="${favicon.exists}">
+  	<ant:copy todir="${maven.tomcat.home}/webapps/ROOT"
+        	file="src/webapp/icon/favicon.ico" overwrite="true" verbose="true" failonerror="false" />
+  </j:if>
+
+</preGoal>
+
+</project>
