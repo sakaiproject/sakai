@@ -27,9 +27,9 @@ import java.util.List;
 
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
-import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate.HibernateSystemException;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate3.HibernateSystemException;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LockManagerImpl extends HibernateDaoSupport implements LockManager
 {
