@@ -4217,7 +4217,14 @@ public class ResourcesAction
 		{
 			//check -- jim
 			state.setAttribute(AttachmentAction.STATE_HAS_ATTACHMENT_BEFORE, Boolean.TRUE);
-			field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
+			if(current_stack_frame == null)
+			{
+			
+			}
+			else
+			{
+				field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
+			}
 		}
 
 		if(field != null)
