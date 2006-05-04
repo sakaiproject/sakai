@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC
   "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
-  "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping>
+<hibernate-mapping default-lazy="false">
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData" table="SAM_PUBLISHEDITEM_T">
     <id name="itemId" column="ITEMID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">

@@ -19,7 +19,7 @@
   <!-- build from target/ created by maven -->
   <target name="schemaexport" >
 	<taskdef name="schemaexport"
-	         classname="net.sf.hibernate.tool.hbm2ddl.SchemaExportTask">
+	         classname="org.hibernate.tool.hbm2ddl.SchemaExportTask">
 	  <classpath>
 		<fileset dir="target/samigo/WEB-INF/lib">
 		  <include name="*.jar"/>

@@ -20,7 +20,7 @@
 </bean>
 
   <bean id="sessionFactory"
-    class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="dataSource">
       <ref local="UnitTestDataSource"/>
     </property>
@@ -41,12 +41,12 @@
 
     <property name="hibernateProperties">
       <props>
-        <prop key="hibernate.dialect">net.sf.hibernate.dialect.xxxxxxxxx</prop>
+        <prop key="hibernate.dialect">org.hibernate.dialect.xxxxxxxxx</prop>
         <prop key="hibernate.show_sql">false</prop>
         <prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
         <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
         <prop key="hibernate.cache.use_query_cache">false</prop>
-        <prop key="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</prop>
+        <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
         <prop key="hibernate.jdbc.batch_size">0</prop>
       </props>
     </property>
@@ -58,7 +58,7 @@
 
   </bean>
 
-  <bean id="transactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager">
+  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
     <property name="sessionFactory">
       <ref local="sessionFactory"/>
     </property>

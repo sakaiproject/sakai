@@ -85,9 +85,9 @@ example:
  hibernate.connection.url=jdbc:oracle:thin:@acompdb2.stanford.edu:1521:acompdb2
  hibernate.connection.username=username
  hibernate.connection.password=password
- hibernate.dialect=net.sf.hibernate.dialect.Oracle9Dialect
+ hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
  hibernate.show_sql=false
- hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+ hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
 
 
 4. Make sure you have your database jar in your .maven/repository/oracle/jars.
@@ -138,11 +138,11 @@ a. Edit your samigo.properties file, an example for Oracle follows,
   db.url=jdbc:oracle:thin:@xxx.myuniversity.edu:1521:yyy
   db.username=mydbusername
   db.password=mydbuserpw
-  hibernate.dialect=net.sf.hibernate.dialect.Oracle9Dialect
+  hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
   hibernate.show_sql=false
   hibernate.jdbc.batch_size=0
   hibernate.connection.pool_size=100
-  hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+  hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
 
  the location is specified in the propertyConfigurer bean in
   sam/component/src/java/org/sakaiproject/spring/applicationContextStandalone.xml
