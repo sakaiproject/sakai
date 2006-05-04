@@ -6,10 +6,11 @@
 	#if($menu)
 		#toolbar($menu)
 	#end
-	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
+
 	<h3>
 		$tlang.getString("archive.vm.import")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form 
 		name="batchImportForm" 
 		id="batchImportForm" 
@@ -20,10 +21,10 @@
 			<label for="importFile">
 				$tlang.getString("archive.vm.filebatchimport")
 			</label>	
-			<input type="file" name="importFile"   id="importFile" class ="upload" />
+			<input type="file" name="importFile"   id="importFile"  />
 		</p>	
 		<p class="act">
-			<input type="submit" name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")"/>
+			<input type="submit"class="active"  name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")" accesskey="s" />
 		</p>	
 	</form>
 </div>
