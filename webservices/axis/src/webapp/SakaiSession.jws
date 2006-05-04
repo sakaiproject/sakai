@@ -1,7 +1,7 @@
 import java.util.Date;
 
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * class to support Sakai Login headers sent in request as a string array

@@ -4,24 +4,24 @@ import java.util.List;
 import java.util.Iterator;
 import java.net.URLEncoder;
 
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SitePage;
-import org.sakaiproject.service.legacy.site.ToolConfiguration;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 
-import org.sakaiproject.api.kernel.tool.ActiveTool;
-import org.sakaiproject.api.kernel.tool.Placement;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.apache.axis.AxisFault;
 
@@ -70,9 +70,9 @@ public class SakaiSite {
 	// System.out.println("Search="+search+" first="+first+" last="+last);
 
  	List siteList = SiteService.getSites(
-		org.sakaiproject.service.legacy.site.SiteService.SelectionType.ACCESS,
+		org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
                 null, search, null,
-                org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC,
+                org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
                 new PagingPosition(first, last));
 
 	return siteList;
@@ -83,8 +83,8 @@ public class SakaiSite {
     {
 	Session s = establishSession(id);
 
-	List openSites = SiteService.getSites(org.sakaiproject.service.legacy.site.SiteService.SelectionType.JOINABLE,
-		null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
+	List openSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
+		null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 	if ( openSites == null ) 
 	{
 		return "no sites to join";
