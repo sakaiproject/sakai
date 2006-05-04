@@ -108,22 +108,22 @@ public class SyllabusAttachmentImpl implements SyllabusAttachment, Comparable
     return sb.toString();
   } 
 
-  public final SyllabusData getSyllabusData()
+  public SyllabusData getSyllabusData()
   {
     return syllabusData;
   }
 
-  public final void setSyllabusData(SyllabusData syllabusData)
+  public void setSyllabusData(SyllabusData syllabusData)
   {
     this.syllabusData = syllabusData;
   }
 
-  public final String getName()
+  public String getName()
   {
     return name;
   }
 
-  public final void setName(String name)
+  public void setName(String name)
   {
     this.name = name;
   }

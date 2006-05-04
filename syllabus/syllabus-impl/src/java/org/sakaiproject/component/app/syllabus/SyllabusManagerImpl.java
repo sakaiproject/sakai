@@ -24,13 +24,13 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.sf.hibernate.Criteria;
-import net.sf.hibernate.FetchMode;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
 
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
@@ -38,8 +38,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * SyllabusManagerImpl provides convenience functions to query the database
