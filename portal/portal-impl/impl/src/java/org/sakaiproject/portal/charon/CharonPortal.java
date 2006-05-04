@@ -630,17 +630,15 @@ public class CharonPortal extends HttpServlet
 
 		out.write(headHtml);
 
-		out
-				.write("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" class=\"toolTitle\" summary=\"layout\">\n");
-		out.write("<tr>\n");
-		out.write("\t<td class=\"title\">\n");
-		if (showResetButton)
+		out.write("<div class=\"portletTitle\">\n");
+		out.write("\t<div class=\"title\">\n");
+			if (showResetButton)
 		{
 			out.write("\t\t<a href=\"" + resetActionUrl
 					+ "\" title=\"Reset\"><img src=\"/library/image/transparent.gif\" alt=\"Reset\" border=\"1\" /></a>");
 		}
-		out.write("<h2>" + toolTitle + "\n" + "\t</h2></td>\n");
-		out.write("\t<td class=\"action\">\n");
+			out.write("<h2>"+toolTitle+"\n"+"\t</h2></div>\n");
+			out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
 			out
@@ -650,9 +648,8 @@ public class CharonPortal extends HttpServlet
 							+ helpActionUrl
 							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
-		out.write("\t</td>\n");
-		out.write("</tr>\n");
-		out.write("</table>\n");
+		out.write("\t</div>\n");
+		out.write("</div>\n");
 
 		if (resetToolNow)
 		{
@@ -1347,7 +1344,7 @@ public class CharonPortal extends HttpServlet
 		String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
 		String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
 
-		out.println("<div align=\"center\" id=\"footer\">");
+		out.println("<div id=\"footer\">");
 		out.println("	<div class=\"footerExtNav\" align=\"center\">");
 		out.println("	|");
 
@@ -1374,16 +1371,18 @@ public class CharonPortal extends HttpServlet
 		else
 		{
 			out
-					.println("		<span class=\"skip\">Opens in a new window</span>	<a href=\"http://sakaiproject.org\" target=\"_blank\">"
+					.println("		<span class=\"skip\">" + Web.escapeHtml(rb.getString("site.newwindow")) + "</span><a href=\"http://sakaiproject.org\" target=\"_blank\">"
 							+ "<img border=\"0\" src=\"/library/image/sakai_powered.gif\" alt=\"Powered by Sakai\" /></a>");
 		}
-		out.println("<br />");
-		out.println("		<span class=\"sakaiCopyrightInfo\">" + copyright + "<br />");
-		out.println("		" + service + " - " + serviceVersion + " - Sakai " + sakaiVersion + " - Server \"" + server + "\"</span>");
+		out.println("	</div>");
+		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright + "<br />");
+		out.println("		" + service + " - " + serviceVersion + " - Sakai " + sakaiVersion + " - Server \"" + server + "\"</div>");
 		out.println("	</div>");
 		out.println("</div>");
 		out.println("</div>");
 		out.println("</div>");
+		out.println("</div>");
+		out.println("</div>");		
 	}
 
 	protected void includeGalleryLogin(PrintWriter out, HttpServletRequest req, Session session, String siteId) throws IOException
@@ -1414,7 +1413,10 @@ public class CharonPortal extends HttpServlet
 			siteNavUrl = Web.returnUrl(req, "/nav_login_gallery/" + Web.escapeUrl(siteId));
 		}
 
-		// gsilver - jump to links
+		// outer blocks and  jump-to links
+		out.println("	<div id=\"portalOuterContainer\">");
+		out.println("	<div id=\"portalContainer\">");
+		out.println("<div id=\"skipNav\">");
 		String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
 		if (accessibilityURL != null && accessibilityURL != "")
 		{
@@ -1422,13 +1424,11 @@ public class CharonPortal extends HttpServlet
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"a\">"
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "</a>");
 		}
-		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent"))
-				+ "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
-		out.println("<a href=\"#toolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools"))
-				+ "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
-		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpworksite"))
-				+ "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
-
+		out.println("	<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
+		out.println("	<a href=\"#totoolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools")) + "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
+		out.println("	<a href=\"#sitetabs\" class=\"skip\" title=\""+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
+		out.println("</div>");
+		out.println("<div id=\"header\">");
 		out.println("<iframe");
 		out.println("	name=\"sitenav\"");
 		out.println("	id=\"sitenav\"");
@@ -1442,6 +1442,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	scrolling=\"no\"");
 		out.println("	src=\"" + siteNavUrl + "\">");
 		out.println("</iframe>");
+		out.println("</div>");		
 	}
 
 	protected void includeLogo(PrintWriter out, HttpServletRequest req, Session session, String siteId) throws IOException
@@ -1456,20 +1457,20 @@ public class CharonPortal extends HttpServlet
 		String logo = skinRepo + "/" + skin + "/images/logo_inst.gif";
 		String banner = skinRepo + "/" + skin + "/images/banner_inst.gif";
 
-		out.println("<div class=\"siteNavBlock\">");
-		out.println("<table class=\"mast-head\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">");
-		out.println("	<tr>");
-		out.println("		<td class=\"left\">");
-		out.println("			<img title=\"Logo\" alt=\"Logo\" src=\"" + logo + "\" />");
-		out.println("		</td>");
-		out.println("		<td class=\"middle\">");
-		out.println("			<img title=\"Banner\" alt=\"Banner\" src=\"" + banner + "\" />");
-		out.println("		</td>");
-		out.println("		<td class=\"mast-head-r right\">");
+		String siteType = calcSiteType(siteId);
+		String cssClass = (siteType != null) ?  siteType : "undeterminedSiteType";
+		out.println("<div id=\"siteNavWrapper\" class=\"" + cssClass + "\">");
+		out.println("<div id=\"mastHead\">");
+		out.println("	<div id=\"mastLogo\">");
+		out.println("		<img title=\"Logo\" alt=\"Logo\" src=\"" + logo + "\" />");
+		out.println("	</div>");
+		out.println("	<div id=\"mastBanner\">");
+		out.println("		<img title=\"Banner\" alt=\"Banner\" src=\"" + banner + "\" />");
+		out.println("	</div>");
+		out.println("	<div id=\"mastLogin\">");
 		includeLogin(out, req, session);
-		out.println("		</td>");
-		out.println("	</tr>");
-		out.println("</table>");
+		out.println("	</div>");
+		out.println("</div>");
 	}
 
 	protected void includeLogin(PrintWriter out, HttpServletRequest req, Session session)
@@ -1538,6 +1539,7 @@ public class CharonPortal extends HttpServlet
 		// put out the links version
 		if (!topLogin)
 		{
+			out.println("<div id=\"loginLinks\">");
 			out.println("			<a href=\"" + logInOutUrl + "\" target=\"_parent\" title=\"" + message + "\">"
 					+ ((image1 == null) ? message : "<img src=\"" + image1 + "\"/>") + "</a>");
 			if (logInOutUrl2 != null)
@@ -1545,6 +1547,7 @@ public class CharonPortal extends HttpServlet
 				out.println("			<a href=\"" + logInOutUrl2 + "\" target=\"_parent\" title=\"" + message2 + "\">"
 						+ ((image2 == null) ? message2 : "<img alt=\"" + message2 + "\" src=\"" + image2 + "\"/>") + "</a>");
 			}
+			out.println("</div>");
 		}
 
 		// else put out the fields that will send to the login interface
@@ -1561,10 +1564,9 @@ public class CharonPortal extends HttpServlet
 			if (pwWording == null) pwWording = "pw";
 			String loginWording = rb.getString("log.login");
 
-			out
-					.println("<form method=\"post\" action=\"/portal/xlogin\" enctype=\"application/x-www-form-urlencoded\" target=\"_parent\">");
-			out.println(eidWording + "<input name=\"eid\" id=\"eid\" type=\"text\" style =\"width: 10em\" />");
-			out.println(pwWording + "<input name=\"pw\" type=\"password\" style =\"width: 10em\" />");
+			out.println("<form id=\"loginForm\" method=\"post\" action=\"/portal/xlogin\" enctype=\"application/x-www-form-urlencoded\" target=\"_parent\">");
+			out.println("<label for=\"eid\">" + eidWording + "</label><input name=\"eid\" id=\"eid\" type=\"text\" />");
+			out.println("<label for=\"pw\">" + pwWording + "</label><input name=\"pw\" type=\"password\" id=\"pw\" />");
 			out.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"" + loginWording + "\" /> </form>");
 
 			// setup for the redirect after login
@@ -1581,11 +1583,11 @@ public class CharonPortal extends HttpServlet
 		// get the tools on this first column of page
 		if (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL)
 		{
-			out.println("<div style=\"width:49%;float:left;margin:0;\">");
+			out.println("<div id=\"col1of2\">");
 		}
 		else
 		{
-			out.println("<div>");
+			out.println("<div id=\"col1\">");
 		}
 		List tools = page.getTools(0);
 		for (Iterator i = tools.iterator(); i.hasNext();)
@@ -1604,7 +1606,7 @@ public class CharonPortal extends HttpServlet
 		// do the second column if needed
 		if (page.getLayout() == SitePage.LAYOUT_DOUBLE_COL)
 		{
-			out.println("<div style=\"width:50%;float:right\">");
+			out.println("<div id=\"col2of2\">");
 			tools = page.getTools(1);
 			for (Iterator i = tools.iterator(); i.hasNext();)
 			{
@@ -1636,8 +1638,8 @@ public class CharonPortal extends HttpServlet
 		boolean published = site.isPublished();
 		String type = site.getType();
 
-		out.println("<div class=\"divColor\" id=\"sidebar\">");
-		out.println("	<div id=\"divLogo\">");
+		out.println("<div class=\"divColor\" id=\"toolMenuWrap\">");
+		out.println("	<div id=\"worksiteLogo\">");
 		if (!published)
 		{
 			out.println("<p id=\"siteStatus\">" + "unpublished site" + "</p>");
@@ -1655,11 +1657,11 @@ public class CharonPortal extends HttpServlet
 		}
 		out.println("	</div>");
 
-		// gsilver - target of "jump to tools" link, header
-		out.println("	<a id=\"toolmenu\" class=\"skip\" name=\"toolmenu\"></a>");
+		// target of "jump to tools" link, header
+		out.println("	<a id=\"totoolmenu\" class=\"skip\" name=\"totoolmenu\"></a>");
 		out.println("	<h1 class=\"skip\">" + Web.escapeHtml(rb.getString("sit.toolshead")) + "</h1>");
 
-		out.println("	<div id=\"leftnavlozenge\">");
+		out.println("	<div id=\"toolMenu\">");
 		out.println("		<ul>");
 
 		// order the pages based on their tools and the tool order for the site type
@@ -1685,7 +1687,7 @@ public class CharonPortal extends HttpServlet
 			out.print("href=\"");
 			if (current)
 			{
-				out.print("\"#\"");
+				out.print("#");
 			}
 			else if (p.isPopUp())
 			{
@@ -1698,7 +1700,7 @@ public class CharonPortal extends HttpServlet
 			{
 				out.print(pageUrl + Web.escapeUrl(p.getId()));
 			}
-			out.println("\">" + Web.escapeHtml(p.getTitle()) + "</a></li>");
+			out.println("\"><span>" + Web.escapeHtml(p.getTitle()) + "</span></a></li>");
 
 			count++;
 		}
@@ -1711,8 +1713,8 @@ public class CharonPortal extends HttpServlet
 			// help gets its own accesskey - h
 			out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
 				+ ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
-				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\">" + rb.getString("sit.help")
-				+ "</a>");
+				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><span>" + rb.getString("sit.help")
+				+ "</span></a>");
 
 			out.println("			</li>");
 		}
@@ -1721,12 +1723,13 @@ public class CharonPortal extends HttpServlet
 		out.println("	</div>");
 		if (showPresence && loggedIn)
 		{
-			out.println("	<div class=\"sideBarText\"  id=\"pres_title\">");
+			out.println("	<div id=\"presenceWrapper\">");
+			out.println("		<div id=\"presenceTitle\">");
 			out.println(Web.escapeHtml(rb.getString("sit.presencetitle")));
 			out.println("	</div>");
 			out.println("	<iframe ");
 			out.println("		name=\"presence\"");
-			out.println("		id=\"presence\"");
+			out.println("		id=\"presenceIframe\"");
 			out.println("		title=\"" + Web.escapeHtml(rb.getString("sit.presenceiframetit")) + "\"");
 			out.println("		frameborder=\"0\"");
 			out.println("		marginwidth=\"0\"");
@@ -1735,10 +1738,11 @@ public class CharonPortal extends HttpServlet
 			out.println("		src=\"" + presenceUrl + "\"");
 			out.println("	>");
 			out.println("	</iframe>");
+			out.println("	</div>");			
 		}
 		out.println("</div>");
 
-		// gsilver - target of "jump to content" link and header for content
+		//target of "jump to content" link and header for content
 
 		out.println("	<h1 class=\"skip\">" + Web.escapeHtml(rb.getString("sit.contentshead")) + "</h1>");
 		out.println("	<a id=\"tocontent\" class=\"skip\" name=\"tocontent\"></a>");
@@ -1767,7 +1771,10 @@ public class CharonPortal extends HttpServlet
 			siteNavClass = "sitenav-log";
 		}
 
-		// gsilver - jump to links
+		//outer blocks and jump to links
+		out.println("	<div id=\"portalOuterContainer\">");
+		out.println("	<div id=\"portalContainer\">");
+		out.println("<div id=\"skipNav\">");
 
 		String accessibilityURL = ServerConfigurationService.getString("accessibility.url");
 		if (accessibilityURL != null && accessibilityURL != "")
@@ -1776,18 +1783,17 @@ public class CharonPortal extends HttpServlet
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "\" accesskey=\"a\">"
 					+ Web.escapeHtml(rb.getString("sit.accessibility")) + "</a>");
 		}
-		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent"))
-				+ "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
-		out.println("<a href=\"#toolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools"))
-				+ "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
-		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpworksite"))
-				+ "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
+		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
+		out.println("<a href=\"#totoolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools")) + "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
+		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
 
+		out.println("<div id=\"header\">");
 		out.println("<iframe");
 		out.println("	name=\"sitenav\"");
 		out.println("	id=\"sitenav\"");
 		out.println("	title=\"Worksites\"");
 		out.println("	class=\"" + siteNavClass + "\"");
+//		not sure we need this height anymore	
 		out.println("	height=\"" + height + "\"");
 		out.println("	width=\"100%\"");
 		out.println("	frameborder=\"0\"");
@@ -1796,6 +1802,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	scrolling=\"no\"");
 		out.println("	src=\"" + siteNavUrl + "\">");
 		out.println("</iframe>");
+		out.println("</div>");		
 	}
 
 	protected void includeTabs(PrintWriter out, HttpServletRequest req, Session session, String siteId, String prefix,
@@ -1927,30 +1934,29 @@ public class CharonPortal extends HttpServlet
 			}
 		}
 
-		String cssClass = (siteType != null) ? "tabHolder " + siteType : "tabHolder";
+		String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
 		out.println("<div class=\"" + cssClass + "\">");
-		out.println("	<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
-		out.println("		<tr>");
-		out.println("			<td class=\"tabCell\">");
+		out.println("	<div id=\"siteNav\">");
+		out.println("		<div id=\"linkNav\">");
 
-		// gsilver - target for "jump to tabs" link and header
+		// target for "jump to tabs" link and header
 
 		out.println("				<a id=\"sitetabs\" class=\"skip\" name=\"sitetabs\"></a>");
 		out.println("				<h1 class=\"skip\">" + Web.escapeHtml(rb.getString("sit.worksiteshead")) + "</h1>");
 
-		out.println("				<ul id=\"tabNavigation\">");
+		out.println("				<ul id=\"siteLinkList\">");
 
 		// myWorkspace
 		if (curMyWorkspace)
 		{
-			out.println("						<li class=\"selectedTab\"><a href=\"#\">" + rb.getString("sit.mywor") + "</a></li>");
+			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>" + rb.getString("sit.mywor") + "<span></a></li>");
 		}
 		else
 		{
 			String siteUrl = Web.serverUrl(req) + "/portal/" + prefix + "/"
 					+ Web.escapeUrl(SiteService.getUserSiteId(session.getUserId()));
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
-					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\">" + Web.escapeHtml(rb.getString("sit.mywor")) + "</a></li>");
+					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
 		}
 
 		// first n tabs
@@ -1959,32 +1965,31 @@ public class CharonPortal extends HttpServlet
 			Site s = (Site) i.next();
 			if (s.getId().equals(siteId))
 			{
-				out.println("							<li class=\"selectedTab\"><a href=\"#\">" + Web.escapeHtml(s.getTitle()) + "</a></li>");
+				out.println("							<li class=\"selectedTab\"><a href=\"#\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
 			else
 			{
 				String siteUrl = Web.serverUrl(req) + "/portal/" + prefix + "/" + Web.escapeUrl(s.getId());
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
-						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\">" + Web.escapeHtml(s.getTitle()) + "</a></li>");
+						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
 		}
 
 		// current site, if not in the list of first n tabs
 		if (extraTitle != null)
 		{
-			out.println("						<li class=\"selectedTab\"><a>" + Web.escapeHtml(extraTitle) + "</a></li>");
+			out.println("						<li class=\"selectedTab\"><a><span>" + Web.escapeHtml(extraTitle) + "</span></a></li>");
 		}
 
 		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
 				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		out.println("				</ul>");
-		out.println("			</td>");
+		out.println("			</div>");
 
 		// more dropdown
 		if (moreSites.size() > 0)
 		{
-			out.println("			<td class=\"selectCell\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage"))
-					+ "</span>");
+			out.println("			<div id=\"selectNav\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage")) + "</span>");
 			out.println("				<select ");
 			out.println("						onchange=\"if (this.options[this.selectedIndex].value != '')"
 					+ " { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }\">");
@@ -2000,20 +2005,19 @@ public class CharonPortal extends HttpServlet
 			}
 
 			out.println("				</select>");
-			out.println("			</td>");
+			out.println("			</div>");
 		}
 
 		if (addLogout)
 		{
 			String logoutUrl = Web.serverUrl(req) + "/portal/logout_gallery";
-			out.println("<td class=\"galleryLogin\">");
+			out.println("<div class=\"galleryLogin\">");
 			out.println("	<a href=\"" + logoutUrl + "\" target=\"_parent\">" + Web.escapeHtml(rb.getString("sit.log")) + "</a>");
-			out.println("</td>");
+			out.println("</div>");
 		}
 
-		out.println("		</tr>");
-		out.println("	</table>");
-		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
+		out.println("	</div>");
+		out.println("<div class=\"divColor\" id=\"tabBottom\"></div></div>");
 		if (addLogout)
 		{
 		}
@@ -2054,6 +2058,7 @@ public class CharonPortal extends HttpServlet
 		// }
 
 		// this is based on what varuna is currently putting out
+		out.println("<div class=\"portlet\">");
 		out.println("<div class=\"portletTitleWrap\">");
 		out.println("<iframe");
 		out.println("	name=\"" + Web.escapeJavascript("Title" + placement.getId()) + "\"");
@@ -2083,7 +2088,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	marginheight=\"0\"");
 		out.println("	scrolling=\"auto\"");
 		out.println("	src=\"" + toolUrl + "?panel=Main\">");
-		out.println("</iframe></div>");
+		out.println("</iframe></div></div>");
 	}
 
 	protected void includeWorksite(PrintWriter out, HttpServletRequest req, Session session, Site site, SitePage page,
