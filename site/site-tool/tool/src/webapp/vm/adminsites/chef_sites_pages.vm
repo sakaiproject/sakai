@@ -4,16 +4,17 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitpag.alert") $validator.escapeHtml($alertMessage)</div>#end
+
 		<h4>
 			$tlang.getString("sitpag.edisit") $!site.Id
 		</h4>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitpag.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitpag.theare")
 		</div>
 #if ($pages.size() > 0)
 	#set ($pageCount = 0)
-		<table class="listHier" cellspacing="0" summary ="$tlang.getString("sitpag.lisofgro")">
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitpag.lisofgro")">
 			<tr>
 				<th id="move">&nbsp;&nbsp;</th>
 				<th id="Id">$tlang.getString("sitpag.pagid")</th>
@@ -23,7 +24,7 @@
 	#foreach ($page in $pages)
 		#set ($pageCount=$pageCount + 1)
 			<tr>
-				<td headers="move" style="border-bottom:1px dashed  gray">
+				<td headers="move">
 					#if ($pageCount > 1)
 					<a href="#toolLinkParam("$action" "doEdit_page_up" "id=$validator.escapeUrl($page.Id)")">
 						<img src = "#imageLink("sakai/arrowUp.gif")" border="0" alt ="$tlang.getString("sitpag.mopaup")" />
@@ -35,13 +36,13 @@
 					</a>
 					#end
 				</td>
-				<td headers="Id"  style="border-bottom:1px dashed  gray">
+				<td headers="Id">
 					<a href="#toolLinkParam("$action" "doEdit_page" "id=$validator.escapeUrl($page.Id)")">
 						$validator.escapeHtml($page.Id)
 					</a>
 				</td>
-				<td headers="Title"  style="border-bottom:1px dashed  gray">$validator.escapeHtml($page.Title)</td>
-				<td headers="Description"  style="border-bottom:1px dashed  gray">
+				<td headers="Title">$validator.escapeHtml($page.Title)</td>
+				<td headers="Description">
 					<div>
 						$tlang.getString("sitpag.lay")
 					</div>
@@ -79,8 +80,8 @@
 			</h4>	
 
 				<div class="act">
-					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitpag.sav")" />
-					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitpag.can")" />
+					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitpag.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitpag.can")" accesskey="x"  />
 				</div>
 		</form>
 	</div>

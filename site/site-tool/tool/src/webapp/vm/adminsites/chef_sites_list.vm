@@ -6,13 +6,16 @@
 #if($menu)
 	#toolbar($menu)
 #end
+	<h3>
+		$tlang.getString("sitlis.sites")
+	</h3>	
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitlis.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
-			$tlang.getString("sitlis.theare")
+			$tlang.getString("sitlis.theare") 
 		</div>
 #if ($sites.size() > 0)
 	#set ($siteCount = 0)
-		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitlis.lisofgro")">
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitlis.list.summary")">
 			<tr>
 				<th id="Id">$tlang.getString("sitlis.sitid")</th>
 				<th id="Title">$tlang.getString("sitlis.tit")</th>
@@ -34,15 +37,15 @@
 					#end
 				</td>
 				<td headers="Title">$validator.escapeHtml($site.Title)</td>
-				<td headers="Published">&nbsp;#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
-				<td  headers="Joinable">&nbsp;#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joi")" />#end</td>
-				<td headers="Type">$validator.escapeHtml($site.Type)&nbsp;</td>
+				<td headers="Published">#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
+				<td  headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joi")" />#end</td>
+				<td headers="Type">$validator.escapeHtml($site.Type)</td>
 				<td headers="Description">
 					#if ($site.ShortDescription && $site.ShortDescription !="")
 						<div class="instruction">
 							$tlang.getString("sitlis.shodes")
 						</div>
-						<div style="margin-left:2em">
+						<div class="indnt2">
 							$validator.escapeHtml($site.ShortDescription)
 						</div>
 					#end	
@@ -50,7 +53,7 @@
 						<div class="instruction">
 							$tlang.getString("sitlis.des2")
 						</div>
-						<div style="margin-left:2em">
+						<div class="indnt2">
 							$validator.escapeHtml($site.Description)
 						</div>
 					#end	
@@ -58,7 +61,7 @@
 						<div class="instruction">
 							$tlang.getString("sitlis.ico")
 						</div>
-						<div style="margin-left:2em">
+						<div class="indnt2">
 							$validator.escapeHtml($site.IconUrl)
 						</div>
 					#end
@@ -66,22 +69,22 @@
 						<div class="instruction">
 							$tlang.getString("sitlis.sitinf")
 						</div>
-						<div style="margin-left:2em">
+						<div class="indnt2">
 							$validator.escapeHtml($site.InfoUrl)
 						</div>						
 					#end
 						<div class="instruction">
 							$tlang.getString("sitlis.cre")
 						</div>
-						<div style="margin-left:2em">
-							#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end by
+						<div class="indnt2">
+							#if ($site.CreatedTime) $site.CreatedTime.toStringLocalFull() #end
 							#if ($site.CreatedBy) $site.CreatedBy.DisplayName #end
 						</div>
 ##					#if ($realm.ProviderGroupId)
 ##						<div class="instruction">
 ##							Authorization Group External Group Id:
 ##						</div>
-##						<div style="margin-left:2em">
+##						<div class="indnt2">
 ##							$realm.ProviderGroupId
 ##						</div>
 ##					#end

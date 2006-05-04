@@ -4,16 +4,16 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<h4>
+		<h3>
 			$tlang.getString("sitgrp.edisit") $!site.Id
-		</h4>
-		<div class="instruction">
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitgrp.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction"> 
 			$tlang.getString("sitgrp.theare")
 		</div>
 #if ($groups.size() > 0)
 	#set ($groupCount = 0)
-		<table class="listHier" cellspacing="0" summary ="$tlang.getString("sitgrp.lisofgrp")">
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitgrp.lisofgrp")">
 			<tr>
 				<th id="Id">$tlang.getString("sitgrp.grpid")</th>
 				<th id="Title">$tlang.getString("sitgrp.tit")</th>
@@ -50,8 +50,8 @@
 			</h4>	
 
 				<div class="act">
-					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitgrp.sav")" />
-					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitgrp.can")" />
+					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitgrp.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitgrp.can")" accesskey="x"  />
 				</div>
 		</form>
 	</div>

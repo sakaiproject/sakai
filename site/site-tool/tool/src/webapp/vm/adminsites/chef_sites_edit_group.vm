@@ -9,10 +9,10 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedigrp.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<h3>
 			$tlang.getString("sitedigrp.edisit") $!site.Id / $tlang.getString("sitedigrp.grp") $!group.Id
 		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedigrp.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitedigrp.revandmod")
 		</div>
@@ -54,7 +54,7 @@
 				<h4>
 					$tlang.getString("sitedi.pro")
 				</h4>
-				<table class="itemSyummary" summary="$tlang.getString("sitedi.pro")">
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
 					#set ($paramNames = $group.Properties.PropertyNames)
 					#foreach ($paramName in $paramNames)
 						#set ($paramValue = $group.Properties.getPropertyFormatted($paramName))
@@ -82,8 +82,8 @@
 				$tlang.getString("sitedigrp.comthesit")
 			</h4>	
 			<div class="act">
-				<input type="submit" name="eventSubmit_doSave_group" value="$tlang.getString("sitedigrp.sav")" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedigrp.can")" />
+				<input type="submit" name="eventSubmit_doSave_group" value="$tlang.getString("sitedigrp.sav")"  accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedigrp.can")"  accesskey="x" />
 			</div>
 		</form>
 	</div>

@@ -9,10 +9,10 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<h3>
 			$tlang.getString("sitedipag.edisit") $!site.Id / $tlang.getString("sitedipag.pag") $!page.Id
 		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedipag.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="instruction">
 			$tlang.getString("sitedipag.revandmod")
 		</div>
@@ -21,27 +21,28 @@
 			<h4>
 				$tlang.getString("sitedipag.pag")
 			</h4>	
-			<table  summary="$tlang.getString("sitedipag.revandmod")">
+			<table  class="itemSummary" summary="$tlang.getString("sitedipag.revandmod")">
 				<tr>
-					<td>$tlang.getString("sitedipag.pag2")</td>
+					<th>$tlang.getString("sitedipag.pag2")</th>
 					<td>
 						$validator.escapeHtml($page.Id)
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<th>
+						<span class="highlight">*</span>
 						<label for="title">
 							$tlang.getString("sitedipag.tit")
 						</label>
-					</td>
+					</th>
 					<td>
 						<input type="text" name="title" id="title" #if($page) value="$!validator.escapeHtml($page.Title)"#end />
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<th>
 						$tlang.getString("sitedipag.lay")
-					</td>
+					</th>
 					<td>
 						#foreach ($layout in $layouts)
 							<input type="radio" name="layout" id="layout$velocityCount" value="$velocityCount" #if($velocityCount==($page.Layout+1))checked="checked"#end />
@@ -50,11 +51,11 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<th>
 						<label for="popup">
 							$tlang.getString("sitedipag.pop")
 						</label>
-					</td>
+					</th>
 					<td>
 						<input type="radio" value="true" name="popup" id="opentrue" #if ($page.isPopUp()) checked="checked" #end /><label for="opentrue"> $tlang.getString("sitedi.yes") </label>
 						<input type="radio" value="false" name="popup" id="openfalse" #if (!$page || !$page.isPopUp()) checked="checked" #end /><label for="openfalse"> $tlang.getString("sitedi.no")</label>
@@ -65,7 +66,8 @@
 				<h4>
 					$tlang.getString("sitedi.pro")
 				</h4>
-				<table class="itemSyummary" summary="$tlang.getString("sitedi.pro")">
+				<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+					<tr><td></td><td></td></tr>
 					#set ($paramNames = $page.Properties.PropertyNames)
 					#foreach ($paramName in $paramNames)
 						#set ($paramValue = $page.Properties.getPropertyFormatted($paramName))
@@ -86,16 +88,16 @@
 				$tlang.getString("sitedipag.conedi")
 			</h4>	
 			<div class="act">
-				<input type="submit" name="eventSubmit_doDone_page" value="$tlang.getString("sitedipag.don")" />
+				<input type="submit"  class="active" name="eventSubmit_doDone_page" value="$tlang.getString("sitedipag.don")" />
 				<input type="submit" name="eventSubmit_doTools" value="$tlang.getString("sitedipag.too")" />
 			</div>
 			<h4>
 				$tlang.getString("sitedipag.comthesit")
 			</h4>	
 			<div class="act">
-				<input type="submit" name="eventSubmit_doSave_page" value="$tlang.getString("sitedipag.sav")" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedipag.can")" />
+				<input type="submit" class="active" name="eventSubmit_doSave_page" value="$tlang.getString("sitedipag.sav")" accesskey="s"  />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedipag.can")"  accesskey="x" />
 			</div>
 		</form>
 	</div>
-</div>
+
