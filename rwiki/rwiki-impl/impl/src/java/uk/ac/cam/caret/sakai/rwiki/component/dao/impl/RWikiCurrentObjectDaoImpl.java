@@ -75,9 +75,8 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				{
 					return session
 							.createQuery(
-									"select count(*) from RWikiCurrentObjectImpl r where r.name = :name")
-							.setParameter("name", name, Hibernate.STRING)
-							.list();
+									"select count(*) from RWikiCurrentObjectImpl r where r.name = ? ")
+							.setParameter(0, name, Hibernate.STRING).list();
 				}
 
 			};
@@ -277,7 +276,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				return session.createQuery(
 						"select r.name " + "from RWikiCurrentObjectImpl r "
-								+ "where referenced like ?").setParameter(
+								+ "where referenced like ?").setParameter(0,
 						"%::" + name + "::%", Hibernate.STRING).list();
 			}
 		};
@@ -407,8 +406,8 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					return session.createQuery(
 							"select count(*) "
 									+ "from RWikiCurrentObjectImpl r "
-									+ "where r.realm = ?").setParameter(group,
-							Hibernate.STRING).list();
+									+ "where r.realm = ?").setParameter(0,
+							group, Hibernate.STRING).list();
 				}
 
 			};
@@ -441,7 +440,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				return session.createQuery(
 						"from RWikiCurrentObjectImpl as r "
 								+ "where r.name like concat(?,'%') escape 'A' "
-								+ "order by name asc").setParameter(search,
+								+ "order by name asc").setParameter(0, search,
 						Hibernate.STRING).list();
 			}
 		};
@@ -464,7 +463,7 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				return session.createQuery(
 						"from RWikiCurrentObjectImpl as r "
 								+ "where r.name like concat(?,'%') escape 'A' "
-								+ "order by name desc").setParameter(search,
+								+ "order by name desc").setParameter(0, search,
 						Hibernate.STRING).list();
 			}
 		};
