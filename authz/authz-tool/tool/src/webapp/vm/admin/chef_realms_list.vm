@@ -7,7 +7,7 @@
 	#toolbar($menu)
 #end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("realm.list.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<div class="instruction">
+		<div class="instruction clear">
 			$tlang.getString("realm.list.these")
 		</div>
 		<div class="instruction">
@@ -15,7 +15,7 @@
 		</div>
 #if ($realms.size() > 0)
 	#set ($realmCount = 0)
-		<table class="listHier" cellspacing="0" summary ="List of Groups">
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("realm.list.summary")">
 			<tr>
 				<th id="Id">$tlang.getString("realm.list.realmid")</th>
 ##				<th id="Description">$tlang.getString("realm.list.used")</th>
@@ -23,20 +23,21 @@
 				<th id="Maintain">$tlang.getString("realm.list.maintain")</th>
 			</tr>
 	#foreach ($realm in $realms)
-		#set ($realmCount=$realmCount + 1)
 			<tr>
-				<td headers="Id" #if ($realmCount > 1) class="chefTopline" #end>
-					#if ($service.allowUpdate($realm.Id))
-						<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")">
+				<td headers="Id">
+					<h4>
+						#if ($service.allowUpdate($realm.Id))
+							<a href="#toolLinkParam("$action" "doEdit" "id=$validator.escapeUrl($realm.Id)")" title="$tlang.getString("realm.edit.edit") $validator.escapeHtml($realm.Id)">
+								$validator.escapeHtml($realm.Id)
+							</a>
+						#else
 							$validator.escapeHtml($realm.Id)
-						</a>
-					#else
-						$validator.escapeHtml($realm.Id)
-					#end
+						#end
+					</h4>	
 				</td>
-##				<td headers="Description" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.Description)</td>
-				<td headers="Provider" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.ProviderGroupId)</td>
-				<td headers="Maintain" #if ($realmCount > 1) class="chefTopline" #end>$!validator.escapeHtml($!realm.MaintainRole)</td>
+##				<td headers="Description">$!validator.escapeHtml($!realm.Description)</td>
+				<td headers="Provider">$!validator.escapeHtml($!realm.ProviderGroupId)</td>
+				<td headers="Maintain">$!validator.escapeHtml($!realm.MaintainRole)</td>
 			</tr>
 	#end
 		</table>
@@ -46,4 +47,4 @@
 		</div>
 #end
 	</div>
-</div>
+

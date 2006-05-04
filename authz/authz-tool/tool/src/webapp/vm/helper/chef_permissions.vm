@@ -4,14 +4,17 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$thelp.getString("per.lis.title")
+	</h3>
+		#if ($alertMessage)<div class="alertMessage">$thelp.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 
 	<div class="instruction">
 		$!description
 	</div>
 		<form action="#toolForm("$action")" method="post">
 			#if ($!roles)
-				<table class="listHier lines" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0">
+				<table class="listHier lines nolines" cellspacing="0" summary ="$thelp.getString("per.lis")" border="0">
 					<tr>
 						<th id="role">
 							$thelp.getString("per.rol")
@@ -25,10 +28,10 @@
 						#set($roleAbilities = $rolesAbilities.get($role.Id))
 						<tr>
 							<td headers="role">
-								$role.Id
+								<h4>$role.Id</h4>
 							</td>
 						#foreach($lock in $abilities)
-							<td headers="$lock.substring($prefix.length())" style="text-align: left;">
+							<td headers="$lock.substring($prefix.length())">
 								#if ($!hiddenLock.indexOf($lock) != -1 || ($lock == "site.viewRoster" && !$!editViewRoster))
 									## don't show checkbox for those roles
 								#else
@@ -45,13 +48,13 @@
 					#end
 				</table>
 					<div class="act">
-						<input type="submit" name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" />
-						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" />
+						<input type="submit" class="active"  name="eventSubmit_doSave" value="$thelp.getString("gen.sav")" accesskey="s" />
+						<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.can")" accesskey="x" />
 					</div>
 			#else
 				<div class="alertMessage">$thelp.getString("per.alert")</div>
 				<div class="act">
-					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" />
+					<input type="submit" name="eventSubmit_doCancel" value="$thelp.getString("gen.don")" accesskey="x" />
 				</div>
 			#end
 		</form>

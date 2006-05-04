@@ -16,7 +16,7 @@
 		<h4>
 			Role
 		</h4>
-		<p class="shorttext">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="id">
 				 $tlang.getString("reasavrol.rolid")
@@ -24,8 +24,8 @@
 			<input type="text" name="id" id="id" />
 		</p>	
 		<div class="act">
-			<input type="submit" class="active" name="eventSubmit_doSave_role_as" value="$tlang.getString("reasavrol.sav")" />
-			<input type="submit" name="eventSubmit_doCancel_role_saveas" value="$tlang.getString("reasavrol.can")" />
+			<input type="submit" class="active" name="eventSubmit_doSave_role_as" value="$tlang.getString("reasavrol.sav")" accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel_role_saveas" value="$tlang.getString("reasavrol.can")" accesskey="x" />
 		</div>
 	</form>
 </div>
