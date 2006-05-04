@@ -3,12 +3,14 @@
 #if($menu)
 	#toolbar($menu)
 #end
-
+	<h3>
+	$tlang.getString("alias.remove")
+	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("alias.remove.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="alertMessage">
 		$tlang.getString("alias.remove.sure")
 	</div>
-	<table class="listHier" cellspacing="0" summary ="List of Users">
+	<table class="listHier" cellspacing="0" summary ="$tlang.getString("alias.remove.list.summary")">
 		<tr>
 			<th id="Id">$tlang.getString("alias.remove.alias")</th>
 			<th id="Target">$tlang.getString("alias.remove.target")</th>
@@ -20,8 +22,8 @@
 	</table>
 	<form action="#toolForm("$action")" method="post">
 		<div class="act">	
-			<input type="submit" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("alias.remove.remove")" />
-			<input type="submit" name="eventSubmit_doCancel_remove" value="$tlang.getString("alias.remove.cancel")" />
+			<input type="submit" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("alias.remove.remove")" accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel_remove" value="$tlang.getString("alias.remove.cancel")" accesskey="x" />
 		</div>
 	</form>
 </div>
