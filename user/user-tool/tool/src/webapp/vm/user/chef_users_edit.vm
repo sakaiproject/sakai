@@ -30,29 +30,31 @@
 	#toolbar($menu)
 #end
 	
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+
 		<h3>
 			$tlang.getString("useedi.revandmod")
 		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useedi.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
-			<p class="shorttext">
+			## gsilver (invalid id $form-name)
+			<p class="shorttext  required">
 				#if(!$user)<span class="reqStar">*</span>#end 
 				<label #if(!$user) for="id" #end>
 					$tlang.getString("useedi.useid")
 				</label>
-				#if(!$user)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($user.Id)#end
+				#if(!$user)<input type="text" name="id" id="id" />#else$validator.escapeHtml($user.Id)#end
 			</p>	
 			<p class="shorttext">
 				<label for="first-name">
 					$tlang.getString("useedi.firnam")
 				</label>	
-				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#end/>
+				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#end />
 			</p>
 			<p class="shorttext">
 				<label for="last-name">
 					$tlang.getString("useedi.lasnam")
 				</label>
-				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#end/>
+				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#end />
 			</p>
 			<p class="shorttext">
 				<label for="email">
@@ -65,13 +67,13 @@
 				<label for="pw">
 					$tlang.getString("useedi.crenewpass")
 				</label>
-				<input type="password" name="pw" id="pw"/>
+				<input type="password" name="pw" id="pw" />
 			</p>
 			<p class="shorttext">
 				<label for="pw0">
 					$tlang.getString("useedi.vernewpass")
 				</label>
-				<input type="password" name="pw0" id="pw0"/>
+				<input type="password" name="pw0" id="pw0" />
 			</p>	
 #end
 #if ($incType)
@@ -79,45 +81,35 @@
 				<label for="type">
 					$tlang.getString("useedi.typ")
 				</label>
-				<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#end/>
+				<input type="text" name="type" id="type" #if($user)value="$validator.escapeHtml($user.Type)"#end />
 			</p>	
 #end
 #if ($user)
-			<table  class="itemSummary" summary="$tlang.getString("useedi.revuseinf")">
-				<tr>
-					<td>$tlang.getString("useedi.creby")</td>
-					<td>
-						$validator.escapeHtml($user.CreatedBy.DisplayName)
-					</td>
-				</tr>
-				<tr>
-					<td>$tlang.getString("useedi.cre")</td>
-					<td >
-						$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
-					</td>
-				</tr>
-				<tr>
-					<td>$tlang.getString("useedi.modby")</td>
-					<td>
-						$validator.escapeHtml($user.ModifiedBy.DisplayName)
-					</td>
-				</tr>
-				<tr>
-					<td>$tlang.getString("useedi.mod")</td>
-					<td>
-						$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
-					</td>
-				</tr>
-			</table>
+			<p class="shorttext">
+				<label>$tlang.getString("useedi.creby")</label>
+				$validator.escapeHtml($user.CreatedBy.DisplayName)
+			</p>
+			<p class="shorttext">
+				<label>$tlang.getString("useedi.cre")</label>
+				$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
+			</p>
+			<p class="shorttext">
+				<label>$tlang.getString("useedi.modby")</label>
+				$validator.escapeHtml($user.ModifiedBy.DisplayName)
+			</p>	
+			<p class="shorttext">
+				<label>$tlang.getString("useedi.mod")</label>
+				$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
+			</p>	
 #end
 			<div class="act">
 				#if($user)
-					<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" />
+					<input type="submit" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" />
 				#else
-					<input type="submit" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" />
+					<input type="submit"  class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" accesskey="s" />
 				#end					
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" accesskey="x" />
 			</div>
 		</form>
 	</div>
-</div>
+

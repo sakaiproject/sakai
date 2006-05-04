@@ -5,14 +5,15 @@
 	#toolbar($menu)
 #end
 	
-#if ($alertMessage)
-		<div class="alertMessage">
-			$tlang.getString("usevie.alert") $validator.escapeHtml($alertMessage)
-		</div>
-#end
 		<h3>
 			$tlang.getString("usevie.revandmod")
 		</h3>
+		#if ($alertMessage)
+				<div class="alertMessage">
+					$tlang.getString("usevie.alert") $validator.escapeHtml($alertMessage)
+				</div>
+		#end
+
 		<form name="$form-name" action="#toolForm("$action")" method="post">
 			<h4>
 				$tlang.getString("usevie.use")
@@ -90,7 +91,7 @@
 			<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
 #if($enableEdit)
 			<div class="act">
-				<input type="submit" name="eventSubmit_doModify" value="$tlang.getString("usevie.mod2")" />
+				<input type="submit" name="eventSubmit_doModify" value="$tlang.getString("usevie.mod2")"  accesskey="s" />
 			</div>
 #end
 		</form>

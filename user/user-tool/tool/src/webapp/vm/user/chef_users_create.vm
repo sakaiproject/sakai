@@ -29,16 +29,16 @@
 #if($menu)
 	#toolbar($menu)
 #end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end
+
 	<h3>
 		$tlang.getString("usecre.entthe")
 	</h3>
-	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end	
 	## (gsilver) - $form-name in commented line below is not resolving to a value - and "$" is not a valid char for a name or an id with this doctype.
 
 ##	<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">	
 	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
-		<p class="shorttext">
+		<p class="shorttext required">
 			#if(!$user)<span class="reqStar">*</span>#end
 			<label #if(!$user) for="id" #end>
 				 $tlang.getString("usecre.useid")
@@ -63,14 +63,14 @@
 			</label>
 			<input type="text" name="email" id="email"#if($user) value="$validator.escapeHtml($user.Email)"#end />
 		</p>
-		<p class="shorttext">
+		<p class="shorttext required">
 			#if ($pwRequired) <span class="reqStar">*</span> #end
 			<label for="pw">
 				$tlang.getString("usecre.crenewpass")
 			</label>
 			<input type="password" name="pw" id="pw"/>
 		</p>
-		<p class="shorttext">
+		<p class="shorttext required">
 			#if ($pwRequired) <span class="reqStar">*</span> #end
 			<label for="pw0">
 				$tlang.getString("usecre.vernewpass")
@@ -85,8 +85,8 @@
 			<input type="hidden" name="type" id="type" value="$type"/>
 		</p>
 		<div class="act">
-			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("usecre.can")" />
+			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("usecre.can")"  accesskey="x" />
 		</div>
 	</form>
 </div>

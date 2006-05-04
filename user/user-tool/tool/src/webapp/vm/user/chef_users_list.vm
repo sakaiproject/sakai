@@ -15,8 +15,7 @@
 			$tlang.getString("uselis.theare")
 		</div>
 #if ($users.size() > 0)
-##		<div id="chefOverContent">
-			<table class="listHier" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
+			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
 				<tr>
 					<th id="Id">$tlang.getString("uselis.useid")</th>
 					<th id="Name">$tlang.getString("uselis.nam")</th>
@@ -34,13 +33,12 @@
 						$validator.escapeHtml($user.Id)
 		#end
 					</td>
-					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
+					<td headers="Name"><h4>$validator.escapeHtml($user.SortName)</h4></td>
 					<td headers="Email">$validator.escapeHtml($user.Email)</td>
 					<td headers="Type">$validator.escapeHtml($user.Type)</td>
 				</tr>
 	#end
 			</table>
-##		</div>
 #else
 		<div class="instruction">
 			$tlang.getString("uselis.nouse")
