@@ -1,4 +1,13 @@
-Porting Steps
+Porting steps to Axis 1.3
+
+http://www.ibiblio.org/maven2/axis/axis/1.3/axis-1.3.pom
+
+Went through this and updated versions to the versions in axis the pom.
+
+Did not include axis-schema as it was indicated as optional and we did not use
+it before.
+
+Porting Steps Axis 1.2
 
 (1) Create project.xml from 
 http://maven-plugins.sourceforge.net/maven-axis-plugin/index.html

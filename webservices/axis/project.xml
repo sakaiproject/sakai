@@ -33,7 +33,7 @@
     <dependency>
       <groupId>axis</groupId>
       <artifactId>axis</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -41,15 +41,7 @@
     <dependency>
       <groupId>axis</groupId>
       <artifactId>axis-jaxrpc</artifactId>
-      <version>1.2</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-wsdl4j</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -57,7 +49,15 @@
     <dependency>
       <groupId>axis</groupId>
       <artifactId>axis-saaj</artifactId>
-      <version>1.2</version>
+      <version>1.3</version>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>axis</groupId>
+      <artifactId>axis-wsdl4j</artifactId>
+      <version>1.5.1</version>
       <properties>
         <war.bundle>true</war.bundle>
       </properties>
@@ -131,24 +131,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-<!-- What is this in Sakai 2.2?
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
--->
-
-<!-- Sakai 2.2 has all the util's rolled into one project.xml
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-util-xml</artifactId>
-      			<properties>
-        			<war.bundle>true</war.bundle>
-      			</properties>
-                        <version>${sakai.version}</version>
-                </dependency>
--->
                 <dependency>
                         <groupId>sakaiproject</groupId>
                         <artifactId>sakai-util</artifactId>
