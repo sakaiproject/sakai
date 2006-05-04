@@ -1,28 +1,28 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-view.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
+	<div class="navPanel">
+		<div class="itemNav">
+				#if ($goPPButton)
+					<a href="#" title="&lt; $tlang.getString('view.prev')" onclick="location = '#toolLink("$action" "doView_prev")';return false;" accesskey="p">
+						<input type="button" value="&lt; $tlang.getString('view.prev')" title="$tlang.getString('view.prev')" accesskey="p" />
+					</a>	
+				#else
+						<input type="button" value="&lt; Previous Email" disabled="disabled" />		
+				#end
+				<a href="#" title="$tlang.getString('view.return')" onclick="location = '#toolLink("$action" "doList")';return false;" accesskey="l">
+					<input type="button" value="$tlang.getString('view.return')" title="$tlang.getString('view.return')"  accesskey="l" />	
+				</a>
+				#if ($goNPButton)
+					<a href="#" title="$tlang.getString('view.next')" onclick="location = '#toolLink("$action" "doView_next")';return false;" accesskey="n">
+						<input type="button" value="$tlang.getString('view.next') &gt;" title="$tlang.getString('view.next')" accesskey="n" />
+					</a>
+				#end
+			</div>
+	</div>	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	
-	<div class="rightNav" style="margin:1em 0 0 0 ;float:none">
-		#if ($goPPButton)
-			<a href="#" title="Previous Email" onclick="location = '#toolLink("$action" "doView_prev")';return false;">
-				<input type="button" value="&lt; $tlang.getString('view.prev')" title="Go to Previous Email" />
-			</a>	
-		#else
-				<input type="button" value="&lt; Previous Email" disabled="disabled" />		
-		#end
-		<a href="#" title="Return to List" onclick="location = '#toolLink("$action" "doList")';return false;">
-			<input type="button" value="$tlang.getString('view.return')" title="Return to List" />	
-		</a>
-		#if ($goNPButton)
-			<a href="#" title="Next Email" onclick="location = '#toolLink("$action" "doView_next")';return false;">
-				<input type="button" value="$tlang.getString('view.next') &gt;" title="Go to Next Email" />
-			</a>
-		#end
-	</div>
-
-	#if ($alertMessage)<div class="alertMessage"><div style="display:block;clear:both" />$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	
-	<table class ="itemSummary">
+	<table class ="itemSummary" summary="$tlang.getString('view.summary')">
 		<tr>
 			<th>$tlang.getString("gen.dat")</th>
 			<td>$email.Header.DateSent.toStringLocalFullZ()</td>
@@ -39,7 +39,7 @@
 			<tr>
 				<th>$tlang.getString("gen.hea")</th>
 				<td>
-					<ul class="attachList" style="font-size:.8em;color:gray;width:70em;overflow:hidden">
+					<ul class="textPanelFooter instruction attachList" style="width:50em;overflow:hidden; margin:0 !important">
 						#set($headers = $email.Header.MailHeaders)
 						#foreach ($header in $headers)
 							<li>$validator.escapeHtml($header)</li>
@@ -49,7 +49,7 @@
 			</tr>
 		#end
 		<tr>
-			<th class="chefLabel">$tlang.getString("gen.bod2")</th>
+			<th>$tlang.getString("gen.bod2")</th>
 			<td>$validator.escapeHtmlFormattedText($email.Body)</td>
 		</tr>
 		#set ($attachments = $email.Header.Attachments)
@@ -77,22 +77,23 @@
 			</tr>
 		#end
 	</table>
-	
-	<div class="rightNav" style="margin:1em 0 0 0 ;float:none">
-		#if ($goPPButton)
-			<a href="#" title="Previous Email" onclick="location = '#toolLink("$action" "doView_prev")';return false;">
-				<input type="button" value="&lt; $tlang.getString('view.prev')" title="Go to Previous Email" />
-			</a>	
-		#else
-				<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
-		#end
-		<a href="#" title="Return to List" onclick="location = '#toolLink("$action" "doList")';return false;">
-			<input type="button" value="$tlang.getString('view.return')" title="Return to List" />	
-		</a>
-		#if ($goNPButton)
-			<a href="#" title="Next Email" onclick="location = '#toolLink("$action" "doView_next")';return false;">
-				<input type="button" value="$tlang.getString('view.next') &gt;" title="Go to Next Email" />
+	<div class="navPanel">
+		<div class="itemNav">
+			#if ($goPPButton)
+				<a href="#" title="$tlang.getString('view.prev')" onclick="location = '#toolLink("$action" "doView_prev")';return false;">
+					<input type="button" value="&lt; $tlang.getString('view.prev')" title="$tlang.getString('view.prev')" />
+				</a>	
+			#else
+					<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
+			#end
+			<a href="#" title="$tlang.getString('view.return')" onclick="location = '#toolLink("$action" "doList")';return false;">
+				<input type="button" value="$tlang.getString('view.return')" title="Return to List" />	
 			</a>
-		#end
-	</div>
+			#if ($goNPButton)
+				<a href="#" title="$tlang.getString('view.next')" onclick="location = '#toolLink("$action" "doView_next")';return false;">
+					<input type="button" value="$tlang.getString('view.next') &gt;" title="Go to Next Email" />
+				</a>
+			#end
+		</div>
+	</div>	
 </div>

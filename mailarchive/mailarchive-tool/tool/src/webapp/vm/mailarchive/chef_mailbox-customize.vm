@@ -21,7 +21,7 @@
 		$tlang.getString("cus.cus2")
 	</h3>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm($action)" method="post">
 		<h4 class="indnt1">
 			$tlang.getString("cus.maiset2")
@@ -55,14 +55,14 @@
 			$tlang.getString("gen.maiali2")
 		</h4>	
 		<p class="shorttext indnt2">
-			<label for ="$form-alias" style="font-weight:normal">
+			<label for ="$form-alias">
 				$tlang.getString("cus.usethi2")
 			</label>
 			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" /> @${serverName}
 		</p>
 		<p class="act">
-			<input type="submit" class="active" name="$form-submit" value="$tlang.getString("gen.sav2")" />
-			<input type="submit" name="$form-cancel" value="$tlang.getString("gen.can")" />
+			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.sav2")" />
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.can")" />
 		</p>
 	</form>
 </div>

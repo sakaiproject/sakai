@@ -6,7 +6,7 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="alertMessage">$tlang.getString("rem.ple")</div>
 	<form action="#toolForm($action)" method="post">
-		<table class ="listHier" cellspacing="0" summary ="$tlang.getString("rem.tabhol")">
+		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("rem.tabho2")">
 			<tr>
 				<th id="from">$tlang.getString("gen.fro")</th>
 				<th id="subject">$tlang.getString("gen.sub")</th>
@@ -19,8 +19,8 @@
 			</tr>
 		</table>
 		<div class="act">
-			<input type="submit" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("gen.rem")" />
-			<input type="submit" name="eventSubmit_doRemove_cancel" value="$tlang.getString("gen.can")" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("gen.rem")" />
+			<input type="submit" accesskey="x"  name="eventSubmit_doRemove_cancel" value="$tlang.getString("gen.can")" />
 		</div>
 	</form>
 </div>
