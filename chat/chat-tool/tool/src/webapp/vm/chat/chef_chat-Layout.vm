@@ -14,7 +14,7 @@
 	id="$validator.escapeJavascript("$panel-toolbar")"
 	title="$panel-toolbar"
 	width="100%"
-	style="line-height:1.7em;height:4.7em;"
+style="line-height:1.7em;height:5em;margin-top:-1px"
 	frameborder="0"
 	marginwidth="0"
 	marginheight="0"
@@ -22,10 +22,10 @@
 	align="left"
 	src="#contentCourierLink("$panel-toolbar")">
 </iframe>
-<div class="portletBody" style="clear:both;margin-right:0px;padding:6px;width:96%;width:auto !important;margin:0 !important;">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
-			<div style="width:83%;padding-bottom:.5em;color:#9E9E9E;float:left;">
-				<div  style="padding-bottom:.2em;margin-bottom:.5em;border-bottom:1px dotted gray">
+<div class="portletBody" style="clear:both">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			<div id="chatListWrapper">
+				<div  class="chatListHeadWrapper">
 					$tlang.getString("lay.note")
 				</div>
 				<iframe
@@ -41,8 +41,8 @@
 					src="#chatlogLink("$panel-monitor")">
 				</iframe>
 			</div>	
-			<div style="width:16%;color:#9E9E9E;float:left;border-left:1px dotted silver">			
-				<div class="chefInterportLetNavTextItem" style="color:#9E9E9E;margin-bottom:.5em;padding:0 0  .2em .2em ;border-bottom:1px dotted gray">$tlang.getString("lay.user")</div>
+			<div id="chatPresenceWrapper">			
+				<div class="chatListHeadWrapper">$tlang.getString("lay.user")</div>
 				<iframe 
 					name="$validator.escapeJavascript("$panel-presence")"
 					id="$validator.escapeJavascript("$panel-presence")"

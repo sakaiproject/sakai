@@ -6,9 +6,8 @@
 <script type="text/javascript" language="JavaScript">
 doubleDeep = true;
 </script>
-
-<div style="font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em;margin-left:3px;white-space:nowrap;">
+<ul class="presenceList">
 #foreach ($user in $users)
-    $validator.escapeHtml($user.DisplayName)<br />
+   <li> $validator.escapeHtml($user.DisplayName)</li>
 #end
-</div>
+</ul>

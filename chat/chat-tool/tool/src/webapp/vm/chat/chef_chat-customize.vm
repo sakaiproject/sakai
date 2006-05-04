@@ -13,7 +13,7 @@
 	<h3>
 		$tlang.getString("custom.cuschat")
 	</h3>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 		<form name="customize" id="customize" action="#toolForm("$action")" method="post">
 		<h4 class="indnt1">
 	      $tlang.getString("custom.chatroom")
@@ -91,7 +91,6 @@
 			</label>
 			<input 
 				type="text"
-				style="display:block;margin-top:.2em"
 				class="indnt2"
 				name="$form_new_channel" 
 				id="$form_new_channel" 
@@ -176,8 +175,8 @@
 			<label for="$filter_days_param_form"> $tlang.getString("custom.days")</label>
 		</p>
 		<div class="act">
-			<input type="submit" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
-			<input type="submit" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
+			<input type="submit" class="active" name="$form-submit" value="$tlang.getString("gen.save")"  accesskey="s" />
+			<input type="submit" name="$form-cancel" value="$tlang.getString("gen.cancel")"  accesskey="x" />
 		</div>
 	</form>
 </div>

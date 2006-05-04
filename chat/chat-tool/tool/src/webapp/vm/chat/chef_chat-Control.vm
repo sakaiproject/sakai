@@ -20,15 +20,15 @@ try { parent.updateNow(); } catch (error) {}
 </script>
 
 #if($menu)#toolbar($menu)#end
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 #if ($allow-send)
 	<form name="chat_input" id="chat_input" action="#toolForm("$action")" method="post">
 			<label for="$form-message"></label>
-			<textarea name="$form-message" id="$form-message" rows="3" cols="60" wrap="virtual" style="border:1px solid silver;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.9em;padding:.3em" onkeypress="formSubmitOnEnter(this, event)"></textarea>
+			<textarea name="$form-message" id="$form-message" rows="3" cols="60" wrap="virtual"  onkeypress="formSubmitOnEnter(this, event)"></textarea>
 			<p class="act" style="margin-top:0">
 			<input type="hidden" name="$form-submit" id="$form-submit" value="x" />
-				<input class="active" type="submit" name="send" id="send" value="$tlang.getString("control.post")"  />
-				<input type="reset" name="reset" id="reset" value="$tlang.getString("control.clear")" />
+				<input class="active" accesskey="s" type="submit" name="send" id="send" value="$tlang.getString("control.post")"  />
+				<input type="reset" accesskey="x" name="reset" id="reset" value="$tlang.getString("control.clear")" />
 			</p>
 	</form>
 #end

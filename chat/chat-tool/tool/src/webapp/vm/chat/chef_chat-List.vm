@@ -22,24 +22,24 @@ doubleDeep = true;
 ## appendMessage function comes from chatscript.js
 	<script  type="text/javascript" language="JavaScript" src="#scriptLink('chatscript.js')">
 	</script>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
-		<ul id="transcript" style="margin:0; padding-left:1.2em;list-style:none;width:96%">
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+		<ul id="chatList">
 			#foreach ($item in $chat_messages)
 				## new format with less space inside messages
 				#set($name = $validator.escapeHtml($item.Header.From.DisplayName))
 				#set($color = $color_mapper.getColor($item.header.from.id))		
-				<li style="margin:.2em 0 0 2em;padding: .2em 0;text-indent: -3em;line-height:1.2em">
-					<span  style="color: $color;font-weight:normal"><em style="font-weight:normal;font-style:normal">$name</em></span>
+				<li>
+					<span  style="color: $color">$name</span>
 					#if(!$item.properties.getProperty("deleted"))
 						## Don't allow deleting a message that has already been deleted
 						#if ($channel.allowRemoveMessage($item))
 							## Only allow the user to see the delete message icon if they have sufficient permissions to delete the message
-							<a href="#" onclick="location='#toolLink($action "doConfirmDeleteMessage")&messageid=$validator.escapeUrl($item.header.id)'; return false;" title="Delete this message" >				
+							<a href="#" onclick="location='#toolLink($action "doConfirmDeleteMessage")&messageid=$validator.escapeUrl($item.header.id)'; return false;" title="$tlang.getString('list.del')" >				
 							<img src="#imageLink("sakai/delete.gif")" border="0" alt="$tlang.getString('list.del')" /></a>
 						#end
 					#end
-					<span style="font-size:.8em;font-weight:normal">#if($display_date && $display_time) ($item.Header.Date.toStringLocalFullZ())#elseif($display_date) ($item.Header.Date.toStringLocalDate())#elseif($display_time) ($item.Header.Date.toStringLocalTimeZ())#end</span>
-					<span>: $validator.escapeHtmlFormattedText($item.Body)</span>
+					<span class="chatDate">#if($display_date && $display_time) ($item.Header.Date.toStringLocalFullZ())#elseif($display_date) ($item.Header.Date.toStringLocalDate())#elseif($display_time) ($item.Header.Date.toStringLocalTimeZ())#end</span>
+					 $validator.escapeHtmlFormattedText($item.Body)
 				</li>
 			#end
 		</ul>

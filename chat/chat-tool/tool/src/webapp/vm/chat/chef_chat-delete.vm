@@ -4,9 +4,9 @@
 		$tlang.getString("delete.delete")
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-	<div style="display:block; clear:both"></div>#end
+	<div class="clear"></div>#end
 	<div class="alertMessage" style="clear:both">$tlang.getString("delete.sure")</div>
-	<div style="display:block; clear:both"></div>
+	<div class="clear"></div>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
 		<table class="itemSummary" cellspacing="0">
 			<tr>
@@ -23,8 +23,8 @@
 					$validator.escapeHtmlFormattedText($message.Body)
 				</p>
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doDeleteMessage" value="$tlang.getString("gen.delete")">
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")">
+			<input type="submit" class="active" name="eventSubmit_doDeleteMessage" value="$tlang.getString("gen.delete")"  accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" accesskey="x" />
 		</p>
 	</form>
 </div>
