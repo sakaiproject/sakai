@@ -131,11 +131,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   AudioInputStream audioInputStream;
   SamplingGraph samplingGraph;
-  Thread timerThread;
   Timer timer;
 
   JButton playB, captB, pausB, loadB;
-  //JButton auB, aiffB, waveB;
   JTextField textField;
   JTextField rtextField;
 
@@ -157,15 +155,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
     setBorder(new EmptyBorder(5, 5, 5, 5));
 
-    /* samigo 2.2 does not require format control
-    JPanel p1 = new JPanel();
-    p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
-    p1.add(formatControls);
-    */
-
     JPanel p2 = new JPanel();
     p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
-    //p2.setPreferredSize(new Dimension(450, 100));
     p2.add(BorderLayout.WEST, makeAttemptsAllowedLabel());
     p2.add(makeAudioButtonsPanel());
 
@@ -176,43 +167,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     savePanel.setLayout(new BoxLayout(savePanel, BoxLayout.Y_AXIS));
     JPanel saveTFpanel = makeSaveTFPanel();
     savePanel.add(saveTFpanel);
-    //JPanel saveBpanel = makeSaveBPanel();
-    //savePanel.add(saveBpanel);
     p2.add(savePanel);
 
-    //p1.add(p2);
-    //add(p1);
     add(p2);
   }
-
-    /*
-  private JPanel makeSaveBPanel()
-  {
-    JPanel saveBpanel = new ColorBackgroundPanel(false);
-
-    int saveButtonCount = 0;
-    if (params.isSaveAiff()) saveButtonCount++;
-    if (params.isSaveAu()) saveButtonCount++;
-    if (params.isSaveWave()) saveButtonCount++;
-
-    aiffB = addButton(res.getString("Save_AIFF"), saveBpanel,
-                      params.isSaveAiff(), params.isSaveAiff());
-    auB = addButton(res.getString("Save_AU"), saveBpanel,
-                    params.isSaveAu(), params.isSaveAu());
-    waveB = addButton(res.getString("Save_WAVE"), saveBpanel,
-                      params.isSaveWave(), params.isSaveWave());
-
-    //No point in distinguishing, if only one file type supported
-    if (saveButtonCount==1)
-    {
-      if (params.isSaveAiff()) aiffB.setText(res.getString("Save"));
-      if (params.isSaveAu()) auB.setText(res.getString("Save"));
-      if (params.isSaveWave()) waveB.setText(res.getString("Save"));
-    }
-
-    return saveBpanel;
-  }
-    */
 
   private JPanel makeSaveTFPanel()
   {
@@ -263,7 +221,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
   }
 
   public void open()
-  {}
+  {
+      /* daisy test code - pls do not delete
+    String mediaUrl = "http://sakai-l.stanford.edu:8080/samigo/servlet/ShowMedia?mediaId=107";
+    //String mediaUrl = "http://sakai-l.stanford.edu:8080/samigo/spacemusic.au";
+    System.out.println("*****open applet="+mediaUrl);
+    createAudioInputStream(mediaUrl, true);
+      */
+  }
 
   public void close()
   {
@@ -310,7 +275,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         playback.start();
         samplingGraph.start();
         captB.setEnabled(false);
-        //pausB.setEnabled(true);
         playB.setText(" " + res.getString("playB_Text"));
       }
       else
@@ -321,7 +285,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         {
           captB.setEnabled(true);
         }
-        //pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
     }
@@ -333,12 +296,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         capture.start();
         fileName = res.getString("default_file_name");
         samplingGraph.start();
-        //loadB.setEnabled(false);
         playB.setEnabled(false);
-        //pausB.setEnabled(true);
-        //auB.setEnabled(false);
-        //aiffB.setEnabled(false);
-        //waveB.setEnabled(false);
         captB.setText(" " + res.getString("playB_Text"));
         startTimer();
       }
@@ -347,88 +305,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         captureAudio();
       }
     }
-    /* comment out this control, we don't use it - daisyf
-    else if (obj.equals(pausB))
-    {
-      if (pausB.getText().startsWith(res.getString("Pause")))
-      {
-        if (capture.thread != null)
-        {
-          capture.line.stop();
-        }
-        else
-        {
-          if (playback.thread != null)
-          {
-            playback.line.stop();
-          }
-        }
-        pausB.setText(" " + res.getString("pausB_Text"));
-      }
-      else
-      {
-        if (capture.thread != null)
-        {
-          capture.line.start();
-        }
-        else
-        {
-          if (playback.thread != null)
-          {
-            playback.line.start();
-          }
-        }
-        pausB.setText(res.getString("Pause"));
-      }
-    }
-    else if (obj.equals(loadB))
-    {
-      try
-      {
-        File file = new File(System.getProperty(res.getString("user_dir")));
-        JFileChooser fc = new JFileChooser(file);
-        fc.setFileFilter(new javax.swing.filechooser.FileFilter()
-        {
-          public boolean accept(File f)
-          {
-            if (f.isDirectory())
-            {
-              return true;
-            }
-            String name = f.getName();
-            if (name.endsWith(res.getString("_au")) ||
-                name.endsWith(res.getString("_wav")) ||
-                name.endsWith(res.getString("_aiff")) ||
-                name.endsWith(res.getString("_aif")))
-            {
-              return true;
-            }
-            return false;
-          }
-
-          public String getDescription()
-          {
-            return res.getString("_au_wav_aif");
-          }
-        });
-
-        if (fc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
-        {
-          createAudioInputStream(fc.getSelectedFile(), true);
-        }
-      }
-      catch (SecurityException ex)
-      {
-        AudioConfigHelp help = new AudioConfigHelp();
-        help.configHelp();
-        ex.printStackTrace();
-      }
-      catch (Exception ex)
-      {
-        ex.printStackTrace();
-      }
-    }
-    */
   }
 
   private void resetAttempts(int attempts)
@@ -439,31 +315,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
     }
   }
 
-  /**
-   * utility method to get the audio type from the save button pressed
-   * @param obj
-   * @return
-   */
-    /*
-  private AudioFileFormat.Type getTypeFromButton(Object obj)
-  {
-    AudioFileFormat.Type type = null;
-    if (obj.equals(auB))
-    {
-      type = AudioFileFormat.Type.AU;
-    }
-    else if (obj.equals(aiffB))
-    {
-      type = AudioFileFormat.Type.AIFF;
-    }
-    else if (obj.equals(waveB))
-    {
-      type = AudioFileFormat.Type.WAVE;
-    }
-
-    return type;
-  }
-    */
   public JPanel getFormatControlsPanel()
   {
     return formatControls;
@@ -483,9 +334,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                     audioInputStream.getFormat().getFrameRate());
         duration = milliseconds / 1000.0;
-        //auB.setEnabled(true);
-        //aiffB.setEnabled(true);
-        //waveB.setEnabled(true);
         if (updateComponents)
         {
           formatControls.setFormat(audioInputStream.getFormat());
@@ -700,7 +548,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
         {
           captB.setEnabled(true);
         }
-        //pausB.setEnabled(false);
         playB.setText(res.getString("Play"));
       }
     }
@@ -839,12 +686,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         thread = null;
         samplingGraph.stop();
-        //loadB.setEnabled(true);
         playB.setEnabled(true);
-        //pausB.setEnabled(false);
-        //auB.setEnabled(true);
-        //aiffB.setEnabled(true);
-        //waveB.setEnabled(true);
         captB.setText(res.getString("Record"));
         System.err.println(errStr);
         samplingGraph.repaint();
@@ -1106,7 +948,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     GridLayout grid = new GridLayout(2, 1);
     JPanel panel = new JPanel(grid);
-    //panel.setPreferredSize(new Dimension(400, 50));
     JLabel label1 = new JLabel(res.getString("attempts_allowed")+" "+
                       params.getAttemptsAllowed(), SwingConstants.LEFT);
     JLabel label2 = new JLabel(res.getString("time_limit")+" "+
@@ -1118,29 +959,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
     panel.add(label2);
     return panel;
   }
-  /*
-  private JPanel makeAttemptsRemainingLabel()
-  {
-    GridLayout grid = new GridLayout(2, 1);
-    JPanel panel = new JPanel(grid);
-    JPanel panel2 = new JPanel(grid);
-    panel.setPreferredSize(new Dimension(400, 50));
-    panel2.setPreferredSize(new Dimension(400, 50));
-    JLabel label1 = new JLabel(res.getString("time_limit")+" "+
-                      params.getCurrentRecordingLength()+" sec", SwingConstants.LEFT);
-    JLabel label2 = new JLabel(res.getString("attempts_remaining")+" ", SwingConstants.LEFT);
-    Font font = new Font("Ariel", Font.PLAIN, 11);
-    label1.setFont(font); 
-    label2.setFont(font); 
-    panel.add(label1);
-    panel.add(panel2);
-    panel2.add(label2);
-    panel2.add(atextField = new JTextField(""+params.getAttemptsAllowed()));
-    atextField.setEditable(false);
-    panel.setPreferredSize(new Dimension(140, 25));
-    return panel;
-  }
-  */
 
   private void saveMedia(){
     AudioFileFormat.Type type = AudioFileFormat.Type.AU;
@@ -1162,7 +980,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
       textField.setText("" + duration);
       rtextField.setText("" + attempts);
       if (attempts==0) captB.setEnabled(false); ;
-      System.out.println("****attempts left = "+attempts);
     }
   }
 
@@ -1184,40 +1001,30 @@ public class AudioRecorder extends JPanel implements ActionListener,
     // timer was started by clicking Record to enforce time limit
     if (timer != null) {
       timer.stop();
-      reportStatus(res.getString("time_passed")+"\n" );
     }
 
     lines.removeAllElements();
     capture.stop();
     samplingGraph.stop();
-    //loadB.setEnabled(true);
     playB.setEnabled(true);
-    //pausB.setEnabled(false);
-    //auB.setEnabled(true);
-    //aiffB.setEnabled(true);
-    //waveB.setEnabled(true);
     captB.setText(res.getString("Record"));
     int retry = 1; 
     while (audioInputStream == null && retry < 5){
       retry ++;
-      if (timerThread == null){ 
-        timerThread = new Thread();
-        timerThread.start(); 
-      }
       try{
-        timerThread.sleep(1000);
+        Thread.sleep(1000);
       }
       catch(Exception ex){
         System.out.println(ex.getMessage());
       }
     }
-    timerThread = null;
     saveMedia();
   }
 
   private void startTimer(){
     Action stopRecordingAction = new AbstractAction(){
       public void actionPerformed(ActionEvent e) {
+        reportStatus(res.getString("time_passed")+"\n" );
         captureAudio();
       }
     };
@@ -1226,5 +1033,28 @@ public class AudioRecorder extends JPanel implements ActionListener,
     timer.start();
   }
 
+    /* Daisy test code for loading media back to applet - pls do not delete */
+  public void createAudioInputStream(String mediaUrl, boolean updateComponents)
+  {
+    try{
+      URL url = new URL(mediaUrl);
+      audioInputStream = AudioSystem.getAudioInputStream(url);
+      playB.setEnabled(true);
+      long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
+                                    audioInputStream.getFormat().getFrameRate());
+      duration = milliseconds / 1000.0;
+      System.out.println("*****createAudioInpuStream= "+audioInputStream);
+      System.out.println("*** duration= "+duration);
+      if (updateComponents){
+        formatControls.setFormat(audioInputStream.getFormat());
+        System.out.println("*** calling samplingGraph.createWaveForm");
+        samplingGraph.createWaveForm(null, lines, audioInputStream);
+      }
+    }
+    catch (Exception ex){
+      // doesn't matter; treat it as no input stream
+      System.out.println(ex.getMessage());
+    }
+  }
 
 }

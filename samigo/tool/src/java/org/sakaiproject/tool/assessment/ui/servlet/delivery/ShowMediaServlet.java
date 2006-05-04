@@ -166,6 +166,7 @@ public class ShowMediaServlet extends HttpServlet
 
   public String getAgentString(HttpServletRequest req,  HttpServletResponse res){ 
     String agentIdString = req.getRemoteUser();
+    System.out.println("**** Show Media: agentId"+agentIdString);
     if (agentIdString == null){ // try this
       agentIdString = AgentFacade.getAgentString();
     }
