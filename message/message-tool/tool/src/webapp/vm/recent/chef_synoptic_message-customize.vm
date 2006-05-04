@@ -15,7 +15,7 @@
 ##		$tlang.getString("cus.cus") $tool_title
 		$tlang.getString("gen.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<p class="instruction indnt1">
 		$tlang.getString("cus.youare") $tool_title.
 	</p>
@@ -23,7 +23,7 @@
 	<form action="#toolForm("$action")" method="post">
 		<div class="indnt1">
 			<h4>
-					$tool_title $tlang.getString("cus.dis1") ## (gds: uncomment later) $tool_title $tlang.getString("cus.dis3")
+					$tool_title $tlang.getString("cus.dis1")
 			</h4>
 			
 			## Recent Discussion tool got the true setting of allow_show_subject
@@ -39,7 +39,7 @@
 							id="${show_subject_form}-subject" 
 							value="true" /> 
 						<label for="${show_subject_form}-subject">
-							$tlang.getString("gen.show") <span style="text-transform:lowercase">$one_item $tlang.getString("gen.sub")</span>
+							$tlang.getString("gen.show") $one_item $tlang.getString("gen.sub")
 						</label>
 					</p>
 					<p class="checkbox indnt1">
@@ -51,7 +51,7 @@
 							id="${show_subject_form}-body" 
 							value="false"	/> 
 						<label for="${show_subject_form}-body">
-							$tlang.getString("gen.show") <span style="text-transform:lowercase">$one_item $tlang.getString("gen.bod")</span>
+							$tlang.getString("gen.show") $one_item $tlang.getString("gen.bod")
 						</label>
 					</p>
 				
@@ -66,15 +66,15 @@
 								id="$show_body_form" 
 								value="true" /> 
 							<label for="$show_body_form">
-								$tlang.getString("gen.show") <span style="text-transform:lowercase"> $one_item $tlang.getString("gen.bod")</span>
+								$tlang.getString("gen.show")  $one_item $tlang.getString("gen.bod")
 							</label>
 						</p>
 					#end
 				#end
 						
 				<p class="shorttext">
-					<label for="$length_form" style="font-weight:normal">
-						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$tlang.getString("gen.showabout")
+					<label for="$length_form">
+						<span class="indnt2">$tlang.getString("gen.showabout")</span>
 					</label>
 					## here are some yardsticks - 50 chars per line
 					<select id="$length_form" name="$length_form" size="1">
@@ -124,7 +124,7 @@
 				</p>
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof")  <span style="text-transform:capitalize">$all_items</span>
+						$tlang.getString("cus.numof") $all_items
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
 				</p>
@@ -174,21 +174,21 @@
 				</p>
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof")  <span style="text-transform:capitalize">$all_items</span>
+						$tlang.getString("cus.numof") $all_items
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="2"  />
 				</p>
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof2") <span style="text-transform:capitalize">$one_item</span>
+						$tlang.getString("cus.numof2") $one_item
 					</label>
 					<input type="text" id="$length_form" name="$length_form" value="$length" size="2" />
 				</p>
 			#end
 		</div>	
 		<p class="act">
-			<input type="submit" class="active" name="$form-submit" id="$form-submit" value="$tlang.getString("gen.sav")" />
-			<input type="submit" name="$form-cancel" id="$form-cancel" value="$tlang.getString("gen.can")" />
+			<input type="submit" class="active" name="$form-submit" id="$form-submit" value="$tlang.getString("gen.sav")"  accesskey="s" />
+			<input type="submit" name="$form-cancel" id="$form-cancel" value="$tlang.getString("gen.can")"  accesskey="x" />
 		</p>
 	</form>
 </div>
