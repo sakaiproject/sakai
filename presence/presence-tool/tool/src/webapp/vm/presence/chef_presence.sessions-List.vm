@@ -8,20 +8,20 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("presence.session.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="instruction">$tlang.getString("presence.session.total") $total</div>
-	<table  cellspacing="0" class="listHier lines" summary ="Table holds users present" border="0">	
+	<table  class="listHier lines" summary ="$tlang.getString("presence.session.list.summary")" border="0" cellpadding="0" cellspacing="0"> 	
 		#foreach ($serverName in $serverList)
-			<tr>
-				<th colspan="3" style="font-weight:bold">$servers.get("$serverName").size() $tlang.getString("presence.session.on") $validator.escapeHtml($serverName)</th>
+			<tr class="exclude">
+				<th colspan="3"><h4>$servers.get("$serverName").size() $tlang.getString("presence.session.on") $validator.escapeHtml($serverName)</h4></th>
 			</tr>
 			#foreach ($session in $servers.get("$serverName"))
-				<tr  class="highLightRow">
-					<th rowspan="5" style="vertical-align:top;padding:.5em 0 0 .5em;font-weight:bold">$velocityCount</th>
+				<tr class="highLightRow">
+					<th rowspan="5">$velocityCount</th>
 					<td>$tlang.getString("presence.session.session")</td>
-					<td>$validator.escapeHtml($session.Id)</td>
+					<td><h5>$validator.escapeHtml($session.Id)</h5></td>
 				</tr>
 				<tr>
 					<td nowrap="nowrap">$tlang.getString("presence.session.name")</td>
-					<td>$validator.escapeHtml($session.UserId)</td>
+					<td><h6>$validator.escapeHtml($session.UserId)</h6></td>
 				</tr>
 				<tr>
 					<td>$tlang.getString("presence.session.adress")</td>

@@ -11,15 +11,15 @@
 			$tlang.getString("presence.list1.alert") $validator.escapeHtml($alertMessage)
 		</div>
 	#end
-	<table class="listHier" cellspacing="0" summary ="Table holds users present" border="0">
+	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("presence.list1.tablesummary")" border="0">
 		#foreach ($location in $locations)
 			#set($list = $service.getPresence($location))
-			<tr style="background-color:#E6E6E6">
-				<td style="font-weight:bold;padding:.5em">
+			<tr class="highLightRow">
+				<td>
 					$list.size()
 				</td>
-				<td>
-					$tlang.getString("presence.list1.location") $validator.escapeHtml($location) : $validator.escapeHtml($service.getLocationDescription($location))
+				<td colspan="5">
+					<h4>$tlang.getString("presence.list1.location") $validator.escapeHtml($location) : $validator.escapeHtml($service.getLocationDescription($location))</h4>
 				</td>
 			</tr>
 			#foreach($entry in $list)
@@ -27,13 +27,21 @@
 					<td>
 					</td>
 					<td>
-						<ul class="attachList">
-							<li>$validator.escapeHtml($entry.UserId) <span style="font-weight:bold;padding-left:3em">at: </span> $validator.escapeHtml($entry.Id) <span style="font-weight:bold;padding-left:3em">from: </span> $validator.escapeHtml($entry.IpAddress) </li>
-							<li>$validator.escapeHtml($entry.UserAgent)</li>
-							<li>$validator.escapeHtml($entry.Server) &nbsp;&nbsp;&nbsp;&nbsp; $validator.escapeHtml($entry.getStart().toStringLocalFull())</li>
-						</ul>	
+						<h5><span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserId)</span></h5>
 					</td>
-				</tr>
+					<td>
+						<span title="$tlang.getString("presence.session.session")">$validator.escapeHtml($entry.Id)</span>
+					</td>
+					<td>
+						<span title="$tlang.getString("presence.session.adress")">$validator.escapeHtml($entry.IpAddress)</span>
+					</td>
+				<td>
+					<span title="$tlang.getString("presence.session.agent")" class="textPanelFooter">$validator.escapeHtml($entry.UserAgent)</span>
+				</td>
+				<td>
+					<span title="$tlang.getString("presence.session.started")">$validator.escapeHtml($entry.getStart().toStringLocalFull())</span>
+				</td>
+			</tr>	
 	
 			#end
 		#end
