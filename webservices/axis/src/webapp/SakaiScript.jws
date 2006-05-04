@@ -9,29 +9,29 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Collection;
-import org.sakaiproject.api.kernel.session.Session;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
-import org.sakaiproject.api.kernel.tool.Tool;
-import org.sakaiproject.service.legacy.site.ToolConfiguration;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.SitePage;
-import org.sakaiproject.service.legacy.user.UserEdit;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.authz.cover.SecurityService;
 import java.util.Properties;
 import org.apache.axis.AxisFault;
 
-import org.sakaiproject.util.xml.Xml;
+import org.sakaiproject.util.Xml;
 //import org.w3c.dom.Document;
 //import org.w3c.dom.Element;
 //import org.w3c.dom.Node;
@@ -631,7 +631,7 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 				ToolConfiguration tool = pageEdit.addTool();
 				Tool t = tool.getTool();
 				
-				tool.setTool(ToolManager.getTool(toolid));
+				tool.setTool(toolid, ToolManager.getTool(toolid));
 				tool.setTitle(tooltitle);
 				//toolEdit.setTitle(tooltitle);
 				//toolEdit.setToolId(toolid);
