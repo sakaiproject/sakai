@@ -1,20 +1,67 @@
  /*NOTE:This file is linked to after the tool_base.css file inside of tools. It provides for skinning.*/
 /*PART 1:GENERIC SELECTORS*/
-body{background:#F0F0F0;font:80% Verdana,Arial,Helvetica,sans-serif}
+body{background:#fff;font:80% Verdana,Arial,Helvetica,sans-serif}
 a:link{color:#369;text-decoration:none}
 a:visited{color:#9ad;text-decoration:none}
 a:hover{color:#5168D6 !important;text-decoration:underline;background:transparent}
 /*PART 2:TOOL TITLE SELECTORS and other PORTAL THINGS*/
-.toolTitle{width:100%;background:url(images/titleback.gif) repeat-x top  left}
-.toolTitle td.title img{margin:0;vertical-align:text-bottom;width:16px !important}
-.toolTitle td.title{padding:2px 4px 2px 22px;background:url(images/titleleft.gif) top left no-repeat;font-size:1em;color:#5A6D95;text-transform:uppercase}
-.toolTitle td.title h2{font:normal bold .9em Arial,sans-serif;margin:0;padding:0;display:inline}
-.toolTitle td.title a{background:url(images/reload.gif) top left no-repeat}
-.toolTitle td.title a:hover{background:url(images/reload_h.gif) top left no-repeat}
-.toolTitle td.action{background:url(images/titleright.gif) top right no-repeat;padding:3px 22px 2px 2px;text-align:right;vertical-align:middle}
-.toolTitle td.action img{margin:0;vertical-align:text-bottom;width:16px !important}
-.toolTitle td.action a{background:url(images/help.gif) top right no-repeat}
-.toolTitle td.action a:hover{background:url(images/help_h.gif) top right no-repeat}
+.portletTitle{
+	width: 100%;
+	background:#fff
+}
+
+.portletTitle .title img{
+	margin: 0;
+/*	vertical-align: text-bottom;*/
+	width: 18px;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 4px;
+	height: 1em;
+	font-size: 120%;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
 .presenceList{font-size:.8em;
 	list-style: none;
 	margin: 0;
