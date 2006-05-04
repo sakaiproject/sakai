@@ -22,12 +22,12 @@ function LimitText(fieldObj,maxChars)
 ##	<div class="chefToolBarWrapForm">
 ##	<a href="#" onclick="location='#toolLink("$action" "doSitemanage_saveas_request")';return false;" title ="Save as">Save as</a>
 ##	</div>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanedi.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		#if ($!isCourseSite) $tlang.getString("sitmanedi.class") #end $tlang.getString("sitmanedi.sitinf")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanedi.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form name = "site-form" method = "post" action="#toolForm("SiteAction")">
-		<p class="shorttext">
+		<p class="shorttext  required">
 			<span class="reqStar">*</span>
 			<label for="title">
 				$tlang.getString("sitmanedi.sittit")
@@ -38,7 +38,7 @@ function LimitText(fieldObj,maxChars)
 				$validator.escapeHtml($!title)
 			#end
 		</p>
-		<p class="shorttext">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="siteType">$tlang.getString("sitmanedi.sitityp")</label>
 			<select name="type" id="siteType">
@@ -51,7 +51,7 @@ function LimitText(fieldObj,maxChars)
 				#end
 			</select>
 		</p>
-		<p class="longtext">
+		<p class="longtext required">
 			<span class="reqStar">*</span>
 			<label for="description" class="block">                                        
 				$tlang.getString("sitmanedi.des") 
@@ -94,14 +94,14 @@ function LimitText(fieldObj,maxChars)
 			<input type="text" name="icon" id="icon" size=40 #if($site) value="$!validator.escapeHtml($iconUrl)"#end />
 		</p>
 		#end
-		<p class="shorttext">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="siteContactName">
 				$tlang.getString("sitmanedi.sitconnam")
 			</label>
 			<input type="text" name="siteContactName" id="siteContactName" size="20" value="$!form_site_contact_name" />
 		</p>
-		<p class="shorttext">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="siteContactEmail">
 				$tlang.getString("sitmanedi.sitconema")

@@ -1,15 +1,15 @@
 ## Sitemanage Site access info editing page
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitegen.manageaccess.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("sitegen.manageaccess.change") $validator.escapeHtml($site.Title)	
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitegen.manageaccess.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
-		<h4 class="insColor insBak insBor">
+		<h4>
 			$tlang.getString("sitegen.manageaccess.sitest")
 		</h4>
 		<p class="instruction">
@@ -21,7 +21,7 @@
 				$tlang.getString("sitegen.manageaccess.publis")
 			</label>
 		</p>	
-		<h4 class="insColor insBak insBor">
+		<h4>
 			$tlang.getString("sitegen.manageaccess.global")
 		</h4>
 		<p class="instruction">
@@ -77,8 +77,8 @@
 		<input type="hidden" name="template-index" value="39" />
 		<input type="hidden" name="back" value="31" />
 		<div class ="act">
-			<input type="submit" class="active" name="eventSubmit_doSitemanage_update_site_access" value="$tlang.getString("sitegen.manageaccess.update")" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.manageaccess.cancel")" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSitemanage_update_site_access" value="$tlang.getString("sitegen.manageaccess.update")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.manageaccess.cancel")" />
 		</div>
 	</form>
 </div>

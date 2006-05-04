@@ -2,13 +2,13 @@
 ## Might want to get these dynamically 
 <div class="portletBody">
 	##if($menu)#toolbar($menu)#end<br/><br/>
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 	Copying Materials
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="step">
 	Copying of other site's material to this site
 	</p>

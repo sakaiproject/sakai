@@ -2,12 +2,12 @@
 ## Adding/removing features
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("addrc.confirming") $validator.escapeHtml($title)
 	</h3>
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div style="display:block;clear:both"></div>
+			<div class="clear"></div>
 		#end
 ## (gsilver) should check what has happened - if tools have been removed output the following block, if not not. Same with added tools (and change the language to suit)	
 ##  (gsilver) the removed tools do not show up consistently in the removed tools list - also - if you remove an email archive tool it reads "Email Archive: @localhost"
@@ -50,7 +50,7 @@
 	<p class="indnt3">
 		#if ($check_home)
 			#if (!$oldSelectedHome)
-				<span style="color:#6699ff">$tlang.getString("java.home")</span>
+				<span class="highlight">$tlang.getString("java.home")</span>
 			#else
 				$tlang.getString("java.home")
 			#end
@@ -69,7 +69,7 @@
 				#end
 			#end
 			#if (!$found)
-				<span style="color:#6699ff">
+				<span class="highlight">
 			#end
 			#if ($newTool == "sakai.mailbox")
 				$!newToolTitle: $!emailId@$serverName
@@ -92,9 +92,9 @@
 		<input type="hidden" name="template-index" value="15" />
 		<input type="hidden" name="continue" value="$continueIndex" />
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doSave_revised_features" value="$tlang.getString('gen.finish')" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_revised_features" value="$tlang.getString('gen.finish')" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>

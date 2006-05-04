@@ -2,13 +2,13 @@
 ## Might want to get these dynamically 
 <div class="portletBody">
 	##if($menu)#toolbar($menu)#end<br/><br/>
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 	$tlang.getString("sitedicla.copy_materials")
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="step">
 	$tlang.getString("sitedicla.choose_materials")
 	</p>
@@ -56,8 +56,8 @@
 		<input type="hidden" name="back" value="45" />
 		
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doCopyMtrlSite" value="$tlang.getString("sitedicla.copybtn")" />
-			<input type="submit" class="active" name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.cancel")" />
+			<input type="submit" class="active" name="eventSubmit_doCopyMtrlSite" value="$tlang.getString("sitedicla.copybtn")" accesskey="s" />
+			<input type="submit" class="active" name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.cancel")" accesskey="x" />
 		</p>
 		
 					

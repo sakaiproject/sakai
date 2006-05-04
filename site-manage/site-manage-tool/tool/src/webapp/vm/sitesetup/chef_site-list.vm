@@ -2,13 +2,13 @@
 ## Site list Sites list on worksite setup home page
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<div style="clear:both;margin:1em 0">
-		<div class="leftNav">
-			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")" style="display:inline">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="navPanel">
+		<div class="viewNav">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 				<input type="hidden" name="eventSubmit_doView_sites" value="view" />
 				<label for="view">$tlang.getString("list.view")</label>
-				<select id="view" name="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
+				<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
 					#foreach($view in $views.keys())
 						<option value ="$views.get($view)"
 						#if($views.get($view) == $viewSelected) selected="selected" #end
@@ -17,15 +17,15 @@
 				</select>
 			</form>
 		</div>
-		<div class="rightNav">
+		<div class="searchNav">
 			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
 				## hide search form when in normal user login and in my workspace sites view
-				<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post" style="display:inline">
+				<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
 					<input type="hidden" name="eventSubmit_doSite_search" value="null" />
 					<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
-					<input size="20" value="$!searchString" name="$form_search" id="$form_search" type="text" class="searchField" style="background-color:#fff;width:10em;color:#000" />
+					<input size="20" value="$!searchString" name="$form_search" id="$form_search" type="text" class="searchField"  />
 					<a href="#" title="$tlang.getString('list.search')" onclick="location = '#toolLink($action "doSite_search")'+buildQueryString('searchForm');return false;">
-						<input type="button" class="button" value="$tlang.getString('list.search')" />
+						<input type="button" value="$tlang.getString('list.search')" />
 					</a>
 					#if (($!searchString) && (!$searchString.equals("")))
 						<a href="#" title="$tlang.getString('list.cls')" onclick="location = '#toolLink($action "doSite_search_clear")'+buildQueryString('searchForm');return false;">
@@ -36,33 +36,34 @@
 			#end
 		</div>
 	</div>	
-	<div style="clear:both;margin:0">
+	<div class="navPanel">
 		#if ($sites.size() > 0)
 			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
-				<div class="leftNav">
-					#if (($!searchString) && (!$searchString.equals("")))
-						#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") "$!searchString" $tlang.getString("list.inthe") "$!viewSelected".
-						#end
-				</div>
+##				<div class="listNav">
+##				</div>
 				#if ($sites.size() > 0)
-					<div class ="leftNav">
+					<div class ="viewNav">
+						#if (($!searchString) && (!$searchString.equals("")))
+						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") "$!searchString" $tlang.getString("list.inthe") "$!viewSelected".</span>
+						#end
+
 						<br /><span class="instruction">$tlang.getString("list.check")</span>
 					</div>
 				#end
-				<div class="rightNav">
-					<span class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")</span>
+				<div class="listNav">
+					<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")</div>
 					#if ($pagesize != 0)
 						#if ($goPPButton == "true")
-							<form name="nextpageForm" style="display:inline;" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="<" />
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="&lt;"  accesskey="p" />
 							</form>
 						#else
-							<input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="<" />
+							<input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="&lt;" />
 						#end
 					#end
-					<form name="pagesizeForm" style="display:inline;" method="post" action="#toolForm("$action")">
+					<form name="pagesizeForm"  class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-							<label for="selectPageSize" class="skip">Choose page size</label>
+							<label for="selectPageSize" class="skip">$tlang.getString("list.select.label")</label>
 						<select name="selectPageSize" id="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
 							#foreach ($i in $!pagesizes)
 								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
@@ -71,11 +72,11 @@
 					</form>
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
-							<form name="nextpageForm" style="display:inline;" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value=">" />
+							<form name="nextpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value="&gt;"  accesskey="n" />
 							</form>
 						#else
-							<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value=">" />
+							<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value="&gt;" />
 						#end
 					#end
 				</div>
@@ -84,10 +85,10 @@
 	#end
 	#if ($sites.size() > 0)
 		<form name="sitesForm" action="#toolForm("SiteAction")" method="post">
-			<table class ="listHier" cellspacing="0" summary ="List of sites">
+			<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString('list.summary')" border ="0">
 				<tr>
-					<th id="checkbox">
-						&nbsp;&nbsp;
+					<th id="checkbox" class="screenOnly">
+						&nbsp;
 					</th>
 					<th id="title">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title ="$tlang.getString('list.sortbytitle')"> 
@@ -168,16 +169,18 @@
 					#set ($siteCount=$siteCount + 1)
 						#set ($properties = $site.getProperties())
 						<tr>
-							<td headers="checkbox">
+							<td headers="checkbox" class="screenOnly">
 								#if ($service.allowUpdateSite($site.Id))
 									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount" />
 									<label class="skip" for="site$siteCount">Select $validator.escapeHtml($site.getTitle())</label>
 								#end
 							</td>
 							<td headers="title">
-								<a href="$site.Url" target="_top">
+								<h4>
+									<a href="$site.Url" target="_top">
 									$validator.escapeHtml($site.getTitle())
-								</a>
+									</a>
+								</h4>
 							</td>
 							<td headers="type">
 								#set($type="")
@@ -195,7 +198,7 @@
 									#set($term = $properties.getProperty('term'))
 									$!term
 								#else
-									&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+									
 								#end
 							</td>
 							<td headers="published">
@@ -216,12 +219,13 @@
 			</table>
 		</form>
 	#else
-		<p class="instruction">
+		<div class="instruction">
+		<br />
 			$tlang.getString("list.nosites") 
 			#if ($!searchString && !$searchString.equals(""))
 				$tlang.getString("list.thatmatch") "$!searchString"
 			#end
 			$tlang.getString("list.inthe") "$!viewSelected".
-		</p>	
+		</div>	
 	#end
 </div>

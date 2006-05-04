@@ -2,24 +2,24 @@
 ## Site list Sites list on worksite setup home page
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	#if ($!site)
 		<h3>
 			$tlang.getString("ediacc.chaacc") $validator.escapeHtml($site.Title)
 		</h3>
 	#else
-		<h3 class="insCol insBak insBor">
+		<h3>
 			$tlang.getString("ediacc.setsitacc")
 		</h3>
 		<p class="step">
 			$tlang.getString("ediacc.setacc")
 		</p>
 	#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<form name="editParticipantForm" action="#toolForm("SiteAction")" method="post">
-		<h4 class="insColor insBak insBor">
+		<h4>
 			$tlang.getString("ediacc.sitsta")
 		</h4>
 		<p class="instruction">
@@ -36,7 +36,7 @@
 			</label>
 		</p>	
 		#if (!$!disableJoinable || $!publicChangeable)
-			<h4 class="insColor insBak insBor">
+			<h4>
 				$tlang.getString("ediacc.gloacc")
 			</h4>
 			<p class="instruction">
@@ -67,13 +67,10 @@
 		#end
 		#if (!$!disableJoinable)
 			## set site joinable and joiner role
-			<div style="display:block;clear:both"></div>
-			<div style="display:block;clear:both"></div>
 			<p class="checkbox indnt1">
 				<input type="checkbox" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end />
 				<label for="joinable">
 					$tlang.getString("ediacc.canbejoi")
-					<br />
 				</label>
 			</p>
 			<p class="checkbox indnt3">
@@ -99,12 +96,12 @@
 		<input type="hidden" name="back" value="$!back" />
 		<div class ="act">
 			#if($!site)
-				<input type="submit" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
+				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
 #else
-				<input type="submit" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
-				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" />
-				<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
 			#end
 		</div>
 	</form>

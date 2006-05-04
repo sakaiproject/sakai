@@ -2,13 +2,13 @@
 ## modify Email Archive, News and Web Content tool 
 ##   - did some work on producing valid ids for inputs that would be good to validate 
 <div class="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 		$tlang.getString("enw.custom")
 	</h3>           
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	#if (!$!existingSite)                 
 		<p class="step">
 			$tlang.getString("enw.these") 
@@ -56,7 +56,7 @@
 						$tlang.getString("enw.email")
 					</h4>
 					<div class="indnt1">
-						<p class="shorttext">
+						<p class="shorttext required">
 							<span class="reqStar">*</span>
 							<label for="emailId">
 								$tlang.getString("enw.site")
@@ -194,14 +194,17 @@
 		<input type="hidden" name="continue" value="$continue" />
 		<div class="act">
 			<input type="button" name="Continue" 
+				accesskey="s"
 				class="active"
 				value="$tlang.getString('gen.continue')" 
 				onclick="document.ENWForm.option.value='continue';javascript:document.ENWForm.submit();" />
 			<input type="button" name="Back" 
-				value="$tlang.getString('gen.back')" 
+				value="$tlang.getString('gen.back')"
+				accesskey="b"
 				onclick="document.ENWForm.option.value='back';javascript:document.ENWForm.submit();" />
 			<input type="button" name="Cancel" 
-				value="$tlang.getString('gen.cancel')" 
+				value="$tlang.getString('gen.cancel')"
+				accesskey="x"
 				onclick="document.ENWForm.option.value='cancel';javascript:document.ENWForm.submit();" />
 		</div>
 	</form>

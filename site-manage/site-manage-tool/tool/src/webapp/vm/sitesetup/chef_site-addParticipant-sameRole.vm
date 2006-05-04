@@ -1,45 +1,41 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addParticipant-sameRole.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 ## Add participants to the worksite with same role
 <div class ="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 		$tlang.getString("adddif.choose")
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="instruction">
 		$tlang.getString("addsame.choose")	
 	</p>
 		<form action="#toolForm("SiteAction")" method="post">
-		<h4 class="insColor insBak insBor">
+		<h4>
 			$tlang.getString("addsame.roles")
 		</h4>
-		<table border="0" class="listHier">
 			#foreach ($role in $roles)
-				<tr>
-					<td style="white-space:nowrap">
-							<input type="radio" name="selectRole" id="selectRole_$role.Id" value="$role.Id"
-							#if($form_selectedRole == $role.Id)
-								checked="checked"
-							#end
+				<p class="checkbox">
+					<input type="radio" name="selectRole" id="selectRole_$role.Id" value="$role.Id"
+						#if($form_selectedRole == $role.Id)
+							checked="checked"
+						#end
 						/>
-						<label for="selectRole_$role.Id">
-							$role.Id
-						</label>
-					</td>
-					<td>
+					<label for="selectRole_$role.Id">
+						$role.Id
+					</label>
+				</p>	
+				<p class="instruction indnt3">
 						#set($description = "")
 						#set($description = $role.Description)
 						$!description
-					</td>	
-				</tr>	
+				</p>		
 			#end
-		</table>
-           	<h4>
+    	<h4>
 			$tlang.getString("addsame.participants")
 		</h4>	
-		<ul class="attachList indnt1">
+		<ul class="attachList indnt2">
 			#foreach ($participant in $participantList)
 				<li>$participant.getUniqname()</li>
 			#end
@@ -48,9 +44,9 @@
 		<input type="hidden" name="back" value="5" />
 		<input type="hidden" name="template-index" value="19" />
 		<p class ="act">
-			<input type="submit" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>

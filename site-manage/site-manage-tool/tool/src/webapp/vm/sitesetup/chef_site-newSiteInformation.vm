@@ -19,10 +19,6 @@
 	}
 </script>
 <div class="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	#if ($!isProjectSite)
 		<h3>
 			$tlang.getString("sinfo.pi")
@@ -31,7 +27,7 @@
 			$tlang.getString("sinfo.enter")
 		</p>
 	#elseif ($!isCourseSite)
-		<h3 class="insCol insBak insBor">
+		<h3>
 			$tlang.getString("sinfo.class")
 		</h3>
 		<p class="step">
@@ -39,6 +35,10 @@
 		</p>
 	#else
 		$tlang.getString("sinfo.creating")
+	#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
 	#end
 	#if ($isCourseSite)
 		$tlang.getString("sinfo.youare")
@@ -66,7 +66,7 @@
 		$tlang.getString("sinfo.enter3")#if ($!isProjectSite) $tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means") #end
 	</p>
 	<form action="#toolForm("$action")" method="post">
-		<p class="shorttext">
+		<p class="shorttext required">
 			#if ($!titleEditableSiteType.contains($!type))
 			<span class="reqStar">*</span>
 			<label for="title">
@@ -84,8 +84,8 @@
 			<label for="description" class="block">
 				$tlang.getString("sinfo.descr")
 			</label>
-			<textarea style="display:block;margin-bottom:0" name="description" id="description" rows="5" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_description)</textarea>
-			<span class="instruction" style="margin-left:0">
+			<textarea  name="description" id="description" rows="5" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_description)</textarea>
+			<br /><span class="instruction">
 				$tlang.getString("sinfo.display")
 			</span>
 		</p>	
@@ -93,8 +93,8 @@
 			<label for="short_description" class="block"> 
 				$tlang.getString("sinfo.short")
 			</label>
-			<textarea style="display:block;margin-bottom:0" name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)" wrap="hard">$validator.escapeHtmlTextarea($form_short_description)</textarea>
-			<span class="instruction" style="margin-left:0">
+			<textarea  name="short_description" id="short_description" rows="2" cols="45" onkeyup="LimitText(this,80)" wrap="hard">$validator.escapeHtmlTextarea($form_short_description)</textarea>
+			<br /><span class="instruction">
 				$tlang.getString("sinfo.display2")
 			</span>
 		</p>
@@ -139,11 +139,11 @@
 		<input type="hidden" name="template-index" value="2" />
 		<input type="hidden" name="continue" value="3" />
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
 			#if ($!siteTypes.size() > 1)
-				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
 			#end
-			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>

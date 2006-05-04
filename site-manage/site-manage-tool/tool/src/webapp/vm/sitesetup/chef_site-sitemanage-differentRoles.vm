@@ -39,7 +39,7 @@
 					<td>
 						<label for="$uniqname">$uniqname</label>
 					</td>
-					<td>
+					<td  class="required">
 						<span class="reqStar"> *</span><select name="role$uniqname" id="$uniqname">
 							<option value="no_role_selected"
 								#if ($!selectedRoles.get($uniqname) == "no_role_selected")

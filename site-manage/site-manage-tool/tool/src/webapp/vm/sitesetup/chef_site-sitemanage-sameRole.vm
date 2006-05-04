@@ -12,7 +12,7 @@
 		#if ($alertMessage)
 ##			<div class="alertMessage">$tlang.getString("sitmanpar.alert") $validator.escapeHtml($alertMessage)</div>
 			<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div>
-			<div style="display:block;clear:both"></div>
+			<div class="clear"></div>
 		#end
 		<div class="instruction">
 ##			$tlang.getString("sitmanpar.chotherol")

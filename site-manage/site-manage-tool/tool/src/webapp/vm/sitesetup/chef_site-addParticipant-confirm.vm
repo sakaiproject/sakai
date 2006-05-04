@@ -1,19 +1,19 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-addParticipant-confirm.vm,v 1.2 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 ## Confirming a participant to the site
 <div class ="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("addconf.confirming") $validator.escapeHtml($title)
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		$tlang.getString("addconf.finish")<br />
 		$tlang.getString("addconf.theywill") #if (!$notify) $tlang.getString("addconf.not") #end $tlang.getString("addconf.besent") 
 	</p>
 	<form action="#toolForm("SiteAction")" method="post">
-		<table class ="listHier" cellspacing="0" summary ="Table holds the information of site participant. Column 1 holds the index number, column 2 holds the name, Column 3 holds uniqname, Column 4 holds the role">
+		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("addconf.summary")">
 			<tr>
-				<th>
-					#
+				<th id="count">
+					$tlang.getString("addconf.number")
 				</th>
 				<th id="name">
 					<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString('addconf.sortbyname')"> 
@@ -55,13 +55,15 @@
 			#set($count = 1)
 			#foreach ($participant in $participants)
 				<tr>
-					<td>
+					<td headers="count">
 						$count
 					</td>
-					<td>
-						$participant.getName()
+					<td headers="id">
+						<h4>
+							$participant.getName()
+						</h4>	
 					</td>
-					<td>
+					<td headers="role">
 						$participant.getUniqname()
 					</td>
 					<td>
@@ -82,9 +84,9 @@
 		<input type="hidden" name="back" value="21" />
 		<input type="hidden" name="template-index" value="22" />
 		<p class ="act">
-			<input type="submit" class="active" name="eventSubmit_doAdd_participant" value="$tlang.getString('gen.finish')" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doAdd_participant" value="$tlang.getString('gen.finish')" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 			
 		</p>
 	</form>

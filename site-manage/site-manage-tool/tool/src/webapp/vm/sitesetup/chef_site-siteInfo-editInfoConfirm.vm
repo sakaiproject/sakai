@@ -1,21 +1,21 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-editInfoConfirm.vm,v 1.2 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 ## Edit Site Information Confirmation page
 <div class="portletBody">
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("sitediconf.con") $validator.escapeHtml($!title)
 	</h3>
 	<p class="instruction">
 		$tlang.getString("sitediconf.cli")
 	</p>
-	<form name = "classInformationForm" method = "post" action="#toolForm("SiteAction")">
-		<table class="itemSummary">
+	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
+		<table class="itemSummary" summary="layout">
 			<tr>
 				<th>
 					$tlang.getString("sitediconf.sittit")
 				</th>
 				<td>
 					#if (!$!title.equals($!oTitle))
-						<span style="color:#6699ff">$validator.escapeHtml($!title)</span>
+						<span class="highlight">$validator.escapeHtml($!title)</span>
 					#else
 						$validator.escapeHtml($!title)
 					#end
@@ -24,7 +24,7 @@
 			#if ($!isCourseSite)
 				<tr>
 					<th>
-						Term:
+						$tlang.getString("sitediconf.term")
 					</th>
 					<td>
 						$!siteTerm
@@ -37,7 +37,7 @@
 				</th>
 				<td>
 					#if (!$!description.equals($!oDescription))
-						<span style="color:#6699ff">$validator.escapeHtml($!description)</span>
+						<span class="highlight">$validator.escapeHtml($!description)</span>
 					#else
 						$validator.escapeHtml($!description)
 					#end
@@ -49,7 +49,7 @@
 				</th>
 				<td>
 					#if (!$!short_description.equals($!oShort_description))
-						<span style="color:#6699ff">$validator.escapeHtml($!short_description)</span>
+						<span class="highlight">$validator.escapeHtml($!short_description)</span>
 					#else
 						$validator.escapeHtml($!short_description)
 					#end
@@ -70,7 +70,7 @@
 							#set($oldSkin=$!oSkin)
 							#if ($url == $newSkin)
 								#if (!$newSkin.equals($!oldSkin))
-									<span style="color:#6699ff">$s.Name</span>
+									<span class="highlight">$s.Name</span>
 								#else
 									$s.Name
 								#end
@@ -85,7 +85,7 @@
 					</th>
 					<td>
 						#if (!$!icon.equals($!oIcon))
-							<span style="color:#6699ff">$!icon</span>
+							<span class="highlight">$!icon</span>
 						#else
 							$!icon
 						#end
@@ -96,9 +96,9 @@
 				<th>
 					$tlang.getString("sitediconf.sitconnam")
 				</th>
-				<td align="left">
+				<td>
 					#if (!$!name.equals($!oName))
-						<span style="color:#6699ff">$!name</span>
+						<span class="highlight">$!name</span>
 					#else
 						$!name
 					#end
@@ -108,9 +108,9 @@
 				<th>
 					$tlang.getString("sitediconf.siticonema")
 				</th>
-				<td align="left">
+				<td>
 					#if (!$!email.equals($!oEmail))
-						<span style="color:#6699ff">$!email</span>
+						<span class="highlight">$!email</span>
 					#else
 						$!email
 					#end
@@ -121,9 +121,9 @@
 		<input type="hidden" name="template-index" value="14" />
 		<input type="hidden" name="continue" value="12" />
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")"/>
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitediconf.bac")"/>
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitediconf.can")"/>
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doSave_siteInfo" value="$tlang.getString("sitediconf.fin")" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("sitediconf.bac")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediconf.can")" />
 		</p>
 	</form>
 </div>

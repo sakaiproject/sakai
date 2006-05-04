@@ -8,7 +8,6 @@
 	#else
 		<h3>$tlang.getString("nscourse.edit") $!siteTitle...</h3>
 	#end
-
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		#if (!$!site)
@@ -45,7 +44,7 @@
 						</li>
 					#end
 				</ul>
-				<p class="shorttext">
+				<p class="shorttext  required">
 					<span class ="reqStar">*</span>
 					<label for="selectTerm">
 						$tlang.getString("nscourse.acad2")
@@ -65,19 +64,21 @@
 			#end
 			#if ($!termCourseList)
 				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
-					$tlang.getString("nscourse.youmay")<br />
+					<p class="instruction">$tlang.getString("nscourse.youmay")</p>
 				#end
 				
 				## display only subject, course number and section
 				##and finally - the labels work, but having commas in the id does not validate. Can we concatenate or replace with underscore? Here is reqs on ids and labels: an id attribute value must begin with a letter (A-Z or a-z) and consist of the following characters: (A-Z), (a-z), (0-9), hyphens (-), underscores (_), colons (:), and periods (.).
+				#set($courseNumber=0)	
 				#foreach($course in $termCourseList)
+				#set($courseNumber=$courseNumber + 1)
 					<p class="checkbox">
-					<input type="checkbox" name="providerCourseAdd" value="$course.Id" id="$course.Id"
+					<input type="checkbox" name="providerCourseAdd" value="$course.Id" id="course$courseNumber"
 						#if ($!selectedProviderCourse.contains("$course.Id"))
 							checked="checked"
 						#end 
 						/>
-					<label for="$course.Id">
+					<label for="course$courseNumber">
 						$validator.escapeHtml($course.Id)
 						$validator.escapeHtml($course.Crosslist)</label></p>
 				#end
@@ -96,14 +97,15 @@
 		<input type="hidden" name="back" value="1" />
 		<p class="act">
 			#if (!$site)
-				<input type="submit" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+				<input type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 			#else
 				<input type="hidden" name="option" value="x" />
 				<input type="hidden" name="eventSubmit_doAdd_class_select" value="x" />
 				<input
 					type="button" 
+					accesskey="s"
 					name="AddClass" 
 					id="Add Class" 
 					value="$tlang.getString('gen.continue')"
@@ -111,6 +113,7 @@
 					/>
 				<input
 					type="button" 
+					accesskey="x"
 					name="Cancel" 
 					id="Cancel" 
 					value="$tlang.getString('gen.cancel')"

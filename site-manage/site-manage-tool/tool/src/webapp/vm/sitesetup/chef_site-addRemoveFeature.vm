@@ -2,20 +2,25 @@
 ## Adding/removing features
 <div class="portletBody">
 	#if($menu)#toolbar($menu)#end
-		#if ($alertMessage)
-			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div style="display:block;clear:both"></div>
-		#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString('addrem.revising') $validator.escapeHtml($SiteTitle)...
 	</h3>
+		#if ($alertMessage)
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="clear"></div>
+		#end
 	<p  class="instruction">
 		$tlang.getString("addrem.check")
 	</p>
 	<form name="addremovefeaturesForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="option" value="add" />
 		<input type="hidden" name="eventSubmit_doAdd_remove_features" value="x" />
-		<table  class="listHier">
+		<table  class="listHier lines nolines" style="width:auto" summary="$tlang.getString("addrem.list.summary")">
+			<tr>
+				<th class="skip">$tlang.getString("addrem.list.check")</th>
+				<th class="skip">$tlang.getString("addrem.list.toolname")</th>
+				<th class="skip">$tlang.getString("addrem.list.description")</th>
+			</tr>	
 			<tr>
 				<td>
 					#if (!$myworkspace_site)
@@ -67,10 +72,11 @@
 						#elseif ($myworkspace_site && $toolId.indexOf("sakai.rwiki") == -1 && $toolId.indexOf("sakai.news") == -1 && $toolId.indexOf("sakai.iframe") == -1)
 							<input type="hidden" name="selectedTools" value="$toolId" />
 						#else
-							<div style="display:block;clear:both"></div>
+							<div class="clear"></div>
 						#end
 					</td>
 					<td>
+						<h4>
 						#if ($toolId.indexOf("sakai.news") != -1)
 							## show title for News tool
 							#if ($toolRegistrationSelectedList.contains($toolId))
@@ -88,6 +94,7 @@
 						#else
 							<label for="$toolId" >$validator.escapeHtml($tool.getTitle())</label>
 						#end
+						</h4>	
 					</td>
 					<td>
 						#if ($toolId.indexOf("sakai.news") != -1)
@@ -117,10 +124,12 @@
 		<div class="act">
 			<input type="button" name="Continue" 
 					value="$tlang.getString('gen.continue')"
+					accesskey="s"
 					class="active"
 					onclick="document.addremovefeaturesForm.option.value='save';javascript:document.addremovefeaturesForm.submit();" />
 			<input type="button" name="Cancel" 
-					value="$tlang.getString('gen.cancel')" 
+					value="$tlang.getString('gen.cancel')"
+					accesskey="x"
 					onclick="document.addremovefeaturesForm.option.value='cancel';javascript:document.addremovefeaturesForm.submit();" />
 		</div>
 	</form>

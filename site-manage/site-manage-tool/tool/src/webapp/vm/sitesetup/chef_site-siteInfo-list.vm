@@ -2,21 +2,17 @@
 ## Site list Sites list on worksite setup home page
 <div class ="portletBody">
 	#if($menu)#toolbar($menu)#end
-	#if ($alertMessage)
-		<br />
-		<div class="alertMessage">$tlang.getString("sitegen.siteinfolist.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	#if ($fromWSetup)
 		<form name="siteForm" id="siteForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
 			<input type="hidden" name="option" value="x" />
 			<input type="hidden" name="eventSubmit_doNavigate_to_site" value="x" />
-			<p class="rightNav">
+			<div class="navPanel">
+			<div class="itemNav">
 				#if ($!prevSite)
 					<input type="button" 
 						name="previous" 
 						value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
-						onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" />
+						onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" accesskey="p" />
 				#else
 					<input type="submit" 
 							name="previous" 
@@ -26,24 +22,25 @@
 				<input type="button" 
 						name="back" 
 						value="$tlang.getString("sitegen.siteinfolist.return")" 
-						onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" />
+						onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" accesskey="l" />
 				#if ($!nextSite)
 					<input type="button" 
 						name="next" 
 						value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" 
-						onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" />
+						onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" accesskey="n" />
 				#else
 					<input type="button" 
 						name="next" 
 						value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" disabled="disabled" />
 				#end
-			</p>		
+			</div>		
+			</div>		
 		</form>
 	#end
 	<h3>
 		$validator.escapeHtml($!siteTitle) 
 	</h3>
-	<table cellpadding="0" cellspacing="0" class="itemSummary" summary="Site Information">
+	<table cellpadding="0" border="0" cellspacing="0" class="itemSummary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
 		<tr> 
 			<th>
 				$tlang.getString("sitegen.siteinfolist.sitedes")
@@ -62,7 +59,7 @@
 						$id<br />
 					#end
 					#foreach($id in $!manualCourseList)
-						$id(requested)<br />
+						$id $tlang.getString("man.requested")<br />
 					#end
 				</td>
 			</tr>
@@ -149,7 +146,7 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<table id="groupTable" style="margin-left:3em;width:80%" class="listHier lines" border="0" cellspacing="0" summary="Table contains list of announcements. First column may contain checkboxes, second will contain the title, third the author, fourth the date. Headers can be used to sort.">
+					<table id="groupTable" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("group.siteinfo.tablesummary")">
 						<tr>
 					 		<th id ="name">
 									$tlang.getString('group.title')
@@ -160,12 +157,14 @@
 							</tr>
 								#foreach ($g in $!groupsWithMember)
 								<tr>
-									<td headers="name" style="padding-bottom:0;">
-										<label for="$group.Id">
-											$g.Title
-										</label>	
+									<td headers="name">
+										<h4>
+											<label for="$group.Id">
+												$g.Title
+											</label>	
+										</h4>
 									</td>
-									<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+									<td headers="description" width="70%">
 										#set($description = "")
 										#set($description = $g.Description)
 										$!description
@@ -178,36 +177,36 @@
 		#end
 	</table>	
 	#if ($!allowUpdate || $allowUpdateSiteMembership || $!viewRoster)
-		<h4>		
+		 <h4>		
 			$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") (# $!participantListSize)
 		</h4>
 		#if ($participantList.size() > 0)
-			<div>
-				<div class="rightNav">
-					<span class="instruction">$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")</span>
+		 <div class="navPanel">
+			<div class="listNav">
+					<div class="instruction">$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")</div>
 						#if ($pagesize != 0)
 						#if ($goFPButton == "true")
-							<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|<" title="$tlang.getString("gen.first")" />
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
 							</form>
 						#else
-							<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_first" value="|<" disabled="disabled" />
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
 							</form>
 						#end
 						#if ($goPPButton == "true")
-							<form name="prevpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="<" title="$tlang.getString('gen.previous') $pagesize" />
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" />
 							</form>
 						#else
-							<form name="prevpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_prev" value="<" disabled="disabled" />
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
 							</form>
 						#end
 					#end
-					<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-						<label for="selectPageSize" class="skip">Select page size</label>
+						<label for="selectPageSize" class="skip">$tlang.getString("sitegen.siteinfolist.view.pagesize")</label>
 						<select id="selectPageSize" name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
 							#foreach ($i in $!pagesizes)
 								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("sitegen.siteinfolist.show") $i $tlang.getString("sitegen.siteinfolist.itemspage")</option>
@@ -216,21 +215,21 @@
 					</form>
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
-							<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value=">" title="$tlang.getString('gen.next') $pagesize" />
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" />
 							</form>
 						#else
-							<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_next" value=">" disabled="disabled" />
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
 							</form>
 						#end
 						#if ($goLPButton == "true")
-							<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value=">|" title="$tlang.getString('gen.last')" />
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
 							</form>
 						#else
-							<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-								<input type="submit" name="eventSubmit_doList_last" value=">|" disabled="disabled" />
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
 							</form>
 						#end
 					#end
@@ -238,7 +237,7 @@
 			</div>
 		#end
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
-			<table class ="listHier"  cellpadding="0" cellspacing="0" summary ="Table holds the information of site participant. Column 1 holds the index number, column 2 holds the name, Column 3 holds uniqname, Column 4 holds the role, Headers hold links for sorting">
+			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")">
 				<tr>
 					<th id="name">
 						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString("sitegen.siteinfolist.sortname")"> 
@@ -308,7 +307,7 @@
 								$tlang.getString("sitegen.siteinfolist.status")
 							</th>
 						#end
-						<th id="remove">
+						<th id="remove" class="screenOnly">
 							$tlang.getString("sitegen.siteinfolist.remove")
 						</th>
 					#end
@@ -316,14 +315,15 @@
 				#foreach($participant in $participantList)
 					#set($uniqname = $participant.getUniqname())
 					<tr>
-				## (gsilver) $tlang.getString("sitegen.siteinfolist.need")					
 						<td headers="name">
-							#set ($participantName=$participant.getName())
-							#if ($participantName ==", ") 	
-							#else
-								$participantName
-							#end
-							($participant.getUniqname())
+							<h5>
+								#set ($participantName=$participant.getName())
+								#if ($participantName ==", ") 	
+								#else
+									$participantName
+								#end
+								($participant.getUniqname())
+							</h5>
 						</td>
 						#if ($!isCourseSite)
 							<td headers="coursename">
@@ -338,7 +338,7 @@
 								#set($partId = $participant.getId())
 								$!partId
 							</td>
-							<td headers="id">
+							<td headers="credits">
 								#set($partCredits = "")
 								#set($partCredits = $participant.getCredits())
 								$!partCredits
@@ -350,7 +350,7 @@
 							#if ($!isMyWorkspace)
 								$uRole
 							#elseif ($allowUpdate || $allowUpdateSiteMembership)
-								<label class="skip" for="role$uniqname">Select role for $uniqname</label>
+								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $uniqname</label>
 								<select id="role$uniqname" name="role$uniqname">
 									#foreach($r in $roles)
 										<option value ="$r.Id"
@@ -372,7 +372,7 @@
 								 #set($grant="")
 									#set($grant = $realm.getMember($uniqname))
 									#set($grantActive = $!grant.isActive())
-									<label class="skip" for="activeGrant$uniqname">Select status for $uniqname</label>
+									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $uniqname</label>
 									<select id="activeGrant$uniqname" name="activeGrant$uniqname">
 										#if($grant=="" || $!grant.isActive())
 											<option value="true" selected="selected" >$tlang.getString("sitegen.siteinfolist.active")</option>
@@ -384,20 +384,19 @@
 									</select>
 								</td>
 							#end
-							<td>
+							<td class="screenOnly">
 								#if ($participant.isRemoveable())
 									## if in My Workspace site, cannot move the site user from it
 									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
-									<label class="skip" for="remove_$uniqname">Remove $uniqname</label>
-										<input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
+									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $uniqname</span> &nbsp;&nbsp;&nbsp;<input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
 											#foreach($participantSelected in $selectedParticipants)
 												#if($participantSelected.getUniqname() == $uniqname)
 													checked="checked" 
 												#end
 											#end
 										/>
+										&nbsp;&nbsp;&nbsp;</label>
 									#end
-									<label for="remove_$uniqname" class="skip">$tlang.getString("sitegen.siteinfolist.remove")</label>
 								#end
 							</td>
 						#end
@@ -405,29 +404,25 @@
 				#end
 			</table>
 			<div class="act">
-				<input type="submit" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" />
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" />
 				#if ($fromWSetup)
-					<input type="submit" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
+					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
 				#end
 			</div>
 		</form>
-##	removed the internal anchor - seemed to go nowhere
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
-##		<h4><a name="roleDescription">$tlang.getString("sitegen.siteinfolist.roledes")</a></h4>
-		<table cellspacing="0" cellpadding="0" class="itemSummary" summary ="Role definitions - first column the role name, second column the description." >
-			#foreach ($role in $roles)
-				#set ($description = false)
-				<tr>
-					<td>
+			<ul class="attachList indnt2">
+				#foreach ($role in $roles)
+					#set ($description = false)
+					<li>
 						$role.Id
-					</td>
-					<td>
+						<p class="instruction indnt2">
 							#set($description = "")
 							#set($description = $role.Description)
 							$validator.escapeHtml($!description)
-					</td>
-				</tr>
-			#end
-		</table>
+						</p>
+					</li>
+				#end
+			</ul>	
 	#end
 </div>

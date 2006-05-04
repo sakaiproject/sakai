@@ -16,11 +16,12 @@
  	}
 </script>
 <div class ="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>#end
+
 	<h3>
-		$tlang.getString("sitetype.crenewsit")
+		$tlang.getString("sitetype.crenewsit") 
 	</h3>
-	<p class="instruction">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $validator.escapeHtml($alertMessage)</div>	#end
+	<p class="step">
 		$tlang.getString("sitetype.chothetyp")
 	</p>
 	<form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
@@ -38,7 +39,7 @@
 				</p>		
 						#if ($type == "course")
 							<div class="indnt3">
-								<p class="shorttext">
+								<p class="shorttext required">
 									<span class ="reqStar"> *</span>
 									<label for="selectTerm">
 										$tlang.getString("sitetype.acater")
@@ -69,8 +70,8 @@
 		<input type="hidden" name="back" value="0" />
 		<input type="hidden" name="template-index" value="1" />
 		<div class ="act">
-			<input type="submit" class="active" name="eventSubmit_doSite_type" value="$tlang.getString("sitetype.con")" />
-			<input type="submit" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
+			<input type="submit" accesskey="s"  class="active" name="eventSubmit_doSite_type" value="$tlang.getString("sitetype.con")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("sitetype.can")" />
 		</div>
 	</form>				
 </div>	

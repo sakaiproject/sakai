@@ -2,10 +2,10 @@
 ## Creating project site: publish the site or not
 <div class="portletBody">
 	##if($menu)#toolbar($menu)#end<br/><br/>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("newsitpub.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("newsitpub.yousit")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("newsitpub.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="step">
 		$tlang.getString("newsitpub.onelas")
 	</p>

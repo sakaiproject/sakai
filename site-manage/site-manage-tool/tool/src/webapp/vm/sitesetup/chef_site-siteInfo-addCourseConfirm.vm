@@ -6,13 +6,13 @@
 	</h3>
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("sitegen.addcourse.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
+		<div class="clear"></div>
 	#end
 	<p class="instruction">
 		$tlang.getString("sitegen.addcourse.please")
 	</p>
 	<form name = "addRemoveConfirmForm" method="post" action="#toolForm($action)">
-	<h4 class ="insBor insBak insCol">
+	<h4>
 		$tlang.getString("sitegen.addcourse.class")
 	</h4>
 	<p class="instruction">
@@ -26,7 +26,7 @@
 		#end
 		#foreach($c in $manualCourseList)
 			<li>
-				$c(requested)
+				$c $tlang.getString("man.requested")
 			</li>
 		#end
 	</ul>
@@ -39,6 +39,7 @@
 				$c
 			</li>
 		#end
+	</ul>	
 		#if ($!manualAddNumber)
 			<ul>
 				#foreach ($k in [0..$manualAddNumber])
@@ -53,14 +54,13 @@
 				#end
 			</ul>
 		#end
-	</ul>
 		<input type="hidden" name="back" value="$backIndex" />
 		<input type="hidden" name="template-index" value="44"/>
 		<input type="hidden" name="continue" value="12" />
 		<p class ="act">
-			<input type="submit" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitegen.addcourse.add")" />
-			<input type="submit" name="eventSubmit_doBack" value="$tlang.getString("sitegen.addcourse.back")" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.addcourse.cancel")" />
+			<input type="submit" accesskey="s"  class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitegen.addcourse.add")" />
+			<input type="submit" accesskey="b"  name="eventSubmit_doBack" value="$tlang.getString("sitegen.addcourse.back")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.addcourse.cancel")" />
 		</p>
 	</form>
 </div>

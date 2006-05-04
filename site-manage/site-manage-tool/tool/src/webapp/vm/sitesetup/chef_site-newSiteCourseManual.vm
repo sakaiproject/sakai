@@ -7,45 +7,44 @@
 				$tlang.getString("nscourse.choose")
 			</p>
 		#else
-			<h3 class="insColor insBak insBor">$tlang.getString("man.edit")</h3>
+			<h3>$tlang.getString("man.edit")</h3>
 		#end
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div style="display:block;clear:both"></div>
+			<div class="clear"></div>
 		#end
 			#if ($!site)
-				<p>
+				<p class="instruction">
 				$tlang.getString("nscourse.already")
 				</p>	
 				#foreach($id in $!providerCourseList)
-					<p style="margin:.3em 2em">
-						$id
+					<p class="indnt2">
+						$id 
 					</p>
 				#end
 				#foreach($id in $!manualCourseList)
-					<p style="margin:.3em 2em">
-						$id(requested)
+					<p class="indnt2">
+						$id <span class="highlight">$tlang.getString("man.requested")</span>
 					</p>
 				#end
 			#end
 			<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">
 				<input type="hidden" name="option" value="add" />
 				<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
-				<p>
+				<h4> 
 					$tlang.getString("nscourse.acad")
 					$term.Id
-				</p>
+				</h4>
 				#if ($!selectedProviderCourse)
-					<div>
-						$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this") <br />
-						<ul>
-							#foreach ($item in $!selectedProviderCourse)
-								<li>$item </li>
-							#end
-						</ul>
-					</div>	
+				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
+				<ul>
+					#foreach ($item in $!selectedProviderCourse)
+						<li>$item </li>
+					#end
+				</ul>
+
 				#end
-				<p>
+				<p class="instruction">
 					#if (!$!isFutureTerm)
 						$tlang.getString("man.enter")
 					#else
@@ -53,34 +52,45 @@
 					#end
 					 <span class="reqStarInline">*</span> $tlang.getString("man.means")
 				</p>
-				<table  border="0" cellpadding="4" summary="Table for manual input of course information.">
+				<table  class="listHier lines nolines"  style="width:50%" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString("man.list.summary")">
 					<tr>
 						#set($bound = $!form_requiredFields.size())
 						#set($bound = $bound - 1)
+						<th id="rownNum">
+							&nbsp;
+						</th>
 						#foreach ($fieldCount in [0..$!bound])
 								#set($field = $!form_requiredFields.get($fieldCount))
-									<th id="$!field" style="font-weight:normal">	
+									<th id="$!field">	
 										<span class ="reqStarInline">*</span>$field
 									</th>
 						#end
 					</tr>
 					#set ($count = 1)
+					#set ($rowcount = 1)
 					#foreach ($k in [0..$listSize])
 						#set($courseFieldValues = $!fieldValues.get($k))
 						<tr>
+							<td headers="rownNum">$rowcount</td>
 							#foreach ($fieldCount in [0..$!bound])
 								#set($field = $!form_requiredFields.get($fieldCount))
 								#set($fieldSize = 8)
 								#set($fieldSize = $!form_requiredFieldsSizes.get($fieldCount))
-								<td headers="$field">
-									<input type="text" name="$field$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount)" /> 
+								
+								<td headers="$field" class="shorttext">
+									<label  for="id-$field$rowcount" class="skip">$field</label>
+									<input type="text" name="$field$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount)"  id="id-$field$rowcount" /> 
 									#set ($count = $count + 1)
+
 								</td>
 							#end
 						</tr>
-					#end
+										#set ($rowcount = $rowcount + 1)
+						#end
 					<tr>
-						<td colspan="3" align="right">
+						<td></td>
+						<td colspan="3">
+						<label for="number" class="skip">$tlang.getString("gen.listnav.select")</label>
 							<select name="number" id="number" onchange="document.requestCourseForm.option.value='change';javascript:document.requestCourseForm.submit();" tabindex = "$count">
 								<option selected="selected">$tlang.getString("man.addmore")</option>
 								#foreach ($j in [1..3])
@@ -90,35 +100,36 @@
 						</td>
 					</tr>
 				</table>
-				<p>
+				<div>
 					#if ($!isFutureTerm)
-						<strong>$tlang.getString("man.siteroster")</strong><br />
-						$tlang.getString("man.notverifyfuture1")$!weeksAhead $tlang.getString("man.notverifyfuture2")
+						<h4>$tlang.getString("man.siteroster")</h4>
+						<p class="instruction">$tlang.getString("man.notverifyfuture1")$!weeksAhead $tlang.getString("man.notverifyfuture2")</p>
 					#else
-						<strong>$tlang.getString("man.siteauth")</strong><br />
-						$tlang.getString("man.notverify")
+						<h4>$tlang.getString("man.siteauth")</h4>
+						<p class="instruction">$tlang.getString("man.notverify")</p>
 					#end
-				</p>
+				</div>
 				#if (!$!isFutureTerm)
-					<p class="shorttext">
+					<div class="shorttext required">
 						<span class="reqStar">*</span>						
 						<label for="uniqname">		
 						   $tlang.getString("man.authoriz")
 						</label>
 						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
-						<br /><span class="labelindnt instruction">
-						   $tlang.getString("man.email")
-						</span>
+					</div>
+					<p class="labelindnt instruction">
+					   $tlang.getString("man.email")
 					</p>
-					<p class="shorttext">
+					<div class="shorttext">
 						<label for="additional" class="block">
 							$tlang.getString("man.spec")
 						</label>
 						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
-						<br /><span  class="instruction labelindnt">
-							$tlang.getString("man.please")
-						</span>
-					</p>	
+					</div>
+					<p  class="instruction labelindnt">
+						$tlang.getString("man.please")
+					</p>
+
 				#end
 			#set ($count = $count + 1)
 			<input type="hidden" name="back" value="$back" />
@@ -128,12 +139,15 @@
 				<input type="button" name="Add" 
 						value="$tlang.getString('gen.continue')" 
 						class="active" 
+						accesskey="s" 
 						onclick="document.requestCourseForm.option.value='add'; document.requestCourseForm.submit(); return false;" />
 				<input type="button" name="Back" 
 						value="$tlang.getString('gen.back')"
+						accesskey="b"
 						onclick="document.requestCourseForm.option.value='back'; document.requestCourseForm.submit(); return false;" />
 				<input type="button" name="Cancel" 
-						value="$tlang.getString('gen.cancel')" 
+						value="$tlang.getString('gen.cancel')"
+						accesskey="x"
 						onclick="document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
 			</p>
 		</form>

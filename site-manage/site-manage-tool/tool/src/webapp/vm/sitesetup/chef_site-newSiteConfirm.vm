@@ -1,9 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteConfirm.vm,v 1.3 2005/05/23 04:04:12 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h3 class="insColor insBak insBor">
+	<h3>
 		$tlang.getString("newsc.confirm")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="step">
 		$tlang.getString("newsc.selection")
 	</p>
@@ -42,7 +42,7 @@
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="eventSubmit_doAdd_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
-		<table class ="itemSummary" cellspacing="0" summary="info on the new site">
+		<table class ="itemSummary" cellspacing="0" summary="$tlang.getString("newsc.list.summary")">
 			<tr>
 				<th>
 					$tlang.getString("newsc.site")
@@ -190,6 +190,7 @@
 				#end
 				name="addSite"
 				id="addSite" 
+				accesskey="s"
 				value="$!name"
 				onclick="showNotif('submitnotif','addSite','addSiteForm'); document.addSiteForm.option.value='finish'; document.addSiteForm.submit(); return false;"
 			/>
@@ -198,6 +199,7 @@
 				type="button" 
 				name="back" 
 				id="back" 
+				accesskey="b"
 				value="$tlang.getString('gen.back')"
 				onclick="document.addSiteForm.option.value='back'; document.addSiteForm.submit(); return false;"
 			/>
@@ -206,6 +208,7 @@
 				type="button" 
 				name="cancel" 
 				id="cancel" 
+				accesskey="x"
 				value="$tlang.getString('gen.cancel')"
 				onclick="document.addSiteForm.option.value='cancel'; document.addSiteForm.submit(); return false;"
 			/>

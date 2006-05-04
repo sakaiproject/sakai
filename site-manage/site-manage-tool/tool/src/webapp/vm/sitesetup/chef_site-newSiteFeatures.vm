@@ -1,16 +1,16 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteFeatures.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<h3 class="insCol insBak insBor">
+	<h3>
 		$tlang.getString("feat.tools")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="step">
 		$tlang.getString("feat.choose")
 	</p>
 	<form name="featuresForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="option" value="add" />
 		<input type="hidden" name="eventSubmit_doAdd_features" value="x" />
-			<table class="listHier" cellspacing="0">
+			<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("feat.tools.list.summary")">
 				<tr>
 					<td>
 						<input type="checkbox" name="selectedTools" value="home" id="home"
@@ -50,29 +50,29 @@
 							/>
 						</td>
 						<td>
-							#if ($toolId.indexOf("sakai.news") != -1)
-								## show title for News tool
-								<label for="$toolId">
-									#if ($toolRegistrationSelectedList.contains($toolId) && $!newsTitles)								
-										$newsTitles.get($toolId)
-									#else
+								#if ($toolId.indexOf("sakai.news") != -1)
+									## show title for News tool
+										<label for="$toolId">
+											#if ($toolRegistrationSelectedList.contains($toolId) && $!newsTitles)								
+												$newsTitles.get($toolId)
+											#else
+												$tool.getTitle()
+											#end
+										</label>
+								#elseif ($toolId.indexOf("sakai.iframe") != -1)
+									<label for="$toolId">
+										## show url for Web Content tool
+										#if ($toolRegistrationSelectedList.contains($toolId) && $!wcTitles)
+											$wcTitles.get($toolId)
+										#else
+											$tool.getTitle()
+										#end
+									</label>	
+								#else
+									<label for="$toolId">
 										$tool.getTitle()
-									#end
-								</label>
-							#elseif ($toolId.indexOf("sakai.iframe") != -1)
-								<label for="$toolId">
-									## show url for Web Content tool
-									#if ($toolRegistrationSelectedList.contains($toolId) && $!wcTitles)
-										$wcTitles.get($toolId)
-									#else
-										$tool.getTitle()
-									#end
-								</label>	
-							#else
-								<label for="$toolId">
-									$tool.getTitle()
-								</label>	
-							#end
+									</label>	
+								#end
 						</td>
 						<td>
 							#if ($toolId.indexOf("sakai.news") != -1)
@@ -132,13 +132,16 @@
 		<p class="act">
 			<input type="button" name="Continue" 
 					value="$tlang.getString('gen.continue')"
+					accesskey="s"
 					class="active"
 					onclick="document.featuresForm.option.value='continue';javascript:document.featuresForm.submit();" />
 			<input type="button" value="$tlang.getString('gen.back')" 
 					name="Back" 
+					accesskey="b"
 					onclick="document.featuresForm.option.value='back';javascript:document.featuresForm.submit();" />
 			<input type="button" value="$tlang.getString('gen.cancel')" 
-					name="Cancel" 
+					name="Cancel"
+					accesskey="x"
 					onclick="document.featuresForm.option.value='cancel';javascript:document.featuresForm.submit();" />
 		</p>
 	</form>

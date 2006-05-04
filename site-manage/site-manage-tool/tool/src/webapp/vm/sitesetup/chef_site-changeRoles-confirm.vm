@@ -7,7 +7,7 @@
 	<div class ="chefPortletContent">
 		#if ($alertMessage)
 			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-			<div style="display:block;clear:both"></div>
+			<div class="clear"></div>
 		#end
 		<div class="chefPageviewTitle">
 			$tlang.getString("chrolc.finish")

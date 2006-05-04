@@ -1,13 +1,13 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-sitemanage-addParticipant.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
 ## Add a participant to ssite
 <div class ="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
  		$tlang.getString("sitegen.addpart.add") $validator.escapeHtml($title)...
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="instruction">
 		$tlang.getString("sitegen.addpart.enter")
 	</p>

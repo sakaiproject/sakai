@@ -7,12 +7,16 @@
 	<form action="#toolForm("$action")" method="post">
 	#if($removals && $removals.size() != 0)
 		<div class="alertMessage">
-			$tlang.getString("sitegen.sitedel.deleting")
+			$tlang.getString("sitegen.sitedel.deleting1")
+		</div>
+		<div class="alertMessage">
+		##	$tlang.getString("sitegen.sitedel.deleting")
 			#if($removals.size() == 1)
 				$tlang.getString("sitegen.sitedel.you")
 			#else
 				$tlang.getString("sitegen.sitedel.you")
 			#end
+		</div>
 			<ul>
 				#foreach($site in $removals)
 					<li>	<input type="hidden" name="selectedMembers" value="$site.getId()" />
@@ -20,17 +24,15 @@
 					</li>
 				#end
 			</ul>
-			$tlang.getString("sitegen.sitedel.deleting1")
-		</div>
 	#end
 		<input type="hidden" name="continue" value="0" />
 		<input type="hidden" name="template-index" value="8" />
 		<input type="hidden" name="back" value="0" />
 		<div class="act">
 		#if($removals && $removals.size() != 0)
-			<input type="submit" name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" />
+			<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" />
 		#end
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitegen.sitedel.cancel")" />
 		</div>
 	</form>
 </div>

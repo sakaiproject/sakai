@@ -2,28 +2,26 @@
 ## Might want to get these dynamically 
 <div class="portletBody">
 	##if($menu)#toolbar($menu)#end<br/><br/>
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 		$tlang.getString("sitedicla.import_materials")
 	</h3>
-	<p class="step">
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("sitinfimp.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
+	<p class="instruction">
 	$tlang.getString("sitedicla.choose_file")
 	</p>
-	<p class="instruction">
-		
-	</p>
 	<form name="featuresForm" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
-			<p>
-			$tlang.getString("sitedicla.file")<input type="file" name="file" id="file" class="upload" />
+			<p class="shorttext">
+				<label for="file">$tlang.getString("sitedicla.file")</label>
+				<input type="file" name="file" id="file" class="upload" />
 			</p>					
 				
 		<input type="hidden" name="template-index" value="45" />
 		<p class="act">
-			<input type="submit" class="active" name="eventSubmit_doUploadMtrlFrmFile" value="$tlang.getString("sitedicla.import")" />
-			<input type="submit" class="active" name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.can")" />
+			<input type="submit" accesskey="s"  class="active" name="eventSubmit_doUploadMtrlFrmFile" value="$tlang.getString("sitedicla.import")" />
+			<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("sitedicla.can")" />
 		</p>
 					
 	</form>

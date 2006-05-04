@@ -2,16 +2,11 @@
 	focus_path = ["search"];
 </script>
 <div class="portletBody">
-
 	<div class="navIntraTool">
 	<a href="#" onclick="location='#toolLink("$action" "doMenu_sitemanage_addParticipant")';return false;" title ="Search">$tlang.getString("sitmanpar.addpar")</a>
 	</div>
-	
-
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanpar.alert") $validator.escapeHtml($alertMessage)</div>#end
-		
 	<h3>$validator.escapeHtml($site.Title) $tlang.getString("sitmanpar.parlis")</h3>
-	
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitmanpar.alert") $validator.escapeHtml($alertMessage)</div>#end	
 #if ($participants.size() > 0)
 
  	<p>

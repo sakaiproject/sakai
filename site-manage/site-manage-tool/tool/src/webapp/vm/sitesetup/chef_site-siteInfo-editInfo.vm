@@ -18,12 +18,12 @@ function LimitText(fieldObj,maxChars)
 </script>
   
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
 	<h3>
 		$tlang.getString("sitediinf.rev") $validator.escapeHtml($title)
 	</h3>
-	<form name = "classInformationForm" method = "post" action="#toolForm("SiteAction")">
-		<p class="shorttext">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitediinf.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form name="classInformationForm" method="post" action="#toolForm("SiteAction")">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="title">
 				$tlang.getString("sitediinf.sittit")
@@ -42,24 +42,24 @@ function LimitText(fieldObj,maxChars)
 				$!selectedTerm
 			</p>	
 		#end
-		<p class="longtext">
+		<div class="longtext">
 			<label for="description" class="block">
 				$tlang.getString("sitediinf.des")
 			</label>
-			<textarea style="display:block;" id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$validator.escapeHtmlTextarea($!description)</textarea>
-				<span class="instruction" style="padding:0;margin:0">
+			<textarea  id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$validator.escapeHtmlTextarea($!description)</textarea>
+				<br /><span class="instruction">
 					$tlang.getString("sitediinf.dis")
 				</span>
-		</p>
-		<p class="longtext">
+		</div>
+		<div class="longtext">
 			<label for="short_description" class="block">
 				$tlang.getString("sitediinf.shodes")
 			</label>
-			<textarea style="display:block;margin-bottom:0" name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
-			<span class="instruction" style="padding:0;margin:0">
+			<textarea  name="short_description" id="short_description" tabindex="2" rows="2" cols="45" onkeyup="LimitText(this,80)">$validator.escapeHtmlTextarea($!short_description)</textarea>
+			<br /><span class="instruction">
 				$tlang.getString("sitediinf.dis2")
 			</span>
-		</p>	
+		</div>	
 		#if ($!isCourseSite)
 			<p class ="shorttext">
 				<label for="skin">
@@ -72,6 +72,10 @@ function LimitText(fieldObj,maxChars)
 							#if ($url == $selectedIcon)$s.Name#end
 					#end
 				#else		
+				<div class ="shorttext">	
+				<label for="skin">
+					$tlang.getString("sitediinf.app")
+				</label>
 					<select name="skin" id="skin">
 						#foreach ($s in $skins)
 							#set($url="")
@@ -85,7 +89,7 @@ function LimitText(fieldObj,maxChars)
 						</span>
 					</div>
 				#end
-			</p>
+			</div>
 		#else
 			<div class="shorttext">
 				<label for="icon">$tlang.getString("sitediinf.ico")</label>
@@ -107,9 +111,9 @@ function LimitText(fieldObj,maxChars)
 		<input type="hidden" name="back" value="12" />
 		<input type="hidden" name="template-index" value="13" />
 		<input type="hidden" name="continue" value="14" />
-		<div class="act">
-		<input type="submit" class= "active" name="eventSubmit_doContinue" value="$tlang.getString("sitediinf.con")" />
-		<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
+	<div class="act">
+		<input type="submit" accesskey="s" class= "active" name="eventSubmit_doContinue" value="$tlang.getString("sitediinf.con")" />
+		<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitediinf.can")" />
 	</div>
 </form>
 	</div>

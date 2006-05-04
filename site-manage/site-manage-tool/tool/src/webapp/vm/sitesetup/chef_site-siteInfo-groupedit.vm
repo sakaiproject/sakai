@@ -15,10 +15,6 @@
 	}
 </script>
 <div class ="portletBody">
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both"></div>
-	#end
 	<h3>
 	#if ($!newgroup)
 		$tlang.getString('group.newgroup')
@@ -26,39 +22,43 @@
 		$tlang.getString('group.editgroup')
 	#end
 	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("ediacc.alert") $validator.escapeHtml($alertMessage)</div>
+		<div class="clear"></div>
+	#end
 	<p class="instruction">$tlang.getString("editgroup.instruction")</p>
 	<form name="groupForm" id="groupForm" action="#toolForm($action)" method="post">
-		<p class="shorttext">
+		<p class="shorttext required">
 			<span class="reqStar">*</span>
 			<label for="$tlang.getString('group.title')">
 				$tlang.getString("group.title")
 			</label>
 			<input type="text" name="$tlang.getString('group.title')" id="$tlang.getString('group.title')" size="20" value="$validator.escapeHtml($!title)" />
-		<p>
+		</p>
 		<p class="shorttext">
 			<label for="$tlang.getString('group.description')">
 				$tlang.getString("group.description")
 			</label>
 			<textarea wrap="virtual" name="$tlang.getString('group.description')" id="$tlang.getString('group.description')"  rows="3" cols="50">$validator.escapeHtml($!description)</textarea>
-		<p>
+		</p>
 		<h4>
 			$tlang.getString("editgroup.membership")
 		</h4>
-<table cellspacing="0" cellpadding="0" border="0" class="sidebyside">
+<table cellspacing="0" cellpadding="0" border="0" class="sidebyside" summary="layout">
 	<tbody>
 			<tr>
 				<th>
 					$tlang.getString("editgroup.generallist")
 				</th>
-				<th align="right" class="act">
-						<input type="button" class="active" name="$tlang.getString('editgroup.addmember')" value="$tlang.getString('editgroup.addmember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=add')';submitform('groupForm');" 
+				<th  class="act">
+						<input type="button"  name="$tlang.getString('editgroup.addmember')" value="$tlang.getString('editgroup.addmember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=add')';submitform('groupForm');" 
 						onkeypress="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=add')';submitform('groupForm');" />
-				</td>
+				</th>
 				<th>
 					$tlang.getString("editgroup.grouplist")
 				</th>
-				<th align="right" class="act">
-						<input type="button" class="active" name="$tlang.getString('editgroup.removemember')" value="$tlang.getString('editgroup.removemember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');"  onkeypress="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');" />
+				<th  class="act">
+						<input type="button"  name="$tlang.getString('editgroup.removemember')" value="$tlang.getString('editgroup.removemember')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');"  onkeypress="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=remove')';submitform('groupForm');" />
 				</th>
 			</tr>
 			<tr>
@@ -72,7 +72,7 @@
 								#end
 							#end
 							#if(!$found)
-    				<option style="" value="$member.Uniqname" >$member.Name</option>
+    				<option  value="$member.Uniqname" >$member.Name</option>
 							#end
     		#end
     	</select>
@@ -82,7 +82,7 @@
 						#foreach ($gmember in $groupMembers)
     			#set($gUser = $!userDirectoryService.getUser($gmember.UserId))
 							#if ($!gUser)
-    				<option style="" value="$gmember.UserId" >$gUser.SortName</option>
+    				<option  value="$gmember.UserId" >$gUser.SortName</option>
 							#end
     		#end
     	</select>
@@ -93,8 +93,8 @@
 		<input type="hidden" name="template-index" value="50" />
 		<input type="hidden" name="back" value="49" />
 		<div class ="act">
-				<input type="button" class="active" name="$tlang.getString('editgroup.update')" value="$tlang.getString('editgroup.update')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=save')';submitform('groupForm');" />
-				<input type="button" name="eventSubmit_doBack" value="$tlang.getString('editgroup.cancel')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=cancel')';submitform('groupForm');" />
+				<input type="button" accesskey="s" class="active" name="$tlang.getString('editgroup.update')" value="$tlang.getString('editgroup.update')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=save')';submitform('groupForm');" />
+				<input type="button" accesskey="x" name="eventSubmit_doBack" value="$tlang.getString('editgroup.cancel')" onclick="javascript:document.getElementById('groupForm').action='#toolLinkParam('$action' 'doGroup_update' 'option=cancel')';submitform('groupForm');" />
 		</div>
 	</form>
 </div>
