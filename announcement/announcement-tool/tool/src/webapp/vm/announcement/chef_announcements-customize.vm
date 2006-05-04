@@ -7,7 +7,7 @@
 	<h3>
 		$tlang.getString("custom.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<p class="instruction indnt2">
 		#if ($toolId == "sakai.announcements")
 			$tlang.getString("custom.setoptions")
@@ -68,8 +68,6 @@
 			<label for="changeChars">
 				$tlang.getString("custom.charbody")
 			</label>
-			## this input needs to become a select - here are some yardsticks - 50 chars per line
-			
 			#if ($displayOptions.isEnforceNumberOfCharsPerAnnouncement())
 				#if ($displayOptions.NumberOfCharsPerAnnouncement == 50)
 					#set ($selectedChars = $tlang.getString("custom.shofir"))
@@ -113,8 +111,7 @@
 			<label for="changeChars">
 				$tlang.getString("custom.about")
 			</label>
-			## this input needs to become a select - here are some yardsticks - 50 chars per line
-			
+		
 			#if ($displayOptions.isEnforceNumberOfCharsPerAnnouncement())
 				#if ($displayOptions.NumberOfCharsPerAnnouncement == 50)
 					#set ($selectedChars = $tlang.getString("custom.shofir"))
@@ -171,8 +168,8 @@
 			/>
 		</p>
 		<p class="act">
-			<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")" />
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
+			<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")"  accesskey="x" />
 		</p>
 	</form>
 </div>

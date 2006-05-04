@@ -6,46 +6,47 @@
 	
 	#if ($toolId == "sakai.announcements")
 	<form name="formII" action="#toolForm("$action")" method="post">
-	<p class="itemNav">
-		#if ($!goPTButton)
-			<input type="submit" name="eventSubmit_doPrev_message" value="&lt; $tlang.getString("meta.prev")" />
-		#else
-			<input type="submit" name="eventSubmit_doPrev_message" 
-				value="&lt;  $tlang.getString("meta.prev")"
-				disabled="disabled" />
-		#end
-		<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" />
-		#if ($!goNTButton)
-			<input type="submit" name="eventSubmit_doNext_message" value="$tlang.getString("meta.next") &gt;" />
-		#else
-			<input type="submit" name="eventSubmit_doNext_message" 
-				value="$tlang.getString("meta.next")  &gt;"
-				disabled="disabled" />
-		#end
-	</p>
+		<div class="navPanel">
+			<div class="itemNav">
+				#if ($!goPTButton)
+					<input type="submit" name="eventSubmit_doPrev_message" class="prev" accesskey="p" value="&lt; $tlang.getString("meta.prev")" />
+				#else
+					<input type="submit" name="eventSubmit_doPrev_message" 
+						value="&lt;  $tlang.getString("meta.prev")" class="prevDis"
+						disabled="disabled" />
+				#end
+				<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" class="toList" accesskey="l" />
+				#if ($!goNTButton)
+					<input type="submit" name="eventSubmit_doNext_message" value="$tlang.getString("meta.next") &gt;"  class="next" accesskey="n" />
+				#else
+					<input type="submit" name="eventSubmit_doNext_message" 
+						value="$tlang.getString("meta.next")  &gt;"
+						disabled="disabled" class="nextDis" />
+				#end
+			</div>
+		</div>
 	</form>
 	#end
-	
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
 	<h3>
 		$tlang.getString("meta.title")
 	</h3>	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<table cellspacing="0" class="itemSummary">
 		<tr>
-			<th class="chefLabel">$tlang.getString("gen.subject")</th>
+			<th>$tlang.getString("gen.subject")</th>
 			<td>$validator.escapeHtml($message.Header.subject)</td>
 		</tr>
 		<tr>
-			<th class="chefLabel">$tlang.getString("gen.from")</th>
+			<th>$tlang.getString("gen.from")</th>
 			<td>$validator.escapeHtml($message.Header.From.DisplayName)</td>
 		</tr>
 		<tr>
-			<th class="chefLabel">$tlang.getString("gen.date")</th>
+			<th>$tlang.getString("gen.date")</th>
 			<td>$message.Header.Date.toStringLocalFull()</td>
 		</tr>
 		#if ($!range)
 			<tr>
-				<th class="chefLabel">$tlang.getString("meta.groups")</th>
+				<th>$tlang.getString("meta.groups")</th>
 				<td>$!range</td>
 			</tr>
 		#end
@@ -69,9 +70,9 @@
 						#if ($props.getBooleanProperty($props.NamePropIsCollection))
 							<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
 						#else
-							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" />
+							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
 						#end
-						<a href="$attachment.Url" target="_blank">
+						<a href="$attachment.Url" target="_blank" title="$tlang.getString("gen.newwindow")">
 							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
 						#if (!$props.getBooleanProperty($props.NamePropIsCollection))
 							($props.getPropertyFormatted($props.NamePropContentLength))
@@ -84,28 +85,30 @@
 	
 #if ($toolId == "sakai.announcements")
 	<form name="formII" action="#toolForm("$action")" method="post">
-		<div class="itemNav">
-			#if ($!goPTButton)
-				<input type="submit" name="eventSubmit_doPrev_message" value="&lt; $tlang.getString("meta.prev")" />
-			#else
-				<input type="submit" name="eventSubmit_doPrev_message" 
-					value="&lt;  $tlang.getString("meta.prev")"
-					disabled="disabled" />
-			#end
-			<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" />
-			#if ($!goNTButton)
-				<input type="submit" name="eventSubmit_doNext_message" value=" $tlang.getString("meta.next") &gt;" />
-			#else
-				<input type="submit" name="eventSubmit_doNext_message" 
-					value="$tlang.getString("meta.next") &gt;"
-					disabled="disabled" />
-			#end
-		</div>
+		<div class="navPanel">
+			<div class="itemNav">
+				#if ($!goPTButton)
+					<input type="submit" name="eventSubmit_doPrev_message" value="&lt; $tlang.getString("meta.prev")" />
+				#else
+					<input type="submit" name="eventSubmit_doPrev_message" 
+						value="&lt;  $tlang.getString("meta.prev")"
+						disabled="disabled" />
+				#end
+				<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" />
+				#if ($!goNTButton)
+					<input type="submit" name="eventSubmit_doNext_message" value=" $tlang.getString("meta.next") &gt;" />
+				#else
+					<input type="submit" name="eventSubmit_doNext_message" 
+						value="$tlang.getString("meta.next") &gt;"
+						disabled="disabled" />
+				#end
+			</div>
+		</div>	
 	</form>
 #else
 	<form name="formII" action="#toolForm("$action")" method="post">
 		<p class="act">
-			<input type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")" />
+			<input class="active" type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")"  accesskey="x" />
 		</p>	
 	</form>
 #end

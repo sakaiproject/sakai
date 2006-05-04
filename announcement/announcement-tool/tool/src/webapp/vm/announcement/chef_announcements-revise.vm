@@ -10,7 +10,7 @@
 			$tlang.getString("revise.revise")
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">Alert: $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<div class="indnt1">
 		<p class="instruction">
 				#if ( $newAnn =="true")
@@ -36,7 +36,7 @@
 					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" />
 				#end
 			</p>
-			<p class="longtext">
+			<div class="longtext">
 				<label for="body" class="block">
 					<span class="reqStar">*</span>$tlang.getString("revise.announcement")
 				</label>
@@ -61,7 +61,7 @@
 						</td>
 					</tr>
 				</table>
-			</p>	
+			</div>	
 			#*if($pubviewset)
 				$tlang.getString("revise.setto")
 			#else
@@ -84,7 +84,7 @@
 				</p>
 				#end
 				<p class="checkbox">
-					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+					<input type="radio" name="announceTo" id="site" value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';" />
 					<label for="site">$tlang.getString("displayto.site")</label>
 				</p>	
 			#else
@@ -105,38 +105,38 @@
 				#else
 					#set ($listDisplay="none")
 				#end
-					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("revise.group.list.summary")">
 					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 						<tr>
 							<th id ="selectAllGroups" class="attach">
-								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+								<input type="checkbox" name="selectall" value="" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
 							</th>
 					 		<th id ="groupname">
 								#if (!$currentSortedBy.equals("grouptitle"))
-									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title</a>
+									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitle")">$tlang.getString("revise.group.list.title")</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitleasc")">$tlang.getString("revise.group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("revise.group.list.sorttitleasc")" /></a>
 									#else
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitledesc")">$tlang.getString("revise.group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("revise.group.list.sorttitledesc")"/></a>
 									#end
 								#end
 							</th>
 							<th id ="groupdescription">
 								#if (!$currentSortedBy.equals("groupdescription"))
-									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description</a>
+									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdesc")">$tlang.getString("revise.group.list.desc")</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdescasc")">$tlang.getString("revise.group.list.desc") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("revise.group.list.sortdescasc")" /></a>
 									#else
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdescdesc")">$tlang.getString("revise.group.list.desc") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("revise.group.list.sortdescdesc")"/></a>
 									#end
 								#end
 							</th>
 						</tr>
 						#foreach ($group in $!groups)
 							<tr>
-								<td headers="selected" class="attach">
+								<td headers="selectAllGroups" class="attach">
 									#set($selected=false)
 									#foreach($aGroupRef in $announceToGroups)
 										#set($aGroup = $!site.getGroup($!aGroupRef))
@@ -144,14 +144,14 @@
 											#set($selected = true)
 										#end
 									#end
-									<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+									<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$group.Title" value="$group.Id" #if($selected) checked="checked"#end />
 								</td>
-								<td headers="name" nowrap="nowrap">
-									<label for="$group.Id">
+								<td headers="groupname" nowrap="nowrap">
+									<label for="group-$group.Id">
 										$group.Title
 									</label>	
 								</td>
-								<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+								<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
 									#set($description = "")
 									#set($description = $group.Description)
 									$!description
@@ -161,39 +161,37 @@
 					</table>
 			#end
 		#end
-			<p class="shorttext">
-				<h4>
-   				$tlang.getString("revise.attachments")
-				</h4>	
-				#set ($size = 0)
-				#if (!$attachments.isEmpty())
-					 #set ($props = false)
-					 #set ($size =  $attachments.size())
-					 <ul class="attachList">
-						 #foreach ($attachment in $attachments)
-							#set ($props = $attachment.Properties)
-							#if (!$props)
-								#if ($size > 0) #set ($size = $size - 1) #end
+			<h4>
+			$tlang.getString("revise.attachments")
+			</h4>	
+			#set ($size = 0)
+			#if (!$attachments.isEmpty())
+				 #set ($props = false)
+				 #set ($size =  $attachments.size())
+				 <ul class="attachList">
+					 #foreach ($attachment in $attachments)
+						#set ($props = $attachment.Properties)
+						#if (!$props)
+							#if ($size > 0) #set ($size = $size - 1) #end
+						#else
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<li>
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
 							#else
-								#if ($props.getBooleanProperty($props.NamePropIsCollection))
-									<li>
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
-								#else
-									<li>
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
-								#end
-								<a href="$attachment.Url" target="_blank">
-								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
-								#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-									($props.getPropertyFormatted($props.NamePropContentLength))
-								#end
-								</li>
+								<li>
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
 							#end
-							#set ($props = false)
+							<a href="$attachment.Url" target="_blank">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+							</li>
 						#end
-					</ul>	
-				#end
-			</p>
+						#set ($props = false)
+					#end
+				</ul>	
+			#end
 			#if ($size == 0) <p class="instruction">$tlang.getString("revise.noattach")</p>
 				<div class="act">
 					 <input type="button" name="attach" value="$tlang.getString("revise.addatt")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
@@ -209,7 +207,7 @@
 					<label for="notify">
       				$tlang.getString("revise.notify")
 					</label>
-					<select name="notify">
+					<select name="notify" id="notify">
 						#if ($noti)
 							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
 							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>

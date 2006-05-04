@@ -1,25 +1,27 @@
 <!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-delete.vm,v 1.2 2005/05/15 04:54:19 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<h3>
 		$tlang.getString("del.deleting")
 	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<div class="alertMessage">$tlang.getString("del.areyou")</div>
 	<form name="forNotLetDeleteSelectedOnLoad"></form>
-		<table class="listHier" cellspacing="0">
+		<table class="listHier lines nolines" cellspacing="0">
 			<tr>
-				<th class="chefLabel">$tlang.getString("gen.subject")</th>
-				<th class="chefLabel">$tlang.getString("gen.from")</th>
-				<th class="chefLabel">$tlang.getString("gen.date")</th>
-				<th class="chefLabel">$tlang.getString("gen.visible")</th>
+				<th>$tlang.getString("gen.subject")</th>
+				<th>$tlang.getString("gen.from")</th>
+				<th>$tlang.getString("gen.date")</th>
+				<th>$tlang.getString("gen.visible")</th>
 			</tr>
 			#foreach ($delete_item in $delete_messages)
 				<tr>
 					<td>
+						<h4>
 						#if ($delete_item.Header.draft)
 							<span class="highlight">$tlang.getString("gen.draft") - </span>
 						#end
 						$validator.escapeHtml($delete_item.Header.subject)
+						</h4>
 					</td>
 					<td>$validator.escapeHtml($delete_item.Header.From.DisplayName)</td>
 					<td>$delete_item.Header.Date.toStringLocalFull()</td>

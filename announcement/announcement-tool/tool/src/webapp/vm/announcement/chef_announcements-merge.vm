@@ -1,13 +1,13 @@
 <div class="portletBody"> 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form name="Options" action="#toolForm("$action")" method="post">
 		<h3>
 				$tlang.getString("merge.show")
 		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<p class="instruction">
 			$tlang.getString("merge.select")
 		</p>
-		<table class="listHier lines" cellspacing="0" summary="">
+		<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString("merge.list.summary")">
 		  <tr> 
 			<th id="announcementSite">$tlang.getString("gen.site")</th>
 			<th id="checkbox">$tlang.getString("merge.showann")</th>
@@ -16,7 +16,7 @@
 		  #foreach ($announcementEntry in $mergedAnnouncementsCollection)
 			#if ($announcementEntry.isVisible())
 				<tr> 
-					<td headers="announcementSite"><label for="site$siteNumber">$announcementEntry.getDisplayName()</label></td>
+					<td headers="announcementSite"><h4><label for="site$siteNumber">$announcementEntry.getDisplayName()</label></h4></td>
 					<td headers="checkbox">
 						<input type="checkbox" id="site$siteNumber" name="$announcementEntry.getReference()" value="$announcementEntry.getReference()"
 						#if($announcementEntry.isMerged())
