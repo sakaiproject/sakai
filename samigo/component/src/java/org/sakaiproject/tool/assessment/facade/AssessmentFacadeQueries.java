@@ -22,6 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,9 +34,13 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate.HibernateQueryException;
-import net.sf.hibernate.Hibernate;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateQueryException;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -303,13 +308,21 @@ public class AssessmentFacadeQueries
 
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getAllAssessmentTemplates() {
-    String agent = AgentFacade.getAgentString();
-    String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final String agent = AgentFacade.getAgentString();
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a where a.assessmentBaseId=1 or"+
                    " a.createdBy=? order by a.title";
-    List list = getHibernateTemplate().find(query,
-                                            new Object[]{agent},
-                                            new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agent);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+//    List list = getHibernateTemplate().find(query,
+//                                            new Object[]{agent},
+//                                            new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList templateList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentTemplateData a = (AssessmentTemplateData) list.get(i);
@@ -321,13 +334,22 @@ public class AssessmentFacadeQueries
 
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getAllActiveAssessmentTemplates() {
-    String agent = AgentFacade.getAgentString();
-    String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final String agent = AgentFacade.getAgentString();
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
   " a.createdBy=?) order by a.title";
-    List list = getHibernateTemplate().find(query,
-                                      new Object[]{agent},
-                                            new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agent);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+    
+//    List list = getHibernateTemplate().find(query,
+//                                      new Object[]{agent},
+//                                            new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList templateList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentTemplateData a = (AssessmentTemplateData) list.get(i);
@@ -347,13 +369,22 @@ public class AssessmentFacadeQueries
    * template plus the "Default Template"
    */
   public ArrayList getTitleOfAllActiveAssessmentTemplates() {
-    String agent = AgentFacade.getAgentString();
-    String query ="select new AssessmentTemplateData(a.assessmentBaseId, a.title) "+
+    final String agent = AgentFacade.getAgentString();
+    final String query ="select new AssessmentTemplateData(a.assessmentBaseId, a.title) "+
                   " from AssessmentTemplateData a where a.status=1 and "+
                   " (a.assessmentBaseId=1 or a.createdBy=?) order by a.title";
-    List list = getHibernateTemplate().find(query,
-                                            new Object[]{agent},
-                                            new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agent);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+    
+//    List list = getHibernateTemplate().find(query,
+//                                            new Object[]{agent},
+//                                            new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList templateList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentTemplateData a = (AssessmentTemplateData) list.get(i);
@@ -709,7 +740,7 @@ public class AssessmentFacadeQueries
     return assessmentList;
   }
 
-  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, String siteAgentId, boolean ascending) {
+  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, final String siteAgentId, boolean ascending) {
     String query =
         "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "+
         " from AssessmentData a, AuthorizationData z where a.status=1 and "+
@@ -719,9 +750,20 @@ public class AssessmentFacadeQueries
       query += " asc";
     else
       query += " desc";
-    List list = getHibernateTemplate().find(query,
-        new Object[] {siteAgentId},
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+
+    final String hql = query;
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(hql);
+    		q.setString(0, siteAgentId);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+    
+//    List list = getHibernateTemplate().find(query,
+//        new Object[] {siteAgentId},
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList assessmentList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentData a = (AssessmentData) list.get(i);
@@ -733,15 +775,25 @@ public class AssessmentFacadeQueries
     return assessmentList;
   }
 
-  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, String siteAgentId) {
-    String query =
+  public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy, final String siteAgentId) {
+    final String query =
         "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "+
         " from AssessmentData a, AuthorizationData z where a.status=1 and "+
         " a.assessmentBaseId=z.qualifierId and z.functionId='EDIT_ASSESSMENT' " +
         " and z.agentIdString=? order by a." + orderBy;
-    List list = getHibernateTemplate().find(query,
-        new Object[] {siteAgentId},
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, siteAgentId);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query,
+//        new Object[] {siteAgentId},
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList assessmentList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentData a = (AssessmentData) list.get(i);
@@ -796,10 +848,20 @@ public class AssessmentFacadeQueries
   }
 
   public int getQuestionSize(final Long assessmentId) {
-    List size = getHibernateTemplate().find(
-        "select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?",
-        new Object[] {assessmentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+	    HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?");
+	    		q.setLong(0, assessmentId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List size = getHibernateTemplate().executeFind(hcb);
+	  
+//	  List size = getHibernateTemplate().find(
+//        "select count(i) from ItemData i, SectionData s,  AssessmentData a where a = s.assessment and s = i.section and a.assessmentBaseId=?",
+//        new Object[] {assessmentId}
+//        , new org.hibernate.type.Type[] {Hibernate.LONG});
     Iterator iter = size.iterator();
     if (iter.hasNext()) {
       int i = ( (Integer) iter.next()).intValue();
@@ -810,12 +872,22 @@ public class AssessmentFacadeQueries
     }
   }
 
-  public void saveOrUpdate(AssessmentFacade assessment) {
+  public void saveOrUpdate(final AssessmentFacade assessment) {
     // delete old IP before save
-    List ip = getHibernateTemplate().find(
-        "from SecuredIPAddress s where s.assessment.assessmentBaseId = ?",
-        new Object[] {assessment.getAssessmentId()}
-        , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+	    HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"from SecuredIPAddress s where s.assessment.assessmentBaseId = ?");
+	    		q.setLong(0, assessment.getAssessmentId().longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List ip = getHibernateTemplate().executeFind(hcb);
+	  
+//	  List ip = getHibernateTemplate().find(
+//        "from SecuredIPAddress s where s.assessment.assessmentBaseId = ?",
+//        new Object[] {assessment.getAssessmentId()}
+//        , new org.hibernate.type.Type[] {Hibernate.LONG});
     if (ip != null) {
       Iterator iter = ip.iterator();
       while (iter.hasNext()) {
@@ -835,7 +907,7 @@ public class AssessmentFacadeQueries
     }
     final AssessmentData data = (AssessmentData) assessment.getData();
 
-    //FIXME This is a hack to workaround net.sf.hibernate.NonUniqueObjectException
+    //FIXME This is a hack to workaround org.hibernate.NonUniqueObjectException
     //    getHibernateTemplate().clear();
 
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -851,11 +923,21 @@ public class AssessmentFacadeQueries
     }
   }
 
-  public void saveOrUpdate(AssessmentTemplateData template) {
-    List metadatas = getHibernateTemplate().find(
-        "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?",
-        new Object[] {template.getAssessmentTemplateId()}
-        , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+  public void saveOrUpdate(final AssessmentTemplateData template) {
+	    HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"from AssessmentMetaData a where a.assessment.assessmentBaseId = ?");
+	    		q.setLong(0, template.getAssessmentTemplateId().longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List metadatas = getHibernateTemplate().executeFind(hcb);
+	  
+//	  List metadatas = getHibernateTemplate().find(
+//        "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?",
+//        new Object[] {template.getAssessmentTemplateId()}
+//        , new org.hibernate.type.Type[] {Hibernate.LONG});
     log.debug("Rachel: metadata size = " + metadatas.size());
     Iterator iter = metadatas.iterator();
     while (iter.hasNext()) {
@@ -1103,13 +1185,23 @@ public class AssessmentFacadeQueries
 
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy) {
-    String agent = AgentFacade.getAgentString();
-    String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final String agent = AgentFacade.getAgentString();
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
   " a.createdBy=?) order by a."+orderBy;
-    List list = getHibernateTemplate().find(query,
-                                            new Object[]{agent},
-                                            new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agent);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query,
+//                                            new Object[]{agent},
+//                                            new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList assessmentList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       AssessmentTemplateData a = (AssessmentTemplateData) list.get(i);
@@ -1173,10 +1265,10 @@ public class AssessmentFacadeQueries
     }
   }
 
-  public boolean assessmentTitleIsUnique(Long assessmentBaseId, String title, Boolean isTemplate) {
+  public boolean assessmentTitleIsUnique(final Long assessmentBaseId, String title, Boolean isTemplate) {
     title = title.trim();
-    String currentSiteId = AgentFacade.getCurrentSiteId();
-    String agentString = AgentFacade.getAgentString();
+    final String currentSiteId = AgentFacade.getCurrentSiteId();
+    final String agentString = AgentFacade.getAgentString();
     List list;
     boolean isUnique = true;
     String query="";
@@ -1184,18 +1276,46 @@ public class AssessmentFacadeQueries
       query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
               " from AssessmentTemplateData a, AuthorizationData z where "+
               " a.title=? and a.assessmentBaseId!=? and a.createdBy=?";
-      list = getHibernateTemplate().find(query,
-                  new Object[]{title,assessmentBaseId,agentString},
-                  new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+
+      final String hql = query;
+      final String titlef = title;
+      HibernateCallback hcb = new HibernateCallback(){
+      	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      		Query q = session.createQuery(hql);
+      		q.setString(0, titlef);
+      		q.setLong(1, assessmentBaseId.longValue());
+      		q.setString(2, agentString);
+      		return q.list();
+      	};
+      };
+      list = getHibernateTemplate().executeFind(hcb);
+      
+//      list = getHibernateTemplate().find(query,
+//                  new Object[]{title,assessmentBaseId,agentString},
+//                  new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     }
     else{ // assessments are site scoped
       query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
               " from AssessmentData a, AuthorizationData z where "+
               " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and " +
               " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
-      list = getHibernateTemplate().find(query,
-                  new Object[]{title,assessmentBaseId,currentSiteId},
-                  new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+
+      final String hql = query;
+      final String titlef = title;
+      HibernateCallback hcb = new HibernateCallback(){
+      	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+      		Query q = session.createQuery(hql);
+      		q.setString(0, titlef);
+      		q.setLong(1, assessmentBaseId.longValue());
+      		q.setString(2, currentSiteId);
+      		return q.list();
+      	};
+      };
+      list = getHibernateTemplate().executeFind(hcb);
+      
+//      list = getHibernateTemplate().find(query,
+//                  new Object[]{title,assessmentBaseId,currentSiteId},
+//                  new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     }
     if (list.size()>0){ 
       // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
@@ -1211,21 +1331,41 @@ public class AssessmentFacadeQueries
     return isUnique;
   }
 
-  public List getAssessmentByTemplate(Long templateId){
-    String query =
+  public List getAssessmentByTemplate(final Long templateId){
+    final String query =
         "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "+
         " from AssessmentData a where a.assessmentTemplateId=?";
-    return getHibernateTemplate().find(query,
-                new Object[]{ templateId },
-                new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, templateId.longValue());
+    		return q.list();
+    	};
+    };
+    return getHibernateTemplate().executeFind(hcb);
+
+//    return getHibernateTemplate().find(query,
+//                new Object[]{ templateId },
+//                new org.hibernate.type.Type[] { Hibernate.LONG });
   }
  
   public List getDefaultMetaDataSet(){
-    String query =
+    final String query =
         " from AssessmentMetaData m where m.assessment.assessmentBaseId=?";
-    return getHibernateTemplate().find(query,
-                new Object[]{ new Long(1) },
-                new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+
+    HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, 1L);
+    		return q.list();
+    	};
+    };
+    return getHibernateTemplate().executeFind(hcb);
+
+//    return getHibernateTemplate().find(query,
+//                new Object[]{ new Long(1) },
+//                new org.hibernate.type.Type[] { Hibernate.LONG });
 
   }
 }

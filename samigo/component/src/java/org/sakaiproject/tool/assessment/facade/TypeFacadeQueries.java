@@ -22,11 +22,15 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +38,8 @@ import org.osid.shared.Type;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.shared.extension.TypeExtension;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 
 public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacadeQueriesAPI{
@@ -160,11 +165,21 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @param domain
      * @return List
      */
-    public List getListByAuthorityDomain(String authority, String domain) {
-        return getHibernateTemplate().find(
-                                           "from TypeD as t where t.authority=? and t.domain=?",
-                                           new Object[] { authority, domain },
-                                           new net.sf.hibernate.type.Type[]{ Hibernate.STRING, Hibernate.STRING });
+    public List getListByAuthorityDomain(final String authority, final String domain) {
+        final HibernateCallback hcb = new HibernateCallback(){
+        	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        		Query q = session.createQuery("from TypeD as t where t.authority=? and t.domain=?");
+        		q.setString(0, authority);
+        		q.setString(1, domain);
+        		return q.list();
+        	};
+        };
+        return getHibernateTemplate().executeFind(hcb);
+
+//        return getHibernateTemplate().find(
+//                                           "from TypeD as t where t.authority=? and t.domain=?",
+//                                           new Object[] { authority, domain },
+//                                           new org.hibernate.type.Type[]{ Hibernate.STRING, Hibernate.STRING });
     }
 
     public List getFacadeListByAuthorityDomain(String authority, String domain) {

@@ -22,6 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -31,7 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.hibernate.Hibernate;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +47,8 @@ import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccess
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class QuestionPoolFacadeQueries
@@ -74,11 +79,20 @@ public class QuestionPoolFacadeQueries
   }
 
 
-  public List getAllPoolsByAgent(String agentId) {
-    List list = getHibernateTemplate().find(
-        "from QuestionPoolData a where a.ownerId= ? ",
-        new Object[] {agentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+  public List getAllPoolsByAgent(final String agentId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("from QuestionPoolData a where a.ownerId= ? ");
+	    		q.setString(0, agentId);
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//	  List list = getHibernateTemplate().find(
+//        "from QuestionPoolData a where a.ownerId= ? ",
+//        new Object[] {agentId}
+//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     return list;
 
   }
@@ -106,7 +120,7 @@ public class QuestionPoolFacadeQueries
     List questionPoolAccessList = getHibernateTemplate().find(
         "from QuestionPoolAccessData as qpa where qpa.agentId=?",
         new Object[] {agentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+        , new org.hibernate.type.Type[] {Hibernate.STRING});
     HashMap h = new HashMap(); // prepare a hashMap with (poolId, qpa)
     Iterator i = questionPoolAccessList.iterator();
     while (i.hasNext()) {
@@ -152,11 +166,20 @@ public class QuestionPoolFacadeQueries
     return new QuestionPoolIteratorFacade(qpList);
   }
 
-  public ArrayList getBasicInfoOfAllPools(String agentId) {
-    List list = getHibernateTemplate().find(
-        "select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ",
-        new Object[] {agentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+  public ArrayList getBasicInfoOfAllPools(final String agentId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ");
+	    		q.setString(0, agentId);
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//	  List list = getHibernateTemplate().find(
+//        "select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ",
+//        new Object[] {agentId}
+//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     ArrayList poolList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
@@ -177,13 +200,22 @@ public class QuestionPoolFacadeQueries
     }
   }
 
-  public List getAllItemsInThisPoolOnly(Long questionPoolId) {
-  // return items that belong to this pool and this pool only.   
-    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-                                            new Object[] {questionPoolId}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG});
+  public List getAllItemsInThisPoolOnly(final Long questionPoolId) {
+  // return items that belong to this pool and this pool only.
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
+//                                            new Object[] {questionPoolId}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG});
     ArrayList newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
@@ -197,23 +229,42 @@ public class QuestionPoolFacadeQueries
     }
     return newlist;
   }
-  public List getAllItems(Long questionPoolId) {
-    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-                                            new Object[] {questionPoolId}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG});
+  public List getAllItems(final Long questionPoolId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
+//                                            new Object[] {questionPoolId}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG});
     return list;
 
   }
 
-  public List getAllItemFacadesOrderByItemText(Long questionPoolId,
-                                               String orderBy) {
-    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
-                                            orderBy,
-                                            new Object[] {questionPoolId},
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG});
+  public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
+                                               final String orderBy) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
+                        orderBy);
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
+//                                            orderBy,
+//                                            new Object[] {questionPoolId},
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG});
 
     ArrayList itemList = new ArrayList();
 
@@ -226,14 +277,24 @@ public class QuestionPoolFacadeQueries
 
   }
 
-  public List getAllItemFacadesOrderByItemType(Long questionPoolId,
-                                               String orderBy) {
-    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
-                                            orderBy,
-                                            new Object[] {questionPoolId}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG});
+  public List getAllItemFacadesOrderByItemType(final Long questionPoolId,
+                                               final String orderBy) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
+                        orderBy);
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
+//                                            orderBy,
+//                                            new Object[] {questionPoolId}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG});
 
     ArrayList itemList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
@@ -244,12 +305,21 @@ public class QuestionPoolFacadeQueries
     return itemList;
   }
 
-  public List getAllItemFacades(Long questionPoolId) {
-    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-                                            new Object[] {questionPoolId}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG});
+  public List getAllItemFacades(final Long questionPoolId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
+//                                            new Object[] {questionPoolId}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG});
     ArrayList itemList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
@@ -344,13 +414,23 @@ public class QuestionPoolFacadeQueries
     }
   }
 
-  public QuestionPoolAccessData getQuestionPoolAccessData(Long poolId,
-      String agentId) {
-    List list = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId =? and qpa.agentId=?",
-                                            new Object[] {poolId, agentId}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {Hibernate.
-                                            LONG, Hibernate.STRING});
+  public QuestionPoolAccessData getQuestionPoolAccessData(final Long poolId,
+      final String agentId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("from QuestionPoolAccessData as qpa where qpa.questionPoolId =? and qpa.agentId=?");
+	    		q.setLong(0, poolId.longValue());
+	    		q.setString(1, agentId);
+	    		return q.list();
+	    	};
+	    };
+	    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId =? and qpa.agentId=?",
+//                                            new Object[] {poolId, agentId}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {Hibernate.
+//                                            LONG, Hibernate.STRING});
     return (QuestionPoolAccessData) list.get(0);
   }
 
@@ -392,7 +472,7 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void deletePool(Long poolId, String agent, Tree tree) {
+  public void deletePool(final Long poolId, String agent, Tree tree) {
     try {
       // I decided not to load the questionpool and delete things that associate with it
       // because question is associated with it as ItemImpl not AssetBeanie. To delete
@@ -417,15 +497,25 @@ public class QuestionPoolFacadeQueries
 
 
       // #2. delete question and questionpool map.
-      // Sorry! delete(java.lang.String queryString, java.lang.Object[] values, net.sf.hibernate.type.Type[] types)
+      // Sorry! delete(java.lang.String queryString, java.lang.Object[] values, org.hibernate.type.Type[] types)
       // is not available in this version of Spring that we are using. So, we are a using a long winded method.
     retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(getHibernateTemplate().find(
-          "select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId= ?",
-          new Object[] {poolId}
-          , new net.sf.hibernate.type.Type[] {Hibernate.LONG}));
+    	    final HibernateCallback hcb = new HibernateCallback(){
+    	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    	    		Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId= ?");
+    	    		q.setLong(0, poolId.longValue());
+    	    		return q.list();
+    	    	};
+    	    };
+    	    List list = getHibernateTemplate().executeFind(hcb);
+    	    getHibernateTemplate().deleteAll(list);
+
+//        getHibernateTemplate().deleteAll(getHibernateTemplate().find(
+//          "select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId= ?",
+//          new Object[] {poolId}
+//          , new org.hibernate.type.Type[] {Hibernate.LONG}));
         retryCount = 0;
       }
       catch (Exception e) {
@@ -437,10 +527,19 @@ public class QuestionPoolFacadeQueries
 
       // #3. Pool is owned by one but can be shared by multiple agents. So need to
       // delete all QuestionPoolAccessData record first. This seems to be missing in Navigo, nope? - daisyf
-      List qpaList = getHibernateTemplate().find(
-          "select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?",
-          new Object[] {poolId}
-          , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?");
+    		q.setLong(0, poolId.longValue());
+    		return q.list();
+    	};
+    };
+    List qpaList = getHibernateTemplate().executeFind(hcb);
+
+//      List qpaList = getHibernateTemplate().find(
+//          "select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?",
+//          new Object[] {poolId}
+//          , new org.hibernate.type.Type[] {Hibernate.LONG});
     retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -454,10 +553,19 @@ public class QuestionPoolFacadeQueries
     }
 
       // #4. Ready! delete pool now
-      List qppList = getHibernateTemplate().find(
-          "select qp from QuestionPoolData as qp where qp.id= ?",
-          new Object[] {poolId}
-          , new net.sf.hibernate.type.Type[] {Hibernate.LONG}); // there should only be one
+    final HibernateCallback hcb2 = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("select qp from QuestionPoolData as qp where qp.id= ?");
+    		q.setLong(0, poolId.longValue());
+    		return q.list();
+    	};
+    };
+    List qppList = getHibernateTemplate().executeFind(hcb2);
+
+//      List qppList = getHibernateTemplate().find(
+//          "select qp from QuestionPoolData as qp where qp.id= ?",
+//          new Object[] {poolId}
+//          , new org.hibernate.type.Type[] {Hibernate.LONG}); // there should only be one
     retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -663,11 +771,20 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getSubPools(Long poolId) {
-    return getHibernateTemplate().find(
-        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
-        new Object[] {poolId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+  public List getSubPools(final Long poolId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId=?");
+	    		q.setLong(0, poolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+
+//    return getHibernateTemplate().find(
+//        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
+//        new Object[] {poolId}
+//        , new org.hibernate.type.Type[] {Hibernate.LONG});
     //return new ArrayList();
   }
 
@@ -682,12 +799,21 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public boolean hasSubPools(Long poolId) {
-    List subPools =
-        getHibernateTemplate().find(
-        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
-        new Object[] {poolId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+  public boolean hasSubPools(final Long poolId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("from QuestionPoolData as qpp where qpp.parentPoolId=?");
+	    		q.setLong(0, poolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    List subPools = getHibernateTemplate().executeFind(hcb);
+
+//    List subPools =
+//        getHibernateTemplate().find(
+//        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
+//        new Object[] {poolId}
+//        , new org.hibernate.type.Type[] {Hibernate.LONG});
     if (subPools.size() > 0) {
       return true;
     }
@@ -697,12 +823,22 @@ public class QuestionPoolFacadeQueries
   }
 
 
-public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId) {
-    
-     List list = getHibernateTemplate().find(
-        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?",
-        new Object[] {questionPoolId,title,parentPoolId}
-       , new net.sf.hibernate.type.Type[] {Hibernate.LONG,Hibernate.STRING, Hibernate.LONG});
+public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId) {
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?");
+    		q.setLong(0, questionPoolId.longValue());
+    		q.setString(1, title);
+    		q.setLong(2, parentPoolId.longValue());
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//     List list = getHibernateTemplate().find(
+//        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?",
+//        new Object[] {questionPoolId,title,parentPoolId}
+//       , new org.hibernate.type.Type[] {Hibernate.LONG,Hibernate.STRING, Hibernate.LONG});
  if(list.size()>0)
      return false;
  else return true;
@@ -718,12 +854,22 @@ public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByAgent(String agentId) {
+  public List getPoolIdsByAgent(final String agentId) {
     ArrayList idList = new ArrayList();
-    List qpaList = getHibernateTemplate().find(
-        "select qpa from QuestionPoolAccessData as qpa where qpa.agentId= ?",
-        new Object[] {agentId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.agentId= ?");
+    		q.setString(0, agentId);
+    		return q.list();
+    	};
+    };
+    List qpaList = getHibernateTemplate().executeFind(hcb);
+
+//    List qpaList = getHibernateTemplate().find(
+//        "select qpa from QuestionPoolAccessData as qpa where qpa.agentId= ?",
+//        new Object[] {agentId}
+//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     try {
       Iterator iter = qpaList.iterator();
       while (iter.hasNext()) {
@@ -744,12 +890,22 @@ public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByItem(String itemId) {
+  public List getPoolIdsByItem(final String itemId) {
     ArrayList idList = new ArrayList();
-    List qpiList = getHibernateTemplate().find(
-        "select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?",
-        new Object[] {itemId}
-        , new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?");
+    		q.setString(0, itemId);
+    		return q.list();
+    	};
+    };
+    List qpiList = getHibernateTemplate().executeFind(hcb);
+
+//    List qpiList = getHibernateTemplate().find(
+//        "select qpi from QuestionPoolItemData as qpi where qpi.itemId= ?",
+//        new Object[] {itemId}
+//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     try {
       Iterator iter = qpiList.iterator();
       while (iter.hasNext()) {

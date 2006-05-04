@@ -30,12 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -89,10 +89,21 @@ public class AuthzQueriesFacade
   public boolean isAuthorized(final String agentId,
       final String functionId, final String qualifierId)
   {
-    String query = "select a from AuthorizationData a where a.functionId=? and a.qualifierId=?";
-    List authorizationList = getHibernateTemplate().find(query,
-                             new Object[] { functionId, qualifierId },
-                             new net.sf.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });
+    final String query = "select a from AuthorizationData a where a.functionId=? and a.qualifierId=?";
+    
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, functionId);
+    		q.setString(1, qualifierId);
+    		return q.list();
+    	};
+    };
+    List authorizationList = getHibernateTemplate().executeFind(hcb);
+
+//    List authorizationList = getHibernateTemplate().find(query,
+//                             new Object[] { functionId, qualifierId },
+//                             new org.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });
 
     String currentSiteId = null;
 

@@ -22,12 +22,16 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +44,8 @@ import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(ItemFacadeQueries.class);
@@ -142,8 +147,18 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     return item.getItemId();
   }
 
-  public List getQPItems(Long questionPoolId) {
-    return getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItem qpi where qpi.itemId=ab.itemIdString and qpi.questionPoolId = ?",new Object[] { questionPoolId }, new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+  public List getQPItems(final Long questionPoolId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItem qpi where qpi.itemId=ab.itemIdString and qpi.questionPoolId = ?");
+	    		q.setLong(0, questionPoolId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+
+//    return getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItem qpi where qpi.itemId=ab.itemIdString and qpi.questionPoolId = ?",
+//    		new Object[] { questionPoolId }, new org.hibernate.type.Type[] { Hibernate.LONG });
   }
 
   public List list() {
@@ -259,11 +274,22 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       }
   }
 
-  public void deleteItemMetaData(Long itemId, String label) {
-    String query = "from ItemMetaData imd where imd.item.itemId=? and imd.label= ?";
-    List itemmetadatalist = getHibernateTemplate().find(query,
-        new Object[] { itemId, label },
-        new net.sf.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
+  public void deleteItemMetaData(final Long itemId, final String label) {
+    final String query = "from ItemMetaData imd where imd.item.itemId=? and imd.label= ?";
+    
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, itemId.longValue());
+    		q.setString(1, label);
+    		return q.list();
+    	};
+    };
+    List itemmetadatalist = getHibernateTemplate().executeFind(hcb);
+
+//    List itemmetadatalist = getHibernateTemplate().find(query,
+//        new Object[] { itemId, label },
+//        new org.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
@@ -491,15 +517,50 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
 
-  public HashMap getItemsByKeyword(String keyword) {
+  public HashMap getItemsByKeyword(final String keyword) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, ItemText itext where itext.item=ab and itext.text like ? ");
+	    		q.setString(0, keyword);
+	    		return q.list();
+	    	};
+	    };
+	    List list1 = getHibernateTemplate().executeFind(hcb);
 
-     List list1 = getHibernateTemplate().find("select ab from ItemData ab, ItemText itext where itext.item=ab and itext.text like ? ",new Object[] { keyword}, new net.sf.hibernate.type.Type[] { Hibernate.STRING });
+//     List list1 = getHibernateTemplate().find("select ab from ItemData ab, ItemText itext where itext.item=ab and itext.text like ? ",new Object[] { keyword}, new org.hibernate.type.Type[] { Hibernate.STRING });
 
-     List list2 = getHibernateTemplate().find("select distinct ab from ItemData ab, Answer answer where answer.item=ab and answer.text like ? ",new Object[] { keyword}, new net.sf.hibernate.type.Type[] { Hibernate.STRING });
+	    final HibernateCallback hcb2 = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select distinct ab from ItemData ab, Answer answer where answer.item=ab and answer.text like ? ");
+	    		q.setString(0, keyword);
+	    		return q.list();
+	    	};
+	    };
+	    List list2 = getHibernateTemplate().executeFind(hcb2);
 
-     List list3 = getHibernateTemplate().find("select ab from ItemData ab, ItemMetaData metadata where metadata.item=ab and metadata.entry like ?  and metadata.label= 'KEYWORD' ", new Object[] { keyword}, new net.sf.hibernate.type.Type[] { Hibernate.STRING });
+//     List list2 = getHibernateTemplate().find("select distinct ab from ItemData ab, Answer answer where answer.item=ab and answer.text like ? ",new Object[] { keyword}, new org.hibernate.type.Type[] { Hibernate.STRING });
 
-     List list4 = getHibernateTemplate().find("select ab from ItemData ab where ab.instruction like ?  ", new Object[] { keyword}, new net.sf.hibernate.type.Type[] { Hibernate.STRING });
+	    final HibernateCallback hcb3 = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab, ItemMetaData metadata where metadata.item=ab and metadata.entry like ?  and metadata.label= 'KEYWORD' ");
+	    		q.setString(0, keyword);
+	    		return q.list();
+	    	};
+	    };
+	    List list3 = getHibernateTemplate().executeFind(hcb3);
+
+//     List list3 = getHibernateTemplate().find("select ab from ItemData ab, ItemMetaData metadata where metadata.item=ab and metadata.entry like ?  and metadata.label= 'KEYWORD' ", new Object[] { keyword}, new org.hibernate.type.Type[] { Hibernate.STRING });
+
+	    final HibernateCallback hcb4 = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select ab from ItemData ab where ab.instruction like ?  ");
+	    		q.setString(0, keyword);
+	    		return q.list();
+	    	};
+	    };
+	    List list4 = getHibernateTemplate().executeFind(hcb4);
+
+//     List list4 = getHibernateTemplate().find("select ab from ItemData ab where ab.instruction like ?  ", new Object[] { keyword}, new org.hibernate.type.Type[] { Hibernate.STRING });
     HashMap itemfacadeMap = new HashMap();
 
     for (int i = 0; i < list1.size(); i++) {

@@ -22,8 +22,8 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.util;
 
-import net.sf.hibernate.*;
-import net.sf.hibernate.cfg.*;
+import org.hibernate.*;
+import org.hibernate.cfg.*;
 
 public class HibernateUtil {
 

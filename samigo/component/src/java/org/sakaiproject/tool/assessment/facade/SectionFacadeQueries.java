@@ -21,10 +21,14 @@
 *
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +37,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
@@ -135,11 +140,22 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     }
   }
 
-  public void deleteSectionMetaData(Long sectionId, String label) {
-    String query = "from SectionMetaData imd where imd.section.sectionId=? and imd.label= ? ";
-    List sectionmetadatalist = getHibernateTemplate().find(query,
-        new Object[] { sectionId, label },
-        new net.sf.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
+  public void deleteSectionMetaData(final Long sectionId, final String label) {
+    final String query = "from SectionMetaData imd where imd.section.sectionId=? and imd.label= ? ";
+    
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, sectionId.longValue());
+    		q.setString(1, label);
+    		return q.list();
+    	};
+    };
+    List sectionmetadatalist = getHibernateTemplate().executeFind(hcb);
+
+//    List sectionmetadatalist = getHibernateTemplate().find(query,
+//        new Object[] { sectionId, label },
+//        new org.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {

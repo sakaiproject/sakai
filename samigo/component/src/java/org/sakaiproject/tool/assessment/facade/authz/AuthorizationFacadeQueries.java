@@ -22,12 +22,17 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade.authz;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-import net.sf.hibernate.Hibernate;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.authz.QualifierData;
@@ -49,12 +54,21 @@ public class AuthorizationFacadeQueries
   public AuthorizationFacadeQueries() {
   }
 
-  public QualifierIteratorFacade getQualifierParents(String qualifierId) {
-    List parents = getHibernateTemplate().find(
-        "select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.childId=?",
-        new Object[] {qualifierId}
-        ,
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+  public QualifierIteratorFacade getQualifierParents(final String qualifierId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.childId=?");
+	    		q.setString(0, qualifierId);
+	    		return q.list();
+	    	};
+	    };
+	    List parents = getHibernateTemplate().executeFind(hcb);
+
+//    List parents = getHibernateTemplate().find(
+//        "select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.childId=?",
+//        new Object[] {qualifierId}
+//        ,
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
     // turn them to Facade
     ArrayList a = new ArrayList();
     for (int i = 0; i < parents.size(); i++) {
@@ -65,11 +79,20 @@ public class AuthorizationFacadeQueries
     return new QualifierIteratorFacade(a);
   }
 
-  public QualifierIteratorFacade getQualifierChildren(String qualifierId) {
-    List children = getHibernateTemplate().find(
-        "select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.parentId=?",
-        new Object[] {qualifierId},
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+  public QualifierIteratorFacade getQualifierChildren(final String qualifierId) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.parentId=?");
+	    		q.setString(0, qualifierId);
+	    		return q.list();
+	    	};
+	    };
+	    List children = getHibernateTemplate().executeFind(hcb);
+
+//    List children = getHibernateTemplate().find(
+//        "select p from QualifierData as p, QualifierData as c, QualifierHierarchyData as q where p.qualifierId=q.parentId and c.qualifierId=q.childId and q.parentId=?",
+//        new Object[] {qualifierId},
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
     // turn them to Facade
     ArrayList a = new ArrayList();
     for (int i = 0; i < children.size(); i++) {

@@ -22,6 +22,7 @@
 **********************************************************************************/
 package org.sakaiproject.tool.assessment.facade;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,9 +36,13 @@ import java.util.Comparator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.type.Type;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.type.Type;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -589,7 +594,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public ArrayList getAllTakeableAssessments(String orderBy, boolean ascending,
-                                             Integer status) {
+                                             final Integer status) {
 
     String query =
         "from PublishedAssessmentData as p where p.status=? order by p." +
@@ -602,11 +607,22 @@ public class PublishedAssessmentFacadeQueries
       query += " desc";
     }
     log.debug("Order by " + orderBy);
-    List list = getHibernateTemplate().find(query, new Object[] {status}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {
-                                            Hibernate.
-                                            INTEGER});
+
+    final String hql = query;
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(hql);
+    		q.setInteger(0, status.intValue());
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query, new Object[] {status}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {
+//                                            Hibernate.
+//                                            INTEGER});
     ArrayList assessmentList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       PublishedAssessmentData a = (PublishedAssessmentData) list.get(i);
@@ -619,33 +635,56 @@ public class PublishedAssessmentFacadeQueries
     return assessmentList;
   }
 
-  public Integer getNumberOfSubmissions(String publishedAssessmentId,
-                                        String agentId) {
-    String query = "select count(a) from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=?";
-    Object[] objects = new Object[3];
-    objects[0] = new Long(publishedAssessmentId);
-    objects[1] = agentId;
-    objects[2] = new Boolean(true);
-    Type[] types = new Type[3];
-    types[0] = Hibernate.LONG;
-    types[1] = Hibernate.STRING;
-    types[2] = Hibernate.BOOLEAN;
-    List list = getHibernateTemplate().find(query, objects, types);
+  public Integer getNumberOfSubmissions(final String publishedAssessmentId,
+                                        final String agentId) {
+    final String query = "select count(a) from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=?";
+//    Object[] objects = new Object[3];
+//    objects[0] = new Long(publishedAssessmentId);
+//    objects[1] = agentId;
+//    objects[2] = new Boolean(true);
+//    Type[] types = new Type[3];
+//    types[0] = Hibernate.LONG;
+//    types[1] = Hibernate.STRING;
+//    types[2] = Hibernate.BOOLEAN;
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, Long.parseLong(publishedAssessmentId));
+    		q.setString(1, agentId);
+    		q.setBoolean(2, true);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query, objects, types);
     return (Integer) list.get(0);
   }
 
-  public List getNumberOfSubmissionsOfAllAssessmentsByAgent(String agentId) {
-    String query = "select new AssessmentGradingData(" +
+  public List getNumberOfSubmissionsOfAllAssessmentsByAgent(final String agentId) {
+    final String query = "select new AssessmentGradingData(" +
         " a.publishedAssessmentId, count(a)) " +
         " from AssessmentGradingData as a where a.agentId=? and a.forGrade=?" +
         " group by a.publishedAssessmentId";
-    Object[] objects = new Object[2];
-    objects[0] = agentId;
-    objects[1] = new Boolean(true);
-    Type[] types = new Type[2];
-    types[0] = Hibernate.STRING;
-    types[1] = Hibernate.BOOLEAN;
-    return getHibernateTemplate().find(query, objects, types);
+//    Object[] objects = new Object[2];
+//    objects[0] = agentId;
+//    objects[1] = new Boolean(true);
+//    Type[] types = new Type[2];
+//    types[0] = Hibernate.STRING;
+//    types[1] = Hibernate.BOOLEAN;
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agentId);
+    		q.setBoolean(1, true);
+    		return q.list();
+    	};
+    };
+    return getHibernateTemplate().executeFind(hcb);
+
+//    return getHibernateTemplate().find(query, objects, types);
   }
 
   public ArrayList getAllPublishedAssessments(String sortString) {
@@ -662,13 +701,24 @@ public class PublishedAssessmentFacadeQueries
     return assessmentList;
   }
 
-  public ArrayList getAllPublishedAssessments(String sortString, Integer status) {
-    String orderBy = getOrderBy(sortString);
-    List list = getHibernateTemplate().find(
-        "from PublishedAssessmentData as p where p.status=? order by p." +
-        orderBy,
-        new Object[] {status}
-        , new net.sf.hibernate.type.Type[] {Hibernate.INTEGER});
+  public ArrayList getAllPublishedAssessments(String sortString, final Integer status) {
+    final String orderBy = getOrderBy(sortString);
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery("from PublishedAssessmentData as p where p.status=? order by p." +
+    		        orderBy);
+    		q.setInteger(0, status.intValue());
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(
+//        "from PublishedAssessmentData as p where p.status=? order by p." +
+//        orderBy,
+//        new Object[] {status}
+//        , new org.hibernate.type.Type[] {Hibernate.INTEGER});
     ArrayList assessmentList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       PublishedAssessmentData a = (PublishedAssessmentData) list.get(i);
@@ -775,7 +825,7 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public ArrayList getBasicInfoOfAllActivePublishedAssessments(String
-      sortString, String siteAgentId, boolean ascending) {
+      sortString, final String siteAgentId, boolean ascending) {
     Date currentDate = new Date();
     String orderBy = getOrderBy(sortString);
 
@@ -790,9 +840,20 @@ public class PublishedAssessmentFacadeQueries
       query += " asc";
     else
       query += " desc";
-    List l = getHibernateTemplate().find(query,
-        new Object[] {siteAgentId},
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+
+    final String hql = query;
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(hql);
+    		q.setString(0, siteAgentId);
+    		return q.list();
+    	};
+    };
+    List l = getHibernateTemplate().executeFind(hcb);
+
+//    List l = getHibernateTemplate().find(query,
+//        new Object[] {siteAgentId},
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
 
     // we will filter the one that is past duedate & retract date
     ArrayList list = new ArrayList();
@@ -823,7 +884,7 @@ public class PublishedAssessmentFacadeQueries
    * @return
    */
   public ArrayList getBasicInfoOfAllInActivePublishedAssessments(String
-      sortString, String siteAgentId, boolean ascending) {
+      sortString, final String siteAgentId, boolean ascending) {
     String orderBy = getOrderBy(sortString);
     Date currentDate = new Date();
     long currentTime = currentDate.getTime();
@@ -839,9 +900,21 @@ public class PublishedAssessmentFacadeQueries
     else
       query += " desc";
 
-    List list = getHibernateTemplate().find(query,
-        new Object[] {new Date(), new Date(),siteAgentId} ,
-        new net.sf.hibernate.type.Type[] {Hibernate.TIMESTAMP, Hibernate.TIMESTAMP, Hibernate.STRING});
+    final String hql = query;
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(hql);
+    		q.setTimestamp(0, new Date());
+    		q.setTimestamp(1, new Date());
+    		q.setString(2, siteAgentId);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query,
+//        new Object[] {new Date(), new Date(),siteAgentId} ,
+//        new org.hibernate.type.Type[] {Hibernate.TIMESTAMP, Hibernate.TIMESTAMP, Hibernate.STRING});
 
     ArrayList pubList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
@@ -899,7 +972,7 @@ public class PublishedAssessmentFacadeQueries
 
   // added by daisy - please check the logic - I based this on the getBasicInfoOfAllActiveAssessment
   public ArrayList getBasicInfoOfAllPublishedAssessments(String orderBy,
-      boolean ascending, Integer status) {
+      boolean ascending, final Integer status) {
 
     String query =
         "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, " +
@@ -930,10 +1003,20 @@ public class PublishedAssessmentFacadeQueries
       }
     }
 
-    List list = getHibernateTemplate().find(query, new Object[] {status}
-                                            ,
-                                            new net.sf.hibernate.type.Type[] {
-                                            Hibernate.INTEGER});
+    final String hql = query;
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(hql);
+    		q.setInteger(0, status.intValue());
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query, new Object[] {status}
+//                                            ,
+//                                            new org.hibernate.type.Type[] {
+//                                            Hibernate.INTEGER});
 
     ArrayList pubList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
@@ -957,11 +1040,11 @@ public class PublishedAssessmentFacadeQueries
    * @param ascending
    * @return
    */
-  public ArrayList getBasicInfoOfLastSubmittedAssessments(String agentId,
+  public ArrayList getBasicInfoOfLastSubmittedAssessments(final String agentId,
       String orderBy, boolean ascending) {
     // 1. get total no. of submission per assessment by the given agent
     HashMap h = getTotalSubmissionPerAssessment(agentId);
-    String query = "select new AssessmentGradingData(" +
+    final String query = "select new AssessmentGradingData(" +
         " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId," +
         " a.submittedDate, a.isLate," +
         " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore," +
@@ -993,14 +1076,23 @@ public class PublishedAssessmentFacadeQueries
          }
      */
 
-    ArrayList list = (ArrayList) getHibernateTemplate().find(query,
-        new Object[] {agentId}
-        ,
-        new net.sf.hibernate.type.Type[] {Hibernate.STRING});
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agentId);
+    		return q.list();
+    	};
+    };
+    ArrayList list = (ArrayList) getHibernateTemplate().executeFind(hcb);
+    
+//    ArrayList list = (ArrayList) getHibernateTemplate().find(query,
+//        new Object[] {agentId}
+//        ,
+//        new org.hibernate.type.Type[] {Hibernate.STRING});
 
     ArrayList assessmentList = new ArrayList();
     Long current = new Long("0");
-    Date currentDate = new Date();
+//    Date currentDate = new Date();
     for (int i = 0; i < list.size(); i++) {
       AssessmentGradingData a = (AssessmentGradingData) list.get(i);
       // criteria: only want the most recently submitted assessment from a given user.
@@ -1028,16 +1120,27 @@ public class PublishedAssessmentFacadeQueries
     return h;
   }
 
-  public Integer getTotalSubmission(String agentId, Long publishedAssessmentId) {
-    String query =
+  public Integer getTotalSubmission(final String agentId, final Long publishedAssessmentId) {
+    final String query =
         "select count(a) from AssessmentGradingData a where a.forGrade=1 " +
         " and a.agentId=? and a.publishedAssessmentId=?";
-    List l = getHibernateTemplate().find(query,
-                                         new Object[] {agentId,
-                                         publishedAssessmentId}
-                                         ,
-                                         new net.sf.hibernate.type.Type[] {
-                                         Hibernate.STRING, Hibernate.LONG});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, agentId);
+    		q.setLong(1, publishedAssessmentId.longValue());
+    		return q.list();
+    	};
+    };
+    List l = getHibernateTemplate().executeFind(hcb);
+
+//    List l = getHibernateTemplate().find(query,
+//                                         new Object[] {agentId,
+//                                         publishedAssessmentId}
+//                                         ,
+//                                         new org.hibernate.type.Type[] {
+//                                         Hibernate.STRING, Hibernate.LONG});
     return (Integer) l.get(0);
   }
 
@@ -1046,16 +1149,27 @@ public class PublishedAssessmentFacadeQueries
   }
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
-      String label, String entry) {
-    String query = "select p " +
+      final String label, final String entry) {
+    final String query = "select p " +
         " from PublishedAssessmentData p, " +
         " PublishedMetaData m where p=m.assessment " +
         " and m.label=? and m.entry=?";
-    List l = getHibernateTemplate().find(query,
-                                         new Object[] {label, entry}
-                                         ,
-                                         new net.sf.hibernate.type.Type[] {
-                                         Hibernate.STRING, Hibernate.STRING});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, label);
+    		q.setString(1, entry);
+    		return q.list();
+    	};
+    };
+    List l = getHibernateTemplate().executeFind(hcb);
+
+//    List l = getHibernateTemplate().find(query,
+//                                         new Object[] {label, entry}
+//                                         ,
+//                                         new org.hibernate.type.Type[] {
+//                                         Hibernate.STRING, Hibernate.STRING});
     if (l.size() > 0) {
       PublishedAssessmentData p = (PublishedAssessmentData) l.get(0);   
       p.setSectionSet(getSectionSetForAssessment(p));
@@ -1136,60 +1250,102 @@ public class PublishedAssessmentFacadeQueries
     else return null;
   }
 
-  public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title) {
-    String currentSiteId = AgentFacade.getCurrentSiteId();
-    String agentString = AgentFacade.getAgentString();
-    List list;
+  public boolean publishedAssessmentTitleIsUnique(final Long assessmentBaseId, final String title) {
+    final String currentSiteId = AgentFacade.getCurrentSiteId();
+//    String agentString = AgentFacade.getAgentString();
+//    List list;
     boolean isUnique = true;
-    String query="";
-    query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
+    final String query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"+
             " from PublishedAssessmentData a, AuthorizationData z where "+
             " a.title=? and a.publishedAssessmentId!=? and a.status!=2 and "+
             " z.functionId='OWN_PUBLISHED_ASSESSMENT' and " +
             " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
     //System.out.println("query" + query);
-    list = getHibernateTemplate().find(query,
-           new Object[]{title,assessmentBaseId,currentSiteId},
-           new net.sf.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setString(0, title);
+    		q.setLong(1, assessmentBaseId.longValue());
+    		q.setString(2, currentSiteId);
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query,
+//           new Object[]{title,assessmentBaseId,currentSiteId},
+//           new org.hibernate.type.Type[] {Hibernate.STRING, Hibernate.LONG, Hibernate.STRING});
     if (list.size()>0)
       isUnique = false;
     //System.out.println("*** list size="+list.size());
     return isUnique;
   }
 
-  public boolean hasRandomPart(Long publishedAssessmentId){
+  public boolean hasRandomPart(final Long publishedAssessmentId){
     boolean hasRandomPart = false;
-    String key = SectionDataIfc.AUTHOR_TYPE;
-    String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
-    String query =
+    final String key = SectionDataIfc.AUTHOR_TYPE;
+    final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString();
+    final String query =
         "select s from PublishedSectionData s, PublishedSectionMetaData m where "+
         " s = m.section and s.assessment.publishedAssessmentId=? and " +
         " m.label=? and m.entry=?";
-    List l = getHibernateTemplate().find(query,
-      new Object[]{ publishedAssessmentId, key, value},
-      new net.sf.hibernate.type.Type[] {Hibernate.LONG, Hibernate.STRING, Hibernate.STRING});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setString(1, key);
+    		q.setString(2, value);
+    		return q.list();
+    	};
+    };
+    List l = getHibernateTemplate().executeFind(hcb);
+
+//    List l = getHibernateTemplate().find(query,
+//      new Object[]{ publishedAssessmentId, key, value},
+//      new org.hibernate.type.Type[] {Hibernate.LONG, Hibernate.STRING, Hibernate.STRING});
     if (l.size()>0)
       hasRandomPart=true;
     return hasRandomPart;
   }
 
-  public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId)
+  public PublishedItemData getFirstPublishedItem(final Long publishedAssessmentId)
   {
-  	String query =
+  	final String query =
   		"select i from PublishedAssessmentData p, PublishedSectionData s, "+
 			" PublishedItemData i where p.publishedAssessmentId=? and"+
 			" p.publishedAssessmentId=s.assessment.publishedAssessmentId and " +
 			" s=i.section";
-  	List l = getHibernateTemplate().find(query,
-  			new Object[]{ publishedAssessmentId},
-				new net.sf.hibernate.type.Type[] {Hibernate.LONG});
-  	query =
-  		"select s from PublishedAssessmentData p, PublishedSectionData s, "+
-			" where p.publishedAssessmentId=? and"+
-			" p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
-  	List sec = getHibernateTemplate().find(query,
-  			new Object[]{ publishedAssessmentId },
-				new net.sf.hibernate.type.Type[] {Hibernate.LONG});
+
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, publishedAssessmentId.longValue());
+    		return q.list();
+    	};
+    };
+    List l = getHibernateTemplate().executeFind(hcb);
+
+//  	List l = getHibernateTemplate().find(query,
+//  			new Object[]{ publishedAssessmentId},
+//				new org.hibernate.type.Type[] {Hibernate.LONG});
+  	final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, "+
+		" where p.publishedAssessmentId=? and"+
+		" p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
+
+    final HibernateCallback hcb2 = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query2);
+    		q.setLong(0, publishedAssessmentId.longValue());
+    		return q.list();
+    	};
+    };
+    List sec = getHibernateTemplate().executeFind(hcb2);
+
+//  	List sec = getHibernateTemplate().find(query,
+//  			new Object[]{ publishedAssessmentId },
+//				new org.hibernate.type.Type[] {Hibernate.LONG});
   	PublishedItemData returnItem = null;
   	if(sec.size() > 0 && l.size() >0)
   	{
@@ -1217,23 +1373,43 @@ public class PublishedAssessmentFacadeQueries
   	return returnItem;
   }
 
-  public List getPublishedItemIds(Long publishedAssessmentId){
-    return getHibernateTemplate().find(
-         "select i.itemId from PublishedItemData i, PublishedSectionData s, "+
-         " PublishedAssessmentData p where p.publishedAssessmentId=? and "+
-         " p = s.assessment and i.section = s",
-         new Object[] { publishedAssessmentId },
-         new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+  public List getPublishedItemIds(final Long publishedAssessmentId){
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select i.itemId from PublishedItemData i, PublishedSectionData s, "+
+	    		         " PublishedAssessmentData p where p.publishedAssessmentId=? and "+
+	    		         " p = s.assessment and i.section = s");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+
+//	  return getHibernateTemplate().find(
+//         "select i.itemId from PublishedItemData i, PublishedSectionData s, "+
+//         " PublishedAssessmentData p where p.publishedAssessmentId=? and "+
+//         " p = s.assessment and i.section = s",
+//         new Object[] { publishedAssessmentId },
+//         new org.hibernate.type.Type[] { Hibernate.LONG });
   }
 
-  public Integer getItemType(Long publishedItemId){
-    String query = "select p.typeId "+
+  public Integer getItemType(final Long publishedItemId){
+    final String query = "select p.typeId "+
                    " from PublishedItemData p "+
 	" where p.publishedItemId=?";
 
-    List list = getHibernateTemplate().find(query,
-					    new Object[] { publishedItemId },
-					    new net.sf.hibernate.type.Type[] { Hibernate.LONG });
+    final HibernateCallback hcb = new HibernateCallback(){
+    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+    		Query q = session.createQuery(query);
+    		q.setLong(0, publishedItemId.longValue());
+    		return q.list();
+    	};
+    };
+    List list = getHibernateTemplate().executeFind(hcb);
+
+//    List list = getHibernateTemplate().find(query,
+//					    new Object[] { publishedItemId },
+//					    new org.hibernate.type.Type[] { Hibernate.LONG });
     if (list.size()>0)
 	return (Integer)list.get(0);
     else
