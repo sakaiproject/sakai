@@ -17,6 +17,14 @@
 			<artifactId>sakai-gradebook-app-business</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
+		<!-- Needed for unit testing with Hibernate 3. -->
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.6rc1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
