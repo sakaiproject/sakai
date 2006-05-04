@@ -47,8 +47,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,10 +85,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateObjectRetrievalFailureException;
-import org.springframework.orm.hibernate.HibernateTransactionManager;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -631,7 +631,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        net.sf.hibernate.Query q = session
+    	  org.hibernate.Query q = session
             .getNamedQuery(QUERY_GETRESOURCEBYDOCID);                
         
         q.setString(DOCID, (docId == null) ? null : docId.toLowerCase());
@@ -658,7 +658,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        net.sf.hibernate.Query q = session
+    	  org.hibernate.Query q = session
             .getNamedQuery(QUERY_GET_WELCOME_PAGE);
         q.setString(WELCOME_PAGE, "true");
         if (q.list().size() == 0){
@@ -684,7 +684,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException
       {
-        net.sf.hibernate.Query q = session
+    	  org.hibernate.Query q = session
             .getNamedQuery(QUERY_GETCATEGORYBYNAME);
         q.setString(NAME, (name == null) ? name : name.toLowerCase());
         return q.uniqueResult();
