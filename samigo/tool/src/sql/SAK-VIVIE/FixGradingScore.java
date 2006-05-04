@@ -4,10 +4,8 @@ import java.lang.*;
 import java.util.*;
 
 /**
- * This class removes any duplicate MC/Survey submitted answer so that only the last one stay in
- * the database. It will also recalculate the final score for an assessment and fix up 
- * data in the gradebook, So that final score in bothe assessment and gradebook is
- * consistent. Note that the item score will not be modified and we can't fix the MCMR question type.
+ * This class fix the sum of assessmentGrading and amke sure that GB scores is the same as
+ * assessmentGrading.
  *
  * @author Daisy Flemming<daisyf@stanford.edu>
  */
@@ -31,7 +29,6 @@ public class FixGradingScore {
     public static void process(String pubAssessmentIdString, boolean persist){
         Long pubAssessmentId = new Long(pubAssessmentIdString);
         // 1a. get list of assessmentGradingId who has submitted the assesment
-        //  b. get the list of itemGrading taht need to be deleted
         ArrayList assessmentGradingList = getAssessmentGradingList(pubAssessmentId);
 
         // 2. fix assessmentGrading score
