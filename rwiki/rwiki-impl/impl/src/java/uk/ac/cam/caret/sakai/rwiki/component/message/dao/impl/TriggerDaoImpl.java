@@ -26,14 +26,13 @@ package uk.ac.cam.caret.sakai.rwiki.component.message.dao.impl;
 import java.util.Date;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.message.model.TriggerImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao;

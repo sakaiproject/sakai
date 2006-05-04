@@ -27,17 +27,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
-import net.sf.hibernate.expression.Order;
-import net.sf.hibernate.type.Type;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
+import org.hibernate.type.Type;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import uk.ac.cam.caret.sakai.rwiki.model.RWikiCurrentObjectImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
@@ -75,9 +74,10 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 						throws HibernateException, SQLException
 				{
 					return session
-							.find(
-									"select count(*) from RWikiCurrentObjectImpl r where r.name = ?",
-									name, Hibernate.STRING);
+							.createQuery(
+									"select count(*) from RWikiCurrentObjectImpl r where r.name = :name")
+							.setParameter("name", name, Hibernate.STRING)
+							.list();
 				}
 
 			};
@@ -185,15 +185,18 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				return session.find("select distinct r "
-						+ "		from RWikiCurrentObjectImpl as r, "
-						+ "			RWikiCurrentObjectContentImpl as c "
-						+ "   where " + " r.realm = ? and ("
-						+ " lower(r.name) like ? or "
-						+ "          lower(c.content) like ? "
-						+ expression.toString() + " ) and "
-						+ "			r.id = c.rwikiid " + "  order by r.name ",
-						criteriaList.toArray(), types);
+				return session
+						.createQuery(
+								"select distinct r "
+										+ "		from RWikiCurrentObjectImpl as r, "
+										+ "			RWikiCurrentObjectContentImpl as c "
+										+ "   where r.realm = ? and ("
+										+ " lower(r.name) like ? or "
+										+ "          lower(c.content) like ? "
+										+ expression.toString() + " ) and "
+										+ "			r.id = c.rwikiid "
+										+ "  order by r.name ").setParameters(
+								criteriaList.toArray(), types).list();
 
 			}
 		};
@@ -272,10 +275,10 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				return session.find("select r.name "
-						+ "from RWikiCurrentObjectImpl r "
-						+ "where referenced like ?", "%::" + name + "::%",
-						Hibernate.STRING);
+				return session.createQuery(
+						"select r.name " + "from RWikiCurrentObjectImpl r "
+								+ "where referenced like ?").setParameter(
+						"%::" + name + "::%", Hibernate.STRING).list();
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -401,9 +404,11 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 				public Object doInHibernate(Session session)
 						throws HibernateException, SQLException
 				{
-					return session.find("select count(*) "
-							+ "from RWikiCurrentObjectImpl r "
-							+ "where r.realm = ?", group, Hibernate.STRING);
+					return session.createQuery(
+							"select count(*) "
+									+ "from RWikiCurrentObjectImpl r "
+									+ "where r.realm = ?").setParameter(group,
+							Hibernate.STRING).list();
 				}
 
 			};
@@ -433,9 +438,11 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				String search = globalParentPageName.replaceAll("([A%_])",
 						"A$1");
-				return session.find("from RWikiCurrentObjectImpl as r "
-						+ "where r.name like concat(?,'%') escape 'A' "
-						+ "order by name asc", search, Hibernate.STRING);
+				return session.createQuery(
+						"from RWikiCurrentObjectImpl as r "
+								+ "where r.name like concat(?,'%') escape 'A' "
+								+ "order by name asc").setParameter(search,
+						Hibernate.STRING).list();
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -454,9 +461,11 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			{
 				String search = globalParentPageName.replaceAll("([A%_])",
 						"A$1");
-				return session.find("from RWikiCurrentObjectImpl as r "
-						+ "where r.name like concat(?,'%') escape 'A' "
-						+ "order by name desc", search, Hibernate.STRING);
+				return session.createQuery(
+						"from RWikiCurrentObjectImpl as r "
+								+ "where r.name like concat(?,'%') escape 'A' "
+								+ "order by name desc").setParameter(search,
+						Hibernate.STRING).list();
 			}
 		};
 		List l = (List) getHibernateTemplate().execute(callback);
@@ -475,12 +484,15 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				String search = basepath.replaceAll("([A%_])", "A$1");
-				return session.find("from RWikiCurrentObjectImpl as r "
-						+ "where r.name like concat(?,'%') escape 'A' "
-						+ "and r.version >= ? "
-						+ "order by r.version desc, r.name asc", new Object[] {
-						search, time }, new Type[] { Hibernate.STRING,
-						Hibernate.DATE });
+				return session
+						.createQuery(
+								"from RWikiCurrentObjectImpl as r "
+										+ "where r.name like concat(?,'%') escape 'A' "
+										+ "and r.version >= ? "
+										+ "order by r.version desc, r.name asc")
+						.setParameters(new Object[] { search, time },
+								new Type[] { Hibernate.STRING, Hibernate.DATE })
+						.list();
 			}
 		};
 		return new ListProxy((List) getHibernateTemplate().execute(callback),
@@ -495,8 +507,9 @@ public class RWikiCurrentObjectDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				return session.find("select r.name "
-						+ "from RWikiCurrentObjectImpl  r ");
+				return session.createQuery(
+						"select r.name " + "from RWikiCurrentObjectImpl  r ")
+						.list();
 			}
 		};
 		return (List) getHibernateTemplate().execute(callback);

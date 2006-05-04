@@ -26,7 +26,7 @@
 
   <!-- extend the  sakai base session factory -->
   <!--
-  class="org.springframework.orm.hibernate.LocalSessionFactoryBean"
+  class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
   -->
   <bean id="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"
     parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">

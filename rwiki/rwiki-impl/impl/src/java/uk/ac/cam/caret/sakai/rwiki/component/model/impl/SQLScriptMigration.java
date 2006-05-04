@@ -32,16 +32,16 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.SessionFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.cover.SqlService;
 import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.DataMigrationAgent;
 
