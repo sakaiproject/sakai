@@ -3,7 +3,6 @@
 	focus_path = ["search"];
 </script>
 <div class="portletBody">
-	
 		<h3>$tlang.getString("se.search")</h3>
 		<p class="instruction">$tlang.getString("se.complete")</p>
 	
@@ -16,7 +15,7 @@
 					#if ($type == $termSearchSiteType)
 						<input type="hidden" name="ClassSiteFromSystem" value="true" />
 						<div class="checkbox indnt1">
-							<input  type="radio" name="siteType" id="classSite" value="$type" />
+							<input  type="radio" name="siteType" id="siteType$siteTypeCount" value="$type" />
 							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
 						</div>
 						<div class="indnt3">
@@ -49,7 +48,7 @@
 		</p>
 		
 		<p class="act">
-			 <input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("se.search")" />
+			 <input type="submit" class="active"  name="eventSubmit_doSearch" value="$tlang.getString("se.search")" accesskey="s" />
 		</p>
 		</form>
 

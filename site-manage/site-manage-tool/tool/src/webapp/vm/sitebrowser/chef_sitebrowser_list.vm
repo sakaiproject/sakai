@@ -34,24 +34,26 @@
 	</div>
 	<h3>$tlang.getString("list.results")</h3>
 	#if ($sites.size() > 0)
-		<div>
-			<div class="leftNav">
+		<div class="navPanel">
+			<div class="viewNav">
+				<div class="instruction indnt1">
 				#if ("$!siteType" == "") #set($siteType="Any") #end
 						#if ($termSelection)
 							$allMsgNumber $tlang.getString("list.sites") "$siteType" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")    	
 						#else
 							$allMsgNumber $tlang.getString("list.sites") "$siteType" $tlang.getString("list.type1") "$!searchText".
 						#end
+					</p>	
 			</div>
-			<div class="rightNav">
-				<span class="instruction">$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")</span>
+			<div class="listNav">
+				<div class="instruction">$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")</div>
 				#if ($pagesize != 0)
 					#if ($goPPButton == "true")
 						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_prev" value="$tlang.getString("list.previous") $pagesize" />
+							<input type="submit" name="eventSubmit_doList_prev" value="&lt;"  title="$tlang.getString("list.previous") $pagesize" accesskey="p" />
 						</form>
 					#else
-						<input type="submit" name="eventSubmit_doList_prev" value="$tlang.getString("list.previous") $pagesize"  disabled="disabled" />
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;"  disabled="disabled" />
 					#end
 				#end
 			
@@ -70,19 +72,19 @@
 				
 				#if ($pagesize != 0)
 					#if ($goNPButton == "true")
-						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_next" value="$tlang.getString("list.next") $pagesize" />
+						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;"  title="$tlang.getString("list.next") $pagesize" accesskey="n" />
 						</form>
 					#else
-							<input type="submit" name="eventSubmit_doList_next" value="$tlang.getString("list.next") $pagesize" disabled="disabled" />
+							<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
 					#end
 				#end
-				<br />
+
 			</div>
 		</div>
 
 	#set ($siteCount = 0)
-		<table summary ="List of Sites" class="listHier" cellspacing="0" cellpadding="0" border="0">
+		<table summary ="$tlang.getString("list.summary")" class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0">
 		
 			<tr>
 				<th scope="col" id="title">$tlang.getString("list.work")</th>
@@ -98,12 +100,12 @@
                 #set ($desc = "")
                 <tr>
                         <td headers="title">
-##                        	<div class="indnt1">
-                                <a href="#toolLinkParam("$action" "doVisit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("list.go") $validator.escapeHtml($site.Title) $tlang.getString("site")">
+							<h4>
+                             <a href="#toolLinkParam("$action" "doVisit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("list.go") $validator.escapeHtml($site.Title) $tlang.getString("site")">
                                         $validator.escapeHtml($site.Title)
-                                </a>
-##                            </div>
-                        </td>
+                               </a>
+							  </h4> 
+                       </td>
 
                         <td headers="type">
                         #set($type = $site.Type)
@@ -176,9 +178,9 @@
 			#end ##foreach
 		</table>
 #else
-		<P>
+		<p class="instruction">
 			$tlang.getString("list.nosites")
-		</P>
+		</p>
 #end
 
 </div>
