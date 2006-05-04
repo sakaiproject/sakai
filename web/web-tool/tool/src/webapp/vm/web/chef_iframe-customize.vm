@@ -8,7 +8,7 @@
 	<h3>
 		$heading
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>
@@ -37,15 +37,6 @@
 			<input id="customNumberField" maxlength="4" size="4" type="text" name="customNumberField" #if ($height == "$tlang.getString('gen.heisomelse')") value="$!validator.escapeHtml($custom_height)" #end/>
 			$tlang.getString('gen.pixels')
 		</p>	
-		
-		<p class="shorttext" id="customNumber" style="display:none">
-			<label for="customNumberField">
-				$tlang.getString('gen.custheight')
-			</label>
-			<input id="customNumberField" type="text" name="customNumberField" />
-			$tlang.getString('gen.pixels')
-		</p>	
-				
 #if ($source)
 		<p class="shorttext indnt1">
 			<label for="source">$tlang.getString("gen.url")</label>
@@ -54,24 +45,15 @@
 #end
 
 	#if ($showPopup)
-		##replace with tableless layout when time (gsilver)
-		<table cellspacing="0" cellpadding="0" style="margin-left:1em;width:auto">
-			<tr>
-				<td style="width:14em">
-					<label for="opentrue">$tlang.getString("gen.info.pop")</label>
-				</td>
-				<td>
-					<span class="checkbox">
-						<input type="checkbox" value="true" name="popup" id="opentrue" #if ($popup) checked="checked" #end />
-					</span>        
-				</td>
-			</tr>
-		</table>
+		<p class ="checkbox labelindnt">
+				<input type="checkbox" value="true" name="popup" id="opentrue" #if ($popup) checked="checked" #end  class="indnt1" />
+				<label for="opentrue">$tlang.getString("gen.info.pop")</label>
+		</p>
 	#end
 
 		<p class="act">
-			<input type="submit" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
-			<input type="submit" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>

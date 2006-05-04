@@ -8,7 +8,7 @@
 	<h3>
 		$heading
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>
@@ -34,15 +34,15 @@
 			<textarea id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$!description</textarea>
 		</p>
 
-		<p class="shorttext indnt1" style="margin-bottom:.3em;">
+		<p class="shorttext indnt1">
 			<label for="infourl">$tlang.getString("gen.info.url")</label>
 			<input type="text" name="infourl" id="infourl" value="$!info_url" size="40" />
 		</p>
-		<p class="instruction" style="margin-top:0;">$tlang.getString("gen.info.url.msg")</p>
+		<p class="instruction">$tlang.getString("gen.info.url.msg")</p>
 
 		<p class="act">
-			<input type="submit" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
-			<input type="submit" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>
