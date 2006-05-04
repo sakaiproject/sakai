@@ -5,9 +5,9 @@ import java.sql.Time;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,8 +23,8 @@ import org.sakaiproject.api.section.facade.Role;
 import org.sakaiproject.component.section.EnrollmentRecordImpl;
 import org.sakaiproject.component.section.InstructorRecordImpl;
 import org.sakaiproject.component.section.TeachingAssistantRecordImpl;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**********************************************************************************
  *

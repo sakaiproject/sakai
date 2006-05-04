@@ -3,7 +3,7 @@
 
 <beans>
 
-    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate.HibernateTransactionManager">
+    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
         <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
     </bean>
     
