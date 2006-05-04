@@ -106,7 +106,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			siteService = (SiteService) load(cm, SiteService.class.getName());
 
 			if ("true".equals(ServerConfigurationService
-					.getString("search.experimental")))
+					.getString("search.experimental","true")))
 			{
 
 				searchService

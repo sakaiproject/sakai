@@ -3,7 +3,6 @@
  */
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -13,8 +12,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.sakaiproject.content.api.ContentResource;
-
-import sun.awt.image.ByteArrayImageSource;
 
 /**
  * @author ieb

@@ -10,13 +10,12 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import net.sf.hibernate.HibernateException;
-
 import org.apache.commons.id.IdentifierGenerator;
 import org.apache.commons.id.uuid.UUID;
 import org.apache.commons.id.uuid.VersionFourGenerator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
@@ -32,7 +31,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilderWorker
+public class SearchIndexBuilderWorkerImpl implements Runnable,
+		SearchIndexBuilderWorker
 {
 
 	/**
@@ -46,7 +46,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	private static final String NODE_LOCK = "nodelockkey";
 
-	private static Log log = LogFactory.getLog(SearchIndexBuilderWorkerImpl.class);
+	private static Log log = LogFactory
+			.getLog(SearchIndexBuilderWorkerImpl.class);
 
 	private final int numThreads = 10;
 
@@ -151,7 +152,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				.getName());
 
 		enabled = "true".equals(ServerConfigurationService
-				.getString("search.experimental"));
+				.getString("search.experimental","true"));
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -267,9 +268,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 								log
 										.error("+++++++++++++++++++++++++++Lost Local Lock+++++++++++");
 							}
-							log
-									.debug("===" + nodeID
-											+ "=============COMPLETED ");
+							log.debug("===" + nodeID
+									+ "=============COMPLETED ");
 
 						}
 						else
@@ -344,7 +344,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		return nodeID;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#updateNodeLock(java.sql.Connection)
 	 */
 	public void updateNodeLock(Connection connection) throws SQLException
@@ -381,13 +383,15 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			if (updateNodeLock.executeUpdate() != 1)
 			{
 				insertLock.clearParameters();
-				insertLock.setString(1, "Node:"+nodeID); // id
+				insertLock.setString(1, "Node:" + nodeID); // id
 				insertLock.setString(2, nodeID); // nodename
 				insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
 				insertLock.setTimestamp(4, nodeExpired); // expires
 				insertLock.executeUpdate();
 				log.debug("Inserted Worker Record");
-			} else {
+			}
+			else
+			{
 				log.debug("Updated worker record");
 			}
 
@@ -396,8 +400,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 			deleteExpiredNodeLock.execute();
 
 		}
-		catch ( Exception ex ) {
-			log.error("Failed to register node ",ex);
+		catch (Exception ex)
+		{
+			log.error("Failed to register node ", ex);
 		}
 		finally
 		{
@@ -700,7 +705,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		try
 		{
 			connection = dataSource.getConnection();
-			
+
 			updateNodeLock(connection);
 
 			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
@@ -715,7 +720,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				log.debug("UNLOCK - OK    ?::" + nodeID + "::now");
 
 			}
-			else 
+			else
 			{
 				log.debug("UNLOCK - Failed?::" + nodeID + "::now");
 			}
@@ -750,15 +755,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 
 	}
-	
-	public boolean isRunning() {
-		if ( org.sakaiproject.component.cover.ComponentManager.hasBeenClosed() ) {
+
+	public boolean isRunning()
+	{
+		if (org.sakaiproject.component.cover.ComponentManager.hasBeenClosed())
+		{
 			runThreads = false;
 		}
 		return runThreads;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#checkRunning()
 	 */
 	public void checkRunning()
@@ -852,7 +861,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		this.searchIndexBuilderWorkerDao = searchIndexBuilderWorkerDao;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#getCurrentLock()
 	 */
 	public SearchWriterLock getCurrentLock()
@@ -951,7 +962,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#getNodeStatus()
 	 */
 	public List getNodeStatus()
@@ -993,7 +1006,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 		catch (Exception ex)
 		{
-			log.error("Failed to load nodes ",ex);
+			log.error("Failed to load nodes ", ex);
 			return locks;
 		}
 		finally
@@ -1068,16 +1081,18 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				swl.setNodename(resultSet.getString(2));
 				swl.setLockkey(resultSet.getString(3));
 				swl.setExpires(resultSet.getTimestamp(4));
-			} else {
+			}
+			else
+			{
 				return true;
 			}
 
 			resultSet.close();
 			resultSet = null;
-			
+
 			selectNodeLock.clearParameters();
 			resultSet = selectLock.executeQuery();
-			
+
 			while (resultSet.next())
 			{
 				SearchWriterLock node = new SearchWriterLockImpl();
@@ -1085,15 +1100,17 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				node.setNodename(resultSet.getString(2));
 				node.setLockkey(resultSet.getString(3));
 				node.setExpires(resultSet.getTimestamp(4));
-				if ( swl.getNodename().equals(node.getNodename())) {
-					log.info("Cant remove Lock to node "+node.getNodename()+" node exists ");
+				if (swl.getNodename().equals(node.getNodename()))
+				{
+					log.info("Cant remove Lock to node " + node.getNodename()
+							+ " node exists ");
 					return false;
 				}
 			}
 
 			resultSet.close();
 			resultSet = null;
-			
+
 			clearLock.clearParameters();
 			clearLock.setString(1, NO_NODE);
 			clearLock
@@ -1105,20 +1122,18 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 				log.warn("NODE UNLOCKED BY USER " + swl.getNodename());
 
 			}
-			else 
+			else
 			{
 				log.info("NODE NOT UNLOCKED BY USER " + swl.getNodename());
 				return false;
 			}
-			
-			
-			
+
 			return true;
 
 		}
 		catch (Exception ex)
 		{
-			log.error("Failed to unlock ",ex);
+			log.error("Failed to unlock ", ex);
 			return false;
 		}
 		finally

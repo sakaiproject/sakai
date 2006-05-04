@@ -25,19 +25,18 @@ package org.sakaiproject.search.component.dao.impl;
 
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
-import net.sf.hibernate.type.Type;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.type.Type;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * @author ieb
@@ -129,12 +128,16 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 			{
 				// first try and get and lock the writer mutex
 
-				List l = session.find("select count(*) from "
-						+ SearchBuilderItemImpl.class.getName()
-						+ " where searchstate = ? and searchaction <> ?",
-						new Object[] { SearchBuilderItem.STATE_PENDING,
-								SearchBuilderItem.ACTION_UNKNOWN }, new Type[] {
-								Hibernate.INTEGER, Hibernate.INTEGER });
+				List l = session
+						.createQuery(
+								"select count(*) from "
+										+ SearchBuilderItemImpl.class.getName()
+										+ " where searchstate = ? and searchaction <> ?")
+						.setParameters(
+								new Object[] { SearchBuilderItem.STATE_PENDING,
+										SearchBuilderItem.ACTION_UNKNOWN },
+								new Type[] { Hibernate.INTEGER,
+										Hibernate.INTEGER }).list();
 				if (l == null || l.size() == 0)
 				{
 					return new Integer(0);
@@ -174,12 +177,11 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				return session.createCriteria(
-						SearchBuilderItemImpl.class).add(
-						Expression.like("name", SearchBuilderItem.SITE_MASTER_PATTERN))
-						.add(
-								Expression.not(Expression.eq("context",
-										SearchBuilderItem.GLOBAL_CONTEXT))).list();
+				return session.createCriteria(SearchBuilderItemImpl.class).add(
+						Expression.like("name",
+								SearchBuilderItem.SITE_MASTER_PATTERN)).add(
+						Expression.not(Expression.eq("context",
+								SearchBuilderItem.GLOBAL_CONTEXT))).list();
 			}
 		};
 

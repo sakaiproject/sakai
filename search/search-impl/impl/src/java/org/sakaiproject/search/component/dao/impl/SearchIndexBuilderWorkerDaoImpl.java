@@ -9,13 +9,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.expression.Expression;
-import net.sf.hibernate.expression.Order;
-import net.sf.hibernate.type.Type;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -25,6 +18,12 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.FSDirectory;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
+import org.hibernate.type.Type;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -39,8 +38,8 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		implements SearchIndexBuilderWorkerDao
@@ -87,7 +86,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				SearchIndexBuilder.class.getName());
 
 		enabled = "true".equals(ServerConfigurationService
-				.getString("search.experimental"));
+				.getString("search.experimental","true"));
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -666,12 +665,16 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException
 			{
-				List l = session.find("select count(*) from "
-						+ SearchBuilderItemImpl.class.getName()
-						+ " where searchstate = ? and searchaction <> ?",
-						new Object[] { SearchBuilderItem.STATE_PENDING,
-								SearchBuilderItem.ACTION_UNKNOWN }, new Type[] {
-								Hibernate.INTEGER, Hibernate.INTEGER });
+				List l = session
+						.createQuery(
+								"select count(*) from "
+										+ SearchBuilderItemImpl.class.getName()
+										+ " where searchstate = ? and searchaction <> ?")
+						.setParameters(
+								new Object[] { SearchBuilderItem.STATE_PENDING,
+										SearchBuilderItem.ACTION_UNKNOWN },
+								new Type[] { Hibernate.INTEGER,
+										Hibernate.INTEGER }).list();
 				if (l == null || l.size() == 0)
 				{
 					return new Integer(0);
@@ -705,7 +708,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			{
 				session.connection().createStatement().execute(
 						"delete from searchbuilderitem where name <> '"
-								+ SearchBuilderItem.GLOBAL_MASTER+"' ");
+								+ SearchBuilderItem.GLOBAL_MASTER + "' ");
 			}
 			else
 			{
@@ -745,9 +748,10 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			for (Iterator ci = contentList.iterator(); ci.hasNext();)
 			{
 				String resourceName = (String) ci.next();
-				List lx = session.find(" from "
-						+ SearchBuilderItemImpl.class.getName()
-						+ " where name = ?  ", resourceName, Hibernate.STRING);
+				List lx = session.createQuery(
+						" from " + SearchBuilderItemImpl.class.getName()
+								+ " where name = ?  ").setParameter(
+						resourceName, Hibernate.STRING).list();
 				if (lx == null || lx.size() == 0)
 				{
 					added++;

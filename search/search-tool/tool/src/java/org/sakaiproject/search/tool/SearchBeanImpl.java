@@ -207,7 +207,7 @@ public class SearchBeanImpl implements SearchBean
 	public boolean isEnabled()
 	{
 		return ("true".equals(ServerConfigurationService
-				.getString("search.experimental")));
+				.getString("search.experimental","true")));
 
 	}
 

@@ -60,7 +60,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 					.getName());
 
 			if ("true".equals(ServerConfigurationService
-					.getString("search.experimental")))
+					.getString("search.experimental","true")))
 			{
 
 				searchService
