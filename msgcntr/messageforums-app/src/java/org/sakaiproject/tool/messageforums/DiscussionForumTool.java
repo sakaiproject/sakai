@@ -2998,6 +2998,62 @@ public class DiscussionForumTool
     } 
    } 
  
+   public boolean isNumber(String validateString) 
+   {
+     try  
+     {
+       double d = Double.valueOf(validateString).doubleValue();
+       if(d >= 0)
+         return true;
+       else
+         return false;
+     }
+     catch (NumberFormatException e) 
+     {
+       e.printStackTrace();
+       return false;
+     }
+   }
+   
+   public boolean isFewerDigit(String validateString)
+   {
+     String stringValue = new Double(validateString).toString();
+     if(stringValue.lastIndexOf(".") >= 0)
+     {
+       String subString = stringValue.substring(stringValue.lastIndexOf("."));
+       if(subString != null && subString.length() > 3)
+         return false;
+     }
+     
+     return true;
+   }
+  
+  private boolean validateGradeInput()
+  {
+    if(!isNumber(gradePoint))
+    {
+      FacesContext currentContext = FacesContext.getCurrentInstance();
+      String uiComponentId = "DF-1:dfMsgGradeGradePoint";
+      FacesMessage validateMessage = new FacesMessage("Please input number greater than 0.");
+      validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
+      currentContext.addMessage(uiComponentId, validateMessage);
+      
+      return false;
+    }
+    else if(!isFewerDigit(gradePoint))
+    {
+      FacesContext currentContext = FacesContext.getCurrentInstance();
+      String uiComponentId = "DF-1:dfMsgGradeGradePoint";
+      FacesMessage validateMessage = new FacesMessage("Please input number with 2 or fewer digits after decimal point.");
+      validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
+      currentContext.addMessage(uiComponentId, validateMessage); 
+      
+      return false;
+    }
+    
+    return true;
+  }
+  
   public String processDfGradeSubmit() 
   { 
     if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase("Default_0")) 
@@ -3014,7 +3070,10 @@ public class DiscussionForumTool
     } 
     else 
       noGradeWarn = false; 
-     
+    
+    if(!validateGradeInput())
+      return null;
+      
     try 
     { 
       if(selectedAssign != null && selectedAssign.trim().length()>0) 
