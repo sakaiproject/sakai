@@ -86,18 +86,14 @@ public class DbContentService extends BaseContentService
 	protected boolean m_locksInDb = true;
 
 	/** The extra field(s) to write to the database - collections. */
-	protected static final String[] COLLECTION_FIELDS = { "IN_COLLECTION", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
+	protected static final String[] COLLECTION_FIELDS = { "IN_COLLECTION" };
 
 	/** The extra field(s) to write to the database - resources - when we are doing bodys in files. */
-	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION", "FILE_PATH", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
+	protected static final String[] RESOURCE_FIELDS_FILE = { "IN_COLLECTION", "FILE_PATH" };
 
 	/** The extra field(s) to write to the database - resources - when we are doing bodys the db. */
-	protected static final String[] RESOURCE_FIELDS = { "IN_COLLECTION", "ACCESS_MODE", "RELEASE_DATE", "RETRACT_DATE", "SORT_ORDER" };
+	protected static final String[] RESOURCE_FIELDS = { "IN_COLLECTION" };
 	
-	/** The extra field(s) to write to the database - entity-group relationships */
-	protected static final String[] GROUP_FIELDS = { "GROUP_ID" };
-
-	// htripath -start
 	/** Table name for resources delete. */
 	protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
 
@@ -483,9 +479,6 @@ public class DbContentService extends BaseContentService
 		/** htripath- Storage for resources delete */
 		protected BaseDbSingleStorage m_resourceDeleteStore = null;
 		
-		/** A storage for entity-group relationships */
-		protected BaseDbSingleStorage m_groupStore = null;
-
 		/**
 		 * Construct.
 		 * 
@@ -508,10 +501,6 @@ public class DbContentService extends BaseContentService
 			m_resourceDeleteStore = new BaseDbSingleStorage(m_resourceDeleteTableName, "RESOURCE_ID",
 					(bodyInFile ? RESOURCE_FIELDS_FILE : RESOURCE_FIELDS), m_locksInDb, "resource", resourceUser, m_sqlService);
 			
-			// build the entity-groups store
-			m_groupStore = new BaseDbSingleStorage(m_groupTableName, "ENTITY_ID", GROUP_FIELDS, m_locksInDb, 
-					"resource", resourceUser, m_sqlService);
-
 		} // DbStorage
 
 		/**
@@ -522,7 +511,6 @@ public class DbContentService extends BaseContentService
 			m_collectionStore.open();
 			m_resourceStore.open();
 			m_resourceDeleteStore.open();
-			m_groupStore.open();
 		} // open
 
 		/**
@@ -533,7 +521,6 @@ public class DbContentService extends BaseContentService
 			m_collectionStore.close();
 			m_resourceStore.close();
 			m_resourceDeleteStore.close();
-			m_groupStore.close();
 		} // close
 
 		/** Collections * */
@@ -1005,94 +992,6 @@ public class DbContentService extends BaseContentService
 			{
 				file.delete();
 			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void putEntityGroupRelationship(String entityId, String groupId)
-		{
-			String statement = "insert into " + m_groupTableName + " (ENTITY_ID, GROUP_ID) values (? , ? )";
-			
-			Object[] fields = new Object[2];
-			fields[0] = entityId;
-			fields[1] = groupId;
-
-			m_sqlService.dbWrite(statement, fields);
-			
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void delEntityGroupRelationship(String entityId, String groupId)
-		{
-			String statement = "delete from " + m_groupTableName + " where (ENTITY_ID = ?) && (GROUP_ID = ?)";
-			
-			Object[] fields = new Object[2];
-			fields[0] = entityId;
-			fields[1] = groupId;
-
-			m_sqlService.dbWrite(statement, fields);
-						
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void delEntitiesForGroup(String groupId)
-		{
-			String statement = "delete from " + m_groupTableName + " where (GROUP_ID = ?)";
-			
-			Object[] fields = new Object[1];
-			fields[0] = groupId;
-
-			m_sqlService.dbWrite(statement, fields);
-						
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void delGroupsForEntity(String entityId)
-		{
-			String statement = "delete from " + m_groupTableName + " where (ENTITY_ID = ?)";
-			
-			Object[] fields = new Object[1];
-			fields[0] = entityId;
-
-			m_sqlService.dbWrite(statement, fields);
-						
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public List getGroupsForEntity(String entityId)
-		{
-			String statement = "select GROUP_ID from " + m_groupTableName + " where (ENTITY_ID = ?)";
-
-			Object[] fields = new Object[1];
-			fields[0] = entityId;
-
-			List result = m_sqlService.dbRead(statement, fields, null);
-
-			return result;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public List getEntitiesForGroup(String groupId)
-		{
-			String statement = "select ENTITY_ID from " + m_groupTableName + " where (GROUP_ID = ?)";
-
-			Object[] fields = new Object[1];
-			fields[0] = groupId;
-
-			List result = m_sqlService.dbRead(statement, fields, null);
-
-			return result;
 		}
 
 	} // DbStorage

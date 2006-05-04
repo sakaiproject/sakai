@@ -528,12 +528,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Object[] storageFields(Entity r)
 		{
-			Object[] rv = new Object[5];
+			Object[] rv = new Object[1];
 			rv[0] = StringUtil.referencePath(((ContentCollection) r).getId());
-			rv[1] = ((GroupAwareEntity) r).getAccess();
-			rv[2] = ((ContentCollection) r).getReleaseDate();
-			rv[3] = ((ContentCollection) r).getRetractDate();
-			rv[4] = new Integer(0);
 			return rv;
 		}
 
@@ -656,25 +652,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// include the file path field if we are doing body in the file system
 			if (m_bodyPath != null)
 			{
-				Object[] rv = new Object[6];
+				Object[] rv = new Object[2];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
 				rv[1] = StringUtil.trimToZero(((BaseResourceEdit) r).m_filePath);
-				rv[2] = ((GroupAwareEntity) r).getAccess();
-				rv[3] = ((ContentResource) r).getReleaseDate();
-				rv[4] = ((ContentResource) r).getRetractDate();
-				rv[5] = new Integer(0);
 				return rv;
 			}
 
 			// otherwise don't include the file path field
 			else
 			{
-				Object[] rv = new Object[5];
+				Object[] rv = new Object[1];
 				rv[0] = StringUtil.referencePath(((ContentResource) r).getId());
-				rv[1] = ((GroupAwareEntity) r).getAccess();
-				rv[2] = ((ContentResource) r).getReleaseDate();
-				rv[3] = ((ContentResource) r).getRetractDate();
-				rv[4] = new Integer(0);
 				return rv;
 			}
 		}
@@ -7830,46 +7818,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void commitDeleteResource(ContentResourceEdit edit, String uuid);
 
 		public ContentResourceEdit putDeleteResource(String resourceId, String uuid, String userId);
-		
-		/**
-		 * Create a relationship between a group and an entity.
-		 * @param entityId The identifier for the entity.
-		 * @param groupId The identifier for the group.
-		 */
-		public void putEntityGroupRelationship(String entityId, String groupId);
-		
-		/**
-		 * Remove the relationship between a group and an entity.
-		 * @param entityId The identifier for the entity.
-		 * @param groupId The identifier for the group.
-		 */
-		public void delEntityGroupRelationship(String entityId, String groupId);
-		
-		/**
-		 * Remove all relationships between a group and any entities.
-		 * @param groupId The identifier for the group.
-		 */
-		public void delEntitiesForGroup(String groupId);
-		
-		/**
-		 * Remove all relationships between an entity and all groups.
-		 * @param entityId The identifier for the entity.
-		 */
-		public void delGroupsForEntity(String entityId);
-		
-		/**
-		 * Access a list of the groups that have access to a collection or resource.
-		 * @param entityId The identifier for the collection or resource.
-		 * @return The list of (String) id's for groups having access to the entity. 
-		 */
-		public List getGroupsForEntity(String entityId);
-		
-		/**
-		 * Access a list of all entities to which a group has access.
-		 * @param groupId The identifier for the group.
-		 * @return A list of (String) id's of collections and resources to which the group has access.
-		 */
-		public List getEntitiesForGroup(String groupId);
 		
 	} // Storage
 
