@@ -10,7 +10,7 @@
 
 #if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
-		<div style="display:block;clear:both" />
+		<div class="clear" />
 #end
 <p class="instruction">
 	$tlang.getString("revise.required")  <span class="reqStarInline">*</span>
@@ -18,7 +18,7 @@
 		<form name="customize" id="customize" action="#toolForm("$action")" method="post">
 			<p class="shorttext">
 				<span class="reqStar">*</span>
-				<label for="$formfield_channel_title" style="width:5em !important">
+				<label for="$formfield_channel_title">
 					$tlang.getString("cus.franam")
 				</label>
 				<input 
@@ -27,11 +27,11 @@
 					id="$formfield_channel_title" 
 					value="$validator.escapeHtml($!current_channel_title)"
 					size="50" />
-				$tlang.getString("cus.sugleg")
 			</p>
+			<p class="instruction labelindnt">$tlang.getString("cus.sugleg")</p>
 			<p class="shorttext">
 				<span class="reqStar">*</span>
-				<label for="$formfield_channel_url" style="width:5em !important">
+				<label for="$formfield_channel_url">
 					$tlang.getString("cus.intadd")
 				</label>
 				<input 
@@ -42,8 +42,8 @@
 					size="50" />
 			</p>
 			<p class="act">
-				<input type="submit" name="$form-submit" value="$tlang.getString("gen.sav")" />
-				<input type="submit" name="$form-cancel" value="$tlang.getString("gen.can")" />
+				<input type="submit" class="active" name="$form-submit" value="$tlang.getString("gen.sav")" accesskey="s" />
+				<input type="submit" name="$form-cancel" value="$tlang.getString("gen.can")" accesskey="x" />
 			</p>
 		</form>
 	</div>

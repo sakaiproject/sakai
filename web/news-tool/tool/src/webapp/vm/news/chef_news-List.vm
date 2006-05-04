@@ -17,21 +17,24 @@
 		#end
 		#foreach ($item in $news_items)
 				#if($item.Title)
-					<h5>
+					<h4 class="textPanelHeader">
 					#set($title="$validator.escapeHtml($item.Title)")
 						$validator.escapeHtml($item.Title)
-					</h5>
+					</h4>
 				#end
 				#if($item.Description)
-					<p style="margin-left:2em;margin-top:.5em">
+					<div class="textPanel">
 						$item.Description
+					</div>	
+					<p class="textPanelFooter">
 						#if($item.Link)
-							 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item") $title">($full_story)</a>
+							 <a href="$validator.escapeHtml($item.Link)" target="_blank" title="$tlang.getString("goto.item")">($full_story)</a>
 						 #end
-						 #if($item.Pubdate && !$item.Pubdate == "")
-						 	($item.Pubdate)
+						 #if($item.Pubdate)
+							($item.Pubdate)
 						#end
-					</p>	
+					</p>
+
 				#end	
 		#end
 	</div>

@@ -9,15 +9,13 @@
 		<div class="alertMessage">
 			$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)
 		</div>
-		<div style="display:block;clear:both" />
+		<div class="clear" />
 	#end
-	<div style="margin-top:1em">
 		#if($channel.ImageUrl)
-			<div style="text-align: center;margin-bottom:1em">
+			<div style="text-align: center;margin-top:1em;float:right">
 					<a href="$channel.ImageLink" target="_blank">
-						<img src="$channel.ImageUrl" border="0" alt="$channel.ImageTitle" alt="$channel.ImageDescription" width="$channel.ImageWidth" height="$channel.ImageHeight" />
+						<img src="$channel.ImageUrl" border="0" alt="$channel.ImageTitle" alt="$channel.ImageDescription" /> ##omit size info - ie will assume 0 if not present
 					</a>
-					<br />
 			</div>
 		#end
 		#if($channel.Title)
@@ -26,54 +24,49 @@
 			</h3>
 		#end
 		#if($channel.Description)
-			<p>
-				$channel.Description
+			<p class="textPanel">
+				$channel.Description 
 			</p>
 		#end
-		#if($channel.Copyright)
-			<div>
-				$channel.Copyright
-			</div>
-		#end
-		#if($channel.Lastbuilddate)
-			<div>
-				Last build date: $channel.Lastbuilddate
-			</div>
-		#end
-		#if($channel.Link)
-			<div style="font-size:.8em;font-weight:normal">
-				<a href="$validator.escapeHtml($channel.Link)" target="_blank" title="$tlang.getString("goto.graphics")">($graphic_version)</a>
-			</div>
-		#end
-				<hr class="itemSeparator" />
-				<br />
-				<iframe
-					name="$validator.escapeJavascript("$panel-monitor")"
-					id="$validator.escapeJavascript("$panel-monitor")"
-					title="$panel-monitor"
-					width="97%"
-					height="350"
-					frameborder="0"
-					marginwidth="0"
-					marginheight="0"
-					scrolling="auto"
-					align="middle"
-					src="#contentLink("$panel-monitor")">
-				</iframe>
-				<br />
-				<iframe
-					name="$validator.escapeJavascript("$panel-control")"
-					id="$validator.escapeJavascript("$panel-control")"
-					title="$panel-control"
-					width="100%"
-					height="50"
-					frameborder="0"
-					marginwidth="0"
-					marginheight="0"
-					scrolling="no"
-					align="middle"
-					src="#contentCourierLink("$panel-control")">
-				</iframe>
-		</div>
+			<p class="textPanelFooter">
+				#if($channel.Link)
+						<a href="$validator.escapeHtml($channel.Link)" target="_blank" title="$channel.Title">($graphic_version)</a>
+				#end
+				#if($channel.Copyright)
+						- $channel.Copyright
+				#end
+				#if($channel.Lastbuilddate)
+						 - $channel.Lastbuilddate
+				#end
+			</p>
+
+		<hr class="itemSeparator" />
+		<iframe
+			name="$validator.escapeJavascript("$panel-monitor")"
+			id="$validator.escapeJavascript("$panel-monitor")"
+			title="$panel-monitor"
+			width="97%"
+			height="350"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			align="middle"
+			src="#contentLink("$panel-monitor")">
+		</iframe>
+		<br />
+		<iframe
+			name="$validator.escapeJavascript("$panel-control")"
+			id="$validator.escapeJavascript("$panel-control")"
+			title="$panel-control"
+			width="100%"
+			height="50"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="no"
+			align="middle"
+			src="#contentCourierLink("$panel-control")">
+		</iframe>
 </div>
 
