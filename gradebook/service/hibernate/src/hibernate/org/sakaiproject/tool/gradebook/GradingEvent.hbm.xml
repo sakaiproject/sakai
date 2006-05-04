@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
 	<class name="org.sakaiproject.tool.gradebook.GradingEvent" table="GB_GRADING_EVENT_T">
 

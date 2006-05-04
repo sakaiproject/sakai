@@ -28,10 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.type.Type;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +44,8 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.springframework.orm.hibernate.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -55,35 +57,82 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
 
-    public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
-    	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
-    		uid, Hibernate.STRING);
+    public Gradebook getGradebook(final String uid)
+			throws GradebookNotFoundException {
+		final HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(final Session session) {
+				final Query q = session
+						.createQuery("from Gradebook as gb where gb.uid=?");
+				q.setString(0, uid);
+				return q.list();
+			};
+		};
+		List list = getHibernateTemplate().executeFind(hc);
 		if (list.size() == 1) {
-			return (Gradebook)list.get(0);
+			return (Gradebook) list.get(0);
 		} else {
-            throw new GradebookNotFoundException("Could not find gradebook uid=" + uid);
-        }
+			throw new GradebookNotFoundException(
+					"Could not find gradebook uid=" + uid);
+		}
+    	
+// List list = getHibernateTemplate().find("from Gradebook as gb where
+// gb.uid=?",
+//    		uid, Hibernate.STRING);
+//		if (list.size() == 1) {
+//			return (Gradebook)list.get(0);
+//		} else {
+//            throw new GradebookNotFoundException("Could not find gradebook uid=" + uid);
+//        }
     }
 
-    protected List getAssignments(Long gradebookId, Session session) throws HibernateException {
-        String hql = "from Assignment as asn where asn.gradebook.id=? and asn.removed=false";
-        List assignments = session.find(hql,
-            new Object[] {gradebookId},
-            new Type[] {Hibernate.LONG});
-        return assignments;
+    protected List getAssignments(final Long gradebookId, Session session) throws HibernateException {
+    	final HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(final Session session){
+    			final Query q = session.createQuery(
+    					"from Assignment as asn where asn.gradebook.id=? and asn.removed=false");
+    			q.setLong(0, gradebookId.longValue());
+    			return q.list();
+    		};
+    	};
+    	return getHibernateTemplate().executeFind(hc);
+
+//    	String hql = "from Assignment as asn where asn.gradebook.id=? and asn.removed=false";
+//        List assignments = session.find(hql,
+//            new Object[] {gradebookId},
+//            new Type[] {Hibernate.LONG});
+//        return assignments;
     }
 
-    protected List getCountedStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
-        return session.find("select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?",
-        	new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
+    protected List getCountedStudentGradeRecords(final Long gradebookId, final String studentId, Session session) throws HibernateException {
+    	final HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(final Session session){
+    			final Query q = session.createQuery(
+    					"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?");
+    			q.setString(0, studentId);
+    			q.setLong(1, gradebookId.longValue());
+    			return q.list();
+    		};
+    	};
+    	return getHibernateTemplate().executeFind(hc);
+
+//    	return session.find("select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?",
+//        	new Object[] {studentId, gradebookId}, new Type[] {Hibernate.STRING, Hibernate.LONG});
     }
 
     /**
      */
-    public CourseGrade getCourseGrade(Long gradebookId) {
-        return (CourseGrade)getHibernateTemplate().find(
-                "from CourseGrade as cg where cg.gradebook.id=?",
-                gradebookId, Hibernate.LONG).get(0);
+    public CourseGrade getCourseGrade(final Long gradebookId) {
+    	final HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(final Session session){
+    			final Query q = session.createQuery("from CourseGrade as cg where cg.gradebook.id=?");
+    			q.setLong(0, gradebookId.longValue());
+    			return q.list();
+    		};
+    	};
+    	return (CourseGrade) getHibernateTemplate().executeFind(hc).get(0);
+//        return (CourseGrade)getHibernateTemplate().find(
+//                "from CourseGrade as cg where cg.gradebook.id=?",
+//                gradebookId, Hibernate.LONG).get(0);
     }
 
     /**
@@ -95,15 +144,30 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      *
      * @throws HibernateException
      */
-    protected CourseGradeRecord getCourseGradeRecord(Gradebook gradebook,
-            String studentId, Session session) throws HibernateException {
-        List list = session.find("from CourseGradeRecord as cgr where cgr.studentId=? and cgr.gradableObject.gradebook=?",
-                new Object[] {studentId, gradebook}, new Type[] {Hibernate.STRING, Hibernate.entity(gradebook.getClass())});
+    protected CourseGradeRecord getCourseGradeRecord(final Gradebook gradebook,
+            final String studentId, Session session) throws HibernateException {
+    	HibernateCallback hc = new HibernateCallback(){
+    		public Object doInHibernate(Session session){
+    			Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.studentId=? and cgr.gradableObject.gradebook=?");
+    			q.setString(0, studentId);
+    			q.setParameter(1, gradebook, Hibernate.entity(Gradebook.class));
+    			return q.list();
+    		};
+    	};
+        List list = getHibernateTemplate().executeFind(hc);
         if (list.size() == 0) {
             return null;
         } else {
             return (CourseGradeRecord)list.get(0);
         }
+    	
+//        List list = session.find("from CourseGradeRecord as cgr where cgr.studentId=? and cgr.gradableObject.gradebook=?",
+//                new Object[] {studentId, gradebook}, new Type[] {Hibernate.STRING, Hibernate.entity(gradebook.getClass())});
+//        if (list.size() == 0) {
+//            return null;
+//        } else {
+//            return (CourseGradeRecord)list.get(0);
+//        }
     }
 
     /**

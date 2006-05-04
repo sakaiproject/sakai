@@ -23,14 +23,15 @@
 
 package org.sakaiproject.component.gradebook;
 
+import java.sql.SQLException;
 import java.util.*;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.StaleObjectStateException;
-import net.sf.hibernate.type.Type;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.type.Type;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -50,7 +51,7 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateCallback;
 
 /**
  * A Hibernate implementation of GradebookService, which can be used by other
@@ -116,16 +117,31 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// This should be much more efficient in Hibernate 3, which
 				// supports bulk deletion in HQL. In Hibernate 2, deletions happen
 				// one record at a time.
-				int numberDeleted = session.delete("from GradingEvent as ge where ge.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
+				Query q = session.createQuery("from GradingEvent as ge where ge.gradableObject.gradebook.id=?");
+				q.setLong(0, gradebookId.longValue());
+				int numberDeleted = q.executeUpdate();
+//				int numberDeleted = session.delete("from GradingEvent as ge where ge.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
 				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grading events");
-				numberDeleted = session.delete("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
+
+				q = session.createQuery("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?");
+				q.setLong(0, gradebookId.longValue());
+				numberDeleted = q.executeUpdate();
+//				numberDeleted = session.delete("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?", gradebookId, Hibernate.LONG);
 				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade records");
-				numberDeleted = session.delete("from GradableObject as go where go.gradebook.id=?", gradebookId, Hibernate.LONG);
+				
+				q = session.createQuery("from GradableObject as go where go.gradebook.id=?");
+				q.setLong(0, gradebookId.longValue());
+				numberDeleted = q.executeUpdate();
+//				numberDeleted = session.delete("from GradableObject as go where go.gradebook.id=?", gradebookId, Hibernate.LONG);
 				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " gradable objects");
 
 				Gradebook gradebook = (Gradebook)session.load(Gradebook.class, gradebookId);
 				gradebook.setSelectedGradeMapping(null);
-				numberDeleted = session.delete("from GradeMapping as gm where gm.gradebook.id=?", gradebookId, Hibernate.LONG);
+				
+				q = session.createQuery("from GradeMapping as gm where gm.gradebook.id=?");
+				q.setLong(0, gradebookId.longValue());
+				numberDeleted = q.executeUpdate();
+//				numberDeleted = session.delete("from GradeMapping as gm where gm.gradebook.id=?", gradebookId, Hibernate.LONG);
 				if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade mappings");
 				session.flush();
 
@@ -140,9 +156,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     /**
      * @see org.sakaiproject.service.gradebook.shared.GradebookService#isGradebookDefined(java.lang.String)
      */
-    public boolean isGradebookDefined(String gradebookUid) {
-        String hql = "from Gradebook as gb where gb.uid=?";
-        return getHibernateTemplate().find(hql, gradebookUid, Hibernate.STRING).size() == 1;
+    public boolean isGradebookDefined(final String gradebookUid) {
+		final HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(final Session session) {
+				final Query q = session
+						.createQuery("from Gradebook as gb where gb.uid=?");
+				q.setString(0, gradebookUid);
+				return q.list();
+			};
+		};
+		return getHibernateTemplate().executeFind(hc).size() == 1;
+
+//    	String hql = "from Gradebook as gb where gb.uid=?";
+//        return getHibernateTemplate().find(hql, gradebookUid, Hibernate.STRING).size() == 1;
     }
 
     public boolean gradebookExists(String gradebookUid) {
@@ -176,11 +202,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Ensure that the externalId is unique within this gradebook
-				Integer externalIdConflicts = (Integer)session.iterate(
-					"select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?",
-					new Object[] {externalId, gradebookUid},
-					new Type[] {Hibernate.STRING, Hibernate.STRING}
-				).next();
+				Query q = session.createQuery("select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?");
+				q.setString(0, externalId);
+				q.setString(1, gradebookUid);
+				Integer externalIdConflicts = (Integer)q.iterate().next();
+				
+//				Integer externalIdConflicts = (Integer)session.iterate(
+//					"select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?",
+//					new Object[] {externalId, gradebookUid},
+//					new Type[] {Hibernate.STRING, Hibernate.STRING}
+//				).next();
 				if (externalIdConflicts.intValue() > 0) {
 					throw new ConflictingExternalIdException("An external assessment with that ID already exists in gradebook uid=" + gradebookUid);
 				}
@@ -264,11 +295,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         // Delete the assignment and all of its grade records
         HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-                String studentIdsHql = "select agr.studentId from AssignmentGradeRecord as agr where agr.gradableObject=?";
-                List studentsWithExternalScores = (List)session.find(studentIdsHql, asn, Hibernate.entity(GradableObject.class));
+                final String studentIdsHql = "select agr.studentId from AssignmentGradeRecord as agr where agr.gradableObject=?";
+                Query q = session.createQuery(studentIdsHql);
+                q.setParameter(0, asn, Hibernate.entity(GradableObject.class));
+                List studentsWithExternalScores = q.list();
+//                List studentsWithExternalScores = (List)session.find(studentIdsHql, asn, Hibernate.entity(GradableObject.class));
 
                 String deleteExternalScoresHql = "from AssignmentGradeRecord as agr where agr.gradableObject=?";
-                int numScoresDeleted = session.delete(deleteExternalScoresHql, asn, Hibernate.entity(GradableObject.class));
+                q = session.createQuery(deleteExternalScoresHql);
+                q.setParameter(0, asn, Hibernate.entity(GradableObject.class));
+                int numScoresDeleted = q.executeUpdate();
+//                int numScoresDeleted = session.delete(deleteExternalScoresHql, asn, Hibernate.entity(GradableObject.class));
                 if (log.isInfoEnabled()) log.info(numScoresDeleted + " externally defined scores deleted from the gradebook");
 
                 // Delete the assessment
@@ -295,9 +332,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                String asnHql = "from Assignment as asn where asn.gradebook=? and asn.externalId=?";
-                return session.find(asnHql, new Object[] {gradebook, externalId},
-                        new Type[] {Hibernate.entity(Gradebook.class), Hibernate.STRING});
+            	Query q = session.createQuery("from Assignment as asn where asn.gradebook=? and asn.externalId=?");
+            	q.setParameter(0, gradebook, Hibernate.entity(Gradebook.class));
+            	q.setString(1, externalId);
+            	return q.list();
+            	
+//            	String asnHql = "from Assignment as asn where asn.gradebook=? and asn.externalId=?";
+//                return session.find(asnHql, new Object[] {gradebook, externalId},
+//                        new Type[] {Hibernate.entity(Gradebook.class), Hibernate.STRING});
             }
         };
         List assignments = (List)getHibernateTemplate().execute(hc);
@@ -518,12 +560,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         this.authz = authz;
     }
 
-	private Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName, Session session) throws HibernateException {
-		List asns = session.find(
-			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false",
-			new Object[] {assignmentName, gradebookUid},
-			new Type[] {Hibernate.STRING, Hibernate.STRING}
-		);
+	private Assignment getAssignmentWithoutStats(final String gradebookUid, final String assignmentName, Session session) throws HibernateException {
+		final HibernateCallback hc = new HibernateCallback(){
+			public Object doInHibernate(Session session){
+				Query q = session.createQuery("from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false");
+				q.setString(0, assignmentName);
+				q.setString(1, gradebookUid);
+				return q.list();
+			}
+		};
+		List asns = getHibernateTemplate().executeFind(hc);
+//		List asns = session.find(
+//			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false",
+//			new Object[] {assignmentName, gradebookUid},
+//			new Type[] {Hibernate.STRING, Hibernate.STRING}
+//		);
 		if (asns.size() < 1) {
 			return null;
 		} else {
@@ -531,10 +582,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 	}
 
-	private AssignmentGradeRecord getAssignmentGradeRecord(Assignment assignment, String studentUid, Session session) throws HibernateException {
-		List scores = session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?",
-			new Object[] {studentUid, assignment.getId()},
-			new Type[] {Hibernate.STRING, Hibernate.LONG});
+	private AssignmentGradeRecord getAssignmentGradeRecord(final Assignment assignment, final String studentUid, Session session) throws HibernateException {
+		final HibernateCallback hc = new HibernateCallback(){
+			public Object doInHibernate(Session session){
+				Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?");
+				q.setString(0, studentUid);
+				q.setLong(1, assignment.getId().longValue());
+				return q.list();
+			}
+		};
+		List scores = getHibernateTemplate().executeFind(hc);
+//		List scores = session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.id=?",
+//			new Object[] {studentUid, assignment.getId()},
+//			new Type[] {Hibernate.STRING, Hibernate.LONG});
 		if (scores.size() < 1) {
 			return null;
 		} else {
