@@ -85,8 +85,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName());
 
-		enabled = "true".equals(ServerConfigurationService
-				.getString("search.experimental","true"));
+		enabled = "true".equals(ServerConfigurationService.getString(
+				"search.experimental", "true"));
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -750,7 +750,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				String resourceName = (String) ci.next();
 				List lx = session.createQuery(
 						" from " + SearchBuilderItemImpl.class.getName()
-								+ " where name = ?  ").setParameter(
+								+ " where name = ?  ").setParameter(0,
 						resourceName, Hibernate.STRING).list();
 				if (lx == null || lx.size() == 0)
 				{
