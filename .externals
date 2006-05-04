@@ -28,6 +28,8 @@ course-management	https://source.sakaiproject.org/svn/course-management/trunk
 test-harness	https://source.sakaiproject.org/svn/test-harness/trunk
 help			https://source.sakaiproject.org/svn/help/trunk
 archive			https://source.sakaiproject.org/svn/archive/trunk
+rwiki			https://source.sakaiproject.org/svn/rwiki/trunk
+search			https://source.sakaiproject.org/svn/search/trunk
 site-manage		https://source.sakaiproject.org/svn/site-manage/trunk
 announcement	https://source.sakaiproject.org/svn/announcement/trunk
 mailarchive		https://source.sakaiproject.org/svn/mailarchive/trunk
