@@ -3,14 +3,11 @@
 <div class="portletBody">
 <h3>$tlang.getString("mb.confirm")</h3>                                                                                           
 
-#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
-
+#if ($alertMessage)<p class="alertMessage">$validator.escapeHtml($alertMessage)</p>#end
+	<p class="instruction">$tlang.getString("mb.confirm1") "$unjoinSite" $tlang.getString("mb.confirm2")</p>
 <form action="#toolForm("$action")" method="post">
-$tlang.getString("mb.confirm1") "$unjoinSite" $tlang.getString("mb.confirm2") 
 <div class="act">
-<input type="submit" name="eventSubmit_doGoto_unjoinyes" value="$tlang.getString("mb.unjoin")" />
-<input type="submit" name="eventSubmit_doGoto_unjoincancel" value="$tlang.getString("mb.cancel")" />
+<input type="submit" class="active" name="eventSubmit_doGoto_unjoinyes" value="$tlang.getString("mb.unjoin")" accesskey="s" />
+<input type="submit" name="eventSubmit_doGoto_unjoincancel" value="$tlang.getString("mb.cancel")" accesskey="x"  />
 </div>
-</form>
-
 </div>
