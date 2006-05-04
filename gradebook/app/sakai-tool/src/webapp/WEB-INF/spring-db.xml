@@ -8,10 +8,9 @@
 		properties.
 	-->
 
-	<alias name="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" alias="gradebookSessionFactory"/>
-
-<!--
-	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+	<!-- An application consumer without a component. -->
+	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
+		class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
 		<property name="mappingResources">
 		    <list>
 				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
@@ -22,6 +21,10 @@
 			</list>
 		</property>
 	</bean>
+
+<!-- This elegant approach only works if we share (i.e., pollute) the Sakai component beans namespace. -->
+<!--
+	<alias name="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" alias="gradebookSessionFactory"/>
 -->
 
 <!-- This doesn't work; we get a FileNotFoundException:

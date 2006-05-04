@@ -9,15 +9,16 @@
 		<param-value>client</param-value>
 	</context-param>
 	<context-param>
-		<param-name>contextSharedLocation</param-name>
+		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/spring-beans.xml
 			/WEB-INF/spring-db.xml
+			/WEB-INF/spring-beans.xml
 			/WEB-INF/spring-facades.xml
 			/WEB-INF/spring-hib.xml
 		</param-value>
 	</context-param>
 
+    <!-- Use the Sakai Spring application context wrapper to reach components. -->
     <listener>
         <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
     </listener>
