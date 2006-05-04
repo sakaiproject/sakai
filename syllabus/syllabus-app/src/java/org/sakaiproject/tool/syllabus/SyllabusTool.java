@@ -45,6 +45,7 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -208,6 +209,8 @@ public class SyllabusTool
   private ArrayList allAttachments = new ArrayList();
   
   private ArrayList prepareRemoveAttach = new ArrayList();
+  
+  private List filePickerList;
   
   public SyllabusTool()
   {
@@ -1491,6 +1494,8 @@ public String processDeleteCancel()
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
     session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    if(filePickerList != null)
+      filePickerList.clear();
     
     return attachments;
   }
@@ -1713,6 +1718,8 @@ public String processDeleteCancel()
     }
     session.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
     session.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
+    if(filePickerList != null)
+      filePickerList.clear();
 
     return allAttachments;
   }
@@ -1741,6 +1748,9 @@ public String processDeleteCancel()
   {
     try
     {
+      filePickerList = EntityManager.newReferenceList();
+      ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+      currentToolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, filePickerList);
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
       context.redirect("sakai.filepicker.helper/tool");
       return null;

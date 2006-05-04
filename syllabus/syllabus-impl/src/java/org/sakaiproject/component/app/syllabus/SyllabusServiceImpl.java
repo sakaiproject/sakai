@@ -42,6 +42,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -70,7 +71,7 @@ import org.w3c.dom.NodeList;
  * @author rshastri TODO To change the template for this generated type comment go to Window -
  *         Preferences - Java - Code Style - Code Templates
  */
-public class SyllabusServiceImpl implements SyllabusService
+public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 {
   private static final String SYLLABUS = "syllabus";
   private static final String SYLLABUS_ID = "id";
@@ -1121,6 +1122,71 @@ public class SyllabusServiceImpl implements SyllabusService
 	  }
 	  
 	  return list;
+	}
+
+	public String[] myToolIds()
+	{
+		String[] toolIds = { "sakai.syllabus" };
+		return toolIds;
+	}
+
+	public void transferCopyEntities(String fromContext, String toContext, List ids) 
+	{
+		try 
+		{
+			logger.debug("transer copy syllbus itmes by transferCopyEntities");
+			String fromPage = fromContext;
+			SyllabusItem fromSyllabusItem = syllabusManager
+					.getSyllabusItemByContextId(fromPage);
+			if (fromSyllabusItem != null) 
+			{
+				Set fromSyDataSet = syllabusManager
+						.getSyllabiForSyllabusItem(fromSyllabusItem);
+				if (fromSyDataSet != null && fromSyDataSet.size() > 0) 
+				{
+					fromSyDataSet = syllabusManager
+							.getSyllabiForSyllabusItem(fromSyllabusItem);
+					String toPage = addSyllabusToolToPage(toContext, SiteService
+							.getSite(toContext).getTitle());
+					SyllabusItem toSyItem = syllabusManager
+							.getSyllabusItemByContextId(toPage);
+					if (toSyItem == null) 
+					{
+						toSyItem = syllabusManager.createSyllabusItem(
+								UserDirectoryService.getCurrentUser().getId(),
+								toPage, fromSyllabusItem.getRedirectURL());
+					}
+					Iterator fromSetIter = fromSyDataSet.iterator();
+					while (fromSetIter.hasNext()) 
+					{
+						SyllabusData toSyData = (SyllabusData) fromSetIter.next();
+						Integer positionNo = new Integer(syllabusManager
+								.findLargestSyllabusPosition(toSyItem)
+								.intValue() + 1);
+						SyllabusData newToSyData = syllabusManager
+								.createSyllabusDataObject(toSyData.getTitle(),
+										positionNo, toSyData.getAsset(),
+										toSyData.getView(), toSyData
+												.getStatus(), toSyData
+												.getEmailNotification());
+						syllabusManager.addSyllabusToSyllabusItem(toSyItem,
+								newToSyData);
+					}
+				} 
+				else 
+				{
+					logger.debug("importResources: no data found for syllabusItem id"
+									+ fromSyllabusItem.getSurrogateKey()
+											.toString());
+				}
+			}
+			logger.debug("importResources: End importing syllabus data");
+		}
+
+		catch (Exception e) 
+		{
+			logger.error(e.getMessage(), e);
+		}
 	}
 }
 
