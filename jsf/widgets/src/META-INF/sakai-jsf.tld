@@ -845,6 +845,34 @@
         Component reference expression for this component.
       </description>
     </attribute>
+    
+      <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught styleClass for this widget
+      </description>
+    </attribute>
+
+      <attribute>
+      <name>columnClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught columnClasses  for this widget
+      </description>
+    </attribute>
+
+      <attribute>
+      <name>summary</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		Pass throught summary  for this widget
+      </description>
+    </attribute>
+
 
     <attribute>
       <name>id</name>
