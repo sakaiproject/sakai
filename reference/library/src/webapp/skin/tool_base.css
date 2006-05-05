@@ -38,9 +38,10 @@ testing as this browser in some configurations will sometimes apply these defini
 	padding: 0 !important;
 }
 /* needed by help tool */
-.helpBody {padding: 0em 1em 1em 1em}
-
+.helpBody {
+	padding: 0em 1em 1em 1em
 }
+
 /* SECTION 1 - STANDARD COMPONENTS*/
 body{
 	padding: 0;
