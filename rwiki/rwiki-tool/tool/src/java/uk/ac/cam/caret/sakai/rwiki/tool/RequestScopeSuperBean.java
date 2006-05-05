@@ -31,11 +31,12 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.context.ApplicationContext;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -112,13 +113,21 @@ public class RequestScopeSuperBean
 
 	private PreferenceService preferenceService;
 
-	// TODO: Search private SearchService searchService;
+	private SearchService searchService;
 
 	private boolean experimental = false;
 
 	private boolean withnotification = false;
-	
+
 	private boolean withcomments = false;
+
+	private org.sakaiproject.tool.api.ToolManager toolManager;
+
+	private SessionManager sessionManager;
+
+	private SiteService siteService;
+
+	private String defaultUIHomePageName;
 
 	public static RequestScopeSuperBean getFromRequest(
 			HttpServletRequest request)
@@ -154,9 +163,16 @@ public class RequestScopeSuperBean
 		preferenceService = (PreferenceService) context
 				.getBean(PreferenceService.class.getName());
 
-		// TODO: Search searchService = (SearchService)
-		// context.getBean(SearchService.class
-		// TODO: Search .getName());
+		toolManager = (ToolManager) context
+				.getBean(ToolManager.class.getName());
+
+		sessionManager = (SessionManager) context.getBean(SessionManager.class
+				.getName());
+		siteService = (SiteService) context
+				.getBean(SiteService.class.getName());
+
+		searchService = (SearchService) context.getBean(SearchService.class
+				.getName());
 
 		messageService = (MessageService) context.getBean(MessageService.class
 				.getName());
@@ -164,7 +180,7 @@ public class RequestScopeSuperBean
 		// update the presence
 		if (messageService != null)
 		{
-			Session session = SessionManager.getCurrentSession();
+			Session session = sessionManager.getCurrentSession();
 
 			String user = this.getCurrentUser();
 			if (user != null && user.length() > 0)
@@ -178,8 +194,10 @@ public class RequestScopeSuperBean
 				"wiki.experimental", false);
 		withnotification = ServerConfigurationService.getBoolean(
 				"wiki.notification", false);
-		withcomments = ServerConfigurationService.getBoolean(
-				"wiki.comments", false);
+		withcomments = ServerConfigurationService.getBoolean("wiki.comments",
+				false);
+		defaultUIHomePageName = ServerConfigurationService.getString(
+				"wiki.ui.homepage", "Home");
 
 	}
 
@@ -302,7 +320,7 @@ public class RequestScopeSuperBean
 	{
 		try
 		{
-			Site s = SiteService.getSite(ToolManager.getCurrentPlacement()
+			Site s = siteService.getSite(toolManager.getCurrentPlacement()
 					.getContext());
 			return s.getCreatedBy().getId();
 		}
@@ -435,11 +453,11 @@ public class RequestScopeSuperBean
 		String key = "fullSearchBean";
 		if (map.get(key) == null)
 		{
-			/*
-			 * TODO Search FullSearchBean sb = new
-			 * FullSearchBean(getCurrentSearch(), getCurrentSearchPage(),
-			 * getCurrentLocalSpace(), searchService); map.put(key, sb);
-			 */
+			FullSearchBean sb = new FullSearchBean(getCurrentSearch(),
+					getCurrentSearchPage(), getCurrentLocalSpace(),
+					searchService, toolManager);
+			map.put(key, sb);
+
 		}
 		return (FullSearchBean) map.get(key);
 	}
@@ -634,7 +652,7 @@ public class RequestScopeSuperBean
 			ViewParamsHelperBean vphb = getNameHelperBean();
 			ViewBean vb = new ViewBean(null, vphb.getDefaultRealm());
 			hb.setHomeLinkUrl(vb.getViewUrl());
-			hb.setHomeLinkValue(vb.getLocalName());
+			hb.setHomeLinkValue(defaultUIHomePageName);
 			map.put(key, hb);
 		}
 		return (HomeBean) map.get(key);
@@ -781,7 +799,8 @@ public class RequestScopeSuperBean
 	}
 
 	/**
-	 * @param withcomments The withcomments to set.
+	 * @param withcomments
+	 *        The withcomments to set.
 	 */
 	public void setWithcomments(boolean withcomments)
 	{

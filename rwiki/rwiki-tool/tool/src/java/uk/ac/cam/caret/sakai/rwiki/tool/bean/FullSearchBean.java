@@ -24,7 +24,12 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
 // FIXME: Tool
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.sakaiproject.search.api.SearchList;
+import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.tool.api.ToolManager;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
 
@@ -49,7 +54,8 @@ public class FullSearchBean
 	/**
 	 * RWikiObjectService to use
 	 */
-	// TODO Serach private SearchService searchService;
+	private SearchService searchService;
+
 	/**
 	 * Time taken
 	 */
@@ -73,7 +79,10 @@ public class FullSearchBean
 	/**
 	 * The current search list
 	 */
-	// TODO: Search private SearchList searchResults;
+	private SearchList searchResults;
+
+	private ToolManager toolManager;
+
 	/**
 	 * Creates a searchBean
 	 * 
@@ -82,22 +91,31 @@ public class FullSearchBean
 	 * @param realm
 	 * @param objectService
 	 */
-	/*
-	 * TODO SEARCH public FullSearchBean(String search, String requestPage,
-	 * String realm, SearchService searchService) { this.search = search;
-	 * this.realm = realm; this.searchService = searchService; try {
-	 * this.requestPage = Integer.parseInt(requestPage); } catch (Exception ex) { } }
-	 */
+	public FullSearchBean(String search, String requestPage, String realm,
+			SearchService searchService, ToolManager toolManager)
+	{
+		this.search = search;
+		this.realm = realm;
+		this.searchService = searchService;
+		this.toolManager = toolManager;
+		try
+		{
+			this.requestPage = Integer.parseInt(requestPage);
+		}
+		catch (Exception ex)
+		{
+		}
+	}
 
 	/**
 	 * Set the RWikiObjectService for searching from
 	 * 
 	 * @param objectService
 	 */
-	/*
-	 * TODO Search public void setRWikiObjectService(SearchService
-	 * searchService) { this.searchService = searchService; }
-	 */
+	public void setRWikiObjectService(SearchService searchService)
+	{
+		this.searchService = searchService;
+	}
 
 	/**
 	 * Gets the current search request
@@ -142,28 +160,40 @@ public class FullSearchBean
 	 */
 	public List search()
 	{
-		/*
-		 * TODO :Search if (searchResults == null) { List l = new ArrayList();
-		 * l.add(PortalService.getCurrentSiteId()); long start =
-		 * System.currentTimeMillis(); int searchStart = requestPage * pagesize;
-		 * int searchEnd = searchStart + pagesize; searchResults =
-		 * searchService.search(search, l, searchStart, searchEnd); long end =
-		 * System.currentTimeMillis(); timeTaken = 0.001 * (end - start); }
-		 * return searchResults;
-		 */
-		return null;
+		if (searchResults == null)
+		{
+			List l = new ArrayList();
+
+			l.add(toolManager.getCurrentPlacement().getContext());
+
+			long start = System.currentTimeMillis();
+			int searchStart = requestPage * pagesize;
+			int searchEnd = searchStart + pagesize;
+			searchResults = searchService.search(search, l, searchStart,
+					searchEnd);
+			long end = System.currentTimeMillis();
+			timeTaken = 0.001 * (end - start);
+		}
+		return searchResults;
 	}
 
 	public List getSearchPages()
 	{
-		/*
-		 * TODO: SEARCH SearchList sr = (SearchList) search(); int npages =
-		 * sr.getFullSize() / pagesize; List pages = new ArrayList(); int cpage =
-		 * requestPage - (nlistPages / 2); if (cpage < 0) { cpage = 0; } int
-		 * lastPage = Math.min(cpage + nlistPages, npages); while (cpage <=
-		 * lastPage) { pages.add(new PageLink(cpage)); cpage++; } return pages;
-		 */
-		return null;
+		SearchList sr = (SearchList) search();
+		int npages = sr.getFullSize() / pagesize;
+		List pages = new ArrayList();
+		int cpage = requestPage - (nlistPages / 2);
+		if (cpage < 0)
+		{
+			cpage = 0;
+		}
+		int lastPage = Math.min(cpage + nlistPages, npages);
+		while (cpage <= lastPage)
+		{
+			pages.add(new PageLink(cpage));
+			cpage++;
+		}
+		return pages;
 	}
 
 	public class PageLink
