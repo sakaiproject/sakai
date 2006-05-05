@@ -111,20 +111,19 @@ $Id$
     <h:panelGroup rendered="#{histogramScores.randomType =='false'}">
  <f:verbatim><h4></f:verbatim>
   <h:outputText value="#{msg.tot}" />
-   <f:verbatim></h4></f:verbatim>
-
+   <f:verbatim></h4><div class="tier2"></f:verbatim>
 
  <h:dataTable value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
 
     <h:column>
         <f:facet name="header">
-        <h:outputText value="#{msg.num_points}" /> 
+        <h:outputText escape="false" value="<U>#{msg.num_points}</U>" /> 
       </f:facet>
         <h:outputText value=" #{bar.rangeInfo}" />
     </h:column>
      <h:column>
 <f:facet name="header">
-         <h:outputText value="#{msg.num_students}" />
+         <h:outputText escape="false" value="<U>#{msg.num_students}</U>" />
       </f:facet>
 <h:panelGroup>
         <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
@@ -135,9 +134,10 @@ $Id$
 
       
   </h:dataTable>
-
+<f:verbatim></div></f:verbatim>
     </h:panelGroup>
-<div class="tier2">
+
+<p class="tier2">
 <h:panelGrid columns="2">
 
 <h:outputLabel value="#{msg.sub_view}"/>
@@ -167,7 +167,7 @@ $Id$
 <h:outputLabel value="#{msg.std_dev}" />
 <h:outputText value="#{histogramScores.standDev}"/>
 </h:panelGrid>
-</div>
+</p>
 
   <h:dataTable value="#{histogramScores.info}" var="item">
 
@@ -184,7 +184,7 @@ $Id$
         <f:verbatim><h4></f:verbatim>
           <h:outputText value="#{item.title}" escape="false" />
         <f:verbatim></h4></f:verbatim>
-
+<f:verbatim><div class="tier2"/></f:verbatim>
         <h:outputText value="#{item.questionText}" escape="false" />
 
         <h:dataTable value="#{item.histogramBars}" var="bar">
@@ -212,18 +212,18 @@ $Id$
         </h:dataTable>
 
         <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching -->
-<f:verbatim><div class="tier2"></f:verbatim>
+
         <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
 
-          <h:outputLabel for="responses" value="#{msg.responses}" />
+          <h:outputLabel value="#{msg.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
-          <h:outputLabel for="possible" value="#{msg.tot_poss_eq}" />
+          <h:outputLabel value="#{msg.tot_poss_eq}" />
           <h:outputText id="possible" value="#{item.totalScore}" />
-          <h:outputLabel for="mean" value="#{msg.mean_eq}" />
+          <h:outputLabel value="#{msg.mean_eq}" />
           <h:outputText id="mean" value="#{item.mean}" />
-          <h:outputLabel for="median" value="#{msg.median}" />
+          <h:outputLabel  value="#{msg.median}" />
           <h:outputText id="median" value="#{item.median}" />
-          <h:outputLabel for="mode" value="#{msg.mode}" />
+          <h:outputLabel value="#{msg.mode}" />
           <h:outputText id="mode" value="#{item.mode}" />
         </h:panelGrid>
        <h:panelGrid columns="2" rendered="#{item.questionType == '3'}">
@@ -239,7 +239,7 @@ $Id$
 
 
       </h:panelGroup>
-<f:verbatim></div></f:verbatim> 
+<f:verbatim></div></div></f:verbatim> 
     </h:column>
   </h:dataTable>
 
