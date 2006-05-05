@@ -50,7 +50,7 @@
 <!-- FORM -->
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
-<h:form id="itemForm" onsubmit="return false;">
+<h:form id="itemForm" onsubmit="return editorCheck();">
 
   <!-- NOTE:  Had to call this.form.onsubmit(); when toggling between single  -->
   <!-- and multiple choice, or adding additional answer choices.  -->

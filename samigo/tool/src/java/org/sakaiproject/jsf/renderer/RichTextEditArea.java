@@ -33,19 +33,31 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.FormattedText;
+
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+
 /**
  *
- * <p>Quick port of Sakai rich text editor to Samigo </p>
+ * <p>Quick port of the Sakai rich text editor from htmlarea to FCKeditor </p>
  * <p>Slight differences in path definition </p>
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> </p>
  * @author cwen@iu.edu
  * @author Ed Smiley esmiley@stanford.edu (modifications)
+ * @author Joshua Ryan joshua.ryan@asu.edu (added FCKEditor)
  * @version $Id$
  */
 public class RichTextEditArea extends Renderer
 {
+  //FCK config paths
+  private static final String FCK_BASE = "/library/editor/FCKeditor/";
+  private static final String FCK_SCRIPT = "fckeditor.js";
+
+  //htmlarea script path
   private static final String SCRIPT_PATH = "/jsf/widget/wysiwyg/htmlarea/";
+
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof org.sakaiproject.jsf.component.
@@ -55,9 +67,12 @@ public class RichTextEditArea extends Renderer
   public void encodeBegin(FacesContext context, UIComponent component) throws
     IOException
   {
+    String editor = ServerConfigurationService.getString("wysiwyg.editor");
+
+    String clientId = component.getClientId(context);
+
     String contextPath =
       context.getExternalContext().getRequestContextPath() + SCRIPT_PATH;
-    String clientId = component.getClientId(context);
 
     ResponseWriter writer = context.getResponseWriter();
 
@@ -71,6 +86,11 @@ public class RichTextEditArea extends Renderer
       value = ( (ValueHolder) component).getValue();
 
     }
+
+    //fixes SAK-3116, I'm not sure if this logic really belongs in a renderer, but it 
+    //need to happen before the wysiwig is written or the editor tries to be too smart 
+    value = FormattedText.escapeHtmlFormattedTextarea((String) value);
+
     String tmpCol = (String) component.getAttributes().get("columns");
     String tmpRow = (String) component.getAttributes().get("rows");
     int col;
@@ -97,46 +117,62 @@ public class RichTextEditArea extends Renderer
     int lineOfToolBar;
     if ( (row < 80) && (col < 450))
     {
-      outRow = "80px";
-      outCol = "450px";
+      outRow = "80";
+      outCol = "450";
       lineOfToolBar = 3;
     }
     else
     if ( (row >= 80) && (col < 450))
     {
-      outRow = new Integer(row).toString() + "px";
-      outCol = "450px";
+      outRow = new Integer(row).toString();
+      outCol = "450";
       lineOfToolBar = 3;
     }
     else
     if ( (row >= 80) && (col >= 450) && (col < 630))
     {
-      outRow = new Integer(row).toString() + "px";
-      outCol = new Integer(col).toString() + "px";
+      outRow = new Integer(row).toString();
+      outCol = new Integer(col).toString();
       lineOfToolBar = 3;
     }
     else
     if ( (row >= 80) && (col >= 630))
     {
-      outRow = new Integer(row).toString() + "px";
-      outCol = new Integer(col).toString() + "px";
+      outRow = new Integer(row).toString();
+      outCol = new Integer(col).toString();
       lineOfToolBar = 2;
     }
     else
     if ( (row < 80) && (col >= 630))
     {
-      outRow = "80px";
-      outCol = new Integer(col).toString() + "px";
+      outRow = "80";
+      outCol = new Integer(col).toString();
       lineOfToolBar = 2;
     }
     else
     {
-      outRow = "80px";
-      outCol = new Integer(col).toString() + "px";
+      outRow = "80";
+      outCol = new Integer(col).toString();
       lineOfToolBar = 3;
     }
 
     String justArea = (String) component.getAttributes().get("justArea");
+
+    if (editor.equals("FCKeditor")) {
+      encodeFCK(writer, contextPath, (String) value, outCol, 
+              outRow, justArea, clientId); 
+    }
+    else 
+    {
+      encodeHtmlarea(writer, contextPath, (String) value, outCol + "px", outRow + "px", 
+              tmpCol, tmpRow, lineOfToolBar, justArea, clientId);
+    }
+  }
+
+
+  private void encodeHtmlarea(ResponseWriter writer, String contextPath, String value, String outCol, 
+           String outRow, String tmpCol, String tmpRow, int lineOfToolBar, String justArea, String clientId) throws IOException
+  {
 
     writer.write("<script type=\"text/javascript\">var _editor_url = \"" +
                  contextPath + "\";</script>\n");
@@ -343,10 +379,75 @@ public class RichTextEditArea extends Renderer
     }
   }
 
+   
+  private void encodeFCK(ResponseWriter writer, String contextPath, String value, String outCol, 
+         String outRow, String justArea, String clientId) throws IOException
+  {
+
+    //fck's tool bar can get pretty big
+    if (new Integer(outRow).intValue() < 300) 
+    {
+         outRow = (new Integer(outRow).intValue() + 100) + "";
+    }
+
+    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\">");
+    writer.write((String) value);
+    writer.write("</textarea>");
+
+    writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
+
+    writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+    writer.write("function chef_setupformattedtextarea(textarea_id){\n");
+
+    writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
+    writer.write("\n\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
+    writer.write("\n\toFCKeditor.Height = " + outRow + ";");
+    writer.write("\n\n\toFCKeditor.Width = " + outCol + ";");
+
+    if ( (justArea != null) && (justArea.equals("yes")))
+    {
+      writer.write("\n\toFCKeditor.ToolbarSet = \"plain\";");
+    }
+    else
+    {
+
+        String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+
+        if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
+             writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
+        else {
+          writer.write("\n\t\tvar courseId = \"/group/" + AgentFacade.getCurrentSiteId() + "/\";");
+          writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " + 
+                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+          writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " + 
+                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+          writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +  
+                "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+          writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +  
+                "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+          writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +  
+                "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+          writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +  
+                "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+	
+          writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+
+          writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+
+        }
+
+    }
+    
+    writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n</script>");
+
+    writer.write("</script>\n");
+    writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "_textinput');</script>");
+
+  }
+
   public void decode(FacesContext context, UIComponent component)
   {
-    if (null == context || null == component
-        ||
+    if (null == context || null == component ||
         ! (component instanceof org.sakaiproject.jsf.component.RichTextEditArea))
     {
       throw new IllegalArgumentException();
@@ -359,8 +460,7 @@ public class RichTextEditArea extends Renderer
 
     String newValue = (String) requestParameterMap.get(clientId + "_textinput");
 
-    org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.
-      jsf.component.RichTextEditArea) component;
+    org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.jsf.component.RichTextEditArea) component;
     comp.setSubmittedValue(newValue);
   }
 }

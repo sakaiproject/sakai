@@ -159,3 +159,18 @@ function countNum(){
   
 }
 
+/*
+ * document.htmlareas will be undefined if the wysiwyg is anything
+ * other then htmlarea, so we know if the onsubmit trick is needed
+ * to get htmlarea to work right or not
+ *
+ */
+function editorCheck(){
+   if (document.htmlareas==undefined) {
+      return true;
+   }
+   else {
+      return false;
+   }
+}
+
