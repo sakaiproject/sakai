@@ -4765,7 +4765,8 @@ public class SiteAction extends PagedResourceActionII
 						{
 							Role r = site.getUserRole(memberId);
 							Member m = site.getMember(memberId);
-							group.addMember(memberId, r!= null?r.getId():"", m!=null?m.isActive():true, m!=null?m.isProvided():false);
+							// for every member added through the "Manage Groups" interface, he should be defined as non-provided
+							group.addMember(memberId, r!= null?r.getId():"", m!=null?m.isActive():true, false);
 						}
 					}
 					
