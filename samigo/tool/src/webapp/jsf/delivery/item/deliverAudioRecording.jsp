@@ -88,8 +88,8 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
      value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
-  <PARAM NAME = "frequency" VALUE="8000">
-  <PARAM NAME = "bits" VALUE="8">
+  <PARAM NAME = "frequency" VALUE="44100">
+  <PARAM NAME = "bits" VALUE="16">
   <PARAM NAME = "signed" VALUE="true">
   <PARAM NAME = "bigendian" VALUE="true">
   <PARAM NAME = "stereo" VALUE="false">
@@ -125,8 +125,8 @@ should be included in file importing DeliveryMessages
       fileName ="audio" \
       url ="/samigo/servlet/UploadAudio" \
       compression ="linear" \
-      frequency ="8000" \
-      bits ="8" \
+      frequency ="44100" \
+      bits ="16" \
       signed ="true" \
       bigendian ="true6" \
       stereo ="false" \
