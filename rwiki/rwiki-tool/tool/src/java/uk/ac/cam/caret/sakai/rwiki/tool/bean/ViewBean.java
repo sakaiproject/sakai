@@ -419,7 +419,7 @@ public class ViewBean
 	{
 		return "?" + ACTION_URL_ENCODED + "=" + SEARCH_URL_ENCODED + "&"
 				+ SEARCH_URL_ENCODED + "=" + urlEncode(search) + "&"
-				+ REALM_URL_ENCODED + "=" + localSpace + "&"
+				+ REALM_URL_ENCODED + "=" + urlEncode(localSpace) + "&"
 				+ PANEL_URL_ENCODED + "=" + MAIN_URL_ENCODED;
 	}
 

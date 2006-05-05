@@ -22,6 +22,8 @@
  **********************************************************************************/
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
@@ -81,7 +83,7 @@ public class ComponentPageLinkRenderImpl implements PageLinkRenderer
 	{
 		name = NameHelper.globaliseName(name, localSpace);
 		String url = MessageFormat.format(standardURLFormat,
-				new Object[] { name });
+				new Object[] { encode(name) });
 		buffer.append(MessageFormat.format(urlFormat, new Object[] {
 				XmlEscaper.xmlEscape(url), XmlEscaper.xmlEscape(view) }));
 	}
@@ -93,8 +95,9 @@ public class ComponentPageLinkRenderImpl implements PageLinkRenderer
 			String anchor)
 	{
 		name = NameHelper.globaliseName(name, localSpace);
-		String url = MessageFormat.format(anchorURLFormat, new Object[] { name,
-				anchor });
+		String url = MessageFormat.format(anchorURLFormat, new Object[] { encode(name),
+				encode(anchor) });
+		
 		buffer.append(MessageFormat.format(urlFormat, new Object[] {
 				XmlEscaper.xmlEscape(url), XmlEscaper.xmlEscape(view) }));
 	}
@@ -202,5 +205,15 @@ public class ComponentPageLinkRenderImpl implements PageLinkRenderer
 	{
 		return useCache;
 	}
-
+	/**
+	 * Takes a string to encode and encodes it as a UTF-8 URL-Encoded string.
+	 * 
+	 * @param toEncode
+	 *        string to encode.
+	 * @return url encoded string.
+	 */
+	public static String encode(String toEncode)
+	{
+		return toEncode.replaceAll(" ","%20");
+	}
 }

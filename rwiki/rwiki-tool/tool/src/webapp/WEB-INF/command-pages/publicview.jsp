@@ -71,7 +71,6 @@
 	  <!-- Creates the right hand sidebar -->
 	  <!-- Main page -->
 	  <div id="rwiki_content">
-	    <h3><c:out value="${renderBean.localisedPageName}"/></h3>
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:out value="${renderBean.publicRenderedPage}" escapeXml="false"/><br/>	    

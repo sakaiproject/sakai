@@ -101,7 +101,6 @@
 	  <jsp:directive.include file="sidebar.jsp"/>
 	  <!-- Main page -->
 	  <div id="${rwikiContentStyle}" >
-	    <h3><c:out value="${renderBean.localisedPageName}"/></h3>
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:out value="${renderBean.renderedPage}" escapeXml="false"/><br/>	    
@@ -109,6 +108,7 @@
 	    </div>
 	  </div>
 	 <div class="lastmodified" >
+	 <c:out value="${renderBean.localisedPageName}"/>
 	 last modified by <rwiki:formatDisplayName name="${currentRWikiObject.user }"/> on <fmt:formatDate type="both" value="${currentRWikiObject.version}" /> 
 	 </div>
 	</div>

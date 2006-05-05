@@ -143,10 +143,10 @@ public class RWikiEntityImpl implements RWikiEntity
 	{
 		if (rwo == null)
 			return ServerConfigurationService.getAccessUrl()
-					+ RWikiObjectService.REFERENCE_ROOT + reference.getId()
+					+ RWikiObjectService.REFERENCE_ROOT + reference.getId().replaceAll(" ","%20")
 					+ ".";
 		return ServerConfigurationService.getAccessUrl()
-				+ RWikiObjectService.REFERENCE_ROOT + rwo.getName() + ".";
+				+ RWikiObjectService.REFERENCE_ROOT + rwo.getName().replaceAll(" ","%20") + ".";
 	}
 
 	/**

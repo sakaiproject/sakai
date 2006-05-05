@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -197,6 +198,11 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 		try
 		{
+			String skin = ServerConfigurationService.getString("skin.default");
+             String skinRepo = ServerConfigurationService.getString("skin.repo");
+ 			request.setAttribute("sakai.skin.repo",skinRepo);
+			request.setAttribute("sakai.skin",skin);
+
 			setCurrentRequest(request);
 
 			if (responseHeaders != null)

@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
     <xsl:template match="/">
+        <xsl:variable name="skinRepo" select="/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value"></xsl:variable>
+        <xsl:variable name="skin" select="/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value"></xsl:variable>
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
             <head>
-                <title><xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></title>
+                <title>
+                <xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></title>
+      
                 <link href="/sakai-rwiki-tool/styles/wikiStyle.css" type="text/css" rel="stylesheet"
                     media="all"/>
+                    
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/stateswitcher.js"> </script>
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/ajaxpopup.js"> </script>
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/asyncload.js"> </script>
                 <script type="text/javascript" src="/sakai-rwiki-tool/scripts/logger.js"> </script>
-                <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet"
+                <link type="application/rss+xml" href="/access/wiki{/entity-service/entity/properties/property[@name='realm']}/-.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
+             
+                
+                <link href="{$skinRepo}/tool_base.css" type="text/css" rel="stylesheet"
                     media="all"/>
-                <link href="/library/skin/tool.css" type="text/css" rel="stylesheet"
+                <link href="{$skinRepo}/{$skin}/tool.css" type="text/css" rel="stylesheet"
                     media="all"/>
-                <link type="application/rss+xml" href="/access/wiki{/entity-service/entity/properties/property[@name='name']}.10.rss" title="Sakai Wiki RSS" rel="alternate"/>
                 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"/>
             </head>
             <body>

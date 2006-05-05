@@ -64,9 +64,11 @@
 .rwiki_create_sidebar .instruction {
    font-size: 20%;
 }
+
 #rwiki_container p.breadcrumb {
-  margin-top: 0px;
-  margin-bottom: 0px;
+  font-size: 80%;
+  margin-top: 3px;
+  margin-bottom: 2px;
 }
 
 .rwiki_info ul{
@@ -560,7 +562,7 @@ h6 {
   font-variant: small-caps;
   border-bottom: 1px solid #3c78b5;
   padding: 2px;
-  margin: 36px 0px 4px 0px;
+  margin: 20px 0px 4px 0px;
 }
 .heading-h2 {	
   color: #000000;
@@ -570,7 +572,7 @@ h6 {
   font-variant: small-caps;
   border-bottom: 1px dotted #3c78b5;
   padding: 2px;
-  margin: 36px 0px 4px 0px;
+  margin: 20px 0px 4px 0px;
 }
 
 
@@ -583,7 +585,7 @@ h6 {
   font-size: 130%;
   font-variant: small-caps;
 	padding: 2px;
-	margin: 21px 0px 4px 0px;
+	margin: 18px 0px 4px 0px;
 }
 
 .heading-h4 {	
@@ -594,7 +596,7 @@ h6 {
     font-size: 120%;
     font-variant: small-caps;
 	padding: 2px;
-	margin: 18px 0px 4px 0px;
+	margin: 16px 0px 4px 0px;
 }
 
 .heading-1-1-1, .heading-h5 {
