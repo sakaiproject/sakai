@@ -179,8 +179,8 @@ $Id$
   </h:panelGroup>
   </h:column>
   </h:dataTable>
- <p class="navModeQuestion">
-<h:outputText value="Responses"/>
+ <p class=" navView navModeAction">
+<h:outputText value="#{msg.responses}"/>
 </p>
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
