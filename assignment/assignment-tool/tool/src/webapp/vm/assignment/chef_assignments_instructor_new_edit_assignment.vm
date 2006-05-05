@@ -144,7 +144,7 @@
 				#end
 			</select>
 		</p>	
-		<p class="instruction labelindnt" style="text-indent:2.5em">
+		<p class="instruction labelindnt">
 			$tlang.getString("gen.stuwonsee")
 		</p>
 		<p class="shorttext">
@@ -299,7 +299,7 @@
 				</select>
 			#end
 		</p>	
-		<p class="instruction labelindnt" style="text-indent:2.5em">
+		<p class="instruction labelindnt">
 			$tlang.getString("gen.noasscan")
 		</p>
 		<p class="shorttext">
@@ -334,7 +334,7 @@
 					#end
 				</select>
 			</p>
-			<p class="checkbox labelindnt" style="text-indent:.6em">
+			<p class="checkbox labelindnt">
 				## enable the maxfield when it is points grade type
 				#if ($value_GradeType == 3)
 					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="20"/>
@@ -353,7 +353,7 @@
 					#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
-			<p class="checkbox">
+			<p class="checkbox indnt1">
 				#if ($value_CheckAddDueDate.equals("true"))
 					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
 				#else
@@ -363,7 +363,7 @@
 					$tlang.getString("gen.addduedat")
 				</label>
 			</p>
-			<p class="checkbox">
+			<p class="checkbox  indnt1">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
 				#else
@@ -373,7 +373,7 @@
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
-			<p class="checkbox">
+			<p class="checkbox  indnt1">
 				#if (!$!value_CheckAddHonorPledge.equals("1"))
 					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
 				#else
@@ -384,7 +384,7 @@
 				</label>
 			</p>
 			#if ($!withGrade && $!withGradebook)
-				<p class="checkbox">
+				<p class="checkbox  indnt1">
 					#if ($!value_AddToGradebook.equalsIgnoreCase("true"))
 						<input id="$name_Addtogradebook" name="$name_Addtogradebook" type="checkbox" value="true" checked="checked"/>
 					#else
@@ -396,8 +396,9 @@
 				</p>
 			#end
 			## group/section support
+			<br />
 			#if ($allowAddSiteAssignment)
-				<p class="checkbox">
+				<p class="checkbox  indnt1">
 					<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
 					<label for="site">$tlang.getString("displayto.site")</label>
 				</p>	
@@ -410,7 +411,7 @@
 			#end
 			#if ($!groups)
 				## added group awareness
-				<p class="checkbox">
+				<p class="checkbox indnt1">
 					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
 					<label for="groups">$tlang.getString("displayto.selected")</label>
 				</p>	
@@ -419,38 +420,37 @@
 				#else
 					#set ($listDisplay="none")
 				#end
-					<table id="groupTable" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
-					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 						<tr>
 							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
 								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
 							</th>
 					 		<th id ="groupname">
 								#if (!$sortedBy.equals("group_title"))
-									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title</a>
+									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.title')">$tlang.getString('group.list.title')</a>
 								#else
 									#if ($sortedAsc.equals("true"))
-										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.titleasc')">$tlang.getString('group.list.title') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('group.list.sort.titleasc')" /></a>
 									#else
-										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.titledesc')">$tlang.getString('group.list.title') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('group.list.sort.titledesc')"/></a>
 									#end
 								#end
 							</th>
 							<th id ="groupdescription">
 								#if (!$sortedBy.equals("group_description"))
-									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description</a>
+									<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.descr')">$tlang.getString('group.list.descr')</a>
 								#else
 									#if ($sortedAsc.equals("true"))
-										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.descrasc')">$tlang.getString('group.list.descr') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('group.list.sort.descrasc')" /></a>
 									#else
-										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+										<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="$tlang.getString('group.list.sort.descrdesc')">$tlang.getString('group.list.descr') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('group.list.sort.descrdesc')"/></a>
 									#end
 								#end
 							</th>
 						</tr>
 						#foreach ($group in $!groups)
 							<tr>
-								<td headers="selected" style="padding-bottom:0;" style="width:2em">
+								<td headers="selected" style="width:2em">
 									#set($selected=false)
 									#foreach($aGroupRef in $assignmentGroups)
 										#set($aGroup = $!site.getGroup($!aGroupRef))
@@ -460,7 +460,7 @@
 									#end
 									<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 								</td>
-								<td headers="name" style="padding-bottom:0;" class="checkbox">
+								<td headers="name" class="checkbox">
 									<label for="$group.Id">
 										$group.Title
 									</label>	
@@ -517,14 +517,14 @@
 			#end	
 			<p class="act">
 				#if (!$assignment.draft)
-					<input type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-					<input type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-					#else
-					<input type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-					<input type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-					<input type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
+					<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+					<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+				#else
+					<input accesskey ="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+					<input accesskey ="v" type="button" name="preview" value="$tlang.getString("gen.pre")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+					<input accesskey ="d" type="button" name="save" value="$tlang.getString("gen.savdra")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
 				#end
-				<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
+				<input accesskey ="x" type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
 			</p>
 	</form>
 </div>

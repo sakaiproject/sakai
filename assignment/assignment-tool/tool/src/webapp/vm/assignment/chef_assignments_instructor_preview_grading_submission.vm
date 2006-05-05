@@ -12,12 +12,10 @@
 			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
 		#end
 	</div>
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
-		
 		<h3>$tlang.getString("gen.pre") $tlang.getString("gen.instrcomment")</h3>
-		
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end		
 		<form action="#toolForm("AssignmentAction")" method="post" >   
-			<table class="itemSummary indnt1">
+			<table class="itemSummary" summary="layout">
 				<tr>
 					<th>
 						$tlang.getString("gen.student")
@@ -56,7 +54,7 @@
 					<td>
 						$submission.TimeSubmitted.toStringLocalFull()
 						#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-							<span class="highlight"> - late</span>
+							<span class="highlight">$tlang.getString("gen.late2") </span>
 						#end
 					</td>
 				</tr>
@@ -77,7 +75,7 @@
 				$tlang.getString("gen.assinf")
 			</h4>	
 			#if ($assignment.getContent().getInstructions().length()>0)
-				<div class="indnt1">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
+				<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
 			#else
 			#end
 
@@ -118,7 +116,7 @@
 				<h4>
 					Feedback
 				</h4>
-				<div class="indnt1">$cheffeedbackhelper.escapeAssignmentFeedback($feedback_text)</div>
+				<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($feedback_text)</div>
 			 #end
 			#set ($size = 0)
 			#set ($props = false)
@@ -155,7 +153,7 @@
 			#end	
 			#if ($!feedback_comment.length()>0)
 				<h4>$tlang.getString("gen.sumcom")</h4>	
-				<div class="indnt1">$validator.escapeHtmlFormattedText($feedback_comment)</div>
+				<div class="textPanel">$validator.escapeHtmlFormattedText($feedback_comment)</div>
 			#else
 			#end
 				#set ($size = 0)
@@ -189,7 +187,7 @@
 						#end
 					</ul>
 				#end	
-			<div class="infoBox">
+			<div class="highlightPanel">
 				Grade:
 					#if ($!grade && $grade.length()>0 && $grade!="ungraded")
 						<span class="highlight">$grade</span>
@@ -204,10 +202,10 @@
 					#end	
 			</div>	
 			<p class="act">
-				<input name="eventSubmit_doRelease_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
-				<input name="eventSubmit_doSave_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
-				<input name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
-				<input name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
+				<input accesskey="s" name="eventSubmit_doRelease_grade_submission" type="submit" value="$tlang.getString("gen.retu")" />
+				<input accesskey="d" name="eventSubmit_doSave_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />
+				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
+				<input accesskey="x" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.don")" />
 			</p>
 
 												

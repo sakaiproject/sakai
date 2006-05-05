@@ -35,7 +35,7 @@
 
 		## 1- text only; 2-attachment only; 3-text and attachment
 		#set ( $submissionType = $assignment.getContent().TypeOfSubmission)
-		<table class="itemSummary indnt1" cellspacing="0" summary="$tlang.getString("gen.assdet")">
+		<table class="itemSummary" cellspacing="0" summary="$tlang.getString("gen.assdet")">
 			<tr>
 				<th>
 						$tlang.getString("gen.tit2")
@@ -117,7 +117,7 @@
 
 			#if ($assignment_expand_flag)
 				#if ($assignment.getContent().getInstructions().length()>0)
-					<div class="indnt1">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
+					<div class="textPanel">$validator.escapeHtmlFormattedText($assignment.getContent().getInstructions())</div>
 				#else
 				#end
 				
@@ -167,16 +167,16 @@
 						$tlang.getString("gen.submittedtext")
 					</h4>
 					<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
-					<table border="0"><tr><td>
+					<table border="0" summary="layout"><tr><td>
 					<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
 					#chef_setupformattedtextarea($name_feedback_text)
 					</td></tr></table>
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
 						<h4>$tlang.getString("gradingsub.prefeetex")</h4>
-						<p class="instruction">?????
+						<div class="textPanel">
 							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
-						</p>
+						</div>
 					#end
 				#end
 				## submitted attachment
@@ -226,14 +226,14 @@
 								$tlang.getString("gradingsub.usethebel1")
 							#end
 						</p>
-						<table border="0"><tr><td>
+						<table border="0" summary="layout"><tr><td>
 						<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
 						#chef_setupformattedtextarea($name_feedback_comment)
 						</td></tr></table>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
 							<h4>$tlang.getString("gradingsub.prefee")</h4>
-							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))<br/>
+							<div class="textPanel">$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackComment))</div>
 						#end
 						<h4>
 							#if ($withGrade)
@@ -291,6 +291,7 @@
 					-->
 *#
 						#if ($withGrade)
+							<div class="highlightPanel">
 								#set ($gradeType = $assignment.getContent().TypeOfGrade)
 								#if ($gradeType == 1)
 									<p class="shorttext">
@@ -317,18 +318,18 @@
 										<input type="text" name="$name_grade" size="5" value="$value_grade" id="grade" /><span class="instruction">($tlang.getString("gen.outof") $assignment.getContent().getMaxGradePointDisplay())</span>
 									</p>	
 								#elseif ($gradeType == 4)
-								<p class="shorttext">
-									<label for="grade">$tlang.getString("gen.gra2")</label>
-									<select name="$name_grade" id="grade" >
-										#foreach ($i in ["ungraded", "Pass", "Fail"])
-											#if ($value_grade.equals($i))
-												<option  value="$i" selected>$i</option>	
-											#else
-												<option  value="$i">$i</option>
+									<p class="shorttext">
+										<label for="grade">$tlang.getString("gen.gra2")</label>
+										<select name="$name_grade" id="grade" >
+											#foreach ($i in ["ungraded", "Pass", "Fail"])
+												#if ($value_grade.equals($i))
+													<option  value="$i" selected="selected">$i</option>	
+												#else
+													<option  value="$i">$i</option>
+												#end
 											#end
-										#end
-									</select>
-								</p>	
+										</select>
+									</p>	
 								#elseif ($gradeType == 5)
 									<p class="checkbox">
 										#if ($value_grade.equals("graded"))
@@ -342,16 +343,16 @@
 								#if ($!previousGrades.length() != 0 )
 									<br />$tlang.getString("gradingsub.pregra") $previousGrades
 								#end
-							</p>	
+						</div>	
 						#end
 			<p class="checkbox">			
 				<input type="checkbox" name="allowResubmit"  id="allowResubmit" #if($!value_allowResubmit) checked="checked" #end /> <label for="allowResubmit">$tlang.getString("allowResubmit")</label>
 			</p>	
 			<p class="act">
-				<input type="button" class="active" name="return" value="$tlang.getString('gen.retu')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" />
-				<input type="button" name="save" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" />
-				<input type="button" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
-				<input type="button" name="cancel" value="$tlang.getString('gen.can')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="s" class="active" name="return" value="$tlang.getString('gen.retu')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="d"  name="save" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='previewgrade';document.gradeForm.submit();return false;" />
+				<input type="button" accesskey="x" name="cancel" value="$tlang.getString('gen.can')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade';document.gradeForm.submit();return false;" />
 			</p>
 	</form>
 </div>

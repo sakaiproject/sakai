@@ -2,7 +2,7 @@
 	<h3>
 		$tlang.getString("viewassig.viewass1")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form name="viewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
 		<input type="hidden" name="assignmentContentId" value="$assignment.ContentReference" />
@@ -10,11 +10,11 @@
 		## show assignment content
 		<p class="discTria">
 			<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_view_assignment")'; return false;" title="$tlang.getString("gen.hidassinf")">
-				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" />
+				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" />
 			</a>
 			 $tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 		</p>
-		<table class="itemSummary indnt1" border="0" summary="$tlang.getString("gen.viewasstablesummary")">
+		<table class="itemSummary" border="0" summary="$tlang.getString("gen.viewasstablesummary")">
 			<tr>
 				<th>	
 					$tlang.getString("gen.creby")
@@ -135,7 +135,7 @@
 		<h4>
 			$tlang.getString("gen.assinf")
 		</h4>
-		<div class="indnt1">					
+		<div class="textPanel">					
 			#if ($assignment.getContent().getInstructions().length()==0)
 				&lt;none&gt;
 			#else
@@ -156,7 +156,7 @@
 			<h4>
 				$tlang.getString("gen.addres2")
 			</h4>	
-			<ul class="attachList indnt1">
+			<ul class="attachList">
 				#foreach ($attachment in $assignment.getContent().getAttachments()) 
 					#set ($props = false)
 					#set ($props = $attachment.Properties) 
@@ -180,7 +180,7 @@
 			## hide the assignment content
 			<p class="discTria">
 				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	
-				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" alt="$tlang.getString("viewassig.shoassinf")" /></a>
+				<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top"  /></a>
 				$tlang.getString("gen.settfor") "$validator.escapeHtml($assignment.title)"
 			</p>	
 		#end
@@ -191,8 +191,8 @@
 				<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="13" height="13" align="top" /></a>
 				$tlang.getString("gen.stuvieof") "$assignment.title"
 			</p>
-			<div class="inopBox">
-				<table class ="itemSummary indnt1" cellspacing="0" cellpadding ="0">
+			<div class="inopPanel">
+				<table class ="itemSummary" cellspacing="0" cellpadding ="0" summary="$tlang.getString("gen.viewasstablesummary")">
 					<tr>
 						<th>
 							$tlang.getString("gen.due2")
@@ -261,7 +261,7 @@
 					$tlang.getString("gen.assinf")
 				</h4>	
 				#if ($!assignment.getContent().getInstructions().length()>0)
-					<div class="indnt1">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+					<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
 				#end
 				#set ($size = 0)
 				#set ($props = false)
@@ -277,7 +277,7 @@
 					<h4>
 						$tlang.getString("gen.addres2")
 					</h4>	
-					<ul class="attachList indnt1">
+					<ul class="attachList">
 						#foreach ($attachment in $assignment.getContent().getAttachments()) 
 							#set ($props = false)
 							#set ($props = $attachment.Properties) 
@@ -343,10 +343,10 @@
 		#end
 		<p class="act">
 			#if ($assignment.Draft)
-				<input type="submit" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" />
-				 <input type="submit" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" />
+				<input type="submit" accesskey="s" name="eventSubmit_doPost_assignment" value="$tlang.getString("gen.pos")" />
+				 <input type="submit"accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.can")" />
 			#else
-				<input type="submit" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.don")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.don")" />
 		#end
 		</p>
 	</form>

@@ -3,11 +3,11 @@
 		$tlang.getString("stupresub.presub")
 	</h3>	
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<h4>
 		$tlang.getString("gen.assig")
 	</h4>	
-	<table class="itemSummary indnt1" summary="$tlang.getString("gen.assdet")" border="0" style="margin:0">
+	<table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
 		 <tr>
 			<th>
 				$tlang.getString("gen.tit2")
@@ -38,7 +38,7 @@
 								#else
 									Re-submitted $submission.TimeSubmitted.toStringLocalFull()
 									#if ($submission.getTimeSubmitted().after($assignment.DueTime))
-										<span class="reqStart"> $tlang.getString("gen.late")</span>
+										<span class="highlight"> $tlang.getString("gen.late")</span>
 									#end
 								#end
 							#elseif ($submission.getGraded() && $submission.getGradeReleased())
@@ -79,11 +79,9 @@
 			<tr>
 				<th class="highlight">
 						$tlang.getString("gen.modbyins")
-					</span>
 				</th>
 				<td class="highlight">
 						$assignment.getTimeLastModified().toStringLocalFull()
-					</span>
 				</td>
 			</tr>	
 		#end
@@ -93,7 +91,7 @@
 		$tlang.getString("gen.subm")
 	</h4>
 	#if ($!text.length()>0)
-		<div class="indnt1">
+		<div class="textPanel">
 			$validator.escapeHtmlFormattedText($text)
 		</div>	
 	#end
@@ -134,7 +132,7 @@
 <p></p>
 	#if ($assignment.getContent().honorPledge!=1) 
 		#if ($honor_pledge_yes.equals("true"))
-			<p class="checkbox">
+			<p class="checkbox highlightPanel">
 				<label for="yes">$tlang.getString("gen.honple2")</label>
 				<input name="Yes" type="checkbox" value="" checked="checked" id="yes"  disabled="disabled" />
 			</p>	
@@ -142,14 +140,13 @@
 			<div class="alertMessage indnt1" style="width:40%">
 				$tlang.getString("gen.honple2val")
 			</div>
-				<p class="checkbox infoBox">
+				<p class="checkbox highlightPanel">
 					<label for="yes">$tlang.getString("gen.honple2")</label>
 					<input name="Yes" type="checkbox" value="" disabled="disabled" />
 				</p>
 
 		#end
 		##	$tlang.getString("gen.tit1")
-		</p>
 	 #end
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$assignment.Id" />
@@ -164,6 +161,7 @@
 				<input
 					class="disableme" 
 					type="button" 
+					accesskey="d"
 					name="save" 
 					id="save" 
 					value="$tlang.getString("gen.savdra")"
@@ -179,6 +177,7 @@
 						#set($name=$tlang.getString("resubmit"))
 					#end
 					name="post"
+					accesskey="s"
 					id="post" 
 					value="$!name"
 					onclick="showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
@@ -187,6 +186,7 @@
 					class="disableme" 
 					type="button" 
 					name="revise" 
+					accesskey="r"
 					id="revise" 
 					value="$tlang.getString("gen.revi")"
 					onclick="document.addSubmissionForm.option.value='revise';document.addSubmissionForm.submit(); return false;"
@@ -196,6 +196,7 @@
 				class="disableme" 
 				type="button" 
 				name="revise" 
+				accesskey="x"
 				id="done" 
 				value="$tlang.getString("gen.don")"
 				onclick="document.addSubmissionForm.option.value='revise'; document.addSubmissionForm.submit(); return false;"

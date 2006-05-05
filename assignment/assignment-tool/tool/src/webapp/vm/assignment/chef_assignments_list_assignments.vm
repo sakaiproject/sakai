@@ -50,7 +50,7 @@
 		#end
 	</div>
 	#end
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<h3>
 		$!tlang.getString('gen.liofass')
 	</h3>
@@ -59,15 +59,16 @@
 			$tlang.getString("gen.thearecur1")
 		</p>
 	#else
-	<div>
+	<div class="navPanel">
 		#if ($allowAddAssignment)
 			#if (!$!view.equals($!tlang.getString('gen.stuvie')))
-			<div class="leftNav">
+			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<label for="view">
 						$tlang.getString("gen.view2")
-					</label>	
+					</label>
+					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 					<select id="view" name="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
 						<option value="$!tlang.getString('lisofass1')" #if($!view.equals($!tlang.getString('lisofass1')))selected="selected"#end >$!tlang.getString('lisofass1')</option>
 						<option value="$!tlang.getString('lisofass2')" #if($!view.equals($!tlang.getString('lisofass2')))selected="selected"#end >$!tlang.getString('lisofass2')</option>
@@ -75,43 +76,43 @@
 				</form>
 			</div>
 			#else
-				<p class="instruction">
-				$tlang.getString("stulistassig.selanass1")
-			</p>
+				<div class="viewNav" style="width:50%">
+				<div class="instruction">	$tlang.getString("stulistassig.selanass1")</div> 
+			</div>
 			#end
 		#else
-			<p class="instruction">
-				$tlang.getString("stulistassig.selanass")
-			</p>
+			<div class="viewNav" style="width:50%">
+				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
+			</div>
 		#end
 		#if ($!allowRead)
-		<div class="rightNav">
-			<span class="instruction">
+		<div class="listNav">
+			<div  class="instruction">
 				$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
-			</span>
+			</div>
 			#if ($pagesize != 0)
 				#if ($goFPButton == "true")
-					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_first" value="|<" title="$tlang.getString("gen.first")" />
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
 					</form>
 				#else
-					<form name="firstpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_first" value="|<" disabled="disabled" />
+					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
 					</form>
 				#end
 				#if ($goPPButton == "true")
-					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_prev" value="<" title="$tlang.getString('gen.previous') $pagesize" />
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
 					</form>
 				#else
-					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_prev" value="<" disabled="disabled" />
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
 					</form>
 				#end
 			#end	
-			<form name="pagesizeForm" style="display:inline" method="post" action="#toolForm("$action")">
+			<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-				<label for="selectPageSize" class="skip">$tlang.getString("gen.view2")</label>
+				<label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
 				<select id="selectPageSize" name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
 					#foreach ($i in $!pagesizes)
 						<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
@@ -120,21 +121,21 @@
 			</form>
 			#if ($pagesize != 0)
 				#if ($goNPButton == "true")
-					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_next" value=">" title="$tlang.getString('gen.next') $pagesize" />
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" />
 					</form>
 				#else
-					<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_next" value=">" disabled="disabled" />
+					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
 					</form>
 				#end
 				#if ($goLPButton == "true")
-					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_last" value=">|" title="$tlang.getString('gen.last')" />
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
 					</form>
 				#else
-					<form name="lastpageForm" style="display:inline" method="post" action="#toolForm("$action")">
-						<input type="submit" name="eventSubmit_doList_last" value=">|" disabled="disabled" />
+					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
 					</form>
 				#end
 			#end
@@ -143,9 +144,9 @@
 	#end	
 		<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
 			<input type="hidden" name="source" value="0" />			
-			<table class="listHier" border="0" cellspacing="0" summary="Table contains list of assignments.">
+			<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr> 
-					<th id="attachments"> 
+					<th id="attachments" class="attach"> 
 						&nbsp;
 					</th>
 					<th id="title">
@@ -249,8 +250,8 @@
 						</th>
 					#end
 					#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
-						<th id="remove"> 
-     		$tlang.getString("gen.remove.q")
+						<th id="remove" class="screenOnly"> 
+							$tlang.getString("gen.remove.q")
 						</th>
 					#end
 				</tr>
@@ -277,7 +278,7 @@
 					#end
 					#if (($assignment.draft && $service.allowUpdateAssignment($assignmentReference)) || (!$assignment.draft && $service.allowGetAssignment($assignmentReference)))
 						<tr> 
-							<td headers="attachments">
+							<td headers="attachments" class="attach">
 								#set ($attachments = $assignment.getContent().getAttachments())
 								#set ($size = 0)
 								#set ($props = false)
@@ -295,47 +296,62 @@
 									&nbsp;
 								#end
 							</td>
-							<td headers="title" nowrap="nowrap">
-								<h4>
+							<td headers="title">
 									#if ($!allowAddAssignment && $!view.equals($!tlang.getString('gen.liofass')))
-										## normal instructor view
-										#if ($assignment.draft && $!service.allowUpdateAssignment($assignmentReference) )
-											<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-												<span class="highlight">$tlang.getString("gen.dra2") </span>
+										<h4>
+											## normal instructor view
+											#if ($assignment.draft && $!service.allowUpdateAssignment($assignmentReference) )
+												<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
+													<span class="highlight">$tlang.getString("gen.dra2") </span>
+														$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
+												</a>
+											#elseif ($!service.allowGetAssignment($assignmentReference))
+												<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
 													$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
-											</a>
-										#elseif ($!service.allowGetAssignment($assignmentReference))
-											<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-												$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
-											</a>
-										#end
+												</a>
+											#end
+										</h4>
+										<div class="itemAction">
+											#set($prevAction=false)
+											#if ($service.allowUpdateAssignment($assignmentReference))#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
+											#if ($allowAddAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
+											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end<a href="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end
+										</div>
 									#else
 										#if ($!allowAddAssignment)
 											#if ($!submission)
+												
 												#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submission.submitted)
 													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 												#else
-													<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
+													<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
 												#end
-												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a>
+												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#else
-												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
+												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</h4>
+												#if ($!allowSubmit)
+													<div class="itemAction">
+														<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+															$tlang.getString("subasstudent")
+														</a>
+													</div>	
+												#end
 											#end
 										#else
 											#if($!allowSubmit)
 												#if ($!submission)
 													#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) ||($!submission.submitted && !$submission.GradeReleased) || !$!submission.submitted)
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)grade has not been released yet for submission;(3)submission has not been posted yet.
-														<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 													#else
-														<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
 													#end
 												#else
-													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
+													<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 												#end
-												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a>
+												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#else
-												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a>
+												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 											#end
 										#end
 										#set ($deleted = false)
@@ -344,22 +360,6 @@
 											<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
 										#end
 									#end
-									## links below assignment title
-									<div class="itemAction">
-										#if ($!view.equals($!tlang.getString('gen.liofass')))
-											#set($prevAction=false)
-											#if ($service.allowUpdateAssignment($assignmentReference))#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
-											#if ($allowAddAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
-											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end<a href="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end
-										#elseif ($!view.equals($!tlang.getString('gen.stuvie')))
-											#if ($!allowSubmit)
-												<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
-													$tlang.getString("subasstudent")
-												</a>
-											#end
-										#end
-									</div>	
-								</h4>
 							</td>
 							<td  style="padding-bottom:0">
 								$!for
@@ -405,7 +405,7 @@
 											<!--missing -if saved...In progress-->
 											#end
 										  #else
-											$tlang.getString("gen.inpro")
+											<span class="highlight">$tlang.getString("gen.dra2")</span> $tlang.getString("gen.inpro")
 										  #end
 									#else
 										$tlang.getString("gen.notsta")
@@ -469,7 +469,7 @@
 								</td>
 							#end
 							#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
-								<td headers="remove">
+								<td headers="remove" class="screenOnly">
 									<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
 									<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label> 
 								</td>
@@ -480,7 +480,7 @@
 			</table>
 			#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
 				<p class="act">
-					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("update")" />
+					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("update")" accesskey="s" />
 				</p>
 			#end
 		</form>

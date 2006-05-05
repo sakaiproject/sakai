@@ -11,7 +11,7 @@
 				$tlang.getString("gen.assig")
 			</h4>
 				
-			<table class="itemSummary indnt1" summary="$tlang.getString("stuviewgrad.thegradet")">
+			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
 						$tlang.getString("gen.tit2")
@@ -54,7 +54,7 @@
 					#else
 						#if ($submission.Returned)
 							#if ($submission.TimeReturned.before($submission.TimeSubmitted))
-								Returned $submission.TimeReturned.toStringLocalFull()
+								$tlang.getString("gen.returned") $submission.TimeReturned.toStringLocalFull()
 								#if ($submission.Graded)	
 									, $submission.GradeDisplay
 								#end
@@ -80,7 +80,7 @@
 		</h4>				
 							
 		#if ($!assignment.getContent().getInstructions().length()>0)
-			<div class="indnt1">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
+			<div class="textPanel">$validator.escapeHtmlFormattedText($!assignment.getContent().getInstructions())</div>
 		#else
 		#end
 		#set ($attachments = $assignment.getContent().Attachments)
@@ -125,12 +125,12 @@
 			</h4>
 			#if ($!submission.FeedbackText && ($submission.FeedbackText.length()>0))
 				<h5>$tlang.getString("gen.orisub2")</h5>
-				<div class="indnt1">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
+				<div class="textPanel">$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)</div>
 			#else
 				#set ($text = $submission.getSubmittedText())
 				#if ($!text && $text.length() > 0)
 					<p class="instruction">$tlang.getString("gen.orisub")</p>
-					<div class="indnt1">$submission.getSubmittedText()</div>
+					<div class="textPanel">$submission.getSubmittedText()</div>
 				#end
 			 #end
 			#set ($submittedAttachments = $submission.SubmittedAttachments)
@@ -169,7 +169,7 @@
 			
 			#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.length()>0))
 				<h5>$tlang.getString("gen.addinst")</h5>	
-				<div class="indnt1">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
+				<div class="textPanel">$validator.escapeHtmlFormattedText($submission.FeedbackComment)</div>
 			#else
 			#end
 			#set ($size = 0)
@@ -207,7 +207,7 @@
 					</ul>
 				#end
 			<div class="act">
-				<input type="submit" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.don")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.don")" />
 			</div>
 		</form>
 	</div>
