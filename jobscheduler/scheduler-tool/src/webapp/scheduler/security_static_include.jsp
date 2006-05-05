@@ -1,15 +1,14 @@
-
 <%@ page import="java.util.*, javax.faces.context.*, javax.faces.application.*,
-                 javax.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.service.legacy.security.*"
+                 javax.faces.el.*, org.sakaiproject.component.*, org.sakaiproject.authz.api.*"
          errorPage="error.jsp" %>
                  
 <%!
   FacesContext context = FacesContext.getCurrentInstance();
   Application app = context.getApplication();
-  ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.service.legacy.security.SecurityService']}");
+  ValueBinding binding = app.createValueBinding("#{Components['org.sakaiproject.authz.api.SecurityService']}");
   //ComponentMap cm = (ComponentMap) binding.getValue(context);
   SecurityService ss = (SecurityService) binding.getValue(context);
-  //SecurityService ss = (SecurityService) cm.get("org.sakaiproject.service.legacy.security.SecurityService");
+  //SecurityService ss = (SecurityService) cm.get("org.sakaiproject.authz.api.SecurityService");
 %>
 
 <%  
