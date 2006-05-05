@@ -305,6 +305,10 @@ public class FCKConnectorServlet extends HttpServlet
           root.appendChild(folders);
                     
           ContentCollection collection = null;
+
+          //prevent listings of root level nodes, which could have 1000's of items for admin users 
+          if (dir.split("/").length < 3)
+              return;     
           
           try 
           {
