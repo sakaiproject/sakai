@@ -282,7 +282,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? order by submittedDate DESC");
-      		q.setLong(1, publishedId.longValue());
+      		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
       		return q.list();
       	};
