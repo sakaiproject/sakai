@@ -73,6 +73,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 					if(original == null)
 					{
 						original = EntityManager.newReferenceList();
+						toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, original);
 					}
 
 					// replace its contents with the edited attachments

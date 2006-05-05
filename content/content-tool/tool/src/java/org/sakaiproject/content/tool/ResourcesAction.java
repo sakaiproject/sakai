@@ -335,20 +335,20 @@ public class ResourcesAction
 	 *  State attribute for the Vector of References, one for each attachment.
 	 *  Using tools can pre-populate, and can read the results from here. 
 	 */
-	public static final String STATE_ATTACHMENTS = "resources." + FilePickerHelper.FILE_PICKER_ATTACHMENTS;
+	public static final String STATE_ATTACHMENTS = "resources.state_attachments";
 	
 	/**
 	 *  The name of the state attribute indicating that the file picker should return links to
 	 *  existing resources in an existing collection rather than copying it to the hidden attachments
 	 *  area.  If this value is not set, all attachments are to copies in the hidden attachments area.
 	 */
-	public static final String STATE_ATTACH_LINKS = "resources." + FilePickerHelper.FILE_PICKER_ATTACH_LINKS;
+	public static final String STATE_ATTACH_LINKS = "resources.state_attach_links";
 
 	/** 
 	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
 	 * usually CARDINALITY_SINGLE or CARDINALITY_MULTIPLE. 
 	 */
-	public static final String STATE_ATTACH_CARDINALITY = "resources." + FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS;
+	public static final String STATE_ATTACH_CARDINALITY = "resources.state_attach_cardinality";
 
 	/** A constant indicating maximum of one item can be attached. */
 	public static final Integer CARDINALITY_SINGLE = FilePickerHelper.CARDINALITY_SINGLE;
@@ -359,20 +359,20 @@ public class ResourcesAction
 	/**
 	 *  The name of the state attribute for the title when a tool uses Resources as attachment helper (for create or attach but not for edit mode) 
 	 */
-	public static final String STATE_ATTACH_TITLE = "resources." + FilePickerHelper.FILE_PICKER_TITLE_TEXT;
+	public static final String STATE_ATTACH_TITLE = "resources.state_attach_title_text";
 
 	/** 
 	 * The name of the state attribute for the instructions when a tool uses Resources as attachment helper 
 	 * (for create or attach but not for edit mode) 
 	 */
-	public static final String STATE_ATTACH_INSTRUCTION = "resources." + FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT;
+	public static final String STATE_ATTACH_INSTRUCTION = "resources.state_attach_instruction_text";
 
 	/** 
 	 * State Attribute for the org.sakaiproject.content.api.ContentResourceFilter
 	 * object that the current filter should honor.  If this is set to null, then all files will
 	 * be selectable and viewable 
 	 */
-	   public static final String STATE_ATTACH_FILTER = "resources." + FilePickerHelper.FILE_PICKER_RESOURCE_FILTER;
+	   public static final String STATE_ATTACH_FILTER = "resources.state_attach_filter";
 
 	/**
 	 * @deprecated use STATE_ATTACH_TITLE and STATE_ATTACH_INSTRUCTION instead
@@ -382,21 +382,21 @@ public class ResourcesAction
 	/**
 	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
 	 */
-	public static final String STATE_HELPER_CANCELED_BY_USER = "resources." + FilePickerHelper.FILE_PICKER_CANCEL;
+	public static final String STATE_HELPER_CANCELED_BY_USER = "resources.state_attach_canceled_by_user";
 	
 	/**
 	 *  The name of the state attribute indicating that dropboxes should be shown as places from which
 	 *  to select attachments. The value should be a List of user-id's.  The file picker will attempt to show 
 	 *  the dropbox for each user whose id is included in the list. If this 
 	 */
-	public static final String STATE_ATTACH_SHOW_DROPBOXES = "resources." + FilePickerHelper.FILE_PICKER_SHOW_DROPBOXES;
+	public static final String STATE_ATTACH_SHOW_DROPBOXES = "resources.state_attach_show_dropboxes";
 
 	/**
 	 *  The name of the state attribute indicating that the current user's workspace Resources collection 
 	 *  should be shown as places from which to select attachments. The value should be "true".  The file picker will attempt to show 
-	 *  the dropbox for each user whose id is included in the list. 
+	 *  the workspace if this attribute is set to "true". 
 	 */
-	public static final String STATE_ATTACH_SHOW_WORKSPACE = "resources." + FilePickerHelper.FILE_PICKER_SHOW_WORKSPACE;
+	public static final String STATE_ATTACH_SHOW_WORKSPACE = "resources.state_attach_show_workspace";
 
 	
 	
