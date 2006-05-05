@@ -15,7 +15,7 @@
        column="ASSESSMENTGRADINGID" index="SAM_ASSESSMENTGRADING_I" not-null="true"/>
 -->
     <property name="assessmentGradingId">
-      <column name="ASSESSMENTGRADINGID" not-null="true" sql-type="integer" index="SAM_ASSESSMENTGRADING_I" />
+      <column name="ASSESSMENTGRADINGID" not-null="true" index="SAM_ASSESSMENTGRADING_I" />
     </property>
     <property name="publishedItemId">
       <column name="PUBLISHEDITEMID" not-null="true" sql-type="integer" index="SAM_ITEMGRADING_ITEM_I" />
