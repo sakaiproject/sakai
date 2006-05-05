@@ -82,6 +82,11 @@ table{
 	font-size: 1em;
 }
 
+code {
+        font-family:verdana, arial, helvetica, sans-serif;
+        font-size:1em;
+
+} 
 /* SECTION 2 - LAYOUT*/
 /*only child of body (example: any tool)*/
 .portletBody{
