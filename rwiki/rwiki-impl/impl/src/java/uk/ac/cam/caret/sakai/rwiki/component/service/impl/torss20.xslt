@@ -24,7 +24,7 @@
                 <xsl:for-each select="/entity-service/entity/changes/change">
                     <item>
                         <title>
-                            <xsl:value-of select="@name"/>
+                            <xsl:value-of select="@local-name"/>
                         </title>
                         <link>
                             <xsl:value-of

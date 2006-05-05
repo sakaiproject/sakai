@@ -289,6 +289,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					"sting", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
 					SchemaNames.ATTR_NAME, "sting", rwco.getName());
+			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
+					SchemaNames.ATTR_LOCAL_NAME, "sting", NameHelper
+							.localizeName(rwo.getName(), rwo.getRealm()));
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
 					SchemaNames.ATTR_OWNER, "sting", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
@@ -339,6 +342,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					"sting", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
 					SchemaNames.ATTR_NAME, "sting", rwco.getName());
+			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
+					SchemaNames.ATTR_LOCAL_NAME, "sting", NameHelper
+							.localizeName(rwco.getName(), rwco.getRealm()));
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
 					SchemaNames.ATTR_OWNER, "sting", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_REALM,

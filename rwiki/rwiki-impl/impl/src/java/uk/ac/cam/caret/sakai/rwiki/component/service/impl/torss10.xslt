@@ -35,7 +35,7 @@
                         <xsl:value-of select="$baseurl"/>
                     </dc:source>
                     <title>
-                        <xsl:value-of select="@name"/>
+                        <xsl:value-of select="@local-name"/>
                     </title>
                     <link>
                         <xsl:value-of select="concat($baseurl,'/access/wiki',@name,',',@revision,'.html')"/>

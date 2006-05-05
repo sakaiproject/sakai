@@ -19,7 +19,7 @@
             <xsl:for-each select="/entity-service/entity/changes/change">
                 <entry>
                     <title>
-                        <xsl:value-of select="@name"/>
+                        <xsl:value-of select="@local-name"/>
                     </title>
                     <link rel="alternate" type="text/html"
                         href="{concat($baseurl,'/access/wiki',@name,',',@revision,'.html')}"/>

@@ -266,4 +266,6 @@ public class SchemaNames
 
 	public static final String EL_NSWIKICONTENT = "wikicontent";
 
+	public static final String ATTR_LOCAL_NAME = "local-name";
+
 }
