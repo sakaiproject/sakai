@@ -66,9 +66,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 	private SearchIndexBuilderWorker searchIndexBuilderWorker = null;
 
-
 	private List producers = new ArrayList();
-	
+
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -83,7 +82,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			log.error("Failed to init ", t);
 		}
-		log.info(this+" completed init()");
+		log.info(this + " completed init()");
 	}
 
 	private Object load(ComponentManager cm, String name)
@@ -140,7 +139,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 				}
 				searchBuilderItemDao.update(sb);
 				sb = searchBuilderItemDao.findByName(resourceName);
-				log.info("SEARCHBUILDER: Added Resource " + action + " " + sb.getName());
+				log.info("SEARCHBUILDER: Added Resource " + action + " "
+						+ sb.getName());
 				break;
 			}
 			catch (Throwable t)
@@ -165,7 +165,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 */
 	public void refreshIndex()
 	{
-		
+
 		SearchBuilderItem sb = searchBuilderItemDao
 				.findByName(SearchBuilderItem.GLOBAL_MASTER);
 		if (sb == null)
@@ -173,19 +173,27 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			log.debug("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
 			sb = searchBuilderItemDao.create();
 		}
-		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()) && 
-			!SearchBuilderItem.STATE_PENDING.equals(sb.getSearchaction()) &&
-			!SearchBuilderItem.STATE_PENDING_2.equals(sb.getSearchaction()))
+
+		if ((SearchBuilderItem.STATE_COMPLETED.equals(sb.getSearchstate()))
+				|| (!SearchBuilderItem.ACTION_REBUILD.equals(sb
+						.getSearchaction())
+						&& !SearchBuilderItem.STATE_PENDING.equals(sb
+								.getSearchstate()) && !SearchBuilderItem.STATE_PENDING_2
+						.equals(sb.getSearchstate())))
 		{
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
 			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
-			log.info("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " " + sb.getName());
+			log.info("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " "
+					+ sb.getName());
 			restartBuilder();
-		} else {
-			log.info("SEARCHBUILDER: REFRESH ALL IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
+		}
+		else
+		{
+			log.info("SEARCHBUILDER: REFRESH ALL IN PROGRESS "
+					+ sb.getSearchaction() + " " + sb.getName());
 		}
 	}
 
@@ -227,7 +235,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
-			log.info("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " " + sb.getName());
+			log.info("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " "
+					+ sb.getName());
 
 		}
 		catch (Exception ex)
@@ -292,13 +301,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
 			if (ecp.matches(event))
 			{
-				log.info(" Matched Entity Content Producer for event "+event+" with "+ecp );
+				log.info(" Matched Entity Content Producer for event " + event
+						+ " with " + ecp);
 				return ecp;
-			} else {
-				log.info("Skipped ECP "+ecp);
+			}
+			else
+			{
+				log.info("Skipped ECP " + ecp);
 			}
 		}
-		log.info("Failed to match any Entity Content Producer for event "+event);
+		log.info("Failed to match any Entity Content Producer for event "
+				+ event);
 		return null;
 	}
 
@@ -349,14 +362,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/**
-	 * Rebuild the index from the entities own stored state {@inheritDoc}, just the supplied siteId
+	 * Rebuild the index from the entities own stored state {@inheritDoc}, just
+	 * the supplied siteId
 	 */
 	public void rebuildIndex(String currentSiteId)
 	{
 
 		try
 		{
-			String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT,new Object[] {currentSiteId});
+			String siteMaster = MessageFormat.format(
+					SearchBuilderItem.SITE_MASTER_FORMAT,
+					new Object[] { currentSiteId });
 			SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
 			if (sb == null)
 			{
@@ -367,7 +383,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
-			log.info("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+			log.info("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction()
+					+ " " + sb.getName());
 
 		}
 		catch (Exception ex)
@@ -376,31 +393,42 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		}
 		restartBuilder();
 	}
+
 	/**
 	 * Refresh the index fo the supplied site.
 	 */
 	public void refreshIndex(String currentSiteId)
 	{
-		String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT,new Object[] {currentSiteId});
-		SearchBuilderItem sb = searchBuilderItemDao
-				.findByName(siteMaster);
+		String siteMaster = MessageFormat.format(
+				SearchBuilderItem.SITE_MASTER_FORMAT,
+				new Object[] { currentSiteId });
+		SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
 		if (sb == null)
 		{
 			log.debug("Created NEW " + siteMaster);
 			sb = searchBuilderItemDao.create();
 		}
-		if (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction()))
+		if ((SearchBuilderItem.STATE_COMPLETED.equals(sb.getSearchstate()))
+				|| (!SearchBuilderItem.ACTION_REBUILD.equals(sb
+						.getSearchaction())
+						&& !SearchBuilderItem.STATE_PENDING.equals(sb
+								.getSearchstate()) && !SearchBuilderItem.STATE_PENDING_2
+						.equals(sb.getSearchstate())))
 		{
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
 			sb.setName(siteMaster);
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 			searchBuilderItemDao.update(sb);
-			log.info("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+			log.info("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction()
+					+ " " + sb.getName());
 
 			restartBuilder();
-		} else {
-			log.info("SEARCHBUILDER: REFRESH CONTEXT IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
+		}
+		else
+		{
+			log.info("SEARCHBUILDER: REFRESH CONTEXT IN PROGRESS "
+					+ sb.getSearchaction() + " " + sb.getName());
 		}
 	}
 
@@ -414,6 +442,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	{
 		return searchBuilderItemDao.getGlobalMasters();
 	}
+
 	public List getSiteMasterSearchItems()
 	{
 		return searchBuilderItemDao.getSiteMasters();
