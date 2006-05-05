@@ -107,13 +107,21 @@ public class RWikiServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		execute(request, response);
+		try {
+			execute(request, response);
+		} finally {
+			RequestScopeSuperBean.clearInstance();
+		}
 	}
 
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		execute(request, response);
+		try {
+			execute(request, response);
+		} finally {
+			RequestScopeSuperBean.clearInstance();
+		}
 	}
 
 	public void execute(HttpServletRequest request, HttpServletResponse response)
@@ -145,6 +153,8 @@ public class RWikiServlet extends HttpServlet
 
 		// Must be done on every request
 		prePopulateRealm(request);
+				
+		
 
 		addWikiStylesheet(request);
 
@@ -181,6 +191,9 @@ public class RWikiServlet extends HttpServlet
 	{
 		RequestScopeSuperBean rssb = RequestScopeSuperBean.createAndAttach(
 				request, wac);
+		
+		
+		
 
 		PrePopulateBean ppBean = rssb.getPrePopulateBean();
 

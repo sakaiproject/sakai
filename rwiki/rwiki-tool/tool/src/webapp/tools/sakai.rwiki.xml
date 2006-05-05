@@ -14,6 +14,17 @@
 			id="sakai.rwiki"
 			title="Wiki"
 		description="For collaborative editing of pages and content">
+<!--
+           <configuration name="experimintal" value="false" />
+           <configuration name="skinning" value="true" />
+           <configuration name="base-page" value="true" />
+           <configuration name="advanced-search" value="true" />
+-->
+           <configuration name="home-page" value="Home" />
+<!--
+           <configuration name="home-page-name" value="3" />
+-->
+
 			
 		<category name="course" />
          <category name="project" />

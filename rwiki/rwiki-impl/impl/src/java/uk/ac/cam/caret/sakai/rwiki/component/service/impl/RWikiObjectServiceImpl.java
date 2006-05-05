@@ -1413,6 +1413,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private void disableWiki(String context)
 	{
+		
 		// ? we are not going to delete the content, so do nothing TODO
 	}
 
@@ -1423,7 +1424,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private void enableWiki(String context)
 	{
-		// ? we are not going to delete the content, so do nothing TODO
+		// we could perform pre-populate at this stage
+		
 	}
 
 	/**

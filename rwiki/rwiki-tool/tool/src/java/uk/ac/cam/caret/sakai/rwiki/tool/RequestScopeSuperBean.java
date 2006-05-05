@@ -63,6 +63,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.RecentlyVisitedBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ReferencesBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.RenderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.SearchBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ToolConfigBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.UpdatePermissionsBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.AuthZGroupBeanHelper;
@@ -78,6 +79,7 @@ import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.UpdatePermissionsBeanHelper;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.UserHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ViewParamsHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
+import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
 /**
  * This is a replacement for the RequestScopeApplicationContext which turned out
@@ -86,7 +88,6 @@ import uk.ac.cam.caret.sakai.rwiki.tool.util.WikiPageAction;
  * 
  * @author andrew
  */
-// FIXME: Tool
 public class RequestScopeSuperBean
 {
 	private static Log log = LogFactory.getLog(RequestScopeSuperBean.class);
@@ -134,6 +135,18 @@ public class RequestScopeSuperBean
 	{
 		return (RequestScopeSuperBean) request.getAttribute(REQUEST_ATTRIBUTE);
 	}
+	
+	// Thread scope
+	private static ThreadLocal requestScopeSuperBeanHolder = new ThreadLocal();
+	public static RequestScopeSuperBean getInstance() {
+		return (RequestScopeSuperBean) requestScopeSuperBeanHolder.get();
+	}
+	
+	public static void clearInstance() {
+		NameHelper.clearDefaultPage();
+		requestScopeSuperBeanHolder.set(null);
+		
+	}
 
 	public static RequestScopeSuperBean createAndAttach(
 			HttpServletRequest request, ApplicationContext context)
@@ -144,6 +157,8 @@ public class RequestScopeSuperBean
 		rssb.init();
 
 		request.setAttribute(REQUEST_ATTRIBUTE, rssb);
+		// add it to thread scope
+		requestScopeSuperBeanHolder.set(rssb);
 
 		return rssb;
 	}
@@ -176,6 +191,10 @@ public class RequestScopeSuperBean
 
 		messageService = (MessageService) context.getBean(MessageService.class
 				.getName());
+		
+		ToolConfigBean tcb = getConfigBean();
+		NameHelper.setDefaultPage(tcb.getHomePage());
+
 		// if the message service has been configured
 		// update the presence
 		if (messageService != null)
@@ -198,6 +217,8 @@ public class RequestScopeSuperBean
 				false);
 		defaultUIHomePageName = ServerConfigurationService.getString(
 				"wiki.ui.homepage", "Home");
+		
+		
 
 	}
 
@@ -806,4 +827,18 @@ public class RequestScopeSuperBean
 	{
 		this.withcomments = withcomments;
 	}
+	
+	
+	public ToolConfigBean getConfigBean()
+	{
+		String key = "toolConfigBean";
+		ToolConfigBean configBean = (ToolConfigBean) map.get(key);
+		if (configBean == null)
+		{
+			configBean = new ToolConfigBean(toolManager.getCurrentPlacement());
+			map.put(key, configBean);
+		}
+		return configBean;
+	}
+	
 }
