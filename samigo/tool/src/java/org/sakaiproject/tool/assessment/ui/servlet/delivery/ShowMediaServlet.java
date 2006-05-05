@@ -130,14 +130,21 @@ public class ShowMediaServlet extends HttpServlet
         inputStream = getFileStream(mediaLocation);
         buf_inputStream = new BufferedInputStream(inputStream);
       }
-      int i=0;
+
       int count=0;
+      try{
+      int i=0;
       if (buf_inputStream !=null){
         while ((i=buf_inputStream.read()) != -1){
-          buf_outputStream.write(i);
           //System.out.print(i);
+          buf_outputStream.write(i);
           count++;
         }
+      }
+      }
+      catch(Exception e){
+        System.out.println(e.getMessage());
+        System.out.println("***** catch count"+count);
       }
 
       log.debug("**** mediaLocation="+mediaLocation);

@@ -256,6 +256,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       itemGrading.setOverrideScore(new Float(0));
       itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
       itemGrading.setLastDuration(duration);
+      gradingService.saveItemGrading(itemGrading);
     }
     System.out.println("****1. assessmentGradingId="+adata.getAssessmentGradingId());
     System.out.println("****2. attemptsRemaining="+attemptsRemaining);
