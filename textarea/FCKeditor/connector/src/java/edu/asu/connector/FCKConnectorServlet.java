@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -86,6 +86,8 @@ public class FCKConnectorServlet extends HttpServlet
       * connector?Command=CommandName&Type=ResourceType&CurrentFolder=FolderPath<br><br>
       * It executes the command and then return the results to the client in XML format.
       *
+      * Valid values for Type are: Image, File, Flash and Link 
+      *
       */
      public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
           
@@ -94,7 +96,7 @@ public class FCKConnectorServlet extends HttpServlet
           PrintWriter out = response.getWriter();
           
           String commandStr = request.getParameter("Command");
-          String typeStr = request.getParameter("Type");
+          String type = request.getParameter("Type");
           String currentFolder = request.getParameter("CurrentFolder");
 
           Document document = null;
@@ -109,7 +111,7 @@ public class FCKConnectorServlet extends HttpServlet
                pce.printStackTrace();
           }
           
-          Node root=CreateCommonXml(document, commandStr, typeStr, currentFolder, "/access/content"+currentFolder);
+          Node root = CreateCommonXml(document, commandStr, type, currentFolder, "/access/content"+currentFolder);
           
           if("GetFolders".equals(commandStr)) 
           {
@@ -118,35 +120,35 @@ public class FCKConnectorServlet extends HttpServlet
           else if ("GetFoldersAndFiles".equals(commandStr)) 
           {
                getFolders(currentFolder, root, document);
-               getFiles(currentFolder, root, document, typeStr);
+               getFiles(currentFolder, root, document, type);
           }
           else if ("CreateFolder".equals(commandStr)) 
           {
                String newFolderStr = request.getParameter("NewFolderName");
-               String retValue = "110";
+               String status = "110";
                
                try 
                {
                     ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
                     resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, newFolderStr);
 
-                    ContentHostingService.addCollection(currentFolder+newFolderStr+"/", resourceProperties);
-                    retValue="0";
+                    ContentHostingService.addCollection(currentFolder + newFolderStr + "/", resourceProperties);
+                    status="0";
                }
                catch (IdUsedException iue) 
                {
-                    retValue="101";
+                    status = "101";
                }
                catch(PermissionException sex) 
                {
                     System.out.println(sex);
-                    retValue="103";                    
+                    status = "103";                    
                }               
                catch (Exception e) 
                {
-                    retValue="102";               
+                    status = "102";               
                }
-               setCreateFolderResponse(retValue, root, document);
+               setCreateFolderResponse(status, root, document);
           }          
           
           document.getDocumentElement().normalize();
@@ -189,18 +191,18 @@ public class FCKConnectorServlet extends HttpServlet
 
           String command = request.getParameter("Command");
           
-          String typeStr = request.getParameter("Type");
+          String type = request.getParameter("Type");
           String currentFolder = request.getParameter("CurrentFolder");
           
           String currentDirPath = "/access/content" + currentFolder;
           String fileName = "";
-          String errorMessage="";
+          String errorMessage = "";
           
-          String retVal="0";
+          String status="0";
 
           if (!"FileUpload".equals(command) && !"QuickUpload".equals(command)) 
           {
-               retVal = "203";
+               status = "203";
           }
           else 
           {
@@ -215,7 +217,7 @@ public class FCKConnectorServlet extends HttpServlet
                     while (iter.hasNext()) 
                     {
                         FileItem item = (FileItem) iter.next();
-                         System.out.println(item.getFieldName() + " === " + item);
+                        // System.out.println(item.getFieldName() + " === " + item);
                         if (item.isFormField()) 
                              fields.put(item.getFieldName(), item.getString());
                         else
@@ -223,13 +225,13 @@ public class FCKConnectorServlet extends HttpServlet
                     }
                     FileItem uplFile = (FileItem)fields.get("NewFile");
 
-                    String fileNameLong = uplFile.getName();
-                    fileNameLong = fileNameLong.replace('\\','/');
-                    String[] pathParts = fileNameLong.split("/");
+                    String filePath = uplFile.getName();
+                    filePath = filePath.replace('\\','/');
+                    String[] pathParts = filePath.split("/");
                     fileName = pathParts[pathParts.length-1];
                     
-                    String nameWithoutExt = getNameWithoutExtension(fileName);
-                    String ext = getExtension(fileName);
+                    String nameWithoutExt = fileName.substring(0, fileName.lastIndexOf(".")); 
+                    String ext = fileName.substring(fileName.lastIndexOf(".") + 1); 
 
                     String mime = uplFile.getContentType();
 
@@ -253,7 +255,7 @@ public class FCKConnectorServlet extends HttpServlet
                          {
                               //the name is already used, so we do a slight rename to prevent the colision
                               fileName = nameWithoutExt + "(" + counter + ")" + "." + ext;
-                              retVal = "201";
+                              status = "201";
                               counter++;
                          }
 
@@ -262,14 +264,14 @@ public class FCKConnectorServlet extends HttpServlet
                               //this user can't write where they are trying to write.
                               done = true;
                               ex.printStackTrace();
-                              retVal = "203";
+                              status = "203";
                          }
                     }
                }
                catch (Exception ex)  
                {
                     ex.printStackTrace();
-                    retVal = "203";
+                    status = "203";
                }
           }
 
@@ -277,11 +279,11 @@ public class FCKConnectorServlet extends HttpServlet
           
           if ("QuickUpload".equals(command))  
           {
-               out.println("window.parent.OnUploadCompleted("+retVal+",'"+currentDirPath+fileName+"','"+fileName+"','"+errorMessage+"');");
+               out.println("window.parent.OnUploadCompleted("+status+",'"+currentDirPath+fileName+"','"+fileName+"','"+errorMessage+"');");
           }
           else 
           {
-               out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+retVal+",'"+fileName+"');");
+               out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+status+",'"+fileName+"');");
           }
           
           out.println("</script>");
@@ -291,25 +293,25 @@ public class FCKConnectorServlet extends HttpServlet
           
      }
 
-     private void setCreateFolderResponse(String retValue, Node root, Document doc) 
+     private void setCreateFolderResponse(String status, Node root, Document doc) 
      {
-          Element myEl = doc.createElement("Error");
-          myEl.setAttribute("number",retValue);
-          root.appendChild(myEl);
+          Element element = doc.createElement("Error");
+          element.setAttribute("number", status);
+          root.appendChild(element);
      }
      
 
-     private void getFolders(String dir,Node root,Document doc) 
+     private void getFolders(String dir, Node root, Document doc) 
      {
           Element folders = doc.createElement("Folders");
           root.appendChild(folders);
                     
           ContentCollection collection = null;
-
-          //prevent listings of root level nodes, which could have 1000's of items for admin users 
+         
+          //prevent listings of root level nodes, which could have 1000's of items 
           if (dir.split("/").length < 3)
-              return;     
-          
+              return;       
+   
           try 
           {
                collection = ContentHostingService.getCollection(dir);
@@ -329,10 +331,10 @@ public class FCKConnectorServlet extends HttpServlet
                     {
                          current = (String)iterator.next();
                          ContentCollection myCollection = ContentHostingService.getCollection(current);
-                         Element myEl=doc.createElement("Folder");
-                         myEl.setAttribute("name", current.substring( ( 
+                         Element element=doc.createElement("Folder");
+                         element.setAttribute("name", current.substring( ( 
                                 current.substring(0, current.length()-1) ).lastIndexOf("/")+1, current.length()-1) );
-                         folders.appendChild(myEl);
+                         folders.appendChild(element);
                     }
                     catch (Exception e) 
                     {
@@ -342,7 +344,7 @@ public class FCKConnectorServlet extends HttpServlet
           }
      }
 
-     private void getFiles(String dir,Node root,Document doc,String typeStr) 
+     private void getFiles(String dir, Node root, Document doc, String type) 
      {
           Element files=doc.createElement("Files");
           root.appendChild(files);
@@ -371,19 +373,19 @@ public class FCKConnectorServlet extends HttpServlet
                          String ext = current.getProperties().getProperty(
                                    current.getProperties().getNamePropContentType());
                          
-                         if ( (typeStr.equals("File") && (ext != null) ) || 
-                              (typeStr.equals("Flash") && ext.equalsIgnoreCase("application/x-shockwave-flash") ) ||
-                              (typeStr.equals("Image") && ext.startsWith("image") ) ||
-                              typeStr.equals("Link") && ext.equalsIgnoreCase("text/url") ) 
+                         if ( (type.equals("File") && (ext != null) ) || 
+                              (type.equals("Flash") && ext.equalsIgnoreCase("application/x-shockwave-flash") ) ||
+                              (type.equals("Image") && ext.startsWith("image") ) ||
+                              type.equals("Link") && ext.equalsIgnoreCase("text/url") ) 
                          {
                          
-                              Element myEl=doc.createElement("File");
-                              myEl.setAttribute("name", current.getProperties().getProperty(
+                              Element element=doc.createElement("File");
+                              element.setAttribute("name", current.getProperties().getProperty(
                                             current.getProperties().getNamePropDisplayName()));
-                              myEl.setAttribute("size",""+ current.getProperties().getProperty(
+                              element.setAttribute("size", "" + current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()));
 
-                              files.appendChild(myEl);
+                              files.appendChild(element);
                          }
                     }
                     catch (Exception e) 
@@ -394,36 +396,20 @@ public class FCKConnectorServlet extends HttpServlet
           }
      }     
 
-     private Node CreateCommonXml(Document doc,String commandStr, String typeStr,  String currentPath, String currentUrl )
+     private Node CreateCommonXml(Document doc,String commandStr, String type, String currentPath, String currentUrl )
      {
-          Element root=doc.createElement("Connector");
+          Element root = doc.createElement("Connector");
           doc.appendChild(root);
           root.setAttribute("command", commandStr);
-          root.setAttribute("resourceType", typeStr);
+          root.setAttribute("resourceType", type);
           
-          Element myEl=doc.createElement("CurrentFolder");
-          myEl.setAttribute("path", currentPath);
-          myEl.setAttribute("url", currentUrl);
-          root.appendChild(myEl);
+          Element element = doc.createElement("CurrentFolder");
+          element.setAttribute("path", currentPath);
+          element.setAttribute("url", currentUrl);
+          root.appendChild(element);
           
           return root;
           
-     }
-     
-     /*
-     * This method was fixed after Kris Barnhoorn (kurioskronic) submitted SF bug #991489
-     */
-     private static String getNameWithoutExtension(String fileName) 
-     {
-            return fileName.substring(0, fileName.lastIndexOf("."));
-     }
-         
-     /*
-      * This method was fixed after Kris Barnhoorn (kurioskronic) submitted SF bug #991489
-      */
-     private String getExtension(String fileName) 
-     {
-          return fileName.substring(fileName.lastIndexOf(".")+1);
      }
 
 }
