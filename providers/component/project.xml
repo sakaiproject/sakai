@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>Sakai Legacy Adaptor Components Package</name>
+	<name>sakai-provider-pack</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-legacy-providers</id>
+	<id>sakai-provider-pack</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -20,6 +20,7 @@
 
 	<dependencies>
 
+		<!-- Needed for the sample provider
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-legacy-provider</artifactId>
@@ -28,24 +29,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-i18n</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
+		-->
 
 		<!-- Needed for the JLDAP Provider
 		<dependency>
@@ -93,7 +77,6 @@
 
 	<build>
 
-		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
 
 	</build>

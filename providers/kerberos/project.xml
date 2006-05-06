@@ -3,7 +3,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>Sakai Kerberos Adaptor</name>
+	<name>sakai-kerberos-provider</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-kerberos-provider</id>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -20,48 +20,17 @@
 
 	<dependencies>
 
-                <!-- our plugin -->
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai</artifactId>
-                        <version>${sakai.plugin.version}</version>
-                        <type>plugin</type>
-                </dependency>
-
-
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 
-		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
-
-		<resources>
-			<resource>
-				<directory>${basedir}/src/sql</directory>
-				<includes>
-					<include>**/*.sql</include>
-				</includes>
-			</resource>
-		</resources>
 
 	</build>
 

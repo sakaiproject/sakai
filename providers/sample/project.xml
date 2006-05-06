@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>Sakai Legacy Adaptor</name>
+	<name>sakai-sample-provider</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-legacy-provider</id>
+	<id>sakai-sample-provider</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -26,42 +26,11 @@
 			<version>1.0.4</version>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-i18n</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 
-		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
-
-		<resources>
-            <resource>
-                <directory>${basedir}/src/bundle</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-		</resources>
 
 	</build>
 
