@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package edu.asu.connector;
+package org.sakaiproject.connector.fck;
 
 import java.io.IOException;
 import java.io.PrintWriter;
