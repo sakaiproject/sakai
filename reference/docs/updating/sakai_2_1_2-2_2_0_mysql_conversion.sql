@@ -7,11 +7,4 @@
 ----------------------------------------------------------------------------------------------------------------------------------------
 
 
--- ContentHosting
-alter table CONTENT_COLLECTION add column COLLECTION_UUID varchar2 (36), add column ACCESS_MODE varchar(12), add column RELEASE_DATE DATETIME, add column RETRACT_DATE DATETIME, add column SORT_ORDER INT;
-create index CONTENT_UUID_COLLECTION_INDEX on CONTENT_COLLECTION ( COLLECTION_UUID );
-alter table CONTENT_RESOURCE add column ACCESS_MODE varchar(12), add column RELEASE_DATE DATETIME, add column RETRACT_DATE DATETIME, add column SORT_ORDER INT;
-create table CONTENT_ENTITY_GROUPS ( ENTITY_ID VARCHAR (36) NOT NULL, GROUP_ID VARCHAR (36) NOT NULL );
-create index CONTENT_ENTITY_INDEX on CONTENT_ENTITY_GROUPS ( ENTITY_ID );
-create index CONTENT_GROUP_INDEX on CONTENT_ENTITY_GROUPS ( GROUP_ID );
 
