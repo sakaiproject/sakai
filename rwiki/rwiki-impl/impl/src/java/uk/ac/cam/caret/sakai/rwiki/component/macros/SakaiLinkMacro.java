@@ -1,51 +1,23 @@
 /**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
  *
- * $Header$
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  *
- * This file is derived from code in the "SnipSnap Radeox Rendering Engine" which
- * was licensed under the ASF License Version 2.0 and contains copyright notices from
- * below.
- *
- * Copyright (c) 2002 Stephan J. Schmidt, Matthias L. Jugel
- * All Rights Reserved.
- *
- * Derivations are:
- *  Copyright (c) 2005 University of Cambridge
- *
- * Please visit http://radeox.org/ for updates and contact.
- *
- * --ORIGINAL LICENSE NOTICE--
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.opensource.org/licenses/ecl1.php
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * --ORIGINAL LICENSE NOTICE--
- * 
- * From what I can see of the ASF I can now license this code under the ECL as below:
- * 
- * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
- * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * 
- **/
+ **********************************************************************************/
 
 package uk.ac.cam.caret.sakai.rwiki.component.macros;
 
