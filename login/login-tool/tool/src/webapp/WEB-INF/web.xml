@@ -42,7 +42,7 @@
         <servlet-class>org.sakaiproject.login.tool.LoginTool</servlet-class>
         <init-param>
             <param-name>container</param-name>
-            <param-value>/sakai-login/container</param-value>
+            <param-value>/sakai-login-tool/container</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
