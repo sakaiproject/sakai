@@ -37,10 +37,6 @@ testing as this browser in some configurations will sometimes apply these defini
 	.portletBody {
 	padding: 0 !important;
 }
-/* needed by help tool */
-.helpBody {
-	padding: 0em 1em 1em 1em
-}
 
 /* SECTION 1 - STANDARD COMPONENTS*/
 body{
@@ -82,11 +78,6 @@ table{
 	font-size: 1em;
 }
 
-code {
-        font-family:verdana, arial, helvetica, sans-serif;
-        font-size:1em;
-
-} 
 /* SECTION 2 - LAYOUT*/
 /*only child of body (example: any tool)*/
 .portletBody{
@@ -242,7 +233,7 @@ ul.attachList li{
 }
 
 .viewNav .labelindnt{
-	margin-left: 8em !important;
+	margin-left: 10em !important;
 }
 
 /* listNav: boxes paging controls on list views,  searchNav: boxes searching controls on views */
@@ -292,6 +283,12 @@ ul.attachList li{
 
 .itemNav input{
 	font-size: 90%;
+}
+/*for link controls in views */
+/*see calendar */
+.viewLinkControl
+{
+	padding:.5em 0
 }
 
 /*for abc or 123 navigators*/
