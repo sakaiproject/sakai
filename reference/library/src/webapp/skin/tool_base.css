@@ -77,6 +77,10 @@ iframe{
 table{
 	font-size: 1em;
 }
+code {
+	font-family:verdana, arial, helvetica, sans-serif;
+	font-size:1em;
+}
 
 /* SECTION 2 - LAYOUT*/
 /*only child of body (example: any tool)*/
@@ -86,7 +90,9 @@ table{
 	border-color: #fff;
 	border-style: solid;
 }
-
+.helpBody {
+	padding: 1em
+	} 
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
 /*see  a course site web contentn tool  - as instructor and as student*/
 .wcwmenu{
