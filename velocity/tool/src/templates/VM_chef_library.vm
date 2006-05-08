@@ -405,8 +405,8 @@ scheduleUpdate();
 *# ------------------------------------------------------------------
 #macro (eventLegend $tlang)
 
-<table style="margin-right:auto;margin-left:auto;margin-top:10px;" cellpadding="3">
-<tr><td colspan="3" style="border-bottom:1px solid silver"><p align="center">$tlang.getString('view.legend')</p></td></tr>
+<table style="margin-right:auto;margin-left:auto;margin-top:1em;width:80%" class="listHier" cellpadding="3" summary="$tlang.getString('gen.eventtype.list.summary')">
+<tr><th colspan="3" style="text-align:center">$tlang.getString('view.legend')</th></tr>
 <tr>
 <td><img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$tlang.getString('del.acad')" /> $tlang.getString('del.acad')</td>
 <td><img src = "#imageLink("sakai/activity.gif")" border="0" alt="$tlang.getString('del.activ')" /> $tlang.getString('del.activ')</td>
