@@ -20,28 +20,26 @@
  		    <sakai:tool_bar_item value="#{msgs.prefs_lang_title}" />
    	  	</sakai:tool_bar>
 				
-				<br>
-
-				<h:panelGroup rendered="#{UserPrefsTool.locUpdated}">
-					<jsp:include page="prefUpdatedMsg.jsp"/>	
-				</h:panelGroup>
 	
 				<sakai:messages />
 				
 				<h3><h:outputText value="#{msgs.prefs_lang_title}" /></h3>
+
+				<h:panelGroup rendered="#{UserPrefsTool.locUpdated}">
+					<jsp:include page="prefUpdatedMsg.jsp"/>	
+				</h:panelGroup>
+
 				
 				<p class="instruction"><h:outputText value="#{msgs.locale_msg}"/> <h:outputText value="#{UserPrefsTool.selectedLocaleName}"/></p>
-				<br>
-					
+				
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedLocaleString}"
                       size="20">
 				    <f:selectItems value="#{UserPrefsTool.prefLocales}" />
 				 </h:selectOneListbox>
-			    <br><br>
-			    <div>
-			    <h:commandButton id="submit" style="active;" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}"></h:commandButton>
-				<h:commandButton id="cancel" style="active;" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}"></h:commandButton>
+			    <div class="act">
+				    <h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionLocSave}"></h:commandButton>
+					<h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionLocCancel}"></h:commandButton>
 			    </div>
 		 </h:form>
 	</sakai:view_content>

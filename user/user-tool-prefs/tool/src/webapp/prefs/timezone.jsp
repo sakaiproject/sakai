@@ -20,28 +20,27 @@
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionLocFrmEdit}" value="#{msgs.prefs_lang_title}" />
    	  	</sakai:tool_bar>
 				
-				<br>
+
+
+				<sakai:messages />
+				
+				<h3><h:outputText value="#{msgs.prefs_timezone_title}" /></h3>
 
 				<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>	
 				</h:panelGroup>
-	
-				<sakai:messages />
-				
-				<h3><h:outputText value="#{msgs.prefs_timezone_title}" /></h3>
 				
 				<p class="instruction"><h:outputText value="#{msgs.time_inst_1}"/> <h:outputText value="#{UserPrefsTool.selectedTimeZone}"/> <h:outputText value="#{msgs.time_inst_2}"/></p>
-				<br>
 					
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedTimeZone}"
                       size="20">
 				    <f:selectItems value="#{UserPrefsTool.prefTimeZones}" />
 				 </h:selectOneListbox>
-			    <br><br>
-			    <div>
-			    <h:commandButton id="submit" style="active;" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionTzSave}"></h:commandButton>
-				<h:commandButton id="cancel" style="active;" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionTzCancel}"></h:commandButton>
+
+			    <div class="act">
+			    <h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionTzSave}"></h:commandButton>
+				<h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionTzCancel}"></h:commandButton>
 			    </div>
 		 </h:form>
 	</sakai:view_content>
