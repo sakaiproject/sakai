@@ -112,8 +112,8 @@
 				</p>
 			#end ## end of if freq is only once
 			<p class="act">
-				<input type="submit" class="active"  name="eventSubmit_doSavefrequency" value="$tlang.getString('gen.save') $tlang.getString('gen.freq')" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSavefrequency" value="$tlang.getString('gen.save') $tlang.getString('gen.freq')" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 			</p>
 		</form>
 </div>

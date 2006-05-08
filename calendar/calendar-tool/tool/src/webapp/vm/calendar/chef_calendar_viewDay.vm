@@ -41,12 +41,12 @@
 		<div style="display:block;clear:both"></div>
 
 	<h3>$tlang.getString("view.calday")</h3>
-		<div style="margin-top:0;">
-			<div class="leftNav">
-				<!-- drop down menu for different views -->
+		<div class="alertPanel">
+			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<label for="view">$tlang.getString("view.view")</label>
+					<span class="skip">$tlang.getString("view.listnavselect")</span>
 					<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
 					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
 						#if ($selectedView.equals($view))
@@ -58,8 +58,8 @@
 					</select>
 				</form>
 			</div>
-			<div class="rightNav">
-				<span class="instruction" style="margin-bottom:.3em">	
+			<div class="listNav">
+				<div class="instruction">	
 					#set ($day_of_Week = $calObj.getDay_Of_Week())
 						#if ($day_of_Week == 1)
 						$tlang.getString("java.sun")
@@ -76,7 +76,7 @@
 						#elseif ($day_of_Week == 7)
 						$tlang.getString("java.sat")
 					#end
-					$nameOfMonth $date.Day, $date.Year $timezone</span>
+					$nameOfMonth $date.Day, $date.Year $timezone</div>
 				
 				#set($isToday = false)
 				#if ($date.Year == $todayYear)
@@ -86,40 +86,28 @@
 						#end
 					#end
 				#end
-				<form name="dayform" action="#toolForm("$action")" method="post" style="margin-top:0">
+				<form name="dayform" action="#toolForm("$action")" method="post">
 					<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('view.lasday')" title="$tlang.getString('view.gotopd')" />
 					<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" #if ($isToday) disabled="disabled" #end />
 					<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('view.nexday')" title="$tlang.getString('view.goto')" />
 				</form>
 			</div>
 		</div>	
-		<div style="display:block; clear:both" />
-		<div style="margin:.5em 1.5em 1em 1.5em;padding:0">
+<div class="clear"></div>
 			#toolbar($menu_PDF)
+		<div class="viewLinkControl">	
+			#if ($page== "first")
+				<a href="#" onclick="location='#toolLink("$action" "doPreday")';return false;" title="$tlang.getString('view.goearlier')">
+				$tlang.getString("view.yesterday")
+			#else
+				<a href="#" onclick="location='#toolLink("$action" "doDpagep")';return false;" title="$tlang.getString('view.goearlier')">
+				$tlang.getString("view.before")
+			#end
+			</a>
 		</div>	
-		
-		
-<table width="100%" cellspacing="0" border="0">
-<tr>
-    <td align="left">
-    #if ($page== "first")
-        <a href="#" onclick="location='#toolLink("$action" "doPreday")';return false;" title="$tlang.getString('view.goearlier')">
-		$tlang.getString("view.yesterday")
-    #else
-        <a href="#" onclick="location='#toolLink("$action" "doDpagep")';return false;" title="$tlang.getString('view.goearlier')">
-        $tlang.getString("view.before")
-    #end
-    </a>
-    </td>
-    <td>    
-    
 
-    </td>
-</tr>
-</table>
-
-<table width="100%" cellspacing="0" cellpadding="2" class="calendar">
-<!-- 1 section : every half an hour-->
+<table width="100%" cellspacing="0" cellpadding="2" class="calendar" summary="$tlang.getString("view.summary")">
+<!-- 1 section : every half an hour-->                                                                              
 #set($section = 1)
 #set($v = 250)
 #set ($colspan = 1)
@@ -328,22 +316,20 @@
 #end ## foreach
 
 </table>
-<table>
-<tr><td align="left">
-#if ($page== "first")
-    <a href="#toolLink("$action" "doDpagen")" title="$tlang.getString('view.golater')">
-    $tlang.getString('view.after')</a>
-#else
-    #if($page== "second")
-        <a href="#toolLink("$action" "doDpagen")" title="Go later">
-        $tlang.getString('view.after')</a>
-    #else ## --third page
-        <a href="#" onclick="location='#toolLink("$action" "doNextday")';return false;" title="$tlang.getString('view.golater')">
-        $tlang.getString('view.tomorrow')</a>
-    #end
-#end
-</td></tr>
-</table>
+<div class="viewLinkControl">
+	#if ($page== "first")
+		<a href="#toolLink("$action" "doDpagen")" title="$tlang.getString('view.golater')">
+		$tlang.getString('view.after')</a>
+	#else
+		#if($page== "second")
+			<a href="#toolLink("$action" "doDpagen")" title="Go later">
+			$tlang.getString('view.after')</a>
+		#else ## --third page
+			<a href="#" onclick="location='#toolLink("$action" "doNextday")';return false;" title="$tlang.getString('view.golater')">
+			$tlang.getString('view.tomorrow')</a>
+		#end
+	#end
+</div>	
 
 #eventLegend($tlang)
 

@@ -45,31 +45,31 @@
 				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br />
 			</p>
 			<p class="act">
-				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" />
-				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
-			</div>
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
+			</p>
 		</form>
 	#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
 			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
 			<p class="act">
-				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" />
-				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" />
-				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" accesskey="s" />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" accesskey="b" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" accesskey="x" />
 			</p>
 		</form>
 	#elseif ($importWizardState == "OTHER_SELECT_FILE")
 		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
-			<p class="shorttext"><label for="importFile">File:</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
+			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
 			<p class="act">
-				<input type="submit" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  />
-				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"  />
-				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  />
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"   accesskey="s" />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"   accesskey="b" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"   accesskey="x" />
 			</p>
 		</form>
 	#elseif ($importWizardState == "CONFIRM_IMPORT")
-		<form name="Options" action="#toolForm("$action")" method="post">
-				<table class="listHier" cellspacing="0">
+		<form name="Options" action="#toolForm("$action")" method="post" >
+				<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('imp.list.summary')"> 
 					<tr>
 						<th scope="col">$tlang.getString("gen.date")</th>
 						<th scope="col">$tlang.getString("imp.actvtm")</th>
@@ -118,11 +118,11 @@
 							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
 						</label>
 					</td>
-										<td nowrap="nowrap" ><input name="eventSelected$impEvent.getLineNumber()" id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
+										<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
 				  </tr>
 				#end
 				</table>
-				<p>
+				<br />
 				
 ## Section awareness
 #if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
@@ -149,24 +149,24 @@
 *#
 	<p class="checkbox">
 		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
-		<label for="site">$tlang.getString("displayto.site")</label>
+		<label for="site">$tlang.getString("imp.forsite")</label>
 	</p>
 	#if ($!groups)
 		## added group awareness
 		<p class="checkbox">
 			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
-			<label for="groups">$tlang.getString("displayto.selected")</label>
+			<label for="groups">$tlang.getString("imp.forgroup")</label>
 		</p>	
 		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
 			#set ($listDisplay="block")
 		#else
 			#set ($listDisplay="none")
 		#end
-		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt2" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
 		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 			<tr>
 				<th id ="selectAllGroups" class="attach">
-					<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+					<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
 				</th>
 		 		<th id ="groupname">
 					#if (!$currentSortedBy.equals("grouptitle"))
@@ -219,9 +219,9 @@
 	#end
 #end
 			<p class="act">
-					<input type="submit" class="active"  name="eventSubmit_doScheduleContinue" value="$tlang.getString('imp.addeve')" />
-					<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" />
-					<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" />
+					<input type="submit" class="active"  name="eventSubmit_doScheduleContinue" value="$tlang.getString('imp.addeve')" accesskey="s" />
+					<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"  accesskey="b" />
+					<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
 			</p>
 		</form>
 	#end

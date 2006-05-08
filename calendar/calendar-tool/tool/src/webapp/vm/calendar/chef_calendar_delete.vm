@@ -19,7 +19,7 @@
 	#end
 	<div class="alertMessage">$tlang.getString("del.sure")</div><div style="display:block;clear:both"/>
 	<form name="deleteTemplateForm" action="#toolForm("$action")" method="post">
-		<table class="itemSummary" cellspacing="0">
+		<table class="itemSummary" cellspacing="0" summary="layout">
 			<tr>
 				<th>$tlang.getString("gen.title")</th>
 				<td>$validator.escapeHtml($event.getDisplayName())</td>
@@ -67,7 +67,7 @@
 		</tr>
 		#if ($!groupRange && !($!groupRange == ""))
 		<tr>
-			<th class="chefLabel">$tlang.getString("groups")</th>
+			<th>$tlang.getString("groups")</th>
 			<td>$!groupRange</td>
 		</tr>
 		#end
@@ -87,37 +87,37 @@
 			<th>$tlang.getString("del.item")</th>
 				<td>
 					#if($event.getType()=="Academic Calendar")
-					<img src = "#imageLink("sakai/academic_calendar.gif")" border="0"/> $tlang.getString("del.acad") 
+					<img src = "#imageLink("sakai/academic_calendar.gif")" border="0" alt="$tlang.getString("del.acad")" /> $tlang.getString("del.acad") 
 					#elseif ($event.getType()=="Activity")
-					<img src = "#imageLink("sakai/activity.gif")" border="0"/ > $tlang.getString("del.activ")
+					<img src = "#imageLink("sakai/activity.gif")" border="0" alt="$tlang.getString("del.activ")" /> $tlang.getString("del.activ")
 					#elseif($event.getType()=="Cancellation")
-					<img src = "#imageLink("sakai/cancelled.gif")" border="0"/> $tlang.getString("del.cancell")
+					<img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$tlang.getString("del.cancell")" /> $tlang.getString("del.cancell")
 					#elseif ($event.getType()=="Class section - Discussion")
-					<img src = "#imageLink("sakai/class_dis.gif")" border="0"/> $tlang.getString("del.class") - $tlang.getString("del.disc")
+					<img src = "#imageLink("sakai/class_dis.gif")" border="0" alt=" $tlang.getString("del.class") - $tlang.getString("del.disc")" /> $tlang.getString("del.class") - $tlang.getString("del.disc")
 					#elseif ($event.getType()=="Class section - Lab")
-					<img src = "#imageLink("sakai/class_lab.gif")" border="0"/> $tlang.getString("del.class") - $tlang.getString("del.lab")
+					<img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$tlang.getString("del.class") - $tlang.getString("del.lab")" /> $tlang.getString("del.class") - $tlang.getString("del.lab")
 					#elseif ($event.getType()=="Class section - Lecture")
-					<img src = "#imageLink("sakai/class_lec.gif")" border="0"/> $tlang.getString("del.class") - $tlang.getString("del.lect")
+					<img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$tlang.getString("del.class") - $tlang.getString("del.lect")" /> $tlang.getString("del.class") - $tlang.getString("del.lect")
 					#elseif ($event.getType()=="Class section - Small Group")
-					<img src = "#imageLink("sakai/class_sma.gif")" border="0"/> $tlang.getString("del.class") - $tlang.getSTring("del.small")
+					<img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$tlang.getString("del.class") - $tlang.getSTring("del.small")" /> $tlang.getString("del.class") - $tlang.getSTring("del.small")
 					#elseif ($event.getType()=="Class session")
-					<img src = "#imageLink("sakai/class_session.gif")" border="0"/> $tlang.getString("del.classsession")
+					<img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$tlang.getString("del.classsession")" /> $tlang.getString("del.classsession")
 					#elseif($event.getType()=="Computer Session")
-					<img src = "#imageLink("sakai/computersession.gif")" border="0"/> $tlang.getString("del.computer")
+					<img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$tlang.getString("del.computer")"/> $tlang.getString("del.computer")
 					#elseif($event.getType()=="Deadline")
-					<img src = "#imageLink("sakai/deadline.gif")" border="0"/> $tlang.getString("del.dead")
+					<img src = "#imageLink("sakai/deadline.gif")" border="0" alt="$tlang.getString("del.dead")"/> $tlang.getString("del.dead")
 					#elseif($event.getType()=="Exam")
-					<img src = "#imageLink("sakai/exam.gif")" border="0"/> $tlang.getString("del.exam")
+					<img src = "#imageLink("sakai/exam.gif")" border="0" alt="$tlang.getString("del.exam")"/> $tlang.getString("del.exam")
 					#elseif ($event.getType()=="Meeting")
-					<img src = "#imageLink("sakai/meeting.gif")" border="0"/ > $tlang.getString("del.meet")
+					<img src = "#imageLink("sakai/meeting.gif")" border="0" alt="$tlang.getString("del.meet")"/> $tlang.getString("del.meet")
 					#elseif($event.getType()=="Quiz")
-					<img src = "#imageLink("sakai/quiz.gif")" border="0"/> $tlang.getString("del.quiz")
+					<img src = "#imageLink("sakai/quiz.gif")" border="0" alt="$tlang.getString("del.quiz")" /> $tlang.getString("del.quiz")
 					#elseif($event.getType()=="Special event")
-					<img src = "#imageLink("sakai/special_event.gif")" border="0"/> $tlang.getString("del.special") 
+					<img src = "#imageLink("sakai/special_event.gif")" border="0" alt="$tlang.getString("del.special") " /> $tlang.getString("del.special") 
 					#elseif($event.getType()=="Web Assignment")
-					<img src = "#imageLink("sakai/webassignment.gif")" border="0"/> $tlang.getString("del.web")
+					<img src = "#imageLink("sakai/webassignment.gif")" border="0" alt="$tlang.getString("del.web")" /> $tlang.getString("del.web")
 					#elseif($event.getType()=="Multidisciplinary Conference")
-					<img src = "#imageLink("sakai/multi-conference.gif")" border="0" />$tlang.getString("del.multi")
+					<img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$tlang.getString("del.multi")" />$tlang.getString("del.multi")
 					#end	 
 				</td>
 		</tr>
@@ -183,9 +183,9 @@
 
 
 <p class="act">
-<input type="submit" class="active"  name="eventSubmit_doConfirm" value="$tlang.getString('gen.delete')">
-<input type="submit" name="eventSubmit_doBack" value="$tlang.getString('gen.cancel')">
-</div>
+<input type="submit" class="active" accesskey="s"  name="eventSubmit_doConfirm" value="$tlang.getString('gen.delete')" />
+<input type="submit" accesskey="x" name="eventSubmit_doBack" value="$tlang.getString('gen.cancel')" />
+</p>
 
 </form>
 </div>

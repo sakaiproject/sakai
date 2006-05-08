@@ -20,23 +20,25 @@
 		## this event doesn't exist. show nothing.
 	#else
 	<form name="navigatorform" action="#toolForm("$action")" method="post">
-		<div class="rightNav" style="margin-top:1em">
-					<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" /><br />
-			#if ($!prevAct)
-			<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-			#else
-			<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-			#end
-			<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-			#if ($!nextAct)
-			<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-			#else
-			<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-			#end
-		</div>
+		<div class="navPanel">
+			<div class="itemNav" >
+				#if ($!prevAct)
+					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
+				#else
+					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
+				#end
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+				<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+				#if ($!nextAct)
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
+				#else
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
+				#end
+			</div>
+		</div>	
 	</form>
 	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
-	<table class="itemSummary" cellspacing="0" border="0" style="clear:both">
+	<table class="itemSummary" cellspacing="0" border="0" summary="layout">
 		<tr>
 			<th>$tlang.getString("gen.date")</th> 
 			<td>$event.getRange().firstTime().toStringLocalDate()</td>
@@ -218,35 +220,34 @@
 			</tr>
 			#end
 		</table>
+			<div class="navPanel">
+				<div class="act">
+					<form name="form" action="#toolForm("$action")" method="post" class="inlineForm">
+						#if ($!allowRevise)
+						<input type="submit" name="eventSubmit_doRevise" value="$tlang.getString('gen.revise')" accesskey="e" />
+						#end
+						#if ($!allowDelete)
+						<input type="submit" name="eventSubmit_doDelete" value="$tlang.getString('gen.delete')" accesskey="x" />
+						#end
+					</form>
+				</div>
+				<div class="itemNav" >
+					<form name="navigatorform" action="#toolForm("$action")" method="post" class="inlineForm">
+						#if ($!prevAct)
+						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
+						#else
+						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
+						#end
 
-			<div>
-				<form name="form" action="#toolForm("$action")" method="post">
-				<div class="leftNav">
-					#if ($!allowRevise)
-					<input type="submit" name="eventSubmit_doRevise" value="$tlang.getString('gen.revise')" />
-					#end
-					#if ($!allowDelete)
-					<input type="submit" name="eventSubmit_doDelete" value="$tlang.getString('gen.delete')" />
-					#end
+						<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+						#if ($!nextAct)
+						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
+						#else
+						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
+						#end
+					</form>	
 				</div>
-				</form>
-				
-				<form name="navigatorform" action="#toolForm("$action")" method="post">
-				<div class="rightNav" style="text-align:right;float:none">
-					#if ($!prevAct)
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
-					#else
-					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
-					#end
-					
-					<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
-					#if ($!nextAct)
-					<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
-					#else
-					<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
-					#end
-				</div>
-				</form>	
+
 			</div>
 	#end ## if noEvent == true
 </div>

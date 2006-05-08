@@ -450,11 +450,11 @@ function ampmChange(FieldName)
 			</select>
          $timezone
 		</p>
-		<p class="longtext">
-			<label for="body" class="block">
+		<div class="longtext">
+			<label for="xbody" class="block">
 				$tlang.getString("new.descr")
 			</label>	
-			<table border="0"><tr><td>
+			<table border="0" summary="layout"><tr><td>
 			#if($savedData.getDescription().length() != 0)
 			<textarea name="description"  id="description" wrap="virtual" rows="15" cols="80">$validator.escapeHtmlFormattedTextarea($savedData.getDescription())</textarea>
 			#chef_setupformattedtextarea("description")
@@ -471,8 +471,8 @@ function ampmChange(FieldName)
 			#chef_setupformattedtextarea("description")
 			#end
 			</td></tr></table>
-		</p>	
-		<p class="checkbox">
+		</div>	
+		<p class="checkbox indnt1">
 			<input type="radio" name="scheduleTo" id="site" value="site" #if($!scheduleTo == "site" || $!event.Access == $siteAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
 			<label for="site">$tlang.getString("displayto.site")</label>
 		</p>	
@@ -485,7 +485,7 @@ function ampmChange(FieldName)
 		*#
 		#if ($!groups)
 			## added group awareness
-			<p class="checkbox">
+			<p class="checkbox indnt1">
 				<input type="radio" name="scheduleTo" id="groups" value="groups" #if($!scheduleTo == "groups" || $!event.Access == $groupAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
 				<label for="groups">$tlang.getString("displayto.selected")</label>
 			</p>	
@@ -494,31 +494,31 @@ function ampmChange(FieldName)
 			#else
 				#set ($listDisplay="none")
 			#end
-			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("group.list.summary")">
 			<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 				<tr>
 					<th id ="selectAllGroups" class="attach">
-						<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+						<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
 					</th>
 			 		<th id ="groupname">
 						#if (!$currentSortedBy.equals("grouptitle"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title</a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
 						#else
 							#if ($currentSortAsc.equals("true"))
-								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortasc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
 							#else
-								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortdesc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")"/></a>
 							#end
 						#end
 					</th>
 					<th id ="groupdescription">
 						#if (!$currentSortedBy.equals("groupdescription"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description</a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
 						#else
 							#if ($currentSortAsc.equals("true"))
-								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortasc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
 							#else
-								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+								<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortdesc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")"/></a>
 							#end
 						#end
 					</th>
@@ -767,7 +767,7 @@ function ampmChange(FieldName)
 				#end
 			</ul>
 		#end
-		#if ($size == 0) $tlang.getString("gen.noattach")
+		#if ($size == 0) <p class="instruction">$tlang.getString("gen.noattach")</p>
 			<p class="act">
 			<input type="submit" name="eventSubmit_doAttachments" value="$tlang.getString("new.addattach")" />
 			</p>
@@ -789,8 +789,8 @@ function ampmChange(FieldName)
 			</select>
 		#end
 		<p class="act">
-			<input type="submit" name="eventSubmit_doUpdate" value="$tlang.getString('new.post')" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" class="active" accesskey="s" name="eventSubmit_doUpdate" value="$tlang.getString('new.post')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
 	</form>
 </div>

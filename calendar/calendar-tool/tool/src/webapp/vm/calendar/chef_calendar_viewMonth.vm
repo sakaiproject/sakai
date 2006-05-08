@@ -3,17 +3,18 @@
 #if($menu)#toolbar($menu)#end
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 <!-- First table -->
-	<div style="display:block; clear:both"></div>
+	<div class="clear"></div>
 
 <h3>$tlang.getString("view.calmonth")</h3>
 
 <!-- drop down menu for different views -->
-	<div style="margin-top:0;">
-		<div class="leftNav">
+	<div class="navPanel">
+		<div class="viewNav">
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
 				<input type="hidden" name="eventSubmit_doView" value="view" />
 				<label for="view">$tlang.getString("view.view")</label>
-				<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
+				<select name="view" id="view" size="1"  onchange="blur();document.viewForm.submit();">
 					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
 						#if ($selectedView.equals($view))
 							<option value="$view" selected="selected" >$view</option>
@@ -24,22 +25,22 @@
 				</select>
 			</form>
 		</div>
-		<div class="rightNav">
-		 	<span class="instruction" style="margin-bottom:.3em">$nameOfMonth $year</span>
-			<form name="monthform" action="#toolForm("$action")" method="post" style="margin-top:0">
+		<div class="listNav">
+		 	<div class="instruction" style="margin-bottom:.3em">$nameOfMonth $year</div>
+			<form name="monthform" action="#toolForm("$action")" method="post">
 				 <input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewm.lasm')" title ="$tlang.getString('viewm.gotopm')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
 				 <input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexm')" title="$tlang.getString('viewm.gotonm')" />
 			</form>
 		</div>	
 	</div>
-	<div style="display:block; clear:both" />
-	<div style="margin:.5em 1.5em 1em 1.5em;padding:0">
+	<div class="clear"></div>
+	
 		#toolbar($menu_PDF)
-	</div>	
+	<div class="clear"></div>
 
 <!-- how to draw a month -->
-<table cellpadding="2" width="100%" border="0" cellspacing="0" class="calendar">
+<table cellpadding="2" width="100%" border="0" cellspacing="0" class="calendar" summary="$tlang.getString('viewm.list.summary')">
     <tr>
         <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.sun')</th>
         <th align="center" width="14%" class="borderWhite">$tlang.getString('viewm.mon')</th>

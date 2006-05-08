@@ -5,11 +5,12 @@
 	<h3>$tlang.getString("view.calweek")</h3>
 		
 <!-- drop down menu for different views -->
-	<div style="margin-top:0;">
-		<div class="leftNav">
-		<form name="viewForm"  method="post" action="#toolForm("CalendarAction")">
+	<div class="navPanel">
+		<div class="viewNav">
+		<form name="viewForm"  method="post" action="#toolForm("CalendarAction")" class="inlineForm">
 				<input type="hidden" name="eventSubmit_doView" value="view" />
 				<label for="view">$tlang.getString("view.view")</label>
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
 				<select name="view" id="view" size="1" onchange="blur();document.viewForm.submit(this);">
 					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
 						#if ($selectedView.equals($view))
@@ -21,22 +22,19 @@
 				</select>
 			</form>
 		</div>				
-		<div class="rightNav">
-			<span class="instruction" style="margin-bottom:.3em">$week.getWeek(0).getNameOfMonth() $week.getWeek(0).getDay(), $week.getWeek(0).Year - $week.getWeek(6).getNameOfMonth() $week.getWeek(6).getDay(), $week.getWeek(6).Year $timezone</span>	
-			<form name="weekform" action="#toolForm("$action")" method="post" style="margin-top:0">
+		<div class="listNav">
+			<div class="instruction">$week.getWeek(0).getNameOfMonth() $week.getWeek(0).getDay(), $week.getWeek(0).Year - $week.getWeek(6).getNameOfMonth() $week.getWeek(6).getDay(), $week.getWeek(6).Year $timezone</div>	
+			<form name="weekform" action="#toolForm("$action")" method="post" class="inlineForm">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('vieww.laswk')" title="$tlang.getString('vieww.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
 			 	<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexwk')" title="$tlang.getString('vieww.goton')" />
 			</form>
 		</div>
 	</div>
-	<div style="display:block; clear:both" />
-	<div style="margin:.5em 1.5em;padding:0">
+	<div class="clear"></div>
 		#toolbar($menu_PDF)
-	</div>	
 	## the same part in 3 pages for calendar rendering
 	#macro (same)
-	
 
 #foreach($n in [0..6])
     #set ($mm = $week.getWeek($n))
@@ -417,20 +415,11 @@
 <img src = "#imageLink("sakai/multi-conference.gif")" border="0" alt="$validator.escapeHtml($tooltip)" />
 #end
 #end
-<div style="display:block; clear:both"></div>
-<table width="100%">
-
-<tr>
-<td align="left">
+<div class="viewLinkControl">
 	#if($page != "first")
   		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
   	#end
-</td>
-<td>      
-	
-</td>
-</tr>
-</table>
+</div>      
 
 #set ($weekCopy = $week)
 #foreach($day_span in [0..6])
@@ -476,7 +465,7 @@
 
 <!-- how to draw a week-->
 #set($todayIndex = -1)
-<table cellpadding="2" width="100%" height="370" cellspacing="0" class="calendar">
+<table cellpadding="2" width="100%"  cellspacing="0" class="calendar" summary="$tlang.getString("vieww.summary")" style="height:370px">
 <tr>
 <th align="left" height="20" width="7%">&nbsp;</th>
 #foreach ($i in [0..6])
@@ -906,14 +895,11 @@
 #end ## if the page is second, third or first
 </table>
 
-<table width="100%">
-	<tr><td align="left">
-	#if($page != "third")
+<div class="viewLinkControl">
+#if($page != "third")
 		<a href="#" onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
 	#end
-	</td></tr>
-	</table>
-
+</div>
 #eventLegend($tlang)
 
 </div>

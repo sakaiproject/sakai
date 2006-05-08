@@ -7,7 +7,7 @@
 		$tlang.getString('merge.select')
 	</p>
 	<form name="Options" action="#toolForm("$action")" method="post" style="margin-top:.5em">
-		<table class="listHier" cellspacing="0" >
+		<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('merge.list.summary')">
 			<tr> 
 				<th scope="col" id="schedule">$tlang.getString('gen.site')</th>
 				<th scope="col" id="checkbox">$tlang.getString('merge.showsched')</th>
@@ -17,21 +17,22 @@
 				#if ($calendarEntry.isVisible())
 					#set ($num=$num + 1)
 					<tr> 
-						<td headers="schedule">$calendarEntry.getDisplayName()</td>
+						<td headers="schedule"><label for="check_$num">$calendarEntry.getDisplayName()</label></td>
 						<td headers="checkbox">
+							
 							<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
 							#if($calendarEntry.isMerged())
 							checked="checked"
 							#end
 							/>
-							<label for="check_$num">$tlang.getString('merge.yes')</label></td>
+							</td>
 					</tr>
 				#end
 			#end
 		</table>
 		<div class="act">
-			<input type="submit" class="active"  name="eventSubmit_doUpdate" value="$tlang.getString('gen.save')" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input type="submit" class="active" accesskey="s" name="eventSubmit_doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</div>
 		<input type="hidden" name="state" value="$state" />
 	</form>

@@ -14,62 +14,65 @@
 	#if($menu)#toolbar($menu)#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 	#set ($counter = 1 )
-	<div style="margin-top:1em;">
-		<div class="leftNav">
-			<form name="viewForm" class="inlineForm" action="#toolForm("$action")" method="post" style="display:inline">
-				<input type="hidden" name="eventSubmit_doView" value="view" />
-				<label for="view">$tlang.getString('view.view')</label>
-				<select name="view" size="1"  onchange="blur();document.viewForm.submit();" id="view">
-					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
-						#if ($selectedView.equals($view))
-							<option value="$view" selected="selected" >$view</option>
-						#else
-							<option value="$view" >$view</option>
+	<div class="navPanel">
+		<div class="viewNav">
+			<div class="shorttext">
+				<form name="viewForm" class="inlineForm" action="#toolForm("$action")" method="post">
+					<input type="hidden" name="eventSubmit_doView" value="view" />
+					<label for="view">$tlang.getString('view.view')</label>
+					<select name="view" size="1"  onchange="blur();document.viewForm.submit();" id="view">
+						#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+							#if ($selectedView.equals($view))
+								<option value="$view" selected="selected" >$view</option>
+							#else
+								<option value="$view" >$view</option>
+							#end
 						#end
-					#end
-				</select>
-			</form>
-			<form name="listform2" class="inlineForm" method="post" action="#toolForm("SiteAction")" style="display:inline">
-				<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
-				<label for="timeFilterOption">$tlang.getString('view.show')</label>
-				<select name="timeFilterOption" onchange="blur();document.listform2.submit();" id="timeFilterOption">
-					<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
-					<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
-					<option value="SHOW_WEEK" #if ($timeFilterOption == "SHOW_WEEK") selected="selected" #end >$tlang.getString('view.activw')</option>
-					<option value="SHOW_MONTH" #if ($timeFilterOption == "SHOW_MONTH") selected="selected" #end >$tlang.getString('view.activm')</option>
-					<option value="SHOW_YEAR" #if ($timeFilterOption == "SHOW_YEAR") selected="selected" #end >$tlang.getString('view.activy')</option>
-					<option value="SHOW_CUSTOM_RANGE" #if ($timeFilterOption == "SHOW_CUSTOM_RANGE") selected="selected" #end >$tlang.getString('view.custom')</option>
-				</select>
-			</form>
+					</select>
+				</form>
+			</div>	
+			<div class="shorttext">
+				<form name="listform2" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
+					<label for="timeFilterOption">$tlang.getString('view.show')</label>
+					<select name="timeFilterOption" onchange="blur();document.listform2.submit();" id="timeFilterOption">
+						<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
+						<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
+						<option value="SHOW_WEEK" #if ($timeFilterOption == "SHOW_WEEK") selected="selected" #end >$tlang.getString('view.activw')</option>
+						<option value="SHOW_MONTH" #if ($timeFilterOption == "SHOW_MONTH") selected="selected" #end >$tlang.getString('view.activm')</option>
+						<option value="SHOW_YEAR" #if ($timeFilterOption == "SHOW_YEAR") selected="selected" #end >$tlang.getString('view.activy')</option>
+						<option value="SHOW_CUSTOM_RANGE" #if ($timeFilterOption == "SHOW_CUSTOM_RANGE") selected="selected" #end >$tlang.getString('view.custom')</option>
+					</select>
+				</form>
+			</div>	
 			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
-				<form name="listform1" method="post" action="#toolForm("SiteAction")" style="display:block;clear:both">
+				<form name="listform1" method="post" action="#toolForm("SiteAction")">
 				#*	$tlang.getString('viewl.start')<input name="customStartDate" type="text" value="$customStartDate" size="10">
 							&nbsp;
 							$tlang.getString('viewl.end')<input name="customEndDate" type="text" value="$customEndDate" size="10">
 							&nbsp;
 				*#
-					<p style="margin:0;">
-					<label for="customStartMonth" style="width:8em">$tlang.getString('viewl.st')</label>
-					#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay)
-					</p>
-					<p style="margin:0">
-					<label for="customEndMonth"style="width:8em">$tlang.getString('viewl.ed')&nbsp;</label>
+					<div class="shorttext">
+						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
+						#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay)
+					</div>	
+					<div class="shorttext">
+					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
 					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay)
-					<input name="eventSubmit_doCustomDate" type="submit" value="$tlang.getString('view.apply')" />
-					</p>
+				</div>	
 				</form>
+				<p class="labelindnt">	<input name="eventSubmit_doCustomDate" type="submit" value="$tlang.getString('view.apply')" /></p>
+
 			#end
 		</div>
-		<div class="rightNav">
+		<div class="listNav">
 			<form name="todayForm" action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
 			</form>
 		</div>
 	</div>
-	<div style="display:block; clear:both" />
-	<div style="margin:1em 1.5em;padding:0;clear:both">
-		#toolbar($menu_PDF)
-	</div>	
+	<div class="clear"></div>
+	#toolbar($menu_PDF)
 	
 
 
@@ -80,18 +83,18 @@
 #* 		Joanne: need a check here - if messages, display, otherwise do not.
 		Not sure what was available in the context to do this. (gsilver) *#
 
-			<table class="listHier" cellspacing="0" cellpadding="0" border="0">
+			<table class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0" summary="$tlang.getString('viewl.list.summary')">
 				<tr>
 					<th>
 						#if ($currentDateSortAsc)
-							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="Sort by date ascending">
+							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdateasc')">
 							$tlang.getString('viewl.date')
-							<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by date ascending" />
+							<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('viewl.sortdateasc')" />
 							</a>
 						#else
-							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="Sort by date ascending">
+							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdatedesc')">
 							$tlang.getString('viewl.date')
-							<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by date descending"/>
+							<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('viewl.sortdatedesc')"/>
 							</a>
 						#end
 					</th>
@@ -327,20 +330,20 @@
 #else
 	<p class="checkbox">
 		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
-		<label for="site">$tlang.getString("displayto.site")</label>
+		<label for="site">$tlang.getString("displayfrom.site")</label>
 	</p>
 	#if ($!groups)
 		## added group awareness
 		<p class="checkbox">
 			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';" />
-			<label for="groups">$tlang.getString("displayto.selected")</label>
+			<label for="groups">$tlang.getString("displayfrom.selected")</label>
 		</p>	
 		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
 			#set ($listDisplay="block")
 		#else
 			#set ($listDisplay="none")
 		#end
-		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="Table contains list of groups. First will  contain checkboxes, second will contain the group name, third the group description. Header links can be used to sort.">
+		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("viewl.group.list.summary")">
 		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
 			<tr>
 				<th id ="selectAllGroups" class="attach">
@@ -348,23 +351,23 @@
 				</th>
 		 		<th id ="groupname">
 					#if (!$currentSortedBy.equals("grouptitle"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title</a>
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortasc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
 						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="Sort by group title">Title <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortdesc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")"/></a>
 						#end
 					#end
 				</th>
 				<th id ="groupdescription">
 					#if (!$currentSortedBy.equals("groupdescription"))
-						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description</a>
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
 					#else
 						#if ($currentSortAsc.equals("true"))
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortasc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
 						#else
-							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="Sort by group description">Description <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortdesc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")"/></a>
 						#end
 					#end
 				</th>

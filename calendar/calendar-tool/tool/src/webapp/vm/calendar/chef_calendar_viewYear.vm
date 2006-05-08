@@ -5,12 +5,13 @@
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
 
 <h3>$tlang.getString("view.calyear")</h3>
-	<div style="margin-top:0;">
-		<div class="leftNav">
+	<div class="navPanel">
+		<div class="viewNav">
 		<!-- drop down menu for different views -->
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
 				<input type="hidden" name="eventSubmit_doView" value="view" />
 				<label for="view">$tlang.getString("view.view")</label>
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
 				<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
 					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
 						#if ($selectedView.equals($view))
@@ -22,16 +23,16 @@
 				</select>
 			</form>
 		</div>
-		<div class="rightNav">
-			<span class="instruction" style="margin-bottom:.3em">$year</span>
-			<form action="#toolForm("$action")" method="post" style="margin-top:0">
+		<div class="listNav">
+			<div class="instruction">$year</div>
+			<form action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />
 				<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('viewy.nexy')" title="$tlang.getString('viewy.goton')" />
 			 </form>
 		 </div>
 	 </div>	
-	<div style="display:block; clear:both" />
+	<div class="clear"></div>
 	##does not look like $menu_PDF return anything for year...so comment out
 	#*
 		<div class="navIntraTool" style="margin:.5em 1.5em 1em 1.5em;padding:0">
@@ -39,14 +40,14 @@
 		</div>	
 	*#
 <!-- how to draw a year-->
-<table width="100%" cellspacing="5">
+<table width="100%" cellspacing="5" summary="$tlang.getString('viewm.list.summary')">
    #foreach ($xn in [0..3])
     <tr>
         #foreach ($mn in [0..2])
             <td>
                 <!--<table>-->
-                <table width="100%" cellspacing="0" class="calendar">
-                        #set ($mm = $yearArray.getMonth($xn,$mn))
+                #set ($mm = $yearArray.getMonth($xn,$mn))
+                <table width="100%" cellspacing="0" class="calendar"  summary="$tlang.getString('viewm.list.summary2') $mm.MonthName $tlang.getString('viewm.list.summary2')">
                         <tr>
                             ##<td colspan="7" class="borderWhiteYear">
                             <th colspan="7">
