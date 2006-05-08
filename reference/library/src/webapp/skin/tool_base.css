@@ -37,6 +37,7 @@ testing as this browser in some configurations will sometimes apply these defini
 	.portletBody {
 	padding: 0 !important;
 }
+
 }
 /* SECTION 1 - STANDARD COMPONENTS*/
 body{
@@ -229,13 +230,12 @@ ul.attachList li{
 
 /*formish elements in the listView subpanel - see schedule list, range of events filters*/
 .viewNav .shorttext{
-	border: 0;
 	margin: .2em 0;
 }
 
 .viewNav .shorttext label{
 	width: 8em;
-	float: left;
+/*	float: left;*/
 }
 
 .viewNav .labelindnt{
