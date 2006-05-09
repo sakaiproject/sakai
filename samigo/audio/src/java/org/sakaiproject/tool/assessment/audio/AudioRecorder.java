@@ -185,7 +185,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
     else if (params.getAttemptsRemaining() == -1)
       saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
-    else
+    else 
       saveTFpanel.add(rtextField = new JTextField("0"));
     textField.setEditable(false);
     rtextField.setEditable(false);
@@ -200,7 +200,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private JPanel makeAudioButtonsPanel()
   {
     JPanel buttonsPanel = new JPanel();
-    if (params.getAttemptsRemaining() > 0){
+    if (params.getAttemptsRemaining() > 0 || params.getAttemptsRemaining() == -1){
       captB = addButton(res.getString("Record"), buttonsPanel, true,
                         params.isEnableRecord());
     }
