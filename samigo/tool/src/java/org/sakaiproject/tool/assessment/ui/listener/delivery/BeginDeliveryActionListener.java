@@ -86,11 +86,17 @@ public class BeginDeliveryActionListener implements ActionListener
       delivery.setActionString(actionString);
     }
     int action = delivery.getActionMode();
+    // reset DeliveryBean before begin
+    ResetDeliveryListener reset = new ResetDeliveryListener();
+    reset.processAction(null);
+
     // reset timer before begin
+    /*
     delivery.setTimeElapse("0");
     delivery.setTimeElapseAfterFileUpload(null);
     delivery.setLastTimer(0);
     delivery.setTimeLimit("0");
+    */
     delivery.setBeginAssessment(true);
     delivery.setTimeStamp((new Date()).getTime());
 

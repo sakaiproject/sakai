@@ -107,6 +107,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param data List of itemGradingDataIfcs
    */
 
+    /*
   public void saveItemScores(List data, HashMap map, PublishedAssessmentIfc pub)
   {
     try
@@ -120,7 +121,7 @@ public class GradingServiceImpl implements GradingServiceAPI
       throw new GradingServiceException(ex);
     }
   }
-
+    */
   /**
    * Get the score information for each item from the assessment score.
    */

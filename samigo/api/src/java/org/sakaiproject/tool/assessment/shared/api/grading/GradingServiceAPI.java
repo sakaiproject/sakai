@@ -60,7 +60,7 @@ public interface GradingServiceAPI
    * Save the item scores.
    * @param data List of itemGradingDataIfcs
    */
-  public void saveItemScores(List data, HashMap map, PublishedAssessmentIfc pub);
+  //public void saveItemScores(List data, HashMap map, PublishedAssessmentIfc pub);
 
   /**
    * Get the score information for each item from the assessment score.

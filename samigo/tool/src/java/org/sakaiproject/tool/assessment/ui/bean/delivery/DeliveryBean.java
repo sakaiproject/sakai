@@ -1625,7 +1625,7 @@ public class DeliveryBean
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
       PublishedAssessmentService();
-    HashMap itemHash = publishedService.preparePublishedItemHash(getPublishedAssessment());
+    HashMap itemHash = getPublishedItemHash();
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
@@ -2283,6 +2283,48 @@ public class DeliveryBean
 
   public void setTimeStamp(long timeStamp){
     this.timeStamp=timeStamp;
+  }
+
+  private HashMap publishedItemHash;
+  public HashMap getPublishedItemHash(){
+    if (publishedItemHash == null){
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
+      publishedItemHash = pubService.preparePublishedItemHash(getPublishedAssessment());
+    }
+    setPublishedItemHash(publishedItemHash);
+    return publishedItemHash;
+  }
+
+  public void setPublishedItemHash(HashMap publishedItemHash){
+    this.publishedItemHash = publishedItemHash;
+  }
+
+  private HashMap publishedItemTextHash;
+  public HashMap getPublishedItemTextHash(){
+    if (publishedItemTextHash == null){
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
+      publishedItemTextHash = pubService.preparePublishedItemTextHash(getPublishedAssessment());
+    }
+    setPublishedItemTextHash(publishedItemTextHash);
+    return publishedItemTextHash;
+  }
+
+  public void setPublishedItemTextHash(HashMap publishedItemTextHash){
+    this.publishedItemTextHash = publishedItemTextHash;
+  }
+
+  private HashMap publishedAnswerHash;
+  public HashMap getPublishedAnswerHash(){
+    if (publishedAnswerHash == null){
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
+      publishedAnswerHash = pubService.preparePublishedAnswerHash(getPublishedAssessment());
+    }
+    setPublishedAnswerHash(publishedAnswerHash);
+    return publishedAnswerHash;
+  }
+
+  public void setPublishedAnswerHash(HashMap publishedAnswerHash){
+    this.publishedAnswerHash = publishedAnswerHash;
   }
 
 }

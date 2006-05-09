@@ -98,9 +98,11 @@ public class SubmitToGradingActionListener implements ActionListener
       PublishedAssessmentFacade publishedAssessment = null;
       if (delivery.getPublishedAssessment() != null)
         publishedAssessment = delivery.getPublishedAssessment();
-      else
+      else{
         publishedAssessment =
           publishedAssessmentService.getPublishedAssessment(delivery.getAssessmentId());
+        delivery.setPublishedAssessment(publishedAssessment);
+      }
 
       AssessmentGradingData adata = submitToGradingService(publishedAssessment, delivery);
 
@@ -230,7 +232,9 @@ public class SubmitToGradingActionListener implements ActionListener
       Iterator iter2 = part.getItemContents().iterator();
       while (iter2.hasNext()){ // go through each item from form
         ItemContentsBean item = (ItemContentsBean) iter2.next();
+        System.out.println("****** before prepareItemGradingPerItem");
         prepareItemGradingPerItem(delivery, item, adds, removes);
+        System.out.println("****** after prepareItemGradingPerItem");
       }
     }
     AssessmentGradingData adata = persistAssessmentGrading(delivery, itemGradingHash, 
@@ -251,7 +255,7 @@ public class SubmitToGradingActionListener implements ActionListener
     }
 
     GradingService service = new GradingService();
-    if (adata == null) {
+    if (adata == null) { // <--- this cannot happen, adata should have been created by BeginAssessment
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
       delivery.setAssessmentGrading(adata);
     }
@@ -263,11 +267,13 @@ public class SubmitToGradingActionListener implements ActionListener
       HashMap fibMap = getFIBMap(publishedAssessment);
       HashMap mcmrMap = getMCMRMap(publishedAssessment);
       Set itemGradingSet = adata.getItemGradingSet();
+    System.out.println("*** 2. before removal & adittion "+(new Date()));
       if (itemGradingSet!=null){
         itemGradingSet.removeAll(removes);
         service.deleteAll(removes);
-        // refresh itemGradingSet after removal 
+        // refresh itemGradingSet & assessmentGrading after removal 
         itemGradingSet = service.getItemGradingSet(adata.getAssessmentGradingId().toString());
+        adata = service.load(adata.getAssessmentGradingId().toString());
 
         Iterator iter = adds.iterator();
         while (iter.hasNext()){
@@ -280,7 +286,18 @@ public class SubmitToGradingActionListener implements ActionListener
       }
     }
     adata.setForGrade(new Boolean(delivery.getForGrade()));
-    service.storeGrades(adata, publishedAssessment);
+    service.saveOrUpdateAssessmentGrading(adata); 
+
+    System.out.println("*** 3. before storingGrades, did all the removes and adds "+(new Date()));
+    // 3. let's build three HashMap with (publishedItemId, publishedItem), 
+    // (publishedItemTextId, publishedItem), (publishedAnswerId, publishedItem) to help with
+    // storing grades
+    HashMap publishedItemHash = delivery.getPublishedItemHash();
+    HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
+    HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
+    service.storeGrades(adata, publishedAssessment, publishedItemHash, 
+                        publishedItemTextHash, publishedAnswerHash);
+    System.out.println("*** 4. after storingGrades, did all the removes and adds "+(new Date()));
     return adata;
   }
 

@@ -461,6 +461,7 @@ public class GradingService
     }
   }
 
+    /*
   public void saveItemScores(ArrayList data, HashMap assessmentGradingHash, PublishedAssessmentIfc pub) {
     try {
       Iterator iter = data.iterator();
@@ -504,7 +505,7 @@ public class GradingService
       e.printStackTrace();
     }
   }
-
+    */
 
   public void updateItemScore(ItemGradingData gdata, float scoreDifference, PublishedAssessmentIfc pub){
     try {
@@ -543,9 +544,11 @@ public class GradingService
   /**
    * Assume this is a new item.
    */
-  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub)
+  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
+                          HashMap publishedItemHash, HashMap publishedItemTextHash,
+                          HashMap publishedAnswerHash) 
   {
-    storeGrades(data, false, pub);
+    storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
   }
 
   /**
@@ -556,13 +559,11 @@ public class GradingService
    * If regrade is true, we just recalculate the graded score.  If it's
    * false, we do everything from scratch.
    */
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub) throws GradebookServiceException {
-      //System.out.println("**** regrade ="+regrade);
-    //#0 - let's build a HashMap with (publishedItemId, publishedItem)
-    PublishedAssessmentService pubService = new PublishedAssessmentService();
-    HashMap publishedItemHash = pubService.preparePublishedItemHash(pub); 
-    HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub); 
-    HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pub); 
+  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
+                          HashMap publishedItemHash, HashMap publishedItemTextHash,
+                          HashMap publishedAnswerHash) 
+         throws GradebookServiceException {
+    System.out.println("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
       String agent = data.getAgentId();
       if (!regrade)
@@ -589,6 +590,7 @@ public class GradingService
 
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
+      System.out.println("****x2. "+(new Date()).getTime());
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
@@ -627,6 +629,7 @@ public class GradingService
         itemGrading.setAutoScore(new Float(autoScore));
       }
 
+      System.out.println("****x3. "+(new Date()).getTime());
       // what does the following address? daisyf
       iter = itemGradingSet.iterator();
       while(iter.hasNext())
@@ -641,6 +644,7 @@ public class GradingService
           itemGrading.setAutoScore(new Float(0));
         }
       }
+      System.out.println("****x4. "+(new Date()).getTime());
 
       // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
       // updated old answers and FIB answers ('cos we need the old answer to calculate the score for new
@@ -648,6 +652,7 @@ public class GradingService
       // changed. Yes, assessmentGrading's total score will be out of sync at this point, I am afraid. It
       // would be in sync again once the whole method is completed sucessfully. 
       saveOrUpdateAll(itemGradingSet);
+      System.out.println("****x5. "+(new Date()).getTime());
 
       // save#2: now, we need to get the full set so we can calculate the total score accumulate for the
       // whole assessment.
@@ -656,6 +661,7 @@ public class GradingService
       data.setTotalAutoScore(new Float(totalAutoScore));
       //System.out.println("**#1 total AutoScore"+totalAutoScore);
       data.setFinalScore(new Float(totalAutoScore + data.getTotalOverrideScore().floatValue()));
+      System.out.println("****x6. "+(new Date()).getTime());
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
       throw ge;
@@ -668,7 +674,10 @@ public class GradingService
     // therefore setItemGradingSet as empty first - daisyf
     data.setItemGradingSet(new HashSet());
     saveOrUpdateAssessmentGrading(data);
+    System.out.println("****x7. "+(new Date()).getTime());
+
     notifyGradebookByScoringType(data, pub);
+    System.out.println("****x8. "+(new Date()).getTime());
     //System.out.println("**#2 total AutoScore"+data.getTotalAutoScore());
   }
 
