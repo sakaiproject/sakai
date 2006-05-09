@@ -1,201 +1,533 @@
-body{width:100%;padding:0px;font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;margin:0}
-/*GROUP 1 - top navigation*/
+/*general body - used by main portal document and document inside of the #sitenav iframe*/ 
+body{
+	width: 100%;
+	padding: 0;
+	font-family: 'Trebuchet MS',Verdana,sans-serif;
+	margin: 0;
+	background: #fff;
+}
+
+/*PART 1 - MAIN LAYOUT BLOCKS*/
+/*outer wrapper for portal content (decorative - child is #portalContainer )*/
+#portalOuterContainer{
+}
+
+/*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
+#portalContainer{
+}
+
+/*wrapper for iframe containing masthead  and site navigation (3 possible classes for this iframe .sitenav-max,.sitenav-min,.sitenav-log) as well as accessibility links wrapper #skipNav */
+#header{
+	width: 98%;
+	margin: 1em auto 0 auto;
+}
+
+/*accessibility links wrapper */
+#skipNav{
+}
+
+/*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
+#container{
+	width: 98%;
+	margin: 1em auto;
+	border:1px solid #fff
+}
+
+/*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
+#toolMenuWrap{
+	float: left;
+	width: 9.6em;
+	color: #000;
+	text-align: right;
+	padding:0 .5em 0 0;
+	border-right:1px solid #09c
+}
+
+/*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
+#content{
+	padding: 0;
+	margin-top: .5em;
+	margin-left: 11em;
+}
+
+* html #content{margin-left:11.3em}
+/*wrapper for footer blocks*/
+#footer{
+	color: #000;
+	font-size: x-small;
+	margin: 0px;
+	padding: 0;
+	width: auto;
+	clear: both;
+	top: 0;
+	border-top: 1px solid #09c;
+	text-align: center;
+}
+
+/*PART 2 - HEADER IFRAME SETTINGS*/	
 /*iframe sizes for different states*/
-.sitenav-log{height:5em} /*user not logged in*/
-.sitenav-max{height:120px}  /*user logged in*/
-.sitenav-min{height:2.3em}  /*no logos or banners*/
-/*container for the #tabNavigation ul*/
-.tabHolder{width:100%;height:1.3em;padding:1px 0 0 3px;margin:0;background:#58894D}
-.tabHolder table{margin-bottom:0;}
-.tabHolder table td{margin:0;padding:0}
-.tabHolder table td.tabCell{padding:0;width:auto;}
-.tabHolder table td.selectCell{text-align:left;padding:0 0 0 .3em;}
-.tabHolder table td.selectCell select{display:inline;font-size:.7em;margin:0 0 0 3px;padding:0}
-.tabHolder table td.galleryLogin{font-size:.8em;padding-left:2em}
-.tabHolder table td.galleryLogin a, .tabHolder table td.mast-head-r a:visited  {color:#fff}
-.tabHolder table td.galleryLogin a:hover{color:#fff;text-decoration:underline}
+.sitenav-log{
+	/*user not logged in*/
+	height: 90px;
+	width: 100%;
+	border-bottom:1px solid #09c
+}
 
+.sitenav-max{
+	/*user logged in */
+	height: 120px;
+	width: 100%;
+}
 
+.sitenav-min{
+	/*no logos or banners*/
+	height: 2em;
+	width: 100%;
+}
 
-/*ul - the li are the tabs*/
-#tabNavigation{
-white-space:nowrap;
-list-style:none none none;
-font-size:.8em;
-margin:0 0 0px 3px;
-padding:4px 0 4px 0;
-width:100%;
-height:1.2em;
-vertical-align:bottom;
-float:left;
+/*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
+/*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
+TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
+#siteNavWrapper{
+	margin: 0; /*float:right*/
+}
 
+/*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
+#mastHead{
+	font-size: .8em;
+}
+
+/*container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastLogo{
+	float: left;
+	width: auto;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastLogo img{
+	margin: 1em .5em;
+}
+
+/*another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastBanner{
+	width: auto;
+	vertical-align: top;
+	float: left;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastBanner img{
+	margin: 1em .5em;
+}
+
+/*container wrapping,depending on Sakai settings:1) a login form,2) a login link for CAS,3) a logout link*/
+#mastLogin{
+	float: right;
+	text-align: right;
+	padding-right: 15px;
+	vertical-align: top;
+}
+
+/*the anchor for the login link for CAS above can be an image - treated here*/
+#mastLogin img{
+	margin-top: 0;
+	border: 0;
+}
+
+/*login links for CAS,logout link*/
+#mastLogin a,#mastLogin a:visited{
+	color: #09c;
+	margin-top: 0;
+}
+
+#mastLogin a:hover{
+	color: #09c;
+	text-decoration: none;
+}
+
+/*login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label{
+}
+
+#loginForm is the form for login - contains children #eid #pw #submit*/
+#loginForm{
+	margin: 1em 0;
+}
+
+#eid{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#pw{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#loginForm label{
+	color: #000;
+	padding-right:1em
+}
+
+#submit{
+}
+
+#submit:hover{
+	color: #09c;
+}
+
+/*block for login/logout links */
+#loginLinks{
+	margin: 1em 0 2em 0;
+}
+
+/*main CAS link*/
+#loginLink1{
+}
+
+/*secondary CAS link*/
+#loginLink2{
+}
+
+/*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
+/*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
+so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
+.siteNavWrap{
+	width: 100%;
+	background: #09C;
+	padding: 0;
+	margin: 0;
+	float: left;
+	border-top: 1px solid #09c;
+}
+
+/*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
+
+#siteNav{
+	white-space: nowrap;
+}
+
+* html body #siteNav{
+	height:1.5em;
+}
+
+/*wrapper for the site link list   - the #siteLinkList child)*/
+#linkNav{
+	padding: 0;
+	float: left;
+	margin:.2em 0;
+}
+* html body  #linkNav{
+/*margin-top:.2em*/
+}
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+#selectNav{
+	padding: 0;
+	float: right;
+	padding: .2em;
+}
+
+/*the <select> contextually defined*/
+#selectNav select{
+	display:inline;
+	font-size: .8em;
+	margin: 0 0 0 3px;
+	padding: 0;
+}
+
+#selectNav select option{
+	background: #fff;
+}
+
+/*a ul - the li below are outer wrappers for the links to sites */
+#siteLinkList{
+	white-space: nowrap;
+	list-style: none none none;
+	font-size: .8em;
+	margin: 0;	
+	padding: 4px 0;
+	width: auto;
+}
+
+/*list elements - children are <span> and <a>*/
+#siteLinkList li{
+	display: inline;
+	line-height: 1.3em;
+}
+
+/*span shim for fine grained manipulation of link display (decorative)*/
+#siteLinkList li span{
+}
+
+/*the current sites' link*/
+#siteLinkList .selectedTab a,
+	#siteLinkList .selectedTab a:link,
+	#siteLinkList .selectedTab a:visited,
+	#siteLinkList .selectedTab a:hover{
+	color: #000;
+	cursor: text;
+	text-decoration: none;
+}
+
+/*links to other sites*/
+#siteLinkList a,#siteLinkList a:link,#siteLinkList a:visited{
+	color: #fff;
+	padding: 2px 6px 2px 4px;
+	text-decoration: underline;
+	border-right: 1px solid #fff;
+}
+
+/*hover state for links to other sites*/
+#siteLinkList a:hover{
+	color: #fff;
+	text-decoration: none;
+}
+
+.fixTabsIE{
+	visibility: hidden;
+	display: none;
+	border-width: 0;
+}
+
+/*block in case need to display any decorative element above or below the .tabHolder block*/
+#navBottom{
+	display: none;
+}
+
+/*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
+/*wrapper for ul that lists the links to tools*/
+#toolMenu{
+	width: 12em;
+	padding: 0;
+	margin: 1em 0 0 0;
+	font-size: 80%;
+	color: #000;
+/*	clear: both;*/
+	background: inherit;
 
 }
-/*displays a bar on bottom of tabs - following a declarations are to be used when the template file allows displaying the tool links horizontally under the tabs*/
-#tabBottom{
-background-color:#FFFFD6;
-color:#fff;
-font-size:2px;
-text-align:right;
-padding:3px;
-margin:0;
-clear:both;
-margin-left:-3px
-}
-#tabBottom a,#tabBottom a:link,#tabBottom a:visited{color:#fff;white-space:nowrap;text-decoration:none}
-#tabBottom  a:hover{color:#fff;text-decoration:underline;white-space:nowrap}
-/*hacks for ie and moz/saf */
-html #tabNavigation/* */{padding:4px 0 0 0;height:1.3em;vertical-align:bottom}
-html>body #tabNavigation{margin:0;padding:4px 0 0px 0;height:1.3em;vertical-align:text-bottom}
-/*the tab*/
-#tabNavigation li{
-display:inline;
-line-height:1.2em;
-background-image:url(images/topright-tab.gif);
-background-position:top right;
-background-repeat:no-repeat;
-background-color:#BBD6B6;
-margin-right:2px;
-padding-right:5px
-}
-/*the current tab*/
-#tabNavigation li.selectedTab{
-display:inline;
-line-height:.9em;
-border-right:0px solid #58894D;
-background-image:url(images/topright-curtab.gif);
-background-position:top right;
-background-repeat:no-repeat;
-background-color:#FFFFD6;
-margin-right:2px
-}
-\head+body #tabNavigation li.selectedTab{border-bottom:1px solid #FFFFD6}
-/*the link inside the tab*/
-#tabNavigation a,#tabNavigation a:link,#tabNavigation a:visited{
-background-image:url(images/topleft-tab.gif);
-background-position:top left;
-background-repeat:no-repeat;
-background-color:#BBD6B6;
-color:#052B32;
-height:.8em;
-margin:0px 5px 0px 0;
-padding:2px 0px 2px 6px;
-text-decoration:none
-}
-/*hack*/
-html #tabNavigation a/* */,html #tabNavigation a:link/* */,html #tabNavigation a:visited/* */{border-bottom:none;height:auto;margin:0}
-/*ie mac hacks*/
-*>html #tabNavigation{vertical-align:text-bottom;padding-bottom:0}
-*>html #tabNavigation li{padding:0 10px 0 0;margin:0 -10px 0 0}
-*>html #tabNavigation a{margin:0;line-height:1.3em}
-html>body #tabNavigation a,html>body #tabNavigation a:link,html>body #tabNavigation a:visited{border-bottom:none;padding:0px 6px 0px 6px}
-\head+body #tabNavigation a,\head+body #tabNavigation a:link,\head+body #tabNavigation a:visited{padding:0px 6px 0px 6px}
-/*the hover for the tabs*/
-#tabNavigation a:hover{text-decoration:underline;color:#052B32}
-/*the link inside the current tab*/
-#tabNavigation .selectedTab a,#tabNavigation .selectedTab a:link,#tabNavigation .selectedTab a:visited,#tabNavigation .selectedTab a:hover{
-background-image:url(images/topleft-curtab.gif);
-background-position:top left;
-background-repeat:no-repeat;
-background-color:#FFFFD6;
-color:#052B32;
-padding:2px 6px 2px 6px;
-text-decoration:none
-}
-html>body #tabNavigation .selectedTab a,html>body #tabNavigation .selectedTab a:link,html>body #tabNavigation .selectedTab a:visited{border-bottom:none;padding:0px 6px 0px 6px}
-\head+body #tabNavigation .selectedTab a,\head+body #tabNavigation .selectedTab a:link,\head+body #tabNavigation .selectedTab a:visited,\head+body #tabNavigation .selectedTab a:hover{padding:0px 6px 0px 6px;border-bottom:3px solid #FFFFD6}
-\head+body #tabNavigation li.selectedTab{border-bottom:3px solid #FFFFD6}
-.fixTabsIE{visibility:hidden;display:none;border-width:0}
-/*a convenience class - not used in these examples - overrides the color in selected regions*/
-.divColor{background-color:#fff}
-/*GROUP 2 - masthead */
-/*the masthead - presnetly a table,soon a box*/
-.mast-head{
-width:100%;
-margin:0px;
-font-size:.8em;
-color:#fff;
-background-color:#010201;
-background-image:url(images/mast-back.gif);
-background-position:left top;
-background-repeat:repeat-x;
-height:3px
-}
-.mast-head td{padding:0 !important}
-.mast-head td img{margin:0 !important}
-/*the masthead - link cell*/
-.mast-head-r{text-align:left;white-space:nowrap;padding-right:15px}
-.mast-head-r a,.mast-head-r a:visited{color:#fff;text-decoration:none;margin-right:3em}
-.mast-head-r a:hover{color:#fff;text-decoration:underline}
-/*in case links need to display as a list*/
-.mast-head-r ul{margin:5px;list-style:none;font-size:.8em}
-.mast-head-r ul li{display:inline;margin:0px}
-/*in case this skin is used as default - some definition for the login form elements*/
-input{
-border:1px solid #58894D;
-background-color:#BBD6B6;
-padding:3px;
-font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
-color:#58894D
-}
-.button{
-border:1px solid #58894D;
-background-color:#BBD6B6;
-margin-left:1em;
-padding:1px;
-color:#58894D
-}
-/* GROUP 3 - content and channels */
-/*the middle layer - tool menu and content*/
-#divLogo img{position:absolute;right:.5em;top:.5em;margin:0;}
-#siteStatus{text-transform:capitalize;	background:url(images/warn.gif) 3px 3px no-repeat #fff;
-	color:#1A506A;
-	font-size:x-small;
-	margin:.3em;
-	padding:3px 3px 3px 20px;
+
+#toolMenu ul{
 	width:auto;
-	float:left;
+	list-style: none;
+	margin: 0;
+	padding-right: 0;
 }
-#siteType{text-transform:capitalize;text-align:right;font-size:.8em;width:auto;float:left;
-	color:#1A506A;
-	margin:.3em 2em;
-	font-weight: bold;
-	font-size:x-small;
-	float:left;
-	padding:3px;
-	display: inline;}
 
-#leftnavlozenge{width:auto;padding:0;margin-bottom:.2em;margin-right:0;margin-left:0;font-size:70%;color:#fff;}
-#leftnavlozenge ul{list-style:none none none;margin:0;padding:0 2em;border:none;text-align: right}
-#leftnavlozenge li{display:inline;line-height:2em;margin:0;width:auto}
-#leftnavlozenge li a{display:inline;padding:0 .3em;text-decoration:none;width:100%;color:#58894D;}
-/*#leftnavlozenge li a:before{content:"|"}
-#leftnavlozenge li a:after{content:"|"}*/
-/*	adjust for moz + safari*/
-html>body #leftnavlozenge li a{width:auto;border-width:1px 0 1px 1px;border-color:transparent;border-style:solid}
-#leftnavlozenge li a.selected,#leftnavlozenge li a:hover{padding:0 .3em;width:100%;background-color:#fff;color:#58894D;text-decoration:underline }
-#presence{position:absolute; top:-200em;width:0;height:0 !important}
-#pres_title{text-align:center;color:#369;font-size:.7em;margin:.2em auto}
-/* GROUP 4 - content and channels */
-.portletTitleWrap{padding:0;width:99.2%}
-.portletTitleIframe{width:100% !important;margin:0 !important;height:1.3em}
-.portletMainWrap{border:1px solid #BBD6B6;background-color:#fff;text-align:left;width:99%;margin-bottom:.5em}
-/*GROUP 5:tableless layout and footer */
-#container{border-top:1px solid #58894D}
-#content{padding:.3em;margin-left:.5em;}
-#sidebar{border-bottom:1px solid #58894D;}
-#sidebar #pres_title{display:none;position:absolute; top:-200em;}
-/*#sidebar{float:left;width:8.4em;line-height:17px;border-right:1px solid #58894D}*/
-#footer{color:#58894D;font-size:xx-small;margin:0px;padding:0;width:auto;clear:both;top:0;}
-.footerExtNav{background-color:#FFFFD6;padding-top:.2em;padding-bottom:.5em;border-top:1px solid #58894D;border-bottom:1px solid #58894D}
-.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{color:#58894D;text-decoration:none;margin:1em}
-.footerExtNav a:hover{color:#58894D;text-decoration:underline;margin:1em}
-#footerInfo{background-color:#FFF;font-size:xx-small;text-align:center;clear:both}
-#footerInfo img{margin-top:.5em;margin-bottom:.5em}
-.skip  { 
-	position:absolute; top:-999px;
-	left:-999px; height:0;width:0;
-	display:inline
-	
+#toolMenu li{
+
+	margin: 0;
+	width: auto;
+	padding: 0;
+	border: 1px solid #fff;
+	text-align: right;
 }
-h1{border:1px solid red}
+
+/*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
+*/
+
+#toolMenu li span{
+/*comment this line for a return to sanity
+display:none*/
+}
+
+
+
+#toolMenu li a:link,#toolMenu li a{
+	display: block;
+	text-decoration: underline;
+	color: #09c;
+	padding: 2px 0px 2px 4px;
+/*comment these last 3 lines for a return to sanity
+	width:2em;
+	height:2em;
+	background:url(images/warn.gif)  top left no-repeat;*/
+
+}
+#toolMenu li a:hover{
+	display: block;
+	text-decoration: none;
+	color: #09c;
+	padding: 2px 0px 2px 4px;
+}
+
+#toolMenu li a.selected{
+	display: block;
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+	padding: 2px 0px 2px 4px;
+}
+
+#toolMenu li a.selected:hover{
+	display: block;
+	text-decoration: none;
+	color: #09c;
+	cursor: text;
+	padding: 2px 0px 2px 4px;
+}
+
+/*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
+/*site logo wrapper*/
+#worksiteLogo{
+	width: 9.7em;
+	height: auto;
+	overflow: hidden;
+	display: block;
+}
+
+/*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
+#worksiteLogo img{
+	display: block;
+	margin: .5em auto;
+}
+
+/*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
+#siteType{
+	display: none;
+}
+
+/*wrapper for the string that Sakai will output based on site status when status is "Unpublished"*/
+#siteStatus{
+	text-transform: capitalize;
+	text-align: left;
+	background: url(images/warn.gif) .2em center no-repeat #fff;
+	border: 1px solid  #aaa;
+	clear: both;
+	color: #aaa;	
+	font-size: 	small;
+	margin: 5px 2px 15px 2px;
+	padding: 3px 3px 3px 2em;
+}
+
+/*wrapper for all elements of presence display */
+#presenceWrapper{
+	width: 9.65em;
+	margin-top: .5em;
+}
+
+/*wrapper for title of iframe ("Users present")*/
+#presenceTitle{
+	font-size: .7em;
+	text-align: right;
+	margin-right: .5em;
+}
+
+/*of presence iframe*/
+#presenceIframe{
+	height: 100px;
+	margin: .3em;
+	width: 8.8em;
+}
+
+/*PART 7 - PORTLETS - children of #content*/
+/*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
+#col1{
+	padding-right: .5em;
+}
+
+#col1of2{
+	width: 49%;
+	float: left;
+	margin: 0;
+}
+
+#col2of2{
+	width: 50%;
+	float: right;
+}
+
+/*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
+.portlet{
+}
+
+/*.portletTitleWrap and .portletTitleWrap are wrappers for the iframes holding the tool title documents,
+below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
+#col1 .portletTitleWrap{
+	width: 99%;
+		border-bottom: 2px solid #09c;
+}
+
+#col1 .portletMainWrap{
+	width: 99%;
+}
+
+#col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
+	width: 98.5%;
+		border-bottom: 2px solid #09c;
+}
+
+#col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
+	width: 98.5%;
+	margin-bottom: .5em;
+}
+
+/*iframes for portlet title and portlet content*/
+.portletTitleIframe{
+	margin: 0;
+	height: 1.8em;
+	width: 100%;
+}
+
+.portletMainIframe{
+	text-align: left;
+	margin-bottom: .5em;
+	height: auto;
+	border: none;
+}
+
+/*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
+/*wrapper for links going to external sites - links are output as a series  separated via pipes (TODO:make a list already)*/
+.footerExtNav{
+	padding-top: .5em;
+	padding-bottom: .5em;
+}
+
+/*the links displayed inside the wrapper above*/
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
+	color: #000;
+	text-decoration: none;
+	margin: 1em;
+}
+
+.footerExtNav a:hover{
+	color: #aaa;
+	text-decoration: underline;
+	margin: 1em;
+}
+
+/*a second wrapper - server info,build,etc*/
+#footerInfo{
+	font-size: xx-small;
+	text-align: center;
+	clear: both;
+	padding-bottom: 1em;
+}
+
+#footerInfo img{
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
+/*a third wrapper - reserved for copyright blurbs*/
+.sakaiCopyrightInfo{
+	color: #09c;
+}
+
+/*PART 8 - CONVENIENCE*/
+/*used to hide various blocks from sighted users that are in the source to help with accessibility*/
+.skip{
+	display: inline;
+	position: absolute;
+	top: -999px;
+	left: -999px;
+	height: 0;
+
+}
+
