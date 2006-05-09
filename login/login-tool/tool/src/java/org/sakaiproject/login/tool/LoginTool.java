@@ -209,11 +209,11 @@ public class LoginTool extends HttpServlet
 
 		final String tailHtml = "</body></html>";
 
-		final String loginHtml = "<table class=\"login\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">" + "		<tr>"
+		final String loginHtml = "<table class=\"login\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" summary=\"layout\">" + "		<tr>"
 				+ "			<th colspan=\"2\">" + "				Login Required" + "			</th>" + "		</tr>" + "		<tr>" + "			<td class=\"logo\">"
 				+ "			</td>" + "			<td class=\"form\">"
 				+ "				<form method=\"post\" action=\"ACTION\" enctype=\"application/x-www-form-urlencoded\">"
-				+ "                                        MSG" + "							<table border=\"0\" class=\"loginform\">"
+				+ "                                        MSG" + "							<table border=\"0\" class=\"loginform\" summary=\"layout\">"
 				+ "								<tr>" + "									<td>" + "										<label for=\"eid\">EID</label>" + "									</td>"
 				+ "									<td>" + "										<input name=\"eid\" id=\"eid\"  type=\"text\"/>" + "									</td>"
 				+ "								</tr>" + "								<tr>" + "									<td>" + "										<label for=\"pw\">PW</label>" + "									</td>"
