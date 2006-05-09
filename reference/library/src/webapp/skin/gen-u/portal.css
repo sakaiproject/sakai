@@ -40,7 +40,6 @@ body{
 	color: #000;
 	text-align: right;
 	padding:0 .5em 0 0;
-	border-right:1px solid #09c
 }
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
@@ -60,7 +59,7 @@ body{
 	width: auto;
 	clear: both;
 	top: 0;
-	border-top: 1px solid #09c;
+	border-top: 1px solid #CB2DCC;
 	text-align: center;
 }
 
@@ -138,12 +137,12 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*login links for CAS,logout link*/
 #mastLogin a,#mastLogin a:visited{
-	color: #09c;
+	color: #CB2DCC;
 	margin-top: 0;
 }
 
 #mastLogin a:hover{
-	color: #09c;
+	color: #CB2DCC;
 	text-decoration: none;
 }
 
@@ -199,11 +198,10 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #09C;
+	background: #CB2DCC;
 	padding: 0;
 	margin: 0;
 	float: left;
-	border-top: 1px solid #09c;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
@@ -342,7 +340,7 @@ display:none*/
 #toolMenu li a:link,#toolMenu li a{
 	display: block;
 	text-decoration: underline;
-	color: #09c;
+	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
 /*comment these last 3 lines for a return to sanity
 	width:2em;
@@ -353,7 +351,7 @@ display:none*/
 #toolMenu li a:hover{
 	display: block;
 	text-decoration: none;
-	color: #09c;
+	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
 }
 
@@ -368,7 +366,7 @@ display:none*/
 #toolMenu li a.selected:hover{
 	display: block;
 	text-decoration: none;
-	color: #09c;
+	color: #000;
 	cursor: text;
 	padding: 2px 0px 2px 4px;
 }
@@ -451,7 +449,7 @@ display:none*/
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CB2DCC;
 }
 
 #col1 .portletMainWrap{
@@ -460,7 +458,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CB2DCC;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{

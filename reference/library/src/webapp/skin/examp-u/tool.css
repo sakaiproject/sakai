@@ -43,6 +43,7 @@ a:focus{
 table.calendar td a:hover{
 	text-decoration: underline;
 }
+
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
 	color: #35b;
@@ -113,6 +114,8 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 .navIntraTool a,.navIntraTool a:link{
 	margin: 0 .5em;
 	text-decoration: underline;
+	white-space: nowrap;
+
 }
 
 .navIntraTool a:visited{
@@ -381,6 +384,12 @@ table.nolines td{
 	border-bottom: 0px solid #bbb;
 	border-top: 0px solid #eee;
 }
+/*ie (via tan hack) gets some lines because it cannot get a hover*/
+* html body table.nolines td{
+	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
+}
+
 /*when an item has been copied - signal this*/
 /*see resources*/
 tr.selectedCopy{

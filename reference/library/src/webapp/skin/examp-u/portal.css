@@ -37,10 +37,10 @@ body{
 #toolMenuWrap{
 	float: left;
 	width: 9.6em;
-	color: #000;
+	color: #CBCC03;
 	text-align: right;
 	padding:0 .5em 0 0;
-	border-right:1px solid #09c
+	border-right:1px solid #004D73
 }
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
@@ -60,7 +60,7 @@ body{
 	width: auto;
 	clear: both;
 	top: 0;
-	border-top: 1px solid #09c;
+	border-top: 1px solid #004D73;
 	text-align: center;
 }
 
@@ -138,12 +138,12 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*login links for CAS,logout link*/
 #mastLogin a,#mastLogin a:visited{
-	color: #09c;
+	color: #069;
 	margin-top: 0;
 }
 
 #mastLogin a:hover{
-	color: #09c;
+	color: #069;
 	text-decoration: none;
 }
 
@@ -199,11 +199,10 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #09C;
+	background: #004D73;
 	padding: 0;
 	margin: 0;
 	float: left;
-	border-top: 1px solid #09c;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
@@ -269,7 +268,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	#siteLinkList .selectedTab a:link,
 	#siteLinkList .selectedTab a:visited,
 	#siteLinkList .selectedTab a:hover{
-	color: #000;
+	color: #CBCC03;
 	cursor: text;
 	text-decoration: none;
 }
@@ -342,7 +341,7 @@ display:none*/
 #toolMenu li a:link,#toolMenu li a{
 	display: block;
 	text-decoration: underline;
-	color: #09c;
+	color: #069;
 	padding: 2px 0px 2px 4px;
 /*comment these last 3 lines for a return to sanity
 	width:2em;
@@ -353,7 +352,7 @@ display:none*/
 #toolMenu li a:hover{
 	display: block;
 	text-decoration: none;
-	color: #09c;
+	color: #069;
 	padding: 2px 0px 2px 4px;
 }
 
@@ -368,7 +367,7 @@ display:none*/
 #toolMenu li a.selected:hover{
 	display: block;
 	text-decoration: none;
-	color: #09c;
+	color: #000;
 	cursor: text;
 	padding: 2px 0px 2px 4px;
 }
@@ -451,7 +450,7 @@ display:none*/
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CBCC03;
 }
 
 #col1 .portletMainWrap{
@@ -460,7 +459,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CBCC03;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -491,13 +490,13 @@ below they are contextually defined depending on the column as an example,as you
 
 /*the links displayed inside the wrapper above*/
 .footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
-	color: #000;
+	color: #069;
 	text-decoration: none;
 	margin: 1em;
 }
 
 .footerExtNav a:hover{
-	color: #aaa;
+	color: #069;
 	text-decoration: underline;
 	margin: 1em;
 }
@@ -517,7 +516,7 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-	color: #09c;
+	color: #000;
 }
 
 /*PART 8 - CONVENIENCE*/
