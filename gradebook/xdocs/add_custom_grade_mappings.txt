@@ -39,6 +39,34 @@ database every time the system restarts. (No real harm will be done; it's just
 kind of noisy.)
 
 
+GRADING SCALE RULES
+
+The current code makes a few working assumptions which customizers must
+follow to avoid surprises.
+
+* A GradingScaleDefinition must contain a unique "uid" string which
+permanently identifies that grading scale. If you configure a different
+scale later with the same "uid", the new scale definition will overwrite
+the old values.
+
+* A GradingScaleDefinition must supply a "name" to be displayed to
+instructors in the Gradebook.
+
+* A GradingScaleDefinition should contain a list of "grades". These
+are just character strings. They must be in top-to-bottom best-to-worst
+order.
+
+* A GradingScaleDefinition should contain a list of "defaultBottomPercents".
+These are percentages. They must be ordered to match the "grades" list.
+Currently, there must be as many "defaultBottomPercents" as there are
+"grades", and the bottom of the list must be "0" or "0.0".
+
+We hope to eliminate this restriction in a future release to allow for
+non-calculated grades such as "Incomplete" which are, in effect, aliases
+for "null" scores. Interested parties should follow progress and add
+comments to "http://bugs.sakaiproject.org/jira/browse/SAK-4445".
+
+
 CONFIGURATION EXAMPLE: DEFAULT GRADING SCALES
 
 This XML fragment would explicitly define the grading scales which are created
