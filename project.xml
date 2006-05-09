@@ -19,13 +19,13 @@
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>apache-tomcat</artifactId>
-			<version>5.5.16</version>
+			<version>5.5.17</version>
 			<type>zip</type>
 		</dependency>
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>apache-tomcat-compat</artifactId>
-			<version>5.5.16</version>
+			<version>5.5.17</version>
 			<type>zip</type>
 		</dependency>
 
