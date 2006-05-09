@@ -1621,9 +1621,9 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		try
 		{
 			Site site = getSite(ref.getId());
-			rv = "Site: " + site.getTitle() + " (" + site.getId() + ")\n" + " Created: "
-					+ site.getCreatedTime().toStringLocalFull() + " by " + site.getCreatedBy().getDisplayName() + "(User Id:"
-					+ site.getCreatedBy().getId() + ")\n"
+			rv = "Site: " + site.getTitle() + " (" + site.getId() + ")" + " Created: "
+					+ site.getCreatedTime().toStringLocalFull() + " by " + site.getCreatedBy().getDisplayName() + " ("
+					+ site.getCreatedBy().getEid() + ") "
 					+ StringUtil.limit((site.getDescription() == null ? "" : site.getDescription()), 30);
 		}
 		catch (IdUnusedException e)
