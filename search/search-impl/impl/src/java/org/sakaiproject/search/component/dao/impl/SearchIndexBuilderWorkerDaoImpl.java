@@ -306,35 +306,43 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									Entity entity = ref.getEntity();
 
-									Document doc = new Document();
-									if (ref.getContext() == null)
-									{
-										log.warn("Context is null for " + sbi);
-									}
-									String container = ref.getContainer();
-									if (container == null) container = "";
-									doc.add(Field.Keyword("container",
-											container));
-									doc.add(Field.UnIndexed("id", ref.getId()));
-									doc.add(Field
-											.Keyword("type", ref.getType()));
-									doc.add(Field.Keyword("subtype", ref
-											.getSubType()));
-									doc.add(Field.Keyword("reference", ref
-											.getReference()));
-									Collection c = ref.getRealms();
-									for (Iterator ic = c.iterator(); ic
-											.hasNext();)
-									{
-										String realm = (String) ic.next();
-										doc.add(Field.Keyword("realm", realm));
-									}
 									try
 									{
 										EntityContentProducer sep = searchIndexBuilder
 												.newEntityContentProducer(ref);
-										if (sep != null)
+										if (sep != null && sep.isForIndex(ref))
 										{
+
+											Document doc = new Document();
+											if (ref.getContext() == null)
+											{
+												log.warn("Context is null for "
+														+ sbi);
+											}
+											String container = ref
+													.getContainer();
+											if (container == null)
+												container = "";
+											doc.add(Field.Keyword("container",
+													container));
+											doc.add(Field.UnIndexed("id", ref
+													.getId()));
+											doc.add(Field.Keyword("type", ref
+													.getType()));
+											doc.add(Field.Keyword("subtype",
+													ref.getSubType()));
+											doc.add(Field.Keyword("reference",
+													ref.getReference()));
+											Collection c = ref.getRealms();
+											for (Iterator ic = c.iterator(); ic
+													.hasNext();)
+											{
+												String realm = (String) ic
+														.next();
+												doc.add(Field.Keyword("realm",
+														realm));
+											}
+
 											doc.add(Field.Keyword("context",
 													sep.getSiteId(ref)));
 											if (sep.isContentFromReader(entity))
@@ -359,32 +367,25 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											doc.add(Field.Keyword("siteid", sep
 													.getSiteId(ref)));
 
+											log.debug("Indexing Document "
+													+ doc);
+											indexWrite.addDocument(doc);
+
+											log.debug("Done Indexing Document "
+													+ doc);
 										}
 										else
 										{
-											doc.add(Field.Keyword("context",
-													ref.getContext()));
-											doc.add(Field.Text("title", ref
-													.getReference(), true));
-											doc.add(Field.Keyword("tool", ref
-													.getType()));
-											doc.add(Field.Keyword("url", ref
-													.getUrl()));
-											doc.add(Field.Keyword("siteid", ref
-													.getContext()));
+											log.debug("Ignored Document "
+													+ ref.getId());
 										}
+										sbi
+												.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 									}
 									catch (Exception e1)
 									{
 										e1.printStackTrace();
 									}
-
-									log.debug("Indexing Document " + doc);
-									indexWrite.addDocument(doc);
-									sbi
-											.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
-
-									log.debug("Done Indexing Document " + doc);
 									// update this node lock to indicate its
 									// still alove, no document should
 									// take more than 2 mins to process

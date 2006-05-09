@@ -79,8 +79,8 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			entityManager = (EntityManager) load(cm, EntityManager.class
 					.getName());
 
-			if ("true".equals(ServerConfigurationService
-					.getString("search.experimental","true")))
+			if ("true".equals(ServerConfigurationService.getString(
+					"search.experimental", "true")))
 			{
 
 				searchService
@@ -217,11 +217,32 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		List l = new ArrayList();
 		for (Iterator i = allPages.iterator(); i.hasNext();)
 		{
-			RWikiObject page = (RWikiObject) i.next();		
+			RWikiObject page = (RWikiObject) i.next();
 			String reference = objectService.createReference(page.getName());
 			l.add(reference);
 		}
 		return l;
+	}
+
+	public boolean isForIndex(Reference ref)
+	{
+
+		try
+		{
+			RWikiEntity rwe = (RWikiEntity) ref.getEntity();
+			RWikiObject rwo = rwe.getRWikiObject();
+			String pageName = rwo.getName();
+			String pageSpace = NameHelper.localizeSpace(pageName, rwo
+					.getRealm());
+			if (objectService.exists(pageName, pageSpace))
+			{
+				return true;
+			}
+		}
+		catch (Exception ex)
+		{
+		}
+		return false;
 	}
 
 }

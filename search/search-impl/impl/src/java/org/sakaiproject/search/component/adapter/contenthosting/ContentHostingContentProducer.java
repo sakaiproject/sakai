@@ -37,6 +37,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -372,6 +373,24 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	public void setDefaultDigester(ContentDigester defaultDigester)
 	{
 		this.defaultDigester = defaultDigester;
+	}
+
+	public boolean isForIndex(Reference ref)
+	{
+		ContentResource contentResource;
+		try
+		{
+			contentResource = contentHostingService.getResource(ref.getId());
+		}
+		catch ( IdUnusedException idun ) 
+		{
+			return false; // a collection or unknown resource that cant be indexed
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Failed to resolve resource ", e);
+		}
+		return true;
 	}
 
 }

@@ -136,6 +136,13 @@ public interface EntityContentProducer
 	 */
 	List getSiteContent(String context);
 
+	/**
+	 * If the reference should be indexed, return true
+	 * @param ref
+	 * @return
+	 */
+	boolean isForIndex(Reference ref);
+
 	
 
 }

@@ -424,4 +424,29 @@ public class MessageContentProducer implements EntityContentProducer
 		return all;
 	}
 
+	public boolean isForIndex(Reference ref)
+	{
+
+		EntityProducer ep = ref.getEntityProducer();
+		if (ep instanceof MessageService)
+		{
+			try
+			{
+				MessageService ms = (MessageService) ep;
+				Message m = ms.getMessage(ref);
+				if ( m == null ) return false;
+			}
+			catch (IdUnusedException e)
+			{
+				return false;
+			}
+			catch (PermissionException e)
+			{
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
 }
