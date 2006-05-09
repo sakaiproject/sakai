@@ -1525,19 +1525,36 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 				try
 				{
 					Site site = (Site) ref.getEntity();
+					String skin = getSiteSkin(site.getId());
+					String skinRepo = serverConfigurationService().getString("skin.repo");
+					String skinDefault = serverConfigurationService().getString("skin.default");
+
+					// make sure that it points to the default if there is no skin
+					if (skin == null)
+					{
+						skin = skinDefault;
+					}
 
 					res.setContentType("text/html; charset=UTF-8");
 					PrintWriter out = res.getWriter();
-
 					out
-							.println("<html><head><style type="
-									+ "\""
-									+ "text/css"
-									+ "\""
-									+ ">body{margin:	0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style></head><body>");
+							.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+					out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+					out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+					out.println("<head>");
+					out.println("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />");
+					out.println("<link href=\"" + skinRepo
+							+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+					out.println("<link href=\"" + skinRepo + "/" + skin
+							+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+					out.println("<title>");
+					out.println(site.getTitle());
+					out.println("</title>");
+					out.println("</head><body><div class=\"portletBody\">");
 
 					// get the description - if missing, use the site title
 					String description = site.getDescription();
+
 					if (description == null)
 					{
 						description = site.getTitle();
@@ -1545,10 +1562,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 
 					// make it safe for html
 					description = Validator.escapeHtml(description);
-
 					out.println(description);
-
-					out.println("</body></html>");
+					out.println("</div></body></html>");
 				}
 				catch (Throwable t)
 				{
