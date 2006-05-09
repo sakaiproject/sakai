@@ -3,19 +3,12 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.service.legacy.coursemanagement.CourseManagementProvider"
-			class="org.sakaiproject.component.legacy.coursemanagement.SampleCourseManagementProvider"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-	</bean>
-
 <!-- Uncomment to use the sample GroupProvider (read the code to see exactly what it does!)
 
                 Make sure to remove any other GroupProviders as there can only be one group provider active at any time.
 
-	<bean id="org.sakaiproject.service.legacy.authzGroup.GroupProvider"
-			class="org.sakaiproject.component.legacy.authzGroup.SampleGroupProvider"
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+			class="org.sakaiproject.provider.authzGroup.SampleGroupProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -26,8 +19,8 @@
 
                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
-	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
-			class="org.sakaiproject.component.legacy.user.SampleUserDirectoryProvider"
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+			class="org.sakaiproject.provider.user.SampleUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
@@ -38,12 +31,12 @@
 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
-	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.component.imsent.user.IMSEntUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="sqlService"><ref bean="org.sakaiproject.service.framework.sql.SqlService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="autoDdl"><value>true</value></property>
 	</bean>
 -->
@@ -55,12 +48,11 @@
                 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
-	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="edu.amc.sakai.user.JLDAPDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
 		<property name="ldapHost"><value>nldap.com</value></property>
 		<property name="ldapPort"><value>389</value></property> 
 		<property name="secureConnection"><value>false</value></property>
@@ -86,12 +78,11 @@
 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
 
-	<bean id="org.sakaiproject.service.legacy.user.UserDirectoryProvider"
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
 			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-		<property name="logger"><ref bean="org.sakaiproject.service.framework.log.Logger"/></property>
 		<property name="domain"><value>mydomain.edu</value></property>
 		<property name="loginContext"><value>KerberosAuthentication</value></property>
 		<property name="cachettl"><value>600000</value></property>

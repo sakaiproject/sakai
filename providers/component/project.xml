@@ -21,15 +21,16 @@
 	<dependencies>
 
 		<!-- Needed for the sample provider
+		-->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-provider</artifactId>
+			<artifactId>sakai-sample-provider</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-		-->
+		<!-- -->
 
 		<!-- Needed for the JLDAP Provider
 		<dependency>
@@ -72,6 +73,15 @@
 			</properties>
 		</dependency>
 	 	-->
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 	</dependencies>
 

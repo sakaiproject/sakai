@@ -1,35 +1,23 @@
 /**********************************************************************************
-* $URL$
-* $Id$
-***********************************************************************************
-*
-* Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
-* 
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-* 
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*
-**********************************************************************************/
-
-/**
- * <p>
- * An implementation of a Sakai UserDirectoryProvider that authenticates/retrieves 
- * users from an OpenLDAP directory.
- * </p>
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
  * 
- * @author ASIC - Udl
- * @version $Revision 1.0
- */
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
 package es.udl.asic.user;
 
@@ -47,135 +35,160 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.sakaiproject.service.framework.log.Logger;
-import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
-import org.sakaiproject.service.legacy.user.UserEdit;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserEdit;
 
-public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
-	
+/**
+ * <p>
+ * An implementation of a Sakai UserDirectoryProvider that authenticates/retrieves users from an OpenLDAP directory.
+ * </p>
+ * 
+ * @author ASIC - Udl
+ */
+public class OpenLdapDirectoryProvider implements UserDirectoryProvider
+{
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(OpenLdapDirectoryProvider.class);
 
-	private String ldapHost = ""; //address of ldap server
-	private int ldapPort = 389; //port to connect to ldap server on
+	private String ldapHost = ""; // address of ldap server
+
+	private int ldapPort = 389; // port to connect to ldap server on
+
 	private String basePath = "";
-	
-	private Hashtable env = new Hashtable();
-	 
-    protected Logger m_logger = null; 
-    
-    public void setLogger(Logger service){           
-    	m_logger = service;  
-    }
 
-    public void init(){     
-    	try{
-    		m_logger.info(this +".init()");               
-    		}  
-    	catch (Throwable t){
-    		m_logger.warn(this +".init(): ", t);
-    	}
-		
-    	env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL,getLdapHost() + ":" + getLdapPort());
-		env.put(Context.SECURITY_AUTHENTICATION,"simple");
-		env.put(Context.SECURITY_CREDENTIALS,"secret");
-    }
-    
-    public void destroy(){ 
-    	m_logger.info(this +".destroy()");   
-    }
-        
-	public boolean authenticateUser(String userLogin, UserEdit edit, String password){
+	private Hashtable env = new Hashtable();
+
+	public void init()
+	{
+		try
+		{
+			M_log.info("init()");
+		}
+		catch (Throwable t)
+		{
+			M_log.warn("init(): ", t);
+		}
+
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+		env.put(Context.PROVIDER_URL, getLdapHost() + ":" + getLdapPort());
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_CREDENTIALS, "secret");
+	}
+
+	public void destroy()
+	{
+		M_log.info("destroy()");
+	}
+
+	public boolean authenticateUser(String userLogin, UserEdit edit, String password)
+	{
 		Hashtable env = new Hashtable();
 		InitialDirContext ctx;
-	 	
-		String INIT_CTX="com.sun.jndi.ldap.LdapCtxFactory";
-		String MY_HOST= getLdapHost() +":" + getLdapPort();
+
+		String INIT_CTX = "com.sun.jndi.ldap.LdapCtxFactory";
+		String MY_HOST = getLdapHost() + ":" + getLdapPort();
 		String cn;
-		boolean returnVal=false;		
-		
-		if (!password.equals("")){
+		boolean returnVal = false;
 
-			env.put(Context.INITIAL_CONTEXT_FACTORY,INIT_CTX);
-			env.put(Context.PROVIDER_URL,MY_HOST);
-			env.put(Context.SECURITY_AUTHENTICATION,"simple");
-			env.put(Context.SECURITY_CREDENTIALS,"secret");
-			
-			String[] returnAttribute = {"ou"};
-	        SearchControls srchControls = new SearchControls();
-	        srchControls.setReturningAttributes(returnAttribute);
-	        srchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			
-			String searchFilter = "(&(objectclass=person)(uid="+userLogin+"))";
-			
-	        try{                    
-		          ctx = new InitialDirContext(env);
-			      NamingEnumeration answer = ctx.search(getBasePath(),searchFilter, srchControls);
-			      String trobat="false";
+		if (!password.equals(""))
+		{
 
-			      while (answer.hasMore() && trobat.equals("false")){
-  				      	
-   				      	SearchResult sr = (SearchResult)answer.next();
-   				      	String dn=sr.getName().toString()+","+getBasePath();
+			env.put(Context.INITIAL_CONTEXT_FACTORY, INIT_CTX);
+			env.put(Context.PROVIDER_URL, MY_HOST);
+			env.put(Context.SECURITY_AUTHENTICATION, "simple");
+			env.put(Context.SECURITY_CREDENTIALS, "secret");
 
-	                //Second binding
-	                Hashtable authEnv = new Hashtable();
-	                try{
-	                	authEnv.put(Context.INITIAL_CONTEXT_FACTORY,INIT_CTX);
-	                	authEnv.put(Context.PROVIDER_URL,MY_HOST);
-	                	authEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
-	                	authEnv.put(Context.SECURITY_PRINCIPAL,sr.getName()+","+ getBasePath());
-	                	authEnv.put(Context.SECURITY_CREDENTIALS,password);
-	                	try{ 
-	                		DirContext authContext = new InitialDirContext(authEnv);  
-	                		returnVal=true;	
-	                		trobat="true";
-	                		authContext.close();
-	                	}catch(AuthenticationException ae){	
-	                		m_logger.info("Access forbidden");
-	                		}
-					    
-					 } catch (NamingException namEx) {
-	                                    m_logger.info(this + "User doesn't exist");
-	                                    returnVal=false;
-	                                    namEx.printStackTrace();
-	                   }
-	               } 
-			      if (trobat.equals("false")) returnVal=false;
-				
-	        	}
-	            catch(NamingException namEx){
-	            	namEx.printStackTrace();
-	                returnVal=false;
-	                }
-	           }
+			String[] returnAttribute = { "ou" };
+			SearchControls srchControls = new SearchControls();
+			srchControls.setReturningAttributes(returnAttribute);
+			srchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+			String searchFilter = "(&(objectclass=person)(uid=" + userLogin + "))";
+
+			try
+			{
+				ctx = new InitialDirContext(env);
+				NamingEnumeration answer = ctx.search(getBasePath(), searchFilter, srchControls);
+				String trobat = "false";
+
+				while (answer.hasMore() && trobat.equals("false"))
+				{
+
+					SearchResult sr = (SearchResult) answer.next();
+					String dn = sr.getName().toString() + "," + getBasePath();
+
+					// Second binding
+					Hashtable authEnv = new Hashtable();
+					try
+					{
+						authEnv.put(Context.INITIAL_CONTEXT_FACTORY, INIT_CTX);
+						authEnv.put(Context.PROVIDER_URL, MY_HOST);
+						authEnv.put(Context.SECURITY_AUTHENTICATION, "simple");
+						authEnv.put(Context.SECURITY_PRINCIPAL, sr.getName() + "," + getBasePath());
+						authEnv.put(Context.SECURITY_CREDENTIALS, password);
+						try
+						{
+							DirContext authContext = new InitialDirContext(authEnv);
+							returnVal = true;
+							trobat = "true";
+							authContext.close();
+						}
+						catch (AuthenticationException ae)
+						{
+							M_log.info("Access forbidden");
+						}
+
+					}
+					catch (NamingException namEx)
+					{
+						M_log.info("User doesn't exist");
+						returnVal = false;
+						namEx.printStackTrace();
+					}
+				}
+				if (trobat.equals("false")) returnVal = false;
+
+			}
+			catch (NamingException namEx)
+			{
+				namEx.printStackTrace();
+				returnVal = false;
+			}
+		}
 		return returnVal;
 	}
-	
-	public void destroyAuthentication() {
-	}
-	
-	public boolean findUserByEmail(UserEdit edit, String email) {
-		
-		env.put(Context.SECURITY_PRINCIPAL,"");
-		env.put(Context.SECURITY_CREDENTIALS,"");
-		String filter = "(&(objectclass=person)(mail="+email+"))";
-		return getUserInf(edit,filter);
-	}
-	
-	public boolean getUser(UserEdit edit) {
-				
-		if (!userExists(edit.getId()))
-			return false;
 
-		env.put(Context.SECURITY_PRINCIPAL,"");
-		env.put(Context.SECURITY_CREDENTIALS,"");
-		String filter = "(&(objectclass=person)(uid="+edit.getId()+"))";
-		return getUserInf(edit,filter);
-	}		
-		
+	public void destroyAuthentication()
+	{
+	}
+
+	public boolean findUserByEmail(UserEdit edit, String email)
+	{
+
+		env.put(Context.SECURITY_PRINCIPAL, "");
+		env.put(Context.SECURITY_CREDENTIALS, "");
+		String filter = "(&(objectclass=person)(mail=" + email + "))";
+		return getUserInf(edit, filter);
+	}
+
+	public boolean getUser(UserEdit edit)
+	{
+
+		if (!userExists(edit.getEid())) return false;
+
+		env.put(Context.SECURITY_PRINCIPAL, "");
+		env.put(Context.SECURITY_CREDENTIALS, "");
+		String filter = "(&(objectclass=person)(uid=" + edit.getEid() + "))";
+		return getUserInf(edit, filter);
+	}
+
 	/**
 	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
-	 * @param users The UserEdit objects (with id set) to fill in or remove.
+	 * 
+	 * @param users
+	 *        The UserEdit objects (with id set) to fill in or remove.
 	 */
 	public void getUsers(Collection users)
 	{
@@ -189,56 +202,65 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 		}
 	}
 
-	public boolean updateUserAfterAuthentication() {
+	public boolean updateUserAfterAuthentication()
+	{
 		return false;
 	}
-	
-	public boolean userExists(String id) {
-		env.put(Context.SECURITY_AUTHENTICATION,"simple");
-		env.put(Context.SECURITY_CREDENTIALS,"secret");
-		
+
+	public boolean userExists(String id)
+	{
+		env.put(Context.SECURITY_AUTHENTICATION, "simple");
+		env.put(Context.SECURITY_CREDENTIALS, "secret");
+
 		try
 		{
 			DirContext ctx = new InitialDirContext(env);
 
-			/* Setup subtree scope to tell LDAP to recursively descend directory structure 
-			during searches. */
+			/*
+			 * Setup subtree scope to tell LDAP to recursively descend directory structure during searches.
+			 */
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			/*Setup the directory entry attributes we want to search for. In this case it
-			 is the user's ID.*/
+			/*
+			 * Setup the directory entry attributes we want to search for. In this case it is the user's ID.
+			 */
 
-			String filter = "(&(objectclass=person)(uid="+id+"))";
+			String filter = "(&(objectclass=person)(uid=" + id + "))";
 
 			/* Execute the search, starting at the directory level of Users */
-			
+
 			NamingEnumeration hits = ctx.search(getBasePath(), filter, searchControls);
 
 			/* All we need to know is if there were any hits at all. */
-			
-			if(hits.hasMore()){
+
+			if (hits.hasMore())
+			{
 				hits.close();
 				ctx.close();
 				return true;
-			}else{
+			}
+			else
+			{
 				hits.close();
 				ctx.close();
 				return false;
 			}
 		}
-		catch(Exception e){
+		catch (Exception e)
+		{
 			e.printStackTrace();
 			return false;
-		}	
+		}
 	}
-	
-	private boolean getUserInf(UserEdit edit,String filter){
+
+	private boolean getUserInf(UserEdit edit, String filter)
+	{
 
 		String id = null;
 		String firstName = null;
 		String lastName = null;
-		String employeenumber =null;
+		String employeenumber = null;
 		String email = null;
 		try
 		{
@@ -250,26 +272,27 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
 			// We want the user's id, first name and last name ...
-			searchControls.setReturningAttributes(new String[] {"uid","givenName","sn"});
+			searchControls.setReturningAttributes(new String[] { "uid", "givenName", "sn" });
 
 			// Execute the search, starting at the directory level of Users
 			NamingEnumeration results = ctx.search(getBasePath(), filter, searchControls);
 
-			while(results.hasMore())
+			while (results.hasMore())
 			{
 				SearchResult result = (SearchResult) results.next();
-				String dn=result.getName().toString()+","+getBasePath();
-				Attributes attrs=ctx.getAttributes(dn);
+				String dn = result.getName().toString() + "," + getBasePath();
+				Attributes attrs = ctx.getAttributes(dn);
 				id = attrs.get("uid").get().toString();
-				String cn=attrs.get("cn").get().toString();
-				firstName=cn.substring(0,cn.indexOf(" "));
-				lastName=cn.substring(cn.indexOf(" "));
-				email=attrs.get("mail").get().toString();
+				String cn = attrs.get("cn").get().toString();
+				firstName = cn.substring(0, cn.indexOf(" "));
+				lastName = cn.substring(cn.indexOf(" "));
+				email = attrs.get("mail").get().toString();
 			}
 
 			results.close();
 			ctx.close();
-		}catch(Exception ex)
+		}
+		catch (Exception ex)
 		{
 			ex.printStackTrace();
 			return false;
@@ -281,49 +304,61 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 		edit.setEmail(email);
 		return true;
 	}
-		
+
 	/**
 	 * @return Returns the ldapHost.
 	 */
-	
-	public String getLdapHost() {
+
+	public String getLdapHost()
+	{
 		return ldapHost;
 	}
+
 	/**
-	 * @param ldapHost The ldapHost to set.
+	 * @param ldapHost
+	 *        The ldapHost to set.
 	 */
-	public void setLdapHost(String ldapHost) {
+	public void setLdapHost(String ldapHost)
+	{
 		this.ldapHost = ldapHost;
 	}
+
 	/**
 	 * @return Returns the ldapPort.
 	 */
-	public int getLdapPort() {
+	public int getLdapPort()
+	{
 		return ldapPort;
 	}
+
 	/**
-	 * @param ldapPort The ldapPort to set.
+	 * @param ldapPort
+	 *        The ldapPort to set.
 	 */
-	public void setLdapPort(int ldapPort) {
+	public void setLdapPort(int ldapPort)
+	{
 		this.ldapPort = ldapPort;
 	}
-	
+
 	/**
 	 * @return Returns the basePath.
 	 */
-	public String getBasePath() {
+	public String getBasePath()
+	{
 		return basePath;
 	}
-	
+
 	/**
-	 * @param basePath The basePath to set.
+	 * @param basePath
+	 *        The basePath to set.
 	 */
-	public void setBasePath(String basePath) {
+	public void setBasePath(String basePath)
+	{
 		this.basePath = basePath;
 	}
-	
-	//helper class for storing user data in the hashtable cache
-	
+
+	// helper class for storing user data in the hashtable cache
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -331,7 +366,7 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 	{
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -340,5 +375,3 @@ public class OpenLdapDirectoryProvider implements UserDirectoryProvider {
 		return false;
 	}
 }
-
-

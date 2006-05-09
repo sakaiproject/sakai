@@ -1,30 +1,26 @@
 /**********************************************************************************
  * $URL$
  * $Id$
- **********************************************************************************
+ ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan, Trustees of Indiana University,
- *                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+ * Copyright (c) 2003, 2004, 2005, 2006, 2006 The Sakai Foundation.
  * 
- * Licensed under the Educational Community License Version 1.0 (the "License");
- * By obtaining, using and/or copying this Original Work, you agree that you have read,
- * understand, and will comply with the terms and conditions of the Educational Community License.
- * You may obtain a copy of the License at:
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
  * 
- *      http://cvs.sakaiproject.org/licenses/license_1_0.html
+ *      http://www.opensource.org/licenses/ecl1.php
  * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
- * AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
  *
  **********************************************************************************/
 
-// package
-package org.sakaiproject.component.legacy.user;
+package org.sakaiproject.provider.user;
 
-// imports
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -32,18 +28,15 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.legacy.user.UserDirectoryProvider;
-import org.sakaiproject.service.legacy.user.UserEdit;
-import org.sakaiproject.service.legacy.user.UserFactory;
-import org.sakaiproject.service.legacy.user.UsersShareEmailUDP;
+import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserFactory;
+import org.sakaiproject.user.api.UsersShareEmailUDP;
 
 /**
  * <p>
  * SampleUserDirectoryProvider is a samaple UserDirectoryProvider.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP
 {
@@ -151,15 +144,15 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	public boolean getUser(UserEdit edit)
 	{
 		if (edit == null) return false;
-		if (!userExists(edit.getId())) return false;
+		if (!userExists(edit.getEid())) return false;
 
-		Info info = (Info) m_info.get(edit.getId());
+		Info info = (Info) m_info.get(edit.getEid());
 		if (info == null)
 		{
-			edit.setFirstName(edit.getId());
-			edit.setLastName(edit.getId());
-			edit.setEmail(edit.getId());
-			edit.setPassword(edit.getId());
+			edit.setFirstName(edit.getEid());
+			edit.setLastName(edit.getEid());
+			edit.setEmail(edit.getEid());
+			edit.setPassword(edit.getEid());
 		}
 		else
 		{
@@ -168,7 +161,6 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			edit.setEmail(info.email);
 			edit.setPassword("sakai");
 		}
-		edit.setType("sample");
 
 		return true;
 
@@ -176,7 +168,9 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 
 	/**
 	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
-	 * @param users The UserEdit objects (with id set) to fill in or remove.
+	 * 
+	 * @param users
+	 *        The UserEdit objects (with id set) to fill in or remove.
 	 */
 	public void getUsers(Collection users)
 	{
@@ -191,7 +185,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	}
 
 	/**
-	 * Find a user object who has this email address. Update the object with the information found. <br /> 
+	 * Find a user object who has this email address. Update the object with the information found. <br />
 	 * Note: this method won't be used, because we are a UsersShareEmailUPD.<br />
 	 * This is the sort of method to provide if your external source has only a single user for any email address.
 	 * 
@@ -208,7 +202,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);
-			edit.setId(id);
+			edit.setEid(id);
 			return getUser(edit);
 		}
 
@@ -237,7 +231,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);
-			edit.setId(id);
+			edit.setEid(id);
 			if (getUser(edit)) rv.add(edit);
 		}
 
@@ -290,7 +284,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -298,8 +292,4 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		return false;
 	}
-	
-} // SampleUserDirectoryProvider
-
-
-
+}
