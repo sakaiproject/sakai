@@ -3027,23 +3027,30 @@ public class AssignmentAction extends PagedResourceActionII
 			addAlert(state, rb.getString("assig3"));
 		}
 
-		if (state.getAttribute(STATE_MESSAGE) == null)
+		if (validify)
 		{
-			if (((description == null) || (description.length() == 0)) && ((attachments == null || attachments.size() == 0))
-					&& (state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY) == null))
+			if (((description == null) || (description.length() == 0)) && ((attachments == null || attachments.size() == 0)))
 			{
 				// if there is no description nor an attachment, show the following alert message.
 				// One could ignore the message and still post the assignment
-				if (validify)
+				if (state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY) == null)
 				{
-					addAlert(state, rb.getString("thiasshas"));
+					state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY, Boolean.TRUE.toString());
 				}
-				state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY, Boolean.TRUE.toString());
+				else
+				{
+					state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
+				}
 			}
 			else
 			{
 				state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY);
 			}
+		}
+		
+		if (validify && state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION_EMPTY) != null)
+		{
+			addAlert(state, rb.getString("thiasshas"));
 		}
 
 		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
