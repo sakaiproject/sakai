@@ -93,8 +93,8 @@ public class SectionAwarenessImplTest extends SakaiTestBase {
 		session.setUserEid("admin");
 
 		// Create some users
-		userDirService.addUser("test.user.a", "Jane", "Doe", "jd@foo.com", "123", null, null);
-		userDirService.addUser("test.user.b", "Joe", "Schmoe", "js@foo.com", "123", null, null);
+		userDirService.addUser("test.user.a", "test.user.a", "Jane", "Doe", "jd@foo.com", "123", null, null);
+		userDirService.addUser("test.user.b", "test.user.b", "Joe", "Schmoe", "js@foo.com", "123", null, null);
 
 		// Create a site
 		site = siteService.addSite(generateSiteId(), "course");
