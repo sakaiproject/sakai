@@ -125,7 +125,7 @@ public class BlockMacro extends BaseMacro
 			{
 				writer.write(nameChars, 0, end);
 			}
-			writer.write("'>");
+			writer.write("' class='anchorpoint'>");
 			writer.write("<!-- --></a>");
 		}
 		if (params.getContent() != null)

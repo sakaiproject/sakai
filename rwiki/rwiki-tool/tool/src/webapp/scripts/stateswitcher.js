@@ -426,7 +426,10 @@ function appendLoader(loaderFunc) {
 	_LOADERS[_LOADERS.length] = loaderFunc;
 }
 
-function setMainFrameHeightNoScroll(id) {
+function setMainFrameHeightNoScroll(id, shouldScroll) {
+	if (typeof(shouldScroll) == 'undefined') {
+		shouldScroll = true;
+	}
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
 	id = id.replace(/[^a-zA-Z0-9]/g,"x");
@@ -438,7 +441,9 @@ function setMainFrameHeightNoScroll(id) {
 	if (frame)
 	{
 		// reset the scroll
-		parent.window.scrollTo(0,0);
+		if (shouldScroll) {
+		  parent.window.scrollTo(0,0);
+		}
 
 		var objToResize = (frame.style) ? frame.style : frame;
 //		alert("After objToResize");
@@ -485,14 +490,32 @@ function setMainFrameHeightNoScroll(id) {
 //		window.status = s;
 //		alert(s);
 		//window.location.hash = window.location.hash;
-		var anchor = document.location.hash;
-		if (anchor.length > 0 && anchor.charAt(0) == '#') {
-		  anchor = anchor.substring(1);
+		if (shouldScroll) {
+		  var anchor = document.location.hash;
+		  if (anchor != null && anchor.length > 0 && anchor.charAt(0) == '#') {
+		    anchor = anchor.substring(1);
+		    var coords = getAnchorPosition(anchor);
+		    var framey = findPosY(frame);
+		    parent.window.scrollTo(coords.x, coords.y + framey);
+		  }
 		}
-		var coords = getAnchorPosition(anchor);
-		parent.window.scrollTo(coords.x, coords.y);
 	}
 
+}
+
+// This invaluable function taken from QuirksMode @ http://www.quirksmode.org/index.html?/js/findpos.html
+// Portable to virtually every browser, with a few caveates.
+function findPosY(obj) {
+  var curtop = 0;
+  if (obj.offsetParent) {
+    while (obj.offsetParent) {
+      curtop += obj.offsetTop
+	obj = obj.offsetParent;
+    }
+  } else if (obj.y) {
+    curtop += obj.y;
+  }
+  return curtop;
 }
 
 function getAnchorPosition( anchorName){ 

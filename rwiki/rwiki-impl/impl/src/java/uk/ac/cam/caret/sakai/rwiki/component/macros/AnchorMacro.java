@@ -67,7 +67,7 @@ public class AnchorMacro extends BaseMacro
 		{
 			writer.write(nameChars, 0, end);
 		}
-		writer.write("'>");
+		writer.write("' class='anchorpoint'>");
 		if (params.getContent() != null)
 		{
 			writer.write(params.getContent());

@@ -22,6 +22,10 @@
   width: 100%;
 }
 
+a.anchorpoint {
+  vertical-align: top;
+}
+
 .publicview {
   padding: 10px 10px 10px 30px;
 }
