@@ -57,6 +57,8 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StorageUser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -236,6 +238,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 * @return the EventTrackingService collaborator.
 	 */
 	protected abstract EventTrackingService eventTrackingService();
+
+	/**
+	 * @return the ServerConfigurationService collaborator.
+	 */
+	protected abstract UserDirectoryService userDirectoryService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -777,53 +784,61 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		if ((m_provider == null) || (userId == null)) return;
 
-		Map providerGrants = m_provider.getGroupRolesForUser(userId);
-		m_storage.refreshUser(userId, providerGrants);
-
-		// update site security for this user - get the user's realms for the three site locks
-		Set updAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SECURE_UPDATE_SITE, null);
-		Set unpAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT_UNPUBLISHED, null);
-		Set visitAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
-
-		// convert from azGroup ids (potential site references) to site ids for those that are site,
-		// skipping special and user sites other than our user's
-		Set updSites = new HashSet();
-		for (Iterator i = updAuthzGroups.iterator(); i.hasNext();)
+		try
 		{
-			String azGroupId = (String) i.next();
-			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
-					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
-			{
-				updSites.add(ref.getId());
-			}
-		}
+			String eid = userDirectoryService().getUserEid(userId);
+			Map providerGrants = m_provider.getGroupRolesForUser(eid);
+			m_storage.refreshUser(userId, providerGrants);
 
-		Set unpSites = new HashSet();
-		for (Iterator i = unpAuthzGroups.iterator(); i.hasNext();)
+			// update site security for this user - get the user's realms for the three site locks
+			Set updAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SECURE_UPDATE_SITE, null);
+			Set unpAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT_UNPUBLISHED, null);
+			Set visitAuthzGroups = getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
+
+			// convert from azGroup ids (potential site references) to site ids for those that are site,
+			// skipping special and user sites other than our user's
+			Set updSites = new HashSet();
+			for (Iterator i = updAuthzGroups.iterator(); i.hasNext();)
+			{
+				String azGroupId = (String) i.next();
+				Reference ref = entityManager().newReference(azGroupId);
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+				{
+					updSites.add(ref.getId());
+				}
+			}
+
+			Set unpSites = new HashSet();
+			for (Iterator i = unpAuthzGroups.iterator(); i.hasNext();)
+			{
+				String azGroupId = (String) i.next();
+				Reference ref = entityManager().newReference(azGroupId);
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+				{
+					unpSites.add(ref.getId());
+				}
+			}
+
+			Set visitSites = new HashSet();
+			for (Iterator i = visitAuthzGroups.iterator(); i.hasNext();)
+			{
+				String azGroupId = (String) i.next();
+				Reference ref = entityManager().newReference(azGroupId);
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
+				{
+					visitSites.add(ref.getId());
+				}
+			}
+
+			SiteService.setUserSecurity(userId, updSites, unpSites, visitSites);
+		}
+		catch (UserNotDefinedException e)
 		{
-			String azGroupId = (String) i.next();
-			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
-					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
-			{
-				unpSites.add(ref.getId());
-			}
+			M_log.warn("refreshUser: cannot find eid for user: " + userId);
 		}
-
-		Set visitSites = new HashSet();
-		for (Iterator i = visitAuthzGroups.iterator(); i.hasNext();)
-		{
-			String azGroupId = (String) i.next();
-			Reference ref = entityManager().newReference(azGroupId);
-			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
-					&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
-			{
-				visitSites.add(ref.getId());
-			}
-		}
-
-		SiteService.setUserSecurity(userId, updSites, unpSites, visitSites);
 	}
 
 	/**

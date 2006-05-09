@@ -1125,14 +1125,14 @@ public class RealmsAction extends PagedResourceActionII
 		if (user == null)
 		{
 			// read the form
-			String id = StringUtil.trimToNull(data.getParameters().getString("id"));
+			String eid = StringUtil.trimToNull(data.getParameters().getString("eid"));
 
 			// if the field is missing, and there are no roles, just be done with no change
-			if ((id == null) && (roles == null)) return true;
+			if ((eid == null) && (roles == null)) return true;
 
 			try
 			{
-				user = UserDirectoryService.getUser(id);
+				user = UserDirectoryService.getUserByEid(eid);
 			}
 			catch (UserNotDefinedException e)
 			{
@@ -1185,4 +1185,3 @@ public class RealmsAction extends PagedResourceActionII
 	} // cleanState
 
 } // RealmsAction
-

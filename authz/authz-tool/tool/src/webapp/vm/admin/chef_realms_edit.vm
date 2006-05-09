@@ -65,8 +65,8 @@
 						#foreach ($grant in $grants)
 							<tr>
 								<td headers="Id">
-									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$validator.escapeUrl($grant.UserId)")'+buildQueryString('$form-name');return false;">
-										$validator.escapeHtml($grant.UserId)
+									<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_user" "target=$validator.escapeUrl($grant.UserEid)")'+buildQueryString('$form-name');return false;">
+										$validator.escapeHtml($grant.UserEid)
 									</a>
 								</td>
 								<td headers="Description">

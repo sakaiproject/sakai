@@ -436,7 +436,7 @@ public class BaseAuthzGroup implements AuthzGroup
 
 		if (m_createdUserId == null)
 		{
-			m_createdUserId = "admin";
+			m_createdUserId = UserDirectoryService.ADMIN_ID;
 		}
 
 		if (m_lastModifiedUserId == null)

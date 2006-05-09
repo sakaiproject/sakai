@@ -41,14 +41,11 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -105,28 +102,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	protected abstract SqlService sqlService();
 
-	/**
-	 * @return the ServerConfigurationService collaborator.
-	 */
-	protected abstract UserDirectoryService userDirectoryService();
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Set if we are to run the from-old conversion. */
-	protected boolean m_convertOld = false;
-
-	/**
-	 * Configuration: run the from-old conversion.
-	 * 
-	 * @param value
-	 *        The conversion desired value.
-	 */
-	public void setConvertOld(String value)
-	{
-		m_convertOld = new Boolean(value).booleanValue();
-	}
 
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_useExternalLocks = true;
@@ -174,13 +152,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			super.init();
-
-			// convert?
-			if (m_convertOld)
-			{
-				m_convertOld = false;
-				convertOld();
-			}
 
 			// pre-cache role and function names
 			cacheRoleNames();
@@ -1169,11 +1140,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					+ "  SAKAI_REALM_RL_FN MAINTABLE "
 					+ "     LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES "
 					+ "        ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), "
-					+ "  SAKAI_REALM REALMS, " + "  SAKAI_REALM_ROLE ROLES, " + "  SAKAI_REALM_FUNCTION FUNCTIONS " + "where " +
+					+ "  SAKAI_REALM REALMS, " + "  SAKAI_REALM_ROLE ROLES, "
+					+ "  SAKAI_REALM_FUNCTION FUNCTIONS "
+					+ "where "
+					+
 					// our criteria
 					"  ( " + "    ROLES.ROLE_NAME in('" + ANON_ROLE + "'" + (auth ? ",'" + AUTH_ROLE + "'" : "") + ") " + "    or "
 					+ "    ( " + "      GRANTED_ROLES.USER_ID = ? " + "      AND GRANTED_ROLES.ACTIVE = 1 " + "    ) " + "  )"
-					+ "  AND FUNCTIONS.FUNCTION_NAME = ? " + "  AND REALMS.REALM_ID in (?) " +
+					+ "  AND FUNCTIONS.FUNCTION_NAME = ? " + "  AND REALMS.REALM_ID in (?) "
+					+
 					// for the join
 					"  AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY " + "  AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY "
 					+ "  AND MAINTABLE.ROLE_KEY = ROLES.ROLE_KEY ";
@@ -1261,8 +1236,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				statement = "select count(1) from SAKAI_REALM_RL_FN "
 						+ "where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID in " + buf.toString() + ")";
 			}
-			statement = statement + " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
-					+ "and (ROLE_KEY in " + "(select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? " +
+			statement = statement
+					+ " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
+					+ "and (ROLE_KEY in "
+					+ "(select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? "
+					+
 					// granted in any of the grant or role realms
 					"and REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID in " + buf.toString() + ")) "
 					+ "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + ANON_ROLE + "') "
@@ -1764,7 +1742,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			if ((realm == null) || (m_provider == null)) return;
 
-			// get the latest userId -> role name map from the provider
+			// get the latest userEid -> role name map from the provider
 			Map target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
@@ -1775,10 +1753,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf.append("inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY ");
 			sqlBuf.append("where SR.REALM_ID = ?");
 			sql = sqlBuf.toString();
-
-			// String statement = "select USER_ID, ROLE_NAME, ACTIVE, PROVIDED from SAKAI_REALM_RL_GR,SAKAI_REALM_ROLE " +
-			// "where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?) " +
-			// "and SAKAI_REALM_RL_GR.ROLE_KEY=SAKAI_REALM_ROLE.ROLE_KEY";
 
 			Object[] fields = new Object[1];
 			fields[0] = caseId(realm.getId());
@@ -1844,10 +1818,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				String userId = (String) entry.getKey();
 				String role = (String) entry.getValue();
 
-				String targetRole = (String) target.get(userId);
-				if ((targetRole == null) || (!targetRole.equals(role)))
+				try
 				{
-					toDelete.add(userId);
+					String userEid = userDirectoryService().getUserEid(userId);
+					String targetRole = (String) target.get(userEid);
+					if ((targetRole == null) || (!targetRole.equals(role)))
+					{
+						toDelete.add(userId);
+					}
+				}
+				catch (UserNotDefinedException e)
+				{
+					M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
 				}
 			}
 
@@ -1857,14 +1839,23 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			for (Iterator i = target.entrySet().iterator(); i.hasNext();)
 			{
 				Map.Entry entry = (Map.Entry) i.next();
-				String userId = (String) entry.getKey();
-				String role = (String) entry.getValue();
-
-				String existingRole = (String) existing.get(userId);
-				String nonProviderRole = (String) nonProvider.get(userId);
-				if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
+				String userEid = (String) entry.getKey();
+				try
 				{
-					toInsert.add(new UserAndRole(userId, role, true, true));
+					String userId = userDirectoryService().getUserId(userEid);
+
+					String role = (String) entry.getValue();
+	
+					String existingRole = (String) existing.get(userId);
+					String nonProviderRole = (String) nonProvider.get(userId);
+					if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
+					{
+						toInsert.add(new UserAndRole(userId, role, true, true));
+					}
+				}
+				catch (UserNotDefinedException e)
+				{
+					M_log.warn("refreshAuthzGroup: cannot find id for user eid: " + userEid);
 				}
 			}
 
@@ -2042,295 +2033,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 
 	} // DbStorage
-
-	/**
-	 * Create a new table record for all old table records found, and delete the old.
-	 */
-	protected void convertOld()
-	{
-		// Note: the provider info is not pulled, nor is site permission updated here.
-
-		M_log.info("convertOld");
-
-		try
-		{
-			// get a connection
-			final Connection connection = sqlService().borrowConnection();
-			boolean wasCommit = connection.getAutoCommit();
-			connection.setAutoCommit(false);
-
-			// read all realms we don't already have
-			// TODO: check last modified date, too
-			String sql = "select REALM_ID, XML from CHEF_REALM where REALM_ID not in (select REALM_ID from SAKAI_REALM)";
-			List realms = sqlService().dbRead(sql, null, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					String id = null;
-					try
-					{
-						// create the Resource from the db xml
-						id = result.getString(1);
-						String xml = result.getString(2);
-
-						// read the xml
-						Document doc = Xml.readDocumentFromString(xml);
-
-						// verify the root element
-						Element root = doc.getDocumentElement();
-						if (!root.getTagName().equals("realm"))
-						{
-							M_log.warn("convertOld: XML root element not realm: " + root.getTagName());
-							return null;
-						}
-						BaseAuthzGroup edit = new BaseAuthzGroup(root);
-						return edit;
-					}
-					catch (Throwable e)
-					{
-						M_log.info(" ** exception converting : " + id + " : ", e);
-						return null;
-					}
-				}
-			});
-
-			M_log.info("convertOld: read realms: " + realms.size());
-
-			// compute these realms' roles
-			Set roles = new HashSet();
-			for (Iterator i = realms.iterator(); i.hasNext();)
-			{
-				BaseAuthzGroup realm = (BaseAuthzGroup) i.next();
-				roles.addAll(realm.m_roles.keySet());
-			}
-			M_log.info("convertOld: total roles: " + roles.size());
-
-			// compute these realms' functions
-			Set functions = new HashSet();
-			for (Iterator i = realms.iterator(); i.hasNext();)
-			{
-				BaseAuthzGroup realm = (BaseAuthzGroup) i.next();
-				for (Iterator r = realm.getRoles().iterator(); r.hasNext();)
-				{
-					BaseRole role = (BaseRole) r.next();
-					functions.addAll(role.m_locks);
-				}
-			}
-			M_log.info("convertOld: total functions: " + functions.size());
-
-			// write out the roles
-			for (Iterator i = roles.iterator(); i.hasNext();)
-			{
-				String role = (String) i.next();
-				checkRoleName(role);
-			}
-			connection.commit();
-			M_log.info("convertOld: roles updated");
-
-			// write out the functions
-			for (Iterator i = functions.iterator(); i.hasNext();)
-			{
-				String function = (String) i.next();
-				checkFunctionName(function);
-			}
-			connection.commit();
-			M_log.info("convertOld: functions updated");
-
-			// read the roles
-			Map roleMap = new HashMap();
-			Object[] fields = new Object[1];
-			String statement = "select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?";
-			for (Iterator i = roles.iterator(); i.hasNext();)
-			{
-				String role = (String) i.next();
-				fields[0] = role;
-
-				List results = sqlService().dbRead(connection, statement, fields, new SqlReader()
-				{
-					public Object readSqlResultRecord(ResultSet result)
-					{
-						try
-						{
-							int key = result.getInt(1);
-							return new Integer(key);
-						}
-						catch (SQLException ignore)
-						{
-							return null;
-						}
-					}
-				});
-				Object key = results.get(0);
-				if (key == null)
-				{
-					M_log.warn("convertOld: missing role: " + role);
-				}
-				else
-				{
-					roleMap.put(role, key);
-				}
-			}
-
-			// read the functions
-			Map functionMap = new HashMap();
-			statement = "select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
-			for (Iterator i = functions.iterator(); i.hasNext();)
-			{
-				String function = (String) i.next();
-				fields[0] = function;
-
-				List results = sqlService().dbRead(connection, statement, fields, new SqlReader()
-				{
-					public Object readSqlResultRecord(ResultSet result)
-					{
-						try
-						{
-							int key = result.getInt(1);
-							return new Integer(key);
-						}
-						catch (SQLException ignore)
-						{
-							return null;
-						}
-					}
-				});
-				Object key = results.get(0);
-				if (key == null)
-				{
-					M_log.warn("convertOld: missing function: " + function);
-				}
-				else
-				{
-					functionMap.put(function, key);
-				}
-			}
-
-			M_log.info("convertOld: roles & functions mapped");
-
-			// write the realms
-			Object[] fields7 = new Object[7];
-			Object[] fields4 = new Object[4];
-			Object[] fields2 = new Object[2];
-			String sqlSequenceNextVal;
-			String sqlSequenceCurrVal;
-			if ("oracle".equals(sqlService().getVendor()))
-			{
-				sqlSequenceNextVal = "SAKAI_REALM_SEQ.NEXTVAL";
-				sqlSequenceCurrVal = "SAKAI_REALM_SEQ.CURRVAL";
-			}
-			else if ("mysql".equals(sqlService().getVendor()))
-			{
-				sqlSequenceNextVal = "DEFAULT";
-				sqlSequenceCurrVal = "LAST_INSERT_ID()";
-			}
-			else
-			// if ("hsqldb".equals(sqlService().getVendor()))
-			{
-				sqlSequenceNextVal = "NEXT VALUE FOR SAKAI_REALM_SEQ";
-				sqlSequenceCurrVal = "(SELECT START_WITH - 1 FROM SYSTEM_SEQUENCES WHERE SEQUENCE_NAME='SAKAI_REALM_SEQ')";
-			}
-
-			String statement1 = "insert into SAKAI_REALM (REALM_KEY, REALM_ID, PROVIDER_ID, MAINTAIN_ROLE, CREATEDBY, MODIFIEDBY, CREATEDON, MODIFIEDON) values ("
-					+ sqlSequenceNextVal + ", ?, ?, ?, ?, ?, ?, ?)";
-			String statement2 = "insert into SAKAI_REALM_PROPERTY (REALM_KEY, NAME, VALUE) values (" + sqlSequenceCurrVal
-					+ ", ?, ?)";
-			String statement3 = "insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY) values (" + sqlSequenceCurrVal
-					+ ", ?, ?)";
-			String statement4 = "insert into SAKAI_REALM_ROLE_DESC (REALM_KEY, ROLE_KEY, DESCRIPTION) values ("
-					+ sqlSequenceCurrVal + ", ?, ?)";
-			String statement5 = "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) values ("
-					+ sqlSequenceCurrVal + ", ?, ?, ?, ?)";
-			String statement6 = "insert into SAKAI_REALM_PROVIDER (REALM_KEY, PROVIDER_ID) values (" + sqlSequenceCurrVal + ", ?)";
-			int count = 0;
-			for (Iterator iRealms = realms.iterator(); iRealms.hasNext();)
-			{
-				BaseAuthzGroup realm = (BaseAuthzGroup) iRealms.next();
-
-				// 1. write the main realm record
-				fields7[0] = StringUtil.trimToZero(realm.m_id);
-				fields7[1] = StringUtil.trimToZero(realm.m_providerRealmId);
-				fields7[2] = roleMap.get(StringUtil.trimToZero(realm.m_maintainRole));
-				fields7[3] = StringUtil.trimToZero(realm.m_createdUserId);
-				fields7[4] = StringUtil.trimToZero(realm.m_lastModifiedUserId);
-				fields7[5] = realm.getCreatedTime();
-				fields7[6] = realm.getModifiedTime();
-				sqlService().dbWrite(connection, statement1, fields7);
-
-				// 2.wite the realm properties
-				for (Iterator iProps = realm.getProperties().getPropertyNames(); iProps.hasNext();)
-				{
-					String name = (String) iProps.next();
-					String value = realm.getProperties().getProperty(name);
-
-					fields2[0] = name;
-					fields2[1] = value;
-					sqlService().dbWrite(connection, statement2, fields2);
-				}
-
-				// 3. write the realm role definitions
-				// 4. write the realm role descriptions
-				for (Iterator iRoles = realm.m_roles.values().iterator(); iRoles.hasNext();)
-				{
-					Role role = (Role) iRoles.next();
-					fields2[0] = roleMap.get(role.getId());
-					for (Iterator iFunctions = role.getAllowedFunctions().iterator(); iFunctions.hasNext();)
-					{
-						String function = (String) iFunctions.next();
-						fields2[1] = functionMap.get(function);
-						sqlService().dbWrite(connection, statement3, fields2);
-					}
-
-					// and the description
-					if (role.getDescription() != null)
-					{
-						fields2[1] = role.getDescription();
-						sqlService().dbWrite(connection, statement4, fields2);
-					}
-				}
-
-				// 5. write the realm grants
-				for (Iterator iGrants = realm.m_userGrants.entrySet().iterator(); iGrants.hasNext();)
-				{
-					Map.Entry entry = (Map.Entry) iGrants.next();
-					BaseMember grant = (BaseMember) entry.getValue();
-					String user = (String) entry.getKey();
-
-					fields4[0] = user;
-					fields4[1] = roleMap.get(grant.role.getId());
-					fields4[2] = (grant.active ? "1" : "0");
-					fields4[3] = (grant.provided ? "1" : "0");
-					sqlService().dbWrite(connection, statement5, fields4);
-				}
-
-				// 6. write the realm providers
-				if ((realm.getProviderGroupId() != null) && (m_provider != null))
-				{
-					String[] ids = m_provider.unpackId(realm.getProviderGroupId());
-					for (int i = 0; i < ids.length; i++)
-					{
-						fields[0] = ids[i];
-						sqlService().dbWrite(connection, statement6, fields);
-					}
-				}
-
-				count++;
-				if ((count % 1000) == 0) M_log.info("convertOld: converted: " + count);
-			}
-
-			connection.commit();
-
-			M_log.info("convertOld: done realms: " + count);
-
-			connection.setAutoCommit(wasCommit);
-			sqlService().returnConnection(connection);
-		}
-		catch (Throwable t)
-		{
-			M_log.warn("convertOld: failed: " + t);
-		}
-
-		M_log.info("convertOld: done");
-	}
 
 	/**
 	 * Form a SQL IN() clause, but break it up with ORs to keep the size of each IN below 100

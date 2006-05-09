@@ -163,7 +163,7 @@ public abstract class SakaiSecurity implements SecurityService
 		boolean rv = false;
 
 		// these known ids are super
-		if ("admin".equalsIgnoreCase(user.getId()))
+		if (UserDirectoryService.ADMIN_ID.equalsIgnoreCase(user.getId()))
 		{
 			rv = true;
 		}
