@@ -125,25 +125,6 @@ public class UsersAction extends PagedResourceActionII
 			state.setAttribute("create-type", config.getInitParameter("create-type", ""));
 		}
 
-		// if (!(((Boolean) state.getAttribute("single-user")).booleanValue()
-		// || ((Boolean) state.getAttribute("create-user")).booleanValue()))
-		// {
-		// // setup the observer to notify our main panel
-		// if (state.getAttribute(STATE_OBSERVER) == null)
-		// {
-		// // the delivery location for this tool
-		// String deliveryId = clientWindowId(state, portlet.getID());
-		//			
-		// // the html element to update on delivery
-		// String elementId = mainPanelUpdateId(portlet.getID());
-		//			
-		// // the event resource reference pattern to watch for
-		// String pattern = UserDirectoryService.userReference("");
-		//
-		// state.setAttribute(STATE_OBSERVER, new EventObservingCourier(deliveryId, elementId, pattern));
-		// }
-		// }
-
 	} // initState
 
 	/**
@@ -225,7 +206,7 @@ public class UsersAction extends PagedResourceActionII
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (UserDirectoryService.allowAddUser(""))
+		if (UserDirectoryService.allowAddUser())
 		{
 			bar.add(new MenuEntry(rb.getString("useact.newuse"), null, true, MenuItem.CHECKED_NA, "doNew"));
 		}
@@ -554,7 +535,7 @@ public class UsersAction extends PagedResourceActionII
 			try
 			{
 				// login - use the fact that we just created the account as external evidence
-				Evidence e = new ExternalTrustedEvidence(user.getId());
+				Evidence e = new ExternalTrustedEvidence(user.getEid());
 				Authentication a = AuthenticationManager.authenticate(e);
 				if (!UsageSessionService.login(a, (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
 				{
@@ -691,6 +672,7 @@ public class UsersAction extends PagedResourceActionII
 
 		// read the form
 		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
+		String eid = StringUtil.trimToNull(data.getParameters().getString("eid"));
 		String firstName = StringUtil.trimToNull(data.getParameters().getString("first-name"));
 		String lastName = StringUtil.trimToNull(data.getParameters().getString("last-name"));
 		String email = StringUtil.trimToNull(data.getParameters().getString("email"));
@@ -745,7 +727,7 @@ public class UsersAction extends PagedResourceActionII
 			{
 				// add the user in one step so that all you need is add not update permission
 				// (the added might be "anon", and anon has add but not update permission)
-				User newUser = UserDirectoryService.addUser(id, firstName, lastName, email, pw, type, null);
+				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, null);
 
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
@@ -770,6 +752,8 @@ public class UsersAction extends PagedResourceActionII
 		// update
 		else
 		{
+			// eid, pw, type might not be editable
+			if (eid != null) user.setEid(eid);
 			user.setFirstName(firstName);
 			user.setLastName(lastName);
 			user.setEmail(email);
@@ -778,8 +762,5 @@ public class UsersAction extends PagedResourceActionII
 		}
 
 		return true;
-
-	} // readUserForm
-
-} // UsersAction
-
+	}
+}

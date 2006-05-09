@@ -35,14 +35,13 @@
 			$tlang.getString("useedi.revandmod")
 		</h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useedi.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
-			## gsilver (invalid id $form-name)
+		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
 			<p class="shorttext  required">
 				#if(!$user)<span class="reqStar">*</span>#end 
-				<label #if(!$user) for="id" #end>
+				<label #if(!$user) for="eid" #end>
 					$tlang.getString("useedi.useid")
 				</label>
-				#if(!$user)<input type="text" name="id" id="id" />#else$validator.escapeHtml($user.Id)#end
+				#if(!$user)<input type="text" name="eid" id="eid" />#else$validator.escapeHtml($user.Eid)#end
 			</p>	
 			<p class="shorttext">
 				<label for="first-name">
@@ -101,6 +100,10 @@
 				<label>$tlang.getString("useedi.mod")</label>
 				$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
 			</p>	
+			<p class="shorttext">
+				<label>$tlang.getString("useedi.useuid")</label>
+				$validator.escapeHtml($user.Id)
+			</p>
 #end
 			<div class="act">
 				#if($user)

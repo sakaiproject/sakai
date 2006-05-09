@@ -21,15 +21,10 @@
 
 package org.sakaiproject.user.impl;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -40,12 +35,8 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
-import org.sakaiproject.util.BaseDbSingleStorage;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Xml;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -114,34 +105,6 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		m_useExternalLocks = new Boolean(value).booleanValue();
 	}
 
-	/** Set if we are to run the from-old conversion. */
-	protected boolean m_convertOld = false;
-
-	/**
-	 * Configuration: run the from-old conversion.
-	 * 
-	 * @param value
-	 *        The conversion desired value.
-	 */
-	public void setConvertOld(String value)
-	{
-		m_convertOld = new Boolean(value).booleanValue();
-	}
-
-	/** Configuration: check the old table, too. */
-	protected boolean m_checkOld = false;
-
-	/**
-	 * Configuration: set the locks-in-db
-	 * 
-	 * @param value
-	 *        The locks-in-db value.
-	 */
-	public void setCheckOld(String value)
-	{
-		m_checkOld = new Boolean(value).booleanValue();
-	}
-
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean m_autoDdl = false;
 
@@ -177,24 +140,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 				// load the 2.1.0 postmaster password conversion
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0");
+
+				// load the 2.2 id-eid map table conversion
+				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_2_map");
 			}
 
 			super.init();
 
-			// convert?
-			if (m_convertOld)
-			{
-				m_convertOld = false;
-				convertOld();
-			}
-
-			// do a count which might find no old records so we can ignore old!
-			if (m_checkOld)
-			{
-				m_storage.count();
-			}
-
-			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks + " checkOld: " + m_checkOld);
+			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
 
 		}
 		catch (Throwable t)
@@ -241,61 +194,35 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			setSortField(m_sortField1, m_sortField2);
 
 			m_reader = this;
-			setCaseInsensitivity(!m_caseSensitiveId);
-
-			// setup for old-new stradling
-			if (m_checkOld)
-			{
-				m_oldStorage = new DbStorageOld(user);
-			}
 		}
 
 		public boolean check(String id)
 		{
 			boolean rv = super.checkResource(id);
 
-			// if not, check old
-			if (m_checkOld && (!rv))
-			{
-				rv = m_oldStorage.check(id);
-			}
+			return rv;
+		}
+
+		public UserEdit getById(String id)
+		{
+			UserEdit rv = (UserEdit) super.getResource(id);
 
 			return rv;
 		}
 
-		public UserEdit get(String id)
+		public UserEdit getByEid(String eid)
 		{
+			// find id from mapping - if not found, we don't have the record
+			String id = checkMapForId(eid);
+			if (id == null) return null;
+
 			UserEdit rv = (UserEdit) super.getResource(id);
 
-			// if not, check old
-			if (m_checkOld && (rv == null))
-			{
-				rv = m_oldStorage.get(id);
-			}
 			return rv;
 		}
 
 		public List getAll()
 		{
-			// if we have to be concerned with old stuff, we cannot let the db do the range selection
-			if (m_checkOld)
-			{
-				List all = super.getAllResources();
-
-				// add in any additional defined in old
-				Set merge = new HashSet();
-				merge.addAll(all);
-
-				// add those in the old not already (id based equals) in all
-				List more = m_oldStorage.getAll();
-				merge.addAll(more);
-
-				all.clear();
-				all.addAll(merge);
-
-				return all;
-			}
-
 			// let the db do range selection
 			List all = super.getAllResources();
 			return all;
@@ -303,32 +230,6 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		public List getAll(int first, int last)
 		{
-			// if we have to be concerned with old stuff, we cannot let the db do the range selection
-			if (m_checkOld)
-			{
-				List all = super.getAllResources();
-
-				// add in any additional defined in old
-				Set merge = new HashSet();
-				merge.addAll(all);
-
-				// add those in the old not already (id based equals) in all
-				List more = m_oldStorage.getAll();
-				merge.addAll(more);
-
-				all.clear();
-				all.addAll(merge);
-
-				Collections.sort(all);
-
-				// subset by position
-				if (first < 1) first = 1;
-				if (last >= all.size()) last = all.size();
-
-				all = all.subList(first - 1, last);
-				return all;
-			}
-
 			// let the db do range selection
 			List all = super.getAllResources(first, last);
 			return all;
@@ -336,22 +237,16 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		public int count()
 		{
-			// if we have to be concerned with old stuff, we cannot let the db do all the counting
-			if (m_checkOld)
-			{
-				int count = super.countAllResources();
-				count += m_oldStorage.count();
-
-				return count;
-			}
-
 			return super.countAllResources();
 		}
 
-		public UserEdit put(String id)
+		public UserEdit put(String id, String eid)
 		{
-			// check for already exists (new or old)
+			// check for already exists
 			if (check(id)) return null;
+
+			// assure mapping
+			if (!putMap(id, eid)) return null;
 
 			BaseUserEdit rv = (BaseUserEdit) super.putResource(id, fields(id, null, false));
 			if (rv != null) rv.activate();
@@ -362,28 +257,17 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		{
 			BaseUserEdit rv = (BaseUserEdit) super.editResource(id);
 
-			// if not found, try from the old (convert to the new)
-			if (m_checkOld && (rv == null))
-			{
-				// this locks the old table/record
-				rv = (BaseUserEdit) m_oldStorage.edit(id);
-				if (rv != null)
-				{
-					// create the record in new, also locking it into an edit
-					rv = (BaseUserEdit) super.putResource(id, fields(id, rv, false));
-
-					// delete the old record
-					m_oldStorage.remove(rv);
-				}
-			}
-
 			if (rv != null) rv.activate();
 			return rv;
 		}
 
-		public void commit(UserEdit edit)
+		public boolean commit(UserEdit edit)
 		{
+			// update the mapping - fail if that does not succeed
+			if (!updateMap(edit.getId(), edit.getEid())) return false;
+
 			super.commitResource(edit, fields(edit.getId(), edit, true), edit.getProperties());
+			return true;
 		}
 
 		public void cancel(UserEdit edit)
@@ -393,37 +277,13 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		public void remove(UserEdit edit)
 		{
+			unMap(edit.getId());
 			super.removeResource(edit);
 		}
 
 		public List search(String criteria, int first, int last)
 		{
-			// if we have to be concerned with old stuff, we cannot let the db do the search
-			if (m_checkOld)
-			{
-				List all = getAll();
-				List rv = new Vector();
-
-				for (Iterator i = all.iterator(); i.hasNext();)
-				{
-					BaseUserEdit u = (BaseUserEdit) i.next();
-					if (u.selectedBy(criteria))
-					{
-						rv.add(u);
-					}
-				}
-
-				Collections.sort(rv);
-
-				// subset by position
-				if (first < 1) first = 1;
-				if (last >= rv.size()) last = rv.size();
-
-				rv = rv.subList(first - 1, last);
-
-				return rv;
-			}
-
+			// TODO: what about eid search?
 			String search = "%" + criteria + "%";
 			Object[] fields = new Object[4];
 			fields[0] = search;
@@ -440,24 +300,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		public int countSearch(String criteria)
 		{
-			// if we have to be concerned with old stuff, we cannot let the db do the search and count
-			if (m_checkOld)
-			{
-				List all = getAll();
-				List rv = new Vector();
-
-				for (Iterator i = all.iterator(); i.hasNext();)
-				{
-					BaseUserEdit u = (BaseUserEdit) i.next();
-					if (u.selectedBy(criteria))
-					{
-						rv.add(u);
-					}
-				}
-
-				return rv.size();
-			}
-
+			// TODO: what about eid search?
 			String search = "%" + criteria + "%";
 			Object[] fields = new Object[4];
 			fields[0] = search;
@@ -477,26 +320,15 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		 */
 		public Collection findUsersByEmail(String email)
 		{
-			Collection rv = null;
+			Collection rv = new Vector();
 
-			// check old if needed
-			if (m_checkOld)
+			// search for it
+			Object[] fields = new Object[1];
+			fields[0] = email.toLowerCase();
+			List users = super.getSelectedResources("EMAIL_LC = ?", fields);
+			if (users != null)
 			{
-				rv = m_oldStorage.findUsersByEmail(email);
-			}
-
-			if (rv == null)
-			{
-				rv = new Vector();
-
-				// search for it
-				Object[] fields = new Object[1];
-				fields[0] = email.toLowerCase();
-				List users = super.getSelectedResources("EMAIL_LC = ?", fields);
-				if (users != null)
-				{
-					rv.addAll(users);
-				}
+				rv.addAll(users);
 			}
 
 			return rv;
@@ -604,8 +436,15 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				Time createdOn = timeService().newTime(result.getTimestamp(10, sqlService().getCal()).getTime());
 				Time modifiedOn = timeService().newTime(result.getTimestamp(11, sqlService().getCal()).getTime());
 
+				// find the eid from the mapping
+				String eid = checkMapForEid(id);
+				if (eid == null)
+				{
+					M_log.warn("readSqlResultRecord: null eid for id: " + id);
+				}
+
 				// create the Resource from these fields
-				return new BaseUserEdit(id, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);
+				return new BaseUserEdit(id, eid, email, firstName, lastName, type, pw, createdBy, createdOn, modifiedBy, modifiedOn);
 			}
 			catch (SQLException e)
 			{
@@ -613,255 +452,135 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				return null;
 			}
 		}
-	}
 
-	/**
-	 * Covers for the BaseXmlFileStorage, providing User and UserEdit parameters
-	 */
-	protected class DbStorageOld extends BaseDbSingleStorage implements Storage
-	{
 		/**
-		 * Construct.
+		 * Create a mapping between the id and eid.
 		 * 
-		 * @param user
-		 *        The StorageUser class to call back for creation of Resource and Edit objects.
+		 * @param id
+		 *        The user id.
+		 * @param eid
+		 *        The user eid.
+		 * @return true if successful, false if not (id or eid might be in use).
 		 */
-		public DbStorageOld(StorageUser user)
+		public boolean putMap(String id, String eid)
 		{
-			super("CHEF_USER", "USER_ID", null, false, "user", user, sqlService());
-		}
+			// if we are not doing separate id/eid, do nothing
+			if (!m_separateIdEid) return true;
 
-		public boolean check(String id)
-		{
-			return super.checkResource(id);
-		}
+			String statement = "insert into SAKAI_USER_ID_MAP (USER_ID, EID) values (?,?)";
 
-		public UserEdit get(String id)
-		{
-			return (UserEdit) super.getResource(id);
-		}
+			Object fields[] = new Object[2];
+			fields[0] = id;
+			fields[1] = eid;
 
-		public List getAll()
-		{
-			return super.getAllResources();
-		}
-
-		public int count()
-		{
-			int rv = super.countAllResources();
-
-			// if we find no more records in the old table, we can start ignoring it...
-			// Note: this means once they go away they cannot come back (old versions cannot run in the cluster
-			// and write to the old cluster table). -ggolden
-			if (rv == 0)
-			{
-				m_checkOld = false;
-				M_log.info(" ** starting to ignore old");
-			}
-			return rv;
-		}
-
-		public List getAll(int first, int last)
-		{
-			List all = super.getAllResources();
-
-			// sort for position check
-			Collections.sort(all);
-
-			// subset by position
-			if (first < 1) first = 1;
-			if (last >= all.size()) last = all.size();
-
-			all = all.subList(first - 1, last);
-
-			return all;
-		}
-
-		public List search(String criteria, int first, int last)
-		{
-			List all = super.getAllResources();
-
-			List rv = new Vector();
-			for (Iterator i = all.iterator(); i.hasNext();)
-			{
-				BaseUserEdit u = (BaseUserEdit) i.next();
-				if (u.selectedBy(criteria))
-				{
-					rv.add(u);
-				}
-			}
-
-			Collections.sort(rv);
-
-			// subset by position
-			if (first < 1) first = 1;
-			if (last >= rv.size()) last = rv.size();
-
-			rv = rv.subList(first - 1, last);
-
-			return rv;
+			return m_sql.dbWrite(statement, fields);
 		}
 
 		/**
-		 * {@inheritDoc}
-		 */
-		public int countSearch(String criteria)
-		{
-			List all = super.getAllResources();
-
-			Vector rv = new Vector();
-			for (Iterator i = all.iterator(); i.hasNext();)
-			{
-				BaseUserEdit u = (BaseUserEdit) i.next();
-				if (u.selectedBy(criteria))
-				{
-					rv.add(u);
-				}
-			}
-
-			return rv.size();
-		}
-
-		public UserEdit put(String id)
-		{
-			return (UserEdit) super.putResource(id, null);
-		}
-
-		public UserEdit edit(String id)
-		{
-			return (UserEdit) super.editResource(id);
-		}
-
-		public void commit(UserEdit edit)
-		{
-			super.commitResource(edit);
-		}
-
-		public void cancel(UserEdit edit)
-		{
-			super.cancelResource(edit);
-		}
-
-		public void remove(UserEdit edit)
-		{
-			super.removeResource(edit);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		public Collection findUsersByEmail(String email)
-		{
-			Collection rv = new Vector();
-
-			// check internal users
-			List users = getUsers();
-			for (Iterator iUsers = users.iterator(); iUsers.hasNext();)
-			{
-				UserEdit user = (UserEdit) iUsers.next();
-				if (email.equalsIgnoreCase(user.getEmail()))
-				{
-					rv.add(user);
-				}
-			}
-
-			return rv;
-		}
-
-		/**
-		 * Read properties from storage into the edit's properties.
+		 * Update the mapping
 		 * 
-		 * @param edit
-		 *        The user to read properties for.
+		 * @param id
+		 *        The user id.
+		 * @param eid
+		 *        The user eid.
+		 * @return true if successful, false if not (id or eid might be in use).
 		 */
-		public void readProperties(UserEdit edit, ResourcePropertiesEdit props)
+		protected boolean updateMap(String id, String eid)
 		{
-			M_log.warn("readProperties: should not be called.");
-		}
-	}
+			// if we are not doing separate id/eid, do nothing
+			if (!m_separateIdEid) return true;
 
-	/**
-	 * Create a new table record for all old table records found, and delete the old.
-	 */
-	protected void convertOld()
-	{
-		M_log.info("convertOld");
+			// do we have this id mapped?
+			String eidAlready = checkMapForEid(id);
 
-		try
-		{
-			// get a connection
-			final Connection connection = sqlService().borrowConnection();
-			boolean wasCommit = connection.getAutoCommit();
-			connection.setAutoCommit(false);
-
-			// read all user ids
-			String sql = "select USER_ID, XML from CHEF_USER";
-			sqlService().dbRead(connection, sql, null, new SqlReader()
+			// if not, add it
+			if (eidAlready == null)
 			{
-				private int count = 0;
+				return putMap(id, eid);
+			}
 
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						// create the Resource from the db xml
-						String id = result.getString(1);
-						String xml = result.getString(2);
+			// we have a mapping, is it what we want?
+			if (eidAlready.equals(eid)) return true;
 
-						// read the xml
-						Document doc = Xml.readDocumentFromString(xml);
+			// we have a mapping that needs to be updated
+			String statement = "update SAKAI_USER_ID_MAP set EID=? where USER_ID=?";
 
-						// verify the root element
-						Element root = doc.getDocumentElement();
-						if (!root.getTagName().equals("user"))
-						{
-							M_log.warn("convertOld: XML root element not user: " + root.getTagName());
-							return null;
-						}
-						UserEdit e = new BaseUserEdit(root);
+			Object fields[] = new Object[2];
+			fields[0] = eid;
+			fields[1] = id;
 
-						// pick up the fields
-						Object[] fields = ((DbStorage) m_storage).fields(id, e, false);
-
-						// insert the record
-						boolean ok = ((DbStorage) m_storage).insertResource(id, fields, connection);
-						if (!ok)
-						{
-							// warn, and don't delete the old!
-							M_log.warn("convertOld: failed to insert: " + id);
-							return null;
-						}
-
-						// delete the old record
-						String statement = "delete from CHEF_USER where USER_ID = ?";
-						fields = new Object[1];
-						fields[0] = id;
-						ok = sqlService().dbWrite(connection, statement, fields);
-						if (!ok)
-						{
-							M_log.warn("convertOld: failed to delete: " + id);
-						}
-
-						// m_logger.info(" ** user converted: " + id);
-
-						return null;
-					}
-					catch (Throwable ignore)
-					{
-						return null;
-					}
-				}
-			});
-
-			connection.commit();
-			connection.setAutoCommit(wasCommit);
-			sqlService().returnConnection(connection);
+			return m_sql.dbWrite(statement, fields);
 		}
-		catch (Throwable t)
+
+		/**
+		 * Remove the mapping for this id
+		 * 
+		 * @param id
+		 *        The user id.
+		 */
+		protected void unMap(String id)
 		{
-			M_log.warn("convertOld: failed: " + t);
+			// if we are not doing separate id/eid, do nothing
+			if (!m_separateIdEid) return;
+
+			String statement = "delete from SAKAI_USER_ID_MAP where USER_ID=?";
+
+			Object fields[] = new Object[1];
+			fields[0] = id;
+
+			m_sql.dbWrite(statement, fields);
 		}
 
-		M_log.info("convertOld: done");
+		/**
+		 * Check the id -> eid mapping: lookup this id and return the eid if found
+		 * 
+		 * @param id
+		 *        The user id to lookup.
+		 * @return The eid mapped to this id, or null if none.
+		 */
+		public String checkMapForEid(String id)
+		{
+			// if we are not doing separate id/eid, return the id
+			if (!m_separateIdEid) return id;
+
+			String statement = "select EID from SAKAI_USER_ID_MAP where USER_ID=?";
+			Object fields[] = new Object[1];
+			fields[0] = id;
+			List rv = sqlService().dbRead(statement, fields, null);
+
+			if (rv.size() > 0)
+			{
+				String eid = (String) rv.get(0);
+				return eid;
+			}
+
+			return null;
+		}
+
+		/**
+		 * Check the id -> eid mapping: lookup this eid and return the id if found
+		 * 
+		 * @param eid
+		 *        The user eid to lookup.
+		 * @return The id mapped to this eid, or null if none.
+		 */
+		public String checkMapForId(String eid)
+		{
+			// if we are not doing separate id/eid, do nothing
+			if (!m_separateIdEid) return eid;
+
+			String statement = "select USER_ID from SAKAI_USER_ID_MAP where EID=?";
+			Object fields[] = new Object[1];
+			fields[0] = eid;
+			List rv = sqlService().dbRead(statement, fields, null);
+
+			if (rv.size() > 0)
+			{
+				String id = (String) rv.get(0);
+				return id;
+			}
+
+			return null;
+		}
 	}
 }

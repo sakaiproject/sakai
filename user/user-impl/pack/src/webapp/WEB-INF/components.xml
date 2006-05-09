@@ -20,11 +20,14 @@
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
+		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="cacheMinutes"><value>5</value></property>
  		<property name="cacheCleanerMinutes"><value>15</value></property>
  		<property name="caseSensitiveId"><value>false</value></property>
+ 		<property name="separateIdEid"><value>false</value></property>
+ 
 	</bean>
 
 	<bean id="org.sakaiproject.user.api.AuthenticationManager"

@@ -28,6 +28,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
@@ -124,6 +125,14 @@ public class UserServiceTest extends DbUserService
 	 * @return the TimeService collaborator.
 	 */
 	protected TimeService timeService()
+	{
+		return null;
+	}
+
+	/**
+	 * @return the IdManager collaborator.
+	 */
+	protected IdManager idManager()
 	{
 		return null;
 	}

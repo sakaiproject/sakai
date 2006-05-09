@@ -68,6 +68,10 @@ public class UserDirectoryService
 
 	public static java.lang.String SECURE_UPDATE_USER_ANY = org.sakaiproject.user.api.UserDirectoryService.SECURE_UPDATE_USER_ANY;
 
+	public static java.lang.String ADMIN_ID = org.sakaiproject.user.api.UserDirectoryService.ADMIN_ID;
+
+	public static java.lang.String ADMIN_EID = org.sakaiproject.user.api.UserDirectoryService.ADMIN_EID;
+
 	public static org.sakaiproject.user.api.User getUser(java.lang.String param0)
 			throws org.sakaiproject.user.api.UserNotDefinedException
 	{
@@ -144,7 +148,8 @@ public class UserDirectoryService
 		return service.editUser(param0);
 	}
 
-	public static void commitEdit(org.sakaiproject.user.api.UserEdit param0) throws org.sakaiproject.user.api.UserAlreadyDefinedException
+	public static void commitEdit(org.sakaiproject.user.api.UserEdit param0)
+			throws org.sakaiproject.user.api.UserAlreadyDefinedException
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
 		if (service == null) return;
@@ -192,33 +197,33 @@ public class UserDirectoryService
 		return service.countSearchUsers(param0);
 	}
 
-	public static boolean allowAddUser(java.lang.String param0)
+	public static boolean allowAddUser()
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
 		if (service == null) return false;
 
-		return service.allowAddUser(param0);
+		return service.allowAddUser();
 	}
 
-	public static org.sakaiproject.user.api.UserEdit addUser(java.lang.String param0)
+	public static org.sakaiproject.user.api.UserEdit addUser(java.lang.String param0, java.lang.String param1)
 			throws org.sakaiproject.user.api.UserIdInvalidException, org.sakaiproject.user.api.UserAlreadyDefinedException,
 			org.sakaiproject.user.api.UserPermissionException
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
 		if (service == null) return null;
 
-		return service.addUser(param0);
+		return service.addUser(param0, param1);
 	}
 
 	public static org.sakaiproject.user.api.User addUser(java.lang.String param0, java.lang.String param1, java.lang.String param2,
-			java.lang.String param3, java.lang.String param4, java.lang.String param5,
-			org.sakaiproject.entity.api.ResourceProperties param6) throws org.sakaiproject.user.api.UserIdInvalidException,
+			java.lang.String param3, java.lang.String param4, java.lang.String param5, java.lang.String param6,
+			org.sakaiproject.entity.api.ResourceProperties param7) throws org.sakaiproject.user.api.UserIdInvalidException,
 			org.sakaiproject.user.api.UserAlreadyDefinedException, org.sakaiproject.user.api.UserPermissionException
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
 		if (service == null) return null;
 
-		return service.addUser(param0, param1, param2, param3, param4, param5, param6);
+		return service.addUser(param0, param1, param2, param3, param4, param5, param6, param7);
 	}
 
 	public static org.sakaiproject.user.api.UserEdit mergeUser(org.w3c.dom.Element param0)
@@ -239,7 +244,8 @@ public class UserDirectoryService
 		return service.allowRemoveUser(param0);
 	}
 
-	public static void removeUser(org.sakaiproject.user.api.UserEdit param0) throws org.sakaiproject.user.api.UserPermissionException
+	public static void removeUser(org.sakaiproject.user.api.UserEdit param0)
+			throws org.sakaiproject.user.api.UserPermissionException
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
 		if (service == null) return;
@@ -269,5 +275,21 @@ public class UserDirectoryService
 		if (service == null) return null;
 
 		return service.userReference(param0);
+	}
+
+	public static java.lang.String getUserEid(java.lang.String param0) throws org.sakaiproject.user.api.UserNotDefinedException
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserEid(param0);
+	}
+
+	public static java.lang.String getUserId(java.lang.String param0) throws org.sakaiproject.user.api.UserNotDefinedException
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserId(param0);
 	}
 }

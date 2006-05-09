@@ -25,7 +25,7 @@
 							$tlang.getString("usevie.use2")
 						</th>
 						<td>
-							$validator.escapeHtml($user.Id)
+							$validator.escapeHtml($user.Eid)
 						</td>
 					</tr>
 					<tr>
@@ -96,5 +96,3 @@
 #end
 		</form>
 	</div>
-
-

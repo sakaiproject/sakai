@@ -101,8 +101,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 				throw new AuthenticationException("invalid login");
 			}
 
-			// use the User id as both the uuid and eid
-			Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getId());
+			Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 			return rv;
 		}
 
@@ -121,8 +120,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				User user = userDirectoryService().getUserByEid(evidence.getIdentifier());
 
-				// use the User id as both the uuid and eid
-				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getId());
+				Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
 				return rv;
 			}
 			catch (UserNotDefinedException ex)

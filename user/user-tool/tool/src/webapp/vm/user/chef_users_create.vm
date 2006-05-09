@@ -34,16 +34,14 @@
 		$tlang.getString("usecre.entthe")
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end	
-	## (gsilver) - $form-name in commented line below is not resolving to a value - and "$" is not a valid char for a name or an id with this doctype.
 
-##	<form name="$form-name" id="$form-name" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">	
 	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
 		<p class="shorttext required">
 			#if(!$user)<span class="reqStar">*</span>#end
-			<label #if(!$user) for="id" #end>
+			<label #if(!$user) for="eid" #end>
 				 $tlang.getString("usecre.useid")
 			</label>
-			#if(!$user)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($user.Id)#end
+			#if(!$user)<input type="text" name="eid" id="eid"/>#else$validator.escapeHtml($user.Eid)#end
 		</p>
 		<p class="shorttext">
 			<label for="first-name">

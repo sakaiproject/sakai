@@ -46,11 +46,15 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionBindingEvent;
+import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -67,9 +71,6 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -78,6 +79,12 @@ import org.w3c.dom.NodeList;
 /**
  * <p>
  * BaseUserDirectoryService is a Sakai user directory services implementation.
+ * </p>
+ * <p>
+ * User records can be kept locally, in Sakai, externally, by a UserDirectoryProvider, or a mixture of both.
+ * </p>
+ * <p>
+ * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
 public abstract class BaseUserDirectoryService implements UserDirectoryService, StorageUser, UserFactory
@@ -136,7 +143,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// clean up the id
 		id = cleanId(id);
 
-		return getAccessPoint(true) + Entity.SEPARATOR + id;
+		return getAccessPoint(true) + Entity.SEPARATOR + ((id == null) ? "" : id);
 	}
 
 	/**
@@ -236,6 +243,30 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
+	/**
+	 * Make sure we have a good uuid for a user record. If id is specified, use that. Otherwise get one from the provider or allocate a uuid.
+	 * 
+	 * @param id
+	 *        The proposed id.
+	 * @param eid
+	 *        The proposed eid.
+	 * @return The id to use as the User's uuid.
+	 */
+	protected String assureUuid(String id, String eid)
+	{
+		// if we are not using separate id and eid, return the eid
+		if (!m_separateIdEid) return eid;
+
+		if (id != null) return id;
+
+		// TODO: let the provider have a chance to set this? -ggolden
+
+		// allocate a uuid
+		id = idManager().createUuid();
+
+		return id;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -279,18 +310,32 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_cacheCleanerSeconds = Integer.parseInt(time) * 60;
 	}
 
-	/** Configuration: case sensitive user id. */
-	protected boolean m_caseSensitiveId = false;
+	/** Configuration: case sensitive user eid. */
+	protected boolean m_caseSensitiveEid = false;
 
 	/**
-	 * Configuration: case sensitive user id
+	 * Configuration: case sensitive user eid
 	 * 
 	 * @param value
-	 *        The case sensitive user ide.
+	 *        The case sensitive user eid.
 	 */
 	public void setCaseSensitiveId(String value)
 	{
-		m_caseSensitiveId = new Boolean(value).booleanValue();
+		m_caseSensitiveEid = new Boolean(value).booleanValue();
+	}
+
+	/** Configuration: use a different id and eid for each record (otherwise make them the same value). */
+	protected boolean m_separateIdEid = false;
+
+	/**
+	 * Configuration: to use a separate value for id and eid for each user record, or not.
+	 * 
+	 * @param value
+	 *        The separateIdEid setting.
+	 */
+	public void setSeparateIdEid(String value)
+	{
+		m_separateIdEid = new Boolean(value).booleanValue();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -347,6 +392,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected abstract TimeService timeService();
 
+	/**
+	 * @return the IdManager collaborator.
+	 */
+	protected abstract IdManager idManager();
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -390,7 +440,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
-					+ " - caching minutes: " + m_cacheSeconds / 60 + " - cache cleaner minutes: " + m_cacheCleanerSeconds / 60);
+					+ " - caching minutes: " + m_cacheSeconds / 60 + " - cache cleaner minutes: " + m_cacheCleanerSeconds / 60
+					+ " separateIdEid: " + m_separateIdEid);
 		}
 		catch (Throwable t)
 		{
@@ -414,6 +465,56 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * UserDirectoryService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserEid(String id) throws UserNotDefinedException
+	{
+		id = cleanId(id);
+
+		// first, check our map
+		String eid = m_storage.checkMapForEid(id);
+		if (eid != null) return eid;
+
+		throw new UserNotDefinedException(id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserId(String eid) throws UserNotDefinedException
+	{
+		eid = cleanEid(eid);
+
+		// first, check our map
+		String id = m_storage.checkMapForId(eid);
+		if (id != null) return id;
+
+		// if we don't have an id yet for this eid, and there's a provider that recognizes this eid, allocate an id
+		if (m_provider != null)
+		{
+			// allocate the id to use if this succeeds
+			id = assureUuid(null, eid);
+
+			// make a new edit to hold the provider's info, hoping it will be filled in
+			BaseUserEdit user = new BaseUserEdit((String) null);
+			user.m_id = id;
+			user.m_eid = eid;
+
+			// check with the provider
+			if (m_provider.getUser(user))
+			{
+				// record the id -> eid mapping (could possibly fail if somehow this eid was mapped since our test above)
+				m_storage.putMap(user.getId(), user.getEid());
+
+				return user.getId();
+			}
+		}
+
+		// not found
+		throw new UserNotDefinedException(eid);
+	}
 
 	/**
 	 * @inheritDoc
@@ -441,13 +542,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			else
 			{
 				// find our user record, and use it if we have it
-				user = findUser(id);
+				user = m_storage.getById(id);
 
+				// let the provider provide if needed
 				if ((user == null) && (m_provider != null))
 				{
+					// we need the eid for the provider - if we can't find an eid, we throw UserNotDefinedException
+					String eid = getUserEid(id);
+
 					// make a new edit to hold the provider's info, hoping it will be filled in
 					user = new BaseUserEdit((String) null);
 					((BaseUserEdit) user).m_id = id;
+					((BaseUserEdit) user).m_eid = eid;
 
 					if (!m_provider.getUser(user))
 					{
@@ -473,9 +579,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			throw new UserNotDefinedException(id);
 		}
 
-		// track it - Note: we are not tracking user access -ggolden
-		// eventTrackingService().post(eventTrackingService().newEvent(SECURE_ACCESS_USER, user.getReference()));
-
 		return user;
 	}
 
@@ -484,10 +587,19 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public User getUserByEid(String eid) throws UserNotDefinedException
 	{
-		// TODO: cheating!
+		User rv = null;
 
-		// NOTE: need to cache by eid as well as id... -ggolden
-		return getUser(eid);
+		// clean up the eid
+		eid = cleanEid(eid);
+		if (eid == null) throw new UserNotDefinedException("null");
+
+		// find the user id mapped to this eid and get that record (internally or by provider)
+		String id = getUserId(eid);
+
+		// now we can get by id
+		rv = getUser(id);
+
+		return rv;
 	}
 
 	/**
@@ -495,8 +607,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public List getUsers(Collection ids)
 	{
-		// TODO: make this more efficient? -ggolden
-
 		// User objects to return
 		List rv = new Vector();
 
@@ -529,24 +639,35 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 				else
 				{
-					// find our user record, and use it if we have it
-					user = findUser(id);
+					// find our user record
+					user = m_storage.getById(id);
 
 					// if we didn't find it locally, collect a list of externals to get
 					if ((user == null) && (m_provider != null))
 					{
-						// make a new edit to hold the provider's info; the provider will either fill this in, if known, or remove it from the collection
-						BaseUserEdit providerUser = new BaseUserEdit((String) null);
-						providerUser.m_id = id;
-						fromProvider.add(providerUser);
+						try
+						{
+							// get the eid for this user so we can ask the provider
+							String eid = getUserEid(id);
+
+							// make a new edit to hold the provider's info; the provider will either fill this in, if known, or remove it from the collection
+							BaseUserEdit providerUser = new BaseUserEdit((String) null);
+							providerUser.m_id = id;
+							providerUser.m_eid = eid;
+							fromProvider.add(providerUser);
+						}
+						catch (UserNotDefinedException e)
+						{
+							// this user is not internally defined, and we can't find an eid for it, so we skip it
+							M_log.warn("getUsers: cannot find eid for user id: " + id);
+						}
 					}
 
 					// if found, save it for later use in this thread
 					if (user != null)
 					{
-						threadLocalManager().set(ref, user);
-
 						// cache
+						threadLocalManager().set(ref, user);
 						if (m_callCache != null) m_callCache.put(ref, user, m_cacheSeconds);
 					}
 				}
@@ -559,7 +680,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 		}
 
-		// check the provider
+		// check the provider, all at once
 		if ((m_provider != null) && (!fromProvider.isEmpty()))
 		{
 			m_provider.getUsers(fromProvider);
@@ -615,6 +736,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		// clean up the id
 		id = cleanId(id);
+		if (id == null) return false;
 
 		// is this the user's own?
 		if (id.equals(sessionManager().getCurrentSessionUserId()))
@@ -673,7 +795,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public void commitEdit(UserEdit user)
+	public void commitEdit(UserEdit user) throws UserAlreadyDefinedException
 	{
 		// check for closed edit
 		if (!user.isActiveEdit())
@@ -693,15 +815,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		addLiveUpdateProperties((BaseUserEdit) user);
 
 		// complete the edit
-		m_storage.commit(user);
+		if (!m_storage.commit(user))
+		{
+			m_storage.cancel(user);
+			((BaseUserEdit) user).closeEdit();
+			throw new UserAlreadyDefinedException(user.getEid());
+		}
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) user).getEvent(), user.getReference(), true));
 
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
-
-		// %%% sync with portal service, i.e. user's portal page, any others? -ggolden
 	}
 
 	/**
@@ -817,33 +942,32 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public boolean allowAddUser(String id)
+	public boolean allowAddUser()
 	{
-		// clean up the id
-		id = cleanId(id);
-
-		return unlockCheck(SECURE_ADD_USER, userReference(id));
+		return unlockCheck(SECURE_ADD_USER, userReference(""));
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public UserEdit addUser(String id) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException
+	public UserEdit addUser(String id, String eid) throws UserIdInvalidException, UserAlreadyDefinedException,
+			UserPermissionException
 	{
-		// clean up the id
+		// clean the ids
 		id = cleanId(id);
+		eid = cleanEid(eid);
 
-		// check for a valid user name
-		Validator.checkUserId(id);
+		// make sure we have an id
+		id = assureUuid(id, eid);
 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_USER, userReference(id));
 
 		// reserve a user with this id from the info store - if it's in use, this will return null
-		UserEdit user = m_storage.put(id);
+		UserEdit user = m_storage.put(id, eid);
 		if (user == null)
 		{
-			throw new UserAlreadyDefinedException(id);
+			throw new UserAlreadyDefinedException(id + " -" + eid);
 		}
 
 		((BaseUserEdit) user).setEvent(SECURE_ADD_USER);
@@ -854,11 +978,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public User addUser(String id, String firstName, String lastName, String email, String pw, String type,
+	public User addUser(String id, String eid, String firstName, String lastName, String email, String pw, String type,
 			ResourceProperties properties) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException
 	{
 		// get it added
-		UserEdit edit = addUser(id);
+		UserEdit edit = addUser(id, eid);
 
 		// fill in the fields
 		edit.setLastName(lastName);
@@ -876,7 +1000,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// no live props!
 
 		// get it committed - no further security check
-		m_storage.commit(edit);
+		if (!m_storage.commit(edit))
+		{
+			m_storage.cancel(edit);
+			((BaseUserEdit) edit).closeEdit();
+			throw new UserAlreadyDefinedException(edit.getEid());
+		}
 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(((BaseUserEdit) edit).getEvent(), edit.getReference(), true));
@@ -895,17 +1024,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// construct from the XML
 		User userFromXml = new BaseUserEdit(el);
 
-		// check for a valid user name
-		Validator.checkResourceId(userFromXml.getId());
+		// check for a valid eid
+		Validator.checkResourceId(userFromXml.getEid());
 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_USER, userFromXml.getReference());
 
 		// reserve a user with this id from the info store - if it's in use, this will return null
-		UserEdit user = m_storage.put(userFromXml.getId());
+		UserEdit user = m_storage.put(userFromXml.getId(), userFromXml.getEid());
 		if (user == null)
 		{
-			throw new UserAlreadyDefinedException(userFromXml.getId());
+			throw new UserAlreadyDefinedException(userFromXml.getId() + " - " + userFromXml.getEid());
 		}
 
 		// transfer from the XML read user object to the UserEdit
@@ -923,6 +1052,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		// clean up the id
 		id = cleanId(id);
+		if (id == null) return false;
 
 		return unlockCheck(SECURE_REMOVE_USER, userReference(id));
 	}
@@ -955,8 +1085,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// track it
 		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_USER, user.getReference(), true));
 
-		// %%% sync with portal service, i.e. user's portal page, any others? -ggolden
-
 		// close the edit object
 		((BaseUserEdit) user).closeEdit();
 
@@ -975,41 +1103,53 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public User authenticate(String eid, String password)
 	{
-		// clean up the id
-		eid = cleanId(eid);
+		// clean up the eid
+		eid = cleanEid(eid);
 		if (eid == null) return null;
 
 		boolean authenticated = false;
+		boolean newlyCreatedUser = false;
+		boolean authenticatedFromProvider = false;
 
 		// do we have a record for this user?
-		UserEdit user = findUserByEid(eid);
+		UserEdit user = null;
 
-		// TODO: when we implement eid / complete user records with unique UUID based id, we need to clean the following up:
-		// we need to create a user record with this eid as an eid, with a new UUID id... -ggolden
+		try
+		{
+			user = (UserEdit) getUserByEid(eid);
+		}
+		catch (UserNotDefinedException e)
+		{
+			// no internal record defined, we go on...
+		}
+
 		if (user == null)
 		{
-			String id = eid;
-			if (m_provider != null && m_provider.createUserRecord(id))
+			if (m_provider != null && m_provider.createUserRecord(eid))
 			{
 				try
 				{
-					user = addUser(id);
+					user = addUser(null, eid);
+					newlyCreatedUser = true;
 				}
 				catch (UserIdInvalidException e)
 				{
-					M_log.debug("authenticate(): Id invalid: " + id);
+					M_log.debug("authenticate(): eid invalid: " + eid);
+					return null;
 				}
 				catch (UserAlreadyDefinedException e)
 				{
-					M_log.debug("authenticate(): Id used: " + id);
+					M_log.debug("authenticate(): eid used: " + eid);
+					return null;
 				}
 				catch (UserPermissionException e)
 				{
-					M_log.debug("authenticate(): UserPermissionException for adding user " + id);
+					M_log.debug("authenticate(): PermissionException for adding user " + eid);
+					return null;
 				}
 			}
 		}
@@ -1017,7 +1157,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		if (m_provider != null && m_provider.authenticateWithProviderFirst(eid))
 		{
 			// 1. check provider
-			authenticated = authenticateViaProvider(eid, user, password);
+			authenticated = m_provider.authenticateUser(eid, user, password);
+			if (authenticated) authenticatedFromProvider = true;
+
 			if (!authenticated && user != null)
 			{
 				// 2. check our user record, if any, if not yet authenticated
@@ -1035,7 +1177,55 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// 2. check our provider, if any, if not yet authenticated
 			if (!authenticated && m_provider != null)
 			{
-				authenticated = authenticateViaProvider(eid, user, password);
+				authenticated = m_provider.authenticateUser(eid, user, password);
+				if (authenticated) authenticatedFromProvider = true;
+			}
+		}
+
+		// if we have an active user edit, deal with it
+		if (newlyCreatedUser)
+		{
+			// save if we succeeded with the authentication
+			if (authenticated)
+			{
+				try
+				{
+					commitEdit(user);
+				}
+				catch (UserAlreadyDefinedException e)
+				{
+					M_log.warn("authenticate: exception saving newly created local user record: " + e.toString());
+				}
+			}
+
+			// cancel if not
+			else
+			{
+				cancelEdit(user);
+			}
+		}
+
+		// if not newly created, but we authenticated from the provider (thus have a provider), have a user record already, and the provider wants us to save after, do so
+		else if ((user != null) && authenticated && authenticatedFromProvider && m_provider.updateUserAfterAuthentication())
+		{
+			// get an edit for this id, and move in the possibly changed by the provider values
+			BaseUserEdit edit = (BaseUserEdit) m_storage.edit(user.getId());
+			if (edit != null)
+			{
+				edit.setAll(user);
+				edit.setEvent(SECURE_UPDATE_USER_ANY);
+
+				if (!m_storage.commit(edit))
+				{
+					m_storage.cancel(edit);
+					edit.closeEdit();
+					M_log.warn("authenticate: exception provider modified user record: id: " + edit.getId() + " eid: "
+							+ edit.getEid());
+				}
+				else
+				{
+					eventTrackingService().post(eventTrackingService().newEvent(edit.getEvent(), user.getReference(), true));
+				}
 			}
 		}
 
@@ -1046,6 +1236,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			rv = user;
 			if (rv == null)
 			{
+				// get a user record - if we don't have a mapping for this eid yet, getUserByEid will make one for us
 				try
 				{
 					rv = getUserByEid(eid);
@@ -1064,7 +1255,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				}
 			}
 
-			// cache the user (if we didn't go through the getUser() above, which would have cached it
+			// cache the user (if we didn't go through the getUserByEid() above, which would have cached it
 			else
 			{
 				if (m_callCache != null) m_callCache.put(userReference(rv.getId()), rv, m_cacheSeconds);
@@ -1072,44 +1263,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 
 		return rv;
-	}
-
-	/**
-	 * Authenticate user by provider information
-	 * 
-	 * @param id
-	 *        The id string
-	 * @param user
-	 *        The UserEdit object
-	 * @param password
-	 *        The password string
-	 * @return
-	 */
-	protected boolean authenticateViaProvider(String id, UserEdit user, String password)
-	{
-		boolean authenticated = m_provider.authenticateUser(id, user, password);
-		// m_logger.info(" *** UserDirectory.authenticate: id: " + id + " result of PUDP.authenticateUser: " + authenticated);
-
-		// some providers want to update the user record on authentication - if so, we need to save it
-		if ((authenticated) && (m_provider.updateUserAfterAuthentication()) && user != null)
-		{
-			// save user
-			BaseUserEdit edit = (BaseUserEdit) m_storage.edit(id);
-			if (edit != null)
-			{
-				edit.setAll(user);
-				edit.setEvent(SECURE_UPDATE_USER_ANY);
-
-				m_storage.commit(edit);
-
-				eventTrackingService().post(eventTrackingService().newEvent(edit.getEvent(), edit.getReference(), true));
-			}
-			else
-			{
-				M_log.warn("authenticate(): could not save user after auth: " + id);
-			}
-		}
-		return authenticated;
 	}
 
 	/**
@@ -1122,33 +1275,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			m_provider.destroyAuthentication();
 		}
-	}
-
-	/**
-	 * Find the user object, in cache or storage (only - no provider check).
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return The user object found in cache or storage, or null if not found.
-	 */
-	protected BaseUserEdit findUser(String id)
-	{
-		BaseUserEdit user = (BaseUserEdit) m_storage.get(id);
-
-		return user;
-	}
-
-	/**
-	 * Find the user object, by the eid (not id) in cache or storage (only - no provider check).
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return The user object found in cache or storage, or null if not found.
-	 */
-	protected BaseUserEdit findUserByEid(String eid)
-	{
-		// TODO: implement this!
-		return findUser(eid);
 	}
 
 	/**
@@ -1178,7 +1304,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	}
 
 	/**
-	 * Adjust the id - trim it to null, and lower case IF we are case insensitive.
+	 * Adjust the id - trim it to null. Note: eid case insensitive option does NOT apply to id.
 	 * 
 	 * @param id
 	 *        The id to clean up.
@@ -1186,12 +1312,27 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String cleanId(String id)
 	{
-		if (!m_caseSensitiveId)
-		{
-			return StringUtil.trimToNullLower(id);
-		}
+		// if we are not doing separate id and eid, use the eid rules
+		if (!m_separateIdEid) return cleanEid(id);
 
 		return StringUtil.trimToNull(id);
+	}
+
+	/**
+	 * Adjust the eid - trim it to null, and lower case IF we are case insensitive.
+	 * 
+	 * @param eid
+	 *        The eid to clean up.
+	 * @return A cleaned up eid.
+	 */
+	protected String cleanEid(String eid)
+	{
+		if (!m_caseSensitiveEid)
+		{
+			return StringUtil.trimToNullLower(eid);
+		}
+
+		return StringUtil.trimToNull(eid);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1371,6 +1512,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/** The user id. */
 		protected String m_id = null;
 
+		/** The user eid. */
+		protected String m_eid = null;
+
 		/** The user first name. */
 		protected String m_firstName = null;
 
@@ -1444,6 +1588,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			m_properties = new BaseResourcePropertiesEdit();
 
 			m_id = cleanId(el.getAttribute("id"));
+			m_eid = cleanEid(el.getAttribute("eid"));
 			m_firstName = StringUtil.trimToNull(el.getAttribute("first-name"));
 			m_lastName = StringUtil.trimToNull(el.getAttribute("last-name"));
 			setEmail(StringUtil.trimToNull(el.getAttribute("email")));
@@ -1521,6 +1666,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * 
 		 * @param id
 		 *        The id.
+		 * @param eid
+		 *        The eid.
 		 * @param email
 		 *        The email.
 		 * @param firstName
@@ -1540,10 +1687,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * @param modifiedOn
 		 *        The modified on property.
 		 */
-		public BaseUserEdit(String id, String email, String firstName, String lastName, String type, String pw, String createdBy,
-				Time createdOn, String modifiedBy, Time modifiedOn)
+		public BaseUserEdit(String id, String eid, String email, String firstName, String lastName, String type, String pw,
+				String createdBy, Time createdOn, String modifiedBy, Time modifiedOn)
 		{
 			m_id = id;
+			m_eid = eid;
 			m_firstName = firstName;
 			m_lastName = lastName;
 			m_type = type;
@@ -1569,6 +1717,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		protected void setAll(User user)
 		{
 			m_id = user.getId();
+			m_eid = user.getEid();
 			m_firstName = user.getFirstName();
 			m_lastName = user.getLastName();
 			m_type = user.getType();
@@ -1604,6 +1753,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			stack.push(user);
 
 			user.setAttribute("id", getId());
+			user.setAttribute("eid", getEid());
 			if (m_firstName != null) user.setAttribute("first-name", m_firstName);
 			if (m_lastName != null) user.setAttribute("last-name", m_lastName);
 			if (m_type != null) user.setAttribute("type", m_type);
@@ -1636,8 +1786,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getEid()
 		{
-			// TODO: implement me, no cheating!
-			return getId();
+			if (m_eid == null) return "";
+			return m_eid;
 		}
 
 		/**
@@ -1746,7 +1896,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				buf.append(m_lastName);
 			}
 
-			if (buf.length() == 0) return getId();
+			if (buf.length() == 0) return getEid();
 
 			return buf.toString();
 		}
@@ -1782,7 +1932,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				buf.append(m_firstName);
 			}
 
-			if (buf.length() == 0) return getId();
+			if (buf.length() == 0) return getEid();
 
 			return buf.toString();
 		}
@@ -1855,8 +2005,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// if these are the same
 			if (compare == 0)
 			{
-				// sort based on (unique) id
-				compare = getId().compareTo(((User) obj).getId());
+				// sort based on (unique) eid
+				compare = getEid().compareTo(((User) obj).getEid());
 			}
 
 			return compare;
@@ -1879,6 +2029,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setId(String id)
 		{
+			// set once only!
 			if (m_id == null)
 			{
 				m_id = id;
@@ -1890,7 +2041,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setEid(String eid)
 		{
-			// TODO: implement me!
+			m_eid = eid;
 		}
 
 		/**
@@ -2017,7 +2168,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		protected boolean selectedBy(String criteria)
 		{
 			if (StringUtil.containsIgnoreCase(getSortName(), criteria) || StringUtil.containsIgnoreCase(getDisplayName(), criteria)
-					|| StringUtil.containsIgnoreCase(getId(), criteria) || StringUtil.containsIgnoreCase(getEmail(), criteria))
+					|| StringUtil.containsIgnoreCase(getEid(), criteria) || StringUtil.containsIgnoreCase(getEmail(), criteria))
 			{
 				return true;
 			}
@@ -2083,7 +2234,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 *        The user id.
 		 * @return The user with this id, or null if not found.
 		 */
-		public UserEdit get(String id);
+		public UserEdit getById(String id);
+
+		/**
+		 * Get the user with this eid, or null if not found.
+		 * 
+		 * @param eid
+		 *        The user eid.
+		 * @return The user with this eid, or null if not found.
+		 */
+		public UserEdit getByEid(String eid);
 
 		/**
 		 * Get the users with this email, or return empty if none found.
@@ -2142,13 +2302,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public int countSearch(String criteria);
 
 		/**
-		 * Add a new user with this id.
+		 * Add a new user with this id and eid.
 		 * 
 		 * @param id
 		 *        The user id.
-		 * @return The locked User object with this id, or null if the id is in use.
+		 * @param eid
+		 *        The user eid.
+		 * @return The locked User object with this id and eid, or null if the id is in use.
 		 */
-		public UserEdit put(String id);
+		public UserEdit put(String id, String eid);
 
 		/**
 		 * Get a lock on the user with this id, or null if a lock cannot be gotten.
@@ -2164,8 +2326,9 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 * 
 		 * @param user
 		 *        The user to commit.
+		 * @return true if successful, false if not (eid may not be unique).
 		 */
-		public void commit(UserEdit user);
+		public boolean commit(UserEdit user);
 
 		/**
 		 * Cancel the changes and release the lock.
@@ -2190,6 +2353,35 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 *        The user to read properties for.
 		 */
 		public void readProperties(UserEdit edit, ResourcePropertiesEdit props);
+
+		/**
+		 * Create a mapping between the id and eid.
+		 * 
+		 * @param id
+		 *        The user id.
+		 * @param eid
+		 *        The user eid.
+		 * @return true if successful, false if not (id or eid might be in use).
+		 */
+		public boolean putMap(String id, String eid);
+
+		/**
+		 * Check the id -> eid mapping: lookup this id and return the eid if found
+		 * 
+		 * @param id
+		 *        The user id to lookup.
+		 * @return The eid mapped to this id, or null if none.
+		 */
+		public String checkMapForEid(String id);
+
+		/**
+		 * Check the id -> eid mapping: lookup this eid and return the id if found
+		 * 
+		 * @param eid
+		 *        The user eid to lookup.
+		 * @return The id mapped to this eid, or null if none.
+		 */
+		public String checkMapForId(String eid);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

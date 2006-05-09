@@ -33,53 +33,37 @@ public interface UserDirectoryProvider
 	/**
 	 * Authenticate a user / password. If the user edit exists it may be modified, and will be stored if...
 	 * 
-	 * @param id
-	 *        The user id.
+	 * @param eid
+	 *        The user eid.
 	 * @param edit
-	 *        The UserEdit matching the id to be authenticated (and updated) if we have one.
+	 *        The UserEdit matching the eid to be authenticated (may be updated by the provider).
 	 * @param password
 	 *        The password.
 	 * @return true if authenticated, false if not.
 	 */
-	boolean authenticateUser(String id, UserEdit edit, String password);
+	boolean authenticateUser(String eid, UserEdit edit, String password);
 
 	/**
-	 * Will this provider update user records on successfull authentication? If so, the UserDirectoryService will cause these updates to be stored.
+	 * Whether to check provider or internal data first when authenticating a user
 	 * 
-	 * @return true if the user record may be updated after successfull authentication, false if not.
+	 * @param eid
+	 *        The user eid.
+	 * @return true if provider data is checked first, false if otherwise
 	 */
-	boolean updateUserAfterAuthentication();
+	boolean authenticateWithProviderFirst(String eid);
+
+	/**
+	 * Does the provider wish for the service to create an internal User record for this user?
+	 * 
+	 * @param eid
+	 *        The user eid.
+	 */
+	boolean createUserRecord(String eid);
 
 	/**
 	 * Remove any authentication traces for the current user / request
 	 */
 	void destroyAuthentication();
-
-	/**
-	 * See if a user by this id is known to the provider.
-	 * 
-	 * @param id
-	 *        The user id string.
-	 * @return true if a user by this id exists, false if not.
-	 */
-	boolean userExists(String id);
-
-	/**
-	 * Access a user object. Update the object with the information found.
-	 * 
-	 * @param edit
-	 *        The user object (id is set) to fill in.
-	 * @return true if the user object was found and information updated, false if not.
-	 */
-	boolean getUser(UserEdit edit);
-
-	/**
-	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
-	 * 
-	 * @param users
-	 *        The UserEdit objects (with id set) to fill in or remove.
-	 */
-	void getUsers(Collection users);
 
 	/**
 	 * Find a user object who has this email address. Update the object with the information found.
@@ -91,14 +75,35 @@ public interface UserDirectoryProvider
 	boolean findUserByEmail(UserEdit edit, String email);
 
 	/**
-	 * Whether to check provider or internal data first when authenticating a user
+	 * Access a user object. Update the object with the information found.
 	 * 
-	 * @return true if provider data is checked first, false if otherwise
+	 * @param edit
+	 *        The user object (eid is set) to fill in.
+	 * @return true if the user object was found and information updated, false if not.
 	 */
-	boolean authenticateWithProviderFirst(String id);
+	boolean getUser(UserEdit edit);
 
 	/**
-	 * If user record cannot be found in by UserDirectoryService, can the service create the user record?
+	 * Access a collection of UserEdit objects; if the user is found, update the information, otherwise remove the UserEdit object from the collection.
+	 * 
+	 * @param users
+	 *        The UserEdit objects (with eid set) to fill in or remove.
 	 */
-	boolean createUserRecord(String id);
+	void getUsers(Collection users);
+
+	/**
+	 * Will this provider update user records on successfull authentication? If so, the UserDirectoryService will cause these updates to be stored.
+	 * 
+	 * @return true if the user record may be updated after successfull authentication, false if not.
+	 */
+	boolean updateUserAfterAuthentication();
+
+	/**
+	 * See if a user by this eid is known to the provider.
+	 * 
+	 * @param eid
+	 *        The user eid string.
+	 * @return true if a user by this id exists, false if not.
+	 */
+	boolean userExists(String eid);
 }

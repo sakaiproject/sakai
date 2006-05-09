@@ -12,14 +12,16 @@
 		</div>
 		<table class="listHier" cellspacing="0" summary ="$tlang.getString("useact.remuse.list.summary")">
 			<tr>
-				<th id="Id">$tlang.getString("useconrem.useid")</th>
+				<th id="Eid">$tlang.getString("useconrem.useid")</th>
 				<th id="Name">$tlang.getString("useconrem.nam")</th>
 				<th id="Email">$tlang.getString("useconrem.ema")</th>
+				<th id="Id">$tlang.getString("useconrem.useuid")</th>
 			</tr>
 			<tr>
-				<td headers="Id"> $validator.escapeHtml($user.Id)</td>
+				<td headers="Eid"> $validator.escapeHtml($user.Eid)</td>
 				<td headers="Name">$validator.escapeHtml($user.DisplayName)</td>
 				<td headers="Email">$validator.escapeHtml($user.Email)</td>
+				<td headers="Id">$validator.escapeHtml($user.Id)</td>
 			</tr>
 		</table>
 		<form action="#toolForm("$action")" method="post">

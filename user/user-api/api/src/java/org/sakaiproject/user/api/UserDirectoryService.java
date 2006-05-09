@@ -41,19 +41,181 @@ public interface UserDirectoryService extends EntityProducer
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/user";
 
-	/** Name for the event of accessing a user. */
-	// static final String SECURE_ACCESS_USER = "user.access";
 	/** Name for the event of adding a group. */
 	static final String SECURE_ADD_USER = "user.add";
 
 	/** Name for the event of removing a user. */
 	static final String SECURE_REMOVE_USER = "user.del";
 
+	/** Name for the event of updating any user info. */
+	static final String SECURE_UPDATE_USER_ANY = "user.upd.any";
+
 	/** Name for the event of updating one's own user info. */
 	static final String SECURE_UPDATE_USER_OWN = "user.upd.own";
 
-	/** Name for the event of updating any user info. */
-	static final String SECURE_UPDATE_USER_ANY = "user.upd.any";
+	/** User id for the admin user. */
+	static final String ADMIN_ID = "admin";
+
+	/** User eid for the admin user. */
+	static final String ADMIN_EID = "admin";
+
+	/**
+	 * Add a new user to the directory. Must commitEdit() to make official, or cancelEdit() when done! Id is auto-generated.
+	 * 
+	 * @param id
+	 *        The user uuid string. Leave null for auto-assignment.
+	 * @param eid
+	 *        The user eid.
+	 * @return A locked UserEdit object (reserving the id).
+	 * @exception UserIdInvalidException
+	 *            if the user eid is invalid.
+	 * @exception UserAlreadyDefinedException
+	 *            if the user id or eid is already used.
+	 * @exception UserPermissionException
+	 *            if the current user does not have permission to add a user.
+	 */
+	UserEdit addUser(String id, String eid) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException;
+
+	/**
+	 * Add a new user to the directory, complete in one operation. Id is auto-generated.
+	 * 
+	 * @param id
+	 *        The user uuid string. Leave null for auto-assignment.
+	 * @param eid
+	 *        The user eid.
+	 * @param firstName
+	 *        The user first name.
+	 * @param lastName
+	 *        The user last name.
+	 * @param email
+	 *        The user email.
+	 * @param pw
+	 *        The user password.
+	 * @param type
+	 *        The user type.
+	 * @param properties
+	 *        Other user properties.
+	 * @return The User object created.
+	 * @exception UserIdInvalidException
+	 *            if the user eid is invalid.
+	 * @exception UserAlreadyDefinedException
+	 *            if the user eid is already used.
+	 * @exception UserPermissionException
+	 *            if the current user does not have permission to add a user.
+	 */
+	User addUser(String id, String eid, String firstName, String lastName, String email, String pw, String type,
+			ResourceProperties properties) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException;
+
+	/**
+	 * check permissions for addUser().
+	 * 
+	 * @return true if the user is allowed to add a user, false if not.
+	 */
+	boolean allowAddUser();
+
+	/**
+	 * check permissions for removeUser().
+	 * 
+	 * @param id
+	 *        The group id.
+	 * @return true if the user is allowed to removeUser(id), false if not.
+	 */
+	boolean allowRemoveUser(String id);
+
+	/**
+	 * check permissions for editUser()
+	 * 
+	 * @param id
+	 *        The user id.
+	 * @return true if the user is allowed to update the user, false if not.
+	 */
+	boolean allowUpdateUser(String id);
+
+	/**
+	 * Authenticate a user / password.
+	 * 
+	 * @param eid
+	 *        The user eid.
+	 * @param password
+	 *        The password.
+	 * @return The User object of the authenticated user if successfull, null if not.
+	 */
+	User authenticate(String eid, String password);
+
+	/**
+	 * Cancel the changes made to a UserEdit object, and release the lock. The UserEdit is disabled, and not to be used after this call.
+	 * 
+	 * @param user
+	 *        The UserEdit object to commit.
+	 */
+	void cancelEdit(UserEdit user);
+
+	/**
+	 * Commit the changes made to a UserEdit object, and release the lock. The UserEdit is disabled, and not to be used after this call.
+	 * 
+	 * @param user
+	 *        The UserEdit object to commit.
+	 * @exception UserAlreadyDefinedException
+	 *            if the User eid is already in use by another User object.
+	 */
+	void commitEdit(UserEdit user) throws UserAlreadyDefinedException;
+
+	/**
+	 * Count all the users that match this criteria in id or target, first or last name.
+	 * 
+	 * @return The count of all users matching the criteria.
+	 */
+	int countSearchUsers(String criteria);
+
+	/**
+	 * Count all the users.
+	 * 
+	 * @return The count of all users.
+	 */
+	int countUsers();
+
+	/**
+	 * Remove authentication for the current user.
+	 */
+	void destroyAuthentication();
+
+	/**
+	 * Get a locked user object for editing. Must commitEdit() to make official, or cancelEdit() when done!
+	 * 
+	 * @param id
+	 *        The user id string.
+	 * @return A UserEdit object for editing.
+	 * @exception UserNotDefinedException
+	 *            if not found, or if not an UserEdit object
+	 * @exception UserPermissionException
+	 *            if the current user does not have permission to mess with this user.
+	 * @exception UserLockedException
+	 *            if the User object is locked by someone else.
+	 */
+	UserEdit editUser(String id) throws UserNotDefinedException, UserPermissionException, UserLockedException;
+
+	/**
+	 * Find the user objects which have this email address.
+	 * 
+	 * @param email
+	 *        The email address string.
+	 * @return A Collection (User) of user objects which have this email address (may be empty).
+	 */
+	Collection findUsersByEmail(String email);
+
+	/**
+	 * Access the anonymous user object.
+	 * 
+	 * @return the anonymous user object.
+	 */
+	User getAnonymousUser();
+
+	/**
+	 * Access the user object associated with the "current" request.
+	 * 
+	 * @return The current user (may be anon).
+	 */
+	User getCurrentUser();
 
 	/**
 	 * Access a user object.
@@ -78,78 +240,26 @@ public interface UserDirectoryService extends EntityProducer
 	User getUserByEid(String eid) throws UserNotDefinedException;
 
 	/**
-	 * Access a bunch of user object.
-	 * 
-	 * @param ids
-	 *        The Collection (String) of user ids.
-	 * @return A List (User) of user objects for valid ids.
-	 */
-	List getUsers(Collection ids);
-
-	/**
-	 * Access the user object associated with the "current" request.
-	 * 
-	 * @return The current user (may be anon).
-	 */
-	User getCurrentUser();
-
-	/**
-	 * Find the user objects which have this email address.
-	 * 
-	 * @param email
-	 *        The email address string.
-	 * @return A Collection (User) of user objects which have this email address (may be empty).
-	 */
-	Collection findUsersByEmail(String email);
-
-	/**
-	 * check permissions for editUser()
+	 * Find the user eid from a user id.
 	 * 
 	 * @param id
 	 *        The user id.
-	 * @return true if the user is allowed to update the user, false if not.
-	 */
-	boolean allowUpdateUser(String id);
-
-	/**
-	 * Get a locked user object for editing. Must commitEdit() to make official, or cancelEdit() when done!
-	 * 
-	 * @param id
-	 *        The user id string.
-	 * @return A UserEdit object for editing.
+	 * @return The eid for the user with this id.
 	 * @exception UserNotDefinedException
-	 *            if not found, or if not an UserEdit object
-	 * @exception UserPermissionException
-	 *            if the current user does not have permission to mess with this user.
-	 * @exception UserLockedException
-	 *            if the User object is locked by someone else.
+	 *            if we don't know anything about the user with this id.
 	 */
-	UserEdit editUser(String id) throws UserNotDefinedException, UserPermissionException, UserLockedException;
+	String getUserEid(String id) throws UserNotDefinedException;
 
 	/**
-	 * Commit the changes made to a UserEdit object, and release the lock. The UserEdit is disabled, and not to be used after this call.
+	 * Find the user id from a user eid.
 	 * 
-	 * @param user
-	 *        The UserEdit object to commit.
-	 * @exception UserAlreadyDefinedException
-	 *            if the User eid is already in use by another User object.
+	 * @param eid
+	 *        The user eid.
+	 * @return The id for the user with this eid.
+	 * @exception UserNotDefinedException
+	 *            if we don't know anything about the user with this eid.
 	 */
-	void commitEdit(UserEdit user) throws UserAlreadyDefinedException;
-
-	/**
-	 * Cancel the changes made to a UserEdit object, and release the lock. The UserEdit is disabled, and not to be used after this call.
-	 * 
-	 * @param user
-	 *        The UserEdit object to commit.
-	 */
-	void cancelEdit(UserEdit user);
-
-	/**
-	 * Access the anonymous user object.
-	 * 
-	 * @return the anonymous user object.
-	 */
-	User getAnonymousUser();
+	String getUserId(String eid) throws UserNotDefinedException;
 
 	/**
 	 * Access all user objects - known to us (not from external providers).
@@ -161,6 +271,15 @@ public interface UserDirectoryService extends EntityProducer
 	List getUsers();
 
 	/**
+	 * Access a bunch of user object.
+	 * 
+	 * @param ids
+	 *        The Collection (String) of user ids.
+	 * @return A List (User) of user objects for valid ids.
+	 */
+	List getUsers(Collection ids);
+
+	/**
 	 * Find all the users within the record range given (sorted by sort name).
 	 * 
 	 * @param first
@@ -170,85 +289,6 @@ public interface UserDirectoryService extends EntityProducer
 	 * @return A list (User) of all the users within the record range given (sorted by sort name).
 	 */
 	List getUsers(int first, int last);
-
-	/**
-	 * Count all the users.
-	 * 
-	 * @return The count of all users.
-	 */
-	int countUsers();
-
-	/**
-	 * Search all the users that match this criteria in id or email, first or last name, returning a subset of records within the record range given (sorted by sort name).
-	 * 
-	 * @param criteria
-	 *        The search criteria.
-	 * @param first
-	 *        The first record position to return.
-	 * @param last
-	 *        The last record position to return.
-	 * @return A list (User) of all the aliases matching the criteria, within the record range given (sorted by sort name).
-	 */
-	List searchUsers(String criteria, int first, int last);
-
-	/**
-	 * Count all the users that match this criteria in id or target, first or last name.
-	 * 
-	 * @return The count of all users matching the criteria.
-	 */
-	int countSearchUsers(String criteria);
-
-	/**
-	 * check permissions for addUser().
-	 * 
-	 * @param id
-	 *        The group id.
-	 * @return true if the user is allowed to addUser(id), false if not.
-	 */
-	boolean allowAddUser(String id);
-
-	/**
-	 * Add a new user to the directory. Must commitEdit() to make official, or cancelEdit() when done!
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @return A locked UserEdit object (reserving the id).
-	 * @exception UserIdInvalidException
-	 *            if the user id is invalid.
-	 * @exception UserAlreadyDefinedException
-	 *            if the user id is already used.
-	 * @exception UserPermissionException
-	 *            if the current user does not have permission to add a user.
-	 */
-	UserEdit addUser(String id) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException;
-
-	/**
-	 * Add a new user to the directory, complete in one operation.
-	 * 
-	 * @param id
-	 *        The user id.
-	 * @param firstName
-	 *        The user first name.
-	 * @param lastName
-	 *        The user last name.
-	 * @param email
-	 *        The user email.
-	 * @param pw
-	 *        The user password.
-	 * @param type
-	 *        The user type.
-	 * @param properties
-	 *        Other user properties.
-	 * @return The User object created.
-	 * @exception UserIdInvalidException
-	 *            if the user id is invalid.
-	 * @exception UserAlreadyDefinedException
-	 *            if the user id is already used.
-	 * @exception UserPermissionException
-	 *            if the current user does not have permission to add a user.
-	 */
-	User addUser(String id, String firstName, String lastName, String email, String pw, String type, ResourceProperties properties)
-			throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException;
 
 	/**
 	 * Add a new user to the directory, from a definition in XML. Must commitEdit() to make official, or cancelEdit() when done!
@@ -266,15 +306,6 @@ public interface UserDirectoryService extends EntityProducer
 	UserEdit mergeUser(Element el) throws UserIdInvalidException, UserAlreadyDefinedException, UserPermissionException;
 
 	/**
-	 * check permissions for removeUser().
-	 * 
-	 * @param id
-	 *        The group id.
-	 * @return true if the user is allowed to removeUser(id), false if not.
-	 */
-	boolean allowRemoveUser(String id);
-
-	/**
 	 * Remove this user's information from the directory - it must be a user with a lock from editUser(). The UserEdit is disabled, and not to be used after this call.
 	 * 
 	 * @param user
@@ -285,20 +316,17 @@ public interface UserDirectoryService extends EntityProducer
 	void removeUser(UserEdit user) throws UserPermissionException;
 
 	/**
-	 * Authenticate a user / password.
+	 * Search all the users that match this criteria in id or email, first or last name, returning a subset of records within the record range given (sorted by sort name).
 	 * 
-	 * @param id
-	 *        The user id.
-	 * @param password
-	 *        The password.
-	 * @return The User object of the authenticated user if successfull, null if not.
+	 * @param criteria
+	 *        The search criteria.
+	 * @param first
+	 *        The first record position to return.
+	 * @param last
+	 *        The last record position to return.
+	 * @return A list (User) of all the aliases matching the criteria, within the record range given (sorted by sort name).
 	 */
-	User authenticate(String id, String password);
-
-	/**
-	 * Remove authentication for the current user.
-	 */
-	void destroyAuthentication();
+	List searchUsers(String criteria, int first, int last);
 
 	/**
 	 * Access the internal reference which can be used to access the resource from within the system.
