@@ -51,7 +51,7 @@ public class NameHelperTest extends TestCase
 	private final String similarLocalName = "/site/Testa";
 
 	private final String defaultName = "/site/test"
-			+ NameHelper.SPACE_SEPARATOR + NameHelper.getDefaultPage();
+			+ NameHelper.SPACE_SEPARATOR + NameHelper.DEFAULT_PAGE;
 
 	public final String testBundleName = "/uk/ac/cam/caret/sakai/rwiki/utils/test/NameHelperTest.test";
 
