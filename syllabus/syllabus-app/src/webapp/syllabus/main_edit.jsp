@@ -22,15 +22,17 @@
    	  </sakai:tool_bar>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		  	<sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-				<syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry">
+				<syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines">
 <%--						<h:column rendered="#{!empty SyllabusTool.entries}">--%>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderItem}" />
 							</f:facet>
+							<f:verbatim><h4 class="specialLink"></f:verbatim>								
 							<h:commandLink action="#{eachEntry.processListRead}" title="#{msgs.goToItem} #{eachEntry.entry.title}">
 								<h:outputText value="#{eachEntry.entry.title}"/>
 							</h:commandLink>
+							<f:verbatim></h4></f:verbatim>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -68,7 +70,8 @@
 							  value="#{msgs.update}" 
 							  action="#{SyllabusTool.processListDelete}"
 							  title="#{msgs.update}"
-							  rendered="#{! SyllabusTool.displayNoEntryMsg}"/>
+							  rendered="#{! SyllabusTool.displayNoEntryMsg}"
+							  accesskey="s" 	/>
 					<f:verbatim></p></f:verbatim>		  
 			</syllabus:syllabus_if>
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">

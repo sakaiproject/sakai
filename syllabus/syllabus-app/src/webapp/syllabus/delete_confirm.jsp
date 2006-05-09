@@ -13,10 +13,9 @@
 			<div class="alertMessage">
 				<h:outputText  value="#{msgs.delConfAlert}" />
 			</div>
-				<%-- (gsilver) cannot pass a needed summary atribute to these next items --%>
-				<sakai:flat_list value="#{SyllabusTool.selectedEntries}" var="eachEntry" >
+				<sakai:flat_list value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="listHier lines nolines">
 					<h:column>
-						<f:facet name="header">
+						<f:facet name="header">                                   
 							<h:outputText  value="#{msgs.delConfHeaderItem}" />
 						</f:facet>
 						<h:outputText value="#{eachEntry.entry.title}"/>
@@ -35,13 +34,15 @@
 					</h:column>
 				</sakai:flat_list>
 				<sakai:button_bar>
-				<%-- (gsilver) cannot pass a needed title atribute to these next items --%>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processDelete}"
-						value="#{msgs.title_delete} " />
+						styleClass="active"
+						value="#{msgs.title_delete} "
+						accesskey="s" />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processDeleteCancel}"
-						value="#{msgs.cancel}" />
+						value="#{msgs.cancel}"
+						accesskey="x" />
 				</sakai:button_bar>
 			</h:form>
 		</sakai:view_content>

@@ -15,15 +15,18 @@
 					<h:outputText value="#{msgs.newSyllabusForm2}"/>
 				</sakai:doc_section>
 
-			<p class="shorttext">
-				<h:outputText value="*" styleClass="reqStar"/>
-				<h:outputLabel for="title">
-					<h:outputText value="#{msgs.syllabus_title}"/>
-				</h:outputLabel>
-				<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
-				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage" 
-								rendered="#{SyllabusTool.displayTitleErroMsg}"/>
-			</p>
+			<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+				<h:panelGroup styleClass="shorttext required">
+					<h:outputText value="*" styleClass="reqStar"/>
+					<h:outputLabel for="title">
+						<h:outputText value="#{msgs.syllabus_title}"/>
+					</h:outputLabel>
+					<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
+					<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage" 
+									rendered="#{SyllabusTool.displayTitleErroMsg}"/>
+				</h:panelGroup>
+			</h:panelGrid>
+
 			<p class="longtext">
 				<label for=""> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
@@ -60,11 +63,12 @@
 					<h:outputText value="" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
 				    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
 
-					<syllabus:syllabus_table value="#{SyllabusTool.allAttachments}" var="eachAttach">
+					<syllabus:syllabus_table value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
 					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.attachmentTitle}" />
 							</f:facet>
+							<f:verbatim><h5></f:verbatim>
 							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
 							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
 							<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
@@ -72,7 +76,7 @@
 							<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
 							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
 							<h:outputText value="#{eachAttach.name}"/>
-
+							<f:verbatim></h5></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
 
 							<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
@@ -108,31 +112,37 @@
 						</h:column>
 					</syllabus:syllabus_table>
 
-				<p class="shorttext">
-					<h:outputLabel for="list1">
-						<h:outputText value="#{msgs.email_notify}"/>
-					</h:outputLabel>
-					<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
-						<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
-						<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
-						<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
-					</h:selectOneListbox>
-				</p>	
+					<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+						<h:panelGroup styleClass="shorttext">
+							<h:outputLabel for="list1">
+								<h:outputText value="#{msgs.email_notify}"/>
+							</h:outputLabel>
+							<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
+								<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
+								<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
+								<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
+							</h:selectOneListbox>
+							</h:panelGroup>
+						</h:panelGrid>
 
 				<sakai:button_bar>
-<%-- (gsilver) cannot pass a needed title atribute to these next items --%>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadPost}"
-						value="#{msgs.bar_post}" />
+						styleClass="active"
+						value="#{msgs.bar_post}"
+						accesskey="s" />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadPreview}"
-						value="#{msgs.bar_preview}" />
+						value="#{msgs.bar_preview}" 
+						accesskey="v"	/>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadSave}"
-						value="#{msgs.bar_save_draft}" />
+						value="#{msgs.bar_save_draft}" 
+						accesskey="d" />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processReadCancel}"
-						value="#{msgs.cancel}" />
+						value="#{msgs.cancel}" 
+						accesskey="x" />
 				</sakai:button_bar>
 
 			</h:form>

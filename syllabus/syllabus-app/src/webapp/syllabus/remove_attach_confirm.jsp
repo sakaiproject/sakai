@@ -14,34 +14,36 @@
 				<div class="alertMessage">
 					<h:outputText value="#{msgs.delAttConfAlert}" />
 				</div>	
-				<syllabus:syllabus_table value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach">
+				<syllabus:syllabus_table value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Title" />
+							<h:outputText value="#{msgs.title}" />
 						</f:facet>
+						<f:verbatim><h4></f:verbatim>
 						<h:outputText value="#{eachAttach.name}"/>
+						<f:verbatim></h4></f:verbatim>
 						</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Size" />
+							<h:outputText value="#{msgs.size}" />
 						</f:facet>
 						<h:outputText value="#{eachAttach.size}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Type" />
+							<h:outputText value="#{msgs.type}" />
 						</f:facet>
 							<h:outputText value="#{eachAttach.type}"/>
 						</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Created by" />
+							<h:outputText value="#{msgs.created_by}" />
 						</f:facet>
 						<h:outputText value="#{eachAttach.createdBy}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="Last modified by" />
+							<h:outputText value="#{msgs.last_modified}" />
 						</f:facet>
 							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
 					</h:column>
@@ -49,10 +51,13 @@
 				<div class="act">
 					<h:commandButton 
 					  value="#{msgs.bar_delete}" 
-					  action="#{SyllabusTool.processRemoveAttach}"/>
+					  styleClass="active"
+					  action="#{SyllabusTool.processRemoveAttach}"
+					  accesskey="s" />
 					<h:commandButton 
 					  value="#{msgs.bar_cancel}" 
-					  action="#{SyllabusTool.processRemoveAttachCancel}"/>
+					  action="#{SyllabusTool.processRemoveAttachCancel}"
+					  accesskey="x" />
 				</div>	  
 			</h:form>
 		</sakai:view_content>

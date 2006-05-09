@@ -37,7 +37,8 @@
 				<sakai:button_bar>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditCancel}"
-						value="#{msgs.back}" />
+						value="#{msgs.back}" 
+						accesskey="x" />
 				</sakai:button_bar>
 
 

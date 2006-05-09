@@ -32,6 +32,24 @@
     </attribute>
 
     <attribute>
+      <name>summary</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      	summary passthrough
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      	styleClass passthrough
+      </description>
+    </attribute>
+
+    <attribute>
       <name>id</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>

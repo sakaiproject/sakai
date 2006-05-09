@@ -10,19 +10,24 @@
 				<h3>
 					<h:outputText value="#{msgs.redirect_sylla}" />
 				</h3>
-				<p class="shortText">
-					<span class="reqStar">*</span>
-		<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
-<%--					<label for=""><h:outputText value="#{msgs.syllabus_url}"/></label> --%>
-					<h:inputText id="urlValue" value="#{SyllabusTool.syllabusItem.redirectURL}" size="65" />
-				</p>
+				<h:panelGrid styleClass="jsfFormTable" columns="1" summary="layout">
+					<h:panelGroup styleClass="shorttext required">
+						<h:outputText value="*" styleClass="reqStar"/>
+						<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
+						<h:inputText id="urlValue" value="#{SyllabusTool.syllabusItem.redirectURL}" size="65" />
+					</h:panelGroup>
+				</h:panelGrid>
 				<sakai:button_bar>
 					<sakai:button_bar_item
+						styleClass="active"
 						action="#{SyllabusTool.processEditSaveRedirect}"
-						value="#{msgs.save}" />
+						value="#{msgs.save}" 
+						accesskey="s" />
+						
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditCancelRedirect}"
-						value="#{msgs.cancel}" />
+						value="#{msgs.cancel}" 
+						accesskey="x" />
 				</sakai:button_bar>
 
 			</h:form>

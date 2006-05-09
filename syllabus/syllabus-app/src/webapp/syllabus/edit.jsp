@@ -7,30 +7,36 @@
 <f:loadBundle basename="org.sakaiproject.tool.syllabus.bundle.Messages" var="msgs"/>
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
-			<h:form onsubmit="return true;">
+			<h:form onsubmit="return false;">
 		  	<sakai:tool_bar_message value="#{msgs.add_sylla}" /> 
 			<sakai:doc_section>
 				<h:outputText value="#{msgs.newSyllabusForm1}"/>
 				<h:outputText value="*" styleClass="reqStarInline"/>
 				<h:outputText value="#{msgs.newSyllabusForm2}"/>
 			</sakai:doc_section>
-			<p class="shorttext">
-				<h:outputText value="*" styleClass="reqStar"/>
-				<h:outputLabel for="title">
-					<h:outputText value="#{msgs.syllabus_title}"/>
-				</h:outputLabel>
-				<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
-				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage"
-					rendered="#{SyllabusTool.displayTitleErroMsg}"/>
-			</p>		
-			<p class="longtext">
-				<label for=""> <%-- outputLabel needed here instead  except there is no target to id....--%>
+
+			<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+				<h:panelGroup styleClass="shorttext required">
+						<h:outputText value="*" styleClass="reqStar"/>
+
+				
+					<h:outputLabel for="title">
+						<h:outputText value="#{msgs.syllabus_title}"/>
+					</h:outputLabel>
+					<h:inputText value="#{SyllabusTool.entry.entry.title}" id="title"/>
+					<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage"
+						rendered="#{SyllabusTool.displayTitleErroMsg}"/>
+				</h:panelGroup>
+			</h:panelGrid>
+
+			<div class="longtext">
+				<label for="">
 					<h:outputText value="#{msgs.syllabus_content}"/>
 				</label>	
 				<sakai:rich_text_area value="#{SyllabusTool.entry.entry.asset}" rows="17" columns="70"/>
-			</p>
-			<div class="checkbox">
-				<h:selectOneRadio value="#{SyllabusTool.entry.entry.view}" layout="pageDirection">
+			</div>
+			<div class="checkbox indnt1">
+				<h:selectOneRadio value="#{SyllabusTool.entry.entry.view}" layout="pageDirection" styleClass="checkbox">
 					<f:selectItem itemValue="yes" itemLabel="#{msgs.yesPublic}"/>
 					<f:selectItem itemValue="no" itemLabel="#{msgs.noPrivate	}"/>
 				</h:selectOneRadio>
@@ -101,12 +107,14 @@
 				      <h:outputText value="attach.lastModifiedBy"/>
 				    </h:column>
 				  </h:dataTable>
-				</sakai:group_box>--%>
-					<syllabus:syllabus_table value="#{SyllabusTool.attachments}" var="eachAttach">
+				</sakai:group_box>
+			--%>
+					<syllabus:syllabus_table value="#{SyllabusTool.attachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
 					  <h:column rendered="#{!empty SyllabusTool.attachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.attachmentTitle}"/>
 							</f:facet>
+							<f:verbatim><h4></f:verbatim>
 							<h:graphicImage url="/syllabus/excel.gif" rendered="#{eachAttach.type == 'application/vnd.ms-excel'}"/>
 							<h:graphicImage url="/syllabus/html.gif" rendered="#{eachAttach.type == 'text/html'}"/>
 							<h:graphicImage url="/syllabus/pdf.gif" rendered="#{eachAttach.type == 'application/pdf'}"/>
@@ -114,7 +122,7 @@
 							<h:graphicImage url="/syllabus/text.gif" rendered="#{eachAttach.type == 'text/plain'}"/>
 							<h:graphicImage url="/syllabus/word.gif" rendered="#{eachAttach.type == 'application/msword'}"/>
 							<h:outputText value="#{eachAttach.name}"/>
-
+							<f:verbatim></h4></f:verbatim>
 							<f:verbatim><div class="itemAction"></f:verbatim>
 							
 								<h:commandLink action="#{SyllabusTool.processDeleteAttach}" 
@@ -150,32 +158,44 @@
 						</h:column>
 					</syllabus:syllabus_table>
 
-				<p class="shorttext">
-					<h:outputLabel for="list1">
-						<h:outputText value="#{msgs.email_notify}"/>
-					</h:outputLabel>
-					<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
-						<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
-						<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
-						<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
-					</h:selectOneListbox>
-				</p>	
+				<h:panelGrid columns="1" styleClass="jsfFormTable" summary="layout">
+					<h:panelGroup styleClass="shorttext">
+						<h:outputLabel for="list1">
+							<h:outputText value="#{msgs.email_notify}"/>
+						</h:outputLabel>
+						<h:selectOneListbox size = "1"  id = "list1" value="#{SyllabusTool.entry.entry.emailNotification}">
+							<f:selectItem itemLabel="#{msgs.notifyNone}" itemValue="none"/>
+							<f:selectItem itemLabel="#{msgs.notifyHigh}" itemValue="high"/>
+							<f:selectItem itemLabel="#{msgs.notifyLow}" itemValue="low"/>
+						</h:selectOneListbox>
+					</h:panelGroup>
+				</h:panelGrid>
 
 				
 				<sakai:button_bar>
-					<%-- (gsilver) cannot pass a needed title atribute to these next items --%>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditPost}"
-						value="#{msgs.bar_post}" />
+						styleClass="active"
+						value="#{msgs.bar_post}" 
+						accesskey="s"
+						title="Post this item" />
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditPreview}"
-						value="#{msgs.bar_preview}" />
+						value="#{msgs.bar_preview}"
+						accesskey="v"
+						title="Preview this item"	/>
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditSave}"
-						value="#{msgs.bar_save_draft}" />
+						value="#{msgs.bar_save_draft}" 
+						accesskey="d"
+						title="Save this item" />
+
 					<sakai:button_bar_item
 						action="#{SyllabusTool.processEditCancel}"
-						value="#{msgs.cancel}" />
+						value="#{msgs.cancel}" 
+						accesskey="x"
+						title="Cancel - go back" />
+
 				</sakai:button_bar>
 		 </h:form>
 		</sakai:view_content>
