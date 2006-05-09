@@ -4965,7 +4965,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						try
 						{
-							UserDirectoryService.getUser(uniqname);
+							UserDirectoryService.getUserByEid(uniqname);
 						}
 						catch (UserNotDefinedException e)
 						{
@@ -7178,7 +7178,7 @@ public class SiteAction extends PagedResourceActionII
 								//if there is no such user yet, add the user
 								try
 								{
-									UserEdit uEdit = UserDirectoryService.addUser(emailInIdAccount);
+									UserEdit uEdit = UserDirectoryService.addUser(null, emailInIdAccount);
 
 									//set email address
 									uEdit.setEmail(emailInIdAccount);
@@ -10376,7 +10376,7 @@ public class SiteAction extends PagedResourceActionII
 					Participant participant = new Participant();
 					try
 					{
-						User u = UserDirectoryService.getUser(noEmailInIdAccount);
+						User u = UserDirectoryService.getUserByEid(noEmailInIdAccount);
 						participant.name = u.getDisplayName();
 						participant.uniqname = u.getId();
 						pList.add(participant);
@@ -10434,7 +10434,7 @@ public class SiteAction extends PagedResourceActionII
 						try
 						{
 							// if the emailInIdAccount user already exists
-							User u = UserDirectoryService.getUser(emailInIdAccount);
+							User u = UserDirectoryService.getUserByEid(emailInIdAccount);
 							participant.name = u.getDisplayName();
 							participant.uniqname = u.getId();
 							pList.add(participant);
@@ -10663,7 +10663,7 @@ public class SiteAction extends PagedResourceActionII
 							String userName = null;
 							try
 							{
-								User u = UserDirectoryService.getUser(noEmailInIdAccount);
+								User u = UserDirectoryService.getUserByEid(noEmailInIdAccount);
 								emailId = u.getEmail();
 								userName = u.getDisplayName();
 							}
@@ -10702,14 +10702,14 @@ public class SiteAction extends PagedResourceActionII
 				{	
 					try
 					{
-						UserDirectoryService.getUser(emailInIdAccount);
+						UserDirectoryService.getUserByEid(emailInIdAccount);
 					}
 					catch (UserNotDefinedException e) 
 					{
 						//if there is no such user yet, add the user
 						try
 						{
-							UserEdit uEdit = UserDirectoryService.addUser(emailInIdAccount);
+							UserEdit uEdit = UserDirectoryService.addUser(null, emailInIdAccount);
 
 							//set email address
 							uEdit.setEmail(emailInIdAccount);
@@ -10947,7 +10947,7 @@ public class SiteAction extends PagedResourceActionII
 		StringBuffer message = new StringBuffer();
 		try
 		{
-			User user = UserDirectoryService.getUser(id);
+			User user = UserDirectoryService.getUserByEid(id);
 			Site sEdit = getStateSite(state);
 			String realmId = SiteService.siteReference(sEdit.getId());
 			if (AuthzGroupService.allowUpdate(realmId) || SiteService.allowUpdateSiteMembership(sEdit.getId()))
@@ -12520,6 +12520,7 @@ public class SiteAction extends PagedResourceActionII
 	public class Participant
 	{
 		public String name = NULL_STRING;
+		// Note: uniqname is really a user ID
 		public String uniqname = NULL_STRING;
 		public String role = NULL_STRING; 
 		
@@ -12527,7 +12528,23 @@ public class SiteAction extends PagedResourceActionII
 		public String getUniqname() {return uniqname; }
 		public String getRole() { return role; } // cast to Role
 		public boolean isRemoveable(){return true;}
-		
+
+		/**
+		 * Access the user eid, if we can find it - fall back to the id if not.
+		 * @return The user eid.
+		 */
+		public String getEid()
+		{
+			try
+			{
+				return UserDirectoryService.getUserEid(uniqname);
+			}
+			catch (UserNotDefinedException e)
+			{
+				return uniqname;
+			}
+		}
+
 	} // Participant
 	
 	/**

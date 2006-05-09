@@ -38,7 +38,7 @@
 				#set($uniqname = $participant.getUniqname())
 				<tr>
 					<td>
-						<label for="role$selectIDCount">$uniqname</label>
+						<label for="role$selectIDCount">$participant.getEid()</label>
 					</td>
 					<td  class="required">
 						<span class="reqStarInline">*</span>

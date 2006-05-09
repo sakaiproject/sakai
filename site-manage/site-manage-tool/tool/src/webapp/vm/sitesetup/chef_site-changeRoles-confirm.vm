@@ -34,7 +34,7 @@
 						</td>
 						<td headers="uniqname">
 							#set($uniqname=$participant.getUniqname())
-							$!uniqname
+							$participant.getEid()
 						</td>
 						<td headers="id">
 							#if ($participantSelectedList.size() == 1 || $sameRole)

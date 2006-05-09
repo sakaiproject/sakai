@@ -37,7 +37,7 @@
 		</h4>	
 		<ul class="attachList indnt2">
 			#foreach ($participant in $participantList)
-				<li>$participant.getUniqname()</li>
+				<li>$participant.getEid()</li>
 			#end
 		</ul>	
 		<input type="hidden" name="continue" value="21" />

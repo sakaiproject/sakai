@@ -32,7 +32,7 @@
 								$tlang.getString("addconf.username"):
 							</td>
 							<td>
-								$participant.getUniqname()
+								$participant.getEid()
 							</td>
 						</tr>
 						<tr>
@@ -155,7 +155,7 @@
 										$participant.getName()
 									</td>
 									<td headers="uniqname">
-										$participant.getUniqname()
+										$participant.getEid()
 									</td>
 									<td headers="id">
 										#set($role = "")
@@ -192,7 +192,7 @@
 									$participant.getName()
 								</td>
 								<td headers="uniqname">
-									$uniqname
+									$participant.getEid()
 								</td>
 								<td>
 									<select name="role$uniqname">

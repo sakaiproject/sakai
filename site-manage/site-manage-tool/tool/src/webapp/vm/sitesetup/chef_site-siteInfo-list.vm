@@ -322,7 +322,7 @@
 								#else
 									$participantName
 								#end
-								($participant.getUniqname())
+								($participant.getEid())
 							</h5>
 						</td>
 						#if ($!isCourseSite)
@@ -350,7 +350,7 @@
 							#if ($!isMyWorkspace)
 								$uRole
 							#elseif ($allowUpdate || $allowUpdateSiteMembership)
-								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $uniqname</label>
+								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $participant.getEid()</label>
 								<select id="role$uniqname" name="role$uniqname">
 									#foreach($r in $roles)
 										<option value ="$r.Id"
@@ -372,7 +372,7 @@
 								 #set($grant="")
 									#set($grant = $realm.getMember($uniqname))
 									#set($grantActive = $!grant.isActive())
-									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $uniqname</label>
+									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $participant.getEid()</label>
 									<select id="activeGrant$uniqname" name="activeGrant$uniqname">
 										#if($grant=="" || $!grant.isActive())
 											<option value="true" selected="selected" >$tlang.getString("sitegen.siteinfolist.active")</option>
@@ -388,7 +388,7 @@
 								#if ($participant.isRemoveable())
 									## if in My Workspace site, cannot move the site user from it
 									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
-									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $uniqname</span> &nbsp;&nbsp;&nbsp;<input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
+									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getEid()</span> &nbsp;&nbsp;&nbsp;<input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
 											#foreach($participantSelected in $selectedParticipants)
 												#if($participantSelected.getUniqname() == $uniqname)
 													checked="checked" 

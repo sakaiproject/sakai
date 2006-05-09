@@ -70,7 +70,7 @@
 							#end
 						</td>
 						<td headers="uniqname">
-							$uniqname
+							$participant.getEid()
 						</td>
 						<td headers="role">
 							#set($uRole = "")
