@@ -230,12 +230,13 @@ ul.attachList li{
 
 /*formish elements in the listView subpanel - see schedule list, range of events filters*/
 .viewNav .shorttext{
-	margin: .2em 0;
+	margin: 0;
+	clear:both
 }
 
 .viewNav .shorttext label{
 	width: 8em;
-/*	float: left;*/
+	float: left;
 }
 
 .viewNav .labelindnt{
@@ -690,10 +691,8 @@ input.upload{
 }
 
 .loginform td #submit{
-	border: 1px solid #555;
+	color:#09C;
 	float: right;
-	background-color: #ccc;
-	padding: .1em;
 }
 
 .loginform td #submit:hover{
