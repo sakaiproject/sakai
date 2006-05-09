@@ -72,10 +72,6 @@ function LimitText(fieldObj,maxChars)
 							#if ($url == $selectedIcon)$s.Name#end
 					#end
 				#else		
-				<div class ="shorttext">	
-				<label for="skin">
-					$tlang.getString("sitediinf.app")
-				</label>
 					<select name="skin" id="skin">
 						#foreach ($s in $skins)
 							#set($url="")
