@@ -661,6 +661,7 @@ input.upload{
 
 .login td.logo{
 	width: 13em;
+	background:#fff url(../image/sakai.jpg) top left no-repeat
 }
 
 .login td.form{
