@@ -53,7 +53,6 @@ TODO:
 * db maintenance - locks, ghosts, events
 
 
-
 1. Getting Sakai
 
 Sakai is distributed in two forms; in pre-packaged archives, and from anonymous CVS access.
