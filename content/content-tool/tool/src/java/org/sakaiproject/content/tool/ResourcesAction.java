@@ -1267,10 +1267,7 @@ public class ResourcesAction
 		if(! groups.isEmpty())
 		{
 			context.put("siteHasGroups", Boolean.TRUE.toString());
-			for(int g = 1; g <= numberOfItems.intValue(); g++)
-			{
-				context.put("theGroupsDefinedInThisSite" + g, groups.iterator());
-			}
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
 		}
 
 		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
@@ -4803,10 +4800,7 @@ public class ResourcesAction
 		if(! groups.isEmpty())
 		{
 			context.put("siteHasGroups", Boolean.TRUE.toString());
-			for(int g = 1; g <= numberOfItems.intValue(); g++)
-			{
-				context.put("theGroupsDefinedInThisSite" + g, groups.iterator());
-			}
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
 		}
 
 		if(TYPE_FORM.equals(itemType))
@@ -6640,7 +6634,7 @@ public class ResourcesAction
 		if(access_mode != null)
 		{
 			item.setAccess(access_mode);
-			if(AccessMode.GROUP.toString().equals(access_mode))
+			if(AccessMode.GROUPED.toString().equals(access_mode))
 			{
 				String[] access_groups = params.getStrings("access_groups");
 				for(int gr = 0; gr < access_groups.length; gr++)
@@ -7125,7 +7119,7 @@ public class ResourcesAction
 		if(access_mode != null)
 		{
 			item.setAccess(access_mode);
-			if(AccessMode.GROUP.toString().equals(access_mode))
+			if(AccessMode.GROUPED.toString().equals(access_mode))
 			{
 				String[] access_groups = params.getStrings("access_groups" + index);
 				for(int gr = 0; gr < access_groups.length; gr++)
