@@ -100,13 +100,17 @@
   <h:outputText value="#{msg.number_of_attempts_indic}" />
   <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
   <f:selectItem itemLabel="#{msg.select}" itemValue=""/>
+  <f:selectItem itemLabel="#{msg.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
   <f:selectItem itemLabel="1" itemValue="1"/>
   <f:selectItem itemLabel="2" itemValue="2"/>
   <f:selectItem itemLabel="3" itemValue="3"/>
   <f:selectItem itemLabel="4" itemValue="4"/>
   <f:selectItem itemLabel="5" itemValue="5"/>
   <f:selectItem itemLabel="6" itemValue="6"/>
-
+  <f:selectItem itemLabel="7" itemValue="7"/>
+  <f:selectItem itemLabel="8" itemValue="8"/>
+  <f:selectItem itemLabel="9" itemValue="9"/>
+  <f:selectItem itemLabel="10" itemValue="10"/>
   </h:selectOneMenu>
 </div><br/>
  <h:message for="noattempts" styleClass="validate"/><br/>

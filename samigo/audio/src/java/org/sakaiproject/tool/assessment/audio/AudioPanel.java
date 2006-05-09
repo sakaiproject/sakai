@@ -240,7 +240,7 @@ public class AudioPanel
     p.add(recorder);
     tabPane.addTab(res.getString("Audio_Recorder"), p);
 
-    /* samigo 2.2 did not asked for advnacd settings so commented it out 
+    /* samigo 2.2 did not asked for advnacd settings so commented it out */
     JPanel fp = new JPanel(new BorderLayout());
     //fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 90, 0)));
     fp.setBorder(new CompoundBorder(cb, new EmptyBorder(0, 0, 0, 0)));
@@ -248,7 +248,7 @@ public class AudioPanel
     tabPanels.add(format);
     fp.add(format);
     tabPane.addTab(res.getString("Advanced_Settings"), fp);
-    */
+    /* */
   }
 
   /**

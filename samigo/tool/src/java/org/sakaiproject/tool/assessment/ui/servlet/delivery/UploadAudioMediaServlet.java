@@ -235,10 +235,15 @@ public class UploadAudioMediaServlet extends HttpServlet
       if (itemGrading.getAttemptsRemaining() == null){
         // this is not possible unless the question is submitted without the
         // attempt set correctly
-        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
+        if ((item.getTriesAllowed()).intValue() >= 9999)
+          attemptsRemaining = 9999;  
+        else
+          attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       }
       else{
-        if (itemGrading.getAttemptsRemaining().intValue() > 0 )
+        if ((item.getTriesAllowed()).intValue() >= 9999 )
+          attemptsRemaining = 9999;
+        else if (itemGrading.getAttemptsRemaining().intValue() > 0)
           attemptsRemaining = itemGrading.getAttemptsRemaining().intValue() - 1;
         else
           throw new Exception("This page must have been reached by mistake. Our record shows that no more attempt for this question is allowed.");
@@ -246,7 +251,10 @@ public class UploadAudioMediaServlet extends HttpServlet
     }
     else{
       // create an itemGrading
-      attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
+      if ((item.getTriesAllowed()).intValue() >= 9999 )
+        attemptsRemaining = 9999;
+      else 
+        attemptsRemaining = (item.getTriesAllowed()).intValue() -1;
       itemGrading = new ItemGradingData();
       itemGrading.setAssessmentGradingId(adata.getAssessmentGradingId());
       itemGrading.setPublishedItemId(item.getItemId());

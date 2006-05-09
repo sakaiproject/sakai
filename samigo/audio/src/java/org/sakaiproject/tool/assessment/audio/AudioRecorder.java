@@ -147,6 +147,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
   public AudioRecorder(AudioRecorderParams params)
   {
     this.params = params;
+    if (params.getAttemptsRemaining() == -1){
+      params.setAttemptsRemaining(params.getAttemptsAllowed());
+    }
+
     formatControls = new FormatControls(params);
     setLayout(new BorderLayout());
     EmptyBorder eb = new EmptyBorder(5, 5, 5, 5);
@@ -154,6 +158,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     Border b = new CompoundBorder(eb, sbb);
 
     setBorder(new EmptyBorder(5, 5, 5, 5));
+
+    JPanel p1 = new JPanel();
+    p1.setLayout(new BoxLayout(p1, BoxLayout.X_AXIS));
+    p1.add(formatControls);
 
     JPanel p2 = new JPanel();
     p2.setLayout(new BoxLayout(p2, BoxLayout.Y_AXIS));
@@ -169,7 +177,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
     savePanel.add(saveTFpanel);
     p2.add(savePanel);
 
-    add(p2);
+    p1.add(p2);
+    add(p1);
   }
 
   private JPanel makeSaveTFPanel()
@@ -181,12 +190,15 @@ public class AudioRecorder extends JPanel implements ActionListener,
     saveTFpanel.add(flabel);
     saveTFpanel.add(textField = new JTextField(""+params.getCurrentRecordingLength()));
     saveTFpanel.add(rlabel);
-    if (params.getAttemptsRemaining() >= 0)
+
+    if (params.getAttemptsRemaining() >= 9999){
+      saveTFpanel.add(rtextField = new JTextField("Unlimited"));
+    }
+    else if (params.getAttemptsRemaining() > 0 && params.getAttemptsRemaining() < 9999)
       saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
-    else if (params.getAttemptsRemaining() == -1)
-      saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
-    else 
+    else  
       saveTFpanel.add(rtextField = new JTextField("0"));
+
     textField.setEditable(false);
     rtextField.setEditable(false);
     Font font = new Font("Ariel", Font.PLAIN, 11);
@@ -952,6 +964,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
     JPanel panel = new JPanel(grid);
     JLabel label1 = new JLabel(res.getString("attempts_allowed")+" "+
                       params.getAttemptsAllowed(), SwingConstants.LEFT);
+    if (params.getAttemptsAllowed() >= 9999){
+      label1 = new JLabel(res.getString("attempts_allowed")+" "+
+                          res.getString("unlimited"), SwingConstants.LEFT);
+    }  
     JLabel label2 = new JLabel(res.getString("time_limit")+" "+
                       params.getMaxSeconds()+" sec", SwingConstants.LEFT);
     Font font = new Font("Ariel", Font.PLAIN, 11);
@@ -965,10 +981,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private void saveMedia(){
     AudioFileFormat.Type type = AudioFileFormat.Type.AU;
 
-    int attempts = params.getAttemptsAllowed();
+    int attempts = params.getAttemptsRemaining();
 
     if (attempts > 0){
-      params.setAttemptsAllowed(--attempts);
+      if (attempts < 9999){
+        params.setAttemptsRemaining(--attempts);
+        rtextField.setText("" + attempts);
+      }
       if (params.isSaveToFile() && params.isSaveToUrl()){
         saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
       }
@@ -980,7 +999,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
 
       textField.setText("" + duration);
-      rtextField.setText("" + attempts);
       if (attempts==0) captB.setEnabled(false); ;
     }
   }
