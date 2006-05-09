@@ -28,7 +28,7 @@ package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 // FIXME: Tool
 public class HomeBean
 {
-
+	
 	private String homeLinkUrl;
 
 	private String homeLinkValue;

@@ -34,13 +34,20 @@ public class ToolConfigBean
 {
 
 	private Properties m_properties;
-	public ToolConfigBean(Placement currentPlacement)
+	private String defaultHomePageName;
+	public ToolConfigBean(Placement currentPlacement, String defaultHomePageName)
 	{
 		m_properties = currentPlacement.getConfig();
+		this.defaultHomePageName = defaultHomePageName;
 	}
 	
 	public String getHomePage() {
 		return m_properties.getProperty("home-page","home");
 	}
 
+	public String getHomePageName() {
+		String friendlyName = m_properties.getProperty("home-page-friendly-name", defaultHomePageName);
+		return (friendlyName == null || friendlyName.equals("")) ? defaultHomePageName : friendlyName;
+	}
+	
 }

@@ -127,7 +127,7 @@ public class RequestScopeSuperBean
 	private SiteService siteService;
 
 	private String defaultUIHomePageName;
-
+	
 	public static RequestScopeSuperBean getFromRequest(
 			HttpServletRequest request)
 	{
@@ -141,7 +141,7 @@ public class RequestScopeSuperBean
 	}
 	
 	public static void clearInstance() {
-		NameHelper.clearDefaultPage();
+		//NameHelper.clearDefaultPage();
 		requestScopeSuperBeanHolder.set(null);
 		
 	}
@@ -189,10 +189,16 @@ public class RequestScopeSuperBean
 
 		messageService = (MessageService) context.getBean(MessageService.class
 				.getName());
-		
-		ToolConfigBean tcb = getConfigBean();
-		NameHelper.setDefaultPage(tcb.getHomePage());
 
+		experimental = ServerConfigurationService.getBoolean(
+				"wiki.experimental", false);
+		withnotification = ServerConfigurationService.getBoolean(
+				"wiki.notification", false);
+		withcomments = ServerConfigurationService.getBoolean("wiki.comments",
+				false);
+		defaultUIHomePageName = ServerConfigurationService.getString(
+				"wiki.ui.homepage", "Home");
+		
 		// if the message service has been configured
 		// update the presence
 		if (messageService != null)
@@ -207,15 +213,6 @@ public class RequestScopeSuperBean
 						.getCurrentPageSpace());
 			}
 		}
-		experimental = ServerConfigurationService.getBoolean(
-				"wiki.experimental", false);
-		withnotification = ServerConfigurationService.getBoolean(
-				"wiki.notification", false);
-		withcomments = ServerConfigurationService.getBoolean("wiki.comments",
-				false);
-		defaultUIHomePageName = ServerConfigurationService.getString(
-				"wiki.ui.homepage", "Home");
-		
 		
 
 	}
@@ -248,6 +245,7 @@ public class RequestScopeSuperBean
 			ViewParamsHelperBean vphb = new ViewParamsHelperBean();
 			vphb.setServletRequest(request);
 			vphb.setSecurityService(securityService);
+			vphb.setToolConfigBean(getConfigBean());
 			vphb.init();
 			map.put(key, vphb);
 		}
@@ -669,9 +667,9 @@ public class RequestScopeSuperBean
 		{
 			HomeBean hb = new HomeBean();
 			ViewParamsHelperBean vphb = getNameHelperBean();
-			ViewBean vb = new ViewBean(null, vphb.getDefaultRealm());
+			ViewBean vb = new ViewBean(getConfigBean().getHomePage(), vphb.getDefaultRealm());
 			hb.setHomeLinkUrl(vb.getViewUrl());
-			hb.setHomeLinkValue(defaultUIHomePageName);
+			hb.setHomeLinkValue(getConfigBean().getHomePageName());
 			map.put(key, hb);
 		}
 		return (HomeBean) map.get(key);
@@ -833,7 +831,7 @@ public class RequestScopeSuperBean
 		ToolConfigBean configBean = (ToolConfigBean) map.get(key);
 		if (configBean == null)
 		{
-			configBean = new ToolConfigBean(toolManager.getCurrentPlacement());
+			configBean = new ToolConfigBean(toolManager.getCurrentPlacement(), this.defaultUIHomePageName);
 			map.put(key, configBean);
 		}
 		return configBean;

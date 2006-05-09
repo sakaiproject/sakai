@@ -29,6 +29,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.EditBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.SearchBean;
+import uk.ac.cam.caret.sakai.rwiki.tool.bean.ToolConfigBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 
@@ -74,6 +75,11 @@ public class ViewParamsHelperBean
 	 * the RWikiSecurityService
 	 */
 	private RWikiSecurityService securityService;
+	
+	/**
+	 * the Tool Config Bean
+	 */
+	private ToolConfigBean toolConfigBean;
 
 	/**
 	 * the default realm
@@ -119,6 +125,10 @@ public class ViewParamsHelperBean
 		if (localSpace == null || localSpace.equals(""))
 		{
 			localSpace = defaultRealm;
+		}
+		
+		if (pageName == null || "".equals(pageName)) {
+			pageName = toolConfigBean.getHomePage();
 		}
 
 		globalName = NameHelper.globaliseName(pageName, localSpace);
@@ -413,6 +423,16 @@ public class ViewParamsHelperBean
 	public void setSearchPage(String searchPage)
 	{
 		this.searchPage = searchPage;
+	}
+
+	public ToolConfigBean getToolConfigBean()
+	{
+		return toolConfigBean;
+	}
+
+	public void setToolConfigBean(ToolConfigBean toolConfigBean)
+	{
+		this.toolConfigBean = toolConfigBean;
 	}
 
 }

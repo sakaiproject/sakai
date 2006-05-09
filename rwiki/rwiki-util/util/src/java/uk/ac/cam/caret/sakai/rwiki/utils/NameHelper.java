@@ -35,7 +35,7 @@ public class NameHelper
 
 	private static final Log log = LogFactory.getLog(NameHelper.class);
 
-	// public static final String DEFAULT_PAGE = "home";
+	public static final String DEFAULT_PAGE = "home";
 
 	public static boolean isGlobalised(final String name)
 	{
@@ -88,7 +88,7 @@ public class NameHelper
 
 		if (name == null || name.length() == 0)
 		{
-			return normalize(defaultSpace + SPACE_SEPARATOR + getDefaultPage(),
+			return normalize(defaultSpace + SPACE_SEPARATOR + DEFAULT_PAGE,
 					false);
 		}
 
@@ -181,7 +181,7 @@ public class NameHelper
 	{
 		char[] chars = nameToNormalize.toCharArray();
 		int charBufferLength = chars.length + 1
-				+ (isPageName ? getDefaultPage().length() : 0);
+				+ (isPageName ? DEFAULT_PAGE.length() : 0);
 		CharBuffer name = CharBuffer.allocate(charBufferLength);
 
 		int wordStart = 0;
@@ -236,7 +236,7 @@ public class NameHelper
 		if (addSeparator && isPageName)
 		{
 			name.put(SPACE_SEPARATOR);
-			name.put(getDefaultPage());
+			name.put(DEFAULT_PAGE);
 		}
 		else if (!addWhiteSpaceOrSeparator)
 		{
@@ -248,36 +248,6 @@ public class NameHelper
 		name.limit(position);
 
 		return name.toString();
-	}
-
-	public static ThreadLocal defaultPageHolder = new ThreadLocal();
-
-	public static String getDefaultPage()
-	{
-		String defaultPage = (String) defaultPageHolder.get();
-		if (defaultPage == null)
-		{
-			defaultPage = "home";
-		}
-		return defaultPage;
-	}
-
-	public static void setDefaultPage(String newDefaultPage)
-	{
-		String defaultPage = (String) defaultPageHolder.get();
-		if (defaultPage != null)
-		{
-			log.warn("Resetting Wiki Tool default page from " + defaultPage
-					+ " to " + newDefaultPage);
-		} else {
-			log.info("Setting default page to "+newDefaultPage);
-		}
-		defaultPageHolder.set(newDefaultPage);
-	}
-
-	public static void clearDefaultPage()
-	{
-		defaultPageHolder.set(null);
 	}
 
 	/**

@@ -21,9 +21,7 @@
            <configuration name="advanced-search" value="true" />
 -->
            <configuration name="home-page" value="Home" />
-<!--
-           <configuration name="home-page-name" value="3" />
--->
+           <configuration name="home-page-friendly-name" value="" />
 
 			
 		<category name="course" />
