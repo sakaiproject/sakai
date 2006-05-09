@@ -57,7 +57,9 @@ public class AudioRecorderParams implements Serializable
   private boolean stereo = false;
   private int maxSeconds = 60;
   private int attemptsAllowed = 5;
-  private int attemptsRemaining = 5;
+
+  // -1 indicate that attemptsRemaining is not set, it should be set when question is loaded the 1st time.
+  private int attemptsRemaining = -1; 
   private int currentRecordingLength=0;
 
   /**

@@ -183,6 +183,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
     saveTFpanel.add(rlabel);
     if (params.getAttemptsRemaining() >= 0)
       saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsRemaining()));
+    else if (params.getAttemptsRemaining() == -1)
+      saveTFpanel.add(rtextField = new JTextField(""+params.getAttemptsAllowed()));
     else
       saveTFpanel.add(rtextField = new JTextField("0"));
     textField.setEditable(false);
