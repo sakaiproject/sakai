@@ -31,7 +31,8 @@ import java.util.*;
  *
  * 1. The framework. This manages the application, performing various
  * administrative functions which aren't handled by the application itself,
- * including creating and removing gradebooks.
+ * including creating and removing gradebooks, and managing system-wide grading
+ * schemes.
  *
  * 2. External assessment engines. These use the Gradebook as a passive
  * mirror of their own assignments and scores. Gradebook users will thus
@@ -228,4 +229,12 @@ public interface GradebookService {
     public void setAssignmentScore(String gradebookUid, String assignmentName, String studentUid, Double score, String clientServiceDescription)
         throws GradebookNotFoundException, AssessmentNotFoundException;
 
+	/**
+     * @param gradingScaleDefinitions
+     *	A collection of GradingScaleDefinition beans.
+	 */
+
+	public void setAvailableGradingScales(Collection gradingScaleDefinitions);
+
+	public void setDefaultGradingScale(String uid);
 }

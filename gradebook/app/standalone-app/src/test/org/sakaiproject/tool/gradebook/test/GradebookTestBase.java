@@ -78,17 +78,20 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#getConfigLocations()
      */
     protected String[] getConfigLocations() {
-        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml", "spring-service.xml", "spring-hib.xml",
+        String[] configLocations = {"spring-db.xml", "spring-beans.xml", "spring-facades.xml",
+
+			// To avoid warning messages every time the Gradebook code
+			// finds out that the fresh DB doesn't have any grading scales
+			// defined, use the configuration which explicitly defines
+			// them.
+			"spring-service-with-grade-mappings-test.xml",
+
+			"spring-hib.xml",
         	"spring-beans-test.xml",
         	"spring-hib-test.xml",
-        	/* SectionAwareness integration support. */
+
+        	// SectionAwareness integration support.
         	"classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml",
-			/*
-				We could just go with
-					"classpath*:org/sakaiproject/component/section/spring-*.xml"
-				except that for now we need to strip away a transactionManager defined
-				in section/spring-hib.xml.
-			*/
 			"classpath*:org/sakaiproject/component/section/spring-beans.xml",
 			"classpath*:org/sakaiproject/component/section/spring-services.xml",
         };

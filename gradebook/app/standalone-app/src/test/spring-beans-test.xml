@@ -8,4 +8,10 @@
 		<property name="authnContext"><value>authid_teacher</value></property>
 	</bean>
 
+	<bean id="backwardCompatabilityBusiness"
+		class="org.sakaiproject.tool.gradebook.test.support.BackwardCompatabilityBusinessImpl"
+		name="backwardCompatabilityBusiness">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
 </beans>

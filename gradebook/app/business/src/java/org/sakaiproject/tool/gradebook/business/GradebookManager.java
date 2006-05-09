@@ -81,6 +81,8 @@ public interface GradebookManager {
      */
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException;
 
+    public Gradebook getGradebookWithGradeMappings(Long id);
+
     /**
      * Removes an assignment from a gradebook.  The assignment should not be
      * deleted, but the assignment and all grade records associated with the
@@ -272,6 +274,3 @@ public interface GradebookManager {
     public double getTotalPoints(Long gradebookId);
 
 }
-
-
-

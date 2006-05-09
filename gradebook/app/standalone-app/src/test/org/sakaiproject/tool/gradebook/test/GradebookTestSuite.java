@@ -28,6 +28,11 @@ import junit.framework.TestSuite;
 public class GradebookTestSuite extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
+
+		// This test must run first to be useful, since
+		// it tests automatic updating of a blank database.
+		suite.addTestSuite(GradeMappingConfigTest.class);
+
 		suite.addTestSuite(AssignmentSortingTest.class);
 		suite.addTestSuite(CalculationsTest.class);
 		suite.addTestSuite(GradableObjectManagerTest.class);
@@ -35,6 +40,7 @@ public class GradebookTestSuite extends TestCase {
 		suite.addTestSuite(GradebookManagerTest.class);
 		suite.addTestSuite(GradebookServiceInternalTest.class);
 		suite.addTestSuite(GradebookServiceTest.class);
+		suite.addTestSuite(GradeMappingTest.class);
 		return suite;
 	}
 }

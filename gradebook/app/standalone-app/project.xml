@@ -64,8 +64,7 @@
 				<resource>
 					<directory>src/test</directory>
 					<includes>
-						<include>spring-hib-test.xml</include>
-						<include>spring-beans-test.xml</include>
+						<include>spring-*.xml</include>
 					</includes>
 				</resource>
 				<resource>

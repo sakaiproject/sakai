@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -753,5 +754,15 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
         return totalPoints;
     }
+
+    public Gradebook getGradebookWithGradeMappings(final Long id) {
+		return (Gradebook)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Gradebook gradebook = (Gradebook)session.load(Gradebook.class, id);
+				Hibernate.initialize(gradebook.getGradeMappings());
+				return gradebook;
+			}
+		});
+	}
 
 }

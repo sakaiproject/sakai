@@ -55,23 +55,23 @@
 <!-- GRADE MAPPING TABLE -->
 		<x:dataTable cellpadding="0" cellspacing="0"
 			id="mappingTable"
-			value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.grades}"
-			var="grade"
+			value="#{feedbackOptionsBean.gradeRows}"
+			var="gradeRow"
 			styleClass="listHier narrowTable">
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_grade_header}"/>
 				</f:facet>
-				<h:outputText value="#{grade}"/>
+				<h:outputText value="#{gradeRow.grade}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_percent_header}"/>
 				</f:facet>
-				<h:outputText value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
-					rendered="#{grade == feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"/>
-				<h:inputText id="mappingValue" value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
-					rendered="#{grade != feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"
+				<h:outputText value="#{gradeRow.mappingValue}"
+					rendered="#{!gradeRow.gradeEditable}"/>
+				<h:inputText id="mappingValue" value="#{gradeRow.mappingValue}"
+					rendered="#{gradeRow.gradeEditable}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
 			</h:column>

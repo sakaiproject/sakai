@@ -23,7 +23,6 @@
 
 package org.sakaiproject.component.gradebook;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import org.hibernate.Hibernate;
@@ -36,9 +35,11 @@ import org.hibernate.type.Type;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -49,18 +50,23 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.LetterGradeMapping;
+import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
+import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
+
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
- * A Hibernate implementation of GradebookService, which can be used by other
- * applications to insert, modify, and remove "read-only" assignments and scores
- * in the gradebook.
+ * A Hibernate implementation of GradebookService.
  */
 public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
     private static final Log log = LogFactory.getLog(GradebookServiceHibernateImpl.class);
+
+	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 
     private Authz authz;
 
@@ -73,10 +79,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
+				// Get available grade mapping templates.
+				List gradingScales = session.createQuery("from GradingScale as gradingScale where gradingScale.unavailable=false").list();
+
+				// The application won't be able to run without grade mapping
+				// templates, so if for some reason none have been defined yet,
+				// do that now.
+				if (gradingScales.isEmpty()) {
+					if (log.isWarnEnabled()) log.warn("No GradingScale defined yet. Defaults will be created.");
+					gradingScales = GradebookServiceHibernateImpl.this.addDefaultGradingScales(session);
+				}
+
 				// Create and save the gradebook
 				Gradebook gradebook = new Gradebook(name);
 				gradebook.setUid(uid);
-				gradebook.setId((Long)session.save(gradebook)); // Grab the new id
+				session.save(gradebook);
 
 				// Create the course grade for the gradebook
 				CourseGrade cg = new CourseGrade();
@@ -88,24 +105,153 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				gradebook.setAssignmentsDisplayed(true);
 				gradebook.setCourseGradeDisplayed(false);
 
-				// Add and save the grade mappings
-				Set gms = gradebook.getAvailableGradeMappings();
-				for(Iterator iter = gms.iterator(); iter.hasNext();) {
-					GradeMapping gm = (GradeMapping)iter.next();
-					gm.setGradebook(gradebook);
-					gm.setDefaultValues(); // Populate the grade map
-					gm.setId((Long)session.save(gm)); // grab the new id
-					if(gm.isDefault()) {
-						gradebook.setSelectedGradeMapping(gm);
+				String defaultScaleUid = GradebookServiceHibernateImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY);
+
+				// Add and save grade mappings based on the templates.
+				GradeMapping defaultGradeMapping = null;
+				Set gradeMappings = new HashSet();
+				for (Iterator iter = gradingScales.iterator(); iter.hasNext();) {
+					GradingScale gradingScale = (GradingScale)iter.next();
+					GradeMapping gradeMapping = new GradeMapping(gradingScale);
+					gradeMapping.setGradebook(gradebook);
+					session.save(gradeMapping);
+					gradeMappings.add(gradeMapping);
+					if (gradingScale.getUid().equals(defaultScaleUid)) {
+						defaultGradeMapping = gradeMapping;
 					}
 				}
 
+				// Check for null default.
+				if (defaultGradeMapping == null) {
+					defaultGradeMapping = (GradeMapping)gradeMappings.iterator().next();
+					if (log.isWarnEnabled()) log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
+				}
+				gradebook.setSelectedGradeMapping(defaultGradeMapping);
+
+				// The Hibernate mapping as of Sakai 2.2 makes this next
+				// call meaningless when it comes to persisting changes at
+				// the end of the transaction. It is, however, needed for
+				// the mappings to be seen while the transaction remains
+				// uncommitted.
+				gradebook.setGradeMappings(gradeMappings);
+
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);
+
+				return null;
+
+			}
+		});
+	}
+
+    private List addDefaultGradingScales(Session session) throws HibernateException {
+    	List gradingScales = new ArrayList();
+
+    	// Base the default set of templates on the old
+    	// statically defined GradeMapping classes.
+    	GradeMapping[] oldGradeMappings = {
+    		new LetterGradeMapping(),
+    		new LetterGradePlusMinusMapping(),
+    		new PassNotPassMapping()
+    	};
+
+    	for (int i = 0; i < oldGradeMappings.length; i++) {
+    		GradeMapping sampleMapping = oldGradeMappings[i];
+    		sampleMapping.setDefaultValues();
+			GradingScale gradingScale = new GradingScale();
+			String uid = sampleMapping.getClass().getName();
+			uid = uid.substring(uid.lastIndexOf('.') + 1);
+			gradingScale.setUid(uid);
+			gradingScale.setUnavailable(false);
+			gradingScale.setName(sampleMapping.getName());
+			gradingScale.setGrades(new ArrayList(sampleMapping.getGrades()));
+			gradingScale.setDefaultBottomPercents(new HashMap(sampleMapping.getGradeMap()));
+			session.save(gradingScale);
+			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gradingScale.getUid());
+			gradingScales.add(gradingScale);
+		}
+		setDefaultGradingScale("LetterGradePlusMinusMapping");
+		session.flush();
+		return gradingScales;
+	}
+
+	public void setAvailableGradingScales(final Collection gradingScaleDefinitions) {
+        getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				mergeGradeMappings(gradingScaleDefinitions, session);
 				return null;
 			}
 		});
 	}
+
+	public void setDefaultGradingScale(String uid) {
+		setPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY, uid);
+	}
+
+	private void copyDefinitionToScale(GradingScaleDefinition bean, GradingScale gradingScale) {
+		gradingScale.setUnavailable(false);
+		gradingScale.setName(bean.getName());
+		gradingScale.setGrades(bean.getGrades());
+		Map defaultBottomPercents = new HashMap();
+		Iterator gradesIter = bean.getGrades().iterator();
+		Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercents().iterator();
+		while (gradesIter.hasNext() && defaultBottomPercentsIter.hasNext()) {
+			String grade = (String)gradesIter.next();
+			Double value = (Double)defaultBottomPercentsIter.next();
+			defaultBottomPercents.put(grade, value);
+		}
+		gradingScale.setDefaultBottomPercents(defaultBottomPercents);
+	}
+
+	private void mergeGradeMappings(Collection gradingScaleDefinitions, Session session) throws HibernateException {
+		Map newMappingDefinitionsMap = new HashMap();
+		HashSet uidsToSet = new HashSet();
+		for (Iterator iter = gradingScaleDefinitions.iterator(); iter.hasNext(); ) {
+			GradingScaleDefinition bean = (GradingScaleDefinition)iter.next();
+			newMappingDefinitionsMap.put(bean.getUid(), bean);
+			uidsToSet.add(bean.getUid());
+		}
+
+		// Until we move to Hibernate 3 syntax, we need to update one record at a time.
+		Query q;
+		List gmtList;
+
+		// Toggle any scales that are no longer specified.
+		q = session.createQuery("from GradingScale as gradingScale where gradingScale.uid not in (:uidList) and gradingScale.unavailable=false");
+		q.setParameterList("uidList", uidsToSet);
+		gmtList = q.list();
+		for (Iterator iter = gmtList.iterator(); iter.hasNext(); ) {
+			GradingScale gradingScale = (GradingScale)iter.next();
+			gradingScale.setUnavailable(true);
+			session.update(gradingScale);
+			if (log.isInfoEnabled()) log.info("Set Grading Scale " + gradingScale.getUid() + " unavailable");
+		}
+
+		// Modify any specified scales that already exist.
+		q = session.createQuery("from GradingScale as gradingScale where gradingScale.uid in (:uidList)");
+		q.setParameterList("uidList", uidsToSet);
+		gmtList = q.list();
+		for (Iterator iter = gmtList.iterator(); iter.hasNext(); ) {
+			GradingScale gradingScale = (GradingScale)iter.next();
+			copyDefinitionToScale((GradingScaleDefinition)newMappingDefinitionsMap.get(gradingScale.getUid()), gradingScale);
+			uidsToSet.remove(gradingScale.getUid());
+			session.update(gradingScale);
+			if (log.isInfoEnabled()) log.info("Updated Grading Scale " + gradingScale.getUid());
+		}
+
+		// Add any new scales.
+		for (Iterator iter = uidsToSet.iterator(); iter.hasNext(); ) {
+			String uid = (String)iter.next();
+			GradingScale gradingScale = new GradingScale();
+			gradingScale.setUid(uid);
+			GradingScaleDefinition bean = (GradingScaleDefinition)newMappingDefinitionsMap.get(uid);
+			copyDefinitionToScale(bean, gradingScale);
+			session.save(gradingScale);
+			if (log.isInfoEnabled()) log.info("Added Grading Scale " + gradingScale.getUid());
+		}
+		session.flush();
+	}
+
 
 	public void deleteGradebook(final String uid)
 		throws GradebookNotFoundException {

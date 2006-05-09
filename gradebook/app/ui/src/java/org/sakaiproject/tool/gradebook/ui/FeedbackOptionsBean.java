@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+* Copyright (c) 2005, 2006 The Regents of the University of California, The MIT Corporation
 *
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
+* Licensed under the Educational Community License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*      http://www.opensource.org/licenses/ecl1.php
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *
 **********************************************************************************/
 
@@ -42,11 +41,9 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 /**
  * Provides support for the student feedback options page, which also controls
  * grade-to-percentage mappings for the gradebook.
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class FeedbackOptionsBean extends GradebookDependentBean implements Serializable {
-	private static final Log logger = LogFactory.getLog(FeedbackOptionsBean.class);
+	private static final Log log = LogFactory.getLog(FeedbackOptionsBean.class);
 
 	// View maintenance fields - serializable.
 
@@ -67,6 +64,36 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
     /** The list of select box items */
     private List gradeMappingsSelectItems;
 
+    // View into row-specific data.
+    private List gradeRows;
+
+    public class GradeRow implements Serializable {
+    	private GradeMapping gradeMapping;
+    	private String grade;
+    	public GradeRow() {
+    	}
+    	public GradeRow(GradeMapping gradeMapping, String grade) {
+    		this.gradeMapping = gradeMapping;
+    		this.grade = grade;
+    	}
+
+    	public String getGrade() {
+    		return grade;
+    	}
+
+    	public Double getMappingValue() {
+    		return (Double)gradeMapping.getGradeMap().get(grade);
+    	}
+    	public void setMappingValue(Double value) {
+    		gradeMapping.getGradeMap().put(grade, value);
+    	}
+
+    	public boolean isGradeEditable() {
+			Double bottomPercent = (Double)gradeMapping.getGradeMap().get(grade);
+			return ((bottomPercent != null) && (bottomPercent.doubleValue() != 0.0d));
+		}
+	}
+
     public Gradebook getLocalGradebook() {
         return localGradebook;
     }
@@ -75,7 +102,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 */
 	protected void init() {
 		if (!workInProgress) {
-			localGradebook = getGradebook();
+			localGradebook = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
 
 			// Load the grade mappings, sorted by name.
 			List gradeMappings = new ArrayList(localGradebook.getGradeMappings());
@@ -88,11 +115,30 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 				gradeMappingsSelectItems.add(new SelectItem(gradeMapping.getId().toString(), gradeMapping.getName()));
 			}
             // set the selected grade mapping
-            selectedGradeMappingId = localGradebook.getSelectedGradeMapping().getId();
+            GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
+            selectedGradeMappingId = selectedGradeMapping.getId();
+			initGradeRows();
 		}
 
 		// Set the view state.
 		workInProgress = true;
+	}
+
+	private void initGradeRows() {
+		// Set up UI table view.
+		gradeRows = new ArrayList();
+		GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
+		for (Iterator iter = selectedGradeMapping.getGrades().iterator(); iter.hasNext(); ) {
+			String grade = (String)iter.next();
+			gradeRows.add(new GradeRow(selectedGradeMapping, grade));
+		}
+	}
+
+	public List getGradeRows() {
+		return gradeRows;
+	}
+	public void setGradeRows(List gradeRows) {
+		this.gradeRows = gradeRows;
 	}
 
 	/**
@@ -105,6 +151,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
             GradeMapping mapping = (GradeMapping)iter.next();
             if(mapping.getId().equals(selectedGradeMappingId)) {
                 localGradebook.setSelectedGradeMapping(mapping);
+                initGradeRows();
             }
         }
 	}
@@ -117,16 +164,6 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	public void resetMappingValues(ActionEvent event) {
 		localGradebook.getSelectedGradeMapping().setDefaultValues();
 	}
-
-//	private void updateMappingRow(GradeMapping gradeMapping) {
-//		List rows = new ArrayList();
-//		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
-//			String grade = (String)iter.next();
-//			boolean readOnly = !(iter.hasNext());
-//			rows.add(new GradeMappingRow(grade, gradeMapping.getValue(grade), readOnly));
-//		}
-//		gradeMappingRowsMap.put(gradeMapping.getId().toString(), rows);
-//	}
 
 	/**
 	 * Updates the gradebook to reflect the currently selected grade type and mapping.
@@ -143,7 +180,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
             FacesUtil.addErrorMessage(getLocalizedString("feedback_options_illegal_change", new String[] {localGradebook.getSelectedGradeMapping().getName()}));
             return null;
 		} catch (StaleObjectModificationException e) {
-            logger.error(e);
+            log.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("feedback_options_locking_failure"));
             return null;
 		}
@@ -157,7 +194,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
             String grade = (String)iter.next();
             Double percentage = (Double)gradeMapping.getValue(grade);
-			if (logger.isDebugEnabled()) logger.debug("checking percentage " + percentage + " for validity");
+			if (log.isDebugEnabled()) log.debug("checking percentage " + percentage + " for validity");
 
 			if (percentage == null) {
 				FacesUtil.addUniqueErrorMessage(getLocalizedString("feedback_options_require_all_values"));
@@ -197,6 +234,3 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
         this.selectedGradeMappingId = selectedGradeMappingId;
     }
 }
-
-
-

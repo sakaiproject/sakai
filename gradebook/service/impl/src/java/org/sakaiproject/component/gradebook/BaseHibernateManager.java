@@ -21,12 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -43,6 +38,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradebookProperty;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -56,6 +52,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     protected SectionAwareness sectionAwareness;
     protected Authn authn;
+
+    // Local cache of static-between-deployment properties.
+    protected Map propertiesMap = new HashMap();
 
     public Gradebook getGradebook(String uid) throws GradebookNotFoundException {
     	List list = getHibernateTemplate().find("from Gradebook as gb where gb.uid=?",
@@ -190,6 +189,38 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
         }
         return studentUids;
+	}
+
+	protected Map getPropertiesMap() {
+
+		return propertiesMap;
+	}
+
+	public String getPropertyValue(final String name) {
+		String value = (String)propertiesMap.get(name);
+		if (value == null) {
+			List list = getHibernateTemplate().find("from GradebookProperty as prop where prop.name=?",
+				name);
+			if (!list.isEmpty()) {
+				GradebookProperty property = (GradebookProperty)list.get(0);
+				value = property.getValue();
+				propertiesMap.put(name, value);
+			}
+		}
+		return value;
+	}
+	public void setPropertyValue(final String name, final String value) {
+		GradebookProperty property;
+		List list = getHibernateTemplate().find("from GradebookProperty as prop where prop.name=?",
+			name);
+		if (!list.isEmpty()) {
+			property = (GradebookProperty)list.get(0);
+		} else {
+			property = new GradebookProperty(name);
+		}
+		property.setValue(value);
+		getHibernateTemplate().saveOrUpdate(property);
+		propertiesMap.put(name, value);
 	}
 
     public Authn getAuthn() {

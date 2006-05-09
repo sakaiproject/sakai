@@ -24,10 +24,7 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
+import java.util.*;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -77,6 +74,7 @@ public class Gradebook implements Serializable {
      *
      * @return A Set of available grade mappings
      */
+/*
     public Set getAvailableGradeMappings() {
         Set set = new HashSet();
         set.add(new LetterGradeMapping());
@@ -84,20 +82,13 @@ public class Gradebook implements Serializable {
         set.add(new PassNotPassMapping());
         return set;
     }
+*/
 
+/*
     public Class getDefaultGradeMapping() {
         return LetterGradePlusMinusMapping.class;
     }
-
-    public GradeMapping getGradeMapping(Long id) {
-        for(Iterator iter = getGradeMappings().iterator(); iter.hasNext();) {
-            GradeMapping gm = (GradeMapping)iter.next();
-            if(gm.getId().equals(id)) {
-                return gm;
-            }
-        }
-        return null;
-    }
+*/
 
 	/**
 	 * @return Returns the allAssignmentsEntered.

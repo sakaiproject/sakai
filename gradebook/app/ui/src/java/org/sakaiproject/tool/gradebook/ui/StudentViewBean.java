@@ -38,7 +38,6 @@ import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -198,7 +197,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     public void init() {
         // Get the active gradebook
         Gradebook gradebook = getGradebook();
-        GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
         // Set the display name
         try {
