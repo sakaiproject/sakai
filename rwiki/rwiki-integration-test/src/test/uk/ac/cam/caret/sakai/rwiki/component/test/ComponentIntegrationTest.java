@@ -204,11 +204,11 @@ public class ComponentIntegrationTest extends TestCase
 
 		tearDown();
 
-		userDirService.addUser("test.user.1", "Jane", "Doe", "jd1@foo.com",
+		userDirService.addUser("test.user.1", "test.user.1", "Jane", "Doe", "jd1@foo.com",
 				"123", null, null);
-		userDirService.addUser("test.user.2", "Joe", "Schmoe", "js2@foo.com",
+		userDirService.addUser("test.user.2", "test.user.2", "Joe", "Schmoe", "js2@foo.com",
 				"123", null, null);
-		userDirService.addUser("test.ta.1", "TA", "Doe", "tajd1@foo.com",
+		userDirService.addUser("test.ta.1", "test.ta.1", "TA", "Doe", "tajd1@foo.com",
 				"123", null, null);
 
 		// Create a site
