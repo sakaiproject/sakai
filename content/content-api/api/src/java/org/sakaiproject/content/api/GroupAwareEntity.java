@@ -68,7 +68,7 @@ public interface GroupAwareEntity extends Entity
 		static public AccessMode fromString(String access)
 		{
 			if (SITE.m_id.equals(access)) return SITE;
-			if (GROUPED.m_id.equals(access)) return GROUPED;
+			if (GROUP.m_id.equals(access)) return GROUP;
 			return null;
 		}
 
@@ -76,6 +76,10 @@ public interface GroupAwareEntity extends Entity
 		public static final AccessMode SITE = new AccessMode("site");
 
 		/** grouped access; only members of the getGroup() groups (authorization groups) have access */
-		public static final AccessMode GROUPED = new AccessMode("grouped");
+		public static final AccessMode GROUP = new AccessMode("group");
+
+		/** grouped access; only members of the getGroup() groups (authorization groups) have access */
+		public static final AccessMode PUBLIC = new AccessMode("public");
+
 	}
 }
