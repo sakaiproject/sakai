@@ -123,7 +123,8 @@ should be included in file importing DeliveryMessages
       saveToFile ="false" \
       saveToUrl ="true" \
       fileName ="audio" \
-      url ="/samigo/servlet/UploadAudio" \
+      url ="</f:verbatim><h:outputText
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>" \
       compression ="linear" \
       frequency ="44100" \
       bits ="16" \
