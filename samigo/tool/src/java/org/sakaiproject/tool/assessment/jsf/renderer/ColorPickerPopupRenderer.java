@@ -33,7 +33,6 @@ import javax.faces.render.Renderer;
 /**
  * <p>Description: </p>
  * <p>Render the HTML code for a Tigris color picker popup.</p>
- * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
  * @version $id: $

@@ -40,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
  *
  * <p> </p>
  * <p>Description: Concrete class for SamigoApiFactory</p>
- * <p>Sakai Project Copyright (c) 2005</p>
  * <p>Implements setters for Spring injection.</p>
  * @author Ed Smiley <esmiley@stanford.edu>
  *

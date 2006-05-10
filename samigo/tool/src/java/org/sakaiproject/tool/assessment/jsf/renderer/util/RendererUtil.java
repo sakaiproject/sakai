@@ -32,7 +32,6 @@ import javax.faces.context.FacesContext;
 /**
  * <p>Place for common utilities for renderers </p>
  * <p> </p>
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * @author Ed Smiley esmiley@stanford.edu
  * @version $Id$
  */

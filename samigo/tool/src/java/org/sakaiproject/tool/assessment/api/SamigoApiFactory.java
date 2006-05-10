@@ -41,7 +41,6 @@ import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServ
 
 /**
  * <p>Description: Factory for Samigo API</p>
- * <p>Sakai Project Copyright (c) 2005</p>
  * <p>This is an abstract class.  It defines the public methods available for
  * the properties that it furnishes.  </p>
  * @author Ed Smiley <esmiley@stanford.edu>

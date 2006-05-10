@@ -31,7 +31,6 @@ import javax.faces.webapp.UIComponentTag;
  * This class is the tag handler that evaluates the date picker popup
  * custom tag.</p>
  * <p>Based on example code by Sun Microsystems. </p>
- * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
  * @author Ed Smiley
  * @version $Id$

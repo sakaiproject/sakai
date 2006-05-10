@@ -23,12 +23,6 @@
 
 package org.sakaiproject.tool.assessment.settings;
 
-/**
- * Provides a common place to house all application wide constants.
- *
- * @author <a href="mailto:lance@indiana.edu">Lance Speelmon </a>
- * @version $Id: Constants.java 20 2005-06-15 18:43:52Z lance@indiana.edu $
- */
 public final class Constants
 {
   public static final String HTTP_SERVLET_REQUEST = "javax.servlet.http.HttpServletRequest";
