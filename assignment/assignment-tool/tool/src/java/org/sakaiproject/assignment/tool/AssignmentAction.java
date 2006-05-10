@@ -2352,15 +2352,18 @@ public class AssignmentAction extends PagedResourceActionII
 					sEdit.setReturned(true);
 					sEdit.setTimeReturned(TimeService.newTime());
 					sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
-
-					if (state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT) != null
-							&& ((Boolean) state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT)).booleanValue())
-					{
-						sEdit.getPropertiesEdit().addProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE.toString());
-						state.removeAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT);
-					}
 				}
 
+				if (state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT) != null && ((Boolean)state.getAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT)).booleanValue())
+				{
+					sEdit.getPropertiesEdit().addProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT, Boolean.TRUE.toString());
+					state.removeAttribute(GRADE_SUBMISSION_ALLOW_RESUBMIT);
+				}
+				else
+				{
+					sEdit.getPropertiesEdit().removeProperty(GRADE_SUBMISSION_ALLOW_RESUBMIT);
+				}
+				
 				// the instructor comment
 				String feedbackCommentString = StringUtil
 						.trimToNull((String) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
