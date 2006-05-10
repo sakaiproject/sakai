@@ -28,6 +28,31 @@
             <version>${sakai.version}</version>
         </dependency>
 
+		<!-- Sakai APIs (only those needed to compile the tests) -->
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-sections-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+		
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-site-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-user-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-tool-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
