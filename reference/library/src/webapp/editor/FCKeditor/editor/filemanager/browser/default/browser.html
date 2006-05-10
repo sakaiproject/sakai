@@ -36,8 +36,9 @@ function GetUrlParam( paramName )
 }
 
 var oConnector = new Object() ;
-oConnector.CurrentFolder	= '/' ;
+oConnector.CurrentFolder = GetUrlParam( 'CurrentFolder' ) ;
 
+//Changed by joshua.ryan@asu.edu so that the browser can start in other places then '/'
 var sConnUrl = GetUrlParam( 'Connector' ) ;
 
 // Gecko has some problems when using relative URLs (not starting with slash).

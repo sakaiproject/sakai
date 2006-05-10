@@ -171,13 +171,19 @@ function GetFoldersCallBack( fckXml )
 function SetResourceType( type )
 {
 	oConnector.ResourceType = type ;
-	LoadFolders( '/' ) ;
+
+        //Changed by Joshua Ryan for the Sakai Connector
+        LoadFolder( oConnector.CurrentFolder ); 
+ 
+        //LoadFolders( '/' ) ;
 }
 
 window.onload = function()
 {
 	oListManager.Init() ;
-	LoadFolders( '/' ) ;
+
+        //Changed by Joshua Ryan for the Sakai Connector
+        LoadFolders( oConnector.CurrentFolder );
 }
 		</script>
 	</head>

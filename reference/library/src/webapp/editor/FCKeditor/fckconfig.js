@@ -83,17 +83,54 @@ FCKConfig.ToolbarSets["Default"] = [
 	['OrderedList','UnorderedList','-','Outdent','Indent'],
 	['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
 	['Link','Unlink','Anchor'],
-	['Image','Flash','Table','Rule','Smiley','SpecialChar','PageBreak','UniversalKey'],
+	['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],
 	['Form','Checkbox','Radio','TextField','Textarea','Select','Button','ImageButton','HiddenField'],
-	'/',
-	['Style','FontFormat','FontName','FontSize'],
 	['TextColor','BGColor'],
-	['About']
+	['About'],
+	'/',
+	['Style','FontFormat','FontName','FontSize']
 ] ;
 
-FCKConfig.ToolbarSets["Basic"] = [
-	['Bold','Italic','-','OrderedList','UnorderedList','-','Link','Unlink','-','About']
+FCKConfig.ToolbarSets["sakai"] = [
+	['Source','DocProps','-','Save','NewPage','Preview','-','Templates'],
+	['Cut','Copy','Paste','PasteText','PasteWord'],
+	['Undo','Redo','-','SelectAll','RemoveFormat'],
+	['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
+	['OrderedList','UnorderedList','-','Outdent','Indent'],
+	['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+	['Link','Unlink','Anchor'],
+	['Image','Flash','Table','Rule','SpecialChar','UniversalKey'],
+	['TextColor','BGColor'],
+	['About'],
+	'/',
+	['Style','FontFormat','FontName','FontSize']
 ] ;
+
+FCKConfig.ToolbarSets["3lines"] = [
+	['Source','DocProps','-','Save','NewPage','Preview','-','Templates'],
+	['Cut','Copy','Paste','PasteText','PasteWord'],
+	['Undo','Redo','-','SelectAll','RemoveFormat'],
+	['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
+	['OrderedList','UnorderedList','-','Outdent','Indent'],
+	['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+	['Link','Unlink','Anchor'],
+	['Image','Flash','Table','Rule','SpecialChar','UniversalKey'],
+	['TextColor','BGColor'],
+	['About'],
+	'/',
+	['Style','FontFormat','FontName','FontSize']
+] ;
+
+
+FCKConfig.ToolbarSets["Basic"] = [
+	['Cut','Copy','Paste','PasteText','PasteWord','-','Undo','Redo','-','FontSize','Bold','Italic',
+          'Underline','StrikeThrough','TextColor','BGColor'],
+        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+        ['OrderedList','UnorderedList','Outdent','Indent'],
+        ['Link','Unlink','Image','Flash','Table','Rule','SpecialChar','UniversalKey','Templates']
+] ;
+
+FCKConfig.ToolbarSets["plain"] = [];
 
 FCKConfig.ContextMenu = ['Generic','Link','Anchor','Image','Flash','Select','Textarea','Checkbox','Radio','TextField','HiddenField','ImageButton','Button','BulletedList','NumberedList','TableCell','Table','Form'] ;
 
@@ -171,5 +208,6 @@ FCKConfig.SmileyImages	= ['regular_smile.gif','sad_smile.gif','wink_smile.gif','
 FCKConfig.SmileyColumns = 8 ;
 FCKConfig.SmileyWindowWidth		= 320 ;
 FCKConfig.SmileyWindowHeight	= 240 ;
+/*FCKConfig.Plugins.Add( 'toolbarswitch', 'en', FCKConfig.PluginsPath);*/
 
 if( window.console ) window.console.log( 'Config is loaded!' ) ;	// @Packager.Compactor.RemoveLine
