@@ -1,17 +1,16 @@
 /**********************************************************************************
-* $URL: https://source.sakaiproject.org/svn/trunk/sakai/sam/tool/src/java/org/sakaiproject/tool/assessment/ui/listener/delivery/TableOfContentsActionListener.java $
-* $Id: TableOfContentsActionListener.java 5215 2006-01-09 22:26:01Z daisyf@stanford.edu $
+* $URL: https://source.sakaiproject.org/svn/sam/trunk/tool/src/java/org/sakaiproject/tool/assessment/ui/listener/select/SelectActionListener.java $
+* $Id: SelectActionListener.java 5242 2006-01-11 04:36:19Z daisyf@stanford.edu $
 ***********************************************************************************
 *
-* Copyright (c) 2004-2005 The Regents of the University of Michigan, Trustees of Indiana University,
-*                  Board of Trustees of the Leland Stanford, Jr., University, and The MIT Corporation
+* Copyright (c) 2004-2006 The Sakai Foundation.
 *
 * Licensed under the Educational Community License Version 1.0 (the "License");
 * By obtaining, using and/or copying this Original Work, you agree that you have read,
 * understand, and will comply with the terms and conditions of the Educational Community License.
 * You may obtain a copy of the License at:
 *
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*      https://source.sakaiproject.org/svn/sakai/trunk/sakai_license_1_0.html
 *
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
