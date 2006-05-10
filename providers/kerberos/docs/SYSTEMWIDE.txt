@@ -75,12 +75,12 @@ If authentication fails, contact your local administrator for help.
 
 3) Uncommment the configuration information in
 
-    ../component/project.xml
+    ../../component/project.xml
 
 Then, change the domain parameter from "mydomain.edu" to your domain 
 and, if necessary, the value of the cachettl parameter in
 
-    ../component/src/webapp/WEB-INF/components.xml
+    ../../component/src/webapp/WEB-INF/components.xml
 
 After deployment, you can also edit this file:
 
