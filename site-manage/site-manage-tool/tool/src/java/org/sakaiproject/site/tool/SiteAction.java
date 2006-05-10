@@ -2233,6 +2233,8 @@ public class SiteAction extends PagedResourceActionII
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state.getAttribute(STATE_IMPORT_SITE_TOOL));
 			context.put("check_home", state.getAttribute(STATE_TOOL_HOME_SELECTED));
+			context.put("importSupportedTools", importTools());
+
 			return (String)getContext(data).get("template") + TEMPLATE[27];
 		case 28: 
 			/*  buildContextForTemplate chef_siteinfo-import.vm
@@ -12898,5 +12900,34 @@ public class SiteAction extends PagedResourceActionII
 				}
 			}
 		}
+	}
+	
+	/**
+	 * @return Get a list of all tools that support the import (transfer copy) option
+	 */
+	protected Set importTools()
+	{
+		HashSet rv = new HashSet();
+
+		// offer to all EntityProducers
+		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();)
+		{
+			EntityProducer ep = (EntityProducer) i.next();
+			if (ep instanceof EntityTransferrer)
+			{
+				EntityTransferrer et = (EntityTransferrer) ep;
+
+				String[] tools = et.myToolIds();
+				if (tools != null)
+				{
+					for (int t = 0; t < tools.length; t++)
+					{
+						rv.add(tools[t]);
+					}
+				}
+			}
+		}
+
+		return rv;
 	}
 }

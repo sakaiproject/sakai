@@ -25,7 +25,7 @@
 			#foreach($toolId in $selectedTools)
 			#set($selectedSites = $!importSitesTools.get($toolId))
 			#set ($toolCount=$toolCount + 1)
-				#if ($toolId == "sakai.schedule" || $toolId == "sakai.announcements" || $toolId == "sakai.resources" || $toolId == "sakai.discussion" || $toolId == "sakai.assignment" || $toolId == "sakai.assignment.grades")
+				#if ($importSupportedTools.contains($toolId))
 					<tr>
 						<td>
 							#set($toolTitle = "")
