@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl"
+    table="MFR_LABEL_T" optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_LABEL_S</param>
+      </generator>
+    </id>
+       
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+
+    <!-- Label fields -->
+    <property name="key">
+      <column name="KEY_C" length="255" not-null="true" />
+    </property>
+    <property name="value">
+      <column name="VALUE_C" length="255" not-null="true" />
+    </property>
+
+    <many-to-one name="discussionForum" column="df_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionForumImpl"
+      not-null="false" index="MFR_LABEL_PARENT_I1" cascade="none" />
+    <property name="dfindex" column="df_index_col" type="int" update="true" insert="true"/>
+
+    <many-to-one name="discussionTopic" column="dt_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl"
+      not-null="false" index="MFR_LABEL_PARENT_I2" cascade="none" />
+    <property name="dtindex" column="dt_index_col" type="int" update="true" insert="true"/>
+  </class>
+
+  <query name="findLabelById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl as label where label.id = :id]]>
+  </query>
+
+  <query name="findLabelByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl as label where label.uuid = :uuid]]>
+  </query>
+
+</hibernate-mapping>

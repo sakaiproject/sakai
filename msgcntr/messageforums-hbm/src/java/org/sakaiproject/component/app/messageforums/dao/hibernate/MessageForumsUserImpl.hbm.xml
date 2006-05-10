@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl" 
+      table="MFR_MESSAGE_FORUMS_USER_T" 
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_MESSAGE_FORUMS_USER_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <!-- MessageForumsUser fields -->
+    <property name="uuid">
+      <column name="UUID" length="36" not-null="true" />
+    </property>
+    
+    <property name="userId">
+      <column name="USER_ID" length="255" not-null="true" />
+    </property>
+    
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+        
+  </class>
+  
+  <query name="findUserByUserId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl user where user.userid = :userId]]>
+  </query>
+  
+</hibernate-mapping>

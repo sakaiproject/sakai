@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
+      table="MFR_DATE_RESTRICTIONS_T"
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_DATE_RESTRICTIONS_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <!-- DateRestriction fields -->
+    <property name="visible">
+      <column name="VISIBLE" not-null="true"/>
+	</property>
+    <property name="visiblePostOnSchedule">
+      <column name="VISIBLE_POST_ON_SCHEDULE" not-null="true" />
+    </property>
+    <property name="postingAllowed">
+      <column name="POSTING_ALLOWED" not-null="true"/>
+	</property>
+    <property name="postingAllowedPostOnSchedule">
+      <column name="PSTNG_ALLWD_PST_ON_SCHD" not-null="true" />
+    </property>
+    <property name="readOnly">
+      <column name="READ_ONLY" not-null="true"/>
+	</property>
+    <property name="readOnlyPostOnSchedule">
+      <column name="READ_ONLY_POST_ON_SCHEDULE" not-null="true" />
+    </property>
+    <property name="hidden">
+      <column name="HIDDEN" not-null="true"/>
+	</property>
+    <property name="hiddenPostOnSchedule">
+      <column name="HIDDEN_POST_ON_SCHEDULE" not-null="true" />
+    </property>
+  </class>
+
+</hibernate-mapping>

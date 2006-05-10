@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl"
+      table="MFR_CONTROL_PERMISSIONS_T" 
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_CONTROL_PERMISSIONS_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <!-- Control Permissions fields -->
+    <property name="role">
+      <column name="ROLE" length="255" not-null="true" />
+    </property>
+    <property name="newForum">
+      <column name="NEW_FORUM" not-null="true" />
+    </property>
+    <property name="postToGradebook">
+      <column name="POST_TO_GRADEBOOK" not-null="true" />
+    </property>
+    <property name="newTopic">
+      <column name="NEW_TOPIC" not-null="true" />
+    </property>
+    <property name="newResponse">
+      <column name="NEW_RESPONSE" not-null="true" />
+    </property>
+    <property name="responseToResponse">
+      <column name="RESPONSE_TO_RESPONSE" not-null="true" />
+    </property>
+    <property name="movePostings">
+      <column name="MOVE_POSTINGS" not-null="true" />
+    </property>
+    <property name="changeSettings">
+      <column name="CHANGE_SETTINGS" not-null="true" />
+    </property>
+    <property name="defaultValue">
+      <column name="DEFAULT_VALUE" not-null="true" />
+    </property>
+    
+     
+    <many-to-one name="area" column="areaSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+      not-null="false" index="MFR_CP_PARENT_AREA_I" cascade="none" />
+    <!-- <property name="areaindex" column="area_cp_index_col" type="int" update="true" insert="true"/> -->
+    <many-to-one name="forum" column="forumSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_CP_PARENT_FORUM_I" cascade="none" />
+    <!-- <property name="forumindex" column="forum_cp_index_col" type="int" update="true" insert="true"/> -->
+    <many-to-one name="topic" column="topicSurrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_CP_PARENT_TOPIC_I" cascade="none" />
+    <!-- <property name="topicindex" column="topic_cp_index_col" type="int" update="true" insert="true"/> -->
+	
+  </class>
+
+  <query name="findAreaControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.area.id = :areaId and cp.defaultValue = :defaultValue]]>
+  </query>
+
+  <query name="findForumControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.forum.id = :forumId and cp.defaultValue = :defaultValue]]>
+  </query>
+
+  <query name="findTopicControlPermissionByRole">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl cp where cp.role = :roleId and cp.topic.id = :topicId and cp.defaultValue = :defaultValue]]>
+  </query>
+  
+</hibernate-mapping>

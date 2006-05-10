@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl" 
+      table="MFR_ACTOR_PERMISSIONS_T" 
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_ACTOR_PERMISSIONS_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <!-- Actor Permissions fields -->
+	<list name="accessors" lazy="false" table="MFR_AP_ACCESSORS_T" cascade="all">
+	    <key column="apaSurrogateKey"/>
+	    <index column="accessors_index_col" />	    
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                  column="userSurrogateKey" />
+	</list>     
+	<list name="moderators" lazy="false" table="MFR_AP_MODERATORS_T" cascade="all">
+	    <key column="apmSurrogateKey"/>
+	    <index column="moderators_index_col" />
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                  column="userSurrogateKey" />
+	</list>
+	<list name="contributors" lazy="false" table="MFR_AP_CONTRIBUTORS_T" cascade="all">
+	    <key column="apcSurrogateKey"/>
+	    <index column="contributors_index_col" />
+	    <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                 column="userSurrogateKey" />
+	</list>     
+
+  </class>
+
+</hibernate-mapping>
