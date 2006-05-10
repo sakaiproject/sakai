@@ -1496,7 +1496,7 @@ public class CharonPortal extends HttpServlet
 			// we don't need any of this if we are doing top login
 			if (!topLogin)
 			{
-				logInOutUrl += "/portal/login";
+				logInOutUrl += ServerConfigurationService.getString("portalPath") +  "/login";
 				
 				// let the login url be overridden by configuration
 				String overrideLoginUrl = StringUtil.trimToNull(ServerConfigurationService.getString("login.url"));
@@ -1515,7 +1515,7 @@ public class CharonPortal extends HttpServlet
 					// get the text and image as configured
 					message2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.text"));
 					image2 = StringUtil.trimToNull(ServerConfigurationService.getString("xlogin.icon"));
-					logInOutUrl2 = "/portal/xlogin";
+					logInOutUrl2 = ServerConfigurationService.getString("portalPath") + "/xlogin";
 				}
 			}
 		}
@@ -1523,7 +1523,7 @@ public class CharonPortal extends HttpServlet
 		// if logged in they get logout
 		else
 		{
-			logInOutUrl += "/portal/logout";
+			logInOutUrl += ServerConfigurationService.getString("portalPath") + "/logout";
 
 			// check for a logout text override
 			message = StringUtil.trimToNull(ServerConfigurationService.getString("logout.text"));
@@ -1564,7 +1564,7 @@ public class CharonPortal extends HttpServlet
 			if (pwWording == null) pwWording = "pw";
 			String loginWording = rb.getString("log.login");
 
-			out.println("<form id=\"loginForm\" method=\"post\" action=\"/portal/xlogin\" enctype=\"application/x-www-form-urlencoded\" target=\"_parent\">");
+			out.println("<form id=\"loginForm\" method=\"post\" action=\"" + ServerConfigurationService.getString("portalPath") + "/xlogin\" enctype=\"application/x-www-form-urlencoded\" target=\"_parent\">");
 			out.println("<label for=\"eid\">" + eidWording + "</label><input name=\"eid\" id=\"eid\" type=\"text\" />");
 			out.println("<label for=\"pw\">" + pwWording + "</label><input name=\"pw\" type=\"password\" id=\"pw\" />");
 			out.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\"" + loginWording + "\" /> </form>");
@@ -1953,7 +1953,7 @@ public class CharonPortal extends HttpServlet
 		}
 		else
 		{
-			String siteUrl = Web.serverUrl(req) + "/portal/" + prefix + "/"
+			String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
 					+ Web.escapeUrl(SiteService.getUserSiteId(session.getUserId()));
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
 					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
@@ -1969,7 +1969,7 @@ public class CharonPortal extends HttpServlet
 			}
 			else
 			{
-				String siteUrl = Web.serverUrl(req) + "/portal/" + prefix + "/" + Web.escapeUrl(s.getId());
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(s.getId());
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
 						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
@@ -1998,7 +1998,7 @@ public class CharonPortal extends HttpServlet
 			for (Iterator i = moreSites.iterator(); i.hasNext();)
 			{
 				Site s = (Site) i.next();
-				String siteUrl = Web.serverUrl(req) + "/portal/" + prefix + "/" + s.getId();
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + s.getId();
 				out.println("						<option title=\"" + Web.escapeHtml(s.getTitle()) + " "
 						+ Web.escapeHtml(rb.getString("sit.worksite")) + "\" value=\"" + siteUrl + "\">"
 						+ Web.escapeHtml(s.getTitle()) + "</option> ");
@@ -2010,7 +2010,7 @@ public class CharonPortal extends HttpServlet
 
 		if (addLogout)
 		{
-			String logoutUrl = Web.serverUrl(req) + "/portal/logout_gallery";
+			String logoutUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/logout_gallery";
 			out.println("<div class=\"galleryLogin\">");
 			out.println("	<a href=\"" + logoutUrl + "\" target=\"_parent\">" + Web.escapeHtml(rb.getString("sit.log")) + "</a>");
 			out.println("</div>");
