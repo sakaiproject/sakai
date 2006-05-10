@@ -362,7 +362,7 @@ public class SearchBeanImpl implements SearchBean
 	public String getToolUrl()
 	{
 		
-		return  "/portal/tool/"+ placementId;
+		return  ServerConfigurationService.getString("portalPath") + "/tool/"+ placementId;
 	}
 
 }
