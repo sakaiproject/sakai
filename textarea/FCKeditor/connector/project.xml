@@ -3,7 +3,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>Sakai FCK connector</name>
+	<name>sakai-fck-connector</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-fck-connector</id>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
-			<version>2.4-20040521</version>
+			<version>2.4</version>
 		</dependency>
 
 		<dependency>
@@ -35,18 +35,6 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${pom.currentVersion}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
 			<version>${pom.currentVersion}</version>
 		</dependency>
 
@@ -72,15 +60,12 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-api</artifactId>
 			<version>${pom.currentVersion}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
       		<groupId>jspapi</groupId>
       		<artifactId>jsp-api</artifactId>
-      		<version>2.0-20040521</version>
+      		<version>2.0</version>
 
     	</dependency>
 
