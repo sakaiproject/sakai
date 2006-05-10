@@ -55,20 +55,21 @@ import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.framework.config.cover.ServerConfigurationService;
-import org.sakaiproject.service.legacy.authzGroup.Member;
-import org.sakaiproject.service.legacy.content.ContentResource;
-import org.sakaiproject.service.legacy.content.cover.ContentHostingService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.user.User;
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -615,10 +616,10 @@ public class PrivateMessagesTool
       User user=UserDirectoryService.getUser(id) ;
       userName= user.getSortName();
     }
-    catch (IdUnusedException e)
-    {
-      LOG.debug("getUserNameById() - Error");
-    }
+    catch (UserNotDefinedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
     return userName;
   }
 
@@ -629,10 +630,10 @@ public class PrivateMessagesTool
      User user=UserDirectoryService.getUser(userId) ;
      userName= user.getDisplayName();
    }
-   catch (IdUnusedException e)
-   {
-     LOG.debug("getUserName() - Error");
-   }
+   catch (UserNotDefinedException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
    return userName;
   }
   

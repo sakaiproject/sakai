@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.sakaiproject.api.app.messageforums.Message;
 
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 
 

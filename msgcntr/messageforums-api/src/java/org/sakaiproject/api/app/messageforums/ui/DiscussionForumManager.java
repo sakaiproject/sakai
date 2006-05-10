@@ -13,8 +13,8 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.common.authorization.PermissionsMask;
-import org.sakaiproject.service.legacy.authzGroup.Role;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.authz.api.Role;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>

@@ -38,26 +38,27 @@ import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.api.app.messageforums.PrivateMessage; 
 import org.sakaiproject.service.gradebook.shared.GradebookService; 
 import org.sakaiproject.service.gradebook.shared.Assignment; 
-import org.sakaiproject.api.kernel.component.cover.ComponentManager; 
+import org.sakaiproject.component.cover.ComponentManager; 
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager; 
-import org.sakaiproject.service.legacy.user.User; 
-import org.sakaiproject.service.legacy.user.cover.UserDirectoryService; 
+import org.sakaiproject.user.api.User; 
+import org.sakaiproject.user.cover.UserDirectoryService; 
 
-import org.sakaiproject.api.common.authorization.PermissionsMask;
-import org.sakaiproject.api.kernel.session.ToolSession;
-import org.sakaiproject.api.kernel.session.cover.SessionManager;
-import org.sakaiproject.api.kernel.tool.cover.ToolManager;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.legacy.authzGroup.AuthzGroup;
-import org.sakaiproject.service.legacy.authzGroup.Role;
-import org.sakaiproject.service.legacy.authzGroup.cover.AuthzGroupService;
-import org.sakaiproject.service.legacy.entity.Reference;
-import org.sakaiproject.service.legacy.filepicker.FilePickerHelper;
-import org.sakaiproject.service.legacy.security.cover.SecurityService;
-import org.sakaiproject.service.legacy.site.Group;
-import org.sakaiproject.service.legacy.site.Site;
-import org.sakaiproject.service.legacy.site.cover.SiteService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
@@ -3491,7 +3492,10 @@ public class DiscussionForumTool
     catch (IdUnusedException e)
     {
       LOG.error(e.getMessage(), e);
-    }   
+    } catch (GroupNotDefinedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}   
 
     return siteMembers;
   }

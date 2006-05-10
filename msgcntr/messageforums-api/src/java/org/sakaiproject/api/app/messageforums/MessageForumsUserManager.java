@@ -23,15 +23,14 @@
 
 package org.sakaiproject.api.app.messageforums;
 
-import org.sakaiproject.exception.IdUnusedException;
-
 public interface MessageForumsUserManager {
       
   /**
    * get forum user and create if necessary
    * @param userId to associate with
+ * @throws UserNotDefinedException 
    */
-  public MessageForumsUser getForumUser(String userId)  throws IdUnusedException;
+  public MessageForumsUser getForumUser(String userId);
     
     
   /**

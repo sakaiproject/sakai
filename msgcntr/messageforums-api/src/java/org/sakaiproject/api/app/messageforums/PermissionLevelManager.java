@@ -25,7 +25,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.List;
 
-import org.sakaiproject.api.common.authorization.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
 
 public interface PermissionLevelManager {
     public static final String PERMISSION_LEVEL_NAME_OWNER = "Owner";

@@ -18,24 +18,14 @@
     <dependencies> 
         <dependency>
             <groupId>sakaiproject</groupId>
-            <artifactId>sakai-legacy-service</artifactId>
+            <artifactId>sakai-authz-api</artifactId>
             <version>${sakai.version}</version>
         </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-type-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-common-authorization-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>	
- 		<dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.0</version>
-        </dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/java</sourceDirectory>

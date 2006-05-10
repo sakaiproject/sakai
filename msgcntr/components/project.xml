@@ -21,109 +21,48 @@
 	        <artifactId>sakai-messageforums-api</artifactId>
 			<version>${sakai.version}</version>   
     	</dependency>
-      
+         
+         <dependency>
+        	<groupId>sakaiproject</groupId>
+	        <artifactId>sakai-messageforums-hbm</artifactId>
+			<version>${sakai.version}</version>   
+    	</dependency>
+    	
         <dependency>
         	<groupId>sakaiproject</groupId>
-	        <artifactId>sakai-messageforums-component-shared</artifactId>
-			<version>${sakai.version}</version>       
-	    </dependency>
+	        <artifactId>sakai-messageforums-component-impl</artifactId>
+			<version>${sakai.version}</version>   
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>    
+	    </dependency>		
+	
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-id</artifactId>
+			<artifactId>sakai-event-util</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>		
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-id-component</artifactId>
+			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>		
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		      	
-    	<dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.0</version>
-        </dependency>      
-      
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-            <version>1.2.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-  	        <version>3.1</version>
-		</dependency>
-
-        <dependency>
-            <groupId>commons-pool</groupId>
-            <artifactId>commons-pool</artifactId>
-            <version>1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-				<version>2.0.2</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>jta</groupId>
-            <artifactId>jta</artifactId>
-            <version>h2.1.8</version>
-        </dependency>
-
-        <dependency>
-            <groupId>odmg</groupId>
-            <artifactId>odmg</artifactId>
-            <version>3.0</version>
-        </dependency>
-        
-		<dependency>
-            <groupId>ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>1.1</version>
-        </dependency>		
-
-  		<dependency>
-  			<groupId>hibernate</groupId>
-  			<artifactId>hibernate</artifactId>
-	  		<version>2.1.8</version>
-  		</dependency>
   		
     </dependencies>
 

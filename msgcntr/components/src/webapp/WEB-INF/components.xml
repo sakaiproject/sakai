@@ -5,12 +5,8 @@
           class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
         <property name="mappingResources">
             <list>
-                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ActorPermissions.hbm.xml</value>-->
-                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageForumsUserImpl.hbm.xml</value>-->
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/DateRestrictions.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Attachment.hbm.xml</value>
-                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/ControlPermissions.hbm.xml</value>-->
-                <!-- <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessagePermissions.hbm.xml</value>-->
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/UnreadStatus.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Area.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Topic.hbm.xml</value>
@@ -47,10 +43,10 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>				 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
@@ -59,7 +55,7 @@
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>		
 		         <property name="defaultPermissionsManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager"/>
@@ -75,22 +71,22 @@
     
     <bean id="org.sakaiproject.api.app.messageforums.DefaultPermissionsManager" class="org.sakaiproject.component.app.messageforums.DefaultPermissionsManagerImpl"   init-method="init">
         <property name="functionManager">
-            <ref bean="org.sakaiproject.api.kernel.function.FunctionManager"/>
+            <ref bean="org.sakaiproject.authz.api.FunctionManager"/>
         </property>
          <property name="authzGroupService">
-           <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+           <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
     </bean>
      
     <bean id="org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager" class="org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl" init-method="init">
 		<property name="toolManager">
-             <ref bean="org.sakaiproject.api.kernel.tool.ActiveToolManager"/>
+             <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
 		</property>
 	    <property name="authzGroupService">
-           <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+           <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
         </property>
         <property name="sessionManager">
-			<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
 		</property>		
 	    <property name="permissionManager">
             <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
@@ -102,7 +98,7 @@
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 	    </property>
 	    <property name="securityService">
-            <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+            <ref bean="org.sakaiproject.authz.api.SecurityService"/>
         </property>	
         <property name="forumManager">
             <ref bean="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
@@ -122,16 +118,11 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>
-				<!-- 	
-		        <property name="permissionManager">
-        		    <ref bean="org.sakaiproject.api.app.messageforums.PermissionManager"/>
-		        </property>
-		        -->
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -151,13 +142,13 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>				
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
 		        <property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
@@ -169,7 +160,7 @@
       			    <value>${auto.ddl}</value>
 		        </property>
 		        <property name="sqlService">
-		            <ref bean="org.sakaiproject.service.framework.sql.SqlService"/>
+		            <ref bean="org.sakaiproject.db.api.SqlService"/>
 		        </property>
             </bean>            
         </property>
@@ -190,10 +181,10 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>				 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
@@ -202,13 +193,8 @@
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
 		        </property>		       
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
-		        <!-- 
-		        <property name="userPermissionManager">
-        		    <ref bean="org.sakaiproject.api.app.messageforums.UserPermissionManager"/>
-		        </property>
-		        -->
             </bean>            
         </property>
          <property name="transactionAttributes">
@@ -229,16 +215,16 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
 				</property>   
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>				 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 		        </property>
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
         	</bean>
 		</property>
@@ -260,16 +246,16 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>				 				
 				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>				 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 		        </property>
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
             </bean>            
         </property>
@@ -299,16 +285,16 @@
                     <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
                 </property>						
    				<property name="sessionManager">
-					<ref bean="org.sakaiproject.api.kernel.session.SessionManager" />
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
 				</property>		
 				<property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>		 								
 		        <property name="typeManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 		        </property>			 
 		        <property name="emailService">
-        		    <ref bean="org.sakaiproject.service.framework.email.EmailService"/>
+        		    <ref bean="org.sakaiproject.email.api.EmailService"/>
 		        </property>			 		        
             </bean>           
         </property>
@@ -347,19 +333,19 @@
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
 		        </property>
 		        <property name="userDirectoryService">
-				    <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
-				</property>	
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+				</property>
 				<property name="siteService">
-                  <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+                  <ref bean="org.sakaiproject.site.api.SiteService"/>
                 </property>
                 <property name="membershipManager">
                   <ref bean="org.sakaiproject.api.app.messageforums.MembershipManager"/>
                 </property> 
                 <property name="securityService">
-                    <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
+                    <ref bean="org.sakaiproject.authz.api.SecurityService"/>
                 </property>
                 <property name="sessionManager">
-                    <ref bean="org.sakaiproject.api.kernel.session.SessionManager"/>
+                    <ref bean="org.sakaiproject.tool.api.SessionManager"/>
                 </property>
                  <property name="permissionLevelManager">
 		            <ref bean="org.sakaiproject.api.app.messageforums.PermissionLevelManager"/>
@@ -383,13 +369,13 @@
                     <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
                 </property>
                 <property name="idManager">
-					<ref bean="org.sakaiproject.api.kernel.id.IdManager" />
+					<ref bean="org.sakaiproject.id.api.IdManager" />
 				</property>
 				<property name="userDirectoryService">
-				    <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
 				</property>				
 		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.service.legacy.event.EventTrackingService"/>
+        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
 		        </property>
             </bean>           
         </property>
@@ -407,26 +393,23 @@
         <property name="target">
             <bean class="org.sakaiproject.component.app.messageforums.MembershipManagerImpl" singleton="true" init-method="init">            
                 <property name="siteService">
-                  <ref bean="org.sakaiproject.service.legacy.site.SiteService"/>
+                  <ref bean="org.sakaiproject.site.api.SiteService"/>
                 </property>
                 <property name="userDirectoryService">
-				    <ref bean="org.sakaiproject.service.legacy.user.UserDirectoryService"/>
+				    <ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
 				</property>
                 <property name="sakaiPersonManager">
                   <ref bean="org.sakaiproject.api.common.edu.person.SakaiPersonManager"/>
                 </property>
                 <property name="authzGroupService">
-                  <ref bean="org.sakaiproject.service.legacy.authzGroup.AuthzGroupService"/>
+                  <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
                 </property>
                 <property name="toolManager">
-                  <ref bean="org.sakaiproject.api.kernel.tool.ActiveToolManager"/>
+                  <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
                 </property>
                 <property name="securityService">
-                  <ref bean="org.sakaiproject.service.legacy.security.SecurityService"/>
-                </property>
-                <property name="portalService">
-                  <ref bean="org.sakaiproject.service.framework.portal.PortalService"/>
-                </property>                
+                  <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                </property>              
             </bean>           
         </property>
          <property name="transactionAttributes">

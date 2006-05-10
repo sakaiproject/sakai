@@ -2,7 +2,7 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-    <extend>../../master/project.xml</extend>
+	<extend>../../master/jsf-sun-tool.xml</extend>
 	<name>Sakai MessageForums Tool</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-messageforums-tool</id>
@@ -23,244 +23,81 @@
         	<artifactId>sakai-messageforums-api</artifactId>
 			<version>${sakai.version}</version>			      
 	    </dependency>
-	    
-	    <dependency>
-        	<groupId>sakaiproject</groupId>
-	        <artifactId>sakai-messageforums-component-shared</artifactId>
-			<version>${sakai.version}</version>       
-	    </dependency>
-  
+
 	    <dependency>
     	    <groupId>sakaiproject</groupId>
-        	<artifactId>sakai-component</artifactId>
+        	<artifactId>sakai-messageforums-hbm</artifactId>
 			<version>${sakai.version}</version>			      
-	    </dependency>
-  
+	    </dependency>	      
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
+			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-	
-		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-impl</artifactId>
-			<version>1.1.01</version>
-		<properties>
-			<war.bundle>true</war.bundle>
-		</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>jsf</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>1.1.01</version>
-		<properties>
-			<war.bundle>true</war.bundle>
-		</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.0</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>jspapi</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0-20040521</version>
-		</dependency>
-
-		<dependency>
-			<groupId>servletapi</groupId>
-			<artifactId>servletapi</artifactId>
-			<version>2.4-20040521</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>jstl</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.0.2</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-		
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-tool</artifactId>
+			<artifactId>sakai-component-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>	
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>	
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-app</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-text</artifactId>
-			<version>${sakai.version}</version>
-			<!-- <properties>
-				<war.bundle>true</war.bundle>
-			</properties>--> 
-		</dependency> 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-        <dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-util</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-widgets</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-jsf-widgets-sun</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>  		  
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-registration</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>  		  
-
+			</properties> 
+		</dependency>  
 		<dependency> 
          	<groupId>sakaiproject</groupId> 
-         	<artifactId>sakai-gradebook-service</artifactId> 
+         	<artifactId>sakai-gradebook-service-api</artifactId> 
 	     	<version>${sakai.version}</version>            
  		</dependency> 
-
-<!--try for sakai tag and wysiwyg-->
-		<dependency>
-			<groupId>commons-digester</groupId>
-			<artifactId>commons-digester</artifactId>
-			<version>1.6</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-  	        <version>3.1</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.7.0</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-common-edu-person-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>1.0.4</version>
-        </dependency>
-
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.0.4</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>taglibs</groupId>
-			<artifactId>standard</artifactId>
-			<version>1.0.4</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>        
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-active-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-		 <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.0</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
-        </dependency>
-                <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-manager-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-          <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-edu-person-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-type-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-agent-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-superstructure-api</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-common-authorization-api</artifactId>
-            <version>${sakai.version}</version>
         </dependency>
 	</dependencies>
 	<build>

@@ -30,12 +30,12 @@
   String thisId = request.getParameter("panel");
   if (thisId == null) 
   {
-    thisId = "Main" + org.sakaiproject.api.kernel.tool.cover.ToolManager.getCurrentPlacement().getId();
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
 
 %>
 <script language="javascript">
-  setPanelId('<%= org.sakaiproject.util.web.Web.escapeJavascript(thisId)%>');
+  setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script> 
           <%@include file="privateMsg/pvtArea.jsp"%>
         </mf:forumHideDivision>

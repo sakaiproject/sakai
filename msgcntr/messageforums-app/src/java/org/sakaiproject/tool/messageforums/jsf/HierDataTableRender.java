@@ -27,7 +27,7 @@ import java.util.List;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
-import org.sakaiproject.api.kernel.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * @author cwen

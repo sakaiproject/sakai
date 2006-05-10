@@ -11,7 +11,6 @@ import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
-import org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>

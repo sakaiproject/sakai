@@ -25,12 +25,12 @@
   String thisId = request.getParameter("panel");
   if (thisId == null) 
   {
-    thisId = "Main" + org.sakaiproject.api.kernel.tool.cover.ToolManager.getCurrentPlacement().getId();
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   }
 
 %>
 <script language="javascript">
-  setPanelId('<%= org.sakaiproject.util.web.Web.escapeJavascript(thisId)%>');
+  setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script>   
 
   <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
