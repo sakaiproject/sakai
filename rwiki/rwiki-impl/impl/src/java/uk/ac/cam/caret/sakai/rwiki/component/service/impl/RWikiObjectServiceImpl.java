@@ -98,8 +98,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private RWikiHistoryObjectDao hdao;
 
-	
-
 	// dependancy
 	/**
 	 * Contains a map of handler beans injected
@@ -108,13 +106,12 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	public String createTemplatePageName = "default_template";
 
-	
 	private RWikiSecurityService wikiSecurityService;
 
 	private RenderService renderService;
 
 	private PreferenceService preferenceService;
-	
+
 	private EntityManager entityManager;
 
 	private NotificationService notificationService;
@@ -140,22 +137,26 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		log.debug("init start");
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
-		.getInstance();
-		entityManager = (EntityManager) load(cm, EntityManager.class
-		.getName());
-		notificationService = ( NotificationService) load(cm, NotificationService.class.getName());
-		sessionManager = (SessionManager) load(cm,SessionManager.class.getName());
-		eventTrackingService = ( EventTrackingService) load(cm,EventTrackingService.class.getName());
-		siteService = (SiteService) load(cm,SiteService.class.getName());
-		threadLocalManager = ( ThreadLocalManager) load(cm,ThreadLocalManager.class.getName());
-		timeService = (TimeService) load(cm,TimeService.class.getName());
-		digestService = (DigestService) load(cm,DigestService.class.getName());
-		securityService = (SecurityService) load(cm,SecurityService.class.getName());
-		wikiSecurityService = ( RWikiSecurityService) load(cm,RWikiSecurityService.class.getName());
-		renderService = (RenderService) load(cm,RenderService.class.getName());
-		preferenceService = ( PreferenceService) load(cm,PreferenceService.class.getName());
-
-		
+				.getInstance();
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+		notificationService = (NotificationService) load(cm,
+				NotificationService.class.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class
+				.getName());
+		eventTrackingService = (EventTrackingService) load(cm,
+				EventTrackingService.class.getName());
+		siteService = (SiteService) load(cm, SiteService.class.getName());
+		threadLocalManager = (ThreadLocalManager) load(cm,
+				ThreadLocalManager.class.getName());
+		timeService = (TimeService) load(cm, TimeService.class.getName());
+		digestService = (DigestService) load(cm, DigestService.class.getName());
+		securityService = (SecurityService) load(cm, SecurityService.class
+				.getName());
+		wikiSecurityService = (RWikiSecurityService) load(cm,
+				RWikiSecurityService.class.getName());
+		renderService = (RenderService) load(cm, RenderService.class.getName());
+		preferenceService = (PreferenceService) load(cm,
+				PreferenceService.class.getName());
 
 		entityManager.registerEntityProducer(this,
 				RWikiObjectService.REFERENCE_ROOT);
@@ -177,9 +178,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			// set the action
 			edit.setAction(new SiteEmailNotificationRWiki(this,
 					this.renderService, this.preferenceService,
-					 this.siteService,  this.securityService, 
-					 this.entityManager,  this.threadLocalManager,
-					 this.timeService,  this.digestService));
+					this.siteService, this.securityService, this.entityManager,
+					this.threadLocalManager, this.timeService,
+					this.digestService));
 		}
 
 		log.debug("init end");
@@ -195,7 +196,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 		}
 		return o;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -335,8 +336,6 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		this.hdao = hdao;
 	}
-
-
 
 	public void update(String name, String realm, Date version, String content,
 			RWikiPermissions permissions) throws PermissionException,
@@ -822,8 +821,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					.checkAdminPermission(RWikiObjectService.REFERENCE_ROOT
 							+ defaultRealm);
 			// start with an element with our very own name
-			Element element = doc
-					.createElement(APPLICATION_ID);
+			Element element = doc.createElement(APPLICATION_ID);
 			((Element) stack.peek()).appendChild(element);
 			stack.push(element);
 
@@ -1078,10 +1076,17 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 * {@inheritDoc} Only the current version of a page is imported, history is
 	 * left behind.
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List ids)
+	public void transferCopyEntities(String fromContext, String toContext,
+			List ids)
 	{
+		log.debug("==================Doing WIki transfer");
 		// TODO Will check admin on each rwiki object
-		if (fromContext.equals(toContext)) return;
+		if (fromContext.equals(toContext))
+		{
+			log
+					.debug("===================Source and Target Context are identical, transfer ignored");
+			return;
+		}
 		if (!fromContext.endsWith("/"))
 		{
 			fromContext = fromContext + "/";
@@ -1091,7 +1096,19 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			toContext = toContext + "/";
 		}
 
+		if (!fromContext.startsWith("/"))
+		{
+			fromContext = "/site/" + fromContext;
+		}
+		if (!toContext.startsWith("/"))
+		{
+			toContext = "/site/" + toContext;
+		}
+
+		log.debug("=================Locating Pages in from Content of "
+				+ fromContext);
 		List pages = findRWikiSubPages(fromContext);
+		log.debug("=================Found " + pages.size() + " Pages");
 
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
@@ -1117,6 +1134,8 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 			if (transfer)
 			{
 				String pageName = rwo.getName();
+				log.debug("================Transfering page " + pageName
+						+ " from " + rwo.getRealm() + " to " + toContext);
 				// relocate the page name
 				pageName = NameHelper.localizeName(pageName, NameHelper
 						.localizeSpace(pageName, rwo.getRealm()));
@@ -1125,20 +1144,41 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 				{
 					// create a brand new page containing the content,
 					// this does not copy prior versions
+					RWikiCurrentObject transferPage = null;
 
-					// TODO: All pages will be transfered with the name of the
-					// user who
-					// is performing the transfer. They MUST have read on the
-					// orriginal pages.
+					if (exists(pageName, toContext))
+					{
+						transferPage = getRWikiObject(pageName, toContext);
+						update(pageName, toContext, transferPage.getVersion(),
+								rwo.getContent(), rwo.getPermissions());
+					}
+					else
+					{
+						String user = sessionManager.getCurrentSessionUserId();
+						String permissionsReference = wikiSecurityService
+								.createPermissionsReference(toContext);
 
-					update(pageName, fromContext, new Date(), rwo.getContent(),
-							rwo.getPermissions());
+						if (!wikiSecurityService
+								.checkCreatePermission(permissionsReference))
+						{
+							throw new CreatePermissionException("User: " + user
+									+ " cannot create pages in realm: "
+									+ pageName);
+						}
+						update(pageName, toContext, new Date(), rwo
+								.getContent(), rwo.getPermissions());
+					}
+
 				}
 				catch (Throwable t)
 				{
-					log.error("Failed to import " + pageName + " from "
-							+ fromContext + " to " + toContext);
+					log.error("================Failed to import " + pageName
+							+ " from " + fromContext + " to " + toContext);
 				}
+			}
+			else
+			{
+				log.debug("=============Ignoring transfer of " + rwo.getName());
 			}
 		}
 
@@ -1277,7 +1317,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					log.warn("Error getting wiki page via access :"
 							+ ref.getReference());
 					log.debug("Stack trace was ", t);
-					throw new RuntimeException(ref.getReference(),t);
+					throw new RuntimeException(ref.getReference(), t);
 				}
 			}
 		};
@@ -1412,7 +1452,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	 */
 	private void disableWiki(String context)
 	{
-		
+
 		// ? we are not going to delete the content, so do nothing TODO
 	}
 
@@ -1424,7 +1464,7 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	private void enableWiki(String context)
 	{
 		// we could perform pre-populate at this stage
-		
+
 	}
 
 	/**
@@ -1483,7 +1523,5 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	{
 		return new ComponentPageLinkRenderImpl(pageSpace);
 	}
-
-
 
 }
