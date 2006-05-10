@@ -40,7 +40,7 @@ should be included in file importing DeliveryMessages
   <h:dataTable value="#{question.mediaArray}" var="media" cellpadding="10">
     <h:column>
       <h:outputText escape="false" value="
-         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" 
+         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" type=\"audio/basic\"
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
       <f:verbatim><br /></f:verbatim>
@@ -79,14 +79,14 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = "enableRecord" VALUE="true">
   <PARAM NAME = "enablePause" VALUE="true">
   <PARAM NAME = "enableLoad" VALUE="false">
-  <PARAM NAME = "saveAu" VALUE="true">
-  <PARAM NAME = "saveWave" VALUE="false">
+  <PARAM NAME = "saveAu" VALUE="false">
+  <PARAM NAME = "saveWave" VALUE="true">
   <PARAM NAME = "saveAiff" VALUE="false">
   <PARAM NAME = "saveToFile" VALUE="false">
   <PARAM NAME = "saveToUrl" VALUE="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>">
   <PARAM NAME = "fileName" VALUE="audio">
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>">
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
   <PARAM NAME = "frequency" VALUE="44100">
   <PARAM NAME = "bits" VALUE="16">
@@ -117,14 +117,14 @@ should be included in file importing DeliveryMessages
       enableRecord ="true" \
       enablePause ="true" \
       enableLoad ="false" \
-      saveAu ="true" \
-      saveWave ="false" \
+      saveAu ="false" \
+      saveWave ="true" \
       saveAiff ="false" \
       saveToFile ="false" \
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
       fileName ="audio" \
       url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}.au" /><f:verbatim>" \
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.id}/audio_#{delivery.timeStamp}" /><f:verbatim>" \
       compression ="linear" \
       frequency ="44100" \
       bits ="16" \

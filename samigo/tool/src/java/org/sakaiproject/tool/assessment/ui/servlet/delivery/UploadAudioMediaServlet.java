@@ -97,7 +97,11 @@ public class UploadAudioMediaServlet extends HttpServlet
     System.out.println("req content type ="+req.getContentType());
 
     // we get media location in assessmentXXX/questionXXX/agentId/audio.au form
-    String mediaLocation = req.getParameter("media");
+    String suffix = req.getParameter("suffix");
+    if (suffix == null || ("").equals(suffix))
+      suffix = "au";
+    String mediaLocation = req.getParameter("media")+"."+suffix;
+
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {

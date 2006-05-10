@@ -423,13 +423,15 @@ public class AudioRecorder extends JPanel implements ActionListener,
       return;
     }
 
+    String suffix = getAudioSuffix();
+
     URL url;
     URLConnection urlConn;
     try
     {
       // URL of audio processing servlet
       // note for applet security, this must be on same host
-      urlString += "&lastDuration="+duration;
+      urlString += "&lastDuration="+duration+"&suffix="+suffix;
       url = new URL(urlString);
       urlConn = url.openConnection();
       urlConn.setDoInput(true);
@@ -443,7 +445,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       OutputStream outputStream = urlConn.getOutputStream();
 
       try{
-        audioInputStream.reset();
+	  //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
         int c = AudioSystem.write(audioInputStream, audioType, outputStream);
         if (c <= 0){
           throw new IOException(res.getString("Problems_writing_to"));
@@ -978,8 +980,26 @@ public class AudioRecorder extends JPanel implements ActionListener,
     return panel;
   }
 
+  private String getAudioSuffix(){
+    String suffix = "au";
+    if (params.isSaveWave())
+      suffix ="wav";
+    if (params.isSaveAiff())
+      suffix ="aif";
+    return suffix;
+  }
+
+  private AudioFileFormat.Type getAudioType(){
+    AudioFileFormat.Type type =AudioFileFormat.Type.AU;
+    if (params.isSaveWave())
+      type = AudioFileFormat.Type.WAVE;
+    if (params.isSaveAiff())
+      type = AudioFileFormat.Type.AIFF;
+    return type;
+  }
+
   private void saveMedia(){
-    AudioFileFormat.Type type = AudioFileFormat.Type.AU;
+    AudioFileFormat.Type type = getAudioType();
 
     int attempts = params.getAttemptsRemaining();
 
