@@ -187,8 +187,9 @@ public class PersistenceService{
 
 
       public int retryDeadlock(Exception e, int retryCount){
-        log.warn("calling retryDeadlock() ....");
+        log.warn("Error saving to db...retry again....");
         String errorMessage = e.getMessage();
+        log.warn(errorMessage);
         int index = errorMessage.indexOf("ORA-00060"); // deadlock
         int index2 = errorMessage.indexOf("SQL state [61000]"); // oracle deadlock
         int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock

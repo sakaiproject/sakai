@@ -210,11 +210,13 @@ public class QuestionScoreListener
       ArrayList scores = new ArrayList();  // filtered list
       Map useridMap= totalBean.getUserIdMap();
 
+/*
     if ("true".equalsIgnoreCase(totalBean.getAnonymous())){
     // skip section filter if it is anonymous grading, SAK-4395, 
       scores.addAll(allscores);
     }
-    else if (totalBean.getReleaseToAnonymous()) {
+*/
+    if (totalBean.getReleaseToAnonymous()) {
     // skip section filter if it's published to anonymous users
       scores.addAll(allscores);
     }

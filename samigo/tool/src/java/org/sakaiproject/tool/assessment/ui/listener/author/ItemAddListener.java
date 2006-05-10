@@ -139,7 +139,7 @@ public class ItemAddListener
 	ItemBean item =itemauthorbean.getCurrentItem();
         boolean correct=false;
         int countAnswerText=0;
-        String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+        //String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 	int indexLabel= 0;
 	//   List label = new List();
 	Iterator iter = item.getMultipleChoiceAnswers().iterator();
@@ -182,13 +182,13 @@ public class ItemAddListener
                      
 			}
 	      
-			if(!label.equals(choiceLabels[indexLabel])){
+			if(!label.equals(AnswerBean.choiceLabels[indexLabel])){
 		
 			    missingchoices= true;
 			    if( missingLabel.equals(""))
-				missingLabel=missingLabel+" "+choiceLabels[indexLabel];
+				missingLabel=missingLabel+" "+AnswerBean.choiceLabels[indexLabel];
 			    else
-				missingLabel=missingLabel+", "+choiceLabels[indexLabel];           
+				missingLabel=missingLabel+", "+AnswerBean.choiceLabels[indexLabel];           
 			    indexLabel++;
 			}
 			indexLabel++;

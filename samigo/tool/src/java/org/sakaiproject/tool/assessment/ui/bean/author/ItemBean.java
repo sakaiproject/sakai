@@ -937,6 +937,8 @@ public class ItemBean
 	}
 
   }
+/*  
+//  this doesn't seem to be used
   public void addChoices(ValueChangeEvent event) {
         // build a default list of 4 choices, a, b, c, d,
 	FacesContext context = FacesContext.getCurrentInstance();
@@ -960,6 +962,7 @@ public class ItemBean
 
 
   }
+*/
 
   public String addChoicesAction() {
         // build a default list of 4 choices, a, b, c, d,

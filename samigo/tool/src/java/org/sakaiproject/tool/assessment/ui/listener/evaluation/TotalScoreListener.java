@@ -222,7 +222,6 @@ public class TotalScoreListener
       bean.setSelectedSectionFilterValue(bean.ALL_SECTIONS_SELECT_VALUE);
     }
 
-
       Map useridMap= bean.getUserIdMap(); 
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);
@@ -378,10 +377,12 @@ public class TotalScoreListener
     // skip section filter if it's published to anonymous users
       scores.addAll(allscores);
     }
+/*
     else if ("true".equalsIgnoreCase(bean.getAnonymous())){
     // skip section filter if it's anonymous grading, SAK-4395 
       scores.addAll(allscores);
     }
+*/
     else {
       // now we need filter by sections selected 
       ArrayList students_submitted= new ArrayList();  // arraylist of students submitted test

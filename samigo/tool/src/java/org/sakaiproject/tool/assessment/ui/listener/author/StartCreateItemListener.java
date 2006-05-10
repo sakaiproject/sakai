@@ -85,9 +85,11 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
     if (curritem!=null) {
       curritemid = curritem.getItemId();
       update = true;
+
+      log.debug("change question type , itemid  (not null) = " + curritemid);
     }
     else {
-      log.debug("Not from modify , itemid  (should be null) = " + curritemid);
+      log.debug("didn't change question type, itemid  (should be null) = " + curritemid);
     }
 
     if (!startCreateItem(itemauthorbean))
@@ -131,9 +133,6 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
    ItemBean item = new ItemBean();
    try{
     // check to see if we arrived here from question pool
-
-// need to get assessmentid
-//  String assessmentId = ContextUtil.lookupParam("assessmentid");
 
 // need to set indivdiual item properties
       itemauthorbean.setCurrentItem(item);
