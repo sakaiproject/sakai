@@ -826,16 +826,16 @@ public class MailboxAction extends PagedResourceActionII
 		{
 			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
 
-			MessageEdit edit = channel.editMessage((String) state.getAttribute(STATE_MSG_VIEW_ID));
-			channel.removeMessage(edit);
+			String msgId = (String) state.getAttribute(STATE_MSG_VIEW_ID);
+			
+			if (msgId != null)
+				channel.removeMessage(msgId);
+			else
+				addAlert(state, rb.getString("thimeshas"));
 		}
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youdonot3"));
-		}
-		catch (InUseException e)
-		{
-			addAlert(state, rb.getString("somoneels"));
 		}
 		catch (IdUnusedException e)
 		{
