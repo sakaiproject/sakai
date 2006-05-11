@@ -39,6 +39,8 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.create_modify_p}" /></title>
+      <!-- AUTHORING -->
+      <samigo:script path="/js/authoring.js"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -49,7 +51,7 @@
 
 <h3>
      <h:outputText value="#{msg.create_modify_p} #{msg.dash} #{sectionBean.assessmentTitle}" /></h3>
-<h:form id="modifyPartForm">
+<h:form id="modifyPartForm"  onsubmit="return editorCheck();">
 <h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
   <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>

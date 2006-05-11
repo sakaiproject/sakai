@@ -47,6 +47,9 @@
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
+      <!-- AUTHORING -->
+      <samigo:script path="/js/authoring.js"/>
+
 
 <script language="javascript" style="text/JavaScript">
 <!--
@@ -204,7 +207,7 @@ function uncheckOther(field){
 <div class="portletBody">
 
 <!-- content... -->
-<h:form id="assessmentSettingsAction">
+<h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
 
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
 
