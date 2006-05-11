@@ -230,12 +230,12 @@ public class SearchServiceImpl implements SearchService
 					new StandardAnalyzer());
 			query.add(contextQuery, true, false);
 			query.add(textQuery, true, false);
-			log.info("Query is " + query.toString());
+			log.debug("Query is " + query.toString());
 			IndexSearcher indexSearcher = getIndexSearcher(false);
 			if (indexSearcher != null)
 			{
 				Hits h = indexSearcher.search(query);
-				log.info("Got " + h.length() + " hits");
+				log.debug("Got " + h.length() + " hits");
 
 				return new SearchListImpl(h, textQuery, start, end);
 			}
@@ -261,7 +261,7 @@ public class SearchServiceImpl implements SearchService
 	 */
 	public void reload()
 	{
-		log.info("Reload");
+		log.debug("Reload");
 		getIndexSearcher(true);
 
 	}

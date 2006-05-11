@@ -136,11 +136,8 @@ public class MessageContentProducer implements EntityContentProducer
 	 */
 	public String getContent(Entity cr)
 	{
-		log.info(" Getting content " + cr);
 		Reference ref = entityManager.newReference(cr.getReference());
-		log.info(" Got reference " + ref);
 		EntityProducer ep = ref.getEntityProducer();
-		log.info(" Got ep " + ep);
 
 		if (ep instanceof MessageService)
 		{
@@ -155,7 +152,6 @@ public class MessageContentProducer implements EntityContentProducer
 						.append("\n");
 				sb.append("Message Body\n");
 				sb.append(m.getBody()).append("\n");
-				log.info("Index Content is " + sb.toString());
 				return sb.toString();
 			}
 			catch (IdUnusedException e)
@@ -266,12 +262,7 @@ public class MessageContentProducer implements EntityContentProducer
 			String match = (String) i.next();
 			if (evt.equals(match))
 			{
-				log.info(" event is add " + evt);
 				return SearchBuilderItem.ACTION_ADD;
-			}
-			else
-			{
-				log.info(" no match " + evt + ":" + match);
 			}
 		}
 		for (Iterator i = removeEvents.iterator(); i.hasNext();)
@@ -279,15 +270,9 @@ public class MessageContentProducer implements EntityContentProducer
 			String match = (String) i.next();
 			if (evt.equals(match))
 			{
-				log.info(" event is delete " + evt);
 				return SearchBuilderItem.ACTION_DELETE;
 			}
-			else
-			{
-				log.info(" no match " + evt + ":" + match);
-			}
 		}
-		log.info(" event is unknown ");
 		return SearchBuilderItem.ACTION_UNKNOWN;
 	}
 
@@ -402,7 +387,6 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				
 				MessageChannel c = messageService.getChannel(chanellId);
-				log.info("Got chanelID "+chanellId);
 
 				List messages = c.getMessages(null, true);
 				// WARNING: I think the implementation caches on thread, if this
