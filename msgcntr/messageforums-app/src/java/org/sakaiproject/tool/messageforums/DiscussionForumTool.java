@@ -1956,7 +1956,10 @@ public class DiscussionForumTool
 
   public String processDfMsgReplyMsg()
   {
-  	this.composeTitle = "Re: " + selectedMessage.getMessage().getTitle() + " "; 
+    if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith("Re: "))
+	  this.composeTitle = "Re: " + selectedMessage.getMessage().getTitle() + " ";
+    else
+      this.composeTitle = selectedMessage.getMessage().getTitle();
   	
     return "dfMessageReply";
   }
