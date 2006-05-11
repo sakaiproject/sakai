@@ -31,6 +31,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface ActiveTool extends Tool
 {
+	/** A tool session attribute where the placement's current destination (URL path) is stored. */
+	final static String TOOL_ATTR_CURRENT_DESTINATION = "sakai:tool:current_destination";
+
 	/**
 	 * Invoke the tool to handle the complete request
 	 * 
