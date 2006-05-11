@@ -33,6 +33,9 @@ import javax.faces.render.Renderer;
 
 import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.content.cover.ContentHostingService;
+
 
 public class RichTextAreaRenderer extends Renderer
 {
@@ -330,6 +333,11 @@ public class RichTextAreaRenderer extends Renderer
         }
         else
         {
+                String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+
+                //is there a slicker way to get this? 
+                String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+
         	writer.write("<table border=\"0\"><tr><td>");
         	writer.write("<textarea name=\"" + textareaId + "\" id=\"" + textareaId + "\"");
         	if (columns > 0) writer.write(" cols=\""+columns+"\"");
@@ -345,7 +353,30 @@ public class RichTextAreaRenderer extends Renderer
         	writer.write("oFCKeditor.BasePath = \"/library/editor/FCKeditor/\";\n");
         	writer.write("oFCKeditor.Width  = \"600\" ;\n");
         	writer.write("oFCKeditor.Height = \"400\" ;\n");
-        	writer.write("oFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+
+                if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
+                     writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
+                else {
+ 
+                     writer.write("\n\t\tvar courseId = \"" + collectionId  + "\";");
+                     writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " +
+                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+                     writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " +
+                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+                     writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +
+                          "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+                     writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +
+                          "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+                     writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +
+                          "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+                     writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +
+                          "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+
+                     writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+
+        	     writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+                }
+
         	writer.write("oFCKeditor.ReplaceTextarea() ;}\n");
         	writer.write("</script>\n");
         	writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('"+textareaId+"');</script>");
