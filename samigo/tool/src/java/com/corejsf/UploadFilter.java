@@ -47,7 +47,7 @@ import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class UploadFilter implements Filter {
   private static Log log = LogFactory.getLog(UploadFilter.class);
@@ -55,24 +55,36 @@ public class UploadFilter implements Filter {
    private int sizeThreshold = -1;
    private long sizeMax = -1;
    private String repositoryPath;
-    private String saveMediaToDb = "false";
+   private String saveMediaToDb = "false";
 
    public void init(FilterConfig config) throws ServletException {
-      repositoryPath = config.getInitParameter(
-         "com.corejsf.UploadFilter.repositoryPath");
+       repositoryPath = ServerConfigurationService.getString(
+	 "samigo.answerUploadRepositoryPath", config.getInitParameter(
+         "com.corejsf.UploadFilter.repositoryPath"));
+
       try {
-         String paramValue = config.getInitParameter(
-            "com.corejsf.UploadFilter.sizeThreshold");
+         String paramValue = ServerConfigurationService.getString(
+            "samigo.sizeThreshold", config.getInitParameter(
+            "com.corejsf.UploadFilter.sizeThreshold"));
          if (paramValue != null)
             sizeThreshold = Integer.parseInt(paramValue);
-         paramValue = config.getInitParameter(
-            "com.corejsf.UploadFilter.sizeMax");
+
+         paramValue = ServerConfigurationService.getString(
+            "samigo.sizeMax", config.getInitParameter(
+            "com.corejsf.UploadFilter.sizeMax"));
          if (paramValue != null)
             sizeMax = Long.parseLong(paramValue);
-         paramValue = config.getInitParameter(
-            "com.corejsf.UploadFilter.saveMediaToDb");
+
+         paramValue = ServerConfigurationService.getString(
+            "samigo.saveMediaToDb", config.getInitParameter(
+            "com.corejsf.UploadFilter.saveMediaToDb"));
          if (paramValue != null)
             saveMediaToDb = paramValue;
+
+	 //System.out.println("**** repositoryPath="+repositoryPath);
+	 //System.out.println("**** sabeMediaToDb="+saveMediaToDb);
+	 //System.out.println("**** sizeThreshold="+sizeThreshold);
+	 //System.out.println("**** sizeMax="+sizeMax);
       }
       catch (NumberFormatException ex) {
          ServletException servletEx = new ServletException();
