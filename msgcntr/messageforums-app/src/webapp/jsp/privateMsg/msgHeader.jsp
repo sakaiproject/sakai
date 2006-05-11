@@ -45,7 +45,7 @@
           			<h:commandButton value="#{msgs.pvt_search}" action="#{PrivateMessagesTool.processSearch}" onkeypress="document.forms[0].submit;"/>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 								
 								<div id='adv_button' class="rightAlign">
-								<h:commandLink value="Advance Search" onmousedown="javascript:toggleDisplay('adv_input','adv_button');" />
+								<h:commandLink value="Advanced Search" onmousedown="javascript:toggleDisplay('adv_input','adv_button');" />
           			</div>
           			<div style="display: none;" id='adv_input'>
           				<h:commandLink value="Clear Search" action="#{PrivateMessagesTool.processClearSearch}" onkeypress="document.forms[0].submit;"/>
