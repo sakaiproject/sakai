@@ -19,10 +19,11 @@
 	
 	#set ($SiteColumnFlag = 0)
 	#foreach ($item in $showMessagesList2)
-		#set ($itemChannel = $validator.escapeHtml($item.channelDisplayName))
-			#if (!$currentChannelDisplayName.equals($itemChannel))
-				#set ($SiteColumnFlag = $SiteColumnFlag + 1)
-			#end
+	#set ($ref = $entityManager.newReference($item.Reference))
+	#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
+	#if (!$origChannelRef.equals($channel.Reference))
+		#set ($SiteColumnFlag = $SiteColumnFlag + 1)
+	#end
 	#end
 	
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
@@ -496,10 +497,12 @@
 										$ann_item.Header.Date.toStringLocalFull()
 									</td>
 									
-									#set ($itemChannel = $validator.escapeHtml($ann_item.channelDisplayName))
+									#set ($ref = $entityManager.newReference($ann_item.Reference))
+									#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
+
 									#if ($!view != $!tlang.getString('view.bygroup'))
 										#if ($channel.allowRemoveMessage($ann_item.Message))
-											#if ($currentChannelDisplayName.equals($itemChannel))
+											#if ($origChannelRef.equals($channel.Reference))
 											<td headers="checkbox" class="screenOnly">
 												<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove")</label>
 												<input title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" />
@@ -507,7 +510,7 @@
 											#end
 										#else
 									 		#if ($allow_delete)
-												#if ($currentChannelDisplayName.equals($itemChannel))
+												#if ($origChannelRef.equals($channel.Reference))
 												<td valign="top" headers="checkbox" class="screenOnly">
 													<label for ="check-$rowCount" class="skip">$tlang.getString("gen.selectremove")</label>
 													<input title="$tlang.getString("gen.selectremove")" type="checkbox" id="check-$rowCount" name="selectedMembers" value="$ann_item.Reference" disabled="disabled"/>

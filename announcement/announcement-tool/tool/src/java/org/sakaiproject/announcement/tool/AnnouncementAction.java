@@ -1013,12 +1013,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			} // if allowGetMessages()
 		}
 
-		String currentChannelDisplayName = "";
-		if (site != null)
-		{
-			currentChannelDisplayName = site.getTitle();
-		}
-		context.put("currentChannelDisplayName", currentChannelDisplayName);
+		context.put ("service", AnnouncementService.getInstance());
+		context.put ("entityManager", EntityManager.getInstance());
+		
 		// ********* for site column display ********
 
 		context.put("isOnWorkspaceTab", (isOnWorkspaceTab() ? "true" : "false"));
