@@ -228,8 +228,6 @@ public class PresenceTool extends HttpServlet
 	 */
 	protected void sendPresence(PrintWriter out, List users, List chatUsers)
 	{
-		String chatIcon = ServerConfigurationService.getString("presence.inchat.icon", null);
-
 		out.println("<ul class=\"presenceList\">");
 		if (users == null)
 		{
@@ -238,6 +236,23 @@ public class PresenceTool extends HttpServlet
 			return;
 		}
 
+		// Loop through twice - output the users in chat first followed by the users
+		// not in chat 
+
+		// Chat users
+		if ( chatUsers != null ) {
+			for (Iterator i = chatUsers.iterator(); i.hasNext();)
+			{
+				User u = (User) i.next();
+				String msg = rb.getString("inchat");
+				out.print("<li class=\"inChat\">");
+				out.print("<span title=\"" + msg + "\">");
+				out.print(Web.escapeHtml(u.getDisplayName()));
+				out.println("</span></li>");
+			}
+		}
+
+		// Non-chat users
 		for (Iterator i = users.iterator(); i.hasNext();)
 		{
 			User u = (User) i.next();
@@ -255,24 +270,12 @@ public class PresenceTool extends HttpServlet
 				}
 			}
 
-			if (inChat)
-			{
-				String msg = rb.getString("inchat");
-				out.print("<li class=\"inChat\">");
-				out.print("<span title=\"" + msg + "\">");
-				out.print(Web.escapeHtml(u.getDisplayName()));
-				if (chatIcon != null)
-				{
-					// out.print(" <img height=10px width=10px src=\""+chatIcon+"\">");
-				}
-			}
-			else
-			{
-				String msg = rb.getString("insite");
-				out.print("<li>");
-				out.print("<span title=\"" + msg + "\">");
-				out.print(Web.escapeHtml(u.getDisplayName()));
-			}
+			if ( inChat ) continue;  // Already printed out
+
+			String msg = rb.getString("insite");
+			out.print("<li>");
+			out.print("<span title=\"" + msg + "\">");
+			out.print(Web.escapeHtml(u.getDisplayName()));
 			out.println("</span></li>");
 		}
 
