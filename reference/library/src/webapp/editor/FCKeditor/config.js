@@ -52,18 +52,17 @@ FCKConfig.FormatOutput		= true ;
 FCKConfig.FormatIndentator	= '    ' ;
 
 FCKConfig.ToolbarSets["Default"] = [
-    ['Source','-','Preview'],
-    ['Cut','Copy','Paste','PasteText','PasteWord','-','SpellCheck'],
-    ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-    ['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
-    ['OrderedList','UnorderedList','-','Outdent','Indent'],
-    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
-    ['Link','Unlink','Anchor'],
-    ['SpecialChar'], ['Style'], 
-    '/',
-    ['FontFormat','FontName','FontSize'],
-    ['TextColor','BGColor'],
-    ['About']
+        ['Source','DocProps','-','Templates'],
+        ['Cut','Copy','Paste','PasteText','PasteWord','-','SelectAll','RemoveFormat','-','SpellCheck'],
+        ['Undo','Redo','-','Find','Replace'],
+        ['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
+        ['OrderedList','UnorderedList','-','Outdent','Indent'],
+        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+        ['Link','Unlink','Anchor'],
+        ['TextColor','BGColor'],
+        ['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
+        ['FontFormat','FontName','FontSize'],
+        ['About']
 ] ;
 
 FCKConfig.ToolbarSets["Basic"] = [
@@ -86,19 +85,19 @@ FCKConfig.MaxUndoLevels = 15 ;
 FCKConfig.DisableImageHandles = true ;
 FCKConfig.DisableTableHandles = true ;
 
-FCKConfig.LinkDlgHideTarget		= false ;
+FCKConfig.LinkDlgHideTarget	= false ;
 FCKConfig.LinkDlgHideAdvanced	= false ;
 
-FCKConfig.ImageDlgHideLink		= false ;
+FCKConfig.ImageDlgHideLink	= true ;
 FCKConfig.ImageDlgHideAdvanced	= false ;
 
 FCKConfig.FlashDlgHideAdvanced	= false ;
 
-FCKConfig.LinkBrowser = false ;
+FCKConfig.LinkBrowser = true ;
 
-FCKConfig.ImageBrowser = false ;
+FCKConfig.ImageBrowser = true ;
 
-FCKConfig.FlashBrowser = false ;
+FCKConfig.FlashBrowser = true ;
 
 FCKConfig.LinkUpload = false ;
 
