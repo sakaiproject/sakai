@@ -52,7 +52,7 @@
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
     </head>
     <jsp:element name="body">
-      <jsp:attribute name="onload"><jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression>parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
+      <jsp:attribute name="onload">setMainFrameHeightNoScroll('<jsp:expression>request.getAttribute("sakai.tool.placement.id")</jsp:expression>');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
       <jsp:directive.include file="header.jsp"/>
       <div id="rwiki_container">
       	<div class="portletBody">
@@ -81,6 +81,7 @@
 		<c:set var="rwikiContentStyle"  value="rwiki_content" />
 		<jsp:directive.include file="breadcrumb.jsp"/>
 	  <!-- Creates the right hand sidebar -->
+	  <jsp:directive.include file="sidebar-switcher.jsp"/>
 	  <jsp:directive.include file="sidebar.jsp"/>
 	  <!-- Main page -->
 	  <div id="${rwikiContentStyle}" >

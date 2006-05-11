@@ -19,6 +19,8 @@
  *
  **********************************************************************************/
 #rwiki_container {
+  overflow: hidden;
+  height: 100%;
   width: 100%;
 }
 
@@ -65,7 +67,19 @@ a.anchorpoint {
   width: 100%;
 }
 
+#sidebar_switch_on { display: none;}
+#sidebar_switcher {
+	float: right;
+	width: 190px;
+	\width: 200px;
+	w\idth: 190px;
+	margin: 0;
+	margin-left: 5px;
+	padding: 10px 5px 5px 0px;
+}
+
 #rwiki_sidebar {
+	clear: right;
 	float: right;
 	width: 190px;
 	\width: 200px;

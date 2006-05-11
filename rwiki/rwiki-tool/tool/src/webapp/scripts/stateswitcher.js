@@ -452,6 +452,7 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		
 		var scrollH = document.body.scrollHeight;
 		var offsetH = document.body.offsetHeight;
+		var docElOffsetH = document.documentElement.offsetHeight;
 		var clientH = document.body.clientHeight;
 		var innerDocScrollH = null;
 
@@ -474,7 +475,11 @@ function setMainFrameHeightNoScroll(id, shouldScroll) {
 		else
 		{
 			// every other browser!
-			height = offsetH;
+			if (docElOffsetH > offsetH) {
+			  height = docElOffsetH;
+			} else {
+			  height = offsetH;
+			}
 		}
 
 		// here we fudge to get a little bigger
@@ -538,4 +543,17 @@ function getAnchorPosition( anchorName){
 appendLoader(autoInit_trees);
 
 
-
+function hideSidebar(id) {
+  document.getElementById('rwiki_sidebar').style.display='none';
+  document.getElementById('rwiki_content').className = 'nosidebar';
+  document.getElementById('sidebar_switch_on').style.display='block';
+  document.getElementById('sidebar_switch_off').style.display='none';
+  setMainFrameHeightNoScroll(id, false);
+}
+function showSidebar(id) {
+  document.getElementById('rwiki_sidebar').style.display='block';
+  document.getElementById('rwiki_content').className = '';
+  document.getElementById('sidebar_switch_on').style.display='none';
+  document.getElementById('sidebar_switch_off').style.display='block';
+  setMainFrameHeightNoScroll(id, false);
+}
