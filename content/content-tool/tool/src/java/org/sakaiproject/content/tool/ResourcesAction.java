@@ -1234,6 +1234,13 @@ public class ResourcesAction
 		}
 		context.put("numberOfItems", numberOfItems);
 		context.put("max_number", new Integer(1));
+		
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		// TODO: does this method filter groups for this subcollection??
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+		}
 
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
@@ -1257,19 +1264,16 @@ public class ResourcesAction
 				}
 				item.setCopyrightStatus(defaultCopyrightStatus);
 				new_items.add(item);
+				if(! groups.isEmpty())
+				{
+					context.put("theGroupsDefinedInThisSite" + i, groups.iterator());
+				}
 			}
 
 		}
 		context.put("new_items", new_items);
 		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 		
-		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-		if(! groups.isEmpty())
-		{
-			context.put("siteHasGroups", Boolean.TRUE.toString());
-			context.put("theGroupsDefinedInThisSite", groups.iterator());
-		}
-
 		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
@@ -2193,6 +2197,14 @@ public class ResourcesAction
 		context.put("REVISE", INTENT_REVISE_FILE);
 		context.put("REPLACE", INTENT_REPLACE_FILE);
 
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		// TODO: does this method filter groups for this subcollection??
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+			context.put("theGroupsDefinedInThisSite", groups.iterator());
+		}
+		
 		String show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
@@ -2293,13 +2305,6 @@ public class ResourcesAction
 			context.put("dropboxMode", Boolean.TRUE);
 		}
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
-
-		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-		if(! groups.isEmpty())
-		{
-			context.put("siteHasGroups", Boolean.TRUE.toString());
-			context.put("theGroupsDefinedInThisSite", groups.iterator());
-		}
 
 		// String template = (String) getContext(data).get("template");
 

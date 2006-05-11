@@ -808,7 +808,7 @@
 														#end
 													</th>
 												</tr>
-												#foreach ($group in $!theGroupsDefinedInThisSite)
+												#foreach ($group in $!{theGroupsDefinedInThisSite$i})
 													<tr>
 														<td headers="selected" style="padding-bottom:0;" style="width:2em">
 															#set($selected=false)
