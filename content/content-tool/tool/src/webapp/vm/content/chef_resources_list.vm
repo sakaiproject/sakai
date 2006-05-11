@@ -249,49 +249,60 @@
 						</h3>	
 					</td>
 					<td headers="actions" colspan="4">
+						#set($actionLinkString = " ")
 						######################  Add Action Links at Top Level  ##############
 						#if($root && ($root.canAddItem() || $root.canAddFolder()))
-							<div class="itemAction">
+							<div name="enabledActionLinks" class="itemAction">
 								#set ($itemsOnLine = 0)
 								####### deal with Pasting copied items 
 								#if($copyFlag && $copyFlag.equals($TRUE) && $root.canAddItem() && ! $root.isHighlighted())
 									#if ($itemsOnLine > 0)
 										|
+										#set($actionLinkString = "${actionLinkString} | ")
 									#end
 									#set ($itemsOnLine = $itemsOnLine + 1)
-									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')">$tlang.getString("list.paste1").trim()</a>
+									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();">$tlang.getString("list.paste1").trim()</a>
+									#set($actionLinkString = "${actionLinkString}$tlang.getString('list.paste1')")
 								#end
 								####### deal with Pasting moved items 
 								#if($moveFlag && $moveFlag.equals($TRUE) && $root.canAddItem() && ! $root.isHighlighted())
 									#if ($itemsOnLine > 0)
 										|
+										#set($actionLinkString = "${actionLinkString} | ")
 									#end
 									#set ($itemsOnLine = $itemsOnLine + 1)
-									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")">$tlang.getString("list.paste3").trim()</a>
+									<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+									#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 								#end
 								####### deal with editing/viewing file/folder information
 								##if ($atHome && !$atHome == $TRUE)
 									#if($root.canRevise())
 										#if ($itemsOnLine > 0)
 											|
+											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.edit')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.edit").trim()</a>
+										#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 									#elseif ($root.canRead())
 										#if ($itemsOnLine > 0)
 											|
+											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.props')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.props").trim()</a>
+										#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 									#end
 								##end
 								####### deal with adding item/folder
 								#if($root.canAddItem())
 									#if ($itemsOnLine > 0)
 										|
+										#set($actionLinkString = "$actionLinkString | ")
 									#end
 									#set ($itemsOnLine = $itemsOnLine + 1)
 									<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('list.add')">$tlang.getString("list.add").trim()</a>
+									#set($actionLinkString = "$actionLinkString$tlang.getString('list.add')")
 								#end
 								####### deal with site/folder permissions
 								#if($showPermissions && "$!inMyWorkspace" == "false")
@@ -299,11 +310,16 @@
 									#if ("$!atHome" != "$!TRUE")
 										#if ($itemsOnLine > 0)
 											|
+											#set($actionLinkString = "$actionLinkString | ")
 										#end
 										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${root.id})")" title="$tlang.getString('list.fPerm')">$tlang.getString("list.fPerm").trim()</a>
+										<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${root.id})")" title="$tlang.getString('list.fPerm')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.fPerm").trim()</a>
+										#set($actionLinkString = "$actionLinkString$tlang.getString('list.fPerm')")
 									#end
 								#end
+							</div>
+							<div name="disabledActionLinks" class="itemAction"  style="display:none">
+								$actionLinkString
 							</div>
 						#end
 						######################  End of Add Items/Folders at Top Level  ##############
@@ -480,55 +496,68 @@
 								</h$headerDepth>	
 							</td>
 							<td headers="actions">
-								<div class="itemAction">
+								#set($actionLinkString = " ")
+								<div name="enabledActionLinks" class="itemAction">
 									#if($member.isFolder())
 										#set ($itemsOnLine = 0)
 										####### deal with Pasting copied items  3
 										#if($copyFlag && $copyFlag.equals($TRUE) && $member.canAddItem() && ! $member.isHighlighted())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')">$tlang.getString("list.paste1").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 										#end
 										####### deal with Pasting moved items  3
 										#if($moveFlag && $moveFlag.equals($TRUE) && $member.canAddItem() && ! $member.isHighlighted())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")">$tlang.getString("list.paste3").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 										#end
 										####### deal with viewing/editing file/folder information
 										#if ($member.canRevise())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 										#elseif ($member.canRead())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 										#end
 										####### deal with folder permissions
 										#if($showPermissions && "$!inMyWorkspace" == "false")
 										##if($member.canUpdate() && "$!inMyWorkspace" == "false")
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${member.id})")" title="$tlang.getString('list.fPerm')">$tlang.getString("list.fPerm").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.fPerm')")
 										#end
 										####### deal with adding item/folder
 										#if($member.canAddItem())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${member.id})")" title="$tlang.getString('list.add')">$tlang.getString("list.add").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.add')")
 										#end
 									#else
 										#set ($itemsOnLine = 0)
@@ -536,21 +565,26 @@
 										#if ($member.canRevise())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 										#elseif ($member.canRead())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 										#end
 										#*
 										####### deal with copying item
 										#if ($paste_place_showing && $member.canRead())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											#if($member.id == $copiedItem)
@@ -558,6 +592,7 @@
 											#else
 												<a href="#toolLinkParam("ResourcesAction" "doCopyitem" "itemId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('list.copy')">$tlang.getString("list.copy").trim()</a>
 											#end
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.copy')")
 										#end
 										*#
 										#*
@@ -565,20 +600,27 @@
 										#if ($member.canDelete())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doDeleteconfirm" "from=list&selectedMembers=$validator.escapeUrl($member.id)")" title="$tlang.getString('list.del')">$tlang.getString("list.del").trim()</a>
-										#end								
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.del')")
+										#end
 										*#
 										####### deal with duplicating item
 										#if($member.canRead() && $member.canAddItem())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
+											<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.dup").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.dup')")
 										#end
 									#end
+								</div>
+								<div name="disabledActionLinks" class="itemAction"  style="display:none">
+									$actionLinkString
 								</div>
 							</td>
 							######################  Item/folder modification date  ##############
@@ -702,49 +744,60 @@
 								</h3>	
 							</td>
 							<td headers="actions" colspan="4">
+								#set($actionLinkString = " ")
 								######################  Add Action Links at Top Level  ##############
 								#if($root && ($root.canAddItem() || $root.canAddFolder()))
-									<div class="itemAction">
+									<div name="enabledActionLinks" class="itemAction">
 										#set ($itemsOnLine = 0)
 										####### deal with Pasting copied items 
 										#if($copyFlag && $copyFlag.equals($TRUE) && $root.canAddItem() && ! $root.isHighlighted())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')">$tlang.getString("list.paste1").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 										#end
 										####### deal with Pasting moved items 
 										#if($moveFlag && $moveFlag.equals($TRUE) && $root.canAddItem() && ! $root.isHighlighted())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")">$tlang.getString("list.paste3").trim()</a>
+											<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${root.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 										#end
 										####### deal with editing/viewing file/folder information
 										##if ($atHome && !$atHome == $TRUE)
 											#if($root.canRevise())
 												#if ($itemsOnLine > 0)
 													|
+													#set($actionLinkString = "$actionLinkString | ")
 												#end
 												#set ($itemsOnLine = $itemsOnLine + 1)
 												<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+												#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 											#elseif ($root.canRead())
 												#if ($itemsOnLine > 0)
 													|
+													#set($actionLinkString = "$actionLinkString | ")
 												#end
 												#set ($itemsOnLine = $itemsOnLine + 1)
 												<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($root.id)&collectionId=$validator.escapeUrl($root.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+												#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 											#end
 										##end
 										####### deal with adding item/folder
 										#if($root.canAddItem())
 											#if ($itemsOnLine > 0)
 												|
+												#set($actionLinkString = "$actionLinkString | ")
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
 											<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('list.add')">$tlang.getString("list.add").trim()</a>
+											#set($actionLinkString = "$actionLinkString$tlang.getString('list.add')")
 										#end
 										#*
 										####### deal with site/folder permissions
@@ -752,12 +805,17 @@
 											#if (!$atHome || ($atHome && $atHome != $TRUE))
 												#if ($itemsOnLine > 0)
 													|
+													#set($actionLinkString = "$actionLinkString | ")
 												#end
 												#set ($itemsOnLine = $itemsOnLine + 1)
 												<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${root.id})")" title="$tlang.getString('list.fPerm')">$tlang.getString("list.fPerm").trim()</a>
+												#set($actionLinkString = "$actionLinkString$tlang.getString('list.fPerm')")
 											#end
 										#end
 										*#
+									</div>
+									<div name="disabledActionLinks" class="itemAction"  style="display:none">
+										$actionLinkString
 									</div>
 								#end
 								######################  End of Add Items/Folders at Top Level  ##############
@@ -936,47 +994,58 @@
 										</h$headerDepth>	
 									</td>
 									<td headers="actions">
-										<div class="itemAction">
+										#set($actionLinkString = " ")
+										<div name="enabledActionLinks" class="itemAction">
 											#if($member.isFolder())
 												#set ($itemsOnLine = 0)
 												####### deal with Pasting copied items  3
 												#if($copyFlag && $copyFlag.equals($TRUE) && $member.canAddItem() && ! $member.isHighlighted())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')">$tlang.getString("list.paste1").trim()</a>
+													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doPasteitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString('list.paste1')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste1").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste1')")
 												#end
 												####### deal with Pasting moved items 
 												#if($moveFlag && $moveFlag.equals($TRUE) && $member.canAddItem() && ! $member.isHighlighted())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")">$tlang.getString("list.paste3").trim()</a>
+													<a class="highlightlink" href="#toolLinkParam("ResourcesAction" "doMoveitems" "collectionId=${validator.escapeUrl(${member.id})}")" title="$tlang.getString("list.paste3")" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.paste3").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.paste3')")
 												#end
 												####### deal with viewing/editing file/folder information
 												#if ($member.canRevise())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+													<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.edit").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 												#elseif ($member.canRead())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 												#end
 												#*
 												####### deal with deleting folder
 												#if ($member.canDelete())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doDeleteconfirm" "from=list&selectedMembers=$validator.escapeUrl($member.id)")" title="$tlang.getString('list.del')">$tlang.getString("list.del").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.del')")
 												#end		
 												*#
 												#*
@@ -984,18 +1053,22 @@
 												#if($member.canUpdate() && "$!inMyWorkspace" == "false")
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doFolder_permissions" "collectionId=$validator.escapeUrl(${member.id})")" title="$tlang.getString('list.fPerm')">$tlang.getString("list.fPerm").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.fPerm')")
 												#end
 												*#
 												####### deal with adding item/folder
 												#if($member.canAddItem())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${member.id})")" title="$tlang.getString('list.add')">$tlang.getString("list.add").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.add')")
 												#end
 											#else
 												#set ($itemsOnLine = 0)
@@ -1003,21 +1076,26 @@
 												#if ($member.canRevise())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doEdit" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.edit')">$tlang.getString("list.edit").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.edit')")
 												#elseif ($member.canRead())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doMore" "from=list&id=$validator.escapeUrl($member.id)&collectionId=$validator.escapeUrl($member.container)")" title="$tlang.getString('list.props')">$tlang.getString("list.props").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.props')")
 												#end
 												#*
 												####### deal with copying item
 												#if ($paste_place_showing && $member.canRead())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													#if($member.id == $copiedItem)
@@ -1025,6 +1103,7 @@
 													#else
 														<a href="#toolLinkParam("ResourcesAction" "doCopyitem" "itemId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('list.copy')">$tlang.getString("list.copy").trim()</a>
 													#end
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.copy')")
 												#end
 												*#
 												#*
@@ -1032,20 +1111,27 @@
 												#if ($member.canDelete())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
 													<a href="#toolLinkParam("ResourcesAction" "doDeleteconfirm" "from=list&selectedMembers=$validator.escapeUrl($member.id)")" title="$tlang.getString('list.del')">$tlang.getString("list.del").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.del')")
 												#end								
 												*#
 												####### deal with duplicating item
 												#if($member.canRead() && $member.canAddItem())
 													#if ($itemsOnLine > 0)
 														|
+														#set($actionLinkString = "$actionLinkString | ")
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
+													<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${member.id})}&collectionId=${validator.escapeUrl(${member.container})}")" title="$tlang.getString('list.dup')" onclick="javascript:disableLinks();" onkeypress="javascript:disableLinks();" >$tlang.getString("list.dup").trim()</a>
+													#set($actionLinkString = "$actionLinkString$tlang.getString('list.dup')")
 												#end
 											#end
+										</div>
+										<div name="disabledActionLinks" class="itemAction"  style="display:none">
+											$actionLinkString
 										</div>
 									</td>
 									######################  Item/folder modification date  ##############
@@ -1198,6 +1284,24 @@
 					button.disabled = true;
 					button.className='disabled';
 				}
+			}
+		}
+		
+		function disableLinks()
+		{
+			if(document.getElementsByName)
+			{
+				var enabledLinks = document.getElementsByName("enabledActionLinks");
+				var disabledLinks = document.getElementsByName("disabledActionLinks");
+				if(enabledLinks)
+				{
+					for(var i = 0; i < enabledLinks.length; i++)
+					{
+						//enabledLinks[i].innerHTML = disabledLinks[i].innerHTML;
+						enabledLinks[i].style.display="none";
+						disabledLinks[i].style.display="block";
+					}
+				}			
 			}
 		}
 	//-->
