@@ -122,8 +122,7 @@
             <h:outputText value="Current score: " rendered="#{ ForumTool.gradebookScore != null && ForumTool.gradebookScore != ''}"/>
           </td>
           <td align="left" width="85%">
-            <h:outputText value="#{ForumTool.gradebookScore}" rendered="#{ ForumTool.gradebookScore != null && ForumTool.gradebookScore != ''}"
-            style="color:#FF6666;"/>
+            <h:outputText value="#{ForumTool.gradebookScore}" rendered="#{ ForumTool.gradebookScore != null && ForumTool.gradebookScore != ''}"/>
           </td>  
         </tr>
         <tr>
