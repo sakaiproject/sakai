@@ -87,9 +87,12 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}"/>
-
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}">
+					 	<f:convertDateTime pattern="MMM d, yyyy K:mm a" />
+				 	</h:outputText>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}">
+					 	<f:convertDateTime pattern="MMM d, yyyy K:mm a" />
+					</h:outputText>
 			</h:column>
 		<%--TODO:// Implement me:
 			<h:column>
@@ -142,8 +145,12 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_date}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}"/>
+				 	<h:outputText value="#{message.message.created}" rendered="#{message.read && !ForumTool.displayUnreadOnly}">
+					 	<f:convertDateTime pattern="MMM d, yyyy K:mm a" />
+					</h:outputText>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.created}" rendered="#{!message.read}">
+					 	<f:convertDateTime pattern="MMM d, yyyy K:mm a" />
+				    </h:outputText>    	        	
 
 			</h:column>
 		</mf:hierDataTable>
