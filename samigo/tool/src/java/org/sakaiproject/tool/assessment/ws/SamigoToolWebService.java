@@ -24,6 +24,13 @@
 /**
  * SamigoToolWebService.java
  *
+ * This was part of the web services demo files  
+ * This file used to be called by an Apache Axis generated 
+ * SamigoToolServiceSoapBindingImpl.java
+ * all the wsdl2java generated files are deleted due to Axis 1.1 imcompatible 
+ * with jdk 1.5
+ * Will regenerate them if we need to use this again. 
+ * Keep this file in case we want to reuse any of the methods here. 
  */
 
 package org.sakaiproject.tool.assessment.ws;

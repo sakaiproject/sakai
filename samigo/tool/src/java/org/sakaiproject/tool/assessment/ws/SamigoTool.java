@@ -26,6 +26,7 @@
  *
  * This file was auto-generated from WSDL
  * by the Apache Axis WSDL2Java emitter.
+ * This was part of the web services demo files
  */
 
 package org.sakaiproject.tool.assessment.ws;
