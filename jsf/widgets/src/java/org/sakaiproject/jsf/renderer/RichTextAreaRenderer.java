@@ -35,7 +35,7 @@ import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.content.cover.ContentHostingService;
-
+import org.sakaiproject.util.FormattedText;
 
 public class RichTextAreaRenderer extends Renderer
 {
@@ -57,6 +57,10 @@ public class RichTextAreaRenderer extends Renderer
         if (component instanceof UIInput) value = ((UIInput) component).getSubmittedValue();
         if (value == null && component instanceof ValueHolder) value = ((ValueHolder) component).getValue();
         if (value == null) value = "";
+
+        //escape the value so the wysiwyg editors don't get too clever and turn things
+        //into tags that are not tags. 
+        value = FormattedText.escapeHtmlFormattedTextarea((String) value);
 
         // pixel width of the HTMLArea
         int width = -1;
