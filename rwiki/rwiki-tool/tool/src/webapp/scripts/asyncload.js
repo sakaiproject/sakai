@@ -270,7 +270,7 @@ AsyncDIVLoader.prototype.fullLoadXMLDoc = function(url,callBackFunction,method,c
         					this.setOnReadyStateChange();
         					this.lastLoadMethod = "ActiveX";
         					this.lastLoadStatus = this.lastLoadMethod+": starting";
-        					if ( this.method == "GET" ) {
+        					if ( method == "GET" ) {
            	 			this.req.open("GET", url, true);
            	 			    this.req.send();
            	 			} else {
@@ -343,7 +343,7 @@ AsyncDIVLoader.prototype.fullLoadXMLDoc = function(url,callBackFunction,method,c
 					this.lastLoadMethod = "IFrame";
 // this will cause the load.
 // in the case of a POST we need to write a form and post it
-					if ( this.method == "GET" ) {
+					if ( method == "GET" ) {
 					    this.hiddenIFrame.src=url;
 					} else {
 					    var formObject = createFormObject(content,url);
@@ -362,7 +362,7 @@ AsyncDIVLoader.prototype.fullLoadXMLDoc = function(url,callBackFunction,method,c
 				    // This is for IE5 PC, which does not allow dynamic creation
       				// and manipulation of an iframe object. Instead, we'll fake
       				// it up by creating our own objects.
-      				if ( this.method == "GET" ) {
+      				if ( method == "GET" ) {
     					    this.lastLoadMethod = "IFrame_FakeObject";
       				    iframeHTML='\<iframe id="'
       				    iframeHTML+=
