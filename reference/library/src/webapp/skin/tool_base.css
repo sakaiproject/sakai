@@ -92,7 +92,7 @@ code {
 	border-style: solid;
 }
 .helpBody {
-	padding: 1em
+	padding: 0 1em 1em 1em
 	} 
 /*for web content - 2 states of the body > div that used instead of div.portletBody in web content), with toolbar, without*/
 /*see  a course site web contentn tool  - as instructor and as student*/
