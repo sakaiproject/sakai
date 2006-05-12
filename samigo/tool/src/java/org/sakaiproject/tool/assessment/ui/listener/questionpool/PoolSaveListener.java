@@ -100,10 +100,10 @@ public class PoolSaveListener implements ActionListener
     try {
        
 	if((qpoolbean.getAddOrEdit()).equals("add")){
-	    isUnique=service.poolIsUnique("0",currentName,""+currentParentId);
+	    isUnique=service.poolIsUnique("0",currentName,""+currentParentId, AgentFacade.getAgentString()) ;
 	}
 	else {
-	     isUnique=service.poolIsUnique(""+currentId,currentName,""+currentParentId);
+	     isUnique=service.poolIsUnique(""+currentId,currentName,""+currentParentId, AgentFacade.getAgentString());
 	}
        
 	if(!isUnique){
