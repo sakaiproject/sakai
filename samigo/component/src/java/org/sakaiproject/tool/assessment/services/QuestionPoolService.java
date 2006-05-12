@@ -474,8 +474,8 @@ public class QuestionPoolService
   }
 
 
- public boolean poolIsUnique(String questionPoolId, String title, String parentPoolId) {
-    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(new Long(questionPoolId), title, new Long(parentPoolId));
+ public boolean poolIsUnique(String questionPoolId, String title, String parentPoolId, String agentId) {
+    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().poolIsUnique(new Long(questionPoolId), title, new Long(parentPoolId), agentId);
   }
 
 }

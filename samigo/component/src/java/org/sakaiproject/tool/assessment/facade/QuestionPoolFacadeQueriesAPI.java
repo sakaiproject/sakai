@@ -63,7 +63,7 @@ public interface QuestionPoolFacadeQueriesAPI
 
   public ArrayList getBasicInfoOfAllPools(String agentId);
  
-  public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId);
+  public boolean poolIsUnique(Long questionPoolId, String title, Long parentPoolId, String agentId);
 
   public List getAllItems(Long questionPoolId);
 

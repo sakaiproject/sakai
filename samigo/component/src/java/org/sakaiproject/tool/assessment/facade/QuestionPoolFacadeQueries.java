@@ -822,13 +822,14 @@ public class QuestionPoolFacadeQueries
   }
 
 
-public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId) {
+public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId, final String agentId) {
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?");
+    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=? and a.ownerId = ? ");
     		q.setLong(0, questionPoolId.longValue());
     		q.setString(1, title);
     		q.setLong(2, parentPoolId.longValue());
+    		q.setString(3, agentId);
     		return q.list();
     	};
     };

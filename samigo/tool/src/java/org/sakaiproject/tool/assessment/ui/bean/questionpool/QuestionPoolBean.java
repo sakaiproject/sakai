@@ -1198,43 +1198,6 @@ public String getAddOrEdit()
   }
 
 
-/*
-// use listener instead
-public String startRemoveQuestions(){
-// used by the editPool.jsp, to remove one or more items
-      String itemId= "";
-
-        ArrayList destItems= ContextUtil.paramArrayValueLike("removeCheckbox");
-
-        if (destItems.size() > 0) {
-		// only go to remove confirmatin page when at least one  checkbox is checked
-
-        List items= new ArrayList();
-        Iterator iter = destItems.iterator();
-      while(iter.hasNext())
-      {
-
-        itemId = (String) iter.next();
-
-        ItemService delegate = new ItemService();
-        ItemFacade itemfacade= delegate.getItem(new Long(itemId), AgentFacade.getAgentString());
-        items.add(itemfacade);
-
-        }
-
-        this.setItemsToDelete(items);
-        return "removeQuestionFromPool";
-        }
-	else {
-	 // otherwise go to poollist
-          return "poolList";
-	}
-  }
-
-*/
-
-
-
 
  public String removeQuestionsFromPool(){
      String sourceId = this.getCurrentPool().getId().toString();
@@ -1391,7 +1354,7 @@ public String startRemoveQuestions(){
                QuestionPoolFacade oldPool =delegate.getPool(sourceId, AgentFacade.getAgentString());
 	      //if dest != source's parent, then throw error if dest has a duplicate pool name 
 		if(!destId.equals((oldPool.getParentPoolId()).toString())){
-		    isUnique=delegate.poolIsUnique("0",currentName,destId);
+		    isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
 		    if(!isUnique){
 			String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","copy_duplicateName_error");
 			FacesContext context=FacesContext.getCurrentInstance();
@@ -1434,7 +1397,7 @@ public String startRemoveQuestions(){
           try
           {
             QuestionPoolService delegate = new QuestionPoolService();
- isUnique=delegate.poolIsUnique("0",currentName,destId);
+ isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
               if(!isUnique){
 	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","move_duplicateName_error");
          FacesContext context = FacesContext.getCurrentInstance();
@@ -1510,7 +1473,7 @@ ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauth
 String poolId = ContextUtil.lookupParam("qpid");
 
 
-// we are add one element to the arrayList so we can reuse the deletePool() method. deletePool method expects an arrayList of pools to be deleted.  It is used by the poolList.jsp to delete multiple pools.
+// we are adding one pool to an arrayList so we can reuse the deletePool() method, because deletePool() method expects an arrayList of pools to be deleted.  It is used by the poolList.jsp to delete multiple pools.
 
     	List qpools = new ArrayList();
         QuestionPoolService delegate = new QuestionPoolService();
@@ -1523,6 +1486,8 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String startRemovePool(){
+// need to check if the pool is used by any random draw assessments 
+
 // used by the poolList.jsp
 	this.setDeletePoolSource("poollist");
       String poolId= "";
@@ -1595,57 +1560,6 @@ String poolId = ContextUtil.lookupParam("qpid");
   public String returnToAuthoring(){
 	return "author";
   }
-
-/*
-// use the Listener instead, because for edit pool, i need to do savePool and remove subpool when 'update' button is clicked
-  public String savePool(){
-// save newly created pool
-
-    try
-    {
-
-      QuestionPoolDataBean bean = this.getCurrentPool();
-      Long beanid = new Long ("0");
-      if(bean.getId() != null)
-      {
-        beanid = bean.getId();
-      }
-
-      Long parentid = new Long("0");
-      if(bean.getParentPoolId() != null)
-      {
-        parentid = bean.getParentPoolId();
-      }
-
-      QuestionPoolFacade questionpool =
-        new QuestionPoolFacade (beanid, parentid);
-      questionpool.updateDisplayName(bean.getDisplayName());
-      questionpool.updateDescription(bean.getDescription());
-      questionpool.setOrganizationName(bean.getOrganizationName());
-      questionpool.setObjectives(bean.getObjectives());
-      questionpool.setKeywords(bean.getKeywords());
-// need to set owner and accesstype
-//owner is hardcoded for now
-      questionpool.setOwnerId(AgentFacade.getAgentString());
-      questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
-
-
-      QuestionPoolService delegate = new QuestionPoolService();
-      delegate.savePool(questionpool);
-
-      // Rebuild the tree with the new pool
-      buildTree();
-      this.setCurrentPool(null);
-    }
-    catch(Exception e)
-    {
-      throw new Error(e);
-    }
-	return "poolList";
-  }
-
-
-*/
 
   public String editPool(){
  	startEditPool();
