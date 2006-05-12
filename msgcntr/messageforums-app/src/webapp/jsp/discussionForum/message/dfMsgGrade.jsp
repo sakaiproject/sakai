@@ -77,7 +77,7 @@
       </tr>
       <tr>
         <td align="left">
-          <h:outputText style="font-weight:bold"  value="Authored By "/>
+          <h:outputText style="font-weight:bold"  value="#{msgs.cdfm_authoredby}"/>
         </td>
         <td align="left">
           <h:outputText value="#{ForumTool.selectedMessage.message.author}" />  

@@ -55,7 +55,7 @@
           					<tr>
           						<td><h:outputText value="SEARCH IN" /></td>
           						<td><h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnSubject}" /><h:outputText value="Subject" /></td>
-          						<td><h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnAuthor}"/><h:outputText value="Authored By" /></td>
+          						<td><h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnAuthor}"/><h:outputText value="#{msgs.pvt_authby}" /></td>
           						<td><h:selectBooleanCheckbox value="#{PrivateMessagesTool.searchOnDate}" /><h:outputText value="Date Between" /></td>
           						<td><sakai:input_date  value="#{PrivateMessagesTool.searchFromDate}" showDate="true" /></td>
           						<td><h:outputText value="AND" /></td>    
