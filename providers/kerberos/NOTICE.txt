@@ -1,4 +1,4 @@
-The following have contributed to the Kerberos provider	
+The following people have contributed to the Kerberos provider:
 
   Sakai Development Team (UM)
   Seth Theriault, Columbia University

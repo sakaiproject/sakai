@@ -260,9 +260,9 @@ public class KerberosUserDirectoryProvider implements UserDirectoryProvider
 	 */
 	public boolean getUser(UserEdit edit)
 	{
-		if (!userExists(edit.getId())) return false;
+		if (!userExists(edit.getEid())) return false;
 
-		edit.setEmail(edit.getId() + "@" + m_domain);
+		edit.setEmail(edit.getEid() + "@" + m_domain);
 		edit.setType("kerberos");
 
 		return true;
