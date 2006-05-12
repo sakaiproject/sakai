@@ -46,11 +46,12 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.Xml;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -148,6 +149,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 				tool.setId(rootElement.getAttribute("id").trim());
 				tool.setTitle(rootElement.getAttribute("title").trim());
 				tool.setDescription(rootElement.getAttribute("description").trim());
+				tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
 
 				if ("tool".equals(rootElement.getAttribute("accessSecurity")))
 				{
@@ -309,6 +311,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			this.m_title = t.getTitle();
 			this.m_description = t.getDescription();
 			this.m_accessSecurity = t.getAccessSecurity();
+			this.m_home = t.getHome();
 		}
 
 		/**

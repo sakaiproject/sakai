@@ -33,11 +33,20 @@ import java.util.Set;
  */
 public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 {
+	/** The access security. */
+	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;
+
 	/** The set of categories. */
 	protected Set m_categories = new HashSet();
 
 	/** The description string. */
 	protected String m_description = null;
+
+	/** The configuration properties that are set by registration and may not be changed by confguration. */
+	protected Properties m_finalConfig = new Properties();
+
+	/** Home destination. */
+	protected String m_home = null;
 
 	/** The well known identifier string. */
 	protected String m_id = null;
@@ -45,17 +54,11 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	/** The set of keywords. */
 	protected Set m_keywords = new HashSet();
 
-	/** The configuration properties that are set by registration and may not be changed by confguration. */
-	protected Properties m_finalConfig = new Properties();
-
 	/** The configuration properties that may be changed by configuration. */
 	protected Properties m_mutableConfig = new Properties();
 
 	/** The title string. */
 	protected String m_title = null;
-
-	/** The access security. */
-	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;
 
 	/**
 	 * Construct
@@ -116,6 +119,25 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * @inheritDoc
 	 */
+	public Properties getFinalConfig()
+	{
+		// return a copy so that it is read only
+		Properties rv = new Properties();
+		rv.putAll(m_finalConfig);
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getHome()
+	{
+		return m_home;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public String getId()
 	{
 		return m_id;
@@ -132,18 +154,6 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * @inheritDoc
 	 */
-	public Properties getRegisteredConfig()
-	{
-		// combine the final and mutable, and return a copy so that it is read only
-		Properties rv = new Properties();
-		rv.putAll(m_finalConfig);
-		rv.putAll(m_mutableConfig);
-		return rv;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public Properties getMutableConfig()
 	{
 		// return a copy so that it is read only
@@ -155,11 +165,12 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	/**
 	 * @inheritDoc
 	 */
-	public Properties getFinalConfig()
+	public Properties getRegisteredConfig()
 	{
-		// return a copy so that it is read only
+		// combine the final and mutable, and return a copy so that it is read only
 		Properties rv = new Properties();
 		rv.putAll(m_finalConfig);
+		rv.putAll(m_mutableConfig);
 		return rv;
 	}
 
@@ -210,6 +221,11 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	public void setDescription(String description)
 	{
 		m_description = description;
+	}
+
+	public void setHome(String home)
+	{
+		m_home = home;
 	}
 
 	/**

@@ -66,6 +66,12 @@ public interface Tool
 	String getId();
 
 	/**
+	 * Access the tool's home destination, if one is registered
+	 * @return The tool's registered home destination, or null if not registered.
+	 */
+	String getHome();
+
+	/**
 	 * Access the tool title.
 	 * 
 	 * @return The tool title.

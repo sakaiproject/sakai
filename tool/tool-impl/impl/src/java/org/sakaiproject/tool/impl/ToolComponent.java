@@ -220,6 +220,7 @@ public abstract class ToolComponent implements ToolManager
 				tool.setId(rootElement.getAttribute("id").trim());
 				tool.setTitle(rootElement.getAttribute("title").trim());
 				tool.setDescription(rootElement.getAttribute("description").trim());
+				tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
 
 				if ("tool".equals(rootElement.getAttribute("accessSecurity")))
 				{
