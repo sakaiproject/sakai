@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -110,7 +112,6 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "Insufficient privileges to edit Template Settings";
-  private static final String SHORT_DESC_TOO_LONG = "Short description can not be longer than 255 characters.";
 
   private List forums = new ArrayList();
 
@@ -631,7 +632,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }
 
@@ -678,7 +679,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }
     
@@ -711,7 +712,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }
 
@@ -870,7 +871,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }    
     
@@ -915,7 +916,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }
     
@@ -943,7 +944,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(SHORT_DESC_TOO_LONG);
+    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
     	return null;
     }
     
@@ -3882,5 +3883,13 @@ public class DiscussionForumTool
 
 		public void setTotalGroupsUsersList(List totalGroupsUsersList) {
 			this.totalGroupsUsersList = totalGroupsUsersList;
-		}              
+		}
+		
+	    public static String getResourceBundleString(String key) 
+	    {
+	        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+	        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+	        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+	        return rb.getString(key);
+	    }
 }
