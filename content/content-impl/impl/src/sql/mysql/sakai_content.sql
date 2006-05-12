@@ -75,8 +75,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 </collection>
 ');
 
-INSERT INTO CONTENT_COLLECTION VALUES ('/user/',
-'/','site',null,null,0,
+INSERT INTO CONTENT_COLLECTION VALUES ('/user/', '/',
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/user/">
 	<properties>
