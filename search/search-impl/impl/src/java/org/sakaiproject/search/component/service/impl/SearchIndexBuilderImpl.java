@@ -110,6 +110,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	{
 		log.debug("Add resource " + notification + "::" + event);
 		String resourceName = event.getResource();
+		if ( resourceName == null ) {
+			// default if null
+			resourceName = "";
+		}
 		EntityContentProducer ecp = newEntityContentProducer(event);
 		Integer action = ecp.getAction(event);
 		int retries = 5;
@@ -125,18 +129,27 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					sb = searchBuilderItemDao.create();
 					sb.setSearchaction(action);
 					sb.setName(resourceName);
-					sb.setContext(ecp.getSiteId(resourceName));
+					String siteId = ecp.getSiteId(resourceName);
+					if ( siteId == null ) {
+						// default if null should neve happen
+						siteId = "";
+					}
+					sb.setContext(siteId);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 				}
 				else
 				{
 					sb.setSearchaction(action);
-					sb.setContext(ecp.getSiteId(resourceName));
+					String siteId = ecp.getSiteId(resourceName);
+					if ( siteId == null ) {
+						// default if null, should never happen
+						siteId = "";
+					}
+					sb.setContext(siteId);
 					sb.setName(resourceName);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
 				}
 				searchBuilderItemDao.update(sb);
-				sb = searchBuilderItemDao.findByName(resourceName);
 				log.debug("SEARCHBUILDER: Added Resource " + action + " "
 						+ sb.getName());
 				break;
