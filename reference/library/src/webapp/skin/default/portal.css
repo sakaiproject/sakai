@@ -171,7 +171,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 #loginForm label{
 	color: #000;
-	padding-right:1em
+	padding: 0 .5em
 }
 
 #submit{

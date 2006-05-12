@@ -10,6 +10,7 @@ body{
 /*PART 1 - MAIN LAYOUT BLOCKS*/
 /*outer wrapper for portal content (decorative - child is #portalContainer )*/
 #portalOuterContainer{
+
 }
 
 /*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
@@ -29,27 +30,23 @@ body{
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 98%;
-	margin: 1em auto;
+	margin: 0 auto;
 	border:1px solid #fff
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
-	float: left;
-	width: 9.6em;
-	color: #000;
-	text-align: right;
-	padding:0 .5em 0 0;
+	padding:.2em;
+	border-bottom:1px solid #CB2DCC;
+	margin-bottom:.5em
 }
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #content{
-	padding: 0;
-	margin-top: .5em;
-	margin-left: 11em;
+	padding: 0 0 1em 0;
+
 }
 
-* html #content{margin-left:11.3em}
 /*wrapper for footer blocks*/
 #footer{
 	color: #000;
@@ -69,12 +66,12 @@ body{
 	/*user not logged in*/
 	height: 90px;
 	width: 100%;
-	border-bottom:1px solid #09c
+	border-bottom:1px solid #CB2DCC
 }
 
 .sitenav-max{
 	/*user logged in */
-	height: 120px;
+	height: 117px;
 	width: 100%;
 }
 
@@ -177,7 +174,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 }
 
 #submit:hover{
-	color: #09c;
+	color: #CB2DCC;
 }
 
 /*block for login/logout links */
@@ -300,14 +297,12 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
-	width: 12em;
-	padding: 0;
-	margin: 1em 0 0 0;
+	text-align: right;
+	width:100%;
 	font-size: 80%;
+	padding:.2em;
 	color: #000;
-/*	clear: both;*/
 	background: inherit;
-
 }
 
 #toolMenu ul{
@@ -318,7 +313,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 #toolMenu li{
-
+	display:inline;
 	margin: 0;
 	width: auto;
 	padding: 0;
@@ -327,36 +322,22 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*span shim for fine grained manipulation of link display (decorative)
-also hide if are going to be using icon links (as background of <a> nad <li>
 */
-
 #toolMenu li span{
-/*comment this line for a return to sanity
-display:none*/
 }
-
-
 
 #toolMenu li a:link,#toolMenu li a{
-	display: block;
-	text-decoration: underline;
+	text-decoration: none;
 	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
-/*comment these last 3 lines for a return to sanity
-	width:2em;
-	height:2em;
-	background:url(images/warn.gif)  top left no-repeat;*/
-
 }
 #toolMenu li a:hover{
-	display: block;
-	text-decoration: none;
+	text-decoration: underline;
 	color: #CB2DCC;
 	padding: 2px 0px 2px 4px;
 }
 
 #toolMenu li a.selected{
-	display: block;
 	text-decoration: none;
 	color: #000;
 	cursor: text;
@@ -364,7 +345,6 @@ display:none*/
 }
 
 #toolMenu li a.selected:hover{
-	display: block;
 	text-decoration: none;
 	color: #000;
 	cursor: text;
@@ -374,10 +354,7 @@ display:none*/
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{
-	width: 9.7em;
-	height: auto;
-	overflow: hidden;
-	display: block;
+	display: none;
 }
 
 /*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
@@ -406,9 +383,8 @@ display:none*/
 
 /*wrapper for all elements of presence display */
 #presenceWrapper{
-	width: 9.65em;
-	margin-top: .5em;
-}
+	display:none
+	}
 
 /*wrapper for title of iframe ("Users present")*/
 #presenceTitle{
@@ -427,11 +403,11 @@ display:none*/
 /*PART 7 - PORTLETS - children of #content*/
 /*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
 #col1{
-	padding-right: .5em;
+	
 }
 
 #col1of2{
-	width: 49%;
+	width: 50%;
 	float: left;
 	margin: 0;
 }
@@ -440,6 +416,9 @@ display:none*/
 	width: 50%;
 	float: right;
 }
+
+/*keep ie from doing the bad thing*/
+* html #col1of2, * html #col2of2,  {width: 49%;}
 
 /*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
 .portlet{
@@ -515,7 +494,7 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-	color: #09c;
+	color: #CB2DCC;
 }
 
 /*PART 8 - CONVENIENCE*/
