@@ -70,7 +70,7 @@ body{
 	/*user not logged in*/
 	height: 90px;
 	width: 100%;
-	border-bottom:1px solid #09c
+	border-bottom:1px solid #004D73
 }
 
 .sitenav-max{
@@ -178,7 +178,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 }
 
 #submit:hover{
-	color: #09c;
+	color: #069;
 }
 
 /*block for login/logout links */
@@ -222,7 +222,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	margin:.2em 0;
 }
 * html body  #linkNav{
-/*margin-top:.2em*/
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
