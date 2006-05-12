@@ -850,7 +850,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     {
       public Object doInTransaction(TransactionStatus status)
       {
-        getHibernateTemplate().delete("from CategoryBean");
+      	getHibernateTemplate().bulkUpdate("delete CategoryBean");        
         getHibernateTemplate().flush();
         return null;
       }
