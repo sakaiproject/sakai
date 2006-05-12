@@ -30,7 +30,7 @@
           table="searchbuilderitem" 
           optimistic-lock="version">
           <id name="id" unsaved-value="null" >
-              <column name="id" length="36" not-null="true"/>
+              <column name="id" length="64" not-null="true"/>
               <generator class="uuid.hex" />
           </id>
           <!-- the last update to the record used for optimistic locks -->    
@@ -66,7 +66,7 @@
           table="searchwriterlock" >
           
           <id name="id" unsaved-value="null"  >
-              <column name="id" length="36" not-null="true"/>
+              <column name="id" length="64" not-null="true"/>
               <generator class="uuid.hex" />
               
           </id>
