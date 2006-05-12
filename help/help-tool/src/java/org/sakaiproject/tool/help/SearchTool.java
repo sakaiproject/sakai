@@ -102,7 +102,7 @@ public class SearchTool
     //  return "main";
     //}
 
-    EventTrackingService.post(EventTrackingService.newEvent("help.search", this.searchString, false));
+    // EventTrackingService.post(EventTrackingService.newEvent("help.search", this.searchString, false));
     
     Set resultSet = getHelpManager().searchResources(this.searchString);
     TreeSet treeSet = new TreeSet(resultSet);
