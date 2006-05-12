@@ -68,6 +68,7 @@ public class SectionContentsBean
   private Integer questionOrdering;
   private Integer numberToBeDrawn;
   private Long poolIdToBeDrawn;
+  private String poolNameToBeDrawn;
 
   public SectionContentsBean()
   {
@@ -366,6 +367,7 @@ public class SectionContentsBean
     catch (Exception e)
     {
       e.printStackTrace();
+      throw new Error(e);
     }
   }
 
@@ -395,6 +397,13 @@ public class SectionContentsBean
           Long poolid = new Long(section.getSectionMetaDataByLabel(
             SectionDataIfc.POOLID_FOR_RANDOM_DRAW));
           setPoolIdToBeDrawn(poolid);
+        }
+        if (section.getSectionMetaDataByLabel(SectionDataIfc.
+                                              POOLNAME_FOR_RANDOM_DRAW) != null)
+        {
+          String poolname = new String(section.getSectionMetaDataByLabel(
+            SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW));
+          setPoolNameToBeDrawn(poolname);
         }
       }
 
@@ -511,15 +520,39 @@ public class SectionContentsBean
     poolIdToBeDrawn = param;
   }
 
+  public void setPoolNameToBeDrawn(String param)
+  {
+    poolNameToBeDrawn = param;
+  }
+
   public String getPoolNameToBeDrawn()
   {
     if ( (sectionAuthorType != null) &&
         (sectionAuthorType.equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL)))
     {
-      QuestionPoolService qpservice = new QuestionPoolService();
-      QuestionPoolFacade poolfacade = qpservice.getPool(poolIdToBeDrawn,
-        AgentFacade.getAgentString());
-      return poolfacade.getTitle();
+
+
+      if ("".equals(poolNameToBeDrawn)) {
+
+// after 2.2. poolNameToBeDrawn should not be an empty string
+// This is for backward compatibility, for versions prior 2.2,  
+// we didn't store poolname in metadata so when a user deletes a pool used for random draw assessment, exception occurs when viewing the assessment. The items are still there, but it still needs to the original pool object to get the poolname for JSF display.  
+// After 2.2 we save this information in section metadata.  If users delete the pools we can now still retrive the random draw pool names used in an assessment.             
+
+        QuestionPoolService qpservice = new QuestionPoolService();
+        QuestionPoolFacade poolfacade = qpservice.getPool(poolIdToBeDrawn,
+          AgentFacade.getAgentString());
+        if (poolfacade!=null) {
+          return poolfacade.getTitle();
+        }
+      // else the pool is no longer there
+        return "";
+      }
+      else {
+// get poolname from section metadata
+        return poolNameToBeDrawn;
+      }
+      
     }
     return "";
 

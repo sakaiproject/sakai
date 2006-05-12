@@ -341,12 +341,18 @@ private String outcome;
      
 	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPool()), AgentFacade.getAgentString());
     // now add the current pool used  to the list, so it's available in the pulldown 
-	ArrayList currItemlist = delegate.getAllItems(currPool.getQuestionPoolId());
-	if(currItemlist.size()>0){
+        if (currPool!=null) {
+          // if the pool still exists, it's possible that the pool has been deleted 
+	  ArrayList currItemlist = delegate.getAllItems(currPool.getQuestionPoolId());
+	  if(currItemlist.size()>0){
 	    String currPoolName= currPool.getDisplayName()+"("+ currItemlist.size()+")" ;
 	    resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));
      
-	}
+	  }
+        }
+        else {
+          // the pool has been deleted, 
+        } 
     }
 
     return resultPoolList;

@@ -40,6 +40,7 @@ public interface SectionDataIfc
   public static Integer AS_LISTED_ON_ASSESSMENT_PAGE= new Integer(1);
   public static Integer RANDOM_WITHIN_PART= new Integer(2);
   public static String POOLID_FOR_RANDOM_DRAW = "POOLID_FOR_RANDOM_DRAW";
+  public static String POOLNAME_FOR_RANDOM_DRAW = "POOLNAME_FOR_RANDOM_DRAW";
   public static String NUM_QUESTIONS_DRAWN = "NUM_QUESTIONS_DRAWN";
 
    Long getSectionId() ;
