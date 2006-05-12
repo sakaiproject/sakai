@@ -44,10 +44,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.util.ErrorReporter;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.ToolURLManagerImpl;
-import org.sakaiproject.util.Web;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -58,6 +54,9 @@ import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ErrorReporter;
+import org.sakaiproject.util.ToolURLManagerImpl;
+import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -95,9 +94,6 @@ public class MercuryPortal extends HttpServlet
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(MercuryPortal.class);
-
-	/** messages. */
-	private static ResourceLoader rb = new ResourceLoader("sitenav");
 
 	/** Map of context+toolId -> Placement for keeping tool placements. */
 	protected Map m_placements = new HashMap();
@@ -400,7 +396,7 @@ public class MercuryPortal extends HttpServlet
 
 	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res, Throwable t)
 	{
-		ErrorReporter err = new ErrorReporter(rb);
+		ErrorReporter err = new ErrorReporter();
 		err.report(req, res, t);
 	}
 

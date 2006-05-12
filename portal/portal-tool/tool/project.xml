@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-portal-util</name>
+	<name>tool</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-portal-util</id>
+	<id>tool</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -14,27 +14,21 @@
 	<inceptionYear>2003</inceptionYear>
 
 	<properties>
-		<!-- build a jar, no deploy -->
-		<deploy.type>jar</deploy.type>
+		<!-- deploy as a war -->
+		<deploy.type>war</deploy.type>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-email-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
+			<artifactId>sakai-site-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -46,7 +40,7 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -54,12 +48,36 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-servlet</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-portal-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
@@ -68,22 +86,17 @@
 			<version>2.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
 
 		<sourceDirectory>src/java</sourceDirectory>
-
-		<resources>
-
-			<resource>
-				<directory>${basedir}/src/bundle</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-			</resource>
-
-		</resources>
 
 	</build>
 

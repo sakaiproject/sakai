@@ -167,7 +167,7 @@ public class CharonPortal extends HttpServlet
 
 	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res, Throwable t)
 	{
-		ErrorReporter err = new ErrorReporter(rb);
+		ErrorReporter err = new ErrorReporter();
 		err.report(req, res, t);
 	}
 
@@ -662,7 +662,7 @@ public class CharonPortal extends HttpServlet
 
 			// redirect the main tool frame back to the initial tool URL.
 			String mainFrameId = Web.escapeJavascript("Main" + placement.getId());
-			String mainFrameUrl = Web.returnUrl(req, "/tool/" + Web.escapeUrl(placement.getId()) + "?panel=Main");
+			String mainFrameUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId()) + "?panel=Main";
 
 			out.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 			out.write("try\n");
@@ -978,7 +978,7 @@ public class CharonPortal extends HttpServlet
 	{
 		setupForward(req, res, null, null);
 
-		ErrorReporter err = new ErrorReporter(rb);
+		ErrorReporter err = new ErrorReporter();
 		err.postResponse(req, res);
 	}
 
@@ -986,7 +986,7 @@ public class CharonPortal extends HttpServlet
 	{
 		setupForward(req, res, null, null);
 
-		ErrorReporter err = new ErrorReporter(rb);
+		ErrorReporter err = new ErrorReporter();
 		err.thanksResponse(req, res);
 	}
 
@@ -1595,7 +1595,7 @@ public class CharonPortal extends HttpServlet
 			ToolConfiguration placement = (ToolConfiguration) i.next();
 
 			// for this tool invocation, form the servlet context and path info
-			String contextPath = toolContextPath + "/tool/" + Web.escapeUrl(placement.getId());
+			String contextPath = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId());
 			String pathInfo = null;
 
 			// invoke the tool
@@ -1613,7 +1613,7 @@ public class CharonPortal extends HttpServlet
 				ToolConfiguration placement = (ToolConfiguration) i.next();
 
 				// for this tool invocation, form the servlet context and path info
-				String contextPath = toolContextPath + "/tool/" + Web.escapeUrl(placement.getId());
+				String contextPath = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId());
 				String pathInfo = null;
 
 				// invoke the tool
@@ -2047,7 +2047,7 @@ public class CharonPortal extends HttpServlet
 		// let the tool do some the work (include) (see note above)
 		// tool.include(req, res, siteTool, toolContextPath, toolPathInfo);
 
-		String toolUrl = Web.returnUrl(req, "/tool/" + Web.escapeUrl(placement.getId()));
+		String toolUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placement.getId());
 		String titleUrl = Web.returnUrl(req, "/title/" + Web.escapeUrl(placement.getId()));
 		String titleString = Web.escapeHtml(placement.getTitle());
 		// boolean portalHandlesTitleFrame = !"false".equals(placement.getConfig().getProperty(TOOLCONFIG_PORTAL_HANDLES_TITLEBAR));

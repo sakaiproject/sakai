@@ -46,12 +46,11 @@ public class ErrorReporter
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ErrorReporter.class);
 
-	/** resource loader to use */
-	protected ResourceLoader rb = null;
+	/** messages. */
+	private static ResourceLoader rb = new ResourceLoader("portal-util");
 
-	public ErrorReporter(ResourceLoader rb)
+	public ErrorReporter()
 	{
-		this.rb = rb;
 	}
 
 	/**
