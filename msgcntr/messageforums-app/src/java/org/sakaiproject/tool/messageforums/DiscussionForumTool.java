@@ -112,6 +112,9 @@ public class DiscussionForumTool
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
   private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "Insufficient privileges to edit Template Settings";
+  private static final String SHORT_DESC_TOO_LONG = "cdfm_short_desc_too_long";
+  private static final String LAST_REVISE_BY = "cdfm_last_revise_msg"; 
+  private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on"; 
 
   private List forums = new ArrayList();
 
@@ -632,7 +635,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }
 
@@ -679,7 +682,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }
     
@@ -712,7 +715,7 @@ public class DiscussionForumTool
     		(selectedForum.getForum().getShortDescription()!=null) && 
     		(selectedForum.getForum().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }
 
@@ -871,7 +874,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }    
     
@@ -916,7 +919,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }
     
@@ -944,7 +947,7 @@ public class DiscussionForumTool
     		(selectedTopic.getTopic().getShortDescription()!=null) && 
     		(selectedTopic.getTopic().getShortDescription().length() > 255))
     {
-    	setErrorMessage(getResourceBundleString("cdfm_short_desc_too_long"));
+    	setErrorMessage(getResourceBundleString(SHORT_DESC_TOO_LONG));
     	return null;
     }
     
@@ -2257,7 +2260,7 @@ public class DiscussionForumTool
       }
     }
     String currentBody = getComposeBody();
-    String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
+    String revisedInfo = getResourceBundleString(LAST_REVISE_BY) + this.getUserId() + " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
     revisedInfo += now.toString() + " <br/> ";
     
@@ -2282,8 +2285,12 @@ public class DiscussionForumTool
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
+    dMsg.setTopic((DiscussionTopic) forumManager
+            .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+//    Topic currentTopic = forumManager.getTopicByIdWithMessagesAndAttachments(dMsg.getTopic().getId());
+//    dMsg.getTopic().setBaseForum(currentTopic.getBaseForum());
+    //dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
     forumManager.saveMessage(dMsg);
 
     List messageList = selectedTopic.getMessages();
@@ -2359,7 +2366,7 @@ public class DiscussionForumTool
       }
     }
     String currentBody = getComposeBody();
-    String revisedInfo = "Last Revised By " + this.getUserId() + " on ";
+    String revisedInfo = getResourceBundleString(LAST_REVISE_BY) + this.getUserId() + " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
     revisedInfo += now.toString() + " <br/> ";    
     revisedInfo = revisedInfo.concat(currentBody);
@@ -2371,12 +2378,18 @@ public class DiscussionForumTool
     dMsg.setModifiedBy(getUserId());
     // dMsg.setApproved(Boolean.TRUE);
     
+//    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+//        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+//    selectedTopic.setTopic((DiscussionTopic) forumManager
+//        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+//    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());    
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
     selectedTopic.setTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
-    dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
+    dMsg.setTopic((DiscussionTopic) forumManager
+        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+    //dMsg.getTopic().setBaseForum(selectedTopic.getTopic().getBaseForum());
     forumManager.saveMessage(dMsg);
 
     List messageList = selectedTopic.getMessages();
