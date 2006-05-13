@@ -741,7 +741,6 @@
 			#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
 				#getRightsAssignment($item.rights)			
 			#end
-		
 			## do not show any access options if in dropbox
 			#if(!$dropboxMode)
 				## show access options only if public view is allowed or there are groups in the site
@@ -808,7 +807,8 @@
 														#end
 													</th>
 												</tr>
-												#foreach ($group in $!{theGroupsDefinedInThisSite$i})
+												#set($theGroups = $theGroupsInThisSite.get( $i ));
+												#foreach ($group in $!{theGroups})
 													<tr>
 														<td headers="selected" style="padding-bottom:0;" style="width:2em">
 															#set($selected=false)
@@ -824,7 +824,9 @@
 														</td>
 														<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
 															#set($description = "")
-															#set($description = $group.Description)
+															#if($group.Description)
+																#set($description = $group.Description)
+															#end
 															$!description
 														</td>
 													</tr>

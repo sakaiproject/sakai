@@ -65,6 +65,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
@@ -1255,6 +1256,7 @@ public class ResourcesAction
 			String encoding = data.getRequest().getCharacterEncoding();
 
 			new_items = new Vector();
+			List theGroupsInThisSite = new Vector();
 			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
 			{
 				EditItem item = new EditItem(itemType);
@@ -1264,11 +1266,9 @@ public class ResourcesAction
 				}
 				item.setCopyrightStatus(defaultCopyrightStatus);
 				new_items.add(item);
-				if(! groups.isEmpty())
-				{
-					context.put("theGroupsDefinedInThisSite" + i, groups.iterator());
-				}
+				theGroupsInThisSite.add(new Vector(groups));
 			}
+			context.put("theGroupsInThisSite", theGroupsInThisSite);
 
 		}
 		context.put("new_items", new_items);
@@ -2202,7 +2202,7 @@ public class ResourcesAction
 		if(! groups.isEmpty())
 		{
 			context.put("siteHasGroups", Boolean.TRUE.toString());
-			context.put("theGroupsDefinedInThisSite", groups.iterator());
+			context.put("theGroupsInThisSite", groups);
 		}
 		
 		String show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
@@ -4713,7 +4713,7 @@ public class ResourcesAction
 				state.removeAttribute(STATE_ATTACH_FORM_FIELD);
 			}
 		}
-
+		
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
@@ -4740,14 +4740,7 @@ public class ResourcesAction
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 		}
 		context.put("new_items", new_items);
-		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-		if(number == null)
-		{
-			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-		context.put("numberOfItems", number);
-		context.put("max_number", new Integer(CREATE_MAX_ITEMS));
+		
 		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
 		if(collectionId == null || collectionId.trim().length() == 0)
 		{
@@ -4759,6 +4752,15 @@ public class ResourcesAction
 			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 		}
 		context.put("collectionId", collectionId);
+
+		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
+		if(number == null)
+		{
+			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
+			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+		}
+		context.put("numberOfItems", number);
+		context.put("max_number", new Integer(CREATE_MAX_ITEMS));
 		String homeCollectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
 		context.put("homeCollectionId", homeCollectionId);
 		List collectionPath = getCollectionPath(state);
@@ -4767,6 +4769,19 @@ public class ResourcesAction
 		if(homeCollectionId.equals(collectionId))
 		{
 			context.put("atHome", Boolean.TRUE.toString());
+		}
+
+		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		// TODO: does this method filter groups for this subcollection??
+		if(! groups.isEmpty())
+		{
+			context.put("siteHasGroups", Boolean.TRUE.toString());
+			List theGroupsInThisSite = new Vector();
+			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
+			{
+				theGroupsInThisSite.add(groups.iterator());
+			}
+			context.put("theGroupsInThisSite", theGroupsInThisSite);
 		}
 
 		String show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
@@ -4801,12 +4816,14 @@ public class ResourcesAction
 		}
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
+		/*
 		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
 		if(! groups.isEmpty())
 		{
 			context.put("siteHasGroups", Boolean.TRUE.toString());
-			context.put("theGroupsDefinedInThisSite", groups.iterator());
+			context.put("theGroupsInThisSite", groups);
 		}
+		*/
 
 		if(TYPE_FORM.equals(itemType))
 		{
@@ -9397,22 +9414,12 @@ public class ResourcesAction
 				Iterator it = newMembers.iterator();
 				while(it.hasNext())
 				{
-					Entity resource = (Entity) it.next();
+					ContentEntity resource = (ContentEntity) it.next();
 					ResourceProperties props = resource.getProperties();
 
 					String itemId = resource.getId();
 
-					boolean isCollection = false;
-					try
-					{
-						isCollection = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-					}
-					catch(Exception e)
-					{
-						// assume isCollection is false if property is not set
-					}
-
-					if(isCollection)
+					if(resource.isCollection())
 					{
 						List offspring = getBrowseItems(itemId, expandedCollections, highlightedItems, sortedBy, sortedAsc, folder, isLocal, state);
 						if(! offspring.isEmpty())
@@ -9522,9 +9529,10 @@ public class ResourcesAction
 						{}
 						newItem.setDepth(depth + 1);
 
-                  if (checkItemFilter((ContentResource)resource, newItem, state)) {
-						   newItems.add(newItem);
-                  }
+						if (checkItemFilter((ContentResource)resource, newItem, state)) 
+						{
+							newItems.add(newItem);
+						}
 					}
 				}
 
