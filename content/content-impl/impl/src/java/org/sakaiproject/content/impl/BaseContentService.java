@@ -6329,7 +6329,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public Collection getGroupsWithReadAccess(String collectionId)
 	{
 		Collection rv = new HashSet();
-		String refString =getReference(collectionId);
+		
+		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
 		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_READ, ref.getReference());
 		if(groups != null && ! groups.isEmpty())
@@ -6352,16 +6353,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		Collection rv = new Vector();
 		
+		Collection groups = new Vector();
+		
 		Reference ref = m_entityManager.newReference(refString);
-		String context = ref.getContext();
+		ContentCollection container;
+		try
+		{
+			container = findCollection(ref.getId());
+			groups.addAll(container.getGroups());
+		}
+		catch (TypeException e1)
+		{
+			// ignore
+		}
 		
 		try
 		{
-			// get the channel's site's groups
-			Site site = m_siteService.getSite(context);
-			Collection groups = site.getGroups();
+			String context = ref.getContext();
+			if(groups.isEmpty())
+			{
+				// get the channel's site's groups
+				Site site = m_siteService.getSite(context);
+				groups.addAll(site.getGroups());
+			}
 
-			// if the user has permission to access all resources of all groups for the site, select all site groups
+			// if the user has permission to access all resources of all groups for the site, return all groups
 			if (unlockCheck(EVENT_GROUP_RESOURCE_READ, context))
 			{
 				return groups;

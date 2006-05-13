@@ -757,28 +757,28 @@
 								#if(!$preventPublicDisplay)
 									<tr>
 										<td class="checkbox">
-											<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" />
+											<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
 											<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
 										</td>
 									</tr>
 								#end
 								<tr>
 									<td class="checkbox">
-										<input type="radio" name="access_mode$i" id="access_mode${i}_site" value="site" #if("$!item.access" == "site") checked="checked"#end  style="border:none" />
+										<input type="radio" name="access_mode$i" id="access_mode${i}_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
 										<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
 									</td>
 								</tr>
 								#if($siteHasGroups)
-									#if("$!item.access" == "group")
+									#if("$!item.access" == "grouped")
 										#set ($listDisplay="block")
 									#else
 										#set ($listDisplay="none")
 									#end
 									<tr>
 										<td class="checkbox">
-											<input type="radio" name="access_mode$i" id="access_mode${i}_group" value="group" #if("$!item.access" == "group") checked="checked"#end  style="border:none" />
+											<input type="radio" name="access_mode$i" id="access_mode${i}_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='block';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='block';" />
 											<label for="access_mode${i}_group">$tlang.getString("edit.access4")</label>
-											<table id="groupTable" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
+											<table id="groupTable$i" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
 												<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 												<tr>
 													<th id="selectAllGroups" style="width:2em;padding-left:.4em">
@@ -807,7 +807,7 @@
 														#end
 													</th>
 												</tr>
-												#set($theGroups = $theGroupsInThisSite.get( $i ));
+												#set($theGroups = $theGroupsInThisSite.get( $i ))
 												#foreach ($group in $!{theGroups})
 													<tr>
 														<td headers="selected" style="padding-bottom:0;" style="width:2em">
@@ -834,6 +834,8 @@
 											</table>
 										</td>
 									</tr>
+								#else
+									<span id="groupTable$i" style="display:none;"></span> 
 								#end
 							</table>
 						#end

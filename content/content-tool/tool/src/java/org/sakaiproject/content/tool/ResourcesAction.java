@@ -103,6 +103,7 @@ import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
 import org.sakaiproject.metaobj.shared.model.ElementBean;
 import org.sakaiproject.metaobj.shared.model.ValidationError;
 import org.sakaiproject.metaobj.utils.xml.SchemaNode;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -3440,7 +3441,7 @@ public class ResourcesAction
 				{
 					preventPublicDisplay = Boolean.FALSE;
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-				}
+				}	
 				
 				if(preventPublicDisplay.equals(Boolean.FALSE))
 				{
@@ -3451,6 +3452,39 @@ public class ResourcesAction
 							ContentHostingService.setPubView(collection.getId(), item.isPubview());
 						}
 					}
+				}
+				
+				try
+				{
+					ContentCollectionEdit edit = ContentHostingService.editCollection(newCollectionId);
+					
+					edit.setAccess(new AccessMode(item.getAccess()));
+					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
+					{
+						Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+						for(Iterator it = groups.iterator(); it.hasNext(); )
+						{
+							Group group = (Group) it.next();
+							if(item.getGroups().equals(group.getId()))
+							{
+								edit.addGroup(group);
+							}
+						}
+					}
+					
+					ContentHostingService.commitCollection(edit);
+				}
+				catch (IdUnusedException e)
+				{
+					
+				}
+				catch (TypeException e)
+				{
+					
+				}
+				catch (InUseException e)
+				{
+					
 				}
 			}
 			catch (IdUsedException e)
@@ -3628,6 +3662,39 @@ public class ResourcesAction
 						}
 					}
 				}
+				
+				try
+				{
+					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+					edit.setAccess(new AccessMode(item.getAccess()));
+					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
+					{
+						Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+						for(Iterator it = groups.iterator(); it.hasNext(); )
+						{
+							Group group = (Group) it.next();
+							if(item.getGroups().equals(group.getId()))
+							{
+								edit.addGroup(group);
+							}
+						}
+					}
+					
+					ContentHostingService.commitResource(edit);
+				}
+				catch (IdUnusedException e)
+				{
+					
+				}
+				catch (TypeException e)
+				{
+					
+				}
+				catch (InUseException e)
+				{
+					
+				}
+
 
 				String mode = (String) state.getAttribute(STATE_MODE);
 				if(MODE_HELPER.equals(mode))
@@ -4686,6 +4753,9 @@ public class ResourcesAction
 		context.put("TYPE_TEXT", TYPE_TEXT);
 		context.put("TYPE_URL", TYPE_URL);
 		context.put("TYPE_FORM", TYPE_FORM);
+		
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 
 		context.put("max_upload_size", state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
 
@@ -5710,10 +5780,20 @@ public class ResourcesAction
 			// item.setIsUrl(isUrl);
 			
 			AccessMode access = resource.getAccess();
-			item.setAccess(access.toString());
+			if(access == null)
+			{
+				item.setAccess(AccessMode.SITE.toString());
+			}
+			else
+			{
+				item.setAccess(access.toString());
+			}
 			
 			List access_groups = new Vector(resource.getGroups());
-			item.setGroups(access_groups);
+			if(access_groups != null)
+			{
+				item.setGroups(access_groups);
+			}
 
 			if(item.isUrl())
 			{
@@ -9315,10 +9395,20 @@ public class ResourcesAction
 			}
 			
 			AccessMode access = collection.getAccess();
-			folder.setAccess(access.toString());
+			if(access == null)
+			{
+				folder.setAccess(AccessMode.SITE.toString());
+			}
+			else
+			{
+				folder.setAccess(access.toString());
+			}
 			
 			List access_groups = new Vector(collection.getGroups());
-			folder.setGroups(access_groups);
+			if(access_groups != null)
+			{
+				folder.setGroups(access_groups);
+			}
 
 			if(highlightedItems == null || highlightedItems.isEmpty())
 			{
@@ -9439,10 +9529,20 @@ public class ResourcesAction
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 
 						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
-						newItem.setAccess(access_mode.toString());
+						if(access_mode == null)
+						{
+							newItem.setAccess(AccessMode.SITE.toString());
+						}
+						else
+						{
+							newItem.setAccess(access_mode.toString());
+						}
 						
 						List groups = new Vector(((GroupAwareEntity) resource).getGroups());
-						newItem.setGroups(groups);
+						if(groups != null)
+						{
+							newItem.setGroups(groups);
+						}
 
 						newItem.setContainer(collectionId);
 						newItem.setRoot(folder.getRoot());

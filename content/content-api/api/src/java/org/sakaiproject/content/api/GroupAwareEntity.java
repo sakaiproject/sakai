@@ -55,7 +55,7 @@ public interface GroupAwareEntity extends Entity
 	{
 		private final String m_id;
 
-		private AccessMode(String id)
+		public AccessMode(String id)
 		{
 			m_id = id;
 		}
