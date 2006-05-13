@@ -23,8 +23,8 @@ package org.sakaiproject.content.api;
 
 import java.util.List;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 
 /**
@@ -35,7 +35,7 @@ import org.sakaiproject.time.api.Time;
 * @version $Revision$
 */
 public interface ContentCollection
-	extends Entity, GroupAwareEntity
+	extends ContentEntity, GroupAwareEntity
 {
 	/**
 	* Access a List of the collection's internal members, each a resource id String.

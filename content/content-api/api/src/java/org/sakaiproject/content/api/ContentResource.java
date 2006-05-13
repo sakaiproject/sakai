@@ -23,8 +23,8 @@ package org.sakaiproject.content.api;
 
 import java.io.InputStream;
 
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.time.api.Time;
 
@@ -32,7 +32,7 @@ import org.sakaiproject.time.api.Time;
 * <p>ContentResource is the core interface for a Resource object in the GenericContentHostingService.</p>
 */
 public interface ContentResource
-	extends Entity, GroupAwareEntity
+	extends ContentEntity, GroupAwareEntity
 {
 	/**
 	* Access the content byte length.
@@ -76,7 +76,7 @@ public interface ContentResource
 	 * @throws ServerOverloadException if the server cannot produce the content stream at this time.
 	 */
 	public InputStream streamContent() throws ServerOverloadException;
-
+	
 }	// ContentResource
 
 

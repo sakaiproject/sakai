@@ -7069,6 +7069,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return m_retractDate;
 		}
 
+		public boolean isResource()
+		{
+			// TODO: this may need a different implementation in the handler
+			return false;
+		}
+
+		public boolean isCollection()
+		{
+			// TODO: this may need a different implementation in the handler
+			return true;
+		}
+
 	} // class BaseCollection
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7696,6 +7708,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public Time getRetractDate()
 		{
 			return m_retractDate;
+		}
+
+		public boolean isResource()
+		{
+			// TODO: this may need a different implementation in the handler
+			return true;
+		}
+
+		public boolean isCollection()
+		{
+			// TODO: this may need a different implementation in the handler
+			return false;
 		}
 		
 	} // BaseResource
