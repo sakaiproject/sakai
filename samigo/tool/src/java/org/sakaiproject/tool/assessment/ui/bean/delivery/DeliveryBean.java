@@ -2148,38 +2148,6 @@ public class DeliveryBean
     return time;
   }
 
-    /*
-  public void recordTimeElapsed(){
-    AssessmentGradingData adata = getAssessmentGrading();
-    if (adata != null){ // adata would be null during preview
-      float f = (new Float(getTimeElapse())).floatValue();
-      int i = Math.round(f);
-      adata.setTimeElapsed(new Integer(i));
-      GradingService gradingService = new GradingService();
-      gradingService.saveOrUpdateAssessmentGrading(adata);
-      //System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
-    }
-  }
-
-
-  public void recordTimeElapsedTOC(){
-    AssessmentGradingData adata = getAssessmentGrading();
-    if (adata != null){ // adata would be null during preview
-      long currentTime = (new Date()).getTime();
-      if (isTimeRunning() && adata != null){ // adata can't be null at this point
-        float diff = (currentTime - getLastTimer())/1000;
-
-        int diff_int = Math.round(diff);
-        adata.setTimeElapsed(new Integer(diff_int));
-        GradingService gradingService = new GradingService();
-        gradingService.saveOrUpdateAssessmentGrading(adata);
-        setTimeElapse(diff+"");
-        //System.out.println("**** recording Time Elapsed. sum="+adata.getTimeElapsed());
-      }
-    }
-  }
-    */
-
   public boolean getBeginAssessment(){
     return beginAssessment;
   }
@@ -2290,46 +2258,43 @@ public class DeliveryBean
     this.timeStamp=timeStamp;
   }
 
-  private HashMap publishedItemHash;
+  private HashMap publishedItemHash = new HashMap();
   public HashMap getPublishedItemHash(){
-    if (publishedItemHash == null){
+    if (this.publishedItemHash.size() ==0){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
-      publishedItemHash = pubService.preparePublishedItemHash(getPublishedAssessment());
+      this.publishedItemHash = pubService.preparePublishedItemHash(getPublishedAssessment());
     }
-    setPublishedItemHash(publishedItemHash);
-    return publishedItemHash;
+    return this.publishedItemHash;
   }
 
   public void setPublishedItemHash(HashMap publishedItemHash){
     this.publishedItemHash = publishedItemHash;
   }
 
-  private HashMap publishedItemTextHash;
+  private HashMap publishedItemTextHash = new HashMap();
   public HashMap getPublishedItemTextHash(){
-    if (publishedItemTextHash == null){
+    if (this.publishedItemTextHash.size() == 0){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
-      publishedItemTextHash = pubService.preparePublishedItemTextHash(getPublishedAssessment());
+      this.publishedItemTextHash = pubService.preparePublishedItemTextHash(getPublishedAssessment());
     }
-    setPublishedItemTextHash(publishedItemTextHash);
-    return publishedItemTextHash;
+    return this.publishedItemTextHash;
   }
 
   public void setPublishedItemTextHash(HashMap publishedItemTextHash){
     this.publishedItemTextHash = publishedItemTextHash;
   }
 
-  private HashMap publishedAnswerHash;
+  private HashMap publishedAnswerHash = new HashMap();
   public HashMap getPublishedAnswerHash(){
-    if (publishedAnswerHash == null){
+    if (this.publishedAnswerHash.size() == 0){
       PublishedAssessmentService pubService = new PublishedAssessmentService();
-      publishedAnswerHash = pubService.preparePublishedAnswerHash(getPublishedAssessment());
+      this.publishedAnswerHash = pubService.preparePublishedAnswerHash(getPublishedAssessment());
     }
-    setPublishedAnswerHash(publishedAnswerHash);
-    return publishedAnswerHash;
+    return this.publishedAnswerHash;
   }
 
-  public void setPublishedAnswerHash(HashMap publishedAnswerHash){
+   public void setPublishedAnswerHash(HashMap publishedAnswerHash){
     this.publishedAnswerHash = publishedAnswerHash;
   }
-
+ 
 }

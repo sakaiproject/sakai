@@ -32,6 +32,11 @@
    <property name="sectionAwareServiceHelper">
      <ref bean="sectionAwareServiceHelper"/>
    </property>
+
+   <property name="serverConfigurationServiceHelper">
+     <ref bean="serverConfigurationServiceHelper"/>
+   </property>
+
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -57,6 +62,10 @@
 <!-- context-sensitive sectionAware service helper -->
 <bean name="sectionAwareServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl">
+</bean>
+
+<bean name="serverConfigurationServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.ServerConfigurationServiceHelperImpl">
 </bean>
 
 </beans>

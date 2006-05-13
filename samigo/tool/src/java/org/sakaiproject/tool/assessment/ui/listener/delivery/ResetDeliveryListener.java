@@ -35,6 +35,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * <p>Title: Samigo</p>
@@ -60,9 +61,9 @@ public class ResetDeliveryListener implements ActionListener
   {
     DeliveryBean bean = (DeliveryBean) cu.lookupBean("delivery");
     bean.setPublishedAssessment(null);
-    bean.setPublishedItemHash(null);
-    bean.setPublishedItemTextHash(null);
-    bean.setPublishedAnswerHash(null);
+    bean.setPublishedItemHash(new HashMap());
+    bean.setPublishedItemTextHash(new HashMap());
+    bean.setPublishedAnswerHash(new HashMap());
     // reset timer before begin
     bean.setTimeElapse("0");
     bean.setTimeElapseAfterFileUpload(null);

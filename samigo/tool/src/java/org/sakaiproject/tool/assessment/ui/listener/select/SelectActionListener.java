@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBeanie;
 import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
@@ -127,7 +128,7 @@ public class SelectActionListener
       // carries the min. info to create an index list. - daisyf
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)
           takeableList.get(i);
-      DeliveryBean delivery = new DeliveryBean();
+      DeliveryBeanie delivery = new DeliveryBeanie();
       delivery.setAssessmentId(f.getPublishedAssessmentId().toString());
       delivery.setAssessmentTitle(f.getTitle());
       delivery.setDueDate(f.getDueDate());
@@ -172,7 +173,7 @@ public class SelectActionListener
       //log.info("authorizedToAuthenticated="+authorizedToAuthenticated);
 
       if (authorizedToSite || authorizedToAuthenticated){
-        DeliveryBean delivery = new DeliveryBean();
+        DeliveryBeanie delivery = new DeliveryBeanie();
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
         delivery.setAssessmentTitle(g.getPublishedAssessmentTitle());
         delivery.setFeedbackDelivery(getFeedbackDelivery(g.getPublishedAssessmentId(),
@@ -226,7 +227,7 @@ public class SelectActionListener
     Iterator iter = submittedAssessmentGradingList.iterator();
     while (iter.hasNext())
     {
-      DeliveryBean db = (DeliveryBean) iter.next();
+      DeliveryBeanie db = (DeliveryBeanie) iter.next();
       if (getSubmittedOrderBy(select).equals("raw") &&
            db.getShowScore().equals("true"))
         scored.add(db);
