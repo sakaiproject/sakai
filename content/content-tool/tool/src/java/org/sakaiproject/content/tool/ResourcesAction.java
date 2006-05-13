@@ -2160,6 +2160,9 @@ public class ResourcesAction
 		context.put ("from", state.getAttribute (STATE_FROM));
 		context.put ("mycopyright", (String) state.getAttribute (STATE_MY_COPYRIGHT));
 
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+
 		String collectionId = (String) current_stack_frame.get(STATE_STACK_EDIT_COLLECTION_ID);
 		context.put ("collectionId", collectionId);
 		String id = (String) current_stack_frame.get(STATE_STACK_EDIT_ID);
@@ -5716,18 +5719,19 @@ public class ResourcesAction
 				// assume isCollection is false if property is not set
 			}
 
-			ContentResource resource = null;
+			ContentEntity entity = null;
 			String itemType = "";
 			byte[] content = null;
 			if(isCollection)
 			{
 				itemType = "folder";
+				entity = ContentHostingService.getCollection(id);
 			}
 			else
 			{
-				resource = ContentHostingService.getResource(id);
-				itemType = resource.getContentType();
-				content = resource.getContent();
+				entity = ContentHostingService.getResource(id);
+				itemType = ((ContentResource) entity).getContentType();
+				content = ((ContentResource) entity).getContent();
 			}
 
 			String itemName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
@@ -5779,7 +5783,7 @@ public class ResourcesAction
 			item.setCanDelete(canDelete);
 			// item.setIsUrl(isUrl);
 			
-			AccessMode access = resource.getAccess();
+			AccessMode access = ((GroupAwareEntity) entity).getAccess();
 			if(access == null)
 			{
 				item.setAccess(AccessMode.SITE.toString());
@@ -5789,7 +5793,7 @@ public class ResourcesAction
 				item.setAccess(access.toString());
 			}
 			
-			List access_groups = new Vector(resource.getGroups());
+			List access_groups = new Vector(((GroupAwareEntity) entity).getGroups());
 			if(access_groups != null)
 			{
 				item.setGroups(access_groups);

@@ -741,6 +741,9 @@
 			#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
 				#getRightsAssignment($item.rights)			
 			#end
+			######### begin access section ##########
+			## Should initial access to this resource or collection be determined
+			## for "site" (standard sakai permissions), "grouped" or "public"?
 			## do not show any access options if in dropbox
 			#if(!$dropboxMode)
 				## show access options only if public view is allowed or there are groups in the site
@@ -842,6 +845,7 @@
 					</p>
 				#end
 			#end
+			########## end access section ###########
 			#if($setQuota)
 				<p class="shorttext">
 					<label for="hasQuota$i">
