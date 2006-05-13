@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
@@ -255,7 +256,8 @@ public class SubmitToGradingActionListener implements ActionListener
     }
 
     GradingService service = new GradingService();
-    if (adata == null) { // <--- this cannot happen, adata should have been created by BeginAssessment
+    System.out.println("**adata="+adata);
+    if (adata == null) { // <--- this shouldn't happened 'cos it should have been created by BeginDelivery
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
       delivery.setAssessmentGrading(adata);
     }
@@ -285,6 +287,8 @@ public class SubmitToGradingActionListener implements ActionListener
         adata.setItemGradingSet(updateItemGradingSet);
       }
     }
+
+    adata.setIsLate(isLate(publishedAssessment));
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     service.saveOrUpdateAssessmentGrading(adata); 
 
@@ -375,9 +379,14 @@ public class SubmitToGradingActionListener implements ActionListener
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");            
     AssessmentGradingData adata = new AssessmentGradingData();
     adata.setAgentId(person.getId());
+    adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
     adata.setForGrade(new Boolean(delivery.getForGrade()));
     adata.setItemGradingSet(itemGradingHash);
-    adata.setPublishedAssessmentId(publishedAssessment.getPublishedAssessmentId());
+    adata.setAttemptDate(new Date());
+    adata.setIsLate(Boolean.FALSE);
+    adata.setStatus(new Integer(0));
+    adata.setTotalOverrideScore(new Float(0));
+    adata.setTimeElapsed(new Integer("0"));
     return adata;
   }
 
@@ -437,6 +446,11 @@ public class SubmitToGradingActionListener implements ActionListener
     case 9: // Matching
 	    for (int m=0;m<grading.size();m++){
               ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
+              itemgrading.setAgentId(AgentFacade.getAgentString());
+              itemgrading.setSubmittedDate(new Date());
+	    }
+	    for (int m=0;m<grading.size();m++){
+              ItemGradingData itemgrading = (ItemGradingData)grading.get(m);
               if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
                 adds.addAll(grading);
                 break;
@@ -454,6 +468,8 @@ public class SubmitToGradingActionListener implements ActionListener
               if (itemgrading.getItemGradingId()!=null && itemgrading.getItemGradingId().intValue()>0){
                 // old answer, check which one to keep, not keeping null answer 
                 if (itemgrading.getPublishedAnswerId()!=null){
+                  itemgrading.setAgentId(AgentFacade.getAgentString());
+                  itemgrading.setSubmittedDate(new Date());
                   adds.add(itemgrading);
 		}
 		else{
@@ -462,6 +478,8 @@ public class SubmitToGradingActionListener implements ActionListener
 	      }
               else if (itemgrading.getPublishedAnswerId()!=null){ // new addition
                 // not accepting any new answer with null for MCMR
+                itemgrading.setAgentId(AgentFacade.getAgentString());
+                itemgrading.setSubmittedDate(new Date());
                 adds.add(itemgrading);
 	      }
 	    }
@@ -492,6 +510,14 @@ public class SubmitToGradingActionListener implements ActionListener
             break;
 	    */
     }
+  }
+
+  private Boolean isLate(PublishedAssessmentIfc pub){
+    AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+    if (a.getDueDate()!=null && a.getDueDate().before(new Date()))
+      return Boolean.TRUE;
+    else
+      return Boolean.FALSE;
   }
 
 }

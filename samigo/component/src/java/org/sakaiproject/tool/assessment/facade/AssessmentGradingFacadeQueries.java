@@ -650,7 +650,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = 0;
       }
       catch (Exception e) {
-        log.warn("problem inserting assessmentGrading: "+e.getMessage());
+        log.warn("problem inserting/updating assessmentGrading: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
