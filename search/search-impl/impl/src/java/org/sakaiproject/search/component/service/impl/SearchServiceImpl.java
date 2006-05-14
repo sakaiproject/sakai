@@ -46,6 +46,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchWriterLock;
 
 /**
@@ -63,10 +64,6 @@ public class SearchServiceImpl implements SearchService
 	 */
 	private List triggerFunctions;
 
-	/**
-	 * Location of index, required dependency
-	 */
-	private String indexDirectory;
 
 	/**
 	 * the notification object
@@ -94,6 +91,8 @@ public class SearchServiceImpl implements SearchService
 
 	private NotificationService notificationService;
 
+	private IndexStorage indexStorage = null;
+
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
@@ -112,10 +111,10 @@ public class SearchServiceImpl implements SearchService
 			log.debug("init start");
 
 			log.debug("checking setup");
-			if (indexDirectory == null)
+			if (indexStorage == null)
 			{
-				log.error(" indexDirectory must be set");
-				throw new RuntimeException("Must set indexDirectory");
+				log.error(" indexStorage must be set");
+				throw new RuntimeException("Must set indexStorage");
 
 			}
 			if (searchIndexBuilder == null)
@@ -270,54 +269,17 @@ public class SearchServiceImpl implements SearchService
 	{
 		if (runningIndexSearcher == null || reload)
 		{
-			reloadStart = System.currentTimeMillis();
+			
 			try
 			{
-				File indexDirectoryFile = new File(indexDirectory);
-				if ( !indexDirectoryFile.exists() ) {
-					indexDirectoryFile.mkdirs();
-				}
-
-				IndexSearcher indexSearcher = new IndexSearcher(indexDirectory);
-				if (indexSearcher != null)
-				{
-					runningIndexSearcher = indexSearcher;
-				} else {
-					log.warn("No search Index exists at this time");
-				}
-				reloadEnd = System.currentTimeMillis();
-				log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
-						+ (reloadEnd - reloadStart));
-
+				runningIndexSearcher = indexStorage.getIndexSearcher();
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
 			}
 		}
 		return runningIndexSearcher;
 
-	}
-
-	/**
-	 * required dependency
-	 * 
-	 * @return Returns the indexDirectory.
-	 */
-	public String getIndexDirectory()
-	{
-		return indexDirectory;
-	}
-
-	/**
-	 * required dependency
-	 * 
-	 * @param indexDirectory
-	 *        The indexDirectory to set.
-	 */
-	public void setIndexDirectory(String indexDirectory)
-	{
-		this.indexDirectory = indexDirectory;
 	}
 
 	public void refreshInstance()
@@ -344,17 +306,15 @@ public class SearchServiceImpl implements SearchService
 
 	public String getStatus()
 	{
-		
+
 		String lastLoad = (new Date(reloadEnd)).toString();
 		String loadTime = String
 				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
 		SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
 		List lockNodes = searchIndexBuilder.getNodeStatus();
-		
-		
+
 		return "Index Last Loaded " + lastLoad + " in " + loadTime + " seconds";
 	}
-	
 
 	public int getNDocs()
 	{
@@ -373,7 +333,6 @@ public class SearchServiceImpl implements SearchService
 		return searchIndexBuilder.getPendingDocuments();
 	}
 
-	
 	public List getAllSearchItems()
 	{
 		return searchIndexBuilder.getAllSearchItems();
@@ -383,6 +342,7 @@ public class SearchServiceImpl implements SearchService
 	{
 		return searchIndexBuilder.getSiteMasterSearchItems();
 	}
+
 	public List getGlobalMasterSearchItems()
 	{
 		return searchIndexBuilder.getGlobalMasterSearchItems();
@@ -397,55 +357,85 @@ public class SearchServiceImpl implements SearchService
 		final List lockNodes = searchIndexBuilder.getNodeStatus();
 		final String pdocs = String.valueOf(getPendingDocs());
 		final String ndocs = String.valueOf(getNDocs());
-		
-		return new SearchStatus() {
-			public String getLastLoad() {
+
+		return new SearchStatus()
+		{
+			public String getLastLoad()
+			{
 				return lastLoad;
 			}
-			public String getLoadTime() {
+
+			public String getLoadTime()
+			{
 				return loadTime;
 			}
-			public String getCurrentWorker() {
+
+			public String getCurrentWorker()
+			{
 				return lock.getNodename();
 			}
-			public Date getCurrentWorkerETC() {
+
+			public Date getCurrentWorkerETC()
+			{
 				return lock.getExpires();
 			}
-			public List getWorkerNodes() {
+
+			public List getWorkerNodes()
+			{
 				List l = new ArrayList();
-				for ( Iterator i = lockNodes.iterator(); i.hasNext();) {
+				for (Iterator i = lockNodes.iterator(); i.hasNext();)
+				{
 					SearchWriterLock swl = (SearchWriterLock) i.next();
 					Object[] result = new Object[3];
 					result[0] = swl.getNodename();
 					result[1] = swl.getExpires();
-					if ( lock.getNodename().equals(swl.getNodename())) {
+					if (lock.getNodename().equals(swl.getNodename()))
+					{
 						result[2] = "running";
-					} else {
+					}
+					else
+					{
 						result[2] = "idle";
 					}
 					l.add(result);
 				}
 				return l;
 			}
+
 			public String getNDocuments()
 			{
 				return ndocs;
 			}
+
 			public String getPDocuments()
 			{
 				return pdocs;
 			}
-			
-						
+
 		};
-		
+
 	}
 
 	public boolean removeWorkerLock()
 	{
 		return searchIndexBuilder.removeWorkerLock();
-		
+
 	}
-	
-	
+
+	/**
+	 * @return Returns the indexStorage.
+	 */
+	public IndexStorage getIndexStorage()
+	{
+		return indexStorage;
+	}
+
+	/**
+	 * @param indexStorage The indexStorage to set.
+	 */
+	public void setIndexStorage(IndexStorage indexStorage)
+	{
+		this.indexStorage = indexStorage;
+	}
+
 }

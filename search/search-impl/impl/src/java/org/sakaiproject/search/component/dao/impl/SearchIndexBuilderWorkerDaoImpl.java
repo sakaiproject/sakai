@@ -32,13 +32,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.store.FSDirectory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -57,6 +55,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
+import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -79,13 +78,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	private SearchIndexBuilder searchIndexBuilder = null;
 
 	/**
-	 * dependency: the current search service, used to get the location of the
-	 * index
-	 */
-
-	private String searchIndexDirectory = null;
-
-	/**
 	 * The number of items to process in a batch, default = 100
 	 */
 	private int indexBatchSize = 100;
@@ -95,6 +87,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	private EntityManager entityManager;
 
 	private EventTrackingService eventTrackingService;
+	
+	/**
+	 * injected to abstract the storage impl
+	 */
+	private IndexStorage indexStorage = null;
 
 	public void init()
 	{
@@ -121,6 +118,10 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			if (entityManager == null)
 			{
 				log.error("Search Index Worker needs EntityManager ");
+			}
+			if (indexStorage == null)
+			{
+				log.error("Search Index Worker needs indexStorage ");
 			}
 		}
 		catch (Throwable t)
@@ -157,14 +158,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				int totalDocs = 0;
 				try
 				{
-					log.debug("Starting process List on "
-							+ searchIndexDirectory);
-					File f = new File(searchIndexDirectory);
-					if (!f.exists())
-					{
-						f.mkdirs();
-						log.debug("Indexing in " + f.getAbsolutePath());
-					}
 
 					IndexWriter indexWrite = null;
 
@@ -180,26 +173,13 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					{
 						try
 						{
-							if (IndexReader.isLocked(searchIndexDirectory))
-							{
-								// this could be dangerous, I am assuming that
-								// the locking mechanism implemented here is
-								// robust and
-								// already prevents multiple modifiers.
-								// A more
-
-								IndexReader.unlock(FSDirectory.getDirectory(
-										searchIndexDirectory, true));
-								log
-										.warn("Unlocked Lucene Directory for update, hope this is Ok");
-							}
-							if (IndexReader.indexExists(searchIndexDirectory))
+							indexStorage.doPreIndexUpdate();
+							if (indexStorage.indexExists())
 							{
 								IndexReader indexReader = null;
 								try
 								{
-									indexReader = IndexReader
-											.open(searchIndexDirectory);
+									indexReader = indexStorage.getIndexReader();
 
 									// Open the index
 									for (Iterator tditer = runtimeToDo
@@ -264,9 +244,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								}
 								if (worker.isRunning())
 								{
-									indexWrite = new IndexWriter(
-											searchIndexDirectory,
-											new StandardAnalyzer(), false);
+									indexWrite = indexStorage.getIndexWriter(false);
 								}
 							}
 							else
@@ -274,9 +252,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								// create for update
 								if (worker.isRunning())
 								{
-									indexWrite = new IndexWriter(
-											searchIndexDirectory,
-											new StandardAnalyzer(), true);
+									indexWrite = indexStorage.getIndexWriter(true);
 								}
 							}
 							for (Iterator tditer = runtimeToDo.iterator(); worker
@@ -454,9 +430,19 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			totalDocs = ((Integer) getHibernateTemplate().execute(callback))
 					.intValue();
 		}
+		
+		try
+		{
+			indexStorage.doPostIndexUpdate();
+		}
+		catch (IOException e)
+		{
+			log.error("Failed to do Post Index Update",e);
+		}
 
 		if (worker.isRunning())
 		{
+			
 			eventTrackingService.post(eventTrackingService.newEvent(
 					SearchService.EVENT_TRIGGER_INDEX_RELOAD,
 					"/searchindexreload", true,
@@ -835,21 +821,21 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		session.saveOrUpdate(controlItem);
 	}
 
+	
 	/**
-	 * @return Returns the searchIndexDirectory.
+	 * @return Returns the indexStorage.
 	 */
-	public String getSearchIndexDirectory()
+	public IndexStorage getIndexStorage()
 	{
-		return searchIndexDirectory;
+		return indexStorage;
 	}
 
 	/**
-	 * @param searchIndexDirectory
-	 *        The searchIndexDirectory to set.
+	 * @param indexStorage The indexStorage to set.
 	 */
-	public void setSearchIndexDirectory(String searchIndexDirectory)
+	public void setIndexStorage(IndexStorage indexStorage)
 	{
-		this.searchIndexDirectory = searchIndexDirectory;
+		this.indexStorage = indexStorage;
 	}
 
 }

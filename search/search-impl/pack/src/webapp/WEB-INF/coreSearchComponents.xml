@@ -28,10 +28,7 @@
   <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
-    <!-- This is used by the reader, there is also a location defiend by the writer
-    If you want to have the writer write somewhere different and ship the index
-    make then different, otherwise they should be the same -->
-    <property name="indexDirectory"><value>${sakai.home}/searchindex</value></property>
+    <property name="indexStorage"><ref bean="searchStorageImpl" /></property>
   </bean> 
     
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -111,11 +108,14 @@
     class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoImpl" 
     init-method="init" >
     <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
-    <!--
-    This is the location where the index is written. Normally its the same as the reader
-    location, but it can be different if you are prepared to implement a shipping process 
-    -->
-    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
+    <property name="indexStorage"><ref bean="searchStorageImpl" /></property>
   </bean>
+  
+  <bean id="searchStorageImpl" 
+    class="org.sakaiproject.search.index.impl.FSIndexStorage" 
+    >
+    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>    
+  </bean>
+  
   
 </beans>
