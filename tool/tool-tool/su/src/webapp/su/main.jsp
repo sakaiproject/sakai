@@ -37,7 +37,7 @@
 		  <h:outputText value="#{msgs.type}" />
 		  <h:outputText value="#{SuTool.userinfo.type}" />
 		  <h:outputText value="#{msgs.created}" />
-		  <h:outputText value="#{SuTool.userinfo.createdTime}" />
+		  <h:outputText value="#{SuTool.userinfo.createdTime.display}" />
 		</h:panelGrid>
 
 		<h:inputText id="username" value="#{SuTool.username}" required="true">

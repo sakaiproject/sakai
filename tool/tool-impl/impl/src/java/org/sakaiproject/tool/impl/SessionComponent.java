@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.impl;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,13 +38,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.util.IteratorEnumeration;
 import org.sakaiproject.tool.api.ContextSession;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.util.IteratorEnumeration;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
@@ -222,7 +223,7 @@ public abstract class SessionComponent implements SessionManager
 	public Session getCurrentSession()
 	{
 		Session rv = (Session) threadLocalManager().get(CURRENT_SESSION);
-		
+
 		// if we don't have one already current, make one and bind it as current, but don't save it in our by-id table - let it just go away after the thread
 		if (rv == null)
 		{
@@ -440,6 +441,85 @@ public abstract class SessionComponent implements SessionManager
 			if (this.equals(getCurrentSession()))
 			{
 				setCurrentSession(null);
+			}
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public void clear()
+		{
+			// move the attributes and tool sessions to local maps in a synchronized block so the unbinding happens only on one thread
+			Map unbindMap = null;
+			Map toolMap = null;
+			Map contextMap = null;
+			synchronized (this)
+			{
+				unbindMap = new HashMap(m_attributes);
+				m_attributes.clear();
+
+				toolMap = new HashMap(m_toolSessions);
+				m_toolSessions.clear();
+
+				contextMap = new HashMap(m_contextSessions);
+				m_contextSessions.clear();
+			}
+
+			// clear each tool session
+			for (Iterator i = toolMap.entrySet().iterator(); i.hasNext();)
+			{
+				Map.Entry e = (Map.Entry) i.next();
+				ToolSession t = (ToolSession) e.getValue();
+				t.clearAttributes();
+			}
+
+			// clear each context session
+			for (Iterator i = contextMap.entrySet().iterator(); i.hasNext();)
+			{
+				Map.Entry e = (Map.Entry) i.next();
+				ToolSession t = (ToolSession) e.getValue();
+				t.clearAttributes();
+			}
+
+			// send unbind events
+			for (Iterator i = unbindMap.entrySet().iterator(); i.hasNext();)
+			{
+				Map.Entry e = (Map.Entry) i.next();
+				String name = (String) e.getKey();
+				Object value = e.getValue();
+				unBind(name, value);
+			}
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public void clearExcept(Collection names)
+		{
+			// save any attributes in names
+			Map saveAttributes = new HashMap();
+			for (Iterator i = names.iterator(); i.hasNext();)
+			{
+				String name = (String) i.next();
+				Object value = m_attributes.get(name);
+				if (value != null)
+				{
+					// remvove, but do NOT unbind
+					m_attributes.remove(name);
+					saveAttributes.put(name, value);
+				}
+			}
+
+			// clear the remaining
+			clear();
+
+			// restore the saved attributes
+			for (Iterator i = saveAttributes.entrySet().iterator(); i.hasNext();)
+			{
+				Map.Entry e = (Map.Entry) i.next();
+				String name = (String) e.getKey();
+				Object value = e.getValue();
+				m_attributes.put(name, value);
 			}
 		}
 
@@ -881,10 +961,10 @@ public abstract class SessionComponent implements SessionManager
 			{
 				// add
 				Object old = m_attributes.put(name, value);
-	
+
 				// bind event
 				bind(name, value);
-	
+
 				// unbind event if old exiss
 				if (old != null)
 				{
@@ -953,7 +1033,7 @@ public abstract class SessionComponent implements SessionManager
 				SessionBindingEvent event = new MySessionBindingEvent(name, m_session, value);
 				((SessionBindingListener) value).valueBound(event);
 			}
-			
+
 			if (value instanceof HttpSessionBindingListener)
 			{
 				HttpSessionBindingEvent event = new HttpSessionBindingEvent(this, name, value);
@@ -990,7 +1070,7 @@ public abstract class SessionComponent implements SessionManager
 		 */
 		public void setMaxInactiveInterval(int arg0)
 		{
-		// TODO: just ignore this ?
+			// TODO: just ignore this ?
 		}
 
 		/**
@@ -1075,7 +1155,8 @@ public abstract class SessionComponent implements SessionManager
 		 * Construct.
 		 */
 		public Maintenance()
-		{}
+		{
+		}
 
 		/**
 		 * Start the maintenance thread.
@@ -1104,7 +1185,8 @@ public abstract class SessionComponent implements SessionManager
 					m_maintenanceChecker.join();
 				}
 				catch (InterruptedException ignore)
-				{}
+				{
+				}
 				m_maintenanceChecker = null;
 			}
 		}
@@ -1138,7 +1220,8 @@ public abstract class SessionComponent implements SessionManager
 					M_log.warn("run(): exception: " + e);
 				}
 				finally
-				{}
+				{
+				}
 
 				// cycle every REFRESH seconds
 				if (!m_maintenanceCheckerStop)
@@ -1148,7 +1231,8 @@ public abstract class SessionComponent implements SessionManager
 						Thread.sleep(m_checkEvery * 1000L);
 					}
 					catch (Exception ignore)
-					{}
+					{
+					}
 				}
 			}
 		}

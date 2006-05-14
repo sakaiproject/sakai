@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.api;
 
+import java.util.Collection;
 import java.util.Enumeration;
 
 /**
@@ -122,11 +123,18 @@ public interface Session
 
 	/**
 	 * Invalidates this session then unbinds any objects bound to it.
-	 * 
-	 * @exception IllegalStateException
-	 *            if this method is called on an already invalidated session
 	 */
 	void invalidate();
+
+	/**
+	 * Clear this session's attributes, unbinding any objects bound, but do NOT fully invalidate - it remains the current session.
+	 */
+	void clear();
+	
+	/**
+	 * Clear this session's attributes, except for those named, unbinding any objects bound, but do NOT fully invalidate - it remains the current session.
+	 */
+	void clearExcept(Collection names);
 
 	/**
 	 * Removes the object bound with the specified name from this session. If the session does not have an object bound with the specified name, this method does nothing.

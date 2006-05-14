@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.su;
 
+import java.util.Vector;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
@@ -29,6 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -133,14 +136,19 @@ public class SuTool
 		M_log.info("[SuTool] " + message);
 		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": Currently="
 				+ userinfo.getDisplayName()));
+		
+		// while keeping the official usage session under the real user id, swicth over everything else to be the SU'ed user
+		// Modeled on UsageSession's logout() and login()
+		
+		// logout - clear, but do not invalidate, preserve the usage session's current session
+		Vector saveAttributes = new Vector();
+		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+		sakaiSession.clearExcept(saveAttributes);
+		
+		// login - set the user id and eid into session, and refresh this user's authz information
 		sakaiSession.setUserId(validatedUserId);
 		sakaiSession.setUserEid(validatedUserId);
-
-		// refesh the user's realms, so any recent changes to their site membership will take effect
-		if (M_authzGroupService != null)
-		{
-			M_authzGroupService.refreshUser(validatedUserId);
-		}
+		M_authzGroupService.refreshUser(validatedUserId);
 
 		return "redirect";
 	}
