@@ -142,12 +142,13 @@ public class ChatDelivery extends BaseDelivery
 		{
 			String msgbody = Web.escapeJsQuoted(Web.escapeHtmlFormattedText(msg.getBody()));
 
+			// is the user we are delivering to allowed to remove this message?
 			boolean removeable = false;
 			if (channel.allowRemoveMessage(msg)) removeable = true;
 
 			retval = "try { " + m_elementId + ".appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
 					+ new Boolean(removeable) + "', '" + msg.getHeader().getDate().toStringLocalDate() + "', '"
-					+ msg.getHeader().getDate().toStringLocalTime() + "', '" + msgbody + "'); } catch (error) {} ";
+					+ msg.getHeader().getDate().toStringLocalTimeZ() + "', '" + msgbody + "','" + msg.getHeader().getId() + "'); } catch (error) {} ";
 		}
 
 		if (m_beepOnDelivery && sender.compareTo(myself) != 0)

@@ -17,6 +17,9 @@
 ## this is double deep
 <script type="text/javascript" language="JavaScript">
 doubleDeep = true;
+// set for the chatscript.js
+deleteUrl = '#toolLink($action "doConfirmDeleteMessage")&messageid=';
+deleteMsg = "$tlang.getString('list.del')";
 </script>
 
 ## appendMessage function comes from chatscript.js
