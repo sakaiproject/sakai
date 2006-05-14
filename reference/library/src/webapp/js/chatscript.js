@@ -1,23 +1,30 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/reference/library/src/webapp/js/chatscript.js,v 1.1 2005/04/12 17:44:21 ggolden.umich.edu Exp $
-*
-***********************************************************************************
-@license@
-**********************************************************************************/
+ * $URL: https://source.sakaiproject.org/svn/presence/trunk/presence-util/util/src/java/org/sakaiproject/util/PresenceObservingCourier.java $
+ * $Id: PresenceObservingCourier.java 8204 2006-04-24 19:35:57Z ggolden@umich.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
-// 
-// <p>The appendMessage function is used in the CHEF chat log to append messages 
-// to the end of the transcript of chat messages.  Called in chef_chat-List.vm
-//
-// @author University of Michigan, CHEF Software Development Team
-// @version $Revision: 1.1 $
-// 
-function appendMessage(uname, uid, removeable, pdate, ptime, msg)
+// add a message to the chat list from chef_chat-List.vm 
+function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 {
 	var undefined;
 	var position = 100000, docheight = 0, frameheight = 300;	  
-	var transcript = (document.all) ? document.all.transcript : document.getElementById("transcript");
+	var transcript = (document.all) ? document.all.transcript : document.getElementById("chatList");
 	
 	// compose the time/date according to user preferences for this session
 	var msgTime = "";
@@ -45,7 +52,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 		// MAC_IE 
 		position = document.body.scrollTop ;
 	}
-	else if(window.pageYOffset !== undefined)
+	else if(window.pageYOffset != undefined)
 	{
 		// WIN_MZ 
 		// WIN_NN
@@ -55,7 +62,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 	{
 		position = document.documentElement.scrollTop;
 	}
-	else if(document.body.scrollTop !== undefined)
+	else if(document.body.scrollTop != undefined)
 	{
 		position = document.body.scrollTop;
 	}
@@ -84,12 +91,11 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 		// WIN_NN
 		frameheight = window.innerHeight;
 	}
-	else if(document.body.parentNode !== undefined && document.body.parentNode.clientHeight !== undefined)
+	else if(document.body.parentNode != undefined && document.body.parentNode.clientHeight != undefined)
 	{
 		frameheight = document.body.parentNode.clientHeight;
 	}
 	
-	// ========================================================================
 	// find the overall size (height) of the chat log
 	if(document.body.offsetHeight)
 	{
@@ -108,8 +114,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 		docheight = document.height;
 	}
 	
-	var newDiv = document.createElement('div');
-	var blankLine = document.createElement('br');
+	var newDiv = document.createElement('li');
 	var color = ColorMap[uid];
 	if(color == null)
 	{
@@ -120,12 +125,20 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 			nextColor = 0;
 		}
 	}
-	newDiv.innerHTML = '<span class="chefChatUserName" style="color: ' + color + ';">' 
-		+ uname + '</span><span class="chefChatTimeStamp">'
-		+ msgTime 		// msgTime should be empty string for hide both
-		+ '</span><span class="chefChatMessageBody">: <span class="chefPre">' + msg + '</span></span>\n' ;
+	
+	var deleteHtml = "";
+	if (removeable == "true")
+	{
+		deleteHtml = 
+			" <a href=\"#\" onclick=\"location='" + deleteUrl + msgId + "'; return false;\" title=\"" + deleteMsg + "\" >" +
+			"<img src=\"/library/image/sakai/delete.gif\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
+	}
+
+	newDiv.innerHTML = '<span style="color: ' + color + '">' + uname + '</span>'
+		+ deleteHtml
+		+ '<span class="chatDate">' + msgTime + '</span> '
+		+ msg;
 	transcript.appendChild(newDiv);
-	transcript.appendChild(blankLine);
 
 	// adjust scroll
 	if(position >= docheight - frameheight)
@@ -148,12 +161,4 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg)
 		}
 	}
 	window.scrollTo(0, position);
-	window.location.reload(false);
-
-}	// appendMessage
-
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/reference/library/src/webapp/js/chatscript.js,v 1.1 2005/04/12 17:44:21 ggolden.umich.edu Exp $
-*
-**********************************************************************************/
+}
