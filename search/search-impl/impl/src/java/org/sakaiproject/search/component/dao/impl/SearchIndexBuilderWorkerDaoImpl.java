@@ -293,7 +293,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											if (ref.getContext() == null)
 											{
 												log.warn("Context is null for "
-														+ sbi);
+														+ sbi.getName() + " stored context was " + sbi.getContext());
 											}
 											String container = ref
 													.getContainer();
