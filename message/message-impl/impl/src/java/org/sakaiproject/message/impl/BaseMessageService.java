@@ -21,6 +21,9 @@
 
 package org.sakaiproject.message.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +36,9 @@ import java.util.Observable;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1088,7 +1094,108 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	 */
 	public HttpAccess getHttpAccess()
 	{
-		return null;
+		return new HttpAccess()
+		{
+
+			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
+					Collection copyrightAcceptedRefs)
+			{
+				// TODO: permissions?
+
+				try
+				{
+					// We need to write to a temporary stream for better speed, plus
+					// so we can get a byte count. Internet Explorer has problems
+					// if we don't make the setContentLength() call.
+					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+					OutputStreamWriter sw = new OutputStreamWriter(outByteStream);
+
+					String skin = m_serverConfigurationService.getString("skin.default");
+					String skinRepo = m_serverConfigurationService.getString("skin.repo");
+
+					Message message = getMessage(ref);
+					String title = ref.getDescription();
+					MessageHeader messageHead = message.getHeader();
+					String date = messageHead.getDate().toStringLocalFullZ();
+					String from = messageHead.getFrom().getDisplayName();
+					String groups = "";
+					Collection gr = messageHead.getGroups();
+					for (Iterator i = gr.iterator(); i.hasNext();)
+					{
+						groups += "<li>" + i.next() + "</li>";
+					}
+					String body = message.getBody();
+
+					sw
+							.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+									+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
+									+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+									+ "<link href=\"");
+					sw.write(skinRepo);
+					sw.write("/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" + "<link href=\"");
+					sw.write(skinRepo);
+					sw.write("/");
+					sw.write(skin);
+					sw.write("/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+							+ "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n" + "<title>");
+					sw.write(title);
+					sw.write("</title></head><body><div class=\"portletBody\">\n" + "<h2>");
+					sw.write(title);
+					sw.write("</h2><ul><li>Date ");
+					sw.write(date);
+					sw.write("</li>");
+					sw.write("<li>From ");
+					sw.write(from);
+					sw.write("</li>");
+					sw.write(groups);
+					sw.write("<ul><p>");
+					sw.write(body);
+					sw.write("</p></div></body></html> ");
+
+					sw.flush();
+					res.setContentType("text/html");
+					res.setContentLength(outByteStream.size());
+
+					if (outByteStream.size() > 0)
+					{
+						// Increase the buffer size for more speed.
+						res.setBufferSize(outByteStream.size());
+					}
+
+					OutputStream out = null;
+					try
+					{
+						out = res.getOutputStream();
+						if (outByteStream.size() > 0)
+						{
+							outByteStream.writeTo(out);
+						}
+						out.flush();
+						out.close();
+					}
+					catch (Throwable ignore)
+					{
+					}
+					finally
+					{
+						if (out != null)
+						{
+							try
+							{
+								out.close();
+							}
+							catch (Throwable ignore)
+							{
+							}
+						}
+					}
+				}
+				catch (Throwable t)
+				{
+					throw new RuntimeException("Faied to find message ", t);
+				}
+			}
+		};
 	}
 
 	/**
@@ -1643,8 +1750,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	/**
 	 * Handle the extra "categtories" stuff in the channel part of the merge xml.
 	 * 
-	 * @param element The "channel" node child.
-	 * @param channelRef The message channel ref.
+	 * @param element
+	 *        The "channel" node child.
+	 * @param channelRef
+	 *        The message channel ref.
 	 */
 	protected void parseMergeChannelExtra(Element element3, String channelRef)
 	{
@@ -1856,7 +1965,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public String getUrl()
 		{
-			return getAccessPoint(false) + SEPARATOR + getId() + SEPARATOR; // %%% needs fixing re: context
+			return getAccessPoint(false) + getReference();
 
 		} // getUrl
 
@@ -3038,7 +3147,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		public String getUrl()
 		{
 			if (m_channel == null) return "";
-			return m_channel.getUrl() + getId();
+			return getAccessPoint(false) + getReference();
 
 		} // getUrl
 
