@@ -60,7 +60,8 @@ public class ResetDeliveryListener implements ActionListener
     AbortProcessingException
   {
     DeliveryBean bean = (DeliveryBean) cu.lookupBean("delivery");
-    bean.setPublishedAssessment(null);
+    if (!("takeAssessmentViaUrl").equals(bean.getActionString()))
+      bean.setPublishedAssessment(null);
     bean.setPublishedItemHash(new HashMap());
     bean.setPublishedItemTextHash(new HashMap());
     bean.setPublishedAnswerHash(new HashMap());

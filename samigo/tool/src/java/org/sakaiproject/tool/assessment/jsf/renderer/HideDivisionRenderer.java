@@ -146,7 +146,7 @@ public class HideDivisionRenderer extends Renderer
     writer.write("</div>");
     
     ToolSession session = SessionManager.getCurrentToolSession();
-    if(session.getAttribute("sam_expande_hide_div_id") != null)
+    if(session!=null && session.getAttribute("sam_expande_hide_div_id") != null)
     {
       String jsfId = (String) component.getAttributes().get("id");
       if(((String)session.getAttribute("sam_expande_hide_div_id")).equalsIgnoreCase(jsfId))
