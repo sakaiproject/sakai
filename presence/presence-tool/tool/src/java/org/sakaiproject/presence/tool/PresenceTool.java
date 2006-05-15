@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,7 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -45,6 +47,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.PresenceObservingCourier;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
@@ -216,8 +219,6 @@ public class PresenceTool extends HttpServlet
 	{
 		// set the refresh of the courier to 1/2 the presence timeout value
 		Web.sendAutoUpdate(out, req, placementId, PresenceService.getTimeout() / 2);
-		// out.println("<div id=\"update_a\" style=\"display:block\"> a </div>");
-		// out.println("<div id=\"update_b\" style=\"display:none\"> b </div>");
 	}
 
 	/**
@@ -228,6 +229,31 @@ public class PresenceTool extends HttpServlet
 	 */
 	protected void sendPresence(PrintWriter out, List users, List chatUsers)
 	{
+		// is the current user running under an assumed (SU) user id?
+		String asName = null;
+		String myUserId = null;
+		try
+		{
+			UsageSession usageSession = UsageSessionService.getSession();
+			if (usageSession != null)
+			{
+				// this is the absolutely real end-user id, even if running as another user
+				myUserId = usageSession.getUserId();
+
+				// this is the user id the current user is running as
+				String sessionUserId = SessionManager.getCurrentSessionUserId();
+
+				// if different
+				if (!myUserId.equals(sessionUserId))
+				{
+					asName = UserDirectoryService.getUser(sessionUserId).getDisplayName();
+				}
+			}
+		}
+		catch (Throwable any)
+		{
+		}
+
 		out.println("<ul class=\"presenceList\">");
 		if (users == null)
 		{
@@ -236,46 +262,50 @@ public class PresenceTool extends HttpServlet
 			return;
 		}
 
-		// Loop through twice - output the users in chat first followed by the users
-		// not in chat 
-
-		// Chat users
-		if ( chatUsers != null ) {
+		// first pass - list Chat users (if any)
+		if (chatUsers != null)
+		{
 			for (Iterator i = chatUsers.iterator(); i.hasNext();)
 			{
 				User u = (User) i.next();
+				String displayName = u.getDisplayName();
+
+				// adjust if this is the current user running as someone else
+				if ((asName != null) && (u.getId().equals(myUserId)))
+				{
+					displayName += " (" + asName + ")";
+				}
+
 				String msg = rb.getString("inchat");
 				out.print("<li class=\"inChat\">");
 				out.print("<span title=\"" + msg + "\">");
-				out.print(Web.escapeHtml(u.getDisplayName()));
+				out.print(Web.escapeHtml(displayName));
 				out.println("</span></li>");
 			}
 		}
 
-		// Non-chat users
-		for (Iterator i = users.iterator(); i.hasNext();)
+		// second pass - list remaining non-chat users
+		List nonChatUsers = new Vector(users);
+		if (chatUsers != null)
+		{
+			nonChatUsers.removeAll(chatUsers);
+		}
+		for (Iterator i = nonChatUsers.iterator(); i.hasNext();)
 		{
 			User u = (User) i.next();
-			boolean inChat = false;
-			if (chatUsers != null)
-			{
-				String userId = u.getId();
-				for (Iterator j = chatUsers.iterator(); j.hasNext();)
-				{
-					User chatUser = (User) j.next();
-					if (userId != null && userId.equals(chatUser.getId()))
-					{
-						inChat = true;
-					}
-				}
-			}
 
-			if ( inChat ) continue;  // Already printed out
+			String displayName = u.getDisplayName();
+
+			// adjust if this is the current user running as someone else
+			if ((asName != null) && (u.getId().equals(myUserId)))
+			{
+				displayName += " (" + asName + ")";
+			}
 
 			String msg = rb.getString("insite");
 			out.print("<li>");
 			out.print("<span title=\"" + msg + "\">");
-			out.print(Web.escapeHtml(u.getDisplayName()));
+			out.print(Web.escapeHtml(displayName));
 			out.println("</span></li>");
 		}
 
