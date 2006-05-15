@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Stack;
 
 import javax.servlet.http.HttpServletRequest;
@@ -73,6 +72,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -83,10 +83,14 @@ import org.w3c.dom.Element;
  * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
  * </p>
  */
-public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver, EntityTransferrer
+public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver,
+		EntityTransferrer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
+
+	/** Messages, for the http access. */
+	protected static ResourceLoader rb = new ResourceLoader("annc-access");
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -558,8 +562,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					EntityAccessOverloadException, EntityCopyrightException
 			{
 				/** Resource bundle using current language locale */
-				final ResourceBundle rb = ResourceBundle.getBundle("access");
-
+				// final ResourceBundle rb = ResourceBundle.getBundle("access");
 				// check security on the message (throws if not permitted)
 				try
 				{
@@ -578,18 +581,24 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					res.setContentType("text/html; charset=UTF-8");
 					PrintWriter out = res.getWriter();
 					out
-							.println("<html><head><style type="
-									+ "\""
-									+ "text/css"
-									+ "\""
-									+ ">body{margin:	0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style></head><body>");
+							.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+									+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
+									+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+									+ "<style type=\"text/css\">body{margin:0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style>\n"
+									+ "<title>"
+									+ rb.getString("announcement")
+									+ ": "
+									+ Validator.escapeHtml(hdr.getSubject())
+									+ "</title>" + "</head>\n<body>");
+
+					out.println("<h1>" + rb.getString("announcement") + "</h1>");
 
 					// header
-					out.println("<p>" + rb.getString("java.from") + " " + Validator.escapeHtml(hdr.getFrom().getDisplayName())
-							+ "<br />");
-					out.println(rb.getString("java.date") + " " + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
-							+ "<br />");
-					out.println(rb.getString("java.subject") + " " + Validator.escapeHtml(hdr.getSubject()) + "</p>");
+					out.println("<table><tr><td><b>" + rb.getString("from") + ":</b></td><td>"
+							+ Validator.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
+					out.println("<tr><td><b>" + rb.getString("date") + ":</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
+							+ "</td></tr>");
+					out.println("<tr><td><b>" + rb.getString("subject") + ":</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
 
 					// body
 					out.println("<p>" + Validator.escapeHtmlFormattedText(msg.getBody()) + "</p>");
@@ -598,7 +607,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 					List attachments = hdr.getAttachments();
 					if (attachments.size() > 0)
 					{
-						out.println("<p>" + rb.getString("java.attach") + "</p><p>");
+						out.println("<p><b>" + rb.getString("attachments") + ":</b></p><p>");
 						for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 						{
 							Reference attachment = (Reference) iAttachments.next();
