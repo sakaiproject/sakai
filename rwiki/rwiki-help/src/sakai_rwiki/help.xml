@@ -19,7 +19,7 @@
       <value>wiki_content2</value>
     </property>
     <property name="name">
-      <value>Wiki: Viewing pages</value>
+      <value>Viewing pages</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/viewing_pages.htm</value>
@@ -30,7 +30,7 @@
       <value>wiki_content3</value>
     </property>
     <property name="name">
-      <value>Wiki: Editing pages</value>
+      <value>Editing pages</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/editing_pages.htm</value>
@@ -41,7 +41,7 @@
       <value>wiki_content4</value>
     </property>
     <property name="name">
-      <value>Wiki: Creating new pages</value>
+      <value>Creating new pages</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/creating_pages.htm</value>
@@ -52,7 +52,7 @@
       <value>wiki_content5</value>
     </property>
     <property name="name">
-      <value>Wiki: Adding images and attachments</value>
+      <value>Adding images and attachments</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/adding_images.htm</value>
@@ -63,7 +63,7 @@
       <value>wiki_content6</value>
     </property>
     <property name="name">
-      <value>Wiki: Viewing page info</value>
+      <value>Viewing page info</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/viewing_info.htm</value>
@@ -74,7 +74,7 @@
       <value>wiki_content7</value>
     </property>
     <property name="name">
-      <value>Wiki: Viewing page history</value>
+      <value>Viewing page history</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/viewing_history.htm</value>
@@ -85,7 +85,7 @@
       <value>wiki_content8</value>
     </property>
     <property name="name">
-      <value>Wiki: Setting permissions</value>
+      <value>Setting permissions</value>
     </property>
     <property name="location">
       <value>/sakai_rwiki/setting_permissions.htm</value>
