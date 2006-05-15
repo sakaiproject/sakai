@@ -121,8 +121,6 @@ extends VelocityPortletStateAction
 	private static final int SECOND_PAGE_START_HOUR = 8;
 	private static final int THIRD_PAGE_START_HOUR = 14;
 	
-	private static final String MERGE_SCHEDULE_BUTTON_CAPTION = rb.getString("java.merge");//"Merge...";
-	private static final String MERGE_SCHEDULE_BUTTON_HANDLER = "doMerge";
 	private static final String STATE_YEAR = "calYear";
 	private static final String STATE_MONTH = "calMonth";
 	private static final String STATE_DAY = "calDay";
@@ -138,11 +136,6 @@ extends VelocityPortletStateAction
 	private static final String SSTATE__RECURRING_RULE = "rule";
 	private static final String STATE_BEFORE_SET_RECURRENCE = "state_before_set_recurrence";
 	
-	private static final String ALERT_ENDING_EARLIER_THAN_STARTING = rb.getString("java.theend");//"The ending date is earlier than the starting date. Change it please.";
-	
-	// Name used in the velocity template for the list of merged/non-merged calendars
-	private final static String MERGED_CALENDARS_COLLECTION = "mergedCalendarsCollection";
-	
 	private final static String TIME_FILTER_OPTION_VAR = "timeFilterOption";
 	private final static String TIME_FILTER_SETTING_CUSTOM_START_DATE_VAR = "customStartDate";
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_DATE_VAR = "customEndDate";
@@ -155,11 +148,6 @@ extends VelocityPortletStateAction
 	
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
-	private static final String VIEW_BY_DAY = rb.getString("java.byday");//"Calendar by day";
-	private static final String VIEW_BY_WEEK = rb.getString("java.byweek");//"Calendar by week";
-	private static final String VIEW_BY_MONTH = rb.getString("java.bymonth");//"Calendar by month";
-	private static final String VIEW_BY_YEAR = rb.getString("java.byyear");//"Calendar by year";
-	private static final String VIEW_LIST = rb.getString("java.listeve");//"List of events";
 	
 	/** DELIMETER used to separate the list of custom fields for this calendar. */
 	private final static String ADDFIELDS_DELIMITER = "_,_";
@@ -1044,19 +1032,14 @@ extends VelocityPortletStateAction
 	 */
 	public class MergePage
 	{
-		private final String mergeScheduleButtonCaption;
-		private final String mergeScheduleButtonHandler;
-		
+		private final String mergeScheduleButtonHandler = "doMerge";
+
 		// Name used in the velocity template for the list of merged/non-merged calendars
-		private final String mergedCalendarsCollection;
+		private final String mergedCalendarsCollection = "mergedCalendarsCollection";
 		
-		
-		public MergePage(String mergeButtonCaption, String mergeButtonHandler, String mergedListVelocityName)
+      public MergePage()
 		{
 			super();
-			this.mergeScheduleButtonCaption = mergeButtonCaption;
-			this.mergeScheduleButtonHandler = mergeButtonHandler;
-			this.mergedCalendarsCollection = mergedListVelocityName;
 		}
 		
 		/**
@@ -1219,7 +1202,7 @@ extends VelocityPortletStateAction
 		 */
 		public String getButtonText()
 		{
-			return mergeScheduleButtonCaption;
+		   return rb.getString("java.merge");
 		}
 		
 	}
@@ -1238,7 +1221,6 @@ extends VelocityPortletStateAction
 		// Name used in the velocity template for the list of calendar addFields
 		private final static String ADDFIELDS_CALENDARS_COLLECTION = "addFieldsCalendarsCollection";
 		private final static String ADDFIELDS_CALENDARS_COLLECTION_ISEMPTY = "addFieldsCalendarsCollectionIsEmpty";
-		private final String OPTIONS_BUTTON_CAPTION = rb.getString("java.fields");
 		private final static String OPTIONS_BUTTON_HANDLER = "doCustomize";
 		
 		
@@ -1587,7 +1569,7 @@ extends VelocityPortletStateAction
 		 */
 		public String getButtonText()
 		{
-			return OPTIONS_BUTTON_CAPTION;
+		   return rb.getString("java.fields");
 		}
 		
 		/**
@@ -1943,14 +1925,9 @@ extends VelocityPortletStateAction
 	private final static String STATE_EVENTS_LIST ="eventIds";
 	private final static String STATE_NAV_DIRECTION = "navigationDirection";
 	
-	private MergePage mergedCalendarPage =
-	new MergePage(
-	MERGE_SCHEDULE_BUTTON_CAPTION,
-	MERGE_SCHEDULE_BUTTON_HANDLER,
-	MERGED_CALENDARS_COLLECTION);
+	private MergePage mergedCalendarPage =	new MergePage();
 	
-	private CustomizeCalendarPage customizeCalendarPage =
-	new CustomizeCalendarPage();
+	private CustomizeCalendarPage customizeCalendarPage =	new CustomizeCalendarPage();
 	
 	/**
 	 * See if the current tab is the workspace tab.
@@ -2749,7 +2726,7 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
-		context.put("selectedView", VIEW_BY_YEAR);
+		context.put("selectedView", rb.getString("java.byyear"));
 		
 	} // buildYearContext
 	
@@ -2852,7 +2829,7 @@ extends VelocityPortletStateAction
 		
 		state.setState("month");
 		
-		context.put("selectedView", VIEW_BY_MONTH);
+		context.put("selectedView", rb.getString("java.bymonth"));
 		
 	} // buildMonthContext
 	
@@ -3182,7 +3159,7 @@ extends VelocityPortletStateAction
 		context.put("permissionallowed",Boolean.valueOf(allowed));
 		context.put("tlang",rb);
 
-		context.put("selectedView", VIEW_BY_DAY);
+		context.put("selectedView", rb.getString("java.byday"));
 
 	} // buildDayContext
 	
@@ -3449,7 +3426,7 @@ extends VelocityPortletStateAction
 		context.put("pageStartTime", pageStartTime);
 		context.put("pageEndTime", pageEndTime);
 		
-		context.put("selectedView", VIEW_BY_WEEK);
+		context.put("selectedView", rb.getString("java.byweek"));
 		
 	} // buildWeekContext
 	
@@ -4817,23 +4794,23 @@ extends VelocityPortletStateAction
 	
 	   	String viewMode = data.getParameters ().getString("view");
 		
-			if (viewMode.equalsIgnoreCase(VIEW_BY_DAY))
+			if (viewMode.equalsIgnoreCase(rb.getString("java.byday")))
 		   	{
 				doMenueday(data, context);
 		   	}
-		   	else if (viewMode.equalsIgnoreCase(VIEW_BY_WEEK))
+		   	else if (viewMode.equalsIgnoreCase(rb.getString("java.byweek")))
 		   	{
 				doWeek(data, context);
 		   	}
-		   	else if (viewMode.equalsIgnoreCase(VIEW_BY_MONTH))
+		   	else if (viewMode.equalsIgnoreCase(rb.getString("java.bymonth")))
 			{
 				doMonth(data, context);
 			}
-			else if (viewMode.equalsIgnoreCase(VIEW_BY_YEAR))
+			else if (viewMode.equalsIgnoreCase(rb.getString("java.byyear")))
 			{
 				doYear(data, context);
 			}
-			else if (viewMode.equalsIgnoreCase(VIEW_LIST))
+			else if (viewMode.equalsIgnoreCase(rb.getString("java.listeve")))
 			{
 				doList(data, context);
 			}
@@ -4922,7 +4899,7 @@ extends VelocityPortletStateAction
 		state.setState("day");
 		
 		//for dropdown menu display purpose
-		sstate.setAttribute(STATE_SELECTED_VIEW, VIEW_BY_DAY);
+		sstate.setAttribute(STATE_SELECTED_VIEW, rb.getString("java.byday"));
 		
 	}   // doToday
 	
@@ -5487,7 +5464,7 @@ extends VelocityPortletStateAction
 		}
 		else if( earlierEnding ) // if ending date is earlier than the starting date, show alert
 		{
-			addAlert(sstate, ALERT_ENDING_EARLIER_THAN_STARTING);
+			addAlert(sstate, rb.getString("java.theend") );
 			
 			state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 			state.setState("new");
@@ -5896,7 +5873,7 @@ extends VelocityPortletStateAction
 				 */
 				else if( earlierEnding ) // if ending date is earlier than the starting date, show alert
 				{
-					addAlert(sstate, ALERT_ENDING_EARLIER_THAN_STARTING);
+					addAlert(sstate, rb.getString("java.theend") );
 					
 					state.setNewData(calId, title,description,Integer.parseInt(month),Integer.parseInt(day),year,houri,Integer.parseInt(minute),Integer.parseInt(dhour),Integer.parseInt(dminute),type,timeType,location, addfieldsMap, intentionStr);
 					state.setState("revise");
@@ -6922,7 +6899,7 @@ extends VelocityPortletStateAction
 		context.put("allow_revise", Boolean.valueOf(false));
 		context.put("realDate", TimeService.newTime());
 		
-		context.put("selectedView", VIEW_LIST);
+		context.put("selectedView", rb.getString("java.listeve"));
 		context.put("tlang",rb);
 		
 
