@@ -6328,7 +6328,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public Collection getGroupsWithReadAccess(String collectionId)
 	{
-		Collection rv = new HashSet();
+		Collection rv = new Vector();
 		
 		String refString = getReference(collectionId);
 		Reference ref = m_entityManager.newReference(refString);
@@ -6458,10 +6458,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, group.getReference());
 				}
 			}
-	
-			if (!m_groups.contains(group.getReference())) 
+			
+			boolean found = false;
+			Iterator it = m_groups.iterator();
+			while(it.hasNext() && !found)
 			{
-				m_groups.add(group.getReference());
+				Group gr = (Group) it.next();
+				found = gr.getReference().equals(group.getReference());
+			}
+	
+			if (!found) 
+			{
+				m_groups.add(group);
 			}
 		}
 	

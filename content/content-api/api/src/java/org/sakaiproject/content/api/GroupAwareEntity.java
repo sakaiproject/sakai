@@ -35,7 +35,7 @@ public interface GroupAwareEntity extends Entity
 	/**
 	 * Access the groups defined for this entity.
 	 * 
-	 * @return A Collection (String) of group refs (authorization group ids) defined for this entity; empty if none are defined.
+	 * @return A Collection of Group objects defined for this entity; empty if none are defined.
 	 */
 	Collection getGroups();
 

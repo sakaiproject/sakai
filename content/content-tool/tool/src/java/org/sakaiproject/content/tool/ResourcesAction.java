@@ -3464,14 +3464,12 @@ public class ResourcesAction
 					edit.setAccess(new AccessMode(item.getAccess()));
 					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
 					{
-						Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-						for(Iterator it = groups.iterator(); it.hasNext(); )
+						List groups = item.getGroups();
+						Iterator it = groups.iterator();
+						while(it.hasNext())
 						{
 							Group group = (Group) it.next();
-							if(item.getGroups().equals(group.getId()))
-							{
-								edit.addGroup(group);
-							}
+							edit.addGroup(group);
 						}
 					}
 					
@@ -3672,14 +3670,12 @@ public class ResourcesAction
 					edit.setAccess(new AccessMode(item.getAccess()));
 					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
 					{
-						Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-						for(Iterator it = groups.iterator(); it.hasNext(); )
+						List groups = item.getGroups();
+						Iterator it = groups.iterator();
+						while(it.hasNext())
 						{
 							Group group = (Group) it.next();
-							if(item.getGroups().equals(group.getId()))
-							{
-								edit.addGroup(group);
-							}
+							edit.addGroup(group);
 						}
 					}
 					
@@ -11082,7 +11078,7 @@ public class ResourcesAction
 		}
 
 		/**
-		 * Access a list of identifiers for groups that can access this item.
+		 * Access a list of Group objects that can access this item.
 		 * @return Returns the groups.
 		 */
 		public List getGroups()
@@ -11105,11 +11101,19 @@ public class ResourcesAction
 			{
 				m_groups = new Vector();
 			}
-			return m_groups.contains(groupId);
+			boolean found = false;
+			Iterator it = m_groups.iterator();
+			while(it.hasNext() && !found)
+			{
+				Group gr = (Group) it.next();
+				found = gr.getId().equals(groupId);
+			}
+	
+			return found;
 		}
 
 		/**
-		 * Replace the current list of groups with this list of identifiers for groups that have access to this item.
+		 * Replace the current list of groups with this list of Group objects representing the groups that have access to this item.
 		 * @param groups The groups to set.
 		 */
 		public void setGroups(List groups)
@@ -11127,9 +11131,21 @@ public class ResourcesAction
 			{
 				m_groups = new Vector();
 			}
-			if(! m_groups.contains(groupId))
+			if(! this.hasGroup(groupId))
 			{
-				m_groups.add(groupId);
+				boolean found = false;
+				Collection groups = ContentHostingService.getGroupsWithReadAccess(m_container);
+				Iterator it = groups.iterator();
+				while( it.hasNext() && !found)
+				{
+					Group group = (Group) it.next();
+					if(group.getId().equals(groupId))
+					{
+						m_groups.add(group);
+						found = true;
+					}
+				}
+
 			}
 		}
 
