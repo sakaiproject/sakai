@@ -41,6 +41,7 @@ import org.sakaiproject.cheftool.api.Alert;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
@@ -81,6 +82,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	protected static final String STATE_OBSERVER = "obsever";
 
 	protected static final String STATE_ACTION = "action";
+	
+	/** The name of the context variable containing the identifier for the site's root content collection */
+	protected static final String CONTEXT_SITE_COLLECTION_ID = "vppa_site_collection_id";
+
+	/** The name of the context variable containing the access URL for the site's root content collection */
+	protected static final String CONTEXT_SITE_COLLECTION_URL = "vppa_site_collection_url";
 
 	/** The panel name of the main panel - append the tool's id. */
 	protected static final String LAYOUT_MAIN = "Main";
@@ -321,6 +328,12 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		// set the "pid"
 		context.put("param_pid", ActionURL.PARAM_PID);
 		context.put("pid", getPid(req));
+		
+		String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+		context.put(CONTEXT_SITE_COLLECTION_ID, collectionId);
+		
+		String collectionUrl = ContentHostingService.getUrl(collectionId);
+		context.put(CONTEXT_SITE_COLLECTION_URL, collectionUrl);
 
 		// indicate which WYSIWYG editor to use in legacy tools
 		String editor = ServerConfigurationService.getString("wysiwyg.editor");
