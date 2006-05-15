@@ -109,5 +109,15 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+        <dependency>
+      <groupId>jtidy</groupId>
+      <artifactId>jtidy</artifactId>
+      <version>4aug2000r7-dev</version>
+      <type>jar</type>
+       <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    
   </dependencies>
 </project>
