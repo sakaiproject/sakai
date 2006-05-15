@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="/home/rduhon/xslt/project.xsl.xml"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../master/project.xml</extend>
+	<name>Sakai</name>
+	<groupId>sakaiproject</groupId>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>Indiana University</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+
+	<dependencies>
+
+		<!-- our plugin -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai</artifactId>
+			<version>${sakai.plugin.version}</version>
+			<type>plugin</type>
+		</dependency>
+
+	</dependencies>
+
+	<build>	
+	</build>
+
+</project>

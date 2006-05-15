@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.springframework.orm.hibernate.PostemSessionFactory"
+		parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+		<property name="mappingResources">
+			<list>
+				<value>
+					org/sakaiproject/component/app/postem/data/GradebookImpl.hbm.xml
+				</value>
+				<value>
+					org/sakaiproject/component/app/postem/data/StudentGradesImpl.hbm.xml
+				</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="PostemTransactionManager"
+		class="org.springframework.orm.hibernate.HibernateTransactionManager">
+		<property name="sessionFactory">
+			<ref
+				bean="org.springframework.orm.hibernate.PostemSessionFactory" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.postem.data.GradebookManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="PostemTransactionManager" />
+		</property>
+		<property name="target">
+			<bean
+				class="org.sakaiproject.component.app.postem.data.GradebookManagerImpl"
+				singleton="true">
+				<property name="sessionFactory">
+					<ref
+						bean="org.springframework.orm.hibernate.PostemSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+
+</beans>

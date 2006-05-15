@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+
+    <class
+        name="org.sakaiproject.component.app.postem.data.StudentGradesImpl"
+        table="SAKAI_POSTEM_STUDENT" optimistic-lock="version">
+
+        <id name="id" type="long">
+            <column name="id" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">POSTEM_STUDGRADES_S</param>
+            </generator>
+        </id>
+
+        <version name="lockId" />
+
+        <property name="username" type="string">
+            <column name="username" length="36"
+                not-null="true" index="POSTEM_STUDENT_USERNAME_I"/>
+        </property>
+
+        <property name="lastChecked" type="timestamp">
+            <column name="last_checked"/>
+        </property>
+
+        <many-to-one name="gradebook"
+                     column="surrogate_key"
+                     class="org.sakaiproject.component.app.postem.data.GradebookImpl"/>
+
+        <list name="grades" lazy="false" table="SAKAI_POSTEM_STUDENT_GRADES">
+            <key column="student_id"/>
+            <index column="location"/>
+            <element type="string" column="grade" not-null="false"/>
+        </list>
+
+
+    </class>
+
+</hibernate-mapping>
