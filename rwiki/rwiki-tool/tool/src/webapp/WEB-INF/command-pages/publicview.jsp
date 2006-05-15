@@ -93,7 +93,7 @@
 	  </c:if>
 	  <!-- Creates the right hand sidebar -->
 	  <!-- Main page -->
-	  <div id="rwiki_content">
+	  <div id="rwiki_content" class="nosidebar">
 	    <div class="rwikiRenderBody">
 	      <div class="rwikiRenderedContent"> 
 		<c:out value="${renderBean.publicRenderedPage}" escapeXml="false"/><br/>	    
