@@ -36,6 +36,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.EntityContentProducer;
@@ -256,7 +257,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
-		return contentResource.getProperties().getNamePropDisplayName();
+		ResourceProperties rp = contentResource.getProperties();
+		String displayNameProp = rp.getNamePropDisplayName();
+		return rp.getProperty(displayNameProp);
 	}
 
 	public boolean matches(Reference ref)
