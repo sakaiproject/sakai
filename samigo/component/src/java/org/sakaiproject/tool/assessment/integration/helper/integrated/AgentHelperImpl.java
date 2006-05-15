@@ -121,7 +121,8 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentS).getDisplayName();
     }
     catch(Exception e){
-      e.printStackTrace();
+      // if agentString is anonymous, s=""
+      log.debug(e.getMessage());
     }
     return s;
   }
@@ -138,7 +139,8 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentString).getFirstName();
     }
     catch(Exception e){
-      e.printStackTrace();
+      // if agentString is anonymous, s=""
+      log.debug(e.getMessage());
     }
     return s;
   }
@@ -155,7 +157,8 @@ public class AgentHelperImpl implements AgentHelper
       s=UserDirectoryService.getUser(agentString).getLastName();
     }
     catch(Exception e){
-      e.printStackTrace();
+      // if agentString is anonymous, s=""
+      log.debug(e.getMessage());
     }
     return s;
   }
@@ -264,7 +267,7 @@ public class AgentHelperImpl implements AgentHelper
           SiteService.getSite(getCurrentSiteId(accessViaUrl)).getTitle();
       }
       catch (Exception e){
-        e.printStackTrace();
+        log.warn(e.getMessage());
       }
     }
     return currentSiteName;
