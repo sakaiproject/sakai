@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>access</name>
+	<name>sakai-access-impl</name>
 	<groupId>sakaiproject</groupId>
-	<id>access</id>
+	<id>sakai-access-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>The Sakai Foundation</name>
@@ -15,7 +15,7 @@
                                                       
 	<properties>
 		<!-- deploy as a war -->
-		<deploy.type>war</deploy.type>
+		<deploy.type>jar</deploy.type>
 	</properties>
 
 	<dependencies>
@@ -60,9 +60,6 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-velocity-tool</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
@@ -93,18 +90,12 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
@@ -117,34 +108,6 @@
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
 			<version>2.4</version>
-		</dependency>
-
-		<!-- velocity and dependencies (logkit, oro, collections) -->
-		<dependency>
-			<groupId>velocity</groupId>
-			<artifactId>velocity</artifactId>
-			<version>1.3.1</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
-		<dependency>
-			<groupId>logkit</groupId>
-			<artifactId>logkit</artifactId>
-			<version>1.2</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
-
-		<dependency>
-			<groupId>oro</groupId>
-			<artifactId>oro</artifactId>
-			<version>2.0.8</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 	</dependencies>
