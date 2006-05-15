@@ -77,7 +77,7 @@ public class HelpFrameSetRender extends Renderer
               
     tocToolUrl = tocToolUrl + "?help=" + helpParameter;
 
-    // EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
+    EventTrackingService.post(EventTrackingService.newEvent("help.access", helpParameter, false));
 
     helpWindowTitle = ServerConfigurationService.getString("ui.service") + " Help";
     
