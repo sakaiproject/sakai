@@ -309,7 +309,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
   }
   public boolean isAccessViaUrl()
   {
-    return accessViaUrl;
+    return (agentString.startsWith("anonymous_"));
   }
   public void setAccessViaUrl(boolean accessViaUrl)
   {

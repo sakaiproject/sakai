@@ -115,14 +115,14 @@ public class AgentHelperImpl implements AgentHelper
    * @param agentS the Agent string.
    * @return the Agent display name.
    */
-  public String getDisplayName(String agentS){
+  public String getDisplayName(String agentString){
     String s="";
     try{
-      s=UserDirectoryService.getUser(agentS).getDisplayName();
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getDisplayName();
     }
     catch(Exception e){
-      // if agentString is anonymous, s=""
-      log.debug(e.getMessage());
+      log.warn(e.getMessage());
     }
     return s;
   }
@@ -136,11 +136,11 @@ public class AgentHelperImpl implements AgentHelper
   {
     String s="";
     try{
-      s=UserDirectoryService.getUser(agentString).getFirstName();
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getFirstName();
     }
     catch(Exception e){
-      // if agentString is anonymous, s=""
-      log.debug(e.getMessage());
+      log.warn(e.getMessage());
     }
     return s;
   }
@@ -154,11 +154,12 @@ public class AgentHelperImpl implements AgentHelper
   {
     String s="";
     try{
-      s=UserDirectoryService.getUser(agentString).getLastName();
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getLastName();
     }
     catch(Exception e){
       // if agentString is anonymous, s=""
-      log.debug(e.getMessage());
+      log.warn(e.getMessage());
     }
     return s;
   }
