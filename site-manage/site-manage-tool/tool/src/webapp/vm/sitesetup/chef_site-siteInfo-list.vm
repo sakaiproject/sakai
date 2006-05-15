@@ -328,7 +328,9 @@
 						#if ($!isCourseSite)
 							<td headers="coursename">
 								#set($partCourse = "")
-								#set($partCourse = $participant.getCourse())
+								#if ($participant.getCourse())
+									#set($partCourse = $participant.getCourse())
+								#end
 								#set($partSection = "")
 								#set($partSection = $participant.getSection())
 								$!partCourse $!partSection
@@ -374,7 +376,7 @@
 									#set($grantActive = $!grant.isActive())
 									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $participant.getEid()</label>
 									<select id="activeGrant$uniqname" name="activeGrant$uniqname">
-										#if($grant=="" || $!grant.isActive())
+										#if($!grant.isActive())
 											<option value="true" selected="selected" >$tlang.getString("sitegen.siteinfolist.active")</option>
 											<option value="false">$tlang.getString("sitegen.siteinfolist.inactive")</option>
 										#else
@@ -418,7 +420,9 @@
 						$role.Id
 						<p class="instruction indnt2">
 							#set($description = "")
-							#set($description = $role.Description)
+							#if ($role.Description)
+								#set($description = $role.Description)
+							#end
 							$validator.escapeHtml($!description)
 						</p>
 					</li>
