@@ -19,38 +19,48 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.postem.data;
+package org.sakaiproject.tool.postem;
 
-import java.sql.Timestamp;
+/**
+ * @author rduhon
+ */
+
 import java.util.List;
 
-public interface StudentGrades {
-	public Gradebook getGradebook();
+import org.sakaiproject.api.app.postem.data.Gradebook;
 
-	public void setGradebook(Gradebook gradebook);
+public class Column {
 
-	public String getUsername();
+	public Gradebook gradebook;
 
-	public void setUsername(String username);
+	public int column;
 
-	public List getGrades();
+	public Column(Gradebook gradebook, int column) {
+		this.gradebook = gradebook;
+		this.column = column;
+	}
 
-	public void setGrades(List grades);
+	public List getSummary() {
+		try {
+			return gradebook.getAggregateData(column);
+		} catch (Exception exception) {
+			return null;
+		}
+	}
 
-	public String getCheckDateTime();
+	public List getRaw() {
+		return gradebook.getRawData(column);
+	}
 
-	public Timestamp getLastChecked();
+	public boolean getHasName() {
+		return gradebook.getHeadings().size() > 0;
+	}
 
-	public void setLastChecked(Timestamp lastChecked);
-
-	public Long getId();
-
-	public void setId(Long id);
-
-	public boolean getReadAfterUpdate();
-
-	public String formatGrades();
-
-	public String getGradesRow();
-
+	public String getName() {
+		try {
+			return (String) gradebook.getHeadings().get(column + 1);
+		} catch (Exception exception) {
+			return "" + (column + 1);
+		}
+	}
 }

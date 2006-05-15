@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/home/rduhon/xslt/project.xsl.xml"?>
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<name>Sakai Postem API</name>
+	<name>sakai-postem-api</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-postem-api</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
-		<name>Indiana University</name>
+		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
-	<inceptionYear>2003</inceptionYear>
+	<inceptionYear>2004</inceptionYear>
 
 	<properties>
 		<deploy.type>jar</deploy.type>
@@ -19,12 +18,6 @@
 	</properties>
 
 	<dependencies>
-	
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 
 	</dependencies>
 

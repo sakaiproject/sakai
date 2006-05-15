@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/home/rduhon/xslt/project.xsl.xml"?>
+
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../master/project.xml</extend>
@@ -7,10 +7,10 @@
 	<groupId>sakaiproject</groupId>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
-		<name>Indiana University</name>
+		<name>Sakai</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
-	<inceptionYear>2005</inceptionYear>
+	<inceptionYear>2003</inceptionYear>
 
 	<dependencies>
 

@@ -19,38 +19,41 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.postem.data;
+package com.corejsf;
 
-import java.sql.Timestamp;
-import java.util.List;
+import javax.faces.component.UIComponent;
+import javax.faces.webapp.UIComponentTag;
 
-public interface StudentGrades {
-	public Gradebook getGradebook();
+public class UploadTag extends UIComponentTag {
+	private String value;
 
-	public void setGradebook(Gradebook gradebook);
+	private String target;
 
-	public String getUsername();
+	public void setValue(String newValue) {
+		value = newValue;
+	}
 
-	public void setUsername(String username);
+	public void setTarget(String newValue) {
+		target = newValue;
+	}
 
-	public List getGrades();
+	public void setProperties(UIComponent component) {
+		super.setProperties(component);
+		com.corejsf.util.Tags.setString(component, "target", target);
+		com.corejsf.util.Tags.setString(component, "value", value);
+	}
 
-	public void setGrades(List grades);
+	public void release() {
+		super.release();
+		value = null;
+		target = null;
+	}
 
-	public String getCheckDateTime();
+	public String getRendererType() {
+		return "com.corejsf.Upload";
+	}
 
-	public Timestamp getLastChecked();
-
-	public void setLastChecked(Timestamp lastChecked);
-
-	public Long getId();
-
-	public void setId(Long id);
-
-	public boolean getReadAfterUpdate();
-
-	public String formatGrades();
-
-	public String getGradesRow();
-
+	public String getComponentType() {
+		return "com.corejsf.Upload";
+	}
 }

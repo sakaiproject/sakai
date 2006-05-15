@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.postem" class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">  
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/component/app/postem/data/GradebookImpl.hbm.xml</value>
+				<value>org/sakaiproject/component/app/postem/data/StudentGradesImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.api.app.postem.data.GradebookManager" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.component.app.postem.GradebookManagerImpl" singleton="true">
+				<property name="sessionFactory">
+					<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
