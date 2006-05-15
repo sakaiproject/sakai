@@ -2,19 +2,19 @@
 
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../../master/project.xml</extend>
-	<name>access</name>
+	<extend>../../master/project.xml</extend>
+	<name>web</name>
 	<groupId>sakaiproject</groupId>
-	<id>access</id>
+	<id>web</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
-		<name>The Sakai Foundation</name>
+		<name>University of Michigan</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
 	<inceptionYear>2003</inceptionYear>
-                                                      
+
 	<properties>
-		<!-- deploy as a war -->
+		<!-- build as a war -->
 		<deploy.type>war</deploy.type>
 	</properties>
 
@@ -88,7 +88,12 @@
 
 	<build>
 
+		<!-- java source -->
 		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+		</resources>
 
 	</build>
 
