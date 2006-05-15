@@ -48,4 +48,10 @@ public class JDBCIndexStorage implements IndexStorage
 		
 	}
 
+	public boolean indexExists()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
