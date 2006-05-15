@@ -105,16 +105,10 @@ public class AuthzQueriesFacade
 //                             new org.hibernate.type.Type[] { Hibernate.STRING, Hibernate.STRING });
 
     String currentSiteId = null;
-
-    AgentFacade agent = new AgentFacade();
-
-    if (!agent.isAccessViaUrl())
-    {
-       currentSiteId =ToolManager.getCurrentPlacement().getContext();
-    }
-
-    if(currentSiteId == null)
-  return false; // user don't login via any site if they are using published url
+    if (ToolManager.getCurrentPlacement() != null)
+      currentSiteId =ToolManager.getCurrentPlacement().getContext();
+    if (currentSiteId == null)
+      return false; // user don't login via any site if they are using published url
 
     //System.out.println("**** currentSiteId"+currentSiteId);
     String currentAgentId = UserDirectoryService.getCurrentUser().getId();
