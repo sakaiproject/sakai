@@ -91,7 +91,7 @@ public class MessageContentProducer implements EntityContentProducer
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		
 		if ("true".equals(ServerConfigurationService
-				.getString("wiki.experimental")))
+				.getString("search.experimental","true")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{
