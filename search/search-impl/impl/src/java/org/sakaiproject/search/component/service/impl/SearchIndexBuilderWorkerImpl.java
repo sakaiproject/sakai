@@ -128,6 +128,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private SearchIndexBuilderWorkerDao searchIndexBuilderWorkerDao = null;
 
+	private long lastLock = System.currentTimeMillis();
+
 	private static String lockedTo = null;
 
 	private static String SELECT_LOCK_SQL = "select id, nodename, "
@@ -267,30 +269,40 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					{
 						if (getLockTransaction())
 						{
-
-							log.debug("===" + nodeID
-									+ "=============PROCESSING ");
-							if (lockedTo != null && lockedTo.equals(nodeID))
+							// should this node consider taking the lock ?
+							if ((System.currentTimeMillis() - lastLock) > 60000L)
 							{
-								log
-										.error("+++++++++++++++Local Lock Collision+++++++++++++");
-							}
-							lockedTo = nodeID;
 
-							searchIndexBuilderWorkerDao
-									.processToDoListTransaction(this);
+								log.debug("===" + nodeID
+										+ "=============PROCESSING ");
+								if (lockedTo != null && lockedTo.equals(nodeID))
+								{
+									log
+											.error("+++++++++++++++Local Lock Collision+++++++++++++");
+								}
+								lockedTo = nodeID;
 
-							if (lockedTo.equals(nodeID))
-							{
-								lockedTo = null;
+								lastLock = System.currentTimeMillis();
+
+								searchIndexBuilderWorkerDao
+										.processToDoListTransaction(this);
+
+								lastLock = System.currentTimeMillis();
+
+								if (lockedTo.equals(nodeID))
+								{
+									lockedTo = null;
+								}
+								else
+								{
+									log
+											.error("+++++++++++++++++++++++++++Lost Local Lock+++++++++++");
+								}
+								log.debug("===" + nodeID
+										+ "=============COMPLETED ");
+							} else {
+								log.debug("Not taking Lock, too much activity");
 							}
-							else
-							{
-								log
-										.error("+++++++++++++++++++++++++++Lost Local Lock+++++++++++");
-							}
-							log.debug("===" + nodeID
-									+ "=============COMPLETED ");
 
 						}
 						else
@@ -411,17 +423,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
 						insertLock.setTimestamp(4, nodeExpired); // expires
 						insertLock.executeUpdate();
-						log.debug("Inserted Worker Record");
-					}
-					else
-					{
-						log.debug("Updated worker record");
 					}
 					connection.commit();
 					updated = true;
 				}
 				catch (SQLException e)
 				{
+					log.warn("Retrying ", e);
 					try
 					{
 						connection.rollback();
@@ -459,6 +467,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				}
 				catch (SQLException e)
 				{
+					log.warn("Retrying Delete ", e);
 					try
 					{
 						connection.rollback();
@@ -562,14 +571,14 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			// I need to go direct to JDBC since its just too awful to
 			// try and do this in Hibernate.
 
+			updateNodeLock();
+
 			connection = dataSource.getConnection();
 			autoCommit = connection.getAutoCommit();
 			if (autoCommit)
 			{
 				connection.setAutoCommit(false);
 			}
-
-			updateNodeLock();
 
 			selectLock = connection.prepareStatement(SELECT_LOCK_SQL);
 			updateLock = connection.prepareStatement(UPDATE_LOCK_SQL);
