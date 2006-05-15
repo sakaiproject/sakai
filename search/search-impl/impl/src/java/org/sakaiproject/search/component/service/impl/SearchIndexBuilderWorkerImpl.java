@@ -172,8 +172,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		sessionManager = (SessionManager) load(cm, SessionManager.class
 				.getName());
 
-		enabled = "true".equals(ServerConfigurationService
-				.getString("search.experimental","true"));
+		enabled = "true".equals(ServerConfigurationService.getString(
+				"search.experimental", "true"));
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -370,11 +370,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#updateNodeLock(java.sql.Connection)
 	 */
-	public void updateNodeLock(Connection connection) throws SQLException
+	public void updateNodeLock() throws SQLException
 	{
 
+		Connection connection = null;
 		String nodeID = getNodeID();
-		boolean myconnection = false;
 		PreparedStatement updateNodeLock = null;
 		PreparedStatement deleteExpiredNodeLock = null;
 		PreparedStatement insertLock = null;
@@ -386,44 +386,107 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				+ (2L * 60L * 1000L));
 		try
 		{
-			if (connection == null)
-			{
-				myconnection = true;
-				connection = dataSource.getConnection();
-			}
+			connection = dataSource.getConnection();
 
 			updateNodeLock = connection.prepareStatement(UPDATE_NODE_LOCK_SQL);
 			deleteExpiredNodeLock = connection
 					.prepareStatement(DELETE_EXPIRED_NODES_SQL);
 			insertLock = connection.prepareStatement(INSERT_LOCK_SQL);
-
-			updateNodeLock.clearParameters();
-			updateNodeLock.setTimestamp(1, nodeExpired); // expires
-			updateNodeLock.setString(2, nodeID); // nodename
-			updateNodeLock.setString(3, NODE_LOCK + nodeID); // lockkey
-			if (updateNodeLock.executeUpdate() != 1)
+			int retries = 5;
+			boolean updated = false;
+			while (!updated && retries > 0)
 			{
-				insertLock.clearParameters();
-				insertLock.setString(1, "Node:" + nodeID); // id
-				insertLock.setString(2, nodeID); // nodename
-				insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
-				insertLock.setTimestamp(4, nodeExpired); // expires
-				insertLock.executeUpdate();
-				log.debug("Inserted Worker Record");
+				try
+				{
+
+					updateNodeLock.clearParameters();
+					updateNodeLock.setTimestamp(1, nodeExpired); // expires
+					updateNodeLock.setString(2, nodeID); // nodename
+					updateNodeLock.setString(3, NODE_LOCK + nodeID); // lockkey
+					if (updateNodeLock.executeUpdate() != 1)
+					{
+						insertLock.clearParameters();
+						insertLock.setString(1, "Node:" + nodeID); // id
+						insertLock.setString(2, nodeID); // nodename
+						insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
+						insertLock.setTimestamp(4, nodeExpired); // expires
+						insertLock.executeUpdate();
+						log.debug("Inserted Worker Record");
+					}
+					else
+					{
+						log.debug("Updated worker record");
+					}
+					connection.commit();
+					updated = true;
+				}
+				catch (SQLException e)
+				{
+					try
+					{
+						connection.rollback();
+					}
+					catch (Exception ex)
+					{
+
+					}
+					retries--;
+					try
+					{
+						Thread.sleep(100);
+					}
+					catch (InterruptedException ie)
+					{
+					}
+				}
 			}
-			else
+			if (!updated)
 			{
-				log.debug("Updated worker record");
+				log.error("Failed to update node lock, will try next time ");
 			}
 
-			deleteExpiredNodeLock.clearParameters();
-			deleteExpiredNodeLock.setTimestamp(1, now);
-			deleteExpiredNodeLock.execute();
+			retries = 5;
+			updated = false;
+			while (!updated && retries > 0)
+			{
+				try
+				{
+					deleteExpiredNodeLock.clearParameters();
+					deleteExpiredNodeLock.setTimestamp(1, now);
+					deleteExpiredNodeLock.execute();
+					connection.commit();
+					updated = true;
+				}
+				catch (SQLException e)
+				{
+					try
+					{
+						connection.rollback();
+					}
+					catch (Exception ex)
+					{
+
+					}
+					retries--;
+					try
+					{
+						Thread.sleep(100);
+					}
+					catch (InterruptedException ie)
+					{
+					}
+				}
+			}
+			if (!updated)
+			{
+				log.warn("Failed to clear old nodes, will try next time ");
+			}
 
 		}
 		catch (Exception ex)
 		{
 			log.error("Failed to register node ", ex);
+			connection.rollback();
 		}
 		finally
 		{
@@ -457,7 +520,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				{
 				}
 			}
-			if (myconnection && connection != null)
+			if (connection != null)
 			{
 				try
 				{
@@ -506,7 +569,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				connection.setAutoCommit(false);
 			}
 
-			updateNodeLock(connection);
+			updateNodeLock();
 
 			selectLock = connection.prepareStatement(SELECT_LOCK_SQL);
 			updateLock = connection.prepareStatement(UPDATE_LOCK_SQL);
@@ -727,7 +790,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		{
 			connection = dataSource.getConnection();
 
-			updateNodeLock(connection);
+			updateNodeLock();
 
 			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
 			clearLock.clearParameters();

@@ -33,10 +33,9 @@ public interface SearchIndexBuilderWorker
 	/**
 	 * update the node lock for the current Worker Object on the current thread.
 	 * This MUST only be used by a worker thread
-	 * @param connection if null a new connection will be used
 	 * @throws SQLException
 	 */
-	void updateNodeLock(Connection connection) throws SQLException;
+	void updateNodeLock() throws SQLException;
 
 	/**
 	 * Check running, and ping the thread if in a wait state

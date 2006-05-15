@@ -365,7 +365,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									// update this node lock to indicate its
 									// still alove, no document should
 									// take more than 2 mins to process
-									worker.updateNodeLock(null);
+									worker.updateNodeLock();
 								}
 								finally
 								{
