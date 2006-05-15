@@ -1,0 +1,61 @@
+## $Header: /cvs/sakai2/legacy/access/src/webapp/vm/access/copyrightAlert.vm,v 1.2 2005/05/19 19:49:04 jimeng.umich.edu Exp $ 
+<div align="center" style="width:60%;margin-top:1em;margin-left:auto;margin-right:auto;padding:.5em;background-color:silver;border:1px solid gray;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em">
+#if($sample)
+	$tlang.getString("gen.sample")
+#else
+	$tlang.getString("gen.copyright")
+#end
+</div>
+<div style="width:60%;margin-top:0;margin-left:auto;margin-right:auto;border-width:0 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em">
+	##set($props=$resource.getProperties())
+		<table cellspacing="0" cellpadding="5" border="0" style="font-size:1em">
+			<tr> 
+				<th style="text-align:left;font-weight:normal"> 
+				$tlang.getString("gen.title")
+				</th>
+				<td>
+					$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+				</td>
+			</tr>
+			<tr> 
+				<th style="text-align:left;font-weight:normal"> 
+					$tlang.getString("gen.copy")
+				</th>
+				<td>
+					$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCopyright))
+				</td>
+			</tr>
+		</table>	
+		<ul style="margin:1em 2em;padding:0">
+			<li>$tlang.getString("gen.youmay")</li>
+			<li>$tlang.getString("gen.youmaynot")</li>
+			<li>$tlang.getString("gen.youmaynotdown")</li>
+		</ul>
+		<div style="margin:2em .3em .3em .3em;text-align:right">
+			#if($sample)
+				<a href="#" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">
+					$tlang.getString("gen.iagree")
+				</a>
+				&nbsp;&nbsp;
+				<a href="#" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">
+					$tlang.getString("gen.cancel")
+				</a> 
+			#else
+				<a href="$accept" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">
+					$tlang.getString("gen.iagree")
+				</a>
+				#if (!$!accessedFromEmail)
+					&nbsp;&nbsp;
+					<a href="javascript:window.close()" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">
+						$tlang.getString("gen.cancel")
+					</a> 
+				#end
+			#end
+		</div>
+</div>
+#if($sample)	
+	<div style="margin:2em .3em .3em .3em;text-align:left">	
+		<a href="javascript:window.close()" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">$tlang.getString("gen.close")</a> 
+	</div>		
+#end
+
