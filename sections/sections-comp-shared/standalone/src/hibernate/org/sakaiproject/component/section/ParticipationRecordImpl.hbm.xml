@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section"
+	default-lazy="false">
 	<class name="org.sakaiproject.component.section.ParticipationRecordImpl" table="SEC_PARTICIPATION_T" discriminator-value="0">
 		<id name="id" column="ID" type="long">
 			<generator class="native">
@@ -11,7 +12,7 @@
         <discriminator column="DISCR" type="int"/>
 		<version name="version" type="integer" column="VERSION"/>
 
-		<many-to-one 
+		<many-to-one
 			name="learningContext"
 			class="org.sakaiproject.component.section.LearningContextImpl"
 			column="LEARNING_CONTEXT_ID"
@@ -35,7 +36,7 @@
         <subclass name="org.sakaiproject.component.section.TeachingAssistantRecordImpl" discriminator-value="3">
         </subclass>
     </class>
-    
+
     <query name="findSiteInstructors">
         <![CDATA[
         from InstructorRecordImpl as participant where participant.learningContext=:course
@@ -86,7 +87,7 @@
         from EnrollmentRecordImpl as participant where participant.learningContext=:section
         ]]>
     </query>
-    
+
     <query name="findSectionTAs">
         <![CDATA[
         from TeachingAssistantRecordImpl as participant where participant.learningContext=:section
@@ -106,7 +107,7 @@
             enr.learningContext.uuid=:sectionUuid
         ]]>
     </query>
-    
+
     <query name="findEnrollmentInCategory">
         <![CDATA[
         from EnrollmentRecordImpl as enr where enr.user.userUid=:userUid and
@@ -212,8 +213,8 @@
 
     <query name="findOrphanedSectionMemberships">
         <![CDATA[
-        from ParticipationRecordImpl as member where member.user.userUid not in (:userUids) and
-            member.learningContext in
+        from ParticipationRecordImpl as record where record.user.userUid not in (:userUids) and
+            record.learningContext in
             (
                 from CourseSectionImpl as section where
                     section.course.siteContext = :siteContext
@@ -255,8 +256,8 @@
 
     <query name="findUserSectionMembershipsInSite">
         <![CDATA[
-        from ParticipationRecordImpl as member where member.user.userUid=:userUid and
-            member.learningContext.id in
+        from ParticipationRecordImpl as record where record.user.userUid=:userUid and
+            record.learningContext.id in
             (
                 select section.id from CourseSectionImpl as section where
                     section.course.siteContext = :siteContext
@@ -266,8 +267,8 @@
 
     <query name="findSiteMemberUserUids">
         <![CDATA[
-        select member.user.userUid from ParticipationRecordImpl as member where
-            member.learningContext in
+        select record.user.userUid from ParticipationRecordImpl as record where
+            record.learningContext in
             (
                 from CourseImpl as course where course.siteContext = :siteContext
             )

@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.component.section"
+	default-lazy="false">
 
     <class name="org.sakaiproject.component.section.LearningContextImpl"
         table="SEC_LEARNING_CONTEXT_T">
@@ -43,7 +44,7 @@
         </joined-subclass>
 
     </class>
-    
+
     <query name="findSectionsBySiteContext">
         <![CDATA[
         from CourseSectionImpl as section where section.course.siteContext=:context
@@ -81,7 +82,7 @@
         select section.title from CourseSectionImpl as section where section.uuid=:sectionUuid
         ]]>
     </query>
-    
+
     <query name="loadSectionCategory">
         <![CDATA[
         select section.category from CourseSectionImpl as section where section.uuid=:sectionUuid
