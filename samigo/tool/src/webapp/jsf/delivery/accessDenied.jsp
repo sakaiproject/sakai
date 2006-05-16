@@ -50,12 +50,13 @@
  <p class="act">
   <h:commandButton accesskey="#{msg.a_login}" value="#{msg.button_login}" type="button"
      styleClass="active" onclick="javascript:window.open('/portal/','_top')" />
-
+<%--
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_ok}" type="submit"
-     style="act" action="#{delivery.doit}" >
+     style="act" action="#{delivery.getOutcome}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />
   </h:commandButton>
+--%>
 </h:form>
 </div>
       </body>
