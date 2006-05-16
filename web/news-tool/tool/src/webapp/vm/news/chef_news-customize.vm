@@ -28,6 +28,20 @@
 					value="$validator.escapeHtml($!current_channel_title)"
 					size="50" />
 			</p>
+#if ($!pageTitleEditable)
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="$formfield_page_title">
+					$tlang.getString("cus.pagnam")
+				</label>
+				<input 
+					type="text" 
+					name="$formfield_page_title" 
+					id="$formfield_page_title" 
+					value="$validator.escapeHtml($!current_page_title)"
+					size="50" />
+			</p>
+#end
 			<p class="instruction labelindnt">$tlang.getString("cus.sugleg")</p>
 			<p class="shorttext">
 				<span class="reqStar">*</span>

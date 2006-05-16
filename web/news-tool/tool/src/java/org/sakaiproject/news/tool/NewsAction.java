@@ -70,11 +70,15 @@ public class NewsAction extends VelocityPortletPaneledAction
 	private static final String STATE_CHANNEL_TITLE = "channelTitle";
 
 	protected static final String STATE_CHANNEL_URL = "channelUrl";
+	
+	private static final String STATE_PAGE_TITLE = "pageTitle";
 
 	/** names of form fields for options panel. */
 	private static final String FORM_CHANNEL_TITLE = "title-of-channel";
-
+	
 	private static final String FORM_CHANNEL_URL = "address-of-channel";
+	
+	private static final String FORM_PAGE_TITLE = "title-of-page";
 
 	/** State and init and context names for text options. */
 	private static final String GRAPHIC_VERSION_TEXT = "graphic_version";
@@ -123,6 +127,12 @@ public class NewsAction extends VelocityPortletPaneledAction
 			}
 			state.setAttribute(STATE_CHANNEL_URL, channelUrl);
 
+		}
+		
+		if (state.getAttribute(STATE_PAGE_TITLE) == null)
+		{
+			SitePage p = SiteService.findPage(getCurrentSitePageId());
+			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
 		}
 
 		if (state.getAttribute(GRAPHIC_VERSION_TEXT) == null)
@@ -318,6 +328,19 @@ public class NewsAction extends VelocityPortletPaneledAction
 		// provide "filter_type" with the current default value for filtering messages
 		context.put("current_channel_url", (String) state.getAttribute(STATE_CHANNEL_URL));
 
+		// provide "filter_type_form" with form field name for selecting a message filter
+		context.put("formfield_page_title", FORM_PAGE_TITLE);
+
+		// provide "filter_type" with the current default value for filtering messages
+		context.put("current_page_title", (String) state.getAttribute(STATE_PAGE_TITLE));
+		
+		SitePage p = SiteService.findPage(getCurrentSitePageId());
+		if (p.getTools() != null && p.getTools().size() == 1)
+		{
+			// if this is the only tool on that page, display the input for the page's title
+			context.put ("pageTitleEditable", Boolean.TRUE);
+		}
+		
 		// set the action for form processing
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 		context.put("form-submit", BUTTON + "doUpdate");
@@ -343,7 +366,7 @@ public class NewsAction extends VelocityPortletPaneledAction
 		String newChannelTitle = data.getParameters().getString(FORM_CHANNEL_TITLE);
 		String currentChannelTitle = (String) state.getAttribute(STATE_CHANNEL_TITLE);
 
-		if (newChannelTitle != null && !newChannelTitle.equals(currentChannelTitle))
+		if (StringUtil.trimToNull(newChannelTitle) != null && !newChannelTitle.equals(currentChannelTitle))
 		{
 			state.setAttribute(STATE_CHANNEL_TITLE, newChannelTitle);
 			if (Log.getLogger("chef").isDebugEnabled())
@@ -356,7 +379,13 @@ public class NewsAction extends VelocityPortletPaneledAction
 			// deliver an update to the title panel (to show the new title)
 			String titleId = titlePanelUpdateId(peid);
 			schedulePeerFrameRefresh(titleId);
-
+		}
+		
+		String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
+		String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
+		
+		if (StringUtil.trimToNull(newPageTitle) !=null && !newPageTitle.equals(currentPageTitle))
+		{
 			SitePage p = SiteService.findPage(getCurrentSitePageId());
 			if (p.getTools() != null && p.getTools().size() == 1)
 			{
@@ -366,8 +395,9 @@ public class NewsAction extends VelocityPortletPaneledAction
 					// TODO: save site page title? -ggolden
 					Site sEdit = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 					SitePage pEdit = sEdit.getPage(p.getId());
-					pEdit.setTitle(newChannelTitle);
+					pEdit.setTitle(newPageTitle);
 					SiteService.save(sEdit);
+					state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
 				}
 				catch (Exception ignore)
 				{
