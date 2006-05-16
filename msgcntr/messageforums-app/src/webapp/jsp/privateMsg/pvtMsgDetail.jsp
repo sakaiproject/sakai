@@ -53,7 +53,9 @@
             <td align="left">
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" />  
             	<h:outputText value=" (" />  
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
+                	<f:convertDateTime pattern="#{msgs.date_format}" />  
+                </h:outputText>
             	<h:outputText value=" )" /> 
             </td>
             <td></td>

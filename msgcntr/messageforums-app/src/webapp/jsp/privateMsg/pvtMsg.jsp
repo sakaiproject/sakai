@@ -129,8 +129,12 @@
     	         <f:param name="sortColumn" value="date"/>
     	       </h:commandLink>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" />
+			 </h:outputText>
+		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" />
+			 </h:outputText>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
@@ -194,8 +198,12 @@
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" />
+			 </h:outputText>
+		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
+			     <f:convertDateTime pattern="#{msgs.date_format}" />
+			 </h:outputText>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
 		    <f:facet name="header">

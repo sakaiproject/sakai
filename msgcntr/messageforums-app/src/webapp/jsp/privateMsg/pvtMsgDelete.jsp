@@ -42,7 +42,9 @@
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
-		     <h:outputText value="#{delItems.msg.created}"/>
+		     <h:outputText value="#{delItems.msg.created}">
+		         <f:convertDateTime pattern="#{msgs.date_format}" />
+		     </h:outputText>
 		  </h:column>
 		</h:dataTable>
 		</sakai:group_box>
