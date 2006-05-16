@@ -300,7 +300,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 								}
 								log.debug("===" + nodeID
 										+ "=============COMPLETED ");
-							} else {
+							}
+							else
+							{
 								log.debug("Not taking Lock, too much activity");
 							}
 
@@ -643,38 +645,46 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				resultSet = null;
 				if (nitems > 0)
 				{
-					if (swl == null)
+					try
 					{
-						insertLock.clearParameters();
-						insertLock.setString(1, nodeID);
-						insertLock.setString(2, nodeID);
-						insertLock.setString(3, LOCKKEY);
-						insertLock.setTimestamp(4, expiryDate);
-
-						if (insertLock.executeUpdate() == 1)
+						if (swl == null)
 						{
-							log.debug("INSERT Lock Record " + nodeID + "::"
-									+ nodeID + "::" + expiryDate);
+							insertLock.clearParameters();
+							insertLock.setString(1, nodeID);
+							insertLock.setString(2, nodeID);
+							insertLock.setString(3, LOCKKEY);
+							insertLock.setTimestamp(4, expiryDate);
 
-							locked = true;
+							if (insertLock.executeUpdate() == 1)
+							{
+								log.debug("INSERT Lock Record " + nodeID + "::"
+										+ nodeID + "::" + expiryDate);
+
+								locked = true;
+							}
+
 						}
+						else
+						{
+							updateLock.clearParameters();
+							updateLock.setString(1, nodeID);
+							updateLock.setTimestamp(2, expiryDate);
+							updateLock.setString(3, swl.getId());
+							updateLock.setString(4, swl.getNodename());
+							updateLock.setString(5, swl.getLockkey());
+							if (updateLock.executeUpdate() == 1)
+							{
+								log.debug("UPDATED Lock Record " + swl.getId()
+										+ "::" + nodeID + "::" + expiryDate);
+								locked = true;
+							}
 
+						}
 					}
-					else
+					catch (SQLException sqlex)
 					{
-						updateLock.clearParameters();
-						updateLock.setString(1, nodeID);
-						updateLock.setTimestamp(2, expiryDate);
-						updateLock.setString(3, swl.getId());
-						updateLock.setString(4, swl.getNodename());
-						updateLock.setString(5, swl.getLockkey());
-						if (updateLock.executeUpdate() == 1)
-						{
-							log.debug("UPDATED Lock Record " + swl.getId()
-									+ "::" + nodeID + "::" + expiryDate);
-							locked = true;
-						}
-
+						locked = false;
+						log.debug("Failed to get lock, but this is Ok ", sqlex);
 					}
 
 				}
