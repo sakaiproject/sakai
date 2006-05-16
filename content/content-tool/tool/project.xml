@@ -147,12 +147,7 @@
 			<groupId>jdom</groupId>
 			<artifactId>jdom</artifactId>
 			<version>1.0</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-		<!-- ??? -ggolden   <deploy.target>shared</deploy.target> -->
-			</properties>
 		</dependency>
-
 
 		<!-- velocity and dependencies (logkit, oro, collections) -->
 		<dependency>
