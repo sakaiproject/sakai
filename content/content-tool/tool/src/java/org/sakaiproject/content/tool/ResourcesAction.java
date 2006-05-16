@@ -11134,6 +11134,22 @@ public class ResourcesAction
 			if(! this.hasGroup(groupId))
 			{
 				boolean found = false;
+				if(m_container == null)
+				{
+					if(m_id == null)
+					{
+						m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+					}
+					else
+					{
+						m_container = ContentHostingService.getContainingCollectionId(m_id);
+					}
+					if(m_container == null || m_container.trim() == "")
+					{
+						m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+					}
+
+				}
 				Collection groups = ContentHostingService.getGroupsWithReadAccess(m_container);
 				Iterator it = groups.iterator();
 				while( it.hasNext() && !found)

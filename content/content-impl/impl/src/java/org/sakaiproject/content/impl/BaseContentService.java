@@ -6604,6 +6604,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_properties = new BaseResourcePropertiesEdit();
 
 			m_id = el.getAttribute("id");
+			
+			String refStr = getReference(m_id);
+			Reference ref = m_entityManager.newReference(refStr);
+			String context = ref.getContext();
+			Site site = null;
+			try
+			{
+				site = m_siteService.getSite(ref.getContext());
+			}
+			catch (IdUnusedException e)
+			{
+				
+			}
 
 			// the children (properties)
 			NodeList children = el.getChildNodes();
@@ -6623,7 +6636,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// look for groups 
 				else if(element.getTagName().equals(GROUP_LIST))
 				{
-					m_groups.add(element.getAttribute(GROUP_NAME)); 
+					String groupId = element.getAttribute(GROUP_NAME);
+					if(site != null && groupId != null)
+					{
+						Group group = site.getGroup(groupId);
+						m_groups.add(group);
+					} 
 				}
 			}
 
@@ -6978,9 +6996,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				Iterator groupIt = m_groups.iterator();
 				while( groupIt.hasNext())
 				{
-					String group = (String) groupIt.next();
+					Group group = (Group) groupIt.next();
 					Element sect = doc.createElement(GROUP_LIST);
-					sect.setAttribute(GROUP_NAME, group);
+					sect.setAttribute(GROUP_NAME, group.getReference());
 					collection.appendChild(sect);
 				}
 			}

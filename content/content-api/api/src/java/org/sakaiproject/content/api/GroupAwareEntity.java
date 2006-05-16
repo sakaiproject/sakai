@@ -24,6 +24,8 @@ package org.sakaiproject.content.api;
 import java.util.Collection;
 
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
 
 /**
  * <p>
@@ -45,7 +47,7 @@ public interface GroupAwareEntity extends Entity
 	 * @return The access mode for the Assignment.
 	 */
 	AccessMode getAccess();
-
+	
 	/**
 	 * <p>
 	 * AccessMode enumerates different access modes for the entity: site-wide or grouped.
