@@ -1965,7 +1965,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public String getUrl()
 		{
-			return getAccessPoint(false) + getReference();
+			return m_serverConfigurationService.getAccessUrl() + getReference();
 
 		} // getUrl
 
@@ -3147,7 +3147,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		public String getUrl()
 		{
 			if (m_channel == null) return "";
-			return getAccessPoint(false) + getReference();
+			return m_serverConfigurationService.getAccessUrl() + getReference();
 
 		} // getUrl
 
