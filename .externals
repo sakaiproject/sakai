@@ -24,7 +24,7 @@ portal			https://source.sakaiproject.org/svn/portal/trunk
 jsf				https://source.sakaiproject.org/svn/jsf/trunk
 sections		https://source.sakaiproject.org/svn/sections/trunk
 gradebook		https://source.sakaiproject.org/svn/gradebook/trunk
-course-management	https://source.sakaiproject.org/svn/course-management/tags/sakai_2-2-001
+course-management	https://source.sakaiproject.org/svn/course-management/trunk
 test-harness	https://source.sakaiproject.org/svn/test-harness/trunk
 help			https://source.sakaiproject.org/svn/help/trunk
 archive			https://source.sakaiproject.org/svn/archive/trunk
