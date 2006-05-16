@@ -61,7 +61,21 @@
 		<j:set var="maven.hibernate.input.dir" value="${basedir}/../../service/hibernate/src/hibernate/org/sakaiproject/tool/gradebook,${basedir}/target/classes" />
 		<j:set var="maven.hibernate.input.includes" value="**/*.hbm.xml" />
 
+		<!-- The Maven plug-in for Hibernate 3 is not yet available to support this goal. -->
+		<!--
 		<attainGoal name="hibernate:schema-export" />
+		-->
+		<ant:path id="schemaexport.classpath">
+			<ant:path refid="maven.dependency.classpath" />
+			<ant:pathelement location="${basedir}/target/classes" />
+		</ant:path>
+		<ant:taskdef name="schemaexport" classname="org.hibernate.tool.hbm2ddl.SchemaExportTask" classpathref="schemaexport.classpath" />
+		<ant:schemaexport properties="${maven.hibernate.properties}" delimiter=";" text="yes" output="${basedir}/target/gradebook.sql">
+			<ant:fileset dir="${basedir}/../../service/hibernate/src/hibernate/org/sakaiproject/tool/gradebook">
+				<ant:include name="${maven.hibernate.input.includes}"/>
+			</ant:fileset>
+		</ant:schemaexport>
+
 	</goal>
 
 	<goal name="load-full">
