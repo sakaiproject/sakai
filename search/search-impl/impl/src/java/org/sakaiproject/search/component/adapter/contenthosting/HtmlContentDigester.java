@@ -57,6 +57,8 @@ public class HtmlContentDigester extends BaseContentDigester
 			
 			contentStream = contentResource.streamContent();
 			tidy.setQuiet(true);
+			tidy.setShowWarnings(false);
+			tidy.setOnlyErrors(true);
 			tidy.parse(contentStream, baos);
 			String tidyOut = new String(baos.toByteArray());
 			log.debug("Tidy Output was "+tidyOut);
