@@ -62,6 +62,15 @@
 			<version>${pom.currentVersion}</version>
 		</dependency>
 
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-util</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <properties>
+                                <war.bundle>true</war.bundle>
+                        </properties>
+                </dependency>
+
 		<dependency>
       		<groupId>jspapi</groupId>
       		<artifactId>jsp-api</artifactId>

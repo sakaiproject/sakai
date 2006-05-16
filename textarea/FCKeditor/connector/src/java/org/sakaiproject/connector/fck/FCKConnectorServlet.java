@@ -50,6 +50,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -132,7 +133,8 @@ public class FCKConnectorServlet extends HttpServlet
                     ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
                     resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, newFolderStr);
 
-                    ContentHostingService.addCollection(currentFolder + newFolderStr + "/", resourceProperties);
+                    ContentHostingService.addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + 
+                             "/", resourceProperties);
                     status="0";
                }
                catch (IdUsedException iue) 
