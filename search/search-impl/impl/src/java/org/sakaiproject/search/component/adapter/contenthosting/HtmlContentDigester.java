@@ -23,8 +23,10 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,9 +54,13 @@ public class HtmlContentDigester extends BaseContentDigester
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try
 		{
+			
 			contentStream = contentResource.streamContent();
+			tidy.setQuiet(true);
 			tidy.parse(contentStream, baos);
-			return DigestHtml.digest(new String(baos.toByteArray()));
+			String tidyOut = new String(baos.toByteArray());
+			log.debug("Tidy Output was "+tidyOut);
+			return DigestHtml.digest(tidyOut);
 			
 		}
 		catch (ServerOverloadException e)
