@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -130,6 +131,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private long lastLock = System.currentTimeMillis();
 
+	private static HashMap nodeIDList = new HashMap();;
+
 	private static String lockedTo = null;
 
 	private static String SELECT_LOCK_SQL = "select id, nodename, "
@@ -155,8 +158,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	private static String UPDATE_NODE_LOCK_SQL = "update searchwriterlock set "
 			+ "expires = ? where nodename = ? and lockkey = ? ";
 
-	private static final String DELETE_EXPIRED_NODES_SQL = "delete from searchwriterlock "
+	private static final String SELECT_EXPIRED_NODES_SQL = "select id from searchwriterlock "
 			+ "where lockkey like '" + NODE_LOCK + "%' and expires < ? ";
+
+	private static final String DELETE_LOCKNODE_SQL = "delete from searchwriterlock "
+			+ "where id = ? ";
 
 	public void init()
 	{
@@ -375,6 +381,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			UUID uuid = (UUID) idgenerator.nextIdentifier();
 			nodeID = uuid.toString();
 			nodeIDHolder.set(nodeID);
+			if ( nodeIDList .get(nodeID) == null ) {
+				nodeIDList.put(nodeID,nodeID);
+			} else {
+				log.error("============NODE ID "+nodeID+" has already been issued, there must be a clash");
+			}
 		}
 		return nodeID;
 	}
@@ -389,9 +400,17 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 		Connection connection = null;
 		String nodeID = getNodeID();
+		
+		
+		
+		
 		PreparedStatement updateNodeLock = null;
 		PreparedStatement deleteExpiredNodeLock = null;
+		PreparedStatement selectExpiredNodeLock = null;
 		PreparedStatement insertLock = null;
+		ResultSet resultSet = null;
+		String threadID = Thread.currentThread().getName();
+		boolean savedautocommit = false;
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		// a node can expire, after 2 minutes, to indicate to an admin that it
 		// is dead
@@ -401,10 +420,14 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		try
 		{
 			connection = dataSource.getConnection();
+			boolean savedautocommen = connection.getAutoCommit();
+			connection.setAutoCommit(false);
 
 			updateNodeLock = connection.prepareStatement(UPDATE_NODE_LOCK_SQL);
 			deleteExpiredNodeLock = connection
-					.prepareStatement(DELETE_EXPIRED_NODES_SQL);
+					.prepareStatement(DELETE_LOCKNODE_SQL);
+			selectExpiredNodeLock = connection
+					.prepareStatement(SELECT_EXPIRED_NODES_SQL);
 			insertLock = connection.prepareStatement(INSERT_LOCK_SQL);
 			int retries = 5;
 			boolean updated = false;
@@ -412,20 +435,27 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				try
 				{
-
-					updateNodeLock.clearParameters();
-					updateNodeLock.setTimestamp(1, nodeExpired); // expires
-					updateNodeLock.setString(2, nodeID); // nodename
-					updateNodeLock.setString(3, NODE_LOCK + nodeID); // lockkey
-					if (updateNodeLock.executeUpdate() != 1)
-					{
+					
+					try {
 						insertLock.clearParameters();
 						insertLock.setString(1, "Node:" + nodeID); // id
 						insertLock.setString(2, nodeID); // nodename
 						insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
 						insertLock.setTimestamp(4, nodeExpired); // expires
+						log.debug(threadID+" Doing "+INSERT_LOCK_SQL+":{"+"Node:" + nodeID+"}{"+nodeID+"}{"+NODE_LOCK + nodeID+"}{"+nodeExpired+"}");
 						insertLock.executeUpdate();
+					} catch ( SQLException ex ) {
+						updateNodeLock.clearParameters();
+						updateNodeLock.setTimestamp(1, nodeExpired); // expires
+						updateNodeLock.setString(2, nodeID); // nodename
+						updateNodeLock.setString(3, NODE_LOCK + nodeID); // lockkey
+						log.debug(threadID+" Doing "+UPDATE_NODE_LOCK_SQL+":{"+nodeExpired+"}{"+nodeID+"}{"+NODE_LOCK + nodeID+"}");
+						if (updateNodeLock.executeUpdate() != 1)
+						{
+							log.warn("Failed to update node heartbeat "+nodeID);
+						}						
 					}
+					log.debug(threadID+" Doing Commit ");
 					connection.commit();
 					updated = true;
 				}
@@ -454,6 +484,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				log.error("Failed to update node lock, will try next time ");
 			}
+			
+			
 
 			retries = 5;
 			updated = false;
@@ -461,15 +493,38 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				try
 				{
-					deleteExpiredNodeLock.clearParameters();
-					deleteExpiredNodeLock.setTimestamp(1, now);
-					deleteExpiredNodeLock.execute();
+					selectExpiredNodeLock.clearParameters();
+					selectExpiredNodeLock.setTimestamp(1, now);
+					log.debug(threadID+" Doing "+SELECT_EXPIRED_NODES_SQL+":{"+now+"}");
+
+					resultSet = selectExpiredNodeLock.executeQuery();
+					while (resultSet.next())
+					{
+						String id = resultSet.getString(1);
+						deleteExpiredNodeLock.clearParameters();
+						deleteExpiredNodeLock.setString(1, id);
+						log.debug(threadID+" Doing "+DELETE_LOCKNODE_SQL+":{"+id+"}");
+						deleteExpiredNodeLock.execute();
+						log.debug(threadID+" Doing Commit");
+						connection.commit();
+					}
+					log.debug(threadID+" Doing Commit");
 					connection.commit();
+					resultSet.close();
 					updated = true;
 				}
 				catch (SQLException e)
 				{
+
 					log.warn("Retrying Delete ", e);
+					try
+					{
+						resultSet.close();
+					}
+					catch (Exception ex)
+					{
+
+					}
 					try
 					{
 						connection.rollback();
@@ -501,6 +556,16 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		}
 		finally
 		{
+			if (resultSet != null)
+			{
+				try
+				{
+					resultSet.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
 			if (insertLock != null)
 			{
 				try
@@ -521,6 +586,16 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				{
 				}
 			}
+			if (selectExpiredNodeLock != null)
+			{
+				try
+				{
+					selectExpiredNodeLock.close();
+				}
+				catch (SQLException e)
+				{
+				}
+			}
 			if (deleteExpiredNodeLock != null)
 			{
 				try
@@ -535,6 +610,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				try
 				{
+					connection.setAutoCommit(savedautocommit);
 					connection.close();
 				}
 				catch (SQLException e)
