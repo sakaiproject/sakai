@@ -114,6 +114,7 @@
 	  <span class="searchBox">
 	    <input type="text" name="search" value="<%= searchBean.getSearch() %>"/>
 	  </span>
+	  <input type="submit" name="search_submit" value="Search" />
 	</form>
 	
 	<%= searchBean.getHeader(searchHeaderFormat) %>
