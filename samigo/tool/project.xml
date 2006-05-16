@@ -402,10 +402,7 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>2.0</version>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
+      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
