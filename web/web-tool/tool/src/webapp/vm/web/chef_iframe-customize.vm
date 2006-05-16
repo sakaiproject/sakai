@@ -10,11 +10,24 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
+		#if ($!pageTitleEditable)
+		<p class="shorttext indnt1"> 
+			<span class="reqStar">*</span>
+			<label for="$form_tool_title"> $tlang.getString("gen.tootit")</label>
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" /><br />
+		</p>	
+		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
+			<label for="$form_page_title"> $tlang.getString("gen.pagtit")</label>
+			<input type="text" id="$form_page_title" name="$form_page_title" value="$!validator.escapeHtml($page_title)" /><br />
+		</p>	
+		#else
 		<p class="shorttext indnt1">
 			<span class="reqStar">*</span>
 			<label for="title"> $tlang.getString("gen.title")</label>
 			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" /><br />
 		</p>	
+		#end
 		<p class="shorttext indnt1">
 			<label for="height">$tlang.getString("gen.height")</label>
 			<select id="height" name="height" size="1" onchange="this.value=='$tlang.getString('gen.heisomelse')'?document.getElementById('customNumber').style.display = 'block':document.getElementById('customNumber').style.display = 'none'">

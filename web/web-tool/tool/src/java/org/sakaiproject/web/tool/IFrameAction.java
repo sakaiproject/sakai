@@ -37,6 +37,8 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -96,6 +98,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 	/** Choices of pixels displayed in the customization page */
 	public String[] ourPixels = { "300px", "450px", "600px", "750px", "900px", "1200px", "1800px", "2400px" };
+	
+	/** Attributes for web content tool page title **/
+	private static final String STATE_PAGE_TITLE = "pageTitle";
+	
+	private static final String FORM_PAGE_TITLE = "title-of-page";
+	
+	private static final String FORM_TOOL_TITLE = "title-of-tool";
 
 	/**
 	 * Populate the state with configuration settings
@@ -169,6 +178,32 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// set the title
 		state.setAttribute(TITLE, placement.getTitle());
+		
+		if (state.getAttribute(STATE_PAGE_TITLE) == null)
+		{
+			SitePage p = SiteService.findPage(getCurrentSitePageId());
+			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
+		}
+	}
+	
+	/**
+	 * Get the current site page our current tool is placed on.
+	 * 
+	 * @return The site page id on which our tool is placed.
+	 */
+	protected String getCurrentSitePageId()
+	{
+		ToolSession ts = SessionManager.getCurrentToolSession();
+		if (ts != null)
+		{
+			ToolConfiguration tool = SiteService.findTool(ts.getPlacementId());
+			if (tool != null)
+			{
+				return tool.getPageId();
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -371,6 +406,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		context.put("doUpdate", BUTTON + "doConfigure_update");
 		context.put("doCancel", BUTTON + "doCancel");
+		
+		context.put("form_tool_title", FORM_TOOL_TITLE);
+		context.put("form_page_title", FORM_PAGE_TITLE);
 
 		// if we are part of a site, and the only tool on the page, offer the popup to edit
 		Placement placement = ToolManager.getCurrentPlacement();
@@ -387,6 +425,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				{
 					context.put("showPopup", Boolean.TRUE);
 					context.put("popup", Boolean.valueOf(page.isPopUp()));
+					
+					context.put("pageTitleEditable", Boolean.TRUE);
+					context.put("page_title", (String) state.getAttribute(STATE_PAGE_TITLE));
 				}
 			}
 			catch (Throwable e)
@@ -504,7 +545,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				if ((page.getTools() != null) && (page.getTools().size() == 1))
 				{
 					// TODO: save site page title? -ggolden
-					page.setTitle(title);
+					String newPageTitle = data.getParameters().getString(FORM_PAGE_TITLE);
+					String currentPageTitle = (String) state.getAttribute(STATE_PAGE_TITLE);
+					
+					if (StringUtil.trimToNull(newPageTitle) !=null && !newPageTitle.equals(currentPageTitle))
+					{
+						page.setTitle(newPageTitle);
+						state.setAttribute(STATE_PAGE_TITLE, newPageTitle);
+					}
 
 					// popup
 					boolean popup = data.getParameters().getBoolean("popup");
