@@ -8,7 +8,6 @@
 	<sakai:view_container>
 		<sakai:view_content>
 			<h:form>
-			<h:outputText value="preview.jsp" />
 		  	<sakai:tool_bar_message value="#{msgs.previewNotice}" /> 
 				<h4><h:outputText value="#{SyllabusTool.entry.entry.title}"/></h4>
 				<div class="indnt1">
