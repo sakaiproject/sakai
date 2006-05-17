@@ -212,6 +212,8 @@ public class SyllabusTool
   
   private List filePickerList;
   
+  private String currentRediredUrl = null;
+  
   public SyllabusTool()
   {
   }
@@ -574,6 +576,9 @@ public String processDeleteCancel()
               .getEntry());
         }
       }
+      Placement currentPlacement = ToolManager.getCurrentPlacement();
+      syllabusItem = syllabusManager.getSyllabusItemByContextId(currentPlacement.getContext());
+      
       entries.clear();
       entry = null;
 
@@ -1203,6 +1208,8 @@ public String processDeleteCancel()
       }
       else
       {
+    	currentRediredUrl = syllabusItem.getRedirectURL();
+    	
         return "edit_redirect";
       }
     }
@@ -1220,8 +1227,8 @@ public String processDeleteCancel()
   public String processEditCancelRedirect()
   {
     //logger.info(this + ".processEditCancelRedirect() in SyllabusTool ");
-
-    entries.clear();
+    
+	entries.clear();
     entry = null;
 
     return "main_edit";
@@ -1239,6 +1246,7 @@ public String processDeleteCancel()
       }
       else
       {
+    	syllabusItem.setRedirectURL(currentRediredUrl);
         syllabusManager.saveSyllabusItem(syllabusItem);
 
         entries.clear();
@@ -1761,5 +1769,15 @@ public String processDeleteCancel()
       e.printStackTrace();
       return null;
     }
+  }
+
+  public String getCurrentRediredUrl() 
+  {
+	return currentRediredUrl;
+  }
+
+  public void setCurrentRediredUrl(String currentRediredUrl) 
+  {
+	this.currentRediredUrl = currentRediredUrl;
   }
 }

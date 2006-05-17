@@ -14,7 +14,7 @@
 					<h:panelGroup styleClass="shorttext required">
 						<h:outputText value="*" styleClass="reqStar"/>
 						<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
-						<h:inputText id="urlValue" value="#{SyllabusTool.syllabusItem.redirectURL}" size="65" />
+						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65" />
 					</h:panelGroup>
 				</h:panelGrid>
 				<sakai:button_bar>
