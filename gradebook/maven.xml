@@ -17,4 +17,10 @@
 		<attainGoal name="multiproject:goal" />
 	</goal>
 
+	<goal name="load-schema-standalone">
+		<j:set var="goal" value="load-schema" />
+		<j:set var="maven.multiproject.includes" value="app/standalone-app/project.xml" />
+		<attainGoal name="multiproject:goal" />
+	</goal>
+
 </project>
