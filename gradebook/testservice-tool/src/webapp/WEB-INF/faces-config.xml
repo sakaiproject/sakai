@@ -5,6 +5,9 @@
 		<variable-resolver>
 			org.sakaiproject.jsf.app.SakaiVariableResolver
 		</variable-resolver>
+		<locale-config>
+			<default-locale>en_US</default-locale>
+		</locale-config>
 	</application>
 
 	<managed-bean>
