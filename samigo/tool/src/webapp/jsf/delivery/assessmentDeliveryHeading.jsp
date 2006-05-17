@@ -132,7 +132,9 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <f:verbatim>  </span></f:verbatim>
 
 <!-- HIDE / SHOW TIMER BAR -->
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
+<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
+onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
+ value="Hide/Show Time Remaining" />
 <!-- END OF TIMER -->
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
@@ -140,7 +142,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <h:commandLink title="#{msg.t_submit}" id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 function clickSubmitForGrade(){
   var newindex = 0;

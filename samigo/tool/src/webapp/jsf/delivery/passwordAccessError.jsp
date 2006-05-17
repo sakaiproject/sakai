@@ -62,7 +62,7 @@
    <f:verbatim></p></f:verbatim>
   <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="button" 
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-     style="act" onclick="javascript:window.open('login.faces','_top')" />
+     style="act" onclick="javascript:window.open('login.faces','_top')" onkeypress="javascript:window.open('login.faces','_top')" />
 
  </h:form>
   <!-- end content -->

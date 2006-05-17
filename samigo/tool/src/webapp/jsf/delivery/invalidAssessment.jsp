@@ -48,7 +48,7 @@
   <h:outputText value="#{msg.invalid_assessment}"/>
   <h3 style="insColor insBak"><h:outputText  value="#{msg.invalid_assessment_message}" /></h3>
   <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="button"
-     style="act" onclick="javascript:window.open('../jsf/delivery/login.faces','_top')" />
+     style="act" onclick="javascript:window.open('../jsf/delivery/login.faces','_top')" onkeypress="javascript:window.open('../jsf/delivery/login.faces','_top')" />
 </h:form>
 </div>
 

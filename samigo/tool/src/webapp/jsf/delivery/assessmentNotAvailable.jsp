@@ -50,7 +50,7 @@
 
 <p class="act">
   <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="button"
-       style="act" onclick="javascript:window.open('/portal','_top')" />
+       style="act" onclick="javascript:window.open('/portal','_top')" onkeypress="javascript:window.open('/portal','_top')" />
 <!--
   <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="submit"
      styleClass="active" action="#{delivery.doit}" >

@@ -66,16 +66,16 @@
   <f:verbatim><p/></f:verbatim>
   <h:panelGrid columns="2" columnClasses="longtext">
 
-    <h:outputLabel for="course_name" value="#{msg.course_name}"/>
+    <h:outputLabel value="#{msg.course_name}"/>
     <h:outputText value="#{delivery.courseName}" />
 
-    <h:outputLabel for="creator" value="#{msg.creator}" />
+    <h:outputLabel  value="#{msg.creator}" />
     <h:outputText value="#{delivery.creatorName}"/>
 
-    <h:outputLabel for="asessment_title" value="#{msg.assessment_title}" />
+    <h:outputLabel value="#{msg.assessment_title}" />
     <h:outputText value="#{delivery.assessmentTitle}" />
 
-    <h:outputLabel for="sub_remain" value="#{msg.number_of_sub_remain}" />
+    <h:outputLabel value="#{msg.number_of_sub_remain}" />
     <h:panelGroup>
       <h:outputText value="#{delivery.submissionsRemaining} out of #{delivery.settings.maxAttempts}"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
@@ -83,17 +83,17 @@
           rendered="#{delivery.settings.unlimitedAttempts}"/>
     </h:panelGroup>
 
-    <h:outputLabel for="conf_num" value="#{msg.conf_num}" />
+    <h:outputLabel value="#{msg.conf_num}" />
     <h:outputText value="#{delivery.confirmation}" />
 
-    <h:outputLabel for="sub_date" value="#{msg.submission_dttm}" />
+    <h:outputLabel value="#{msg.submission_dttm}" />
     <h:outputText value="#{delivery.submissionDate}">
         <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
      </h:outputText>
 
-    <h:outputLabel for="final_page" value="#{msg.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
-    <h:outputLink value="#" rendered="#{delivery.url!=null && delivery.url!=''}"
-       onclick="window.open('#{delivery.url}','new_window');">
+    <h:outputLabel value="#{msg.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
+    <h:outputLink title="#{msg.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"
+       onclick="window.open('#{delivery.url}','new_window');" onkeypress="window.open('#{delivery.url}','new_window');">
         <h:outputText value="#{delivery.url}" />
     </h:outputLink>
 
@@ -107,7 +107,7 @@
        rendered="#{delivery.actionString=='takeAssessment'}" />
     <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="button" 
        rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-       style="act" onclick="javascript:window.open('login.faces','_top')" />
+       style="act" onclick="javascript:window.open('login.faces','_top')" onkeypress="javascript:window.open('login.faces','_top')" />
   </h:panelGrid>
 </div>
 

@@ -50,10 +50,10 @@
 
 <p class="act">
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_continue}" type="button"
-     styleClass="active" onclick="javascript:history.go(-1);" />
+     styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
 
   <h:commandButton accesskey="#{msg.a_quit}" value="#{msg.button_quit}" type="button"
-     onclick="javascript:window.open('/portal/','_top')" />
+     onclick="javascript:window.open('/portal/','_top')" onkeypress="javascript:window.open('/portal/','_top')" />
 </p>
 </h:form>
 </div>

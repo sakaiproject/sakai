@@ -53,7 +53,7 @@ should be included in file importing DeliveryMessages
     </h:column>
     <h:column>
 
-     <h:selectOneRadio onfocus="if (this.defaultChecked) { uncheckRadioButtons#{question.itemData.itemId}(this) };" onclick="uncheckRadioButtons#{question.itemData.itemId}(this);" required="false" 
+     <h:selectOneRadio onfocus="if (this.defaultChecked) { uncheckRadioButtons#{question.itemData.itemId}(this) };" onclick="uncheckRadioButtons#{question.itemData.itemId}(this);" onkeypress="uncheckRadioButtons#{question.itemData.itemId}(this);" required="false" 
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" 
        value="#{question.responseId}" layout="pageLayout">

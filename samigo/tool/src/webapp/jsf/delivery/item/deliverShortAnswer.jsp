@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
      <f:verbatim></b></f:verbatim>
     <h:outputText  value="#{question.key}" escape="false"/>
 <%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
-    <h:outputLink title="#{msg.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
+    <h:outputLink title="#{msg.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');"  onkeypress="javascript:window.alert('#{question.keyInUnicode}');" >
     <h:outputText  value="#{msg.click}" />
     </h:outputLink>
 --%>

@@ -46,7 +46,7 @@
   <h:outputText value="#{msg.anonymous_thank_you}"/>
   <h3 style="insColor insBak"><h:outputText  value="#{msg.anonymous_thank_you_message}" /></h3>
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_continue}" type="button"
-     style="act" onclick="javascript:window.open('/portal/','_top')" />
+     style="act" onclick="javascript:window.open('/portal/','_top')" onkeypress="javascript:window.open('/portal/','_top')" />
 </h:form>
 </div>
       </body>

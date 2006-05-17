@@ -57,7 +57,7 @@
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script language="javascript">
+<script language="javascript" type="text/JavaScript">
 function checkRadio()
 {
   for (i=0; i<document.forms[0].elements.length; i++)
@@ -110,30 +110,41 @@ function saveTime()
 <!-- h:inputHidden id="currentSection" value="#{item.currentSection}"/ -->
 <!-- h:inputHidden id="insertPosition" value="#{item.insertPosition}"/ -->
 <%-- PART/ITEM DATA TABLES --%>
-
-  <h:dataTable value="#{delivery.pageContents.partsContents}" var="part">
+<div class="tier1">
+  <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
      <!-- f:subview id="parts" -->
-      <f:verbatim><h4 class="tier1"></f:verbatim>
+      <f:verbatim><h4></f:verbatim>
+      <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
+       <h:panelGroup>
       <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
       <h:outputText value=" #{msg.dash} #{part.nonDefaultText}" escape="false"/>
+         </h:panelGroup>
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{msg.ans_q}, " / -->
       <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{msg.pt}" 
          rendered="#{delivery.actionString=='reviewAssessment'}"/>
-      <f:verbatim></h4><div class="tier1"></f:verbatim>
+</h:panelGrid>
+      <f:verbatim></h4></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
-      <f:verbatim></div></f:verbatim>
-      <h:dataTable value="#{part.itemContents}" columnClasses="tier2"
-          var="question">
+   <f:verbatim><div class="tier2"></f:verbatim>
+      <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
-          <f:verbatim><h4 class="tier2"></f:verbatim>
-           <h:outputText value="<a name=p#{part.number}q#{question.number}></a>" escape="false" />
+<f:verbatim><h5></f:verbatim>
+<h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
+         <h:panelGroup>
+           <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
 
-        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.pointsDisplayString} #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
-        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering} : #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering}"/>
+</h:panelGroup>
+<h:panelGroup>
+<h:outputText value=" #{question.pointsDisplayString} #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
-          <f:verbatim></h4><div class="tier3"></f:verbatim>
+        <h:outputText value="#{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+</h:panelGroup>
+</h:panelGrid>
+        
+          <f:verbatim><div class="tier3"></f:verbatim>
 <%--
           <h:outputText value="#{question.itemData.description}" escape="false"/>
 --%>
@@ -181,12 +192,15 @@ function saveTime()
            <f:verbatim></div></f:verbatim>
 
           </h:panelGroup>
+
         </h:column>
       </h:dataTable>
+<f:verbatim></div></f:verbatim>
      <!-- /f:subview -->
+
     </h:column>
   </h:dataTable>
-
+</div>
 <p class="act">
   <%-- NEXT --%>
   <h:commandButton id="next" accesskey="#{msg.a_saveAndContinue}" type="submit" value="#{msg.save_and_continue}"
@@ -195,7 +209,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment' 
                  || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.continue}"
-    onclick="disableNext()" />
+    onclick="disableNext()" onkeypress="disableNext()" />
 
   <%-- SUBMIT FOR GRADE --%>
   <h:commandButton id="submitforGrade" accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
@@ -203,7 +217,7 @@ function saveTime()
     rendered="#{delivery.actionString=='takeAssessment'
              && delivery.navigation ne '1' 
              && !delivery.continue}"
-    onclick="disableSubmitForGrade()" />
+    onclick="disableSubmitForGrade()" onkeypress="disableSubmitForGrade()" />
 
   <%-- PREVIOUS --%>
   <h:commandButton id="previous" accesskey="#{msg.a_prev}" type="submit" value="#{msg.previous}"
@@ -212,7 +226,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.navigation ne '1' && delivery.previous}" 
-    onclick="disablePrevious()" />
+    onclick="disablePrevious()" onkeypress="disablePrevious()" />
 
   <!-- check for submit for grade permission to determine if button can be displayed -->
   <%-- SUBMIT FOR GRADE --%>
@@ -225,14 +239,14 @@ function saveTime()
                    || delivery.actionString=='takeAssessmentViaUrl')
                 && delivery.navigation eq '1' && !delivery.continue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
-      onclick="pauseTiming='false'; disableSubmit()"/>
+      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'; disableSubmit()"/>
   </h:panelGroup>
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{msg.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; disableSubmit2();"/>
+    onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'; disableSubmit2();"/>
 
   <%-- SAVE AND EXIT --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
@@ -240,21 +254,21 @@ function saveTime()
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
               && delivery.navigation ne '1' && delivery.continue}"  
-    onclick="pauseTiming='false'; disableSave();" 
+    onclick="pauseTiming='false'; disableSave();" onkeypress="pauseTiming='false'; disableSave();" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <%-- SAVE AND EXIT DURING PAU --%>
   <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl')}"
-    onclick="pauseTiming='false'; disableQuit()" /> 
+    onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'; disableQuit()"  /> 
 
   <%-- SAVE AND EXIT --%>
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && (delivery.navigation eq '1'|| ! delivery.continue)}"
-    onclick="disableSave2();"
+    onclick="disableSave2();" onkeypress="disableSave2();"
     disabled="#{delivery.actionString=='previewAssessment'}"/>
 
 </p>

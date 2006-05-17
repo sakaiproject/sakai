@@ -113,7 +113,7 @@ function clickSubmitForGrade(){
     expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; clickSubmitForGrade();" />
 <f:verbatim>  </span></f:verbatim>
 
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
+<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="Hide/Show Time Remaining" />
 </h:panelGroup>
 
 
@@ -192,7 +192,7 @@ function clickSubmitForGrade(){
                              && authorization.submitAssessmentForGrade)}">
     <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
       action="#{delivery.submitForGrade}" styleClass="active"  
-      onclick="javascript:saveTime()"
+      onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
@@ -204,7 +204,7 @@ function clickSubmitForGrade(){
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
   <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
     action="#{delivery.saveAndExit}"
-    onclick="javascript:saveTime()"
+    onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessment'
              || delivery.actionString=='previewAssessment'}" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
@@ -212,7 +212,7 @@ function clickSubmitForGrade(){
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
   <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
-    onclick="javascript:saveTime()"
+    onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" >
   </h:commandButton>
 </p>
