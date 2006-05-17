@@ -15,7 +15,7 @@
 
 		<version type="integer" name="version" column="VERSION"/>
 
-		<many-to-one name="gradebook" class="org.sakaiproject.tool.gradebook.Gradebook" column="GRADEBOOK_ID" not-null="true" />
+		<many-to-one name="gradebook" class="org.sakaiproject.tool.gradebook.Gradebook" column="GRADEBOOK_ID" not-null="true"/>
 
 		<many-to-one name="gradingScale" column="GB_GRADING_SCALE_T" not-null="false" />
 
@@ -30,4 +30,12 @@
 		<subclass name="org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping" discriminator-value="3" />
 
 	</class>
+
+	<database-object>
+		<create>create index GB_GRADE_MAP_GB_IDX on GB_GRADE_MAP_T (GRADEBOOK_ID)</create>
+		<drop></drop>
+		<!-- For MySQL and hsqldb, the index will be created automatically to enforce a constraint. -->
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
 </hibernate-mapping>

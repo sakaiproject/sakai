@@ -17,7 +17,7 @@
 
 		<many-to-one name="gradableObject">
 			<column name="GRADABLE_OBJECT_ID" not-null="true"
-				unique-key="gradeRecordKey" index="GB_GRADE_RECORD_G_O_IDX" />
+				unique-key="gradeRecordKey" />
 		</many-to-one>
 		<property name="studentId" type="string">
 			<column name="STUDENT_ID" not-null="true"
@@ -39,4 +39,17 @@
 		</subclass>
 
 	</class>
+
+	<database-object>
+		<create>create index GB_GRADE_RECORD_G_O_IDX on GB_GRADE_RECORD_T (GRADABLE_OBJECT_ID)</create>
+		<drop></drop>
+		<!-- For MySQL and hsqldb, the index will be created automatically to enforce a constraint. -->
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
+	<database-object>
+		<!-- Hibernate does not support the "index" attribute on "discriminator". -->
+		<create>create index GB_GRADE_RECORD_O_T_IDX on GB_GRADE_RECORD_T (OBJECT_TYPE_ID)</create>
+		<drop>drop index GB_GRADE_RECORD_T.GB_GRADE_RECORD_O_T_IDX</drop>
+	</database-object>
 </hibernate-mapping>

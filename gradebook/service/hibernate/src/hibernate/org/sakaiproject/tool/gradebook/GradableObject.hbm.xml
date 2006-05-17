@@ -15,7 +15,7 @@
 
 		<version name="version" type="integer" column="VERSION"/>
 
-		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true" />
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true"/>
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
@@ -36,4 +36,17 @@
 		</subclass>
 
 	</class>
+
+	<database-object>
+		<create>create index GB_GRADABLE_OBJ_GB_IDX on GB_GRADABLE_OBJECT_T (GRADEBOOK_ID)</create>
+		<drop></drop>
+		<!-- For MySQL and hsqldb, the index will be created automatically to enforce a constraint. -->
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
+	<database-object>
+		<create>create index GB_GRADABLE_OBJ_ASN_IDX on GB_GRADABLE_OBJECT_T (OBJECT_TYPE_ID, GRADEBOOK_ID, NAME, REMOVED)</create>
+		<!-- <drop>drop index GB_GRADABLE_OBJECT_T.GB_GRADABLE_OBJ_ASN_IDX</drop> -->
+		<drop></drop>
+	</database-object>
 </hibernate-mapping>

@@ -70,4 +70,4 @@ Database changes
   the "auto.ddl=true" property or the following script may be used to
   update the tables:
 
-  gradebook/app/business/src/sql/oracle/sakai_gradebook_2.1.x_to_2.2.sql
+  gradebook/app/business/src/sql/*/sakai_gradebook_2.1.x_to_2.2.sql
