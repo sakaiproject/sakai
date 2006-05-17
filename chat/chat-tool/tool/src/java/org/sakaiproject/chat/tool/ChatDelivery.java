@@ -105,7 +105,11 @@ public class ChatDelivery extends BaseDelivery
 
 		Reference ref = EntityManager.newReference(m_messageId);
 		ChatMessage msg = (ChatMessage) ref.getEntity();
-		User sender = msg.getHeader().getFrom();
+		User sender = null;
+		if (msg != null)
+		{
+			sender = msg.getHeader().getFrom();
+		}
 		User myself = UserDirectoryService.getCurrentUser();
 
 		MessageChannel channel = null;
@@ -123,21 +127,16 @@ public class ChatDelivery extends BaseDelivery
 
 		String browserID = UsageSessionService.getSession().getBrowserId();
 
-		String retval;
+		String retval = null;
 
-		// if browser supports appendMessage function, we have to return
-		// sender, date, time, body and message number (in that order)
-		// as parameters to invocation of appendMessage function in HTML element
-		// identified by m_elementId. message number is for debugging only.
-		// otherwise return reload request
-		//
-		// also, if the user is allowed to delete the message, they need a reload request
-		// so that they will see a delete icon for the message
-
-		if (browserID.equals(UsageSession.UNKNOWN) || channel == null /* TODO || channel.allowRemoveMessage(msg) */)
+		// if we don't know we can do the DOM based refresh, or we are missing channel or msg (could have been a message delete)
+		// trigger a panel refresh
+		if (browserID.equals(UsageSession.UNKNOWN) || channel == null || msg == null)
 		{
 			retval = "try { " + m_elementId + ".location.replace(addAuto(" + m_elementId + ".location));} catch (error) {}";
 		}
+		
+		// otherwise setup for a browser-side javascript DOM modification to insert the message
 		else
 		{
 			String msgbody = Web.escapeJsQuoted(Web.escapeHtmlFormattedText(msg.getBody()));
@@ -148,10 +147,11 @@ public class ChatDelivery extends BaseDelivery
 
 			retval = "try { " + m_elementId + ".appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
 					+ new Boolean(removeable) + "', '" + msg.getHeader().getDate().toStringLocalDate() + "', '"
-					+ msg.getHeader().getDate().toStringLocalTimeZ() + "', '" + msgbody + "','" + msg.getHeader().getId() + "'); } catch (error) {} ";
+					+ msg.getHeader().getDate().toStringLocalTimeZ() + "', '" + msgbody + "','" + msg.getHeader().getId()
+					+ "'); } catch (error) {} ";
 		}
 
-		if (m_beepOnDelivery && sender.compareTo(myself) != 0)
+		if (m_beepOnDelivery && (sender != null) && sender.compareTo(myself) != 0)
 		{
 			retval += "beep = true;";
 		}
