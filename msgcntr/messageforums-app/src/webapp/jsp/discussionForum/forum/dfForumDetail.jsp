@@ -8,10 +8,8 @@
       <h:form id="msgForum">
 		<div class="forumsRow">
 			<div class="left-header-section">
-				<h3>
 					<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}"/> /
 					<h:outputText value="#{ForumTool.selectedForum.forum.title}" />
-				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedForum.forum.shortDescription}" />
 				  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{ForumTool.selectedForum.hasExtendedDesciption}"
 				 	id="forum_extended_show" value="#{msgs.cdfm_read_full_description}">

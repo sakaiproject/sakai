@@ -9,7 +9,7 @@
 	<h:form id="DF-1">
 		<sakai:group_box>
 			<div class="left-header-section">
-				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink> /
@@ -17,7 +17,6 @@
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 					</h:commandLink>
-				</h3>
 				<sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
  				<h:commandLink immediate="true" 
 				  action="#{ForumTool.processDfComposeToggle}" 

@@ -10,12 +10,11 @@
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 		<div class="header-section">
 			<div class="left-header-section">
-				<h3><h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
+				<h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" >
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					</h:commandLink> /
 					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
-				</h3>
 				 <sakai:instruction_message value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 				<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
 					id="topic_extended_show" value="#{msgs.cdfm_read_full_description}">
