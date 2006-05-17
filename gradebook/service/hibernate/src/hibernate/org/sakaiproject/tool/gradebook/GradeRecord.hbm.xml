@@ -50,6 +50,6 @@
 	<database-object>
 		<!-- Hibernate does not support the "index" attribute on "discriminator". -->
 		<create>create index GB_GRADE_RECORD_O_T_IDX on GB_GRADE_RECORD_T (OBJECT_TYPE_ID)</create>
-		<drop>drop index GB_GRADE_RECORD_T.GB_GRADE_RECORD_O_T_IDX</drop>
+		<drop></drop>
 	</database-object>
 </hibernate-mapping>
