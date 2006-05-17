@@ -17,21 +17,27 @@
 		#end
 	</div>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both"></div>#end
-	<h3>
-		#if ($withGrade)
-			#if (!$!submission.getGraded())
-				$tlang.getString("gen.gra")
+	
+	## the form
+	<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
+		<input type="hidden" name="option" id="option" value="" />
+		<input type="hidden" name="view" id="view" value="" />
+		<h3>
+			#if ($withGrade)
+				#if (!$!submission.getGraded())
+					$tlang.getString("gen.gra")
+				#else
+					$tlang.getString("gen.regra")
+				#end 
 			#else
-				$tlang.getString("gen.regra")
-			#end 
-		#else
-			$tlang.getString("gen.review")
-		#end
-		$assignment.title
-	</h3>
-	<h4>
-			$tlang.getString("gen.assdet")
-	</h4>		
+				$tlang.getString("gen.review")
+			#end
+			$assignment.title
+		</h3>
+		<h4>
+				$tlang.getString("gen.assdet")
+		</h4>		
 
 		## 1- text only; 2-attachment only; 3-text and attachment
 		#set ( $submissionType = $assignment.getContent().TypeOfSubmission)
@@ -103,13 +109,13 @@
 		</table>
 			#if ($assignment_expand_flag)
 				<p class="discTria">
-					<a href="#" onclick="location='#toolLink("AssignmentAction" "doHide_submission_assignment_instruction")'; return false;">
+					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction';document.gradeForm.submit();return false;" accesskey="a"/>
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
 			#else
 				<p class="discTria">
-					<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_submission_assignment_instruction")'; return false;">
+					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='show_instruction';document.gradeForm.submit();return false;" accesskey="a"/>
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
@@ -155,11 +161,7 @@
 						#end
 					</ul>
 				#end	
-		#end	## show the assignment content
-		<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-			<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
-			<input type="hidden" name="option" id="option" value="" />
-			<input type="hidden" name="view" id="view" value="" />
+			#end	## show the assignment content
 			<h4>$tlang.getString("gen.subm")</h4>
 				## if there is a text
 				#if ($submissionType!=2)
