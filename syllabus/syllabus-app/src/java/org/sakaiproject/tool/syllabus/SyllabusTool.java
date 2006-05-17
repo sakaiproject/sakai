@@ -554,10 +554,10 @@ public String processDeleteCancel()
         {
           DecoratedSyllabusEntry den = (DecoratedSyllabusEntry) selected.get(i);
           
-          if(den.getEntry().getStatus().equalsIgnoreCase("Posted"))
-          {
-            syllabusService.deletePostedSyllabus(den.getEntry());
-          }
+//          if(den.getEntry().getStatus().equalsIgnoreCase("Posted"))
+//          {
+//            syllabusService.deletePostedSyllabus(den.getEntry());
+//          }
           
           //Set syllabusAttachments = den.getEntry().getAttachments();
           Set syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(den.getEntry());
