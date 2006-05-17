@@ -107,7 +107,7 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_POST_CHANGE.equals(function))
 		{
-			returnedString = "[ " + title + " - " + "Existed Syllabus Item Changed" + " ] " + syllabusName;
+			returnedString = "[ " + title + " - " + "Existing Syllabus Item Changed" + " ] " + syllabusName;
 			;
 		}
 		else if (SyllabusService.EVENT_SYLLABUS_DELETE_POST.equals(function))
