@@ -24,6 +24,7 @@ package org.sakaiproject.util;
 import java.util.Properties;
 
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>
@@ -167,6 +168,13 @@ public class Placement implements org.sakaiproject.tool.api.Placement
 	 */
 	public Tool getTool()
 	{
+		// we might have a case where a placement was made before a tool was registered, leaving us with a toolId but no tool.
+		if ((m_tool == null) && (m_toolId != null))
+		{
+			// if so, we can try again
+			m_tool = ToolManager.getTool(m_toolId);
+		}
+
 		return m_tool;
 	}
 
