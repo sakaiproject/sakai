@@ -6,6 +6,12 @@
 
 <faces-config>
 
+	<application>
+		<locale-config>
+			<default-locale>en_US</default-locale>
+		</locale-config>
+	</application>
+
 	<managed-bean>
 		<description>
 			Example backing bean for the pager widget
