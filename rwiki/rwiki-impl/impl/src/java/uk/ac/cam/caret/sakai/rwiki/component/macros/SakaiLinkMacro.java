@@ -94,7 +94,7 @@ public class SakaiLinkMacro extends BaseLocaleMacro
 		{
 			if (target == null)
 			{
-				if (url.indexOf("://") >= 0 && url.indexOf("://") < 10)
+				if (url.indexOf(":/") >= 0 && url.indexOf(":/") < 10)
 				{
 					target = "rwikiexternal";
 				}
