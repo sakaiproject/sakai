@@ -47,7 +47,7 @@ function showHideDiv(hideDivisionNo, context)
       divisionNo.style.display="none";
       if (imgNo)
       {
-        imgNo.src = context + "/images/right_arrow.gif";
+        imgNo.src = context + "/images/collapse.gif";
       }
     }
     else
@@ -62,7 +62,7 @@ function showHideDiv(hideDivisionNo, context)
       }
       if(imgNo)
       {
-        imgNo.src = context + "/images/down_arrow.gif";
+        imgNo.src = context + "/images/expand.gif";
       }
     }
   }
