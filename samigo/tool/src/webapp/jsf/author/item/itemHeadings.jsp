@@ -25,7 +25,7 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 **********************************************************************************/
 --%>
 -->
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 function changeTypeLink(field){
 

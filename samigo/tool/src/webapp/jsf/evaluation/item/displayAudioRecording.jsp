@@ -37,7 +37,7 @@ should be included in file importing DeliveryMessages
                 volume=\"50\" height=\"25\" width=\"250\" autostart=\"false\"/></div>
          " />
 --%>
-      <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+      <h:outputLink title="#{msg.t_playAudio}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
              <h:outputText escape="false" value="play audio" />
       </h:outputLink>
     </h:column>

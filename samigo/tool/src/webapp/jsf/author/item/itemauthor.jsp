@@ -118,7 +118,7 @@
 
 
 
-<h:selectOneRadio layout="lineDirection" onclick="submit()" value="1" >
+<h:selectOneRadio layout="lineDirection" onclick="submit()" onkeypress="submit()" value="1" >
       <f:selectItem itemValue="1"
         itemLabel="#{msg.single}" />
       <f:selectItem itemValue="2"

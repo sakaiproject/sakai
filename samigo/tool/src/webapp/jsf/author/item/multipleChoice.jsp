@@ -92,6 +92,7 @@
 <div class="tier2">
     <h:selectOneRadio layout="lineDirection"
 		onclick="this.form.onsubmit();this.form.submit();"
+                onkeypress="this.form.onsubmit();this.form.submit();"
            value="#{itemauthor.currentItem.multipleCorrectString}"
 	valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
       <f:selectItem itemValue="1"
@@ -122,7 +123,7 @@
 
 
 
-<h:selectOneRadio onclick="uncheckOthers(this);" id="mcradiobtn"
+<h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="mcradiobtn"
 	layout="pageDirection"
 	value="#{itemauthor.currentItem.corrAnswer}"
 	rendered="#{!itemauthor.currentItem.multipleCorrect}">

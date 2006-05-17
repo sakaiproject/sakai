@@ -52,7 +52,7 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
 <%--
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/authoring.js" %>
 //-->
