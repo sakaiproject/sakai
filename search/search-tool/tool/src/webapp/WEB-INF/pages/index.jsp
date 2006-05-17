@@ -8,7 +8,7 @@
 	String searchItemFormat = "<p class=\"searchItem\" ><a href=\"{1}\" target=\"searchresult\" >{2}</a><br />"
 			+ "{3} <br/> "
 			+ "<span class=\"searchScore\" >"
-			+ " Score: {4} <a href=\"{1}\" >{1}</a> "
+			+ " Score: {4} <a href=\"{1}\" target=\"searchresult\" >{1}</a> "
 			+ "</span></p>";
 
 	String pagerFormat = "<a href=\"{0}\" class=\"searchPage{2}\" >{1}</a>&#160;";

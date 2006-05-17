@@ -152,7 +152,7 @@ public class MessageContentProducer implements EntityContentProducer
 						.append("\n");
 				sb.append("Message Body\n");
 				sb.append(m.getBody()).append("\n");
-				log.info("Message Content for "+cr.getReference()+" is "+sb.toString());
+				log.debug("Message Content for "+cr.getReference()+" is "+sb.toString());
 				return sb.toString();
 			}
 			catch (IdUnusedException e)
