@@ -332,8 +332,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 		context.put(CONTEXT_SITE_COLLECTION_ID, collectionId);
 		
-		String collectionUrl = ContentHostingService.getUrl(collectionId);
-		context.put(CONTEXT_SITE_COLLECTION_URL, collectionUrl);
+		//		String collectionUrl = ContentHostingService.getUrl(collectionId);
+		//		context.put(CONTEXT_SITE_COLLECTION_URL, collectionUrl);
 
 		// indicate which WYSIWYG editor to use in legacy tools
 		String editor = ServerConfigurationService.getString("wysiwyg.editor");
