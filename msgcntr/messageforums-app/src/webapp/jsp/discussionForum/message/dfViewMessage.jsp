@@ -136,7 +136,7 @@
 	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyTp}" value="Reply to Topic" 
 		    rendered="#{ForumTool.selectedTopic.isNewResponse}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="Grade" 
-        rendered="#{ForumTool.selectedTopic.isPostToGradebook}"/> 
+        rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}"/> 
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise"
 		    rendered="#{ForumTool.selectedTopic.isReviseAny}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="Revise"

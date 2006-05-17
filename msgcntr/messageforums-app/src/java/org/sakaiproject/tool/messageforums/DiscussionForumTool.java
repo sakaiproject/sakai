@@ -165,13 +165,14 @@ public class DiscussionForumTool
   
   //grading 
   private boolean gradeNotify = false; 
-  private List assignments; 
+  private List assignments = new ArrayList(); 
   private String selectedAssign = "Default_0"; 
   private String gradePoint = ""; 
   private String gradebookScore = ""; 
   private String gradeComment; 
   private boolean noGradeWarn = false; 
-  private boolean noAssignWarn = false; 
+  private boolean noAssignWarn = false;
+  private boolean gradebookExist = false;
 
   /**
    * Dependency Injected
@@ -180,7 +181,7 @@ public class DiscussionForumTool
   private UIPermissionsManager uiPermissionsManager;
   private MessageForumsTypeManager typeManager;
   private MembershipManager membershipManager;
-  private PermissionLevelManager permissionLevelManager;
+  private PermissionLevelManager permissionLevelManager;  
   /**
    * 
    */
@@ -264,38 +265,43 @@ public class DiscussionForumTool
     {
       try 
       { 
+    	assignments = new ArrayList(); 
+    	SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
+    	assignments.add(item); 
+    	  
         GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
         ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-        List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
-        List gradeAssignments = new ArrayList();
-        for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
+        if(getGradebookExist())
         {
-          Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
-          if(!thisAssign.isExternallyMaintained())
+          List gradeAssignmentsBeforeFilter = gradebookService.getAssignments(ToolManager.getCurrentPlacement().getContext());
+          List gradeAssignments = new ArrayList();
+          for(int i=0; i<gradeAssignmentsBeforeFilter.size(); i++)
           {
-            gradeAssignments.add(thisAssign);
+            Assignment thisAssign = (Assignment) gradeAssignmentsBeforeFilter.get(i);
+            if(!thisAssign.isExternallyMaintained())
+            {
+              gradeAssignments.add(thisAssign);
+            }
+          }
+            
+          for(int i=0; i<gradeAssignments.size(); i++) 
+          { 
+            try 
+            { 
+              Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
+            
+              String assignName = thisAssign.getName(); 
+            
+              item = new SelectItem((new Integer(i+1)).toString(), assignName); 
+              assignments.add(item); 
+            } 
+            catch(Exception e) 
+            { 
+              LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
+              e.printStackTrace(); 
+            } 
           }
         }
-        assignments = new ArrayList(); 
-        SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
-        assignments.add(item); 
-        for(int i=0; i<gradeAssignments.size(); i++) 
-        { 
-          try 
-          { 
-            Assignment thisAssign = (Assignment) gradeAssignments.get(i); 
-            
-            String assignName = thisAssign.getName(); 
-            
-            item = new SelectItem((new Integer(i+1)).toString(), assignName); 
-            assignments.add(item); 
-          } 
-          catch(Exception e) 
-          { 
-            LOG.error("DiscussionForumTool - processDfMsgGrd:" + e); 
-            e.printStackTrace(); 
-          } 
-        } 
       } 
       catch(Exception e1) 
       { 
@@ -2619,39 +2625,47 @@ public class DiscussionForumTool
 
   public void setForumBeanAssign()
   {
-    for(int i=0; i<assignments.size(); i++)
-    {
-      if(((SelectItem)assignments.get(i)).getLabel().equals(selectedForum.getForum().getDefaultAssignName()))
+	if(assignments != null)
+	{
+      for(int i=0; i<assignments.size(); i++)
       {
-        selectedForum.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
-        break;
+        if(((SelectItem)assignments.get(i)).getLabel().equals(selectedForum.getForum().getDefaultAssignName()))
+        {
+          selectedForum.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
+          break;
+        }
       }
-    }
+	}
   }
   
   public void setTopicBeanAssign()
   {
-    for(int i=0; i<assignments.size(); i++)
-    {
-      if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
-      {
-        selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
-        break;
+	if(assignments != null)
+	{
+	  for(int i=0; i<assignments.size(); i++)
+	  {
+		if(((SelectItem)assignments.get(i)).getLabel().equals(selectedTopic.getTopic().getDefaultAssignName()))
+		{
+          selectedTopic.setGradeAssign((String)((SelectItem)assignments.get(i)).getValue());
+          break;
+        }
       }
-    }
+	}
   }
   
   public void setSelectedAssignForMessage(String assignName)
   {
-    for(int i=0; i<assignments.size(); i++)
+    if(assignments != null)
     {
-      if(((SelectItem)assignments.get(i)).getLabel().equals(assignName))
+	  for(int i=0; i<assignments.size(); i++)
       {
-        this.selectedAssign = (String)((SelectItem)assignments.get(i)).getValue();
-        break;
+        if(((SelectItem)assignments.get(i)).getLabel().equals(assignName))
+        {
+          this.selectedAssign = (String)((SelectItem)assignments.get(i)).getValue();
+          break;
+        }
       }
     }
-
   }
 
   public void saveForumSelectedAssignment(DiscussionForum forum)
@@ -3925,4 +3939,25 @@ public class DiscussionForumTool
 	        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
 	        return rb.getString(key);
 	    }
+
+		public boolean getGradebookExist() 
+		{
+	 	    try 
+		    { 
+	 	    	GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+	 	    	ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
+	 	    	return gradebookExist;
+		    }
+	 	    catch(Exception e)
+	 	    {
+	 	    	gradebookExist = false;
+	 	    	return gradebookExist;
+	 	    }
+		}
+
+		public void setGradebookExist(boolean gradebookExist) 
+		{
+			this.gradebookExist = gradebookExist;
+		}
 }
