@@ -31,13 +31,13 @@
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>catalina</artifactId>
-			<version>tomcat-5.5.16</version>
+			<version>${sakai.tomcat.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>jmx</artifactId>
-			<version>tomcat-5.5.16</version>
+			<version>${sakai.tomcat.version}</version>
 		</dependency>
 
 	</dependencies>

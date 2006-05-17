@@ -102,14 +102,14 @@
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>naming-resources</artifactId>
-			<version>tomcat-5.5.16</version>
+			<version>${sakai.tomcat.version}</version>
 		</dependency>
 
 		<!-- in tomcat server lib, so we need it here, too -->
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>catalina</artifactId>
-			<version>tomcat-5.5.16</version>
+			<version>${sakai.tomcat.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>tomcat</groupId>
 			<artifactId>catalina-optional</artifactId>
-			<version>tomcat-5.5.16</version>
+			<version>${sakai.tomcat.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
