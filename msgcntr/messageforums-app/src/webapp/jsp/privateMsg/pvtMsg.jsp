@@ -37,7 +37,8 @@
 			<br><br><br>
 
 	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
-	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}">   
+	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
+	  	columnClasses="checkboxCol,attachmentCol,subjectCol,authorCol,dateCol">   
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" />

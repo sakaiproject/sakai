@@ -41,3 +41,17 @@ div.base-div{margin-top: 0; margin-right: auto; margin-bottom: 0; margin-left: a
 
 .draft{color:red; font-weight:bold;}
 
+.actions {
+	float:right;
+	vertical-align:top;
+	font-size:11px;
+	margin: 5px 1em 0em;
+	padding-bottom: 5px;
+	
+}
+
+.checkboxCol {width:55px; text-align=center;}
+.attachmentCol {width:10px;}
+.subjectCol {}
+.authorCol {}
+.dateCol {width:150px;}

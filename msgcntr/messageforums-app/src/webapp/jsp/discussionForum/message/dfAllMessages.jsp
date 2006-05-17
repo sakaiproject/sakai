@@ -46,7 +46,8 @@
 			</div>
 		</div>
 		<%@include file="dfViewSearchBar.jsp"%>		
-   	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{!ForumTool.threaded}">
+   	<h:dataTable styleClass="listHier" id="messages" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{!ForumTool.threaded}"
+   	 columnClasses="checkboxCol,attachmentCol,subjectCol,authorCol,dateCol">
 			<h:column rendered="#{!ForumTool.threaded}">
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" />
@@ -105,7 +106,8 @@
 			</h:column>  	--%>
 		</h:dataTable>
 		
-		<mf:hierDataTable styleClass="listHier" id="messagesInHierDataTable" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{ForumTool.threaded}" expanded="#{ForumTool.expanded}">
+		<mf:hierDataTable styleClass="listHier" id="messagesInHierDataTable" value="#{ForumTool.selectedTopic.messages}" var="message" rendered="#{ForumTool.threaded}" expanded="#{ForumTool.expanded}"
+		 columnClasses="checkboxCol,attachmentCol,subjectCol,authorCol,dateCol">
 			<h:column rendered="#{ForumTool.threaded}">
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" />
