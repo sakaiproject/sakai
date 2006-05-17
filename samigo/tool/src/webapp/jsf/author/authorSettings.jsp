@@ -246,18 +246,18 @@ function uncheckOther(field){
     <h:panelGrid columns="2" columnClasses="shorttext" id="first"
       summary="#{summary_msg.enter_template_info_section}">
 
-        <h:outputLabel value="#{msg.assessment_title}"/>
-        <h:inputText size="80" value="#{assessmentSettings.title}" />
+        <h:outputLabel for="assessment_title" value="#{msg.assessment_title}"/>
+        <h:inputText id="assessment_title" size="80" value="#{assessmentSettings.title}" />
 
-        <h:outputLabel value="#{msg.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        <h:outputLabel for="creator" value="#{msg.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
-        <h:outputText value="#{assessmentSettings.creator}"
+        <h:outputText id="creator" value="#{assessmentSettings.creator}"
           rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
        
 
-        <h:outputLabel  rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{msg.assessment_authors}"/>
+        <h:outputLabel for="assessment_author" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{msg.assessment_authors}"/>
 
-        <h:inputText size="80" value="#{assessmentSettings.authors}"
+        <h:inputText id="assessment_author" size="80" value="#{assessmentSettings.authors}"
           rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
 
         <h:outputLabel value="#{msg.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
@@ -279,17 +279,17 @@ function uncheckOther(field){
   <samigo:hideDivision title="#{msg.heading_assessment_delivery_dates}"> <div class="tier2">
     <h:panelGrid columns="2" columnClasses="shorttext"
       summary="#{summary_msg.delivery_dates_sec}">
-    <h:outputLabel  value="#{msg.assessment_available_date}"/>
+    <h:outputLabel for="startDate" value="#{msg.assessment_available_date}"/>
       <samigo:datePicker value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
 
-     <h:outputLabel rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}" value="#{msg.assessment_due_date}" />
+     <h:outputLabel for="endDate" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}" value="#{msg.assessment_due_date}" />
         <h:panelGroup rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}">
 
           <samigo:datePicker value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
 
         </h:panelGroup>
 
-    <h:outputLabel value="#{msg.assessment_retract_date}" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}" />
+    <h:outputLabel for="retractDate" value="#{msg.assessment_retract_date}" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}" />
         <h:panelGroup rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}">
           <samigo:datePicker value="#{assessmentSettings.retractDateString}" size="25" id="retractDate" />
         </h:panelGroup>
@@ -332,10 +332,10 @@ function uncheckOther(field){
         rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
       <h:panelGrid border="0" columns="2"  columnClasses="longtext"
         rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel value="#{msg.high_security_username}"/>
-        <h:inputText size="20" value="#{assessmentSettings.username}"/>
-        <h:outputLabel value="#{msg.high_security_password}"/>
-        <h:inputText size="20" value="#{assessmentSettings.password}"/>
+        <h:outputLabel for="username" value="#{msg.high_security_username}"/>
+        <h:inputText id="username" size="20" value="#{assessmentSettings.username}"/>
+        <h:outputLabel for="password" value="#{msg.high_security_password}"/>
+        <h:inputText id="password" size="20" value="#{assessmentSettings.password}"/>
       </h:panelGrid>
     </h:panelGrid>
  <f:verbatim></div></f:verbatim>
@@ -393,7 +393,7 @@ function uncheckOther(field){
   <f:verbatim> <div class="tier2"></f:verbatim>
     <!-- NAVIGATION -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
-  <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
+  <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{msg.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.linear_access}"/>
@@ -405,7 +405,7 @@ function uncheckOther(field){
 
     <!-- QUESTION LAYOUT -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.displayChunking_isInstructorEditable==true}">
-    <f:verbatim><div class="longtext"></f:verbatim><h:outputLabel value="#{msg.question_layout}" /><f:verbatim></div><div class="tier3"></f:verbatim>
+    <f:verbatim><div class="longtext"></f:verbatim><h:outputLabel for="assessmentFormat" value="#{msg.question_layout}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="assessmentFormat" value="#{assessmentSettings.assessmentFormat}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.layout_by_question}"/>
@@ -418,7 +418,7 @@ function uncheckOther(field){
 
     <!-- NUMBERING -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true}">
-     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.numbering}" /> <f:verbatim> </div><div class="tier3"> </f:verbatim>
+     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="itemNumbering" value="#{msg.numbering}" /> <f:verbatim> </div><div class="tier3"> </f:verbatim>
        <h:panelGrid columns="2"  >
          <h:selectOneRadio id="itemNumbering" value="#{assessmentSettings.itemNumbering}"  layout="pageDirection">
            <f:selectItem itemValue="1" itemLabel="#{msg.continous_numbering}"/>
@@ -439,7 +439,7 @@ function uncheckOther(field){
 
     <!-- NUMBER OF SUBMISSIONS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
+      <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="unlimitedSubmissions" value="#{msg.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
       <f:verbatim><table><tr><td></f:verbatim>
         <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.unlimited_submission}"/>
@@ -448,14 +448,14 @@ function uncheckOther(field){
       <f:verbatim></td><td valign="bottom"></f:verbatim>
         <h:panelGroup>
           <h:inputText size="5"  id="submissions_Allowed" value="#{assessmentSettings.submissionsAllowed}" />
-          <h:outputLabel value="#{msg.limited_submission}" />
+          <h:outputLabel for="submissions_Allowed" value="#{msg.limited_submission}" />
         </h:panelGroup>
       <f:verbatim></td></tr></table></div></f:verbatim>
     </h:panelGroup>
 
     <!-- LATE HANDLING -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
-      <f:verbatim> <div class="longtext"> </f:verbatim> <h:outputLabel value="#{msg.late_handling}" /> <f:verbatim> </div></f:verbatim>
+      <f:verbatim> <div class="longtext"> </f:verbatim> <h:outputLabel for="lateHandling" value="#{msg.late_handling}" /> <f:verbatim> </div></f:verbatim>
 <f:verbatim><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}"  layout="pageDirection">
@@ -497,7 +497,7 @@ function uncheckOther(field){
     </h:panelGroup>
     <f:verbatim><br/></f:verbatim>
     <h:panelGroup rendered="#{assessmentSettings.valueMap.finalPageURL_isInstructorEditable==true}">
-     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.submission_final_page_url}" /> <f:verbatim><br/></f:verbatim>
+     <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel for="finalPageUrl" value="#{msg.submission_final_page_url}" /> <f:verbatim><br/></f:verbatim>
       <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" />
       <h:commandButton value="#{msg.validateURL}" type="button" onclick="javascript:validateUrl();"/>
    <f:verbatim></div></f:verbatim>
@@ -514,7 +514,7 @@ function uncheckOther(field){
   <!-- FEEDBACK AUTHORING -->
  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
    <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{msg.feedback_authoring}"/>
+  <h:outputLabel for="feedbackAuthoring" value="#{msg.feedback_authoring}"/>
     <f:verbatim> </div> </f:verbatim>
      <f:verbatim> <div class="tier3"> </f:verbatim>
      <h:panelGrid border="0" columns="1">
@@ -530,7 +530,7 @@ function uncheckOther(field){
  <!-- FEEDBACK DELIVERY -->
  <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
  <f:verbatim><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{msg.feedback_delivery}"/> 
+   <h:outputLabel for="feedbackDelivery" value="#{msg.feedback_delivery}"/> 
     <f:verbatim></div><div class="tier3"></f:verbatim>
    
       <h:panelGrid border="0" columns="1"  >
@@ -624,7 +624,7 @@ function uncheckOther(field){
 </h:panelGroup>
     <!-- GRADEBOOK OPTIONS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
-     <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel value="#{msg.gradebook_options}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
+     <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel for="toDefaultGradebook" value="#{msg.gradebook_options}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{msg.to_no_gradebook}"/>
@@ -636,7 +636,7 @@ function uncheckOther(field){
 
     <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
-   <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel value="#{msg.recorded_score}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
+   <f:verbatim>  <div class="longtext">  </f:verbatim> <h:outputLabel for="scoringType" value="#{msg.recorded_score}" /><f:verbatim></div> <div class="tier3"> </f:verbatim>
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="scoringType" value="#{assessmentSettings.scoringType}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{msg.highest_score}"/>
@@ -677,14 +677,14 @@ function uncheckOther(field){
     <f:verbatim><div class="tier2"></f:verbatim>
    <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{msg.assessment_metadata}" /> <f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="shorttext">
-      <h:outputLabel value="#{msg.metadata_keywords}"/>
-      <h:inputText size="80" value="#{assessmentSettings.keywords}"/>
+      <h:outputLabel for="keywords" value="#{msg.metadata_keywords}"/>
+      <h:inputText id="keywords" size="80" value="#{assessmentSettings.keywords}"/>
 
-      <h:outputLabel value="#{msg.metadata_objectives}"/>
-      <h:inputText size="80" value="#{assessmentSettings.objectives}"/>
+      <h:outputLabel for="objectives" value="#{msg.metadata_objectives}"/>
+      <h:inputText id="objectives" size="80" value="#{assessmentSettings.objectives}"/>
 
-      <h:outputLabel value="#{msg.metadata_rubrics}"/>
-      <h:inputText size="80" value="#{assessmentSettings.rubrics}"/>
+      <h:outputLabel for="rubrics" value="#{msg.metadata_rubrics}"/>
+      <h:inputText id="rubrics" size="80" value="#{assessmentSettings.rubrics}"/>
     </h:panelGrid>
    <f:verbatim></div><div class="longtext"></f:verbatim>   <h:outputLabel value="#{msg.record_metadata}" /> <f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2" >

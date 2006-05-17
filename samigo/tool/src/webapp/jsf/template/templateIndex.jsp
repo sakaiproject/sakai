@@ -66,7 +66,7 @@
    <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
   </h5>
    <h:panelGrid columns="2">
-      <h:outputLabel for="newName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
+      <h:outputLabel for="tempName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
       <!--h:outputText value="#{msg.index_templates_title}" /-->
 <h:panelGroup  rendered="#{authorization.createTemplate}" >
       <h:inputText id="tempName" value="#{template.newName}" size="60"/>

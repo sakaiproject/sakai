@@ -126,7 +126,7 @@
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
 </h:panelGrid>
 
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 var clicked = 'false';
 function toggle(){
@@ -145,7 +145,7 @@ function toggle(){
 
      <p class="act">
        <h:commandButton id="publish" value="#{msg.button_save_and_publish}" type="submit"
-         styleClass="active" action="publishAssessment" onclick="toggle()">
+         styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
        </h:commandButton>

@@ -48,10 +48,10 @@
      </f:facet>
 <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
-<h:outputLink id="parenttogglelink"  onclick="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
+<h:outputLink  title="#{msg.t_toggletree}" id="parenttogglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
 <h:graphicImage id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
-<h:outputLink id="togglelink"  value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
+<h:outputLink title="#{msg.t_toggletree}" id="togglelink"  value="#" styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >
 <h:graphicImage id="spacer_for_mozilla1" style="border:0" width="30" height="14"  value="/images/delivery/spacer.gif" />
 </h:outputLink>
 
@@ -208,7 +208,7 @@
      <f:facet name="header">
        <h:outputText value="#{msg.remove_chbox}"/>
      </f:facet>
-<h:selectManyCheckbox onclick="checkUpdate()" id="removeCheckbox" value ="#{questionpool.destPools}">
+<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value ="#{questionpool.destPools}">
 	<f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
 </h:selectManyCheckbox>
     </h:column>

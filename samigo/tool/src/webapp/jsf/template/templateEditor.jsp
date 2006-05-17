@@ -87,12 +87,12 @@
       <h:inputText id="template_title" value="#{template.templateName}" size="30"/>
 
 
-      <h:outputLabel for="author_opt" value="#{msg.author_opt}"/>
-      <h:inputText id="author_opt" value="#{template.templateAuthor}" size="30"/>
+      <h:outputLabel for="author" value="#{msg.author_opt}"/>
+      <h:inputText id="author" value="#{template.templateAuthor}" size="30"/>
 
       <!-- WYSIWYG -->
 
-      <h:outputLabel for="description_intro_opt" value="#{msg.description_intro_opt}"/>
+      <h:outputLabel value="#{msg.description_intro_opt}"/>
      <samigo:wysiwyg rows="140" value="#{template.templateDescription}"  >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
@@ -103,7 +103,7 @@
   <!-- *** AUTHORSHIP *** -->
   <samigo:hideDivision title="#{msg.introduction}" id="div2">
    <div class="tier2">
-    <div class="longtext"><h:outputLabel for="template_edited" value="#{msg.template_canbeedited}"/></div>
+    <div class="longtext"><h:outputLabel value="#{msg.template_canbeedited}"/></div>
  <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.introduction_sec}">
@@ -129,7 +129,7 @@
   <samigo:hideDivision title="#{msg.delivery_dates}" id="div3">
    <div class="tier2">
   <div class="longtext">
-    <h:outputLabel for="deli_edited" value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
  <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.delivery_dates_sec}">
@@ -151,14 +151,14 @@
   <samigo:hideDivision title="#{msg.released_to}" id="div4">
    <div class="tier2">
   <div class="longtext">
-    <h:outputLabel for="released_edited" value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
    <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.released_to_info_sec}">
 
-      <h:selectBooleanCheckbox id="anon"
+      <h:selectBooleanCheckbox id="anononymous"
         value="#{template.valueMap.anonymousRelease_isInstructorEditable}"/>
-      <h:outputLabel for="anon" value="#{msg.anon}"/>
+      <h:outputLabel for="anononymous" value="#{msg.anon}"/>
 
       <h:selectBooleanCheckbox id="auth_users"
         value="#{template.valueMap.authenticatedRelease_isInstructorEditable}"/>
@@ -172,7 +172,7 @@
   <samigo:hideDivision title="#{msg.high_security}" id="div5">
     <div class="tier2">
    <div class="longtext">
-    <h:outputLabel for="sec_edited" value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
     <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.high_security_sec}">
@@ -193,7 +193,7 @@
   <samigo:hideDivision title="#{msg.timed_assmt}" id="div6">
     <div class="tier2">
   <div class="longtext">
-    <h:outputLabel for="time_edited" value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
     <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.timed_assmt_sec}">
@@ -219,7 +219,7 @@
 
     <!-- NAVIGATION -->
  <div class="tier2">
-      <div class="longtext"><h:outputLabel for="nav" value="#{msg.navigation}"/></div>
+      <div class="longtext"><h:outputLabel value="#{msg.navigation}"/></div>
       <div class="tier3">
      <h:panelGrid columns="2">
         <h:selectBooleanCheckbox id="navigation"
@@ -240,7 +240,7 @@
      </div>
 
     <!-- QUESTION LAYOUT -->
-     <div class="longtext"><h:outputLabel for="layout" value="#{msg.question_layout}"/></div>
+     <div class="longtext"><h:outputLabel value="#{msg.question_layout}"/></div>
     <div class="tier3">
      <h:panelGrid columns="2" summary="#{msg.question_layout_sub}">
 
@@ -262,7 +262,7 @@
     </h:panelGrid>
     </div>
     <!-- NUMBERING -->
-      <div class="longtext"><h:outputLabel for="mum" value="#{msg.numbering}"/></div>
+      <div class="longtext"><h:outputLabel value="#{msg.numbering}"/></div>
       <div class="tier3">
      <h:panelGrid columns="2" summary="#{msg.numbering_sub}">
 
@@ -289,10 +289,10 @@
 
     <!-- NUMBER OF SUBMISSIONS -->
 
-    <div class="longtext"><h:outputLabel for="subs" value="#{msg.number_of_sub_allowed}"/></div>
+    <div class="longtext"><h:outputLabel value="#{msg.number_of_sub_allowed}"/></div>
        <div class="tier3">
 
-     <h:panelGrid columns="2"
+     <h:panelGrid columns="2" 
       summary="#{msg.number_of_sub_allowed_sub}">
 
         <h:selectBooleanCheckbox id="number_of_sub_allowed"
@@ -311,7 +311,7 @@
     </h:panelGrid>
 </div>
     <!-- LATE HANDLING -->
-    <div class="longtext"><h:outputLabel for="latehandling" value="#{msg.late_handling}"/></div>
+    <div class="longtext"><h:outputLabel value="#{msg.late_handling}"/></div>
         <div class="tier3">
      <h:panelGrid columns="2"
       summary="#{msg.late_handling_sub">
@@ -358,7 +358,7 @@
   <samigo:hideDivision title="#{msg.submission_message}" id="div9">
  <div class="tier2">
   <div class="longtext">
-    <h:outputLabel for="sub_mess" value="#{msg.template_canbeedited}"/></div>
+    <h:outputLabel value="#{msg.template_canbeedited}"/></div>
      <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.timed_assmt_sec}">
@@ -381,7 +381,7 @@
 
   <!-- FEEDBACK AUTHORING--> 
      <div class="longtext">
-    <h:outputLabel for="fb_deli" value="#{msg.feedback_authoring}"/></div>
+    <h:outputLabel value="#{msg.feedback_authoring}"/></div>
     <div class="tier3">
      <h:panelGrid columns="2"
       summary="#{msg.feedback_authoring_sub}">
@@ -407,9 +407,9 @@
 
     <!-- FEEDBACK DELIVERY -->
      <div class="longtext">
-    <h:outputLabel for="fb_deli" value="#{msg.feedback_delivery}"/></div>
+    <h:outputLabel value="#{msg.feedback_delivery}"/></div>
  <div class="tier3">
-     <h:panelGrid columns="2"
+     <h:panelGrid columns="2" 
       summary="#{msg.feedback_delivery_sub}">
 
         <h:selectBooleanCheckbox id="feedback_delivery"
@@ -431,9 +431,9 @@
    </h:panelGrid>
 </div>
     <!-- FEEDBACK COMPONENTS -->
-     <div class="longtext"><h:outputLabel for="fb_comp" value="#{msg.select_feedback_comp}"/></div>
+     <div class="longtext"><h:outputLabel value="#{msg.select_feedback_comp}"/></div>
       <div class="tier3">
-     <h:panelGrid columns="2"
+     <h:panelGrid columns="2" 
       summary="#{msg.feedback_components_sub}">
 
         <h:selectBooleanCheckbox id="select_feedback_comp"
@@ -501,7 +501,7 @@
   <div class="tier2">
 
     <!-- ANON GRADING-->
-    <div class="longtext"> <h:outputLabel for="anon_grad" value="#{msg.testeeIdentity}"/></div>
+    <div class="longtext"> <h:outputLabel value="#{msg.testeeIdentity}"/></div>
  <div class="tier3">
      <h:panelGrid columns="2"
       summary="#{msg.feedback_components_sub}">
@@ -522,9 +522,9 @@
      </h:panelGrid>
    </div>
     <!-- GRADEBOOK OPTIONS -->
-     <div class="longtext"><h:outputLabel for="grade_option" value="#{msg.gradebook_options}"/></div>
+     <div class="longtext"><h:outputLabel value="#{msg.gradebook_options}"/></div>
       <div class="tier3">
-     <h:panelGrid columns="2"
+     <h:panelGrid columns="2" 
       summary="#{msg.gradebook_options_sub}">
 
         <h:selectBooleanCheckbox id="gradebook_options"
@@ -544,7 +544,7 @@
 
 
     <!-- RECORDED SCORE AND MULTIPLES -->
-    <div class="longtext"> <h:outputLabel for="recorded_score" value="#{msg.record_score_if_multi}"/></div>
+    <div class="longtext"> <h:outputLabel value="#{msg.record_score_if_multi}"/></div>
       <div class="tier3">
      <h:panelGrid columns="2"
       summary="#{msg.record_multi_sub}">
@@ -575,7 +575,7 @@
  <div class="tier3">
         <h:selectBooleanCheckbox id="graphics"
           value="#{template.valueMap.bgColor_isInstructorEditable}"/>
-        <h:outputLabel value="#{msg.bg}"/>
+        <h:outputLabel for="graphics" value="#{msg.bg}"/>
         </div>
 
     </div>
@@ -585,7 +585,7 @@
   <samigo:hideDivision title="#{msg.metadata}" id="div13">
   <div class="tier2">
    <div class="longtext">
-    <h:outputLabel for="meta" value="#{msg.record_data_for}"/></div>
+    <h:outputLabel value="#{msg.record_data_for}"/></div>
     <div class="tier3">
     <h:panelGrid columns="2"
       summary="#{msg.metadata_sec}">

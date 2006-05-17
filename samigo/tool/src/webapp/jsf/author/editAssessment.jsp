@@ -125,14 +125,14 @@ document.links[newindex].onclick();
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
   </p>
-<div class="longtext">
-  <h:outputLabel value="#{msg.add_q}   "/>
+<h:panelGrid columns="2" columnClasses="shortText">
+  <h:outputLabel for="changeQType" value="#{msg.add_q}   "/>
 <h:selectOneMenu onchange="clickInsertLink(this);"
   value="#{itemauthor.itemType}" id="changeQType">
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
   <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
-</div>
+</h:panelGrid>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
   <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -146,7 +146,7 @@ document.links[newindex].onclick();
  <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
   <h:column>
 <f:verbatim><h4></f:verbatim>
- <h:panelGrid columns="2" width="100%">
+ <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
       <h:panelGroup>
 <h:outputText value="#{msg.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
@@ -185,7 +185,7 @@ document.links[newindex].onclick();
 
 <!-- this insert should only show up when there are no questions in this part -->
 <h:panelGroup rendered="#{partBean.itemContentsSize eq '0'}">
-    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel value="#{msg.ins_new_q} "/>
+    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{msg.ins_new_q} "/>
 
 <!-- each selectItem stores the itemtype, current sequence -->
 
@@ -208,7 +208,7 @@ document.links[newindex].onclick();
 
       <h:column>
 <f:verbatim><h5></f:verbatim>
-         <h:panelGrid columns="2" width="100%">
+         <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
           <h:panelGroup>
           <h:outputText value="#{msg.q} " />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
@@ -274,7 +274,7 @@ document.links[newindex].onclick();
             <%@ include file="/jsf/author/preview_item/MultipleChoiceSingleCorrect.jsp" %>
           </h:panelGroup>
 <f:verbatim> </div></f:verbatim>
-    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel value="#{msg.ins_new_q} "/>
+    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{msg.ins_new_q} "/>
 
 <!-- each selectItem stores the itemtype, current sequence -->
 

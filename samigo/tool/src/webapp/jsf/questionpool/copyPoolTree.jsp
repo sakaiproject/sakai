@@ -72,7 +72,7 @@
 <h:panelGroup rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
-<h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
+<h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" onkeypress="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
 <h:graphicImage alt="#{msg.alt_togglelink}" id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
 <h:outputLink id="togglelink" title=""  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >

@@ -41,44 +41,36 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
  <div class="portletBody">
+
+
+ <h:form id="questionpool">
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{msg.add_p}"/>
 </h3>
-
- <h:form id="questionpool">
 <h:messages styleClass="validation"/>
 <h:outputText value="#{msg.add_p_required}"/>
-
- <div class="shorttext tier1">
-  <h:outputLabel value="#{msg.p_name}#{msg.star}"/>
+ <div class="tier1">
+ <h:panelGrid columns="2" columnClasses="shorttext">
+<h:outputLabel for="namefield" value="#{msg.p_name}#{msg.star}"/>
+  
   <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
-<h:message for="namefield" styleClass="validate"/>
- </div>
 
- <div class="shorttext tier1">
-  <h:outputLabel  value="#{msg.creator}"/>
+  <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
- </div>
-
- <div class="shorttext tier1">
-  <h:outputLabel value="#{msg.dept} "/>
+ 
+  <h:outputLabel for="orgfield" value="#{msg.dept} "/>
   <h:inputText id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}"/>
- </div>
 
- <div class="shorttext tier1">
-  <h:outputLabel  value="#{msg.desc}"/>
+  <h:outputLabel for="descfield" value="#{msg.desc}"/>
   <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
- </div>
 
- <div class="shorttext tier1">
-  <h:outputLabel  value="#{msg.obj} "/>
+  <h:outputLabel for="objfield" value="#{msg.obj} "/>
   <h:inputText id="objfield" size="30" value="#{questionpool.currentPool.objectives}"/>
- </div>
-
- <div class="shorttext tier1">
-  <h:outputLabel value="#{msg.keywords} "/>
+ 
+  <h:outputLabel for="keyfield" value="#{msg.keywords} "/>
   <h:inputText id="keyfield" size="30" value="#{questionpool.currentPool.keywords}"/>
- </div>
+</h:panelGrid>
+ </p>
 
 
 <p class="act">

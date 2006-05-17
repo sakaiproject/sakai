@@ -60,8 +60,8 @@
   <div class="tier1">
   <div class="shorttext">
 <h:panelGrid columns="2" columnClasses="shorttext">
-   <h:outputLabel value="#{msg.title}" />
-   <h:inputText size="50" maxlength="250" value="#{sectionBean.sectionTitle}"/>
+   <h:outputLabel for="title" value="#{msg.title}" />
+   <h:inputText id="title" size="50" maxlength="250" value="#{sectionBean.sectionTitle}"/>
      <h:outputText value="" />
      <h:outputText value="#{msg.title_note}" /></h3>
 </h:panelGrid>
@@ -84,7 +84,7 @@
    <h:panelGroup >
  <!--  had to separate the radio buttons , 'cuz there is no way to disable only one of them. -->
    <div class="longtext">
-     <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
+     <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
      <f:selectItems value="#{sectionBean.authorTypeList}" />
      </h:selectOneRadio>
      <h:selectOneRadio accesskey="#{msg.a_options}" rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
@@ -92,16 +92,16 @@
      </h:selectOneRadio>
 
 <%--
-     <h:selectOneRadio rendered="{#sectionBean.hideRandom ne 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
+     <h:selectOneRadio rendered="{#sectionBean.hideRandom ne 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
        <f:selectItem itemValue="1" itemLabel="#{msg.type_onebyone}" />
        <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
      </h:selectOneRadio>
 
-     <h:selectOneRadio rendered="#{sectionBean.hideRandom eq 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
+     <h:selectOneRadio rendered="#{sectionBean.hideRandom eq 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
        <f:selectItem itemValue="1" itemLabel="#{msg.type_onebyone}" />
      </h:selectOneRadio>
 
-     <h:selectOneRadio disabled="#{sectionBean.type =='1'}" value="#{sectionBean.type}" layout="pageDirection" onclick="document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
+     <h:selectOneRadio disabled="#{sectionBean.type =='1'}" value="#{sectionBean.type}" layout="pageDirection" onclick="document.forms[0].submit();"  onkeypress="document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
        <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
      </h:selectOneRadio>
 --%>
@@ -155,11 +155,11 @@
    <h:outputText value="#{msg.metadata}" />
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
+<h:outputLabel for="obj" value="#{msg.objective}" />
   <h:inputText id="obj" value="#{sectionBean.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
+<h:outputLabel for="keyword" value="#{msg.keyword}" />
   <h:inputText id="keyword" value="#{sectionBean.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
+<h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
   <h:inputText id="rubric" value="#{sectionBean.rubric}" />
 </h:panelGrid>
 

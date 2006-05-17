@@ -79,7 +79,7 @@ sorting actions for table:
   <!-- SELECT TABLE -->
   <div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" id="selectTable" value="#{select.takeableAssessments}"
-    var="takeable" styleClass="listHier">
+    var="takeable" styleClass="listHier" summary="#{msg.sum_availableAssessment}">
     <h:column>
       <f:facet name="header">
        <h:panelGroup>
@@ -183,7 +183,7 @@ sorting actions for table:
 --%>
   <div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="reviewTable" value="#{select.reviewableAssessments}"
-       var="reviewable">
+       var="reviewable" summary="#{msg.sum_submittedAssessment}">
 
 <%-- TITLE --%>
     <h:column>
@@ -236,7 +236,7 @@ sorting actions for table:
         <h:outputText value="#{reviewable.assessmentTitle}" />
        </h:commandLink>
 
-  <f:verbatim><br/></f:verbatim>
+  <f:verbatim><br /></f:verbatim>
        <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"  
         rendered="#{reviewable.feedback ne 'false' && reviewable.statistics}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />

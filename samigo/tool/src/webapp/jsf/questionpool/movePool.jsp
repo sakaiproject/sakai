@@ -39,7 +39,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.mv_p"/></title>
                         <!-- stylesheet and script widgets -->
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
 //-->

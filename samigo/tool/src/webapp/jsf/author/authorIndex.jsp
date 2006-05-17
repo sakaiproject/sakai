@@ -70,11 +70,10 @@
     <h:outputText value="#{msg.assessment_create}" styleClass="form_label" rendered="#{authorization.createAssessment}" />
    <h:outputText escape="false" rendered="#{authorization.createAssessment}" value="</h5>"/>
    <h:panelGrid columns="2">
-    <h:outputLabel value="#{msg.assessment_choose}" styleClass="form_label" 
+    <h:outputLabel for="assessmentTemplate" value="#{msg.assessment_choose}" styleClass="form_label" 
        rendered="#{authorization.createAssessment && author.showTemplateList}" />
 <h:panelGroup rendered="#{authorization.createAssessment && author.showTemplateList}">
-      <h:selectOneMenu id="assessmentTemplate" accesskey="#{msg.a_options}"
-         
+      <h:selectOneMenu id="assessmentTemplate" accesskey="#{msg.a_select}"     
         value="#{author.assessmentTemplateId}">
          <f:selectItem itemValue="" itemLabel="#{genMsg.select_menu}"/>
          <f:selectItems value="#{author.assessmentTemplateList}" />
@@ -83,7 +82,7 @@
       <h:outputText value="#{msg.optional_paren}" styleClass="form_label" />
 </h:panelGroup>
     
-    <h:outputLabel value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
+    <h:outputLabel for="title"  value="#{msg.assessment_title}" rendered="#{authorization.createAssessment}"/>
 <h:panelGroup rendered="#{authorization.createAssessment}">
     <h:inputText id="title" value="#{author.assessTitle}" size="32" />
     <!-- AuthorAssessmentListener.createAssessment() read param from AuthorBean to
@@ -95,9 +94,9 @@
     </h:commandButton>
 </h:panelGroup>
    
-    <h:outputLabel value="#{msg.assessment_import}" rendered="#{authorization.createAssessment}"/>
+    <h:outputLabel for="import" value="#{msg.assessment_import}" rendered="#{authorization.createAssessment}"/>
 
-    <h:commandButton value="#{msg.button_import}" immediate="true" type="submit" 
+    <h:commandButton id="import" value="#{msg.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}" accesskey="#{msg.a_import}"
       action="importAssessment">
     </h:commandButton>
@@ -110,8 +109,7 @@
 <h:outputText value="#{msg.assessment_core}" rendered="#{authorization.adminCoreAssessment}"/>
  <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="</h4>"/>
 <div class="tier2">
-  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" 
-     var="coreAssessment" rendered="#{authorization.adminCoreAssessment}">
+  <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="coreAssessments" value="#{author.assessments}" var="coreAssessment" rendered="#{authorization.adminCoreAssessment}" summary="#{msg.sum_coreAssessment}">
     <h:column>
       <f:facet name="header">
           <h:panelGroup>
@@ -143,11 +141,11 @@
       </h:commandLink>
       <h:outputText id="assessmentTitle2" value="#{coreAssessment.title}" 
         rendered="#{!authorization.editAnyAssessment and !authorization.editOwnAssessment}" />
- <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value=" <f:verbatim> <br/></f:verbatim>"/>
+ <h:outputText escape="false" rendered="#{authorization.adminCoreAssessment}" value="<br />"/>
 
       <!-- AuthorBean.editAssessmentSettings() prepare the edit page -->
       <!-- action=editAssessmentSettings if pass authz -->
-      <f:verbatim><span class="itemAction"></f:verbatim>
+      <span class="itemAction">
       <h:commandLink title="#{msg.t_editSettings}" id="editAssessmentSettings" immediate="true" action="#{author.getOutcome}"
          rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}">
         <h:outputText id="linkSettings" value="#{msg.link_settings}"/>
@@ -172,9 +170,11 @@
       rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" 
       onclick=
       "window.open( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
+onkeypress=
+      "window.open( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{coreAssessment.assessmentBaseId}','_qti_export', 'toolbar=no,menubar=yes,personalbar=no,width=600,height=190,scrollbars=no,resizable=no');"
        ><h:outputText id="linkExport" value="#{msg.link_export}"/>
       </h:outputLink>
- <f:verbatim></span></f:verbatim>
+</span>
     </h:column>
     <h:column>
       <f:facet name="header">
@@ -226,7 +226,7 @@
   <h:outputText value="#{msg.assessment_active}" rendered="#{authorization.adminPublishedAssessment}"/>
 <h:outputText escape="false" rendered="#{authorization.adminPublishedAssessment}" value="</h5>"/>
   <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" rendered="#{authorization.adminPublishedAssessment}"
-    value="#{author.publishedAssessments}" var="publishedAssessment">
+    value="#{author.publishedAssessments}" var="publishedAssessment" summary="#{msg.sum_publishedAssessment}">
     <h:column>
       <f:facet name="header">
        <h:panelGroup>
@@ -249,9 +249,9 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText id="publishedAssessmentTitle" value="#{publishedAssessment.title}" />
-      <f:verbatim><br/></f:verbatim>
- <f:verbatim><span class="itemAction"></f:verbatim>
+      <h:outputText escape="false" id="publishedAssessmentTitle" value="#{publishedAssessment.title} <br />" />
+
+ <span class="itemAction">
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink title="#{msg.t_editSettings}" id="editPublishedAssessmentSettings" immediate="true"
           rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
@@ -280,7 +280,7 @@
         <f:param name="publishedId" value="#{publishedAssessment.publishedAssessmentId}" />
         <f:param name="allSubmissionsT" value="3"/>
       </h:commandLink>
- <f:verbatim></span></f:verbatim>
+</span>
     </h:column>
 
     <h:column>
@@ -379,7 +379,7 @@
 </h5>
   <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier"
      rendered="#{authorization.adminPublishedAssessment}"
-     value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" 
+     value="#{author.inactivePublishedAssessments}" var="inactivePublishedAssessment" summary="#{msg.sum_inactiveAssessment}"
      id="inactivePublishedAssessments">
     <h:column>
       <f:facet name="header">
@@ -403,9 +403,9 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title}" />
-      <f:verbatim><br /></f:verbatim>
-       <f:verbatim><span class="itemAction"></f:verbatim>
+      <h:outputText escape="false" id="inactivePublishedAssessmentTitle" value="#{inactivePublishedAssessment.title} <br />" />
+     
+        <span class="itemAction"> 
       <!-- if passAuth, action=editPublishedAssessmentSettings -->
       <h:commandLink title="#{msg.t_editSettings}" id="editPublishedAssessmentSettings" immediate="true"
           rendered="#{authorization.publishAnyAssessment or authorization.publishOwnAssessment}"
@@ -431,7 +431,7 @@
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="publishedId" value="#{inactivePublishedAssessment.publishedAssessmentId}" />
       </h:commandLink>
- <f:verbatim></span></f:verbatim>
+  </span> 
     </h:column>
     <h:column>
       <f:facet name="header">
@@ -510,7 +510,7 @@
       <h:outputText value="#{inactivePublishedAssessment.dueDate}" >
         <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
-
+     
     </h:column>
   </h:dataTable>
 </div>

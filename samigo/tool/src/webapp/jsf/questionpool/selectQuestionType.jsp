@@ -69,7 +69,7 @@
 </h:commandButton>
 
   <h:commandButton accesskey="#{msg.a_cancel}" type="button" id="Cancel" value="#{msg.button_cancel}" immediate="true"
-    onclick="document.location='editPool.faces'"/>
+    onclick="document.location='editPool.faces'" onkeypress="document.location='editPool.faces'"/>
 </p>
 
 </h:form>

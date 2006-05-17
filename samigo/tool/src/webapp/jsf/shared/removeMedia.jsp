@@ -49,7 +49,7 @@
    </div>
    <p>
      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-     <h:outputLink value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');">
+     <h:outputLink title="#{msg.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
        <h:outputText escape="false" value="#{mediaBean.filename}" />
      </h:outputLink>
    </p>

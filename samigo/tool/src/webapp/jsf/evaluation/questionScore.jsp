@@ -464,14 +464,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
 
-<h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
 
 
     <h:outputText  value="(#{msg.click_shortAnswer})" />
     </h:outputLink>
-    <h:outputLink 
+    <h:outputLink title="#{msg.t_rationale}"
       rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}" 
-      value="#" onclick="javascript:window.alert('#{description.rationale}');" >
+      value="#" onclick="javascript:window.alert('#{description.rationale}');" onkeypress="javascript:window.alert('#{description.rationale}');" >
     <h:outputText  value="(#{msg.click_rationale})"/>
     </h:outputLink>
 

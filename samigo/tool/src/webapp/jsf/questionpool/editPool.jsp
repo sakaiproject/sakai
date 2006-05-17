@@ -43,7 +43,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.edit_p}"/></title>
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
 //-->
@@ -57,6 +57,7 @@
   <%@ include file="/jsf/questionpool/questionpoolHeadings.jsp" %>
 
 <!-- dataLine here is not working -->
+<br />
 <samigo:dataLine value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
    separator=" > " first="0" rows="100" >
   <h:column>
@@ -75,34 +76,25 @@
 </h3>
 <h:messages styleClass="validation" />
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
- <div class="shorttext tier2">
+ <div class="tier2">
+<h:panelGrid columns="2" columnClasses="shorttext">
   <h:outputLabel for="namefield" value="#{msg.p_name}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
-<h:message for="namefield" styleClass="validate"/>
- </div>
- <div class="shorttext tier2">
   <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
   <h:outputText id="ownerfield"  value="#{questionpool.currentPool.owner}"/>
- </div>
 
- <div class="shorttext tier2">
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
- </div>
-
- <div class="shorttext tier2">
+ 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{msg.desc}" />
   <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
- </div>
 
- <div class="shorttext tier2">
   <h:outputLabel for="objfield" value="#{msg.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
- </div>
 
- <div class="shorttext tier2">
   <h:outputLabel for="keyfield" value="#{msg.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+</h:panelGrid>
  </div>
 
 

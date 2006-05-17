@@ -22,7 +22,7 @@
 --%>
 -->
 <h:panelGrid  rendered="#{questionpool.actionType == 'pool'}" columns="2">
-	<h:selectOneRadio onclick="uncheckOthers(this);" id="radiobtn"
+	<h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="radiobtn"
 		layout="pageDirection" value="#{questionpool.destPool}">
        		<f:selectItem itemValue="0" itemLabel=""/>
 	</h:selectOneRadio>
@@ -35,7 +35,7 @@
 
 
     <h:column  id="radiocol" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
-<h:selectOneRadio onclick="uncheckOthers(this);" id="radiobtn" layout="pageDirection"
+<h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="radiobtn" layout="pageDirection"
 		value="#{questionpool.destPool}">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
 </h:selectOneRadio>
@@ -72,7 +72,7 @@
 --%>
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
 
-<h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
+<h:outputLink title="" id="parenttogglelink"  onclick="toggleRowsForSelectList(this)" onkeypress="toggleRowsForSelectList(this)" value="#" styleClass="treefolder" rendered="#{questionpool.tree.hasChildList}" >
 <h:graphicImage alt="#{msg.alt_togglelink}" id="spacer_for_mozilla" style="border:0" height="14" width="30" value="/images/delivery/spacer.gif" />
 </h:outputLink>
 <h:outputLink title="" id="togglelink"  styleClass="treedoc" rendered="#{questionpool.tree.hasNoChildList}" >

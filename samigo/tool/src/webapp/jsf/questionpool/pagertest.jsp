@@ -37,7 +37,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.q_mgr}"/></title>
-<script language="javascript" style="text/JavaScript">
+<script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
 //-->
@@ -62,7 +62,7 @@
 <h:panelGroup id="firstcolumn">
 <h:inputHidden id="rowid" value="#{pool.trid}"/>
 <h:selectBooleanCheckbox id="checkboxes" value ="#{questionpoo.destPools}"/>
-<h:outputLink id="togglelink"  onclick="toggleRows(this)" value="#" styleClass="folder">
+<h:outputLink id="togglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="folder">
 <h:graphicImage id="spacer_for_mozilla" style="border:0" width="17" value="../../images/delivery/spacer.gif" />
 </h:outputLink>
 
