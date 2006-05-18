@@ -235,7 +235,7 @@ public class SearchServiceImpl implements SearchService
 				Hits h = indexSearcher.search(query);
 				log.debug("Got " + h.length() + " hits");
 
-				return new SearchListImpl(h, textQuery, start, end);
+				return new SearchListImpl(h, textQuery, start, end, indexStorage.getAnalyzer());
 			}
 			else
 			{

@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.SimpleAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -59,12 +59,15 @@ public class SearchResultImpl implements SearchResult
 
 	private Query query = null;
 
-	public SearchResultImpl(Hits h, int index, Query query) throws IOException
+	private Analyzer analyzer = null;
+
+	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer) throws IOException
 	{
 		this.h = h;
 		this.index = index;
 		this.doc = h.doc(index);
 		this.query = query;
+		this.analyzer = analyzer;
 	}
 
 	public float getScore()
@@ -152,7 +155,7 @@ public class SearchResultImpl implements SearchResult
 				sb.append(contents[i]);
 			}
 			String text = sb.toString();
-			TokenStream tokenStream = new SimpleAnalyzer().tokenStream(
+			TokenStream tokenStream = analyzer.tokenStream(
 					"contents", new StringReader(text));
 			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
 		}

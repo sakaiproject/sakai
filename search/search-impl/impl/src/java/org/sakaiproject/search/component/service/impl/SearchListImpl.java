@@ -29,6 +29,7 @@ import java.util.ListIterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
 import org.sakaiproject.search.api.SearchList;
@@ -50,12 +51,15 @@ public class SearchListImpl implements SearchList
 
 	private int end = 500;
 
-	public SearchListImpl(Hits h, Query query, int start, int end)
+	private Analyzer analyzer;
+
+	public SearchListImpl(Hits h, Query query, int start, int end, Analyzer analyzer)
 	{
 		this.h = h;
 		this.query = query;
 		this.start = start;
 		this.end = end;
+		this.analyzer = analyzer;
 
 	}
 
@@ -80,7 +84,7 @@ public class SearchListImpl implements SearchList
 				{
 					final int thisHit = counter;
 					counter++;
-					return new SearchResultImpl(h, thisHit, query);
+					return new SearchResultImpl(h, thisHit, query, analyzer );
 				}
 				catch (IOException e)
 				{
@@ -131,7 +135,7 @@ public class SearchListImpl implements SearchList
 			for (int i = 0; i < o.length; i++)
 			{
 
-				o[i + start] = new SearchResultImpl(h, i + start, query);
+				o[i + start] = new SearchResultImpl(h, i + start, query, analyzer);
 			}
 		}
 		catch (IOException e)
@@ -194,7 +198,7 @@ public class SearchListImpl implements SearchList
 	{
 		try
 		{
-			return new SearchResultImpl(h, arg0, query);
+			return new SearchResultImpl(h, arg0, query, analyzer);
 		}
 		catch (IOException e)
 		{
