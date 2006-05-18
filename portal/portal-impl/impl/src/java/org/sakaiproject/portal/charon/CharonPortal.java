@@ -1382,7 +1382,6 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 		out.println("</div>");
 		out.println("</div>");
-		out.println("</div>");		
 	}
 
 	protected void includeGalleryLogin(PrintWriter out, HttpServletRequest req, Session session, String siteId) throws IOException
@@ -1675,7 +1674,14 @@ public class CharonPortal extends HttpServlet
 			SitePage p = (SitePage) i.next();
 			boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
 
-			out.print("			<li><a ");
+			if (current)
+			{
+				out.print("			<li class=\"selectedTool\"><a ");
+			}
+			else
+			{
+				out.print("			<li><a ");	
+			}
 			if (count < 10)
 			{
 				out.print("accesskey=\"" + count + "\" ");
@@ -1786,7 +1792,7 @@ public class CharonPortal extends HttpServlet
 		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "\" accesskey=\"c\">" + Web.escapeHtml(rb.getString("sit.jumpcontent")) + "</a>");
 		out.println("<a href=\"#totoolmenu\"  class=\"skip\" title=\"" + Web.escapeHtml(rb.getString("sit.jumptools")) + "\" accesskey=\"l\">" + Web.escapeHtml(rb.getString("sit.jumptools")) + "</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""+ Web.escapeHtml(rb.getString("sit.jumpworksite")) + "\" accesskey=\"w\">" + Web.escapeHtml(rb.getString("sit.jumpworksite")) + "</a>");
-
+		out.println("</div>");			
 		out.println("<div id=\"header\">");
 		out.println("<iframe");
 		out.println("	name=\"sitenav\"");
@@ -1949,7 +1955,7 @@ public class CharonPortal extends HttpServlet
 		// myWorkspace
 		if (curMyWorkspace)
 		{
-			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>" + rb.getString("sit.mywor") + "<span></a></li>");
+			out.println("						<li class=\"selectedTab\"><a href=\"#\"><span>" + rb.getString("sit.mywor") + "</span></a></li>");
 		}
 		else
 		{
