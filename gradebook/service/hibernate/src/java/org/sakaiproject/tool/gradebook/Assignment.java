@@ -273,15 +273,22 @@ public class Assignment extends GradableObject {
             return null;
         }
 
+        // The numEnrollments argument is unused in this method.
+        // Only actually entered grades count towards the calculation.
+        int numScored = 0;
         double total = 0;
         for(Iterator iter = grades.iterator(); iter.hasNext();) {
             Double grade = (Double)iter.next();
             if(grade == null) {
                 continue;
             }
+            numScored++;
             total += grade.doubleValue();
         }
-        return new Double(total / grades.size());
+        if (numScored == 0) {
+        	return null;
+        }
+        return new Double(total / numScored);
     }
 }
 

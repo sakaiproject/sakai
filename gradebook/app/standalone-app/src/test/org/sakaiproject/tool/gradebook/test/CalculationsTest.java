@@ -185,6 +185,36 @@ public class CalculationsTest extends TestCase {
     	Assert.assertTrue(FacesUtil.getRoundDown(17.99, 2) == 17.99);
     	Assert.assertTrue(FacesUtil.getRoundDown(17.999, 2) == 17.99);
 	}
+
+	public void testNullScoresNotAveraged() throws Exception {
+		Assignment asn = new Assignment(gradebook, "homework1", new Double(10), new Date());
+		int numEnrollments = 10;
+		List records = new ArrayList();
+		List courseRecords = new ArrayList();
+		for (int i = 0; i < numEnrollments; i++) {
+			Double score = (i == 0) ? new Double(10) : null;
+			records.add(new AssignmentGradeRecord(asn, "student" + i, score));
+
+			Double calculatedCoursePercentage = (i == 0) ? new Double(100) : null;
+			CourseGradeRecord cgr = new CourseGradeRecord();
+			cgr.setGradableObject(courseGrade);
+			cgr.setStudentId("student" + i);
+			cgr.setAutoCalculatedGrade(calculatedCoursePercentage);
+			courseRecords.add(cgr);
+		}
+		asn.calculateStatistics(records, numEnrollments);
+		Double mean = asn.getMean();
+		Assert.assertEquals(new Double(100), mean);
+		courseGrade.calculateStatistics(courseRecords, numEnrollments);
+		mean = courseGrade.getMean();
+		Assert.assertEquals(new Double(10), mean);
+
+		records = new ArrayList();
+		for (int i = 0; i < numEnrollments; i++) {
+			records.add(new AssignmentGradeRecord(asn, "student" + i, null));
+		}
+		asn.calculateStatistics(records, numEnrollments);
+		mean = asn.getMean();
+		Assert.assertEquals(null, mean);
+	}
 }
-
-
