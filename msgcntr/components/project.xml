@@ -1,42 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
- <project>
-    <pomVersion>3</pomVersion>
-    <extend>../../master/project.xml</extend>
-    <name>Sakai MessageForums Components</name>
-    <groupId>sakaiproject</groupId>
-    <id>sakai-messageforums-components</id>
-    <currentVersion>${sakai.version}</currentVersion>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2003</inceptionYear>
-    <properties>
-        <deploy.type>components</deploy.type>
-    </properties>
-    
-    <dependencies>
-    	<dependency>
-        	<groupId>sakaiproject</groupId>
-	        <artifactId>sakai-messageforums-api</artifactId>
-			<version>${sakai.version}</version>   
-    	</dependency>
-         
-         <dependency>
-        	<groupId>sakaiproject</groupId>
-	        <artifactId>sakai-messageforums-hbm</artifactId>
-			<version>${sakai.version}</version>   
-    	</dependency>
-    	
-        <dependency>
-        	<groupId>sakaiproject</groupId>
-	        <artifactId>sakai-messageforums-component-impl</artifactId>
-			<version>${sakai.version}</version>   
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../../master/project.xml</extend>
+	<name>Sakai MessageForums Components</name>
+	<groupId>sakaiproject</groupId>
+	<id>sakai-messageforums-components</id>
+	<currentVersion>${sakai.version}</currentVersion>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+	<properties>
+		<deploy.type>components</deploy.type>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-messageforums-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-messageforums-hbm</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-messageforums-component-impl</artifactId>
+			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
-			</properties>    
-	    </dependency>		
-	
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.7.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
@@ -54,7 +63,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-util</artifactId>
@@ -62,32 +71,32 @@
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
-		</dependency>		
-  		
-    </dependencies>
+		</dependency>
 
-    <build>
+	</dependencies>
 
-      <sourceDirectory>src/java</sourceDirectory>
+	<build>
 
-        <resources>
-          <resource>
-            <directory>${basedir}/src/bundle</directory>
-              <includes>
-                <include>**/*.properties</include>
-              </includes>
-          </resource>
+		<sourceDirectory>src/java</sourceDirectory>
 
-          <resource>
-            <directory>src/java</directory>
-              <includes>
-                <include>**/*.xml</include>
-              </includes>
-              <excludes>
-                <exclude>**/web.xml</exclude>
-              </excludes>
-          </resource>
-      </resources>     
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
 
-    </build>
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<excludes>
+					<exclude>**/web.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+
+	</build>
 </project>
