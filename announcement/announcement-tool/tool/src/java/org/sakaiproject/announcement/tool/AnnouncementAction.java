@@ -123,12 +123,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String SSTATE_PUBLICVIEW_VALUE = "public_view_value";
 
-	private static final String NOTI_REQUIRED = rb.getString("java.NOTI_REQUIRED");// "High - All participants";
-
-	private static final String NOTI_OPTIONAL = rb.getString("java.NOTI_OPTIONAL");// "Low - Only participants who have opted in";
-
-	private static final String NOTI_NONE = rb.getString("java.NOTI_NONE");// "None - No notification";
-
 	private static final String SORT_DATE = "date";
 
 	private static final String SORT_PUBLIC = "public";
@@ -151,11 +145,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	private static final String PERMISSIONS_BUTTON_HANDLER = "doPermissions";
 
-	private static final String PERMISSIONS_BUTTON_CAPTION = rb.getString("java.permissions");// "Permissions...";
-
 	private static final String MERGE_BUTTON_HANDLER = "doMerge";
-
-	private static final String MERGE_BUTTON_CAPTION = rb.getString("java.merge");// "Merge...";
 
 	private static final String SSTATE_ATTRIBUTE_MERGED_CHANNELS = "mergedChannels";
 
@@ -1488,15 +1478,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);;
 		if ("r".equals(notification))
 		{
-			context.put("noti", AnnouncementAction.NOTI_REQUIRED);
+			context.put("noti", rb.getString("java.NOTI_REQUIRED"));
 		}
 		else if ("n".equals(notification))
 		{
-			context.put("noti", AnnouncementAction.NOTI_NONE);
+			context.put("noti", rb.getString("java.NOTI_NONE"));
 		}
 		else
 		{
-			context.put("noti", AnnouncementAction.NOTI_OPTIONAL);
+			context.put("noti", rb.getString("java.NOTI_OPTIONAL"));
 		}
 
 		// pick the "browse" template based on the standard template name
@@ -3226,7 +3216,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// add merge button, if allowed
 			if (menu_merge)
 			{
-				bar.add(new MenuEntry(MERGE_BUTTON_CAPTION, MERGE_BUTTON_HANDLER));
+				bar.add(new MenuEntry(rb.getString("java.merge"), MERGE_BUTTON_HANDLER));
 			}
 		} // if-else (!displayOptions.isShowOnlyOptionsButton())
 
@@ -3242,7 +3232,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// add permissions, if allowed
 			if (menu_permissions)
 			{
-				bar.add(new MenuEntry(PERMISSIONS_BUTTON_CAPTION, PERMISSIONS_BUTTON_HANDLER));
+				bar.add(new MenuEntry(rb.getString("java.permissions"), PERMISSIONS_BUTTON_HANDLER));
 			}
 		}
 
