@@ -419,7 +419,8 @@
 		<input type="hidden" name="option" id="option" value="replace" />
 		<input type="hidden" name="metadataGroup" id="metadataGroup" value="" />
 		<input type="hidden" name="ContentType" value="$item.MimeType" />
-		<input type="hidden" name="itemType" id="itemType" value="$itemType" />
+		<input type="hidden" name="itemType" id="itemType" value="$item.type" />
+		<!-- $item.type $item.MimeType -->
 		<input type="hidden" name="field"  id="field" value="no value" />
 		<input type="hidden" name="index" id="index" value="0" />
 		
@@ -880,7 +881,8 @@
 		############################################# end of section to show metadata 
 	
 		<p class="act">
-	#if("$itemType" == "$TYPE_UPLOAD")
+	##if("$itemType" == "$TYPE_UPLOAD") 
+	#if($item.isFileUpload())
 			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "special=upload&flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" />
 	#else
 			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" />

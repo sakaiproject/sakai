@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -60,10 +59,12 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
@@ -738,6 +739,117 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // getAccessPoint
 
 	/**
+	 * Test whether the current user has access to an entity by virtue of group membership.  
+	 * The assumption will be that the user lacks group-access unless we find explicit 
+	 * evidence that such access exists. 
+	 * @param ref The internal reference string that identifies the entity.
+	 * @return true if this user belongs to a group with access, false otherwise.
+	 */
+	private boolean userHasGroupPermission(String ref)
+	{
+		boolean isAllowed = false;
+		
+		ContentEntity entity = null;
+		try
+		{
+			if(isCollection(ref))
+			{
+				entity = findCollection(ref);
+			}
+			else
+			{
+				entity = findResource(ref);
+			}
+			String userId = SessionManager.getCurrentSessionUserId();
+			
+			if(entity != null)
+			{
+				Collection groups = entity.getGroups();
+				Iterator it = groups.iterator();
+				while(it.hasNext() && ! isAllowed)
+				{
+					Group group = (Group) it.next();
+					if(group.isAllowed(userId, EVENT_RESOURCE_READ))
+					{
+						isAllowed = true;
+					}
+				}
+			}
+		}
+		catch (TypeException e)
+		{
+			// ignore -- return false
+		}
+		catch (IdInvalidException e)
+		{
+			// ignore -- return false
+		}
+		
+		return isAllowed;
+	}
+
+	/**
+	 * Checks whether the reference string is for a collection.  Does not check whether the entity actually exists,
+	 * just whether it is of a form to identify a collection.
+	 * @param ref
+	 * @return
+	 * @throws IdInvalidException
+	 */
+	private boolean isCollection(String ref) throws IdInvalidException
+	{
+		if(ref == null || ref.trim().equals(""))
+		{
+			throw new IdInvalidException(ref);
+		}
+		return ref.endsWith(Entity.SEPARATOR);
+	}
+
+	/**
+	 * Test whether access to a particular entity is restricted to particular groups within a site.  
+	 * The assumption will be that access-mode is not group unless we know for sure it is group.
+	 * @param ref The internal reference string that identifies the entity.
+	 * @return true if access is restricted by group, false otherwise.
+	 */
+	private boolean accessLimitedByGroup(String ref)
+	{
+		boolean rv = false;
+		
+		ContentEntity entity = null;
+		try
+		{
+			if(isCollection(ref))
+			{
+				entity = findCollection(ref);
+			}
+			else
+			{
+				entity = findResource(ref);
+			}
+			
+			if(entity != null)
+			{
+				AccessMode access_mode = entity.getAccess();
+			
+				rv = AccessMode.GROUPED.equals(access_mode);
+			}
+		}
+		catch (TypeException e)
+		{
+			// ignore -- return false
+		}
+		catch (IdInvalidException e)
+		{
+			// ignore -- return false
+		}
+		catch(Exception e)
+		{
+			// ignore -- return false
+		}
+		
+		return rv;
+	}
+
+	/**
 	 * If the id is for a resource in a dropbox, change the function to a dropbox check, which is to check for write.<br />
 	 * You have full or no access to a dropbox.
 	 * 
@@ -774,17 +886,42 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected boolean unlockCheck(String lock, String id)
 	{
-		lock = convertLockIfDropbox(lock, id);
-
-		// make a reference from the resource id, if specified
-		String ref = null;
-		if (id != null)
+		boolean isAllowed = false;
+		if(SecurityService.isSuperUser())
 		{
-			ref = getReference(id);
+			isAllowed = true;
 		}
-
-		return SecurityService.unlock(lock, ref);
-
+		else
+		{
+			lock = convertLockIfDropbox(lock, id);
+	
+			// make a reference from the resource id, if specified
+			String ref = null;
+			if (id != null)
+			{
+				ref = getReference(id);
+			}
+	
+			if(SecurityService.unlock(lock, ref))
+			{
+				// maintain role rejected?
+				boolean q1 = accessLimitedByGroup(id);
+				if( q1)
+				{
+					boolean q2 = userHasGroupPermission(id);
+					if(q2)
+					{
+						isAllowed = true;
+					}
+				}
+				else
+				{
+					isAllowed = true;
+				}
+			}
+		}
+		return isAllowed;
+		
 	} // unlockCheck
 
 	/**
@@ -816,7 +953,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected void unlock(String lock, String id) throws PermissionException
 	{
-
+		if(SecurityService.isSuperUser())
+		{
+			return;
+		}
+	
 		lock = convertLockIfDropbox(lock, id);
 
 		// make a reference from the resource id, if specified
@@ -830,6 +971,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
 		}
+		
+		// maintain role rejected?
+		boolean q1 = accessLimitedByGroup(id);
+		if( q1)
+		{
+			boolean q2 = userHasGroupPermission(id);
+			if(! q2)
+			{
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
+			}
+		}
+
+		/*
+		if(accessLimitedByGroup(id) && ! userHasGroupPermission(id))
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, getReference(id));
+		}
+		*/
 
 	} // unlock
 
@@ -1268,6 +1427,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected ContentCollection findCollection(String id) throws TypeException
 	{
 		ContentCollection collection = null;
+		
+		// TODO: Use ThreadLocal cache
 
 		// if not caching
 		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
@@ -1275,7 +1436,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// TODO: current service caching
 			collection = m_storage.getCollection(id);
 		}
-
 		else
 		{
 			// if we have it cached, use it (hit or miss)
@@ -2284,6 +2444,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected ContentResource findResource(String id) throws TypeException
 	{
 		ContentResource resource = null;
+		
+		// TODO: Use ThreadLocal cache
 
 		// if not caching
 		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
@@ -3780,6 +3942,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		String alternateRoot = null;
 		try
 		{
+			// TODO: Can this be done without a security check??
+			// findResource(id).getProperties().getProperty(...) ??
 			alternateRoot = StringUtil.trimToNull(getProperties(id).getProperty(rootProperty));
 		}
 		catch (PermissionException e)
@@ -6377,8 +6541,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				groups.addAll(site.getGroups());
 			}
 
-			// if the user has permission to access all resources of all groups for the site, return all groups
-			if (unlockCheck(EVENT_GROUP_RESOURCE_READ, context))
+			// if the user has permission to create resources in the root-level of the site, return all groups
+			if (unlockCheck(EVENT_RESOURCE_WRITE, context))
 			{
 				return groups;
 			}
@@ -7837,6 +8001,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public List getResources(ContentCollection collection);
 
+		/**
+		 * 
+		 * @param collectionId
+		 * @return
+		 */
 		public List getFlatResources(String collectionId);
 
 		/**
@@ -7879,6 +8048,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 *            if server is configured to save resource body in filesystem and an error occurs while trying to access the filesystem.
 		 */
 		public InputStream streamResourceBody(ContentResource resource) throws ServerOverloadException;
+		
+		/**
+		 * Return a single character representing the access mode of the resource or collection identified by the parameter, or null if not found.
+		 * @param id
+		 * @return A character identifying the access mode for the content entity, one of 's' for site, 'p' for public or 'g' for group.
+		 */
+		//public char getAccessMode(String id);
 
 		// htripath-storing into shadow table before deleting the resource
 		public void commitDeleteResource(ContentResourceEdit edit, String uuid);

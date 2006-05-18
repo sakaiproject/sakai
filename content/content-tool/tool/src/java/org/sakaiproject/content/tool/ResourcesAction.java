@@ -4841,7 +4841,6 @@ public class ResourcesAction
 		}
 
 		Collection groups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-		// TODO: does this method filter groups for this subcollection??
 		if(! groups.isEmpty())
 		{
 			context.put("siteHasGroups", Boolean.TRUE.toString());
@@ -9651,7 +9650,8 @@ public class ResourcesAction
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, "PermissionException");
+			// ignore -- we'll just skip this collection since user lacks permission to access it.
+			//addAlert(state, "PermissionException");
 		}
 
 		return newItems;

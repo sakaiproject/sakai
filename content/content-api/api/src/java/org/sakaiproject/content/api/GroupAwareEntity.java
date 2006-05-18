@@ -66,6 +66,18 @@ public interface GroupAwareEntity extends Entity
 		{
 			return m_id;
 		}
+		
+		public boolean equals(Object obj)
+		{
+			boolean rv = false;
+			
+			if(obj instanceof AccessMode)
+			{
+				rv = ((AccessMode) obj).toString().equals(this.toString());
+			}
+			
+			return rv;
+		}
 
 		static public AccessMode fromString(String access)
 		{

@@ -35,7 +35,7 @@ import org.sakaiproject.time.api.Time;
 * @version $Revision$
 */
 public interface ContentCollection
-	extends ContentEntity, GroupAwareEntity
+	extends ContentEntity
 {
 	/**
 	* Access a List of the collection's internal members, each a resource id String.

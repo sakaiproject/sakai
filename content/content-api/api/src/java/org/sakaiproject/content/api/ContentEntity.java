@@ -21,9 +21,9 @@
 
 package org.sakaiproject.content.api;
 
-import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.content.api.GroupAwareEntity;
 
-public interface ContentEntity extends Entity
+public interface ContentEntity extends GroupAwareEntity
 {
 	/**
 	 * Check whether an entity is a ContentResource.

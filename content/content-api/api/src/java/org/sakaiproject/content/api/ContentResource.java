@@ -32,7 +32,7 @@ import org.sakaiproject.time.api.Time;
 * <p>ContentResource is the core interface for a Resource object in the GenericContentHostingService.</p>
 */
 public interface ContentResource
-	extends ContentEntity, GroupAwareEntity
+	extends ContentEntity
 {
 	/**
 	* Access the content byte length.
