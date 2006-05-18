@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.component.dao.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.SQLException;
@@ -209,7 +208,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 										try
 										{
 											indexReader
-													.delete(new Term(
+													.deleteDocuments(new Term(
 															"reference", sbi
 																	.getName()));
 											if (SearchBuilderItem.ACTION_DELETE
@@ -299,49 +298,61 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 													.getContainer();
 											if (container == null)
 												container = "";
-											doc.add(Field.Keyword("container",
-													container));
-											doc.add(Field.UnIndexed("id", ref
-													.getId()));
-											doc.add(Field.Keyword("type", ref
-													.getType()));
-											doc.add(Field.Keyword("subtype",
-													ref.getSubType()));
-											doc.add(Field.Keyword("reference",
-													ref.getReference()));
+											doc.add(new Field("container",
+													container,
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("id", ref
+													.getId(),Field.Store.YES,Field.Index.NO));
+											doc.add(new Field("type", ref
+													.getType(),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("subtype",
+													ref.getSubType(),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("reference",
+													ref.getReference(),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
 											Collection c = ref.getRealms();
 											for (Iterator ic = c.iterator(); ic
 													.hasNext();)
 											{
 												String realm = (String) ic
 														.next();
-												doc.add(Field.Keyword("realm",
-														realm));
+												doc.add(new Field("realm",
+														realm,
+														Field.Store.YES,Field.Index.UN_TOKENIZED));
 											}
 
-											doc.add(Field.Keyword("context",
-													sep.getSiteId(ref)));
+											doc.add(new Field("context",
+													sep.getSiteId(ref),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
 											if (sep.isContentFromReader(entity))
 											{
 												contentReader = sep
 														.getContentReader(entity);
-												doc.add(Field.Text("contents",
-														contentReader, true));
+												doc.add(new Field("contents",
+														contentReader,Field.TermVector.YES));
 											}
 											else
 											{
-												doc.add(Field.Text("contents",
+												doc.add(new Field("contents",
 														sep.getContent(entity),
-														true));
+														Field.Store.YES,Field.Index.TOKENIZED,
+														Field.TermVector.YES));
 											}
-											doc.add(Field.Text("title", sep
-													.getTitle(entity), true));
-											doc.add(Field.Keyword("tool", sep
-													.getTool()));
-											doc.add(Field.Keyword("url", sep
-													.getUrl(entity)));
-											doc.add(Field.Keyword("siteid", sep
-													.getSiteId(ref)));
+											doc.add(new Field("title", sep
+													.getTitle(entity),
+													Field.Store.YES,Field.Index.TOKENIZED,
+													Field.TermVector.YES));
+											doc.add(new Field("tool", sep
+													.getTool(),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("url", sep
+													.getUrl(entity),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("siteid", sep
+													.getSiteId(ref),
+													Field.Store.YES,Field.Index.UN_TOKENIZED));
 
 											log.debug("Indexing Document "
 													+ doc);

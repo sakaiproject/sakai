@@ -5,6 +5,7 @@ package org.sakaiproject.search.index;
 
 import java.io.IOException;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -57,6 +58,12 @@ public interface IndexStorage
 	 * @return
 	 */
 	boolean indexExists();
+	
+	/**
+	 * Get an analyzer correct for the indexer being used.
+	 * @return
+	 */
+	Analyzer getAnalyzer();
 
 
 }

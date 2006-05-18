@@ -114,8 +114,16 @@
   <bean id="searchStorageImpl" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     >
-    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>    
+    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
+    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
   </bean>
+  
+  <bean id="searchAnalyzerImpl" 
+    class="org.sakaiproject.search.index.impl.SnowballAnalyzerFactory" 
+    >
+   </bean>
+  
+  
   
   
 </beans>

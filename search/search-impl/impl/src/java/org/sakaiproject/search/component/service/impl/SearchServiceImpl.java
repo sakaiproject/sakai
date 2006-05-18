@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.component.service.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,10 +29,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
@@ -222,13 +221,13 @@ public class SearchServiceImpl implements SearchService
 			for (Iterator i = contexts.iterator(); i.hasNext();)
 			{
 				contextQuery.add(new TermQuery(new Term("siteid", (String) i
-						.next())), true, false);
+						.next())), BooleanClause.Occur.MUST );
 			}
 
-			Query textQuery = QueryParser.parse(searchTerms, "contents",
-					new StandardAnalyzer());
-			query.add(contextQuery, true, false);
-			query.add(textQuery, true, false);
+			QueryParser qp = new QueryParser("contents", indexStorage.getAnalyzer());
+			Query textQuery = qp.parse(searchTerms);
+			query.add(contextQuery, BooleanClause.Occur.MUST);
+			query.add(textQuery, BooleanClause.Occur.MUST);
 			log.debug("Query is " + query.toString());
 			IndexSearcher indexSearcher = getIndexSearcher(false);
 			if (indexSearcher != null)

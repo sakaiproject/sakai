@@ -8,11 +8,12 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
 public class FSIndexStorage implements IndexStorage
@@ -20,6 +21,8 @@ public class FSIndexStorage implements IndexStorage
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
 	
 	private String searchIndexDirectory = "searchindex";
+	
+	private AnalyzerFactory analyzerFactory = null;
 
 	public void doPreIndexUpdate() throws IOException
 	{
@@ -54,7 +57,7 @@ public class FSIndexStorage implements IndexStorage
 	public IndexWriter getIndexWriter(boolean create) throws IOException {
 		return new IndexWriter(
 				searchIndexDirectory,
-				new StandardAnalyzer(), create);
+				getAnalyzer(), create);
 	}
 	
 	public void doPostIndexUpdate() throws IOException {
@@ -111,6 +114,27 @@ public class FSIndexStorage implements IndexStorage
 	public boolean indexExists()
 	{
 		return IndexReader.indexExists(searchIndexDirectory);
+	}
+
+	/**
+	 * @return Returns the analyzerFactory.
+	 */
+	public AnalyzerFactory getAnalyzerFactory()
+	{
+		return analyzerFactory;
+	}
+
+	/**
+	 * @param analyzerFactory The analyzerFactory to set.
+	 */
+	public void setAnalyzerFactory(AnalyzerFactory analyzerFactory)
+	{
+		this.analyzerFactory = analyzerFactory;
+	}
+
+	public Analyzer getAnalyzer()
+	{
+		return analyzerFactory.newAnalyzer();
 	}
 
 

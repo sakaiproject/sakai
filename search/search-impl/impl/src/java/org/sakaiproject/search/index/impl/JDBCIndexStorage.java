@@ -5,9 +5,11 @@ package org.sakaiproject.search.index.impl;
 
 import java.io.IOException;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
 /**
@@ -17,6 +19,8 @@ import org.sakaiproject.search.index.IndexStorage;
  */
 public class JDBCIndexStorage implements IndexStorage
 {
+
+	private AnalyzerFactory analyzerFactory = null;
 
 	public IndexReader getIndexReader() throws IOException
 	{
@@ -52,6 +56,11 @@ public class JDBCIndexStorage implements IndexStorage
 	{
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public Analyzer getAnalyzer()
+	{
+		return analyzerFactory.newAnalyzer();
 	}
 
 }
