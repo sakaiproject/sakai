@@ -420,13 +420,13 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
 				if ( m == null ) {
-					log.warn("Rejected null message "+ref.getReference());
+					log.debug("Rejected null message "+ref.getReference());
 					return false;
 				}
 			}
 			catch (IdUnusedException e)
 			{
-				log.warn("Rejected Missing message "+ref.getReference());
+				log.debug("Rejected Missing message or Collection "+ref.getReference());
 				return false;
 			}
 			catch (PermissionException e)
