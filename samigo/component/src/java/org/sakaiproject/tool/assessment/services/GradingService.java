@@ -181,7 +181,8 @@ public class GradingService
       }
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
-        if (!a.getFinalScore().equals(b.getFinalScore()))
+        if ((a.getFinalScore()!=null && b.getFinalScore()!=null) 
+            && !a.getFinalScore().equals(b.getFinalScore()))
           l.add(a);
       }
     }
