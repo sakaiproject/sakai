@@ -2861,7 +2861,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			ResourceProperties props = getProperties(id);
 			filename = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		}
-		if (!folder_id.endsWith(Entity.SEPARATOR))
+		filename = Validator.escapeResourceName(filename);
+		if(! folder_id.endsWith(Entity.SEPARATOR))
 		{
 			folder_id += Entity.SEPARATOR;
 		}
@@ -3318,6 +3319,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		String displayName = newProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		String fileName = isolateName(new_id);
+		fileName = Validator.escapeResourceName(fileName);
 		String folderId = isolateContainingId(new_id);
 
 		if (displayName == null && fileName != null)
@@ -3470,6 +3472,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			IdUsedException, ServerOverloadException
 	{
 		String name = isolateName(new_folder_id);
+		name = Validator.escapeResourceName(name);
 
 		ResourceProperties properties = thisCollection.getProperties();
 		ResourcePropertiesEdit newProps = duplicateResourceProperties(properties, thisCollection.getId());
