@@ -73,6 +73,16 @@
  <h:messages styleClass="validation"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1">
+<p>
+<h:outputLink title="#{msg.t_showDivs}" value="#" onclick="showDivs();" onkeypress="showDivs();" >
+<h:outputText value="#{msg.open}"/>
+</h:outputLink>
+<h:outputText value=" | " />
+<h:outputLink title="#{msg.t_hideDivs}" value="#" onclick="hideDivs();" onkeypress="hideDivs();">
+<h:outputText value="#{msg.close}"/>
+</h:outputLink>
+ <h:outputText value="#{msg.allMenus}"/>
+</p>
   <samigo:hideDivision id="div1" title="#{msg.template_inform}" >
     <div class="tier2">
        <h:selectBooleanCheckbox id="infocanbeviewed"

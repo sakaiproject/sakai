@@ -224,6 +224,17 @@ function uncheckOther(field){
 <div class="tier1">
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 
+<p>
+<h:outputLink value="#" title="#{summary_msg.t_showDivs}" onclick="showDivs();" onkeypress="showDivs();">
+<h:outputText value="#{summary_msg.open}"/>
+</h:outputLink>
+<h:outputText value=" | " />
+<h:outputLink value="#" title="#{summary_msg.t_hideDivs}" onclick="hideDivs();" onkeypress="hideDivs();">
+<h:outputText value="#{summary_msg.close}"/>
+</h:outputLink>
+<h:outputText value="#{summary_msg.allMenus}"/>
+
+</p>
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate}" >
   <samigo:hideDivision title="#{msg.heading_template_information}" >
 <f:verbatim> <div class="tier2"></f:verbatim>

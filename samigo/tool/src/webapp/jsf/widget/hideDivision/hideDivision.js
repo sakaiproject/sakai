@@ -254,3 +254,85 @@ function hideUnhideAllDivsExceptOne(action)
   }
   exceptionId = "";
 }
+
+//Huong's adding for use of authoring and template setting page
+function showDivs()
+{  var divisionNo=""; 
+    myDocumentElements=document.getElementsByTagName("div");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+      if(divisionNo.indexOf("__hide_division_")>=0)
+        { 
+             showDiv(divisionNo.substring(16),'/samigo');
+           
+        }
+    }  
+ }
+function hideDivs()
+{  var divisionNo=""; 
+    myDocumentElements=document.getElementsByTagName("div");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+      if(divisionNo.indexOf("__hide_division_")>=0)
+        { 
+              hideDiv(divisionNo.substring(16),'/samigo');  
+          
+        }
+    }  
+ }
+
+
+function showHideDivs(showOrHide)
+{  var divisionNo=""; 
+    myDocumentElements=document.getElementsByTagName("div");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+      if(divisionNo.indexOf("__hide_division_")>=0)
+        {  if(showOrHide=='show')
+	    {
+             showDiv(divisionNo.substring(16),'/samigo');
+            }
+            else
+	    {
+              hideDiv(divisionNo.substring(16),'/samigo');  
+            }
+        
+        }
+    }  
+ }
+
+
+
+function hideDiv(hideDivisionNo, context)
+{
+  var tmpdiv = "__hide_division_" + hideDivisionNo;
+  var tmpimg = "__img_hide_division_" + hideDivisionNo;
+  var divisionNo = getTheElement(tmpdiv);
+  var imgNo = getTheElement(tmpimg);
+  if(divisionNo)
+  {
+      divisionNo.style.display="none";
+      if(imgNo)
+      {
+        imgNo.src = context + "/images/right_arrow.gif";
+      }
+   }
+}
+
+function showDiv(hideDivisionNo, context)
+{
+  var tmpdiv = "__hide_division_" + hideDivisionNo;
+  var tmpimg = "__img_hide_division_" + hideDivisionNo;
+  var divisionNo = getTheElement(tmpdiv);
+  var imgNo = getTheElement(tmpimg);
+  if(divisionNo)
+  { divisionNo.style.display="block";
+    if(imgNo)
+      {
+       imgNo.src = context + "/images/down_arrow.gif";
+      }
+  }
+}
