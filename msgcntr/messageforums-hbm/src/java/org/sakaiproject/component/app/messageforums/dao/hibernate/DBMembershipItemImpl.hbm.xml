@@ -35,7 +35,8 @@
     
     <many-to-one name="permissionLevel" column="PERMISSION_LEVEL"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
-        not-null="false" cascade="save-update" unique="true"/>
+        not-null="false" cascade="save-update" unique="true"
+        lazy="false"/>
                
   </class>
     
