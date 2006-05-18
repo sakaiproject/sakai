@@ -66,7 +66,16 @@
     </dependency>
     <dependency>
       <groupId>lucene</groupId>
-      <artifactId>lucene</artifactId>
+      <artifactId>lucene-core</artifactId>
+      <version>1.9.1</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>lucene</groupId>
+      <artifactId>lucene-misc</artifactId>
       <version>1.9.1</version>
       <type>jar</type>
       <properties>

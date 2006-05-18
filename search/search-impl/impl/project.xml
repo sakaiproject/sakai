@@ -88,7 +88,7 @@
     
     <dependency>
       <groupId>lucene</groupId>
-      <artifactId>lucene</artifactId>
+      <artifactId>lucene-core</artifactId>
       <version>1.9.1</version>
       <type>jar</type>
     </dependency>    
