@@ -10484,6 +10484,14 @@ public class SiteAction extends PagedResourceActionII
 		pList=removeDuplicateParticipants(pList, state);
 		pList=removeExistingParticipants(pList, state);
 		state.setAttribute(STATE_ADD_PARTICIPANTS, pList);
+		
+		// if the add participant list is empty after above removal, stay in the current page
+		if (pList.size() == 0)
+		{
+			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
+			addAlert(state, rb.getString("java.guest"));
+		}
+		
 		return;
 	
 	} // checkAddParticipant
@@ -10535,6 +10543,7 @@ public class SiteAction extends PagedResourceActionII
 				addAlert(state, rb.getString("add.duplicatedpart") + accounts + ".");
 			}
 		}
+		
 		return rv;
 	}
 
