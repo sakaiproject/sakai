@@ -75,12 +75,12 @@ public class SpringBeanLocator
   {
     if (inWebContext)
     {
-      log.info("** context in Locator " + waCtx);
+      //log.info("** context in Locator " + waCtx);
       return waCtx.getBean(name);
     }
     else
     {
-      log.info("** context in Locator " + caCtx);
+      //log.info("** context in Locator " + caCtx);
       return caCtx.getBean(name);
     }
 
