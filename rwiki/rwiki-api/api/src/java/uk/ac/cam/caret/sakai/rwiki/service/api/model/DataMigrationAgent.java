@@ -29,6 +29,6 @@ package uk.ac.cam.caret.sakai.rwiki.service.api.model;
 // FIXME: Service
 public interface DataMigrationAgent
 {
-	String migrate(String current, String target) throws Exception;
+	String migrate(String current, String target, boolean newdb) throws Exception;
 
 }

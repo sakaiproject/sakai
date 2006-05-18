@@ -67,11 +67,12 @@ public class DataMigrationSpecification implements DataMigrationController
 		}
 		else
 		{
+			boolean newdb = (currentVersionString == null);
 			for (Iterator i = migrationAgents.iterator(); i.hasNext();)
 			{
 				DataMigrationAgent a = (DataMigrationAgent) i.next();
 				currentVersionString = a.migrate(currentVersionString,
-						targetVersionString);
+						targetVersionString,newdb);
 			}
 		}
 		if (currentVersion == null)

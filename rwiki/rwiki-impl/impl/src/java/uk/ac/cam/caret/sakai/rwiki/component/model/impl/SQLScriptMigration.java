@@ -58,7 +58,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 
 	private SessionFactory sessionFactory;
 
-	public String migrate(String current, String target) throws Exception
+	public String migrate(String current, String target, final boolean newdb) throws Exception
 	{
 		if ((current != null && from == null)
 				|| (current != null && !current.equals(from)))
@@ -117,7 +117,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 					throws HibernateException, SQLException
 			{
 				Connection con = session.connection();
-				executeSchemaScript(con, sql);
+				executeSchemaScript(con, sql, newdb);
 				return null;
 			}
 		});
@@ -131,7 +131,7 @@ public class SQLScriptMigration implements DataMigrationAgent
 	 * @param sql
 	 * @throws SQLException
 	 */
-	protected void executeSchemaScript(Connection con, String[] sql)
+	protected void executeSchemaScript(Connection con, String[] sql,boolean newdb)
 			throws SQLException
 	{
 		if (sql != null && sql.length > 0)
@@ -166,10 +166,20 @@ public class SQLScriptMigration implements DataMigrationAgent
 							}
 							catch (SQLException ex)
 							{
-								log
+								if ( newdb ) 
+								{
+									log
+										.debug("Unsuccessful data migration statement: "
+												+ sql[i]);
+									log.debug("Cause: " + ex.getMessage());
+								}
+								else 
+								{
+									log
 										.warn("Unsuccessful data migration statement: "
 												+ sql[i]);
-								log.debug("Cause: " + ex.getMessage());
+									log.debug("Cause: " + ex.getMessage());
+								}
 							}
 						}
 					}

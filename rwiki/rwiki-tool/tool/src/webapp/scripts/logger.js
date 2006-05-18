@@ -27,14 +27,18 @@ function log(message) {
 		if ( logdiv == null ) {
 			logdiv = document.getElementById(logdivID);
 		}
-		var ts = new Date();
-		logdiv.innerHTML+=ts+":"+message+"<br>";
+		if ( logdiv != null ) {
+			var ts = new Date();
+			logdiv.innerHTML+=ts+":"+message+"<br>";
+		}
 	}
 }
 function clearLog() {
 	if ( logdiv == null ) {
 		logdiv = document.getElementById("logdiv");
 	}
-	logdiv.innerHTML="<hr>";
+	if ( logdiv != null ) {
+		logdiv.innerHTML="<hr>";
+	}
 }
 

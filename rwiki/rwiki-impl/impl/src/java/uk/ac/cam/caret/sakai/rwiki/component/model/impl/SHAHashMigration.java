@@ -55,7 +55,7 @@ public class SHAHashMigration implements DataMigrationAgent
 	 * @see uk.ac.cam.caret.sakai.rwiki.service.api.api.model.DataMigrationAgent#migrate(java.lang.String,
 	 *      java.lang.String)
 	 */
-	public String migrate(String current, String target) throws Exception
+	public String migrate(String current, String target,boolean newdb) throws Exception
 	{
 		if ((current != null && from == null)
 				|| (current != null && !current.equals(from)))
