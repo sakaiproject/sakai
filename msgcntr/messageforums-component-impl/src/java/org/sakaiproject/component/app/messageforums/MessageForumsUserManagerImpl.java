@@ -22,20 +22,18 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.MessageForumsUser;
 import org.sakaiproject.api.app.messageforums.MessageForumsUserManager;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.orm.hibernate3.HibernateCallback;

@@ -21,17 +21,13 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.AreaManager;
@@ -44,8 +40,6 @@ import org.sakaiproject.api.app.messageforums.MessagePermissions;
 import org.sakaiproject.api.app.messageforums.PermissionManager;
 import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.TopicControlPermission;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaControlPermissionImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ControlPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ForumControlPermissionImpl;
@@ -53,6 +47,8 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessagePermiss
 import org.sakaiproject.component.app.messageforums.dao.hibernate.TopicControlPermissionImpl;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 

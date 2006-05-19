@@ -26,12 +26,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>

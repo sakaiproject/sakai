@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
  
