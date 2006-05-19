@@ -31,6 +31,7 @@ Ca\^\^2+\^\^| Ca^^2+^^| Add a superscript
 \[start\] | [start] | internal link to another document
 \http://snipsnap.org/ | http://snipsnap.org/ | creates a link to an external resource, special characters that come after the URL and are not part of it must be separated with a space.
 \\\X | \X | escape special character X (i.e. \{)
+\\\\\\\\\ | \\\ | escape a \\\
 {table}
 
 h1 Available Macros
