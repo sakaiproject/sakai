@@ -2,7 +2,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../../test-harness/project.xml</extend>
+    <extend>../../../master/project.xml</extend>
     <name>Section Integration Tests</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-section-integration-test</id>
@@ -28,6 +28,19 @@
             <version>${sakai.version}</version>
         </dependency>
 
+		<!-- Logging -->
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.9</version>
+        </dependency>
+		
 		<!-- Sakai APIs (only those needed to compile the tests) -->
         <dependency>
             <groupId>sakaiproject</groupId>
@@ -53,6 +66,24 @@
             <version>${sakai.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-entity-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-util-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>sakaiproject</groupId>
+            <artifactId>sakai-authz-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+		
     </dependencies>
 
     <build>

@@ -27,6 +27,8 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+//import org.apache.commons.logging.Log;
+//import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.SectionAwareness;
@@ -66,7 +68,9 @@ public class SectionAwarenessImplTest extends SakaiTestBase {
 	public static Test suite() {
 		TestSetup setup = new TestSetup(new TestSuite(SectionAwarenessImplTest.class)) {
 			protected void setUp() throws Exception {
+				log.debug("starting setup");
 				oneTimeSetup();
+				log.debug("finished setup");
 			}
 			protected void tearDown() throws Exception {
 				oneTimeTearDown();
@@ -103,13 +107,13 @@ public class SectionAwarenessImplTest extends SakaiTestBase {
 		// Save the group
 		siteService.save(site);
 		
-		site.addMember("test.user.1", "Student", true, false);
+		site.addMember("test.user.a", "Student", true, false);
 
 		// Save the site and its new member
 		siteService.save(site);
 
 		// Add a user to a group
-		group1.addMember("test.user.1", "Student", true, false);
+		group1.addMember("test.user.a", "Student", true, false);
 		
 		// Save the group with its new member
 		siteService.saveGroupMembership(site);
@@ -146,7 +150,7 @@ public class SectionAwarenessImplTest extends SakaiTestBase {
 		
 		Assert.assertTrue(members.size() == 1);
 		ParticipationRecord record = (ParticipationRecord)members.get(0);
-		Assert.assertTrue(record.getUser().getUserUid().equals("test.user.1"));
+		Assert.assertTrue(record.getUser().getUserUid().equals("test.user.a"));
 	}
 }
 
