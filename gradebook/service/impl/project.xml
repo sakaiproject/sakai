@@ -83,6 +83,11 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-db-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>hsqldb</groupId>

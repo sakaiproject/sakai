@@ -85,11 +85,13 @@
 
 	<!-- Simple configuration handler. -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookConfiguration"
-		class="org.sakaiproject.service.gradebook.shared.GradebookConfiguration"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookConfigurationSakai"
 		init-method="init">
-		<property name="gradebookService">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
-		</property>
+
+		<property name="autoDdl" value="${auto.ddl}"/>
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
 
 		<!-- Set up default system-wide grading scales. -->
 <!--
