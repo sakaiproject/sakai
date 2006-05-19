@@ -141,7 +141,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	/** Maximum number of characters in a valid resource-id */
 	protected static final int MAXIMUM_RESOURCE_ID_LENGTH = 255;
-
+	
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -765,15 +765,20 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if(entity != null)
 			{
 				Collection groups = entity.getGroups();
+				Group group = null;
 				Iterator it = groups.iterator();
+				if(it.hasNext())
+				{
+					group = (Group) it.next();
+					isAllowed = group.getContainingSite().isAllowed(userId, ALL_GROUP_ACCESS);
+				}
+				it = groups.iterator();
 				while(it.hasNext() && ! isAllowed)
 				{
-					Group group = (Group) it.next();
-					if(group.isAllowed(userId, EVENT_RESOURCE_READ))
-					{
-						isAllowed = true;
-					}
+					group = (Group) it.next();
+					isAllowed =  group.isAllowed(userId, EVENT_RESOURCE_READ);
 				}
+				
 			}
 		}
 		catch (TypeException e)
@@ -886,12 +891,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected boolean unlockCheck(String lock, String id)
 	{
-		boolean isAllowed = false;
-		if(SecurityService.isSuperUser())
-		{
-			isAllowed = true;
-		}
-		else
+		boolean isAllowed = SecurityService.isSuperUser();
+		if(! isAllowed)
 		{
 			lock = convertLockIfDropbox(lock, id);
 	
@@ -900,26 +901,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (id != null)
 			{
 				ref = getReference(id);
-			}
-	
-			if(SecurityService.unlock(lock, ref))
-			{
-				// maintain role rejected?
-				boolean q1 = accessLimitedByGroup(id);
-				if( q1)
+				if(SecurityService.unlock(lock, ref))
 				{
-					boolean q2 = userHasGroupPermission(id);
-					if(q2)
-					{
-						isAllowed = true;
-					}
-				}
-				else
-				{
-					isAllowed = true;
+					isAllowed = ! accessLimitedByGroup(id) || userHasGroupPermission(id);
 				}
 			}
 		}
+		
 		return isAllowed;
 		
 	} // unlockCheck
@@ -972,12 +960,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
 		}
 		
-		// maintain role rejected?
-		boolean q1 = accessLimitedByGroup(id);
-		if( q1)
+		if(accessLimitedByGroup(id))
 		{
-			boolean q2 = userHasGroupPermission(id);
-			if(! q2)
+			if(! userHasGroupPermission(id))
 			{
 				throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
 			}
@@ -6206,7 +6191,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	protected static final String DROPBOX_ID = " Drop Box";
 
-	public static final String EVENT_SITE_UPDATE = null;
+	public static final String SITE_UPDATE_ACCESS = "site.upd";
+	
+	protected static final String ALL_GROUP_ACCESS = "annc.all.groups";
 
 	protected static final String GROUP_LIST = "sakai:authzGroup";
 
@@ -6536,41 +6523,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		try
 		{
-			String context = ref.getContext();
 			if(groups.isEmpty())
 			{
 				// get the channel's site's groups
-				Site site = m_siteService.getSite(context);
+				Site site = m_siteService.getSite(ref.getContext());
 				groups.addAll(site.getGroups());
 			}
 
 			// if the user has permission to create resources in the root-level of the site, return all groups
-			if (unlockCheck(EVENT_RESOURCE_WRITE, context))
+			if (SecurityService.unlock(ALL_GROUP_ACCESS, ref.getContext()))
 			{
-				return groups;
+				rv.addAll(groups);
 			}
-
 			// otherwise, check the groups for function
-
-			// get a list of the group refs, which are authzGroup ids
-			Collection groupRefs = new Vector();
-			for (Iterator i = groups.iterator(); i.hasNext();)
+			else
 			{
-				Group group = (Group) i.next();
-				groupRefs.add(group.getReference());
-			}
-
-			// ask the authzGroup service to filter them down based on function
-			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(UserDirectoryService.getCurrentUser().getId(), function,
-					groupRefs);
-
-			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-			for (Iterator i = groups.iterator(); i.hasNext();)
-			{
-				Group group = (Group) i.next();
-				if (groupRefs.contains(group.getReference()))
+				Collection groupRefs = new Vector();
+				for (Iterator i = groups.iterator(); i.hasNext();)
 				{
-					rv.add(group);
+					Group group = (Group) i.next();
+					if(SecurityService.unlock(function, group.getReference()))
+					{
+						rv.add(group);
+					}
 				}
 			}
 		}
