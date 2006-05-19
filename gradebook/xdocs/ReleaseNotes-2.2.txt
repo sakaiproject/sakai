@@ -65,7 +65,8 @@ Database changes
 ----------------
 
 * New tables were added and a new column was added to the GB_GRADE_MAP_T
-  table to support configurable grading scales. The SQL table definitions
+  table to support configurable grading scales. Some indexes were added to
+  improve performance of common operations. The SQL table definitions
   for supported databases have been updated. For existing installations,
   the "auto.ddl=true" property or the following script may be used to
   update the tables:

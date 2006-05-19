@@ -26,7 +26,7 @@ your local repository and in the "target" subdirectory of the
 standalone application subproject. (It will not, however, be copied
 into your Sakai deployment!)
 
-If you use the "-standalone" flag in the Gradebook build (as shown below),
+If you use the "standalone" flag in the Gradebook build (as shown below),
 the build will also copy the file "sakai-gradebook-standalone-app.war"
 to whatever directory is defined by the Maven property "standalone.deploy.dir".
 
@@ -39,8 +39,8 @@ sakai".
 "hibernate.properties" file to set up the database you want. By default the one
 in "gradebook/app/standalone-app/src/hibernate/" is used, but you can
 point to a different directory by changing the "hibernate.properties.dir"
-property. See "DatabaseSupport.txt" for sample database setups. Make sure that
-the database specified in your hibernate.properties file has been created.
+property. Make sure that the database specified in your hibernate.properties
+file has been created.
 
 3) The Gradebook uses the Section Awareness interface to collect information on
 course enrollments and user roles. Before building the Gradebook, you need to
@@ -53,9 +53,6 @@ build:
   # Build Section Management, Section Awareness, and integration support.
   maven -Dmode=standalone -Dhibernate.properties.dir=C:/java/sakai/gradebook/app/standalone-app/src/hibernate cln bld
 
-  # Initialize my local database with the Section Awareness tables.
-  maven -Dmode=standalone -Dmem=false -Dhibernate.properties.dir=C:/java/sakai/gradebook/app/standalone-app/src/hibernate schema
-
   # Go back to the Gradebook.
   cd ../gradebook/
 
@@ -65,11 +62,13 @@ build:
   # Initialize my local database with the Gradebook tables.
   maven schema-standalone
 
-4) If you want, you can load your local database with test data.
+4) If you want, you can load your local database with test data. If you do
+this, you can skip the "schema-standalone" step above, since the data
+load will automatically create all needed tables.
 
   maven load-full-standalone
 
-After starting your test Tomcat server, you can then go to the following URL
+5) After starting your test Tomcat server, you can then go to the following URL
 and browse the test data as an instructor, student, or teaching assistant:
 
   http://localhost:8080/sakai-gradebook-standalone-app/
@@ -97,11 +96,13 @@ Here's a sample for MySQL:
 
   hibernate.connection.driver_class=com.mysql.jdbc.Driver
   hibernate.connection.url=jdbc:mysql://localhost/sakaigb
-  hibernate.connection.username=gbuser
-  hibernate.connection.password=gbpwd
-  hibernate.dialect=net.sf.hibernate.dialect.MySQLDialect
+  hibernate.connection.username=root
+  hibernate.connection.password=root
+  hibernate.dialect=org.hibernate.dialect.MySQLDialect
   hibernate.show_sql=false
   hibernate.hbm2ddl.auto=update
+  hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
+  hibernate.query.factory_class=org.hibernate.hql.classic.ClassicQueryTranslatorFactory
 
 And one for Oracle:
 
@@ -109,6 +110,8 @@ And one for Oracle:
   hibernate.connection.url=jdbc:oracle:thin:myschool.edu:1521:dbname
   hibernate.connection.username=gbname
   hibernate.connection.password=gbpwd
-  hibernate.dialect=net.sf.hibernate.dialect.Oracle9Dialect
+  hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
   hibernate.show_sql=false
   hibernate.hbm2ddl.auto=update
+  hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
+  hibernate.query.factory_class=org.hibernate.hql.classic.ClassicQueryTranslatorFactory
