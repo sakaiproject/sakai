@@ -368,6 +368,23 @@
 			check.value = "false";
 		}
 	}
+	
+
+	function toggleSelectAll(element, item_name)
+	{
+		var checkboxes = document.getElementsByName(item_name);
+		for(var i = 0; i < checkboxes.length; i++)
+		{
+			if(element.checked)
+			{
+				checkboxes[i].checked = true;
+			}
+			else
+			{
+				checkboxes[i].checked = false;
+			}
+		}
+	}
 	-->
 </script>
 <div class="portletBody">
@@ -634,7 +651,7 @@
 											<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 											<tr>
 												<th id="selectAllGroups" style="width:2em;padding-left:.4em">
-													<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+													<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')" onkeypress="javascript:toggleSelectAll(this, 'access_groups')" />
 												</th>
 										 		<th id="groupname">
 													#if(!$sortedBy.equals("group_title"))

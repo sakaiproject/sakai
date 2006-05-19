@@ -6738,6 +6738,7 @@ public class ResourcesAction
 			if(AccessMode.GROUPED.toString().equals(access_mode))
 			{
 				String[] access_groups = params.getStrings("access_groups");
+				item.clearGroups();
 				for(int gr = 0; gr < access_groups.length; gr++)
 				{
 					item.addGroup(access_groups[gr]);
@@ -11163,6 +11164,18 @@ public class ResourcesAction
 				}
 
 			}
+		}
+		
+		/**
+		 * Remove all groups from the item.
+		 */
+		public void clearGroups()
+		{
+			if(this.m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			m_groups.clear();
 		}
 
 		/**

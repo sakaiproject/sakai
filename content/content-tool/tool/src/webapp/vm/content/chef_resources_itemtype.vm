@@ -546,6 +546,22 @@
 		cr_element.focus();
 		}	
 	}
+	
+	function toggleSelectAll(element, item_name)
+	{
+		var checkboxes = document.getElementsByName(item_name);
+		for(var i = 0; i < checkboxes.length; i++)
+		{
+			if(element.checked)
+			{
+				checkboxes[i].checked = true;
+			}
+			else
+			{
+				checkboxes[i].checked = false;
+			}
+		}
+	}
 	//-->
 </script>
 <div class="portletBody">
@@ -772,7 +788,7 @@
 									</td>
 								</tr>
 								#if($siteHasGroups)
-									#if("$!item.access" == "grouped")
+									#if("$!item.access" == "$GROUP_ACCESS")
 										#set ($listDisplay="block")
 									#else
 										#set ($listDisplay="none")
@@ -785,7 +801,7 @@
 												<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 												<tr>
 													<th id="selectAllGroups" style="width:2em;padding-left:.4em">
-														<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
+														<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups$i')" onkeypress="javascript:toggleSelectAll(this, 'access_groups$i')" />
 													</th>
 											 		<th id="groupname">
 														#if(!$sortedBy.equals("group_title"))
@@ -818,7 +834,7 @@
 															#if($item.hasGroup($group.id))
 																#set($selected=true)
 															#end
-															<input type="checkbox" name="access_groups$i" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+															<input type="checkbox" name="access_groups$i" id="access_groups$i_$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 														</td>
 														<td headers="name" style="padding-bottom:0;" class="checkbox">
 															<label for="$group.Id">
