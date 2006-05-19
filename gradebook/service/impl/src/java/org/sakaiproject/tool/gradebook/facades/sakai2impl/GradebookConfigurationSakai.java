@@ -21,8 +21,6 @@
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
