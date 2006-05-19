@@ -19,9 +19,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.jdbc.JdbcDirectory;
 import org.apache.lucene.store.jdbc.JdbcDirectorySettings;
 import org.apache.lucene.store.jdbc.datasource.DataSourceUtils;
+import org.apache.lucene.store.jdbc.dialect.Dialect;
+import org.apache.lucene.store.jdbc.dialect.HSQLDialect;
 import org.apache.lucene.store.jdbc.dialect.MySQLMyISAMDialect;
+import org.apache.lucene.store.jdbc.dialect.OracleDialect;
 import org.apache.lucene.store.jdbc.lock.PhantomReadLock;
 import org.apache.lucene.store.jdbc.support.JdbcTable;
+import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
@@ -44,8 +48,19 @@ public class JDBCIndexStorage implements IndexStorage
 	{
 		JdbcDirectorySettings settings = new JdbcDirectorySettings();
 		settings.setLockClass(PhantomReadLock.class);
+		
+		Dialect d = null;
+		String targetDB = SqlService.getVendor().trim();
+		if ( "mysql".equalsIgnoreCase(targetDB) ) {
+			d = new MySQLMyISAMDialect();
+		} else if ( "oracle".equalsIgnoreCase(targetDB) ) {
+			d = new OracleDialect();
+		} else {
+			d = new HSQLDialect();
+		}
+			
 
-		JdbcTable table = new JdbcTable(settings, new MySQLMyISAMDialect(),
+		JdbcTable table = new JdbcTable(settings, d,
 				searchTableName);
 		return new JdbcDirectory(dataSource, table);
 	}

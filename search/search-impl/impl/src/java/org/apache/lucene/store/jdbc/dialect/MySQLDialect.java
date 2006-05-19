@@ -25,6 +25,7 @@ public class MySQLDialect extends Dialect {
 
     /**
      * MySQL requires quoting the blob column with connector J 3.1 when using emulateLocators=true.
+     * IEB, disabled since we cant get emulateLocators in Sakai
      */
     public String openBlobSelectQuote() {
         return "'";
@@ -32,6 +33,8 @@ public class MySQLDialect extends Dialect {
 
     /**
      * MySQL requires quoting the blob column with connector J 3.1 when using emulateLocators=true.
+     * 
+     * IEB, disabled since we cant get emulateLocators in Sakai
      */
     public String closeBlobSelectQuote() {
         return "'";
