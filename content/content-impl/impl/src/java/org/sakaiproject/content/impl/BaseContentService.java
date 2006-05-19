@@ -103,6 +103,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -1411,37 +1412,45 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentCollection findCollection(String id) throws TypeException
 	{
-		ContentCollection collection = null;
+		ContentCollection collection = (ContentCollection) ThreadLocalManager.get(id);
 		
-		// TODO: Use ThreadLocal cache
-
-		// if not caching
-		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
+		if(collection == null)
 		{
-			// TODO: current service caching
 			collection = m_storage.getCollection(id);
-		}
-		else
-		{
-			// if we have it cached, use it (hit or miss)
-			String key = getReference(id);
-			if (m_cache.containsKey(key))
+			
+			if(collection != null)
 			{
-				Object o = m_cache.get(key);
-				if ((o != null) && (!(o instanceof ContentCollection))) throw new TypeException(id);
-
-				collection = (ContentCollection) o;
-			}
-
-			// if not in the cache, see if we have it in our info store
-			else
-			{
-				collection = m_storage.getCollection(id);
-
-				// cache it (hit or miss)
-				m_cache.put(key, collection);
+				ThreadLocalManager.set(id, collection);
 			}
 		}
+
+//		// if not caching
+//		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
+//		{
+//			// TODO: current service caching
+//			collection = m_storage.getCollection(id);
+//		}
+//		else
+//		{
+//			// if we have it cached, use it (hit or miss)
+//			String key = getReference(id);
+//			if (m_cache.containsKey(key))
+//			{
+//				Object o = m_cache.get(key);
+//				if ((o != null) && (!(o instanceof ContentCollection))) throw new TypeException(id);
+//
+//				collection = (ContentCollection) o;
+//			}
+//
+//			// if not in the cache, see if we have it in our info store
+//			else
+//			{
+//				collection = m_storage.getCollection(id);
+//
+//				// cache it (hit or miss)
+//				m_cache.put(key, collection);
+//			}
+//		}
 
 		return collection;
 
@@ -2428,38 +2437,46 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentResource findResource(String id) throws TypeException
 	{
-		ContentResource resource = null;
+		ContentResource resource = (ContentResource) ThreadLocalManager.get(id);
 		
-		// TODO: Use ThreadLocal cache
-
-		// if not caching
-		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
+		if(resource == null)
 		{
-			// TODO: current service caching
 			resource = m_storage.getResource(id);
-		}
-
-		else
-		{
-			// if we have it cached, use it (hit or miss)
-			String key = getReference(id);
-			if (m_cache.containsKey(key))
+			
+			if(resource != null)
 			{
-				Object o = m_cache.get(key);
-				if ((o != null) && (!(o instanceof ContentResource))) throw new TypeException(id);
-
-				resource = (ContentResource) o;
-			}
-
-			// if not in the cache, see if we have it in our info store
-			else
-			{
-				resource = m_storage.getResource(id);
-
-				// cache it (hit or miss)
-				m_cache.put(key, resource);
+				ThreadLocalManager.set(id, resource);
 			}
 		}
+		
+//		// if not caching
+//		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
+//		{
+//			// TODO: current service caching
+//			resource = m_storage.getResource(id);
+//		}
+//
+//		else
+//		{
+//			// if we have it cached, use it (hit or miss)
+//			String key = getReference(id);
+//			if (m_cache.containsKey(key))
+//			{
+//				Object o = m_cache.get(key);
+//				if ((o != null) && (!(o instanceof ContentResource))) throw new TypeException(id);
+//
+//				resource = (ContentResource) o;
+//			}
+//
+//			// if not in the cache, see if we have it in our info store
+//			else
+//			{
+//				resource = m_storage.getResource(id);
+//
+//				// cache it (hit or miss)
+//				m_cache.put(key, resource);
+//			}
+//		}
 
 		return resource;
 
