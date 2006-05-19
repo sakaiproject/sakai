@@ -36,7 +36,7 @@
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
-		     <h:outputText value="#{delItems.msg.createdBy}"/>
+		     <h:outputText value="#{delItems.msg.author}"/>
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">

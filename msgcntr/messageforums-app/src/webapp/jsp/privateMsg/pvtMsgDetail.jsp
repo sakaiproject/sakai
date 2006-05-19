@@ -51,7 +51,7 @@
               <h:outputText style="font-weight:bold"  value="#{msgs.pvt_authby}"/>
             </td>
             <td align="left">
-            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" />  
+            	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" />  
             	<h:outputText value=" (" />  
             	<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" >
                 	<f:convertDateTime pattern="#{msgs.date_format}" />  

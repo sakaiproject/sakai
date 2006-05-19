@@ -1156,7 +1156,24 @@ public class PrivateMessagesTool
       // these are set by the create method above -- you can remove them or keep them if you really want :)
       //aMsg.setCreatedBy(getUserId());
       //aMsg.setCreated(getTime()) ;
-      aMsg.setAuthor(getUserId());
+      
+      String authorString = "";
+      if("true".equalsIgnoreCase(ServerConfigurationService.getString
+  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+  	  {
+  	    try
+  	    {
+  		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+  		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  	    }
+  	    catch(Exception e)
+  	    {
+  	      e.printStackTrace();
+  	    }
+  	  }
+      else
+    	authorString = getUserId();
+      aMsg.setAuthor(authorString);
       aMsg.setDraft(Boolean.FALSE);      
       aMsg.setApproved(Boolean.FALSE);     
       aMsg.setLabel(getSelectedLabel());
@@ -1532,7 +1549,23 @@ public class PrivateMessagesTool
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
     rrepMsg.setDraft(Boolean.FALSE);
-    rrepMsg.setAuthor(getUserId());
+    String authorString = "";
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+  	{
+  	  try
+  	  {
+  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  	  }
+  	  catch(Exception e)
+  	  {
+  		e.printStackTrace();
+  	  }
+  	}
+    else
+      authorString += getUserId();
+    rrepMsg.setAuthor(authorString);
     rrepMsg.setApproved(Boolean.FALSE);
     rrepMsg.setBody(getReplyToBody()) ;
     
@@ -1603,7 +1636,23 @@ public class PrivateMessagesTool
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drrepMsg.setTitle(getReplyToSubject()) ;
     drrepMsg.setDraft(Boolean.TRUE);
-    drrepMsg.setAuthor(getUserId());
+    String authorString = "";
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+  			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+  	{
+  	  try
+  	  {
+  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  	  }
+  	  catch(Exception e)
+  	  {
+  		e.printStackTrace();
+  	  }
+  	}
+    else
+      authorString = getUserId();
+    drrepMsg.setAuthor(authorString);
     drrepMsg.setApproved(Boolean.FALSE);
     drrepMsg.setBody(getReplyToBody()) ;
     

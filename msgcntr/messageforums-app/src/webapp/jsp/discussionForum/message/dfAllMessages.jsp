@@ -78,8 +78,8 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        	<h:outputText style="font-weight:bold;" value="#{message.message.createdBy}" rendered="#{!message.read}"/>
+				 	<h:outputText value="#{message.message.author}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.author}" rendered="#{!message.read}"/>
 
 			</h:column>
 
@@ -137,8 +137,8 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_authoredby}" />
 				</f:facet>
-				 	<h:outputText value="#{message.message.createdBy}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-    	        	<h:outputText style="font-weight:bold;" value="#{message.message.createdBy}" rendered="#{!message.read}"/>
+				 	<h:outputText value="#{message.message.author}" rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
+    	        	<h:outputText style="font-weight:bold;" value="#{message.message.author}" rendered="#{!message.read}"/>
 
 			</h:column>
 

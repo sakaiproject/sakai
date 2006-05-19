@@ -29,7 +29,7 @@
           			<h:outputText value="#{msgs.pvt_to}"/>		
               </td>
               <td align="left">   
-          				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.createdBy}" /> 
+          				<h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" /> 
               </td>                           
             </tr>
             <tr>

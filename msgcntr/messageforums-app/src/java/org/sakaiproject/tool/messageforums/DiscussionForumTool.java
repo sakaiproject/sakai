@@ -85,6 +85,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -1910,7 +1911,27 @@ public class DiscussionForumTool
     {
       aMsg.setTitle(getComposeTitle());
       aMsg.setBody(getComposeBody());
-      aMsg.setAuthor(getUserId());
+      
+  	  if("true".equalsIgnoreCase(ServerConfigurationService.getString
+			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+      {
+  		try
+  		{
+  		  String authorString = "";
+   		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+   		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  		  aMsg.setAuthor(authorString);
+  		}
+  		catch(Exception e)
+  		{
+  	      e.printStackTrace();
+  		}
+  	  }
+  	  else
+  	  {
+  		aMsg.setAuthor(getUserId());
+  	  }
+      
       aMsg.setDraft(Boolean.FALSE);
       aMsg.setApproved(Boolean.TRUE);
       aMsg.setTopic(selectedTopic.getTopic());
@@ -2012,7 +2033,22 @@ public class DiscussionForumTool
       if(selectedMessage.getMessage().getGradeAssignmentName() !=null && 
           selectedMessage.getMessage().getGradeAssignmentName().trim().length()>0)
       {
-        if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+   	    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+   	      ("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
+   	      (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+   	      selectedMessage.getMessage().getGradeAssignmentName(),  
+   	      UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
+   	    {
+   	      gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+   	    		  selectedMessage.getMessage().getGradeAssignmentName(),  
+                    UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
+   	      gradePoint = new Double(gradePoint).toString();
+   	      gradeComment = selectedMessage.getMessage().getGradeComment();
+   	      String thisGradeAssign = selectedMessage.getMessage().getGradeAssignmentName();
+   	      setSelectedAssignForMessage(thisGradeAssign);
+   	    	
+   	    }
+   	    else if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
             selectedMessage.getMessage().getGradeAssignmentName(),  
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
         { 
@@ -2028,7 +2064,20 @@ public class DiscussionForumTool
       else if(selectedTopic.getTopic().getDefaultAssignName() != null &&
           selectedTopic.getTopic().getDefaultAssignName().trim().length() > 0)
       {
-        if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+    	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
+    			(gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+    					selectedTopic.getTopic().getDefaultAssignName(),
+    					UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
+    	{
+    	  gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
+    			  selectedTopic.getTopic().getDefaultAssignName(),
+    			  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
+    	  gradePoint = new Double(gradePoint).toString();
+    	  String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
+    	  setSelectedAssignForMessage(thisGradeAssign);
+    	}
+    	else if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
             selectedTopic.getTopic().getDefaultAssignName(),
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
         { 
@@ -2049,7 +2098,20 @@ public class DiscussionForumTool
       else if(selectedForum.getForum().getDefaultAssignName() != null &&
           selectedForum.getForum().getDefaultAssignName().trim().length() > 0)
       {
-        if( (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+      	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
+    			(gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+    		            selectedForum.getForum().getDefaultAssignName(),  
+    		            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
+      	{
+          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+        		  selectedForum.getForum().getDefaultAssignName(),  
+        		  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
+          gradePoint = new Double(gradePoint).toString();
+          String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
+          setSelectedAssignForMessage(thisGradeAssign);      		
+      	}
+      	else if( (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
             selectedForum.getForum().getDefaultAssignName(),  
             UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null) 
         { 
@@ -2286,7 +2348,24 @@ public class DiscussionForumTool
       }
     }
     String currentBody = getComposeBody();
-    String revisedInfo = getResourceBundleString(LAST_REVISE_BY) + this.getUserId() + " " + getResourceBundleString(LAST_REVISE_ON);
+    String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+	{
+	  try
+	  {
+		revisedInfo += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+		revisedInfo += UserDirectoryService.getUser(getUserId()).getFirstName();
+	  }
+	  catch(Exception e)
+	  {
+		e.printStackTrace();
+	  }
+	}
+	else
+	  revisedInfo += getUserId();
+    
+    revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
     revisedInfo += now.toString() + " <br/> ";
     
@@ -2304,7 +2383,25 @@ public class DiscussionForumTool
     dMsg.setBody(revisedInfo);
     dMsg.setDraft(Boolean.FALSE);
     dMsg.setModified(new Date());
-    dMsg.setModifiedBy(getUserId());
+    
+    String modifyAuthor = "";
+	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+	{
+	  try
+	  {
+		modifyAuthor += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+		modifyAuthor += UserDirectoryService.getUser(getUserId()).getFirstName();
+	  }
+	  catch(Exception e)
+	  {
+		e.printStackTrace();
+	  }
+	}
+	else
+	  modifyAuthor = getUserId();
+
+    dMsg.setModifiedBy(modifyAuthor);
     // dMsg.setApproved(Boolean.TRUE);
 
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -2392,7 +2489,23 @@ public class DiscussionForumTool
       }
     }
     String currentBody = getComposeBody();
-    String revisedInfo = getResourceBundleString(LAST_REVISE_BY) + this.getUserId() + " " + getResourceBundleString(LAST_REVISE_ON);
+    String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+	{
+	  try
+	  {
+		revisedInfo += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+		revisedInfo += UserDirectoryService.getUser(getUserId()).getFirstName();
+	  }
+	  catch(Exception e)
+	  {
+		e.printStackTrace();
+	  }
+	}
+    else
+      revisedInfo += getUserId();
+    revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
     revisedInfo += now.toString() + " <br/> ";    
     revisedInfo = revisedInfo.concat(currentBody);
@@ -2401,7 +2514,24 @@ public class DiscussionForumTool
     dMsg.setBody(revisedInfo);
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setModified(new Date());
-    dMsg.setModifiedBy(getUserId());
+    
+    String modifyAuthor = "";
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+	{
+	  try
+	  {
+		modifyAuthor += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+		modifyAuthor += UserDirectoryService.getUser(getUserId()).getFirstName();
+	  }
+	  catch(Exception e)
+	  {
+		e.printStackTrace();
+	  }
+	}
+    else
+    	modifyAuthor += getUserId();
+    dMsg.setModifiedBy(modifyAuthor);
     // dMsg.setApproved(Boolean.TRUE);
     
 //    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -3025,7 +3155,19 @@ public class DiscussionForumTool
         GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
         ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
          
-        if((!selectedAssign.equalsIgnoreCase("Default_0")) 
+      	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
+    			(!selectedAssign.equalsIgnoreCase("Default_0")) 
+    	          && ((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+    	              ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
+    	              UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null))
+      	{
+            gradebookScore = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+                    ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
+                    UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();  
+      		
+      	}
+      	else if((!selectedAssign.equalsIgnoreCase("Default_0")) 
           && ((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
               ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
               UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId())) != null)) 
@@ -3136,13 +3278,24 @@ public class DiscussionForumTool
           { 
             GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
             ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-            String selectedAssignName = ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(); 
-            String tempName = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId(); 
-            gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+            String selectedAssignName = ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel();
+          	if("true".equalsIgnoreCase(ServerConfigurationService.getString
+        			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+          	{
+              gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+            		  selectedAssignName,  
+            		  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId(),  
+            		  new Double(gradePoint),  
+              "");
+          	}
+          	else
+          	{
+              gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
                 selectedAssignName,  
                 UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()).getId(),  
                 new Double(gradePoint),  
                 "");
+          	}
             setGradeNoticeMessage();
             selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
             selectedMessage.getMessage().setGradeComment(gradeComment);
@@ -3152,7 +3305,16 @@ public class DiscussionForumTool
             { 
               PrivateMessageManager pvtMsgManager = (PrivateMessageManager) ComponentManager.get( 
               "org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"); 
-              User sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor()); 
+              User sendTo = null; 
+            	  
+              if("true".equalsIgnoreCase(ServerConfigurationService.getString
+            		  ("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+              {
+            	  sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
+              }
+              else
+            	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
+              
               Set sendToSet = new HashSet(); 
               sendToSet.add(sendTo); 
                
@@ -3172,7 +3334,23 @@ public class DiscussionForumTool
               msgBody = msgBody.concat("COMMENTS: " + gradeComment + " <br/> <br/> "); 
               msgBody = msgBody.concat(selectedMessage.getMessage().getBody() + " <br/> "); 
               pvtMsg.setBody(msgBody); 
-              pvtMsg.setAuthor(UserDirectoryService.getCurrentUser().getId()); 
+          	  if("true".equalsIgnoreCase(ServerConfigurationService.getString
+          			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+              {
+          		try
+          		{
+          		  String authorString = "";
+          		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+          		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+          		  pvtMsg.setAuthor(authorString);
+            	}
+          		catch(Exception e)
+          		{
+          		  e.printStackTrace();
+            	}
+              }
+          	  else
+          		pvtMsg.setAuthor(getUserId()); 
               pvtMsg.setApproved(Boolean.TRUE); 
               pvtMsg.setModified(new Date()); 
               pvtMsg.setModifiedBy(UserDirectoryService.getCurrentUser().getId()); 
