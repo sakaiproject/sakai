@@ -27,8 +27,9 @@
 	<!-- Copy the war into the tomcat webapps dir -->
 	<postGoal name="war:war">
 		<j:if test="${standalone.equals('true')}">
-			<ant:echo message="Copying standalone webapp to deployment directory '${standalone.deploy.dir}'"/>
-			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}"/>
+			<ant:echo message="Copying standalone webapp ${pom.artifactId} to deployment directory '${standalone.deploy.dir}'"/>
+			<delete dir="${standalone.deploy.dir}/${pom.artifactId}"/>
+			<ant:copy file="${maven.build.dir}/${maven.war.final.name}" todir="${standalone.deploy.dir}" overwrite="true"/>
 		</j:if>
 	</postGoal>
 
