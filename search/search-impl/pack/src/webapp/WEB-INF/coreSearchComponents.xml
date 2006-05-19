@@ -111,19 +111,74 @@
     <property name="indexStorage"><ref bean="searchStorageImpl" /></property>
   </bean>
   
+  <!--
+    To select a differnt Storage Mechanism you can use sakai.properties    
+    indexStorageName@org.sakaiproject.search.index.IndexStorage = filesystem
+  -->
+  
+  <bean id="org.sakaiproject.search.index.IndexStorage" 
+    class="org.sakaiproject.search.index.impl.SearchIndexStorage" 
+    init-method="init"
+    >
+    <property name="defaultIndexStorage"><ref bean="searchStorageImpl" /></property>
+    <property name="indexStorageName"><value>filesystem</value></property>    
+    <property name="recoverCorruptedIndex"><value>true</value></property>
+    <property name="currentStores">
+      <map>
+        <entry key="filesystem"><ref bean="searchStorageImpl"/></entry>
+        <entry key="db"><ref bean="jdbcSearchStorageImpl"/></entry>
+        <entry key="cluster"><ref bean="clusterSearchStorageImpl"/></entry>
+      </map>
+    </property>
+  </bean>
+  
+  
+  
   <bean id="searchStorageImpl" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     >
     <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
   </bean>
+
+  <bean id="clusterSearchStorageImpl" 
+    class="org.sakaiproject.search.index.impl.ClusterFSIndexStorage" 
+    >
+    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
+    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
+  </bean>
+  
+  <bean id="jdbcSearchStorageImpl" 
+    class="org.sakaiproject.search.index.impl.JDBCIndexStorage" 
+    >
+    <property name="searchTableName" ><value>search_index_store</value></property>
+    <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
+    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
+  </bean>
+  
+  
+  <!--
+    to select a different storage mecahnism do this in sakai.properties
+    analyzerFactoryName@org.sakaiproject.search.index.AnalyzerFactory=snowball
+  -->
+  <bean id="org.sakaiproject.search.index.AnalyzerFactory" 
+    class="org.sakaiproject.search.index.impl.SearchAnalyzerFactory" 
+    init-method="init"
+    >
+    <property name="defaultAnalyzerFactory"><ref bean="searchAnalyzerImpl" /></property>
+    <property name="analyzerFactoryName"><value>filesystem</value></property>    
+    <property name="currentAnalyzers">
+      <map>
+        <entry key="snowball"><ref bean="searchAnalyzerImpl"/></entry>
+      </map>
+    </property>
+  </bean>
   
   <bean id="searchAnalyzerImpl" 
     class="org.sakaiproject.search.index.impl.SnowballAnalyzerFactory" 
     >
-   </bean>
-  
-  
+    
+  </bean>
   
   
 </beans>

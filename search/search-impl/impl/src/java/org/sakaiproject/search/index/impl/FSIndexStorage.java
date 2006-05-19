@@ -4,11 +4,15 @@
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
@@ -19,15 +23,16 @@ import org.sakaiproject.search.index.IndexStorage;
 public class FSIndexStorage implements IndexStorage
 {
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
-	
+
 	private String searchIndexDirectory = "searchindex";
-	
+
 	private AnalyzerFactory analyzerFactory = null;
+
+	private boolean recoverCorruptedIndex = false;
 
 	public void doPreIndexUpdate() throws IOException
 	{
-		log.debug("Starting process List on "
-				+ searchIndexDirectory);
+		log.debug("Starting process List on " + searchIndexDirectory);
 		File f = new File(searchIndexDirectory);
 		if (!f.exists())
 		{
@@ -54,14 +59,14 @@ public class FSIndexStorage implements IndexStorage
 		return IndexReader.open(searchIndexDirectory);
 	}
 
-	public IndexWriter getIndexWriter(boolean create) throws IOException {
-		return new IndexWriter(
-				searchIndexDirectory,
-				getAnalyzer(), create);
+	public IndexWriter getIndexWriter(boolean create) throws IOException
+	{
+		return new IndexWriter(searchIndexDirectory, getAnalyzer(), create);
 	}
-	
-	public void doPostIndexUpdate() throws IOException {
-		
+
+	public void doPostIndexUpdate() throws IOException
+	{
+
 	}
 
 	/**
@@ -73,7 +78,8 @@ public class FSIndexStorage implements IndexStorage
 	}
 
 	/**
-	 * @param searchIndexDirectory The searchIndexDirectory to set.
+	 * @param searchIndexDirectory
+	 *        The searchIndexDirectory to set.
 	 */
 	public void setSearchIndexDirectory(String searchIndexDirectory)
 	{
@@ -92,23 +98,56 @@ public class FSIndexStorage implements IndexStorage
 				indexDirectoryFile.mkdirs();
 			}
 
-			indexSearcher = new IndexSearcher(
-					searchIndexDirectory);
+			indexSearcher = new IndexSearcher(searchIndexDirectory);
 			if (indexSearcher == null)
 			{
 				log.warn("No search Index exists at this time");
-				
+
 			}
 			long reloadEnd = System.currentTimeMillis();
-			log.info("Reload Complete " + indexSearcher.maxDoc()
-					+ " in " + (reloadEnd - reloadStart));
+			log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
+					+ (reloadEnd - reloadStart));
 
+		}
+		catch (FileNotFoundException e)
+		{
+			log.error("There has been a major poblem with the"
+					+ " Search Index which has become corrupted ", e);
+			if (doIndexRecovery())
+			{
+				indexSearcher = new IndexSearcher(searchIndexDirectory);
+			}
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error("There has been a major poblem with the "
+					+ "Search Index which has become corrupted", e);
+			if (doIndexRecovery())
+			{
+				indexSearcher = new IndexSearcher(searchIndexDirectory);
+			}
 		}
 		return indexSearcher;
+	}
+
+	protected boolean doIndexRecovery() throws IOException
+	{
+		if (recoverCorruptedIndex)
+		{
+			IndexWriter iw = getIndexWriter(true);
+			Document doc = new Document();
+			String message = "Index Recovery performed on "
+					+ (new Date()).toString();
+			doc.add(new Field("contents", message, Field.Store.YES,
+					Field.Index.TOKENIZED));
+			iw.addDocument(doc);
+			iw.close();
+			log.error("Sucess fully recoverd From a corrupted index, "
+					+ "the index will be empty and require a "
+					+ "complete rebuild");
+			return true;
+		}
+		return false;
 	}
 
 	public boolean indexExists()
@@ -125,7 +164,8 @@ public class FSIndexStorage implements IndexStorage
 	}
 
 	/**
-	 * @param analyzerFactory The analyzerFactory to set.
+	 * @param analyzerFactory
+	 *        The analyzerFactory to set.
 	 */
 	public void setAnalyzerFactory(AnalyzerFactory analyzerFactory)
 	{
@@ -137,5 +177,31 @@ public class FSIndexStorage implements IndexStorage
 		return analyzerFactory.newAnalyzer();
 	}
 
+	/**
+	 * @return Returns the recoverCorruptedIndex.
+	 */
+	public boolean isRecoverCorruptedIndex()
+	{
+		return recoverCorruptedIndex;
+	}
+
+	/**
+	 * @param recoverCorruptedIndex
+	 *        The recoverCorruptedIndex to set.
+	 */
+	public void setRecoverCorruptedIndex(boolean recoverCorruptedIndex)
+	{
+		log.info("Using FSIndexStorage, storing the index "
+				+ "on the local file system in " + searchIndexDirectory
+				+ " if the index is corrupted recovery will "
+				+ (recoverCorruptedIndex ? "" : "NOT ") + " be automatic");
+		this.recoverCorruptedIndex = recoverCorruptedIndex;
+	}
+
+	public void setLocation(String location)
+	{
+		searchIndexDirectory = location;
+		
+	}
 
 }

@@ -94,4 +94,5 @@ public interface SearchBean
 	 * @return
 	 */
 	boolean isEnabled();
+	
 }

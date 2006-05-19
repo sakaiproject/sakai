@@ -65,5 +65,17 @@ public interface IndexStorage
 	 */
 	Analyzer getAnalyzer();
 
+	/**
+	 * if set to true the IndexStorageWill automatically attempt to recover a corrupted index
+	 * Not all IndexStorage implementations can do this, 
+	 *
+	 */
+	void setRecoverCorruptedIndex(boolean recover);
+	
+	/**
+	 * The location of the storage
+	 * @param location
+	 */
+	void setLocation(String location);
 
 }
