@@ -154,7 +154,12 @@ public class JdbcFileEntrySettings {
      * @return The value of the setting, or defaultValue if none is found.
      */
     public Class getSettingAsClass(String setting, Class defaultValue) throws ClassNotFoundException {
-        return getSettingAsClass(setting, defaultValue, Thread.currentThread().getContextClassLoader());
+        String sValue = getSetting(setting);
+        if (sValue == null) {
+            return defaultValue;
+        }
+        return Class.forName(sValue);
+//        return getSettingAsClass(setting, defaultValue, Thread.currentThread().getContextClassLoader());
     }
 
     /**
@@ -167,13 +172,8 @@ public class JdbcFileEntrySettings {
      * @return The value of the setting, or defaultValue if none is found.
      * @throws ClassNotFoundException
      */
-    public Class getSettingAsClass(String setting, Class defaultValue, ClassLoader classLoader) throws ClassNotFoundException {
-        String sValue = getSetting(setting);
-        if (sValue == null) {
-            return defaultValue;
-        }
-        return Class.forName(sValue, true, classLoader);
-    }
+ //   public Class getSettingAsClass(String setting, Class defaultValue) throws ClassNotFoundException {
+ //   }
 
     /**
      * Returns the boolean value that matches the given setting. If none if found,

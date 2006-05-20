@@ -52,17 +52,32 @@ public class JDBCIndexStorage implements IndexStorage
 		Dialect d = null;
 		String targetDB = SqlService.getVendor().trim();
 		if ( "mysql".equalsIgnoreCase(targetDB) ) {
-			d = new MySQLMyISAMDialect();
+			// MySQL BLOBS is not seekable hence there WILL be a big performance drop
+			d = new MySQLMyISAMDialect(false);
+			log.warn("Search Index is using the MySQL Driver wich does not have support for seekable BLOBS without emulateLocators=true. Performance will be downgraded");
 		} else if ( "oracle".equalsIgnoreCase(targetDB) ) {
 			d = new OracleDialect();
 		} else {
 			d = new HSQLDialect();
+			log.warn("Search Index is using the HSQL Driver wich does not have support for seekable BLOBS. Performance will be downgraded");
 		}
 			
 
 		JdbcTable table = new JdbcTable(settings, d,
 				searchTableName);
-		return new JdbcDirectory(dataSource, table);
+		JdbcDirectory jd = new JdbcDirectory(dataSource, table);
+		if (  !indexExists() ) {
+			try
+			{
+				jd.create();
+			}
+			catch (IOException e)
+			{
+				log.error("Failed to create search engine index storage in the db",e);
+			}
+		}
+		
+		return jd;
 	}
 
 	public IndexReader getIndexReader() throws IOException
@@ -80,8 +95,15 @@ public class JDBCIndexStorage implements IndexStorage
 
 	public IndexSearcher getIndexSearcher() throws IOException
 	{
+		long reloadStart = System.currentTimeMillis();
 		JdbcDirectory directory = getJdbcDirectory();
-		return new IndexSearcher(directory);
+		IndexSearcher indexSearcher = new IndexSearcher(directory);
+
+		long reloadEnd = System.currentTimeMillis();
+		log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
+				+ (reloadEnd - reloadStart));
+
+		return indexSearcher;
 
 	}
 
@@ -99,6 +121,7 @@ public class JDBCIndexStorage implements IndexStorage
 
 	public boolean indexExists()
 	{
+		
 		Connection c = null;
 		Statement s = null;
 		ResultSet rs = null;

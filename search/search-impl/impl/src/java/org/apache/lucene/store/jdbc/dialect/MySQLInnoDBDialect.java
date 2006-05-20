@@ -21,7 +21,12 @@ package org.apache.lucene.store.jdbc.dialect;
  */
 public class MySQLInnoDBDialect extends MySQLDialect {
 
-    public String getTableTypeString() {
+    public MySQLInnoDBDialect(boolean seekable)
+	{
+		super(seekable);
+	}
+
+	public String getTableTypeString() {
         return " type=InnoDB";
     }
 

@@ -21,7 +21,12 @@ package org.apache.lucene.store.jdbc.dialect;
  */
 public class MySQLMyISAMDialect extends MySQLDialect {
 
-    public String getTableTypeString() {
+    public MySQLMyISAMDialect(boolean seekable)
+	{
+		super(seekable);
+	}
+
+	public String getTableTypeString() {
         return " type=MyISAM";
     }
 

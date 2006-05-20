@@ -177,6 +177,7 @@ public class JdbcDirectory extends Directory implements MultiDeleteDirectory {
                 fileEntryHandler.configure(this);
                 fileEntryHandlers.put(name, fileEntryHandler);
             } catch (Exception e) {
+            	  e.printStackTrace();
                 throw new IllegalArgumentException("Failed to create FileEntryHandler  [" +
                         feSettings.getSetting(JdbcFileEntrySettings.FILE_ENTRY_HANDLER_TYPE) + "]");
             }

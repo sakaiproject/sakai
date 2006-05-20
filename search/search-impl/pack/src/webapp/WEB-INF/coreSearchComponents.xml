@@ -28,7 +28,7 @@
   <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
-    <property name="indexStorage"><ref bean="searchStorageImpl" /></property>
+    <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
   </bean> 
     
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -108,7 +108,7 @@
     class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoImpl" 
     init-method="init" >
     <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
-    <property name="indexStorage"><ref bean="searchStorageImpl" /></property>
+    <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
   </bean>
   
   <!--
@@ -120,12 +120,12 @@
     class="org.sakaiproject.search.index.impl.SearchIndexStorage" 
     init-method="init"
     >
-    <property name="defaultIndexStorage"><ref bean="searchStorageImpl" /></property>
+    <property name="defaultIndexStorage"><ref bean="filesystemSearchStorageImpl" /></property>
     <property name="indexStorageName"><value>filesystem</value></property>    
     <property name="recoverCorruptedIndex"><value>true</value></property>
     <property name="currentStores">
       <map>
-        <entry key="filesystem"><ref bean="searchStorageImpl"/></entry>
+        <entry key="filesystem"><ref bean="filesystemSearchStorageImpl"/></entry>
         <entry key="db"><ref bean="jdbcSearchStorageImpl"/></entry>
         <entry key="cluster"><ref bean="clusterSearchStorageImpl"/></entry>
       </map>
@@ -134,18 +134,18 @@
   
   
   
-  <bean id="searchStorageImpl" 
+  <bean id="filesystemSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     >
     <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
-    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
+    <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
 
   <bean id="clusterSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.ClusterFSIndexStorage" 
     >
     <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
-    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
+    <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
   
   <bean id="jdbcSearchStorageImpl" 
@@ -153,7 +153,7 @@
     >
     <property name="searchTableName" ><value>search_index_store</value></property>
     <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
-    <property name="analyzerFactory" ><ref bean="searchAnalyzerImpl" /></property>    
+    <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
   
   
@@ -165,16 +165,16 @@
     class="org.sakaiproject.search.index.impl.SearchAnalyzerFactory" 
     init-method="init"
     >
-    <property name="defaultAnalyzerFactory"><ref bean="searchAnalyzerImpl" /></property>
+    <property name="defaultAnalyzerFactory"><ref bean="snowballSearchAnalyzerImpl" /></property>
     <property name="analyzerFactoryName"><value>filesystem</value></property>    
     <property name="currentAnalyzers">
       <map>
-        <entry key="snowball"><ref bean="searchAnalyzerImpl"/></entry>
+        <entry key="snowball"><ref bean="snowballSearchAnalyzerImpl"/></entry>
       </map>
     </property>
   </bean>
   
-  <bean id="searchAnalyzerImpl" 
+  <bean id="snowballSearchAnalyzerImpl" 
     class="org.sakaiproject.search.index.impl.SnowballAnalyzerFactory" 
     >
     
