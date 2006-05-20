@@ -86,7 +86,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	private EntityManager entityManager;
 
 	private EventTrackingService eventTrackingService;
-	
+
 	/**
 	 * injected to abstract the storage impl
 	 */
@@ -243,7 +243,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								}
 								if (worker.isRunning())
 								{
-									indexWrite = indexStorage.getIndexWriter(false);
+									indexWrite = indexStorage
+											.getIndexWriter(false);
 								}
 							}
 							else
@@ -251,7 +252,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								// create for update
 								if (worker.isRunning())
 								{
-									indexWrite = indexStorage.getIndexWriter(true);
+									indexWrite = indexStorage
+											.getIndexWriter(true);
 								}
 							}
 							for (Iterator tditer = runtimeToDo.iterator(); worker
@@ -291,68 +293,87 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											Document doc = new Document();
 											if (ref.getContext() == null)
 											{
-												log.warn("Context is null for "
-														+ sbi.getName() + " stored context was " + sbi.getContext());
+												log
+														.warn("Context is null for "
+																+ sbi.getName()
+																+ " stored context was "
+																+ sbi
+																		.getContext());
 											}
 											String container = ref
 													.getContainer();
 											if (container == null)
 												container = "";
 											doc.add(new Field("container",
-													container,
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
-											doc.add(new Field("id", ref
-													.getId(),Field.Store.YES,Field.Index.NO));
+													container, Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
+											doc.add(new Field("id",
+													ref.getId(),
+													Field.Store.YES,
+													Field.Index.NO));
 											doc.add(new Field("type", ref
 													.getType(),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
-											doc.add(new Field("subtype",
-													ref.getSubType(),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
-											doc.add(new Field("reference",
-													ref.getReference(),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
+											doc.add(new Field("subtype", ref
+													.getSubType(),
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
+											doc.add(new Field("reference", ref
+													.getReference(),
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
 											Collection c = ref.getRealms();
 											for (Iterator ic = c.iterator(); ic
 													.hasNext();)
 											{
 												String realm = (String) ic
 														.next();
-												doc.add(new Field("realm",
-														realm,
-														Field.Store.YES,Field.Index.UN_TOKENIZED));
+												doc
+														.add(new Field(
+																"realm",
+																realm,
+																Field.Store.YES,
+																Field.Index.UN_TOKENIZED));
 											}
 
-											doc.add(new Field("context",
-													sep.getSiteId(ref),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
+											doc.add(new Field("context", sep
+													.getSiteId(ref),
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
 											if (sep.isContentFromReader(entity))
 											{
 												contentReader = sep
 														.getContentReader(entity);
 												doc.add(new Field("contents",
-														contentReader,Field.TermVector.YES));
+														contentReader,
+														Field.TermVector.YES));
 											}
 											else
 											{
 												doc.add(new Field("contents",
 														sep.getContent(entity),
-														Field.Store.YES,Field.Index.TOKENIZED,
+														Field.Store.YES,
+														Field.Index.TOKENIZED,
 														Field.TermVector.YES));
 											}
 											doc.add(new Field("title", sep
 													.getTitle(entity),
-													Field.Store.YES,Field.Index.TOKENIZED,
+													Field.Store.YES,
+													Field.Index.TOKENIZED,
 													Field.TermVector.YES));
 											doc.add(new Field("tool", sep
 													.getTool(),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
 											doc.add(new Field("url", sep
 													.getUrl(entity),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
 											doc.add(new Field("siteid", sep
 													.getSiteId(ref),
-													Field.Store.YES,Field.Index.UN_TOKENIZED));
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
 
 											log.debug("Indexing Document "
 													+ doc);
@@ -371,7 +392,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									catch (Exception e1)
 									{
-										e1.printStackTrace();
+										log.warn(" Failed to index document cause: "+e1.getMessage());
 									}
 									// update this node lock to indicate its
 									// still alove, no document should
@@ -402,28 +423,41 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 								indexWrite = null;
 							}
 						}
-
-						for (Iterator tditer = runtimeToDo.iterator(); worker
-								.isRunning()
-								&& tditer.hasNext();)
+						totalDocs = 0;
+						try
 						{
-							SearchBuilderItem sbi = (SearchBuilderItem) tditer
-									.next();
-							if (SearchBuilderItem.STATE_COMPLETED.equals(sbi
-									.getSearchstate()))
+
+							for (Iterator tditer = runtimeToDo.iterator(); worker
+									.isRunning()
+									&& tditer.hasNext();)
 							{
-								if (SearchBuilderItem.ACTION_DELETE.equals(sbi
-										.getSearchaction()))
+								SearchBuilderItem sbi = (SearchBuilderItem) tditer
+										.next();
+								if (SearchBuilderItem.STATE_COMPLETED
+										.equals(sbi.getSearchstate()))
 								{
-									session.delete(sbi);
-								}
-								else
-								{
-									session.saveOrUpdate(sbi);
+									if (SearchBuilderItem.ACTION_DELETE
+											.equals(sbi.getSearchaction()))
+									{
+										session.delete(sbi);
+									}
+									else
+									{
+										session.saveOrUpdate(sbi);
+									}
+
 								}
 							}
+							session.flush();
+							totalDocs = runtimeToDo.size();
 						}
-						session.flush();
+						catch (Exception ex)
+						{
+							log
+									.warn("Failed to update state in database due to "
+											+ ex.getMessage()
+											+ " this will be corrected on the next run of the IndexBuilder, no cause for alarm");
+						}
 					}
 
 					return new Integer(totalDocs);
@@ -441,19 +475,19 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			totalDocs = ((Integer) getHibernateTemplate().execute(callback))
 					.intValue();
 		}
-		
+
 		try
 		{
 			indexStorage.doPostIndexUpdate();
 		}
 		catch (IOException e)
 		{
-			log.error("Failed to do Post Index Update",e);
+			log.error("Failed to do Post Index Update", e);
 		}
 
 		if (worker.isRunning())
 		{
-			
+
 			eventTrackingService.post(eventTrackingService.newEvent(
 					SearchService.EVENT_TRIGGER_INDEX_RELOAD,
 					"/searchindexreload", true,
@@ -832,7 +866,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		session.saveOrUpdate(controlItem);
 	}
 
-	
 	/**
 	 * @return Returns the indexStorage.
 	 */
@@ -842,7 +875,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 	}
 
 	/**
-	 * @param indexStorage The indexStorage to set.
+	 * @param indexStorage
+	 *        The indexStorage to set.
 	 */
 	public void setIndexStorage(IndexStorage indexStorage)
 	{
