@@ -1,0 +1,64 @@
+/*---------------------------
+ UI POSITIONING STYLES 
+---------------------------*/
+.calLeft {
+	vertical-align: middle;
+	text-align: left;
+	width: 50%;
+}
+
+.calRight {
+	vertical-align: middle;
+	text-align: right;
+	width: 50%;
+}
+
+.calTop {
+	vertical-align: top;
+}
+
+/*---------------------------
+ CALENDAR: COMMON STYLES 
+---------------------------*/
+.calHeader {
+	background: #eee;
+	border: 1px solid #bbb;
+}
+
+.calDay {
+	width: 14%;
+	margin: 0px;
+	border: 0;
+	padding: 1px;
+}
+
+/*---------------------------
+ CALENDAR: SELECTION STYLES 
+---------------------------*/
+.calToday {
+	border: 1px solid #000 !important;
+}
+
+.calSelectedDay {
+	border: 1px dashed #000 !important;
+}
+
+.calDayWithActivity {
+	background-color: #D4DFEE;
+	border: 1px solid #ddd;
+	font-weight: bold;
+	text-align: center;
+}
+
+.calDayWithoutActivity {
+	/*background-color: white;*/
+	text-align: center;
+}
+
+.calOtherDayWithNoActivity {
+	background-color: #eee;
+	border: 1px solid #ddd;
+	text-align: center;
+	font-style: italic;
+	color: #999;
+}
