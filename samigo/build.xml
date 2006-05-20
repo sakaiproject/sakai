@@ -21,17 +21,16 @@
 	<taskdef name="schemaexport"
 	         classname="org.hibernate.tool.hbm2ddl.SchemaExportTask">
 	  <classpath>
-		<fileset dir="target/samigo/WEB-INF/lib">
+		<fileset dir="../../tomcat/shared/lib">
 		  <include name="*.jar"/>
 		</fileset>
-		<fileset dir="../../../tomcat/shared/lib">
-		  <include name="*.jar"/>
-		</fileset>
-		<pathelement location="target/classes"/>
+		<pathelement location="${basedir}/component/target/classes"/>
+		<pathelement location="../../.maven/repository/dom4j/jars/dom4j-1.6.1.jar"/>
+		<pathelement location="../../.maven/repository/log4j/jars/log4j-1.2.9.jar"/>
 	  </classpath>
 	</taskdef>
         <copy file="hibernate.properties"
-          tofile="target/classes/hibernate.properties"
+          tofile="${basedir}/component/target/classes/hibernate.properties"
           overwrite="true"
           verbose="true" 
         />
@@ -41,7 +40,7 @@
 		  	  delimiter=";"
 		  	  output="schema-export.sql">
 
-	  <fileset dir="src/org/sakaiproject/tool/assessment/data/dao">
+	  <fileset dir="${basedir}/component/src/java/org/sakaiproject/tool/assessment/data/dao">
 		<include name="assessment/AssessmentBase.hbm.xml" />
 		<include name="assessment/ItemData.hbm.xml" />
 		<include name="assessment/PublishedAssessment.hbm.xml" />
