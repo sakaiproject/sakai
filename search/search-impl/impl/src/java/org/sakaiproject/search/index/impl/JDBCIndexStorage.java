@@ -18,11 +18,14 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.jdbc.JdbcDirectory;
 import org.apache.lucene.store.jdbc.JdbcDirectorySettings;
+import org.apache.lucene.store.jdbc.JdbcFileEntrySettings;
 import org.apache.lucene.store.jdbc.datasource.DataSourceUtils;
 import org.apache.lucene.store.jdbc.dialect.Dialect;
 import org.apache.lucene.store.jdbc.dialect.HSQLDialect;
 import org.apache.lucene.store.jdbc.dialect.MySQLMyISAMDialect;
 import org.apache.lucene.store.jdbc.dialect.OracleDialect;
+import org.apache.lucene.store.jdbc.handler.NoOpFileEntryHandler;
+import org.apache.lucene.store.jdbc.index.JdbcBufferedIndexInput;
 import org.apache.lucene.store.jdbc.lock.PhantomReadLock;
 import org.apache.lucene.store.jdbc.support.JdbcTable;
 import org.sakaiproject.db.cover.SqlService;
@@ -48,8 +51,20 @@ public class JDBCIndexStorage implements IndexStorage
 	{
 		JdbcDirectorySettings settings = new JdbcDirectorySettings();
 		settings.setLockClass(PhantomReadLock.class);
-		
-		Dialect d = null;
+		JdbcFileEntrySettings deletableSettings = new JdbcFileEntrySettings();
+		// set the buffer size to 32K
+		int buffersize = 4*1024;		
+        settings.getFileEntrySettings("deletable").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("deleteable.new").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        // in case lucene fix the spelling mistake
+        settings.getFileEntrySettings("deletable.new").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("segments").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("segments.new").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("del").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("tmp").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+        settings.getFileEntrySettings("fnm").setIntSetting(JdbcBufferedIndexInput.BUFFER_SIZE_SETTING,buffersize);
+
+        Dialect d = null;
 		String targetDB = SqlService.getVendor().trim();
 		if ( "mysql".equalsIgnoreCase(targetDB) ) {
 			// MySQL BLOBS is not seekable hence there WILL be a big performance drop
@@ -90,7 +105,9 @@ public class JDBCIndexStorage implements IndexStorage
 	public IndexWriter getIndexWriter(boolean create) throws IOException
 	{
 		JdbcDirectory directory = getJdbcDirectory();
-		return new IndexWriter(directory, getAnalyzer(), create);
+		IndexWriter iw =  new IndexWriter(directory, getAnalyzer(), create);
+		iw.setUseCompoundFile(false);
+		return iw;
 	}
 
 	public IndexSearcher getIndexSearcher() throws IOException
