@@ -43,10 +43,18 @@ public class BasicRightsAssignment
 {
 	protected static final String DELIM = "_";
 
+	protected static final String FIELD_COMMERCIAL_USE = "myCommercialUse";
+	
+	protected static final String FIELD_INFO = "jargon";
+
+	protected static final String FIELD_MODIFICATIONS = "myModifications";
+	
+	protected static final String FIELD_MORE_INFO = "moreinfo";
+	
 	protected static final String FIELD_MY_CR_OWNER = "myCopyrightOwner";
 	
 	protected static final String FIELD_MY_CR_YEAR = "myCopyrightYear";
-
+	
 	protected static final String FIELD_OFFER = "offer";
 	
 	protected static final String FIELD_OTHER_CR_OWNER = "otherCopyrightOwner";
@@ -55,7 +63,7 @@ public class BasicRightsAssignment
 	
 	protected static final String FIELD_TERMS = "terms";
 	
-	protected static final String ITEM_LABEL = "label";
+	protected static final String FIELD_TITLE = "title";
 	
 	protected static final String KEY_CREATE_CC = "new_creative_commons";
 	
@@ -64,41 +72,54 @@ public class BasicRightsAssignment
 	protected static final String KEY_CREATIVE_COMMONS = "creative_commons";
 	
 	protected static final String KEY_FAIR_USE = "fair_use";
-	
+
+	protected static final String KEY_LABEL = "label";
+
 	protected static final String KEY_MY_COPYRIGHT = "my_copyright";
+
+	protected static final String KEY_NO = "no";
 	
 	protected static final String KEY_OTHER_COPYRIGHT = "other_copyright";
 	
 	protected static final String KEY_PUBLIC_DOMAIN = "public_domain";
 	
+	protected static final String KEY_SHARE_ALIKE = "share_alike";
+	
+	protected static final String KEY_YES = "yes";
+	
 	protected static final String[] KEYLIST_TERMS = { KEY_MY_COPYRIGHT, KEY_OTHER_COPYRIGHT, KEY_PUBLIC_DOMAIN, KEY_CREATIVE_COMMONS };
 
-	protected static final String FIELD_INFO = "jargon";
-
-	protected static final String FIELD_TITLE = "title";
-
-	protected static final String FIELD_MORE_INFO = "moreinfo";
+	protected static final String FIELD_DONE = "done";
 	
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("right");
+    
+    protected String ccCommercialUse;
+    
+    protected String ccModifications;
 	
+    /** Member variable representing the name of the copyright holder (copyright holder is this user) */
 	protected String myCopyrightOwner;
 	
+    /** Member variable representing the year of the copyright (copyright holder is this user) */
 	protected String myCopyrightYear;
 	
-	/**  */
+	/** A unique identifier that can be used in form fields to distinguish this rights obj from others in the same form */
 	protected String name;
 	
+	/** Member variable representing user's secondary choice of how their work is offered to users (full copyright, new CC license, new PD dedication) */
 	protected String offer;
 	
+	/** Member variable representing the name of the copyright holder (copyright holder is NOT this user) */
 	protected String otherCopyrightOwner;
 	
+    /** Member variable representing the year of the copyright (copyright holder is NOT this user) */
 	protected String otherCopyrightYear;
 	
+	/** Member variable representing the status of IP rights for this work (user's copyright, someone else's copyright, existing CC license or existing PD status) */
 	protected String terms;
 	
-	
-	/** */
+	/** Member variable representing whether we using the new Creative Commons dialog or the old Sakai Copyright dialog */
 	protected boolean usingCreativeCommons;
 	
 	/**
@@ -115,8 +136,9 @@ public class BasicRightsAssignment
 		
 		terms = KEY_MY_COPYRIGHT;
 		//terms = KEY_OTHER_COPYRIGHT;
+		offer = KEY_CREATE_CC;
 	}
-
+	
 	/**
 	 * Retrieve values for the rights assignment from a Velocity context.
 	 * @param params 
@@ -160,7 +182,23 @@ public class BasicRightsAssignment
 		{
 		}
 	}
-
+	
+	/**
+	 * @return Returns the ccCommercialUse.
+	 */
+	public String getCcCommercialUse()
+	{
+		return ccCommercialUse;
+	}
+	
+	/**
+	 * @return Returns the ccModifications.
+	 */
+	public String getCcModifications()
+	{
+		return ccModifications;
+	}
+	
 	/** 
 	 * Access the current user's display name.
 	 * @return
@@ -170,7 +208,7 @@ public class BasicRightsAssignment
 		String username = UserDirectoryService.getCurrentUser().getDisplayName(); 
 		return username;
 	}
-
+	
 	/**
 	 * Returns the current year.
 	 * @return
@@ -181,23 +219,18 @@ public class BasicRightsAssignment
 		return Integer.toString(year);
 
 	}
-
-	/**
-	 * @return Returns the offer.
-	 */
-	public String getOffer()
+	
+	public String getFieldNameCommercialUse()
 	{
-		return offer;
+		return name + DELIM + FIELD_COMMERCIAL_USE;
 	}
-
-	/**
-	 * @param offer The offer to set.
-	 */
-	public void setOffer(String offer)
+	
+	public String getFieldNameModifications()
 	{
-		this.offer = offer;
+		return name + DELIM + FIELD_MODIFICATIONS;
 	}
-
+	
+	
 	/**
 	 * Returns the field name for the copyright "owner" element.
 	 */
@@ -213,7 +246,7 @@ public class BasicRightsAssignment
 	{
 		return name + DELIM + FIELD_MY_CR_YEAR;
 	}
-	
+
 	/**
 	 * Returns the field name for the copyright "year" element.
 	 */
@@ -221,7 +254,7 @@ public class BasicRightsAssignment
 	{
 		return name + DELIM + FIELD_OFFER;
 	}
-	
+
 	/**
 	 * Returns the field name for the copyright "owner" element.
 	 */
@@ -229,7 +262,7 @@ public class BasicRightsAssignment
 	{
 		return name + DELIM + FIELD_OTHER_CR_OWNER;
 	}
-	
+
 	/**
 	 * Returns the field name for the copyright "year" element.
 	 */
@@ -237,7 +270,7 @@ public class BasicRightsAssignment
 	{
 		return name + DELIM + FIELD_OTHER_CR_YEAR;
 	}
-	
+
 	/**
 	 * Returns the field name for the "terms" element.
 	 */
@@ -246,6 +279,42 @@ public class BasicRightsAssignment
 		return name + DELIM + FIELD_TERMS;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public String getInfoCreativeCommons()
+	{
+		return getString(FIELD_INFO, KEY_CREATIVE_COMMONS);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getInfoMyCopyright()
+	{
+		return getString(FIELD_INFO, KEY_MY_COPYRIGHT);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getInfoOtherCopyright()
+	{
+		return getString(FIELD_INFO, KEY_OTHER_COPYRIGHT);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getInfoPublicDomain()
+	{
+		return getString(FIELD_INFO, KEY_PUBLIC_DOMAIN);
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -263,7 +332,7 @@ public class BasicRightsAssignment
 	{
 		return KEY_FAIR_USE;
 	}
-
+	
 	public List getKeylistTerms()
 	{
 		return getKeys(KEYLIST_TERMS);
@@ -286,7 +355,34 @@ public class BasicRightsAssignment
 	{
 		return KEY_CREATE_CC;
 	}
-	
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getKeyNo()
+	{
+		return KEY_NO;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getKeyYes()
+	{
+		return KEY_YES;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getKeyShareAlike()
+	{
+		return KEY_SHARE_ALIKE;
+	}
+
 	/**
 	 * 
 	 * @return
@@ -295,7 +391,7 @@ public class BasicRightsAssignment
 	{
 		return KEY_CREATE_PD;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -322,6 +418,26 @@ public class BasicRightsAssignment
 	{
 		return Arrays.asList(array);
 	}
+	
+	public String getLabelCommercialUseNo()
+	{
+		return getString(FIELD_COMMERCIAL_USE, KEY_NO);
+	}
+	
+	public String getLabelCommercialUse()
+	{
+		return getString(FIELD_COMMERCIAL_USE, KEY_LABEL);
+	}
+	
+	public String getLabelCommercialUseYes()
+	{
+		return getString(FIELD_COMMERCIAL_USE, KEY_YES);
+	}
+
+	public String getLabelDone()
+	{
+		return getString(FIELD_DONE, KEY_LABEL);
+	}
 
 	/**
 	 * 
@@ -332,76 +448,29 @@ public class BasicRightsAssignment
 		return getString(FIELD_OFFER, KEY_FAIR_USE);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getTitleMyCopyright()
+	public String getLabelModifications()
 	{
-		return getString(FIELD_TITLE, KEY_MY_COPYRIGHT);
+		return getString(FIELD_MODIFICATIONS, KEY_LABEL);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getTitleOtherCopyright()
+	public String getLabelModificationsNo()
 	{
-		return getString(FIELD_TITLE, KEY_OTHER_COPYRIGHT);
+		return getString(FIELD_MODIFICATIONS, KEY_NO);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getInfoMyCopyright()
+	public String getLabelModificationsShareAlike()
 	{
-		return getString(FIELD_INFO, KEY_MY_COPYRIGHT);
+		return getString(FIELD_MODIFICATIONS, KEY_SHARE_ALIKE);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getTitleCreativeCommons()
+	public String getLabelModificationsYes()
 	{
-		return getString(FIELD_TITLE, KEY_CREATIVE_COMMONS);
+		return getString(FIELD_MODIFICATIONS, KEY_YES);
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getInfoCreativeCommons()
+	public String getLabelMoreInfo()
 	{
-		return getString(FIELD_INFO, KEY_CREATIVE_COMMONS);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getTitlePublicDomain()
-	{
-		return getString(FIELD_TITLE, KEY_PUBLIC_DOMAIN);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getInfoPublicDomain()
-	{
-		return getString(FIELD_INFO, KEY_PUBLIC_DOMAIN);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public String getInfoOtherCopyright()
-	{
-		return getString(FIELD_INFO, KEY_OTHER_COPYRIGHT);
+		return getString(FIELD_MORE_INFO, KEY_LABEL);
 	}
 	
 	/**
@@ -410,7 +479,7 @@ public class BasicRightsAssignment
 	 */
 	public String getLabelMyCopyrightOwner()
 	{
-		return getString(FIELD_MY_CR_OWNER, ITEM_LABEL);
+		return getString(FIELD_MY_CR_OWNER, KEY_LABEL);
 	}
 	
 	/**
@@ -419,7 +488,7 @@ public class BasicRightsAssignment
 	 */
 	public String getLabelMyCopyrightYear()
 	{
-		return getString(FIELD_MY_CR_YEAR, ITEM_LABEL);
+		return getString(FIELD_MY_CR_YEAR, KEY_LABEL);
 	}
 	
 	/**
@@ -446,23 +515,18 @@ public class BasicRightsAssignment
 	 */
 	public String getLabelOtherCopyrightOwner()
 	{
-		return getString(FIELD_OTHER_CR_OWNER, ITEM_LABEL);
+		return getString(FIELD_OTHER_CR_OWNER, KEY_LABEL);
 	}
 	
-	public String getLabelMoreInfo()
-	{
-		return getString(FIELD_MORE_INFO, ITEM_LABEL);
-	}
-		
 	/**
 	 * 
 	 * @return
 	 */
 	public String getLabelOtherCopyrightYear()
 	{
-		return getString(FIELD_OTHER_CR_YEAR, ITEM_LABEL);
+		return getString(FIELD_OTHER_CR_YEAR, KEY_LABEL);
 	}
-		
+	
 	protected List getLabels(String[] array)
 	{
 		List list = new Vector();
@@ -473,14 +537,14 @@ public class BasicRightsAssignment
 		}
 		return list;
 	}
-		
+	
 	/**
 	 * 
 	 * @return
 	 */
 	public String getLabelTerms()
 	{
-		return getString(FIELD_TERMS, ITEM_LABEL);
+		return getString(FIELD_TERMS, KEY_LABEL);
 	}
 	
 	/**
@@ -508,13 +572,21 @@ public class BasicRightsAssignment
 	}
 		
 	/**
+	 * @return Returns the offer.
+	 */
+	public String getOffer()
+	{
+		return offer;
+	}
+	
+	/**
 	 * @return Returns the otherCopyrightOwner.
 	 */
 	public String getOtherCopyrightOwner()
 	{
 		return otherCopyrightOwner;
 	}
-
+		
 	/**
 	 * @return Returns the otherCopyrightYear.
 	 */
@@ -522,7 +594,7 @@ public class BasicRightsAssignment
 	{
 		return otherCopyrightYear;
 	}
-
+		
 	/**
 	 * Access a string from the resource bundle identified by a key. 
 	 * @param key
@@ -532,7 +604,7 @@ public class BasicRightsAssignment
 	{
 		return rb.getString(key);
 	}
-
+		
 	/**
 	 * Access a string from the resource bundle identified by a key. 
 	 * @param key
@@ -562,11 +634,63 @@ public class BasicRightsAssignment
 	}
 
 	/**
+	 * 
+	 * @return
+	 */
+	public String getTitleCreativeCommons()
+	{
+		return getString(FIELD_TITLE, KEY_CREATIVE_COMMONS);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getTitleMyCopyright()
+	{
+		return getString(FIELD_TITLE, KEY_MY_COPYRIGHT);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getTitleOtherCopyright()
+	{
+		return getString(FIELD_TITLE, KEY_OTHER_COPYRIGHT);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getTitlePublicDomain()
+	{
+		return getString(FIELD_TITLE, KEY_PUBLIC_DOMAIN);
+	}
+
+	/**
 	 * @return Returns the usingCreativeCommons.
 	 */
 	public boolean getUsingCreativeCommons()
 	{
 		return usingCreativeCommons;
+	}
+
+	/**
+	 * @param ccCommercialUse The ccCommercialUse to set.
+	 */
+	public void setCcCommercialUse(String ccCommercialUse)
+	{
+		this.ccCommercialUse = ccCommercialUse;
+	}
+
+	/**
+	 * @param ccModifications The ccModifications to set.
+	 */
+	public void setCcModifications(String ccModifications)
+	{
+		this.ccModifications = ccModifications;
 	}
 
 	/**
@@ -591,6 +715,14 @@ public class BasicRightsAssignment
 	public void setName(String name)
 	{
 		this.name = name;
+	}
+
+	/**
+	 * @param offer The offer to set.
+	 */
+	public void setOffer(String offer)
+	{
+		this.offer = offer;
 	}
 
 	/**

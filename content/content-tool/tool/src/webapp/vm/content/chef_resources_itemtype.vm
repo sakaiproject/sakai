@@ -53,143 +53,154 @@
 		function update$!{rightsObj.name}RightsAssignment()
 		{
 			save_$!{rightsObj.name}_values();
+			
+			var div0 = document.getElementById("rights_div_0_$!{rightsObj.name}");
 			var div1 = document.getElementById("rights_div_1_$!{rightsObj.name}");
 			var div2 = document.getElementById("rights_div_2_$!{rightsObj.name}");
 			var div3 = document.getElementById("rights_div_3_$!{rightsObj.name}");
-			var div4 = document.getElementById("rights_div_4_$!{rightsObj.name}");
 			
-				var html1 = "";
-				var html2 = "";
-				var html3 = "";
-				var html4 = "";
-				var new_focus;
-				if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyMyCopyright}")
+			var html0 = "&nbsp;";
+			var html1 = "";
+			var html2 = "";
+			var html3 = "";
+			var new_focus;
+			
+			if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyMyCopyright}")
+			{
+				html1 += "<table border=\"0\">\n<tr><td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n</tr>\n"
+						+ "<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+						+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
+						+ "<label for=\"$!{rightsObj.fieldNameMyCopyrightYear}\">\n$!{rightsObj.labelMyCopyrightYear}\n</label>\n"
+						+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameMyCopyrightOwner}\">\n"
+						+ "$!{rightsObj.labelMyCopyrightOwner}\n</label>\n</td>\n</tr>\n<tr>\n"
+						+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
+						+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
+						+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightYear}\" "
+						+ "id=\"$!{rightsObj.fieldNameMyCopyrightYear}\" size=\"5\" value=\""
+						+ $!{rightsObj.name}_values.myCopyrightYear
+						+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
+						+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" "
+						+ "id=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" size=\"40\" value=\""
+						+ $!{rightsObj.name}_values.myCopyrightOwner
+						+ "\" />\n</td>\n</tr>\n</table>\n";
+				html2 += "<table border=\"0\">\n<tr><td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n</tr>\n"
+						+ "<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+						+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+						+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+						+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyFairUse}\" value=\"${rightsObj.keyFairUse}\" ";
+				if($!{rightsObj.name}_values.offer == "${rightsObj.keyFairUse}")
 				{
-					html1 += "<table border=\"0\">\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
-							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
-							+ "<label for=\"$!{rightsObj.fieldNameMyCopyrightYear}\">\n$!{rightsObj.labelMyCopyrightYear}\n</label>\n"
-							+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameMyCopyrightOwner}\">\n"
-							+ "$!{rightsObj.labelMyCopyrightOwner}\n</label>\n</td>\n</tr>\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
-							+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
-							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightYear}\" "
-							+ "id=\"$!{rightsObj.fieldNameMyCopyrightYear}\" size=\"5\" value=\""
-							+ $!{rightsObj.name}_values.myCopyrightYear
-							+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
-							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" "
-							+ "id=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" size=\"40\" value=\""
-							+ $!{rightsObj.name}_values.myCopyrightOwner
-							+ "\" />\n</td>\n</tr>\n</table>\n";
-					html2 += "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
-							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
-							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
-							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyFairUse}\" value=\"${rightsObj.keyFairUse}\" ";
-					if($!{rightsObj.name}_values.offer == "${rightsObj.keyFairUse}")
-					{
-						html2 += " checked=\"checked\" ";
-					}
-					html2 += " />\n</td>\n<td>\n$rightsObj.labelFairUse\n</td>\n</tr>\n<tr>\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
-							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
-							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
-							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewCreativeCommons}\" "
-							+ "value=\"${rightsObj.keyNewCreativeCommons}\" ";
-					if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewCreativeCommons}")
-					{
-						html2 += " checked=\"checked\" ";
-					}
-					html2 += " />\n</td>\n<td>\n$rightsObj.labelNewCreativeCommons\n</td>\n</tr>\n<tr>\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
-							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
-							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
-							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewPublicDomain}\" "
-							+ "value=\"${rightsObj.keyNewPublicDomain}\" ";
-					if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewPublicDomain}")
-					{
-						html2 += " checked=\"checked\" ";
-					}
-					html2 += " />\n</td>\n<td>\n$rightsObj.labelNewPublicDomain\n</td>\n</tr>\n</table>\n";
-					//html3 += "My Copyright -- Div 3";
-					new_focus = "$!{rightsObj.fieldNameMyCopyrightYear}";
-					
+					html2 += " checked=\"checked\" ";
 				}
-				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyOtherCopyright}")
+				html2 += " />\n</td>\n<td>\n$rightsObj.labelFairUse\n</td>\n</tr>\n<tr>\n"
+						+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+						+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+						+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+						+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewCreativeCommons}\" "
+						+ "value=\"${rightsObj.keyNewCreativeCommons}\" ";
+				if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewCreativeCommons}")
 				{
-					html1 += "<table border=\"0\">\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
-							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
-							+ "<label for=\"$!{rightsObj.fieldNameOtherCopyrightYear}\">\n$!{rightsObj.labelOtherCopyrightYear}\n</label>\n"
-							+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\">\n"
-							+ "$!{rightsObj.labelOtherCopyrightOwner}\n</label>\n</td>\n</tr>\n"
-							+ "<tr style=\"padding-top:1en;vertical-align:top\">\n"
-							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
-							+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
-							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" "
-							+ "id=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" size=\"5\" value=\""
-							+ $!{rightsObj.name}_values.otherCopyrightYear
-							+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
-							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" "
-							+ "id=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" size=\"40\" value=\""
-							+ $!{rightsObj.name}_values.otherCopyrightOwner
-							+ "\" />\n</td>\n</tr>\n</table>\n";
-					html2 += "Other Copyright -- Div 2";
-					//html3 += "Other Copyright -- Div 3";
-					new_focus = "$!{rightsObj.fieldNameOtherCopyrightYear}";
-					
+					html2 += " checked=\"checked\" ";
 				}
-				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyPublicDomain}")
+				html2 += " />\n</td>\n<td>\n$rightsObj.labelNewCreativeCommons\n</td>\n</tr>\n<tr>\n"
+						+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+						+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+						+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+						+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewPublicDomain}\" "
+						+ "value=\"${rightsObj.keyNewPublicDomain}\" ";
+				if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewPublicDomain}")
 				{
-					html1 += "Public Domain -- Div 1";
-					//html2 += "Public Domain -- Div 2";
-					//html3 += "Public Domain -- Div 3";
+					html2 += " checked=\"checked\" ";
 				}
-				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyCreativeCommons}")
+				html2 += " />\n</td>\n<td>\n$rightsObj.labelNewPublicDomain\n</td>\n</tr>\n</table>\n";
+				//html3 += "My Copyright -- Div 3";
+				new_focus = "$!{rightsObj.fieldNameMyCopyrightYear}";
+				
+			}
+			else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyOtherCopyright}")
+			{
+				html1 += "<table border=\"0\">\n<tr><td>&nbsp;</td>\n<td>&nbsp;</td>\n<td>&nbsp;</td>\n</tr>\n"
+						+ "<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+						+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
+						+ "<label for=\"$!{rightsObj.fieldNameOtherCopyrightYear}\">\n$!{rightsObj.labelOtherCopyrightYear}\n</label>\n"
+						+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\">\n"
+						+ "$!{rightsObj.labelOtherCopyrightOwner}\n</label>\n</td>\n</tr>\n"
+						+ "<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
+						+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
+						+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" "
+						+ "id=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" size=\"5\" value=\""
+						+ $!{rightsObj.name}_values.otherCopyrightYear
+						+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
+						+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" "
+						+ "id=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" size=\"40\" value=\""
+						+ $!{rightsObj.name}_values.otherCopyrightOwner
+						+ "\" />\n</td>\n</tr>\n</table>\n";
+				html2 += "Other Copyright -- Div 2";
+				//html3 += "Other Copyright -- Div 3";
+				new_focus = "$!{rightsObj.fieldNameOtherCopyrightYear}";
+				
+			}
+			else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyPublicDomain}")
+			{
+				html1 += "Public Domain -- Div 1";
+				//html2 += "Public Domain -- Div 2";
+				//html3 += "Public Domain -- Div 3";
+			}
+			else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyCreativeCommons}")
+			{
+				html1 += "Creative Commons -- Div 1";
+				//html2 += "Creative Commons -- Div 2";
+				//html3 += "Creative Commons -- Div 3";
+			}
+				
+			div0.innerHTML = html0;
+			div1.innerHTML = html1;
+			div2.innerHTML = html2;
+			div3.innerHTML = html3;
+			
+			if(new_focus)
+			{
+				var focus_element = document.getElementById(new_focus);
+				if(focus_element)
 				{
-					html1 += "Creative Commons -- Div 1";
-					//html2 += "Creative Commons -- Div 2";
-					//html3 += "Creative Commons -- Div 3";
+					focus_element.focus();
+					focus_element.select();
 				}
-					
-				div1.innerHTML = html1;
-				div2.innerHTML = html2;
-				div3.innerHTML = html3;
-				div4.innerHTML = html4;
-				if(new_focus)
-				{
-					var focus_element = document.getElementById(new_focus);
-					if(focus_element)
-					{
-						focus_element.focus();
-						focus_element.select();
-					}
-				}
+			}
 		}
 		function show_info_$!{rightsObj.name}(topic)
 		{
-			var div4 = document.getElementById("rights_div_4_$!{rightsObj.name}");
-			var html4 = "";
+			var div0 = document.getElementById("rights_div_0_$!{rightsObj.name}");
+			var html0 = "";
 			if(topic == "$!{rightsObj.keyMyCopyright}")
 			{
-				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleMyCopyright</td>\n</tr>\n"
-						+ "<tr>\n<td></td>\n<td>$rightsObj.infoMyCopyright</td>\n</tr>\n</table>";
+				html0 = "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">"
+						+ "&nbsp;</td>\n<td>$rightsObj.titleMyCopyright"
+						+ "(<a href=\"#\" onclick=\"javascript:show_info_$!{rightsObj.name}('done')\">$rightsObj.labelDone</a>)"
+						+ "</td>\n</tr>\n<tr>\n<td></td>\n<td>$rightsObj.infoMyCopyright</td>\n</tr>\n</table>";
 			}		
 			else if(topic == "$!{rightsObj.keyOtherCopyright}")
 			{
-				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleOtherCopyright</td>\n</tr>\n"
-						+ "<tr>\n<td></td>\n<td>$rightsObj.infoOtherCopyright</td>\n</tr>\n</table>";
+				html0 = "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">"
+						+ "&nbsp;</td>\n<td>$rightsObj.titleOtherCopyright"
+						+ "(<a href=\"#\" onclick=\"javascript:show_info_$!{rightsObj.name}('done')\">$rightsObj.labelDone</a>)"
+						+ "</td>\n</tr>\n<tr>\n<td></td>\n<td>$rightsObj.infoOtherCopyright</td>\n</tr>\n</table>";
 			}		
 			else if(topic == "$!{rightsObj.keyCreativeCommons}")
 			{
-				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleCreativeCommons</td>\n</tr>\n"
-						+ "<tr>\n<td></td>\n<td>$rightsObj.infoCreativeCommons</td>\n</tr>\n</table>";
+				html0 = "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">"
+						+ "&nbsp;</td>\n<td>$rightsObj.titleCreativeCommons"
+						+ "(<a href=\"#\" onclick=\"javascript:show_info_$!{rightsObj.name}('done')\">$rightsObj.labelDone</a>)"
+						+ "</td>\n</tr>\n<tr>\n<td></td>\n<td>$rightsObj.infoCreativeCommons</td>\n</tr>\n</table>";
 			}		
 			else if(topic == "$!{rightsObj.keyPublicDomain}")
 			{
-				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titlePublicDomain</td>\n</tr>\n"
-						+ "<tr>\n<td></td>\n<td>$rightsObj.infoPublicDomain</td>\n</tr>\n</table>";
+				html0 = "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">"
+						+ "&nbsp;</td>\n<td>$rightsObj.titlePublicDomain"
+						+ "(<a href=\"#\" onclick=\"javascript:show_info_$!{rightsObj.name}('done')\">$rightsObj.labelDone</a>)"
+						+ "</td>\n</tr>\n<tr>\n<td></td>\n<td>$rightsObj.infoPublicDomain</td>\n</tr>\n</table>";
 			}
-			div4.innerHTML = html4;		
+			div0.innerHTML = html0;		
 		}
 	</script>
 
@@ -200,7 +211,7 @@
 		</label>
 		<table border="0">
 			#foreach($key in $rightsObj.keylistTerms)
-				<tr style="padding-top:1en;vertical-align:top">
+				<tr>
 					<td>
 						<input type="radio" name="$rightsObj.fieldNameTerms" id="${rightsObj.fieldNameTerms}_$key" value="$key" 
 							#if("$!{rightsObj.terms}" == "$key")checked="checked" #end
@@ -209,12 +220,14 @@
 					</td>
 					<td>
 						$rightsObj.getString("terms.$key") 
-						(<a href="#" onclick="javascript:show_info_$!{rightsObj.name}('$key')">$rightsObj.moreinfo</a>)
+						(<a href="#" onclick="javascript:show_info_$!{rightsObj.name}('$key')">$rightsObj.labelMoreInfo</a>)
 					</td>
 				</tr>
 			#end
 		</table>
 	</p>
+	<div id="rights_div_0_$!{rightsObj.name}">
+	</div>
 	<div id="rights_div_1_$!{rightsObj.name}">
 		#if("$!{rightsObj.terms}" == "$!{rightsObj.keyMyCopyright}")
 			<table border="0"> 
@@ -300,7 +313,9 @@
 							#if("$!{rightsObj.offer}" == "${rightsObj.keyFairUse}")checked="checked" #end />
 					</td>
 					<td>
-						$rightsObj.labelFairUse
+						<label for="${rightsObj.fieldNameOffer}_${rightsObj.keyFairUse}">
+							$rightsObj.labelFairUse
+						</label>
 					</td>
 				</tr>
 				<tr>
@@ -312,7 +327,9 @@
 							#if("$!{rightsObj.offer}" == "${rightsObj.keyNewCreativeCommons}")checked="checked" #end />
 					</td>
 					<td>
-						$rightsObj.labelNewCreativeCommons
+						<label for="${rightsObj.fieldNameOffer}_${rightsObj.keyNewCreativeCommons}">
+							$rightsObj.labelNewCreativeCommons
+						</label>
 					</td>
 				</tr>
 				<tr>
@@ -324,15 +341,114 @@
 							#if("$!{rightsObj.offer}" == "${rightsObj.keyNewPublicDomain}")checked="checked" #end />
 					</td>
 					<td>
-						$rightsObj.labelNewPublicDomain
+						<label for="${rightsObj.fieldNameOffer}_${rightsObj.keyNewPublicDomain}">
+							$rightsObj.labelNewPublicDomain
+						</label>
 					</td>
 				</tr>
 			</table>
 		#end
 	</div>
 	<div id="rights_div_3_$!{rightsObj.name}">
+		#if("$!{rightsObj.terms}" == "$!{rightsObj.keyMyCopyright}")
+			#if("$!{rightsObj.offer}" == "$!{rightsObj.keyNewCreativeCommons}")
+				<table border="0">
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top" colspan="2">
+							$rightsObj.labelCommercialUse
+						</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top">
+							<input type="radio" name="$rightsObj.fieldNameCommercialUse" id="${rightsObj.fieldNameCommercialUse}_${rightsObj.keyYes}" 
+								value="${rightsObj.keyYes}" 
+								#if("$!{rightsObj.ccCommercialUse}" == "${rightsObj.keyYes}")checked="checked" #end />
+						</td>
+						<td style="vertical-align:top">
+							$rightsObj.labelCommercialUseYes
+						</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top">
+							<input type="radio" name="$rightsObj.fieldNameCommercialUse" id="${rightsObj.fieldNameCommercialUse}_${rightsObj.keyNo}" 
+								value="${rightsObj.keyNo}" 
+								#if("$!{rightsObj.ccCommercialUse}" == "${rightsObj.keyNo}")checked="checked" #end />
+						</td>
+						<td style="vertical-align:top">
+							$rightsObj.labelCommercialUseNo
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top" colspan="2">
+							$rightsObj.labelModifications
+						</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top">
+							<input type="radio" name="$rightsObj.fieldNameModifications" id="${rightsObj.fieldNameModifications}_${rightsObj.keyYes}" 
+								value="${rightsObj.keyYes}" 
+								#if("$!{rightsObj.ccModifications}" == "${rightsObj.keyYes}")checked="checked" #end />
+						</td>
+						<td style="vertical-align:top">
+							<label for="${rightsObj.fieldNameModifications}_${rightsObj.keyYes}">
+								$rightsObj.labelModificationsYes
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top">
+							<input type="radio" name="$rightsObj.fieldNameModifications" id="${rightsObj.fieldNameModifications}_${rightsObj.keyShareAlike}" 
+								value="${rightsObj.keyShareAlike}" 
+								#if("$!{rightsObj.ccModifications}" == "${rightsObj.keyShareAlike}")checked="checked" #end />
+						</td>
+						<td style="vertical-align:top">
+							<label for="${rightsObj.fieldNameModifications}_${rightsObj.keyShareAlike}">
+								$rightsObj.labelModificationsShareAlike
+							</label>
+						</td>
+					</tr>
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+						</td>
+						<td style="padding-left:1em;vertical-align:top">
+							<input type="radio" name="$rightsObj.fieldNameModifications" id="${rightsObj.fieldNameModifications}_${rightsObj.keyNo}" 
+								value="${rightsObj.keyNo}" 
+								#if("$!{rightsObj.ccModifications}" == "${rightsObj.keyNo}")checked="checked" #end />
+						</td>
+						<td style="vertical-align:top">
+							<label for="${rightsObj.fieldNameModifications}_${rightsObj.keyNo}">
+								$rightsObj.labelModificationsNo
+							</label>
+						</td>
+					</tr>
+				</table>
+					
+			#end
+		#end
 	</div>
-	<div id="rights_div_4_$!{rightsObj.name}">
+	<div id="rights_div_0_$!{rightsObj.name}">
 	</div>
 #end 
 ## end of getRightsAssignment macro
