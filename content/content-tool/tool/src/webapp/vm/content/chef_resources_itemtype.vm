@@ -3,204 +3,339 @@
 ##
 ## start of getRightsAssignment macro
 #macro(getRightsAssignment $rightsObj)
-	<p class="shorttext">
-		<span class="reqStar">*</span>
-		<label for="$rightsObj.fieldNameAuthorship">
-			$rightsObj.getString("$rightsObj.keyCcAuthorshipLabel")
-		</label>	
-		<select name="$rightsObj.fieldNameAuthorship" id ="$rightsObj.fieldNameAuthorship" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
-			#foreach ($option in $rightsObj.ccAuthorshipKeys)
-				<option value="$option"#if("$!{rightsObj.ccOwnership}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
-			#end
-		</select>
-		##if ($!ccInfoUrl)
-		##	(<a href="$ccInfoUrl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
-		##end
-	</p>
-	<div id="copyright_div_1_$!{rightsObj.name}">
-		#if("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorMe}")
-			<p class="shorttext"> 
-				<span class="reqStar">*</span> 
-				<label for="$!{rightsObj.fieldNameMyTerms}">$rightsObj.getString($rightsObj.keyMyTermsLabel)</label>
-				<select name="$!{rightsObj.fieldNameMyTerms}" id=\"$!{rightsObj.FieldNameMyTerms}" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
-				#foreach ($option in $rightsObj.myTermsKeys)
-					<option value="$option"#if("$!{rightsObj.ccTerms}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
-				#end
-				</select> 
-			</p>
-		#elseif("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorOther}")
-			<p class="shorttext"> 
-				<span class="reqStar">*</span> 
-				<label for="$!{rightsObj.fieldNameCcOtherTerms}">$rightsObj.getString("$rightsObj.")</label>
-				<select name="$!{rightsObj.fieldNameCcOtherTerms}" id="$!{rightsObj.FieldNameCcOtherTerms}" onchange="javascript:updateRightsAssignment(this, '$rightsObj.name');">
-					#foreach ($option in $rightsObj.otherTermsKeys))
-						<option value="$option"#if("$!{rightsObj.otherLicense}" == "$option") selected="selected"#end>$!{rightsObj.getString("$option")}</option>
-					#end
-				</select> 
-			</p> 
-		#end
-	</div>
-	<div id="copyright_div_2_$!{rightsObj.name}">
-		#if("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorMe}")
-			#if("$!{rightsObj.ccTerms}" == "$!{rightsObj.keyMyCopyright}")
-				<table border="0"> 
-					<tr> 
-						<td style="width:180px;padding-left:1em;vertical-align:top"> 
-						</td>
-						<td> 
-						</td> 
-						<td style="vertical-align:top"> 
-							<label for="$!{rightsObj.fieldNameCcRightsYear}">$rightsObj.getString("$!{rightsObj.keyCopyrightYearLabel}")</label> 
-						</td>
-						<td style="vertical-align:top"> 
-							<label for="$!{rightsObj.fieldNameCcRightsOwner}">$rightsObj.getString("$!{rightsObj.keyCopyrightOwnerLabel}")</label> 
-						</td> 
-					</tr>
-					<tr> 
-						<td style="width:180px;padding-left:1em;vertical-align:top"> 
-						</td> 
-						<td>&copy;</td>
-						<td style="vertical-align:top"> 
-							<input type="text" name="$!{rightsObj.fieldNameCcRightsYear}" id="$!{rightsObj.fieldNameCcRightsYear}" size="5" value="#if("$!{rightsObj.ccRightsYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.ccRightsYear}#end" /> 
-						</td> 
-						<td style="vertical-align:top"> 
-							<input type="text" name="$!{rightsObj.fieldNameCcRightsOwner}" id="$!{rightsObj.fieldNameCcRightsOwner}" size="40" value="#if("$!{rightsObj.ccRightsOwner}" == "")$!{rightsObj.defaultCopyrightOwner}#else$!{rightsObj.ccRightsOwner}#end" /> 
-						</td> 
-					</tr> 
-				</table>
-			#elseif("$!{rightsObj.ccTerms}" == "$!{rightsObj.keyCreativeCommons}")
-				<div class="labelindnt">
-					<h5>$rightsObj.getString("$!{rightsObj.keyCcCommercialLabel}")</h5>
-					<p class="checkbox">
-						<input type="radio" name="$rightsObj.fieldNameCcCommercial" id="$!{rightsObj.name}$!{rightsObj.keyCcCommercialYes}" value="$!{rightsObj.keyCcCommercialYes}" #if("$!{rightsObj.ccCommercial}" == "$!{rightsObj.keyCcCommercialYes}")checked="checked" #end/>
-						<label for="$!{rightsObj.name}$!{rightsObj.keyCcCommercialYes}">$rightsObj.getString("$!{rightsObj.keyCcCommercialYes}")</label>
-					</p>
-					<p class="checkbox">
-						<input type="radio" name="$rightsObj.fieldNameCcCommercial" id="$!{rightsObj.name}$!{rightsObj.keyCcCommercialNo}" value="$!{rightsObj.keyCcCommercialNo}" #if("$!{rightsObj.ccCommercial}" == "$!{rightsObj.keyCcCommercialNo}")checked="checked" #end/>
-						<label for="$!{rightsObj.name}$!{rightsObj.keyCcCommercialNo}">$rightsObj.getString("$!{rightsObj.keyCcCommercialNo}")</label>
-					</p>
-				</div>
-				<div class="labelindnt">
-					<h5>$rightsObj.getString("$!{rightsObj.keyCcModifyLabel}")</h5>
-					<p class="checkbox">
-						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyYes}" value="$!{rightsObj.keyCcModifyYes}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyYes}")checked="checked" #end/>
-						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyYes}">$rightsObj.getString("$!{rightsObj.keyCcModifyYes}")</label>
-					</p>
-					<p class="checkbox">
-						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyShare}" value="$!{rightsObj.keyCcModifyShare}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyShare}")checked="checked" #end/>
-						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyShare}">$rightsObj.getString("$!{rightsObj.keyCcModifyShare}")</label>
-					</p>
-					<p class="checkbox">
-						<input type="radio" name="$rightsObj.fieldNameCcModify" id="$!{rightsObj.name}$!{rightsObj.keyCcModifyNo}" value="$!{rightsObj.keyCcModifyNo}" #if("$!{rightsObj.ccModify}" == "$!{rightsObj.keyCcModifyNo}")checked="checked" #end/>
-						<label for="$!{rightsObj.name}$!{rightsObj.keyCcModifyNo}">$rightsObj.getString("$!{rightsObj.keyCcModifyNo}")</label>
-					</p>
-				</div>
-			#end
-		#elseif("$!{rightsObj.ccOwnership}" == "$!{rightsObj.keyAuthorOther}")
+	<script type="text/javascript">
+		var $!{rightsObj.name}_values = new Object();
+		$!{rightsObj.name}_values.terms = "$!{rightsObj.terms}";
+		$!{rightsObj.name}_values.myCopyrightYear = "#if("$!{rightsObj.myCopyrightYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.myCopyrightYear}#end";
+		$!{rightsObj.name}_values.myCopyrightOwner = "#if("$!{rightsObj.myCopyrightOwner}" == "")$!{rightsObj.defaultCopyrightOwner}#else$!{rightsObj.myCopyrightOwner}#end";
+		$!{rightsObj.name}_values.otherCopyrightYear = "#if("$!{rightsObj.myCopyrightYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.myCopyrightYear}#end";
+		$!{rightsObj.name}_values.otherCopyrightOwner = "$!{rightsObj.otherCopyrightOwner}";
+		$!{rightsObj.name}_values.offer = "$!{rightsObj.offer}";
+		
+		function save_$!{rightsObj.name}_values()
+		{
+			var termsElementList = document.getElementsByName("$!{rightsObj.fieldNameTerms}");
+			for(var i = 0; i < termsElementList.length; i++)
+			{
+				if(termsElementList[i] && termsElementList[i].checked)
+				{
+					$!{rightsObj.name}_values.terms = termsElementList[i].value;
+				}
+			}
 			
-		#end
-	</div>
-	
-#end 
-## end of getRightsAssignment macro
+			var myCopyrightYearElement = document.getElementById("$!{rightsObj.fieldNameMyCopyrightYear}");
+			if(myCopyrightYearElement && myCopyrightYearElement.value)
+			{
+				$!{rightsObj.name}_values.myCopyrightYear = myCopyrightYearElement.value;
+			}		
+			var myCopyrightOwnerElement = document.getElementById("$!{rightsObj.fieldNameMyCopyrightOwner}");
+			if(myCopyrightOwnerElement && myCopyrightOwnerElement.value)
+			{
+				$!{rightsObj.name}_values.myCopyrightOwner = myCopyrightOwnerElement.value;
+			}		
+			var otherCopyrightYearElement = document.getElementById("$!{rightsObj.fieldNameOtherCopyrightYear}");
+			if(otherCopyrightYearElement && otherCopyrightYearElement.value)
+			{
+				$!{rightsObj.name}_values.otherCopyrightYear = otherCopyrightYearElement.value;
+			}		
+			var otherCopyrightOwnerElement = document.getElementById("$!{rightsObj.fieldNameOtherCopyrightOwner}");
+			if(otherCopyrightOwnerElement && otherCopyrightOwnerElement.value)
+			{
+				$!{rightsObj.name}_values.otherCopyrightOwner = otherCopyrightOwnerElement.value;
+			}		
+			var offerElement = document.getElementById("$!{fieldNameOffer}");
+			if(offerElement && offerElement.value)
+			{
+				$!{rightsObj.name}_values.offer = offerElement.value;
+			}		
+		}
+		
+		function update$!{rightsObj.name}RightsAssignment()
+		{
+			save_$!{rightsObj.name}_values();
+			var div1 = document.getElementById("rights_div_1_$!{rightsObj.name}");
+			var div2 = document.getElementById("rights_div_2_$!{rightsObj.name}");
+			var div3 = document.getElementById("rights_div_3_$!{rightsObj.name}");
+			var div4 = document.getElementById("rights_div_4_$!{rightsObj.name}");
+			
+				var html1 = "";
+				var html2 = "";
+				var html3 = "";
+				var html4 = "";
+				var new_focus;
+				if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyMyCopyright}")
+				{
+					html1 += "<table border=\"0\">\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
+							+ "<label for=\"$!{rightsObj.fieldNameMyCopyrightYear}\">\n$!{rightsObj.labelMyCopyrightYear}\n</label>\n"
+							+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameMyCopyrightOwner}\">\n"
+							+ "$!{rightsObj.labelMyCopyrightOwner}\n</label>\n</td>\n</tr>\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
+							+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
+							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightYear}\" "
+							+ "id=\"$!{rightsObj.fieldNameMyCopyrightYear}\" size=\"5\" value=\""
+							+ $!{rightsObj.name}_values.myCopyrightYear
+							+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
+							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" "
+							+ "id=\"$!{rightsObj.fieldNameMyCopyrightOwner}\" size=\"40\" value=\""
+							+ $!{rightsObj.name}_values.myCopyrightOwner
+							+ "\" />\n</td>\n</tr>\n</table>\n";
+					html2 += "<table border=\"0\">\n<tr>\n<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyFairUse}\" value=\"${rightsObj.keyFairUse}\" ";
+					if($!{rightsObj.name}_values.offer == "${rightsObj.keyFairUse}")
+					{
+						html2 += " checked=\"checked\" ";
+					}
+					html2 += " />\n</td>\n<td>\n$rightsObj.labelFairUse\n</td>\n</tr>\n<tr>\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewCreativeCommons}\" "
+							+ "value=\"${rightsObj.keyNewCreativeCommons}\" ";
+					if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewCreativeCommons}")
+					{
+						html2 += " checked=\"checked\" ";
+					}
+					html2 += " />\n</td>\n<td>\n$rightsObj.labelNewCreativeCommons\n</td>\n</tr>\n<tr>\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n"
+							+ "<input type=\"radio\" name=\"$rightsObj.fieldNameOffer\" "
+							+ "id=\"${rightsObj.fieldNameOffer}_${rightsObj.keyNewPublicDomain}\" "
+							+ "value=\"${rightsObj.keyNewPublicDomain}\" ";
+					if($!{rightsObj.name}_values.offer == "${rightsObj.keyNewPublicDomain}")
+					{
+						html2 += " checked=\"checked\" ";
+					}
+					html2 += " />\n</td>\n<td>\n$rightsObj.labelNewPublicDomain\n</td>\n</tr>\n</table>\n";
+					//html3 += "My Copyright -- Div 3";
+					new_focus = "$!{rightsObj.fieldNameMyCopyrightYear}";
+					
+				}
+				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyOtherCopyright}")
+				{
+					html1 += "<table border=\"0\">\n<tr style=\"padding-top:1en;vertical-align:top\">\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n"
+							+ "</td>\n<td style=\"padding-left:1em;vertical-align:top\">\n</td>\n<td style=\"vertical-align:top\">\n"
+							+ "<label for=\"$!{rightsObj.fieldNameOtherCopyrightYear}\">\n$!{rightsObj.labelOtherCopyrightYear}\n</label>\n"
+							+ "</td>\n<td style=\"vertical-align:top\">\n<label for=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\">\n"
+							+ "$!{rightsObj.labelOtherCopyrightOwner}\n</label>\n</td>\n</tr>\n"
+							+ "<tr style=\"padding-top:1en;vertical-align:top\">\n"
+							+ "<td style=\"width:180px;padding-left:1em;vertical-align:top\">\n</td>\n"
+							+ "<td style=\"padding-left:1em;vertical-align:top\">&copy;</td>\n<td style=\"vertical-align:top\">\n" 
+							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" "
+							+ "id=\"$!{rightsObj.fieldNameOtherCopyrightYear}\" size=\"5\" value=\""
+							+ $!{rightsObj.name}_values.otherCopyrightYear
+							+ "\" />\n</td>\n<td style=\"vertical-align:top\">\n"
+							+ "<input type=\"text\" name=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" "
+							+ "id=\"$!{rightsObj.fieldNameOtherCopyrightOwner}\" size=\"40\" value=\""
+							+ $!{rightsObj.name}_values.otherCopyrightOwner
+							+ "\" />\n</td>\n</tr>\n</table>\n";
+					html2 += "Other Copyright -- Div 2";
+					//html3 += "Other Copyright -- Div 3";
+					new_focus = "$!{rightsObj.fieldNameOtherCopyrightYear}";
+					
+				}
+				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyPublicDomain}")
+				{
+					html1 += "Public Domain -- Div 1";
+					//html2 += "Public Domain -- Div 2";
+					//html3 += "Public Domain -- Div 3";
+				}
+				else if($!{rightsObj.name}_values.terms && $!{rightsObj.name}_values.terms == "$!{rightsObj.keyCreativeCommons}")
+				{
+					html1 += "Creative Commons -- Div 1";
+					//html2 += "Creative Commons -- Div 2";
+					//html3 += "Creative Commons -- Div 3";
+				}
+					
+				div1.innerHTML = html1;
+				div2.innerHTML = html2;
+				div3.innerHTML = html3;
+				div4.innerHTML = html4;
+				if(new_focus)
+				{
+					var focus_element = document.getElementById(new_focus);
+					if(focus_element)
+					{
+						focus_element.focus();
+						focus_element.select();
+					}
+				}
+		}
+		function show_info_$!{rightsObj.name}(topic)
+		{
+			var div4 = document.getElementById("rights_div_4_$!{rightsObj.name}");
+			var html4 = "";
+			if(topic == "$!{rightsObj.keyMyCopyright}")
+			{
+				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleMyCopyright</td>\n</tr>\n"
+						+ "<tr>\n<td></td>\n<td>$rightsObj.infoMyCopyright</td>\n</tr>\n</table>";
+			}		
+			else if(topic == "$!{rightsObj.keyOtherCopyright}")
+			{
+				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleOtherCopyright</td>\n</tr>\n"
+						+ "<tr>\n<td></td>\n<td>$rightsObj.infoOtherCopyright</td>\n</tr>\n</table>";
+			}		
+			else if(topic == "$!{rightsObj.keyCreativeCommons}")
+			{
+				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titleCreativeCommons</td>\n</tr>\n"
+						+ "<tr>\n<td></td>\n<td>$rightsObj.infoCreativeCommons</td>\n</tr>\n</table>";
+			}		
+			else if(topic == "$!{rightsObj.keyPublicDomain}")
+			{
+				html4 = "<table border=\"0\">\n<tr>\n<td></td>\n<td>$rightsObj.titlePublicDomain</td>\n</tr>\n"
+						+ "<tr>\n<td></td>\n<td>$rightsObj.infoPublicDomain</td>\n</tr>\n</table>";
+			}
+			div4.innerHTML = html4;		
+		}
+	</script>
 
-## start of getCreativeCommons macro
-#macro(getCreativeCommons $cItem $cIndex)
 	<p class="shorttext">
 		<span class="reqStar">*</span>
-		<label for="owner$cIndex">
-			$ccOwnershipLabel
-		</label>	
-		<select name="ccOwnership$cIndex" id ="ccOwnership$cIndex" onchange="javascript:updateCreativeCommons(this, '$cIndex');">
-			#foreach ($option in $ccOwnershipList)
-				<option value="$option"#if("$!{cItem.rightsownership}" == "$option") selected="selected"#end>$option</option>
+		<label for="$rightsObj.fieldNameTerms">
+			$rightsObj.labelTerms
+		</label>
+		<table border="0">
+			#foreach($key in $rightsObj.keylistTerms)
+				<tr style="padding-top:1en;vertical-align:top">
+					<td>
+						<input type="radio" name="$rightsObj.fieldNameTerms" id="${rightsObj.fieldNameTerms}_$key" value="$key" 
+							#if("$!{rightsObj.terms}" == "$key")checked="checked" #end
+							onclick="javascript:update$!{rightsObj.name}RightsAssignment();"
+							onkeypress="javascript:update$!{rightsObj.name}RightsAssignment();" />
+					</td>
+					<td>
+						$rightsObj.getString("terms.$key") 
+						(<a href="#" onclick="javascript:show_info_$!{rightsObj.name}('$key')">$rightsObj.moreinfo</a>)
+					</td>
+				</tr>
 			#end
-		</select>
-		#if ($!ccInfoUrl)
-			(<a href="$ccInfoUrl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
-		#end
+		</table>
 	</p>
-	<div id="copyright_div_1_$cIndex">
-		#if("$!{cItem.rightsownership}" == "$ccOwnershipList.get(1)")
-			<p class="shorttext"> 
-				<span class="reqStar">*</span> 
-				<label for="ccTerms$cIndex">$ccMyGrantLabel</label>
-				<select name="ccTerms$cIndex" id=\"ccTerms$cIndex" onchange="javascript:updateCreativeCommons(this, '$cIndex');">
-				#foreach ($option in $ccMyGrantOptions)
-					<option value="$option"#if("$cItem.license" == "$option") selected="selected"#end>$option</option>
-				#end
-				</select> 
-			</p>
-		#elseif("$!{cItem.rightsownership}" == "$ccOwnershipList.get(2)")
-			<p class="shorttext"> 
-				<span class="reqStar">*</span> 
-				<label for="ccTerms$cIndex">$ccOtherGrantLabel</label>
-				<select name="ccTerms$cIndex" id="ccTerms$cIndex" onchange="javascript:updateCreativeCommons(this, '$cIndex');">
-					#foreach ($option in $ccOtherGrantList)
-						<option value="$option"#if("$cItem.license" == "$option") selected="selected"#end>$option</option>
-					#end
-				</select> 
-			</p> 
-		#end
-	</div>
-	<div id="copyright_div_2_$cIndex">
-		#if("$!{cItem.license}" == "$ccMyGrantOptions.get(1)")
+	<div id="rights_div_1_$!{rightsObj.name}">
+		#if("$!{rightsObj.terms}" == "$!{rightsObj.keyMyCopyright}")
 			<table border="0"> 
-				<tr> 
+				<tr style="padding-top:1en;vertical-align:top"> 
 					<td style="width:180px;padding-left:1em;vertical-align:top"> 
 					</td>
 					<td> 
 					</td> 
 					<td style="vertical-align:top"> 
-						<label for="ccRightsYear$cIndex">$ccRightsYear</label> 
+						<label for="$!{rightsObj.fieldNameMyCopyrightYear}">
+							$!{rightsObj.labelMyCopyrightYear}
+						</label> 
 					</td>
 					<td style="vertical-align:top"> 
-						<label for="ccRightsOwner$cIndex">$ccRightsOwner</label> 
+						<label for="$!{rightsObj.fieldNameMyCopyrightOwner}">
+							$!{rightsObj.labelMyCopyrightOwner}
+						</label> 
 					</td> 
 				</tr>
-				<tr> 
+				<tr style="padding-top:1en;vertical-align:top"> 
 					<td style="width:180px;padding-left:1em;vertical-align:top"> 
 					</td> 
 					<td>&copy;</td>
 					<td style="vertical-align:top"> 
-						<input type="text" name="ccRightsYear$cIndex" id="ccRightsYear$cIndex" size="5" value="#if($cItem.rightsyear)$cItem.rightsyear#else$ccThisYear#end" /> 
+						<input type="text" name="$!{rightsObj.fieldNameMyCopyrightYear}" id="$!{rightsObj.fieldNameMyCopyrightYear}" size="5" value="#if("$!{rightsObj.myCopyrightYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.myCopyrightYear}#end" /> 
 					</td> 
 					<td style="vertical-align:top"> 
-						<input type="text" name="ccRightsOwner$cIndex" id="ccRightsOwner$cIndex" value="#if($cItem.rightsowner)$cItem.rightsowner#else$ccThisUser#end" /> 
+						<input type="text" name="$!{rightsObj.fieldNameMyCopyrightOwner}" id="$!{rightsObj.fieldNameMyCopyrightOwner}" size="40" value="#if("$!{rightsObj.myCopyrightOwner}" == "")$!{rightsObj.defaultCopyrightOwner}#else$!{rightsObj.myCopyrightOwner}#end" /> 
 					</td> 
 				</tr> 
 			</table>
-		#elseif("$!{cItem.license}" == "$ccMyGrantOptions.get(2)")
+		#elseif("$!{rightsObj.terms}" == "$!{rightsObj.keyOtherCopyright}")
 			<table border="0"> 
-				<tr> 
-					<td style="width:180px;padding-left:1em;vertical-align:top">
+				<tr style="padding-top:1en;vertical-align:top"> 
+					<td style="width:180px;padding-left:1em;vertical-align:top"> 
+					</td>
+					<td> 
+					</td> 
+					<td style="padding-left:1em;vertical-align:top"> 
+						<label for="$!{rightsObj.fieldNameOtherCopyrightYear}">
+							$!{rightsObj.labelOtherCopyrightYear}
+						</label> 
+					</td>
+					<td style="vertical-align:top"> 
+						<label for="$!{rightsObj.fieldNameOtherCopyrightOwner}">
+							$!{rightsObj.labelOtherCopyrightOwner}
+						</label> 
+					</td> 
+				</tr>
+				<tr style="padding-top:1en;vertical-align:top"> 
+					<td style="width:180px;padding-left:1em;vertical-align:top"> 
+					</td> 
+					<td style="padding-left:1em;vertical-align:top">&copy;</td>
+					<td style="vertical-align:top"> 
+						<input type="text" name="$!{rightsObj.fieldNameOtherCopyrightYear}" id="$!{rightsObj.fieldNameOtherCopyrightYear}" size="5" value="#if("$!{rightsObj.otherCopyrightYear}" == "")$!{rightsObj.defaultCopyrightYear}#else$!{rightsObj.otherCopyrightYear}#end" /> 
 					</td> 
 					<td style="vertical-align:top"> 
-						<label for="ccCommercial$cIndex">$ccCommercialLabel</label>
-						#foreach($option in $ccCommercialList)
-							<input type="radio" name="ccCommercial$cIndex" id="ccCommercial${cIndex}_$validator.escapeJavascript(${option})" value="${option}"#if("$!{cItem.allowCommercial}" == "$option") checked="checked"#end>${option}</option>
-						#end
-					</td> 
-				</tr> 
-				<tr> 
-					<td style="width:180px;padding-left:1em;vertical-align:top">
-					</td> 
-					<td style="vertical-align:top"> 
-						<label for="ccModification$cIndex">$ccModificationLabel</label>
-						#foreach($option in $ccModificationList)
-							<input type="radio" name="ccModification$cIndex" id="ccModification${cIndex}_$validator.escapeJavascript(${option})" value="${option}"#if("$!{cItem.allowModifications}" == "$option") checked="checked"#end>${option}</option>
-						#end
+						<input type="text" name="$!{rightsObj.fieldNameOtherCopyrightOwner}" id="$!{rightsObj.fieldNameOtherCopyrightOwner}" size="40" value="#if("$!{rightsObj.otherCopyrightOwner}" == "")$!{rightsObj.defaultCopyrightOwner}#else$!{rightsObj.otherCopyrightOwner}#end" /> 
 					</td> 
 				</tr> 
 			</table>
-		#elseif("$!{cItem.license}" == "$ccMyGrantOptions.get(3)")
+		#elseif("$!{rightsObj.terms}" == "$!{rightsObj.keyPublicDomain}")
+			<p class="shorttext"> 
+				<span class="reqStar">*</span>
+				Public Domain
+			</p> 
+		#elseif("$!{rightsObj.terms}" == "$!{rightsObj.keyCreativeCommons}")
+			<p class="shorttext"> 
+				<span class="reqStar">*</span>
+				Creative Commons
+			</p> 
 		#end
 	</div>
-	<div id="copyright_div_3_$cIndex">
+	<div id="rights_div_2_$!{rightsObj.name}">
+		#if("$!{rightsObj.terms}" == "$!{rightsObj.keyMyCopyright}")
+			<table border="0">
+				<tr>
+					<td style="width:180px;padding-left:1em;vertical-align:top">
+					</td>
+					<td style="padding-left:1em;vertical-align:top">
+						<input type="radio" name="$rightsObj.fieldNameOffer" id="${rightsObj.fieldNameOffer}_${rightsObj.keyFairUse}" 
+							value="${rightsObj.keyFairUse}" 
+							#if("$!{rightsObj.offer}" == "${rightsObj.keyFairUse}")checked="checked" #end />
+					</td>
+					<td>
+						$rightsObj.labelFairUse
+					</td>
+				</tr>
+				<tr>
+					<td style="width:180px;padding-left:1em;vertical-align:top">
+					</td>
+					<td style="padding-left:1em;vertical-align:top">
+						<input type="radio" name="$rightsObj.fieldNameOffer" id="${rightsObj.fieldNameOffer}_${rightsObj.keyNewCreativeCommons}" 
+							value="${rightsObj.keyNewCreativeCommons}" 
+							#if("$!{rightsObj.offer}" == "${rightsObj.keyNewCreativeCommons}")checked="checked" #end />
+					</td>
+					<td>
+						$rightsObj.labelNewCreativeCommons
+					</td>
+				</tr>
+				<tr>
+					<td style="width:180px;padding-left:1em;vertical-align:top">
+					</td>
+					<td style="padding-left:1em;vertical-align:top">
+						<input type="radio" name="$rightsObj.fieldNameOffer" id="${rightsObj.fieldNameOffer}_${rightsObj.keyNewPublicDomain}" 
+							value="${rightsObj.keyNewPublicDomain}" 
+							#if("$!{rightsObj.offer}" == "${rightsObj.keyNewPublicDomain}")checked="checked" #end />
+					</td>
+					<td>
+						$rightsObj.labelNewPublicDomain
+					</td>
+				</tr>
+			</table>
+		#end
 	</div>
-	
+	<div id="rights_div_3_$!{rightsObj.name}">
+	</div>
+	<div id="rights_div_4_$!{rightsObj.name}">
+	</div>
 #end 
-## end of getCreativeCommons macro
+## end of getRightsAssignment macro
 
 #macro(getPropertyValues $tags)
 	#foreach($tag in $tags)
@@ -1003,187 +1138,6 @@
 </div>
 
 ## start of creative-commons scripts
-#if($usingCreativeCommons)
-<script type="text/javascript">
-	var ccValues = new Object();
-	ccValues.ccOwnership = new Array();
-	ccValues.ccMyTerms = new Array();
-	ccValues.ccOtherTerms = new Array();
-	ccValues.ccCommercial = new Array();
-	ccValues.ccModification = new Array();
-	ccValues.ccRightsYear = new Array();
-	ccValues.ccRightsOwner = new Array();
-	
-	var ccPrevious = new Object();
-	ccPrevious.ccOwnership = new Array();
-	ccPrevious.ccMyTerms = new Array();
-	ccPrevious.ccOtherTerms = new Array();
-	ccPrevious.ccCommercial = new Array();
-	ccPrevious.ccModification = new Array();
-	ccPrevious.ccRightsYear = new Array();
-	ccPrevious.ccRightsOwner = new Array();
-	
-	function updateCreativeCommons(element, index)
-	{
-		saveCreativeCommonsValues(index);
-		var div1 = document.getElementById("copyright_div_1_" + index);
-		var div2 = document.getElementById("copyright_div_2_" + index);
-		var div3 = document.getElementById("copyright_div_3_" + index);
-		//if(element.id == "owner" + index)
-		{
-			var html1 = "";
-			var html2 = "";
-			var html3 = "";
-			if(ccValues.ccOwnership[index] && ccValues.ccOwnership[index] == "$ccOwnershipList.get(1)")
-			{
-				html1 += "<p class=\"shorttext\"> <span class=\"reqStar\">*</span> <label for=\"ccTerms" + index + "\"> $ccMyGrantLabel </label> "
-						+ "<select name=\"ccTerms" + index + "\" id=\"ccTerms" + index + "\" onchange=\"javascript:updateCreativeCommons(this, '" 
-						+ index + "');\"> ";
-				#foreach ($option in $ccMyGrantOptions)
-					if(ccValues.ccMyTerms[index] && ccValues.ccMyTerms[index] == "$option")
-					{
-						html1 += " <option value=\"$option\" selected=\"selected\">$option</option>";
-					}
-					else
-					{
-						html1 += " <option value=\"$option\">$option</option>";
-					}
-				#end
-				html1 += "</select> </p> ";
-				
-				if(ccValues.ccMyTerms[index] && ccValues.ccMyTerms[index] == "$ccMyGrantOptions.get(1)")
-				{
-					html2 += "<table border=\"0\"> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> </td> "
-							+ "<td> </td> <td style=\"vertical-align:top\"> <label for=\"ccRightsYear" + index + "\"> $ccRightsYear </label> </td> "
-							+ "<td style=\"vertical-align:top\"> <label for=\"ccRightsOwner" + index + "\"> $ccRightsOwner </label> </td> </tr> "
-							+ "<tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> </td> <td>&copy;</td> "
-							+ "<td style=\"vertical-align:top\"> <input type=\"text\" name=\"ccRightsYear" + index + "\" id=\"ccRightsYear" + index + "\" size=\"5\" value=\"";
-					if(ccValues.ccRightsYear[index])
-					{
-						html2 += ccValues.ccRightsYear[index];
-					}
-					else
-					{
-						html2 += "$ccThisYear";
-					}
-					html2 += "\" /> </td> <td style=\"vertical-align:top\"> <input type=\"text\" name=\"ccRightsOwner" + index + "\" id=\"ccRightsOwner" + index + "\" value=\"" 
-					if(ccValues.ccRightsOwner[index])
-					{
-						html2 += ccValues.ccRightsOwner[index];
-					}
-					else
-					{
-						html2 += "$ccThisUser";
-					}
-					html2 += "\" /> </td> </tr> </table> ";
-				}
-				else if(ccValues.ccMyTerms[index] && ccValues.ccMyTerms[index] == "$ccMyGrantOptions.get(2)")
-				{
-					html2 += "<table border=\"0\"> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> "
-							+ "</td> <td style=\"vertical-align:top\"> <label for=\"ccCommercial" + index + "\"> $ccCommercialLabel </label> ";
-					#foreach($option in $ccCommercialList)
-						html2 += "<input type=\"radio\" name=\"ccCommercial" + index + "\" id =\"ccCommercial" + index 
-								+ "_$validator.escapeJavascript(${option})\" value=\"${option}\"";
-						if(ccValues.ccCommercial[index] && ccValues.ccCommercial[index] == "$option")
-						{
-							html2 += " checked=\"checked\"";
-						}
-						html2 += "> ${option} </option> ";
-					#end
-					html2 += "</td> </tr> <tr> <td style=\"width:180px;padding-left:1em;vertical-align:top\"> "
-							+ "</td> <td style=\"vertical-align:top\"> <label for=\"ccModification" + index + "\"> $ccModificationLabel </label> ";
-					#foreach($option in $ccModificationList)
-						html2 += "<input type=\"radio\" name=\"ccModification" + index + "\" id =\"ccModification" + index 
-								+ "_$validator.escapeJavascript(${option})\" value=\"${option}\"";
-						if(ccValues.ccModification[index] && ccValues.ccModification[index] == "$option")
-						{
-							html2 += " checked=\"checked\"";
-						}
-						html2 += "> ${option} </option> ";
-					#end
-					html2 += "</td> </tr> </table> ";
-				}
-				else if(ccValues.ccMyTerms[index] && ccValues.ccMyTerms[index] == "$ccMyGrantOptions.get(3)")
-				{
-				}
-			}
-			else if(ccValues.ccOwnership[index] && ccValues.ccOwnership[index] == "$ccOwnershipList.get(2)")
-			{
-				html1 += "<p class=\"shorttext\"> <span class=\"reqStar\">*</span> <label for=\"ccOtherTerms" + index + "\"> $ccOtherGrantLabel </label> "
-						+ "<select name=\"ccOtherTerms" + index + "\" id=\"ccOtherTerms" + index + "\" onchange=\"javascript:updateCreativeCommons(this, '" 
-						+ index + "');\"> ";
-				#foreach ($option in $ccOtherGrantList)
-					if(ccValues.ccOtherTerms[index] && ccValues.ccOtherTerms[index] == "$option")
-					{
-						html1 += " <option value=\"$option\" selected=\"selected\">$option</option>";
-					}
-					else
-					{
-						html1 += " <option value=\"$option\">$option</option>";
-					}
-				#end
-				html1 += "</select> </p> ";
-			}
-			div1.innerHTML = html1;
-			div2.innerHTML = html2;
-			div3.innerHTML = html3;
-		}
-	}
-	function saveCreativeCommonsValues(index)
-	{
-		var ownershipElement = document.getElementById("ccOwnership" + index);
-		if(ownershipElement && ownershipElement.value)
-		{
-			ccPrevious.ccOwnership[index] = ccValues.ccOwnership[index];
-			ccValues.ccOwnership[index] = ownershipElement.value;
-		}
-		var ccMyTermsElement = document.getElementById("ccTerms" + index);
-		if(ccMyTermsElement && ccMyTermsElement.value)
-		{
-			ccPrevious.ccMyTerms[index] = ccValues.ccMyTerms[index];
-			ccValues.ccMyTerms[index] = ccMyTermsElement.value;
-		}		
-		var ccOtherTermsElement = document.getElementById("ccOtherTerms" + index);
-		if(ccOtherTermsElement && ccOtherTermsElement.value)
-		{
-			ccPrevious.ccOtherTerms[index] = ccValues.ccOtherTerms[index];
-			ccValues.ccOtherTerms[index] = ccOtherTermsElement.value;
-		}		
-		var ccRightsYearElement = document.getElementById("ccRightsYear" + index);
-		if(ccRightsYearElement && ccRightsYearElement.value)
-		{
-			ccPrevious.ccRightsYear[index] = ccValues.ccRightsYear[index];
-			ccValues.ccRightsYear[index] = ccRightsYearElement.value;
-		}		
-		var ccRightsOwnerElement = document.getElementById("ccRightsOwner" + index);
-		if(ccRightsOwnerElement && ccRightsOwnerElement.value)
-		{
-			ccPrevious.ccRightsOwner[index] = ccValues.ccRightsOwner[index];
-			ccValues.ccRightsOwner[index] = ccRightsOwnerElement.value;
-		}
-		var ccCommercialElement = null;
-		#foreach($option in $ccCommercialList)
-			ccCommercialElement = document.getElementById("ccCommercial" + index + "_$validator.escapeJavascript(${option})");
-			if(ccCommercialElement && ccCommercialElement.checked)
-			{
-				ccPrevious.ccCommercial[index] = ccValues.ccCommercial[index];
-				ccValues.ccCommercial[index] = ccCommercialElement.value;
-			}
-			ccCommercialElement = null;
-		#end		
-		var ccModificationElement = null;
-		#foreach($option in $ccModificationList)
-			ccModificationElement = document.getElementById("ccModification" + index + "_$validator.escapeJavascript(${option})");
-			if(ccModificationElement && ccModificationElement.checked)
-			{
-				ccPrevious.ccModification[index] = ccValues.ccModification[index];
-				ccValues.ccModification[index] = ccModificationElement.value;
-			}
-			ccModificationElement = null;
-		#end		
-	}
-</script>
-#end
 ## end of creative-commons scripts
 
 

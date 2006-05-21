@@ -10470,6 +10470,9 @@ public class ResourcesAction
 	 */
 	public static class BrowseItem
 	{
+		protected static Integer seqnum = new Integer(0);
+		private String m_itemnum;
+		
 		// attributes of all resources
 		protected String m_name;
 		protected String m_id;
@@ -10517,13 +10520,20 @@ public class ResourcesAction
 		 */
 		public BrowseItem(String id, String name, String type)
 		{
-			// TODO: Fix name/id for rightsObj
-			m_rights = new BasicRightsAssignment("XXXX", true);
 			m_name = name;
 			m_id = id;
 			m_type = type;
+			
+			Integer snum; 
+			synchronized(seqnum)
+			{
+				snum = seqnum;
+				seqnum = new Integer((seqnum.intValue() + 1) % 10000);
+			}
+			m_itemnum = "Item00000000".substring(0,10 - snum.toString().length()) + snum.toString();
 
 			// set defaults
+			m_rights = new BasicRightsAssignment(m_itemnum, true);
 			m_members = new LinkedList();
 			m_canRead = false;
 			m_canRevise = false;
@@ -10558,6 +10568,11 @@ public class ResourcesAction
 			m_access = AccessMode.SITE.toString();
 			m_groups = new Vector();
 		
+		}
+
+		public String getItemNum()
+		{
+			return m_itemnum;
 		}
 
 		public void setIsTooBig(boolean toobig)
@@ -11250,6 +11265,7 @@ public class ResourcesAction
 		public EditItem(String id, String name, String type)
 		{
 			super(id, name, type);
+			
 			m_filename = "";
 			m_contentHasChanged = false;
 			m_contentTypeHasChanged = false;
@@ -11276,7 +11292,7 @@ public class ResourcesAction
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 
 		}
-
+		
 		public void setRightsowner(String ccRightsOwner)
 		{
 			m_ccRightsOwner = ccRightsOwner;
@@ -11457,8 +11473,9 @@ public class ResourcesAction
 		 */
 		public EditItem(String type)
 		{
-			this("", "", type);
+			this(null, "", type);
 		}
+		
 		/**
 		 * @param id
 		 */
