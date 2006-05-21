@@ -2,7 +2,7 @@
 
 <project>
 	<pomVersion>3</pomVersion>	
-	<extend>../../../master/project.xml</extend>
+	<extend>../../master/project.xml</extend>
 	<name>Summary Calendar</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-calendar-summary-tool</id>
