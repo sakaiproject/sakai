@@ -4083,7 +4083,7 @@ public class DiscussionForumTool
 		  }
 		  else
 		  {
-			return currentUserId;
+			return UserDirectoryService.getUserEid(currentUserId);
 		  }
 		}
   	    else
@@ -4100,7 +4100,7 @@ public class DiscussionForumTool
 		  }
 		  else
 		  {
-			return currentUserId;
+			return UserDirectoryService.getUserEid(currentUserId);
 		  }
   	    }
 	  }
