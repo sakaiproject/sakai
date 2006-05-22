@@ -4,10 +4,10 @@ h3 Notation Help - [full help page|Help Page]
 
 Phrase modifiers:
 {table}
- mnemonic | result |
- \_\_bold\_\_ | __bold__ |
- \~\~italic\~\~ | ~~italic~~ |
- \-\-strike\-\- | --strike-- |
+ mnemonic | result 
+ \_\_bold\_\_ | __bold__ 
+ \~\~italic\~\~ | ~~italic~~ 
+ \-\-strike\-\- | --strike-- 
 {table}
 
 Headings:
@@ -28,8 +28,8 @@ To insert a link:
 To insert a table:
 \{table}
 
-head1 | head2 |
+head1 | head2 
 
-col1 | col2 |
+col1 | col2 
 
 \{table}
