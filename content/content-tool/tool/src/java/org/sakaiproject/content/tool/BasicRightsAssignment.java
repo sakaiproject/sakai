@@ -46,6 +46,8 @@ import org.w3c.dom.Element;
  */
 public class BasicRightsAssignment
 {
+	protected static final String URL = "http://creativecommons.org/license/publicdomain";
+	
 	protected static final String DELIM = "_";
 
 	protected static final String FIELD_COMMERCIAL_USE = "myCommercialUse";
@@ -63,6 +65,8 @@ public class BasicRightsAssignment
 	protected static final String FIELD_MY_CR_YEAR = "myCopyrightYear";
 	
 	protected static final String FIELD_OFFER = "offer";
+	
+	protected static final String FIELD_OTHER_OFFER = "otherOffer";
 	
 	protected static final String FIELD_OTHER_COMMERCIAL_USE = "otherCommercialUse";
 	
@@ -98,7 +102,7 @@ public class BasicRightsAssignment
 	
 	protected static final String KEY_YES = "yes";
 
-	protected static final String[] KEYLIST_TERMS = { KEY_MY_COPYRIGHT, KEY_OTHER_COPYRIGHT, KEY_PUBLIC_DOMAIN, KEY_CREATIVE_COMMONS };
+	protected static final String[] KEYLIST_TERMS = { KEY_MY_COPYRIGHT, KEY_OTHER_COPYRIGHT, KEY_PUBLIC_DOMAIN };
 	
 	/** Resource bundle using current language locale */
     private static ResourceLoader rb = new ResourceLoader("right");
