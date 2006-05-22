@@ -501,6 +501,17 @@ public class BaseSitePage implements SitePage, Identifiable
 	/**
 	 * @inheritDoc
 	 */
+	public ToolConfiguration addTool(String toolId)
+	{
+		BaseToolConfiguration tool = new BaseToolConfiguration(toolId, this);
+		((ResourceVector) getTools()).add(tool);
+
+		return tool;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public void removeTool(ToolConfiguration tool)
 	{
 		((ResourceVector) getTools()).remove(tool);

@@ -131,6 +131,15 @@ public interface SitePage extends Edit, Serializable
 	public ToolConfiguration addTool(Tool reg);
 
 	/**
+	 * Add a new tool to the page, initialized to the tool id provided.
+	 * 
+	 * @param toolId
+	 *        The tool id for this tool.
+	 * @return the ToolConfigurationEdit object for the new tool.
+	 */
+	public ToolConfiguration addTool(String toolId);
+
+	/**
 	 * Remove a tool from this page.
 	 * 
 	 * @param tool

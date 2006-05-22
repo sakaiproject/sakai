@@ -204,6 +204,21 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	}
 
 	/**
+	 * Construct using a tool id.
+	 * 
+	 * @param toolId
+	 *        The tool id.
+	 * @param page
+	 *        The page in which this tool lives.
+	 */
+	protected BaseToolConfiguration(String toolId, SitePage page)
+	{
+		super(IdManager.createUuid(), toolId, null, null, null, null);
+
+		m_page = page;
+	}
+
+	/**
 	 * Construct from XML element.
 	 * 
 	 * @param el
