@@ -124,7 +124,7 @@
 		    <jsp:attribute name="value"><c:out value="${nameHelperBean.submittedContent}"/></jsp:attribute>
 		  </jsp:element>
 		</p>
-		<pre>
+		<pre class="rwiki_previousContent">
 		  <c:out value="${nameHelperBean.submittedContent}"/>
 		</pre>
 	      </c:if>
@@ -136,7 +136,7 @@
 		    <jsp:attribute name="value"><c:out value="${nameHelperBean.submittedContent}"/></jsp:attribute>
 		  </jsp:element>
 		</p>
-		<pre>
+		<pre class="rwiki_previousContent">
 		  <c:out value="${nameHelperBean.submittedContent}"/>
 		</pre>
 	      </c:if>
