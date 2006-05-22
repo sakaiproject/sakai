@@ -1259,11 +1259,11 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
+    setForGrade(true);
     if (isTimeRunning() && timeExpired()) // is timed assessment? and time has expired?
       return "timeExpired";
     SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
-    forGrade = true;
     SubmitToGradingActionListener listener =
       new SubmitToGradingActionListener();
     listener.processAction(null);

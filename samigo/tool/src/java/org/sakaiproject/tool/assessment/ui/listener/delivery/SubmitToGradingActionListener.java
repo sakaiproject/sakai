@@ -269,12 +269,15 @@ public class SubmitToGradingActionListener implements ActionListener
       HashMap fibMap = getFIBMap(publishedAssessment);
       HashMap mcmrMap = getMCMRMap(publishedAssessment);
       Set itemGradingSet = adata.getItemGradingSet();
-    System.out.println("*** 2. before removal & adittion "+(new Date()));
+    System.out.println("*** 2a. before removal & addition "+(new Date()));
       if (itemGradingSet!=null){
+    System.out.println("*** 2aa. removing old itemGrading "+(new Date()));
         itemGradingSet.removeAll(removes);
         service.deleteAll(removes);
         // refresh itemGradingSet & assessmentGrading after removal 
+    System.out.println("*** 2ab. reload itemGradingSet "+(new Date()));
         itemGradingSet = service.getItemGradingSet(adata.getAssessmentGradingId().toString());
+    System.out.println("*** 2ac. load assessmentGarding "+(new Date()));
         adata = service.load(adata.getAssessmentGradingId().toString());
 
         Iterator iter = adds.iterator();
@@ -283,6 +286,7 @@ public class SubmitToGradingActionListener implements ActionListener
 	}
         // make update to old item and insert new item
         // and we will only update item that has been changed
+    System.out.println("*** 2ad. set assessmentGrading with new/updated itemGrading "+(new Date()));
         HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap, mcmrMap);
         adata.setItemGradingSet(updateItemGradingSet);
       }
@@ -290,6 +294,7 @@ public class SubmitToGradingActionListener implements ActionListener
 
     adata.setIsLate(isLate(publishedAssessment));
     adata.setForGrade(new Boolean(delivery.getForGrade()));
+    System.out.println("*** 2b. before storingGrades, did all the removes and adds "+(new Date()));
     service.saveOrUpdateAssessmentGrading(adata); 
 
     System.out.println("*** 3. before storingGrades, did all the removes and adds "+(new Date()));
