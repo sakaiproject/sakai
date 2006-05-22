@@ -2713,8 +2713,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		}
 		catch (IdUnusedException e)
 		{
-			// site not found?
-			M_log.warn(".enforceGroupSubMembership: site not found: " + siteId);
+			// site not found - will happen with site delete, no problem
 		}
 
 		threadLocalManager().set("enforceGroupSubMembership", null);
