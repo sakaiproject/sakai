@@ -412,11 +412,20 @@ public class GradingService
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
   {
     try {
+      if (assessment.getAssessmentGradingId()!=null 
+          && assessment.getAssessmentGradingId().longValue()>0){
+	//1. if assessmentGrading contain itemGrading, we want to insert/update itemGrading first
+        Set itemGradingSet = assessment.getItemGradingSet(); 
+	saveOrUpdateAll(itemGradingSet);
+      }
+      // this will update itemGradingSet and assessmentGrading. May as well, otherwise I would have
+      // to reload assessment again
       PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().saveOrUpdateAssessmentGrading(assessment);
     } catch (Exception e) {
       e.printStackTrace();
     }
+
   }
 
   public List getAssessmentGradingIds(String publishedItemId){
@@ -460,52 +469,6 @@ public class GradingService
       log.error(e); throw new Error(e);
     }
   }
-
-    /*
-  public void saveItemScores(ArrayList data, HashMap assessmentGradingHash, PublishedAssessmentIfc pub) {
-    try {
-      Iterator iter = data.iterator();
-      while (iter.hasNext())
-      {
-        ItemGradingData gdata = (ItemGradingData) iter.next();
-        if (gdata.getItemGradingId() == null)
-          gdata.setItemGradingId(new Long(0));
-        if (gdata.getPublishedItemTextId().longValue() <=0)
-        {
-          //log.debug("Didn't save -- error in item.");
-        }
-        else
-        {  
-          AssessmentGradingData a = (AssessmentGradingData) assessmentGradingHash.get(gdata.getItemGradingId());
-          a.setItemGradingSet(getItemGradingSet(a.getAssessmentGradingId().toString()));
-
-          Iterator iter2 = a.getItemGradingSet().iterator();
-          while (iter2.hasNext())
-          {
-            ItemGradingData idata = (ItemGradingData) iter2.next();
-            if (idata.getItemGradingId().equals(gdata.getItemGradingId()))
-            {
-              a.getItemGradingSet().remove(idata);
-              a.getItemGradingSet().add(gdata);
-              break;
-            }
-          }
-
-          // Now we can move on.
-          saveItemGrading(gdata);
-          storeGrades(load(gdata.getAssessmentGradingId().toString()), true, pub);
-        }
-      }
-    } 
-    catch (GradebookServiceException ge) {
-      ge.printStackTrace();
-      throw ge;
-    } 
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-    */
 
   public void updateItemScore(ItemGradingData gdata, float scoreDifference, PublishedAssessmentIfc pub){
     try {
@@ -575,6 +538,7 @@ public class GradingService
       // newly submitted answers, updated answers and MCMR/FIB answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
+      System.out.println("****itemGrading size="+itemGradingSet.size());
       if (itemGradingSet == null)
         itemGradingSet = new HashSet();
       Iterator iter = itemGradingSet.iterator();

@@ -168,7 +168,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       // user during take assessment.
       try{
         submitMediaAsAnswer(req, mediaLocation, saveToDb);
-        status = "Audio has been saved and submitted as answer to the question. The old audio has been removed from the system.";
+        status = "Audio has been saved and submitted as answer to the question. Any old recordings have been removed from the system.";
         pw.write(status);
       }
       catch (Exception ex){
