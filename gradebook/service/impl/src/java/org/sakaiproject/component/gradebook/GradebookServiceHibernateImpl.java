@@ -271,17 +271,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.find("from GradingEvent as ge where ge.gradableObject.gradebook.id=?", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grading events");
+        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grading events");
 
         toBeDeleted = hibTempl.find("from AbstractGradeRecord as gr where gr.gradableObject.gradebook.id=?", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade records");
+        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade records");
 
         toBeDeleted = hibTempl.find("from GradableObject as go where go.gradebook.id=?", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " gradable objects");
+        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " gradable objects");
 
         Gradebook gradebook = (Gradebook)hibTempl.load(Gradebook.class, gradebookId);
         gradebook.setSelectedGradeMapping(null);
@@ -289,7 +289,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         toBeDeleted = hibTempl.find("from GradeMapping as gm where gm.gradebook.id=?", gradebookId);
         numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
-        if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " grade mappings");
+        if (log.isDebugEnabled()) log.debug("Deleted " + numberDeleted + " grade mappings");
 
         hibTempl.flush();
 
