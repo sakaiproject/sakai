@@ -53,7 +53,6 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	private static Log log = LogFactory
 			.getLog(ContentHostingContentProducer.class);
-	
 
 	/**
 	 * resolved dep
@@ -111,8 +110,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 					.getName());
 			siteService = (SiteService) load(cm, SiteService.class.getName());
 
-			if ("true".equals(ServerConfigurationService
-					.getString("search.experimental","true")))
+			if ("true".equals(ServerConfigurationService.getString(
+					"search.experimental", "true")))
 			{
 
 				searchService
@@ -181,19 +180,34 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		ContentDigester digester = getDigester(contentResource);
 		Reader reader = null;
-		try {
+		try
+		{
 			reader = digester.getContentReader(contentResource);
-		} catch ( Exception ex) {
-			log.debug("Failed to generate content with "+digester,ex);
-			if ( !digester.equals(defaultDigester) ) {
-				try {
+		}
+		catch (Exception ex)
+		{
+			log.debug("Failed to generate content with " + digester, ex);
+			if (!digester.equals(defaultDigester))
+			{
+				try
+				{
 					reader = defaultDigester.getContentReader(contentResource);
-				} catch ( Exception ex2) {
-					log.debug("Failed to extract content from "+contentResource+" using "+defaultDigester,ex2);
-					throw new RuntimeException("Failed to extract content from "+contentResource+" using "+defaultDigester+" and "+digester,ex);
 				}
-			} else {
-				throw new RuntimeException("Failed to extract content from "+contentResource+" using "+digester,ex);
+				catch (Exception ex2)
+				{
+					log.debug("Failed to extract content from "
+							+ contentResource + " using " + defaultDigester,
+							ex2);
+					throw new RuntimeException(
+							"Failed to extract content from " + contentResource
+									+ " using " + defaultDigester + " and "
+									+ digester, ex);
+				}
+			}
+			else
+			{
+				throw new RuntimeException("Failed to extract content from "
+						+ contentResource + " using " + digester, ex);
 			}
 		}
 		return reader;
@@ -212,19 +226,34 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		ContentDigester digester = getDigester(contentResource);
 		String content = null;
-		try {
+		try
+		{
 			content = digester.getContent(contentResource);
-		} catch ( Exception ex) {
-			log.debug("Failed to generate content with "+digester,ex);
-			if ( !digester.equals(defaultDigester) ) {
-				try {
+		}
+		catch (Exception ex)
+		{
+			log.debug("Failed to generate content with " + digester, ex);
+			if (!digester.equals(defaultDigester))
+			{
+				try
+				{
 					content = defaultDigester.getContent(contentResource);
-				} catch ( Exception ex2) {
-					log.debug("Failed to extract content from "+contentResource+" using "+defaultDigester,ex2);
-					throw new RuntimeException("Failed to extract content from "+contentResource+" using "+defaultDigester+" and "+digester,ex);
 				}
-			} else {
-				throw new RuntimeException("Failed to extract content from "+contentResource+" using "+digester,ex);
+				catch (Exception ex2)
+				{
+					log.debug("Failed to extract content from "
+							+ contentResource + " using " + defaultDigester,
+							ex2);
+					throw new RuntimeException(
+							"Failed to extract content from " + contentResource
+									+ " using " + defaultDigester + " and "
+									+ digester, ex);
+				}
+			}
+			else
+			{
+				throw new RuntimeException("Failed to extract content from "
+						+ contentResource + " using " + digester, ex);
 			}
 		}
 		return content;
@@ -371,7 +400,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	}
 
 	/**
-	 * @param defaultDigester The defaultDigester to set.
+	 * @param defaultDigester
+	 *        The defaultDigester to set.
 	 */
 	public void setDefaultDigester(ContentDigester defaultDigester)
 	{
@@ -385,9 +415,10 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			contentResource = contentHostingService.getResource(ref.getId());
 		}
-		catch ( IdUnusedException idun ) 
+		catch (IdUnusedException idun)
 		{
-			return false; // a collection or unknown resource that cant be indexed
+			return false; // a collection or unknown resource that cant be
+			// indexed
 		}
 		catch (Exception e)
 		{
@@ -395,5 +426,6 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		return true;
 	}
+
 
 }

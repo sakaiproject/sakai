@@ -102,21 +102,58 @@ public interface SearchIndexBuilder
 	 */
 	void refreshIndex(String currentSiteId);
 
+	/**
+	 * get a list of all entitied in the search index
+	 * @return
+	 */
 	List getAllSearchItems();
 	
+	/**
+	 * get an entity content producer that can handle the event
+	 * @param event
+	 * @return
+	 */
 	EntityContentProducer newEntityContentProducer(Event event);
 	
+	/**
+	 * get an entity content procuder that can handle the reference
+	 * @param ref
+	 * @return
+	 */
 	EntityContentProducer newEntityContentProducer(Reference ref);
 
+	/**
+	 * get a list of Master Search Items that control the search operation for the 
+	 * Site (current site)
+	 * @return
+	 */
 	List getSiteMasterSearchItems();
 
+	/**
+	 * get a list of global search items
+	 * @return
+	 */
 	List getGlobalMasterSearchItems();
 
+	/**
+	 * get the current search lock
+	 * @return
+	 */
 	SearchWriterLock getCurrentLock();
 
+	/**
+	 * provide a list of node statuses for all indexer nodes in a cluster
+	 * @return
+	 */
 	List getNodeStatus();
 
+	/**
+	 * force the removal of a worker lock
+	 * @return
+	 */
 	boolean removeWorkerLock();
+
+
 	
 
 }

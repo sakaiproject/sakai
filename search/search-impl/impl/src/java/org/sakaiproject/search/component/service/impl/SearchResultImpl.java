@@ -40,6 +40,7 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.api.SearchService;
 
 /**
  * @author ieb
@@ -60,6 +61,7 @@ public class SearchResultImpl implements SearchResult
 	private Query query = null;
 
 	private Analyzer analyzer = null;
+
 
 	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer) throws IOException
 	{
@@ -84,7 +86,7 @@ public class SearchResultImpl implements SearchResult
 
 	public String getId()
 	{
-		return doc.get("id");
+		return doc.get(SearchService.FIELD_ID);
 	}
 
 	public String[] getFieldNames()
@@ -129,12 +131,13 @@ public class SearchResultImpl implements SearchResult
 
 	public String getUrl()
 	{
-		return doc.get("url");
+		return doc.get(SearchService.FIELD_URL);
 	}
 
 	public String getTitle()
 	{
-		return doc.get("tool") + ": " + doc.get("title");
+		return doc.get(SearchService.FIELD_TOOL) + ": "
+				+ doc.get(SearchService.FIELD_TITLE);
 	}
 
 	public int getIndex()
@@ -149,14 +152,15 @@ public class SearchResultImpl implements SearchResult
 			Scorer scorer = new QueryScorer(query);
 			Highlighter hightlighter = new Highlighter(scorer);
 			StringBuffer sb = new StringBuffer();
-			String[] contents = doc.getValues("contents");
+			// contents no longer contains the digested contents, so we need to
+			String[] contents = doc.getValues(SearchService.FIELD_CONTENTS);
 			for (int i = 0; i < contents.length; i++)
 			{
 				sb.append(contents[i]);
 			}
 			String text = sb.toString();
 			TokenStream tokenStream = analyzer.tokenStream(
-					"contents", new StringReader(text));
+					SearchService.FIELD_CONTENTS, new StringReader(text));
 			return hightlighter.getBestFragments(tokenStream, text, 5, " ... ");
 		}
 		catch (IOException e)

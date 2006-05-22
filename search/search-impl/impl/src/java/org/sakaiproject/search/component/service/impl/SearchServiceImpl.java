@@ -63,7 +63,6 @@ public class SearchServiceImpl implements SearchService
 	 */
 	private List triggerFunctions;
 
-
 	/**
 	 * the notification object
 	 */
@@ -220,11 +219,13 @@ public class SearchServiceImpl implements SearchService
 			BooleanQuery contextQuery = new BooleanQuery();
 			for (Iterator i = contexts.iterator(); i.hasNext();)
 			{
-				contextQuery.add(new TermQuery(new Term("siteid", (String) i
-						.next())), BooleanClause.Occur.MUST );
+				contextQuery.add(new TermQuery(new Term(
+						SearchService.FIELD_SITEID, (String) i.next())),
+						BooleanClause.Occur.MUST);
 			}
 
-			QueryParser qp = new QueryParser("contents", indexStorage.getAnalyzer());
+			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS,
+					indexStorage.getAnalyzer());
 			Query textQuery = qp.parse(searchTerms);
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
@@ -235,7 +236,8 @@ public class SearchServiceImpl implements SearchService
 				Hits h = indexSearcher.search(query);
 				log.debug("Got " + h.length() + " hits");
 
-				return new SearchListImpl(h, textQuery, start, end, indexStorage.getAnalyzer());
+				return new SearchListImpl(h, textQuery, start, end,
+						indexStorage.getAnalyzer());
 			}
 			else
 			{
@@ -268,7 +270,7 @@ public class SearchServiceImpl implements SearchService
 	{
 		if (runningIndexSearcher == null || reload)
 		{
-			
+
 			try
 			{
 				runningIndexSearcher = indexStorage.getIndexSearcher();
@@ -430,7 +432,8 @@ public class SearchServiceImpl implements SearchService
 	}
 
 	/**
-	 * @param indexStorage The indexStorage to set.
+	 * @param indexStorage
+	 *        The indexStorage to set.
 	 */
 	public void setIndexStorage(IndexStorage indexStorage)
 	{

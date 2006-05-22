@@ -64,6 +64,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		implements SearchIndexBuilderWorkerDao
 {
 
+	
+
 	private static Log log = LogFactory
 			.getLog(SearchIndexBuilderWorkerDaoImpl.class);
 
@@ -209,7 +211,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 										{
 											indexReader
 													.deleteDocuments(new Term(
-															"reference", sbi
+															SearchService.FIELD_REFERENCE, sbi
 																	.getName()));
 											if (SearchBuilderItem.ACTION_DELETE
 													.equals(sbi
@@ -304,22 +306,22 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 													.getContainer();
 											if (container == null)
 												container = "";
-											doc.add(new Field("container",
+											doc.add(new Field(SearchService.FIELD_CONTAINER,
 													container, Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field("id",
+											doc.add(new Field(SearchService.FIELD_ID,
 													ref.getId(),
 													Field.Store.YES,
 													Field.Index.NO));
-											doc.add(new Field("type", ref
+											doc.add(new Field(SearchService.FIELD_TYPE, ref
 													.getType(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field("subtype", ref
+											doc.add(new Field(SearchService.FIELD_SUBTYPE, ref
 													.getSubType(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field("reference", ref
+											doc.add(new Field(SearchService.FIELD_REFERENCE, ref
 													.getReference(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
@@ -331,13 +333,13 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 														.next();
 												doc
 														.add(new Field(
-																"realm",
+																SearchService.FIELD_REALM,
 																realm,
 																Field.Store.YES,
 																Field.Index.UN_TOKENIZED));
 											}
 
-											doc.add(new Field("context", sep
+											doc.add(new Field(SearchService.FIELD_CONTEXT, sep
 													.getSiteId(ref),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
@@ -345,32 +347,32 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											{
 												contentReader = sep
 														.getContentReader(entity);
-												doc.add(new Field("contents",
+												doc.add(new Field(SearchService.FIELD_CONTENTS,
 														contentReader,
 														Field.TermVector.YES));
 											}
 											else
 											{
-												doc.add(new Field("contents",
+												doc.add(new Field(SearchService.FIELD_CONTENTS,
 														sep.getContent(entity),
 														Field.Store.YES,
 														Field.Index.TOKENIZED,
 														Field.TermVector.YES));
 											}
-											doc.add(new Field("title", sep
+											doc.add(new Field(SearchService.FIELD_TITLE, sep
 													.getTitle(entity),
 													Field.Store.YES,
 													Field.Index.TOKENIZED,
 													Field.TermVector.YES));
-											doc.add(new Field("tool", sep
+											doc.add(new Field(SearchService.FIELD_TOOL, sep
 													.getTool(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field("url", sep
+											doc.add(new Field(SearchService.FIELD_URL, sep
 													.getUrl(entity),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field("siteid", sep
+											doc.add(new Field(SearchService.FIELD_SITEID, sep
 													.getSiteId(ref),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));

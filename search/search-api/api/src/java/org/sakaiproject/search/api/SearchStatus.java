@@ -25,21 +25,60 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * A search status object
+ * 
  * @author ieb
  */
 public interface SearchStatus
 {
+	/**
+	 * Last time the index was loaded
+	 * 
+	 * @return
+	 */
 	String getLastLoad();
 
+	/**
+	 * How long it tool to load the index
+	 * 
+	 * @return
+	 */
 	String getLoadTime();
 
+	/**
+	 * the current operational worker performing an index, none if there is none
+	 * actively indexing
+	 * 
+	 * @return
+	 */
 	String getCurrentWorker();
 
+	/**
+	 * The latest expected time of completion of the current worker
+	 * 
+	 * @return
+	 */
 	Date getCurrentWorkerETC();
 
+	/**
+	 * A list of all worker nodes in the cluster
+	 * 
+	 * @return
+	 */
 	List getWorkerNodes();
 
+	/**
+	 * the number of documents in the index, including those marked as deleted
+	 * 
+	 * @return
+	 */
 	String getNDocuments();
 
+	/**
+	 * get the number of documents pending to be indexed, including master
+	 * items.
+	 * 
+	 * @return
+	 */
 	String getPDocuments();
 }

@@ -60,10 +60,25 @@ public interface SearchBuilderItemDao
 	 */
 	int countPending();
 
+	/**
+	 * Get all the SearchItems
+	 * 
+	 * @return
+	 */
 	List getAll();
 
+	/**
+	 * get the global master items
+	 * 
+	 * @return
+	 */
 	List getGlobalMasters();
 
+	/**
+	 * get the site master items
+	 * 
+	 * @return
+	 */
 	List getSiteMasters();
 
 }

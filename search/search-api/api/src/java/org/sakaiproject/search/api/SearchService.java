@@ -30,9 +30,79 @@ import java.util.List;
  */
 public interface SearchService
 {
+	/**
+	 * event to trigger an update of the index sent from Search Service to index
+	 * builders
+	 */
 	public static final String EVENT_TRIGGER_SEARCH = "search.update";
 
+	/**
+	 * event to trigger a reload of the search index by query nodes
+	 */
 	public static final String EVENT_TRIGGER_INDEX_RELOAD = "search.index.reload";
+
+	/*
+	 * The search fields being stored in the index
+	 */
+	/**
+	 * Search Index Field the site id of the entity ( where is was produced)
+	 */
+	public static final String FIELD_SITEID = "siteid";
+
+	/**
+	 * Search Index Field the url to the entity
+	 */
+	public static final String FIELD_URL = "url";
+
+	/**
+	 * Search Field The Name of the Tool that owns the entity
+	 */
+	public static final String FIELD_TOOL = "tool";
+
+	/**
+	 * Seadch Field The title of the entity
+	 */
+	public static final String FIELD_TITLE = "title";
+
+	/**
+	 * Searhc Field (term vector, not full contents) The contents of the Entity
+	 */
+	public static final String FIELD_CONTENTS = "contents";
+
+	/**
+	 * Search Field The context of the Entity
+	 */
+	public static final String FIELD_CONTEXT = "context";
+
+	/**
+	 * Search Field The realm of the entity
+	 */
+	public static final String FIELD_REALM = "realm";
+
+	/**
+	 * Search Field The tool subtype of the entity
+	 */
+	public static final String FIELD_SUBTYPE = "subtype";
+
+	/**
+	 * Search Field The tool type of the entity
+	 */
+	public static final String FIELD_TYPE = "type";
+
+	/**
+	 * Search Field The Sakai id of the entity
+	 */
+	public static final String FIELD_ID = "id";
+
+	/**
+	 * Search Field the container of the entity
+	 */
+	public static final String FIELD_CONTAINER = "container";
+
+	/**
+	 * Search field The reference of the entity
+	 */
+	public static final String FIELD_REFERENCE = "reference";
 
 	/**
 	 * Perform a search, return results in a list.
@@ -107,18 +177,40 @@ public interface SearchService
 	 */
 	int getPendingDocs();
 
+	/**
+	 * get all the search items in the index (must be a lazy load list)
+	 * 
+	 * @return
+	 */
 	List getAllSearchItems();
 
+	/**
+	 * get the master itemf to sthe site
+	 * 
+	 * @return
+	 */
 	List getSiteMasterSearchItems();
 
+	/**
+	 * get the global master items
+	 * 
+	 * @return
+	 */
 	List getGlobalMasterSearchItems();
 
+	/**
+	 * Get the status of the search engine
+	 * 
+	 * @return
+	 */
 	SearchStatus getSearchStatus();
 
+	/**
+	 * force the removal of the worker lock
+	 * 
+	 * @return
+	 */
 	boolean removeWorkerLock();
-	
-	
-
 
 
 }
