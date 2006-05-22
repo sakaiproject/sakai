@@ -400,7 +400,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 			// get the public syllabus
 			try
 			{
-				Object syllabusService = ComponentManager.get("org.sakaiproject.syllabus.api.SyllabusService");
+				Object syllabusService = ComponentManager.get("org.sakaiproject.api.app.syllabus.SyllabusService");
 				Class syllabusServiceClass = syllabusService.getClass();
 				Class[] paramsClasses = new Class[1];
 				paramsClasses[0] = java.lang.String.class;
