@@ -153,6 +153,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	/** state attribute names. */
 	private static final String STATE_CHANNEL_REF = "channelId";
+	
+	private static final String STATE_CHANNEL_PUBVIEW = "channelPubView";
 
 	private static final String PORTLET_CONFIG_PARM_NON_MERGED_CHANNELS = "nonMergedAnnouncementChannels";
 
@@ -1572,9 +1574,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("tempSubject", state.getTempSubject());
 			context.put("tempBody", state.getTempBody());
 
-			// default pubview - %%% could find the inheritance even if we don't have an announcement yet... -ggolden
-			context.put("pubviewset", Boolean.FALSE);
-			// context.put("pubview", Boolean.FALSE);
+			// default pubview
+			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 
 			// output the sstate saved public view options
 			boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
@@ -1602,7 +1603,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("message", edit);
 
 			// find out about pubview
-			context.put("pubviewset", Boolean.FALSE);// TODO:
+			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 			context.put("pubview", Boolean.valueOf(edit.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
 
 			// there is no chance to get the notification setting at this point
@@ -1667,7 +1668,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("message", message);
 
 			// find out about pubview
-			context.put("pubviewset", Boolean.FALSE);
+			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 			context.put("pubview", Boolean.valueOf(message.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
 
 			// show all the groups in this channal that user has get message in
@@ -3300,6 +3301,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			annState.setIsListVM(true);
 		}
 		state.setAttribute(STATE_CHANNEL_REF, channelId);
+		
+		// check if the channel is marked public read
+		if (SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
+		{
+			state.setAttribute(STATE_CHANNEL_PUBVIEW, STATE_CHANNEL_PUBVIEW);
+		}
 
 		if (state.getAttribute(STATE_SELECTED_VIEW) == null)
 		{

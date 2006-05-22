@@ -61,18 +61,9 @@
 						</td>
 					</tr>
 				</table>
-			</div>	
-			#*if($pubviewset)
-				$tlang.getString("revise.setto")
-			#else
-				<p class="checkbox">
-					<input type="checkbox" id="pubview" name="pubview" value="true" #if ($pubview) checked="checked" #end/>
-					<label for="pubview">$tlang.getString("revise.displaynon")</label>
-				</p>	
-			#end
-			*#
+			</div>
 		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
-		#if ($!publicDisable && ($show_group =="false"))
+		#if (($!publicDisable && ($show_group =="false")) || $pubviewset)
 			## no show this selection, but set default to site
 			<input type="hidden" name="announceTo" id="site" value="site" checked="checked" />
 		#else
