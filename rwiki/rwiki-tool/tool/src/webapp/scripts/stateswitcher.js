@@ -116,11 +116,14 @@ function addAttachment(textareaid, formid, editcontrolid, type) {
     textareaRange = document.selection.createRange().duplicate();
     duplicate.select();
 
-    var length = duplicate.text.length;
+    var duplicateText = duplicate.text;
+    var length = duplicateText.replace(/\r\n/g,"\n").length;
 
     duplicate.setEndPoint("StartToStart", textareaRange); 	
 
-    var endPoint = duplicate.text.length;
+    duplicateText = duplicate.text;
+    var endPoint = duplicateText.replace(/\r\n/g,"\n").length;
+
     var startPoint = endPoint - length;
     store = startPoint + ":" + endPoint;
   } else if (typeof(textarea.selectionStart) != "undefined") {
