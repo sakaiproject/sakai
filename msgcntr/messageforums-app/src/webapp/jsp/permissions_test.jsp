@@ -8,11 +8,8 @@
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 
 <f:view>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-
- 
-  <sakai:view>
-  
+   <sakai:view>
+     <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' /> 
     <%  
     /** initialize user's private message area per request **/
     FacesContext context = FacesContext.getCurrentInstance();

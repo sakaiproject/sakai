@@ -5,9 +5,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+
 <f:view>
    <sakai:view>
+      <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
       <h:form id="revise">
         <sakai:tool_bar_message value="#{msgs.cdfm_discussion_forum_settings}" />
  			 <div class="instruction">

@@ -5,9 +5,9 @@
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 
 <f:view>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
   <sakai:view>
-  
+    <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />  
+    
       <h:form id="msgForum">
         <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
         <h:outputText value="#{msgs.pvt_message_nav}"/>

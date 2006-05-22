@@ -3,9 +3,10 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
-<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+
 <f:view>
 <sakai:view>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
   <h:form id="DF-1">
     <sakai:group_box>
       <div class="left-header-section">
