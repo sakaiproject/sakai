@@ -126,7 +126,7 @@ function addAttachment(textareaid, formid, editcontrolid, type) {
   } else if (typeof(textarea.selectionStart) != "undefined") {
     store = textarea.selectionStart + ":" + textarea.selectionEnd;
   } else {
-    store = (textarea.text.length - 1) + ":" + (textarea.text.length - 1)
+    store = "0:0";
   }
 
   editcontrol.innerHTML += "<input type='hidden' name='save' value='Attach" + type + "'/><input type='hidden' name='caretPosition' value='"+ store + "'/>";
