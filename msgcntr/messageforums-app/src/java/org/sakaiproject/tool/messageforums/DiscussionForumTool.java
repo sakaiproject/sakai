@@ -1912,25 +1912,7 @@ public class DiscussionForumTool
       aMsg.setTitle(getComposeTitle());
       aMsg.setBody(getComposeBody());
       
-  	  if("true".equalsIgnoreCase(ServerConfigurationService.getString
-			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-      {
-  		try
-  		{
-  		  String authorString = "";
-   		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-   		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-  		  aMsg.setAuthor(authorString);
-  		}
-  		catch(Exception e)
-  		{
-  	      e.printStackTrace();
-  		}
-  	  }
-  	  else
-  	  {
-  		aMsg.setAuthor(getUserId());
-  	  }
+      aMsg.setAuthor(getUserNameOrEid());
       
       aMsg.setDraft(Boolean.FALSE);
       aMsg.setApproved(Boolean.TRUE);
@@ -2349,21 +2331,8 @@ public class DiscussionForumTool
     }
     String currentBody = getComposeBody();
     String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
-	if("true".equalsIgnoreCase(ServerConfigurationService.getString
-			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-	{
-	  try
-	  {
-		revisedInfo += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-		revisedInfo += UserDirectoryService.getUser(getUserId()).getFirstName();
-	  }
-	  catch(Exception e)
-	  {
-		e.printStackTrace();
-	  }
-	}
-	else
-	  revisedInfo += getUserId();
+    
+    revisedInfo += getUserNameOrEid();
     
     revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
@@ -2384,24 +2353,7 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.FALSE);
     dMsg.setModified(new Date());
     
-    String modifyAuthor = "";
-	if("true".equalsIgnoreCase(ServerConfigurationService.getString
-			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-	{
-	  try
-	  {
-		modifyAuthor += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-		modifyAuthor += UserDirectoryService.getUser(getUserId()).getFirstName();
-	  }
-	  catch(Exception e)
-	  {
-		e.printStackTrace();
-	  }
-	}
-	else
-	  modifyAuthor = getUserId();
-
-    dMsg.setModifiedBy(modifyAuthor);
+    dMsg.setModifiedBy(getUserNameOrEid());
     // dMsg.setApproved(Boolean.TRUE);
 
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -2490,21 +2442,9 @@ public class DiscussionForumTool
     }
     String currentBody = getComposeBody();
     String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString
-			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-	{
-	  try
-	  {
-		revisedInfo += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-		revisedInfo += UserDirectoryService.getUser(getUserId()).getFirstName();
-	  }
-	  catch(Exception e)
-	  {
-		e.printStackTrace();
-	  }
-	}
-    else
-      revisedInfo += getUserId();
+
+    revisedInfo += getUserNameOrEid();
+    
     revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
     Date now = new Date();
     revisedInfo += now.toString() + " <br/> ";    
@@ -2515,23 +2455,7 @@ public class DiscussionForumTool
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setModified(new Date());
     
-    String modifyAuthor = "";
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString
-			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-	{
-	  try
-	  {
-		modifyAuthor += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-		modifyAuthor += UserDirectoryService.getUser(getUserId()).getFirstName();
-	  }
-	  catch(Exception e)
-	  {
-		e.printStackTrace();
-	  }
-	}
-    else
-    	modifyAuthor += getUserId();
-    dMsg.setModifiedBy(modifyAuthor);
+    dMsg.setModifiedBy(getUserNameOrEid());
     // dMsg.setApproved(Boolean.TRUE);
     
 //    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
@@ -4138,4 +4062,53 @@ public class DiscussionForumTool
 		{
 			this.gradebookExist = gradebookExist;
 		}
+
+	public String getUserNameOrEid()
+	{
+	  try
+	  {
+		String currentUserId = getUserId();
+  	    if("true".equalsIgnoreCase(ServerConfigurationService.getString
+		  ("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
+  	    {
+		  String userString = "";
+		  String userLastName = UserDirectoryService.getUser(currentUserId).getLastName();
+		  String userFirstName = UserDirectoryService.getUser(currentUserId).getFirstName();
+		  if((userLastName != null && userLastName.length() > 0) ||
+		    (userFirstName != null && userFirstName.length() > 0))
+		  {
+			userString += userLastName + ", ";
+			userString += userFirstName;
+			return userString;
+		  }
+		  else
+		  {
+			return currentUserId;
+		  }
+		}
+  	    else
+  	    {
+  	      String userString = "";
+  	      String userLastName = UserDirectoryService.getUser(currentUserId).getLastName();
+		  String userFirstName = UserDirectoryService.getUser(currentUserId).getFirstName();
+		  if((userLastName != null && userLastName.length() > 0) ||
+		    (userFirstName != null && userFirstName.length() > 0))
+		  {
+			userString += userLastName + ", ";
+			userString += userFirstName;
+			return userString;
+		  }
+		  else
+		  {
+			return currentUserId;
+		  }
+  	    }
+	  }
+  	  catch(Exception e)
+  	  {
+  		e.printStackTrace();
+  	  }
+  	  
+  	  return getUserId();
+	}
 }
