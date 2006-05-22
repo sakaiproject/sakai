@@ -83,7 +83,7 @@
 			var otherCommercialUseElementList = document.getElementsByName("$!{rightsObj.fieldNameOtherCommercialUse}");
 			if(otherCommercialUseElementList && otherCommercialUseElementList.length)
 			{
-				for(var i = 0; i < commercialUseElementList.length; i++)
+				for(var i = 0; i < otherCommercialUseElementList.length; i++)
 				{
 					if(otherCommercialUseElementList[i] && otherCommercialUseElementList[i].checked)
 					{

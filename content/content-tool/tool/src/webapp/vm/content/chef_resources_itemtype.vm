@@ -82,7 +82,7 @@
 			var otherCommercialUseElementList = document.getElementsByName("$!{rightsObj.fieldNameOtherCommercialUse}");
 			if(otherCommercialUseElementList && otherCommercialUseElementList.length)
 			{
-				for(var i = 0; i < commercialUseElementList.length; i++)
+				for(var i = 0; i < otherCommercialUseElementList.length; i++)
 				{
 					if(otherCommercialUseElementList[i] && otherCommercialUseElementList[i].checked)
 					{
@@ -111,7 +111,7 @@
 			var div1 = document.getElementById("rights_div_1_$!{rightsObj.name}");
 			var div2 = document.getElementById("rights_div_2_$!{rightsObj.name}");
 			var div3 = document.getElementById("rights_div_3_$!{rightsObj.name}");
-			
+		
 			var html0 = "&nbsp;";
 			var html1 = "";
 			var html2 = "";
