@@ -3618,6 +3618,9 @@ public class ResourcesAction
 			{
 				resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
 			}
+			
+			BasicRightsAssignment rightsObj = item.getRights();
+			rightsObj.addResourceProperties(resourceProperties);
 
 			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
 			if(item.isHtml())
@@ -5732,6 +5735,9 @@ public class ResourcesAction
 			String itemName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
 			item = new EditItem(id, itemName, itemType);
+			
+			BasicRightsAssignment rightsObj = new BasicRightsAssignment(item.getItemNum(), properties);
+			item.setRights(rightsObj);
 
 			String encoding = data.getRequest().getCharacterEncoding();
 			if(encoding != null)
@@ -7677,6 +7683,9 @@ public class ResourcesAction
 						redit.setContentType(item.getMimeType());
 					}
 
+					BasicRightsAssignment rightsObj = item.getRights();
+					rightsObj.addResourceProperties(pedit);
+
 					String copyright = StringUtil.trimToNull(params.getString ("copyright"));
 					String newcopyright = StringUtil.trimToNull(params.getCleanString (NEW_COPYRIGHT));
 					String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
@@ -9394,6 +9403,9 @@ public class ResourcesAction
 				folder.setRoot(parent.getRoot());
 			}
 			
+			BasicRightsAssignment rightsObj = new BasicRightsAssignment(folder.getItemNum(), cProperties);
+			folder.setRights(rightsObj);
+			
 			AccessMode access = collection.getAccess();
 			if(access == null)
 			{
@@ -9528,6 +9540,8 @@ public class ResourcesAction
 						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 
+						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
+						newItem.setRights(rightsObj2);
 						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
 						if(access_mode == null)
 						{

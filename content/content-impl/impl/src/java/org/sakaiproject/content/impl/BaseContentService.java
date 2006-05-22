@@ -6722,7 +6722,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/** The date/time before which the entity should not be generally available */
 		protected Time m_releaseDate = TimeService.newTime(0);
-
+		
 		/**
 		 * Construct with an id.
 		 * 
@@ -6801,6 +6801,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						Group group = site.getGroup(groupId);
 						m_groups.add(group);
 					} 
+				}
+				else if(element.getTagName().equals("rightsAssignment"))
+				{
+					
 				}
 			}
 
