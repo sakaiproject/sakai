@@ -55,7 +55,7 @@ public class TableBuilder
 			{
 				table.addCell(token);
 			}
-			else if (null == lastToken || "|".equals(lastToken))
+			else if (null == lastToken || "|".equals(lastToken) || "\n".equals(lastToken))
 			{
 				// Handles "|" "||"
 				table.addCell(" ");
