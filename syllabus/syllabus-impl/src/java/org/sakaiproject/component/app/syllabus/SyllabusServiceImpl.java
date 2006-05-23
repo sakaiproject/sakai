@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Stack;
 import java.util.Vector;
 import org.apache.commons.logging.Log;
@@ -39,6 +40,8 @@ import org.sakaiproject.api.app.syllabus.SyllabusItem;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
 import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -1169,9 +1172,28 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 										toSyData.getView(), toSyData
 												.getStatus(), toSyData
 												.getEmailNotification());
+						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
+						Iterator attachIter = attachSet.iterator();
+						Set newAttachSet = new TreeSet();
+						while(attachIter.hasNext())
+						{
+							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();
+							ContentResource oldAttachment = ContentHostingService.getResource(thisAttach.getAttachmentId());
+							ContentResource attachment = ContentHostingService.addAttachmentResource(
+								oldAttachment.getProperties().getProperty(
+										ResourceProperties.PROP_DISPLAY_NAME), ToolManager
+										.getCurrentPlacement().getContext(), ToolManager.getTool(
+										"sakai.syllabus").getTitle(), oldAttachment.getContentType(),
+										oldAttachment.getContent(), oldAttachment.getProperties());
+							SyllabusAttachment thisSyllabusAttach = syllabusManager.createSyllabusAttachmentObject(
+								attachment.getId(), 
+								attachment.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+							newAttachSet.add(thisSyllabusAttach);
+						}
+						newToSyData.setAttachments(newAttachSet);
 						syllabusManager.addSyllabusToSyllabusItem(toSyItem,
 								newToSyData);
-					}
+				  }
 				} 
 				else 
 				{
@@ -1179,12 +1201,13 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 									+ fromSyllabusItem.getSurrogateKey()
 											.toString());
 				}
-			}
+			
 			logger.debug("importResources: End importing syllabus data");
+		  }
 		}
-
 		catch (Exception e) 
 		{
+			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		}
 	}
