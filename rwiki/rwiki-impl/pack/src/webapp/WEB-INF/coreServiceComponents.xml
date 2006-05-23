@@ -145,7 +145,7 @@
     <property name="feedFormat"><value>&lt;a href="{0}html" target="feeds"&gt;&lt;img src="/library/image/sakai/html.gif" border="0"  alt="Html" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
-        <entry key="content-type"><value>text/html</value></entry>
+        <entry key="content-type"><value>text/html; charset=UTF-8</value></entry>
       </map>     
     </property>
     <property name="outputProperties">
