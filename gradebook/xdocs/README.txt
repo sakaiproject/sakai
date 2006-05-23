@@ -104,6 +104,9 @@ Here's a sample for MySQL:
   hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
   hibernate.query.factory_class=org.hibernate.hql.classic.ClassicQueryTranslatorFactory
 
+  # java.sql.Connection.TRANSACTION_READ_COMMITTED
+  hibernate.connection.isolation=2
+
 And one for Oracle:
 
   hibernate.connection.driver_class=oracle.jdbc.driver.OracleDriver
