@@ -233,8 +233,11 @@ public interface GradebookService {
      * @param gradingScaleDefinitions
      *	A collection of GradingScaleDefinition beans.
 	 */
-
 	public void setAvailableGradingScales(Collection gradingScaleDefinitions);
 
+	/**
+     * @param uid
+     *	The UID of the grading scale to use as the default for new gradebooks.
+	 */
 	public void setDefaultGradingScale(String uid);
 }

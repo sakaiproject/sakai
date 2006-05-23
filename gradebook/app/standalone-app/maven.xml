@@ -90,6 +90,18 @@
 		</ant:schemaexport>
 	</goal>
 
+	<goal name="test-against-loaded-data">
+		<!-- Skip the normal tests. -->
+		<j:set var="maven.test.skip" value="true" />
+
+		<!-- Don't use the in-memory DB usually used for tests. -->
+		<j:set var="mem" value="false" />
+		<j:set var="maven.hibernate.properties" value="${hibernate.properties.dir}/hibernate.properties" />
+
+		<j:set var="testcase" value="org.sakaiproject.tool.gradebook.test.TestServiceAgainstLoadedData" />
+		<attainGoal name="test:single" />
+	</goal>
+
 	<goal name="load-full">
 		<!--
 			Export the full schema out to the DB rather than just doing an update.

@@ -194,7 +194,7 @@ public class GradebookServiceTest extends GradebookTestBase {
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
     }
 
-    public void testUpdateMultpleScores() throws Exception {
+    public void testUpdateMultipleScores() throws Exception {
         // Add an external assessment
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
