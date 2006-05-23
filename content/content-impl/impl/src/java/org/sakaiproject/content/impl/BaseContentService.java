@@ -1337,6 +1337,43 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return collection;
 
 	} // getCollection
+	
+	/**
+	 * Access a List of ContentEntities (resources and collections) objects in this path (and below) to which the current user has access.
+	 * 
+	 * @param id
+	 *        A collection id.
+	 * @return a List of the ContentEntity objects.
+	 */
+	public List getAllEntities(String id)
+	{
+		List rv = new Vector();
+
+		// get the collection members
+		try
+		{
+			ContentCollection collection = getCollection(id);
+			if (collection != null)
+			{
+				getAllResources(collection, rv, true);
+			}
+		}
+		catch (TypeException e)
+		{
+			// should result in an empty list
+		}
+		catch (IdUnusedException e)
+		{
+			// should result in an empty list
+		}
+		catch (PermissionException e)
+		{
+			// should result in an empty list
+		}
+
+		return rv;
+
+	} // getAllResources
 
 	/**
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
@@ -1352,13 +1389,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// get the collection members
 		try
 		{
-			ContentCollection collection = findCollection(id);
+			ContentCollection collection = getCollection(id);
 			if (collection != null)
 			{
-				getAllResources(collection, rv);
+				getAllResources(collection, rv, false);
 			}
 		}
 		catch (TypeException e)
+		{
+		}
+		catch (IdUnusedException e)
+		{
+		}
+		catch (PermissionException e)
 		{
 		}
 
@@ -1373,9 +1416,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The collection.
 	 * @param rv
 	 *        The list in which to accumulate resource objects.
+	 * @param includeCollections TODO
 	 */
-	protected void getAllResources(ContentCollection collection, List rv)
+	protected void getAllResources(ContentCollection collection, List rv, boolean includeCollections)
 	{
+		if(includeCollections)
+		{
+			rv.add(collection);
+		}
+		
 		List members = collection.getMemberResources();
 
 		// process members
@@ -1384,18 +1433,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			Object next = iMbrs.next();
 
 			// if resource, add it if permitted
+
+			if (unlockCheck(EVENT_RESOURCE_READ, ((ContentEntity) next).getId()))
+			{
 			if (next instanceof ContentResource)
 			{
-				if (unlockCheck(EVENT_RESOURCE_READ, ((ContentResource) next).getId()))
-				{
 					rv.add(next);
 				}
-			}
-
+	
 			// if collection, again
 			else
 			{
-				getAllResources((ContentCollection) next, rv);
+					getAllResources((ContentCollection) next, rv, includeCollections);
+				}
 			}
 		}
 
@@ -1412,7 +1462,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentCollection findCollection(String id) throws TypeException
 	{
-		ContentCollection collection = (ContentCollection) ThreadLocalManager.get(id);
+		String ref = getReference(id);
+		
+		ContentCollection collection = (ContentCollection) ThreadLocalManager.get(ref);
 		
 		if(collection == null)
 		{
@@ -1420,7 +1472,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(collection != null)
 			{
-				ThreadLocalManager.set(id, collection);
+				ThreadLocalManager.set(ref, collection);
 			}
 		}
 
@@ -2437,7 +2489,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentResource findResource(String id) throws TypeException
 	{
-		ContentResource resource = (ContentResource) ThreadLocalManager.get(id);
+		String ref = getReference(id);
+		
+		ContentResource resource = (ContentResource) ThreadLocalManager.get(ref);
 		
 		if(resource == null)
 		{
@@ -2445,7 +2499,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(resource != null)
 			{
-				ThreadLocalManager.set(id, resource);
+				ThreadLocalManager.set(ref, resource);
 			}
 		}
 		
@@ -6210,7 +6264,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public static final String SITE_UPDATE_ACCESS = "site.upd";
 	
-	protected static final String ALL_GROUP_ACCESS = "annc.all.groups";
+	protected static final String ALL_GROUP_ACCESS = "content.all.groups";
 
 	protected static final String GROUP_LIST = "sakai:authzGroup";
 
@@ -7286,6 +7340,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return true;
 		}
 
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
+		 */
+		public ContentCollection getContainingCollection()
+		{
+			ContentCollection container = null;
+			String containerId = isolateContainingId(this.getId());
+			try
+			{
+				container = findCollection(containerId);
+			}
+			catch (TypeException e)
+			{
+			}
+			return container;
+		}
+
 	} // class BaseCollection
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7925,6 +7996,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			// TODO: this may need a different implementation in the handler
 			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
+		 */
+		public ContentCollection getContainingCollection()
+		{
+			ContentCollection container = null;
+			String containerId = isolateContainingId(this.getId());
+			try
+			{
+				container = findCollection(containerId);
+			}
+			catch (TypeException e)
+			{
+			}
+			return container;
 		}
 		
 	} // BaseResource

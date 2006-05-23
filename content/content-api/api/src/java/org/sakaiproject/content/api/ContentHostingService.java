@@ -243,6 +243,15 @@ public interface ContentHostingService extends EntityProducer
 	public int getCollectionSize(String id) throws IdUnusedException, TypeException, PermissionException;
 
 	/**
+	 * Access a List of ContentEntities (resources and collections) objects in this path (and below) to which the current user has access.
+	 * 
+	 * @param id
+	 *        A collection id.
+	 * @return a List of the ContentEntity objects.
+	 */
+	public List getAllEntities(String id);
+
+	/**
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
 	 * 
 	 * @param id

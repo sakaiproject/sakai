@@ -26,6 +26,12 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 public interface ContentEntity extends GroupAwareEntity
 {
 	/**
+	 * Access this ContentEntity's containing collection, or null if this entity is the site collection.
+	 * @return
+	 */
+	public ContentCollection getContainingCollection(); 
+	
+	/**
 	 * Check whether an entity is a ContentResource.
 	 * @return true if the entity implements the ContentResource interface, false otherwise.
 	 */
