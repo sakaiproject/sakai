@@ -58,6 +58,11 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
     private static final Log log = LogFactory.getLog(TestServiceAgainstLoadedData.class);
 
+	public TestServiceAgainstLoadedData() {
+    	// Don't roll these tests back, since they are intended to act like real-world users.
+		setDefaultRollback(false);
+	}
+
     private Assignment getAssignment(Gradebook gradebook, String assignmentName) {
 		List assignments = gradebookManager.getAssignments(gradebook.getId());
 		for (Iterator iter = assignments.iterator(); iter.hasNext();) {
@@ -135,6 +140,24 @@ public class TestServiceAgainstLoadedData extends GradebookLoaderBase {
 			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
 			gradebookService.updateExternalAssessmentScore(gradebook.getUid(), asn.getExternalId(), enr.getUser().getUserUid(), score);
 		}
+	}
+
+	public void testUpdateExternalScores2Same() throws Exception {
+        Gradebook gradebook = gradebookManager.getGradebook(TestGradebookLoader.GRADEBOOK_WITH_GRADES);
+		List enrollments = sectionAwareness.getSiteMembersInRole(gradebook.getUid(), Role.STUDENT);
+
+		Assignment asn = getAssignment(gradebook, TestGradebookLoader.EXTERNAL_ASN_NAME2);
+
+		Map studentUidsToScores = new HashMap();
+		int scoreGoRound = -1;
+		for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			Double score = (scoreGoRound == -1) ? null : new Double(scoreGoRound);
+			scoreGoRound = (scoreGoRound < 11) ? (scoreGoRound + 1) : -1;
+			studentUidsToScores.put(enr.getUser().getUserUid(), score);
+		}
+		log.warn("about to updateExternalAssessmentScores with " + enrollments.size() + " scores for " + asn.getExternalId());
+		gradebookService.updateExternalAssessmentScores(gradebook.getUid(), asn.getExternalId(), studentUidsToScores);
 	}
 }
 

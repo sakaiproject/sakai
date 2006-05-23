@@ -486,29 +486,39 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Date now = new Date();
+
                 AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
-                if (agr == null) {
-                	agr = new AssignmentGradeRecord(asn, studentUid, points);
-                } else {
-                	agr.setPointsEarned(points);
-                }
-				agr.setDateRecorded(now);
-				agr.setGraderId(getUserUid());
-                session.saveOrUpdate(agr);
 
-                Gradebook gradebook = asn.getGradebook();
-                Set set = new HashSet();
-                set.add(studentUid);
+                // Try to reduce data contention by only updating when the
+                // score has actually changed.
+                Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
+                if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
+					((points == null) && (points != null)) ) {
+					if (agr == null) {
+						agr = new AssignmentGradeRecord(asn, studentUid, points);
+					} else {
+						agr.setPointsEarned(points);
+					}
 
-				// Need to sync database before recalculating.
-				session.flush();
-				session.clear();
-                try {
-                    recalculateCourseGradeRecords(gradebook, set, session);
-                } catch (StaleObjectStateException e) {
-                    if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
-                    throw new StaleObjectModificationException(e);
-                }
+					agr.setDateRecorded(now);
+					agr.setGraderId(getUserUid());
+					if (log.isDebugEnabled()) log.debug("About to save AssignmentGradeRecord id=" + agr.getId() + ", version=" + agr.getVersion() + ", studenttId=" + agr.getStudentId() + ", pointsEarned=" + agr.getPointsEarned());
+					session.saveOrUpdate(agr);
+
+					Gradebook gradebook = asn.getGradebook();
+					Set set = new HashSet();
+					set.add(studentUid);
+
+					// Need to sync database before recalculating.
+					session.flush();
+					session.clear();
+					try {
+						recalculateCourseGradeRecords(gradebook, set, session);
+					} catch (StaleObjectStateException e) {
+						if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
+						throw new StaleObjectModificationException(e);
+					}
+				}
                 return null;
             }
         };
@@ -534,29 +544,46 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 q.setParameterList("studentIds", studentIds);
 				List existingScores = q.list();
 
-				Set unscoredStudents = new HashSet(studentIds);
+				Set previouslyUnscoredStudents = new HashSet(studentIds);
+				Set changedStudents = new HashSet();
 				for (Iterator iter = existingScores.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
 					String studentUid = agr.getStudentId();
-					agr.setDateRecorded(now);
-					agr.setGraderId(graderId);
-					agr.setPointsEarned((Double)studentUidsToScores.get(studentUid));
-					session.update(agr);
-					unscoredStudents.remove(studentUid);
+					previouslyUnscoredStudents.remove(studentUid);
+
+					// Try to reduce data contention by only updating when a score
+					// has changed.
+					Double oldPointsEarned = agr.getPointsEarned();
+					Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
+					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+						agr.setDateRecorded(now);
+						agr.setGraderId(graderId);
+						agr.setPointsEarned(newPointsEarned);
+						session.update(agr);
+						changedStudents.add(studentUid);
+					}
 				}
-				for (Iterator iter = unscoredStudents.iterator(); iter.hasNext(); ) {
+				for (Iterator iter = previouslyUnscoredStudents.iterator(); iter.hasNext(); ) {
 					String studentUid = (String)iter.next();
-					AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, (Double)studentUidsToScores.get(studentUid));
-					agr.setDateRecorded(now);
-					agr.setGraderId(graderId);
-					session.save(agr);
+
+					// Don't save unnecessary null scores.
+					Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
+					if (newPointsEarned != null) {
+						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, newPointsEarned);
+						agr.setDateRecorded(now);
+						agr.setGraderId(graderId);
+						session.save(agr);
+						changedStudents.add(studentUid);
+					}
 				}
+
+				if (log.isDebugEnabled()) log.debug("updateExternalAssessmentScores sent " + studentIds.size() + " records, actually changed " + changedStudents.size());
 
 				// Need to sync database before recalculating.
 				session.flush();
 				session.clear();
                 try {
-                    recalculateCourseGradeRecords(assignment.getGradebook(), studentIds, session);
+                    recalculateCourseGradeRecords(assignment.getGradebook(), changedStudents, session);
                 } catch (StaleObjectStateException e) {
                     if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
                     throw new StaleObjectModificationException(e);

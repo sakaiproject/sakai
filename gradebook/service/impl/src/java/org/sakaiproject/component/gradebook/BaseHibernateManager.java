@@ -115,7 +115,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * here, you will be unable to catch the exception (due to the spring proxy
      * mechanism).
      *
-     * TODO Clean up optimistic locking difficulties in recalculate grades
+     * TODO Clean up optimistic locking difficulties in recalculate grades.
+     * We currently have a "update calculation on write" model. Inside the Gradebook
+     * application, reading the calculated grade happens much more often than updating
+     * it, and so that design made sense at first. But nowadays, many sites will be
+     * updating the Gradebook through services more often than the instructor looks
+     * at the calculated course grade. And so we should probably move to a "mark
+     * calculation as dirty and update calculation on read" design instead.
      *
      * @param gradebook The gradebook containing the course grade records to update
      * @param studentIds The collection of student IDs
@@ -124,14 +130,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected void recalculateCourseGradeRecords(final Gradebook gradebook,
             final Collection studentIds, Session session) throws HibernateException {
         if(logger.isDebugEnabled()) logger.debug("Recalculating " + studentIds.size() + " course grade records");
+        int changedRecordCount = 0;	// For debugging
 
         List assignments = getAssignments(gradebook.getId(), session);
         String graderId = getUserUid();
         Date now = new Date();
         for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();) {
             String studentId = (String)studentIter.next();
-
-            // TODO Run performance test: get all grade records and deal with them in memory vs. multiple queries
 
             List gradeRecords = getCountedStudentGradeRecords(gradebook.getId(), studentId, session);
             CourseGrade cg = getCourseGrade(gradebook.getId());
@@ -145,16 +150,24 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 cgr.setDateRecorded(now);
             }
 
+            // Store old value to see whether an update is really needed.
+            Double oldPointsEarned = cgr.getPointsEarned();
+
             // Calculate and update the total points and sort grade fields
             cgr.calculateTotalPointsEarned(gradeRecords);
-            if(cgr.getEnteredGrade() == null) {
-                cgr.setSortGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
-            } else {
-                cgr.setSortGrade(gradebook.getSelectedGradeMapping().getValue(cgr.getEnteredGrade()));
-            }
 
-            session.saveOrUpdate(cgr);
+            // Only update if there's been a change.
+            Double newPointsEarned = cgr.getPointsEarned();
+            if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
+            	((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+				if (cgr.getEnteredGrade() == null) {
+					cgr.setSortGrade(cgr.calculatePercent(cg.getTotalPoints().doubleValue()));
+				}
+				session.saveOrUpdate(cgr);
+				changedRecordCount++;
+			}
         }
+        if(logger.isDebugEnabled()) logger.debug("Stored " + changedRecordCount + " changed course grade records");
     }
 
     /**
