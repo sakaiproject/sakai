@@ -10380,7 +10380,7 @@ public class SiteAction extends PagedResourceActionII
 					{
 						User u = UserDirectoryService.getUserByEid(noEmailInIdAccount);
 						participant.name = u.getDisplayName();
-						participant.uniqname = u.getId();
+						participant.uniqname = noEmailInIdAccount;
 						pList.add(participant);
 					}
 					catch (UserNotDefinedException e) 
@@ -10438,7 +10438,7 @@ public class SiteAction extends PagedResourceActionII
 							// if the emailInIdAccount user already exists
 							User u = UserDirectoryService.getUserByEid(emailInIdAccount);
 							participant.name = u.getDisplayName();
-							participant.uniqname = u.getId();
+							participant.uniqname = emailInIdAccount;
 							pList.add(participant);
 						}
 						catch (UserNotDefinedException e)
