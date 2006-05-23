@@ -394,7 +394,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									catch (Exception e1)
 									{
-										log.warn(" Failed to index document cause: "+e1.getMessage());
+										log.info(" Failed to index document cause: "+e1.getMessage());
 									}
 									// update this node lock to indicate its
 									// still alove, no document should
