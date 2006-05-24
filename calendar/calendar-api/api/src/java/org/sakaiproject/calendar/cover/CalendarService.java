@@ -56,6 +56,7 @@ public class CalendarService
 	public static java.lang.String EVENT_REMOVE_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_REMOVE_CALENDAR;
 	public static java.lang.String EVENT_READ_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_READ_CALENDAR;
 	public static java.lang.String EVENT_MODIFY_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR;
+	public static java.lang.String EVENT_ALL_GROUPS_CALENDAR = org.sakaiproject.calendar.api.CalendarService.EVENT_ALL_GROUPS_CALENDAR;
 	public static java.lang.String REF_TYPE_CALENDAR = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR;
 	public static java.lang.String REF_TYPE_CALENDAR_PDF = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_CALENDAR_PDF;
 	public static java.lang.String REF_TYPE_EVENT = org.sakaiproject.calendar.api.CalendarService.REF_TYPE_EVENT;

@@ -465,6 +465,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		FunctionManager.registerFunction(EVENT_IMPORT_CALENDAR);
 		FunctionManager.registerFunction(EVENT_READ_CALENDAR);
 		FunctionManager.registerFunction(EVENT_MODIFY_CALENDAR);
+		FunctionManager.registerFunction(EVENT_ALL_GROUPS_CALENDAR);
 	}
 
 	/**

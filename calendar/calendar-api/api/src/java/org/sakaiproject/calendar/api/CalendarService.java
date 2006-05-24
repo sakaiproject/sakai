@@ -61,6 +61,9 @@ public interface CalendarService
 	/** Security lock for removing or changing any events in a calendar. */
 	public static final String EVENT_MODIFY_CALENDAR = "calendar.revise";
 
+	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
+	public static final String EVENT_ALL_GROUPS_CALENDAR = "calendar.all.groups";
+
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";
 
