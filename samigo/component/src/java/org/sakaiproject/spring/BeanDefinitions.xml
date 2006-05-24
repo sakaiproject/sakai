@@ -3,115 +3,212 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="PersistenceService"
-		class="org.sakaiproject.tool.assessment.services.PersistenceService">
-                <property name="deadlockInterval"><value>3500</value></property>
-                <property name="retryCount"><value>5</value></property>
-		<property name="typeFacadeQueries">
-			<ref bean="TypeFacadeQueries" />
-		</property>
-		<property name="questionPoolFacadeQueries">
-			<ref bean="QuestionPoolFacadeQueries" />
-		</property>
-		<property name="sectionFacadeQueries">
-			<ref bean="SectionFacadeQueries" />
-		</property>
-		<property name="itemFacadeQueries">
-			<ref bean="ItemFacadeQueries" />
-		</property>
-		<property name="assessmentFacadeQueries">
-			<ref bean="AssessmentFacadeQueries" />
-		</property>
-		<property name="publishedAssessmentFacadeQueries">
-			<ref bean="PublishedAssessmentFacadeQueries" />
-		</property>
-		<property name="assessmentGradingFacadeQueries">
-			<ref bean="AssessmentGradingFacadeQueries" />
-		</property>
-		<property name="authorizationFacadeQueries">
-			<ref bean="AuthorizationFacadeQueries" />
-		</property>
-		<property name="pagingUtilQueries">
-			<ref bean="PagingUtilQueries" />
-		</property>
-		<property name="authzQueriesFacade">
-			<ref bean="AuthzQueriesFacade" />
-		</property>
-                <property name="sectionAwareness" >
-                        <ref bean="org.sakaiproject.api.section.SectionAwareness"/>
-                </property>
 
-	</bean>
+    <bean id="PersistenceService"
+	  class="org.sakaiproject.tool.assessment.services.PersistenceService">
 
-	<bean id="TypeFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="deadlockInterval"><value>3500</value></property>
+          <property name="retryCount"><value>5</value></property>
 
-	<bean id="QuestionPoolFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="typeFacadeQueries">
+            <ref bean="TypeFacadeQueries" />
+          </property>
 
-	<bean id="ItemFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="questionPoolFacadeQueries">
+            <ref bean="QuestionPoolFacadeQueries" />
+          </property>
 
-	<bean id="AssessmentFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="sectionFacadeQueries">
+            <ref bean="SectionFacadeQueries" />
+          </property>
 
-	<bean id="SectionFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="itemFacadeQueries">
+            <ref bean="ItemFacadeQueries" />
+          </property>
 
-	<bean id="PublishedAssessmentFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="assessmentFacadeQueries">
+            <ref bean="AssessmentFacadeQueries" />
+          </property>
 
-	<bean id="AssessmentGradingFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="publishedAssessmentFacadeQueries">
+            <ref bean="PublishedAssessmentFacadeQueries" />
+          </property>
 
-	<bean id="AuthorizationFacadeQueries"
-		class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="assessmentGradingFacadeQueries">
+            <ref bean="AssessmentGradingFacadeQueries" />
+          </property>
 
-	<bean id="PagingUtilQueries"
-		class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
-		<property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
-	</bean>
+          <property name="authorizationFacadeQueries">
+            <ref bean="AuthorizationFacadeQueries" />
+          </property>
 
-	<bean id="AuthzQueriesFacade"
-     class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
-    <property name="sessionFactory">
-			<ref bean="sakai-sam.sessionFactory" />
-		</property>
+          <property name="pagingUtilQueries">
+            <ref bean="PagingUtilQueries" />
+          </property>
+
+          <property name="authzQueriesFacade">
+            <ref bean="AuthzQueriesFacade" />
+          </property>
+
+          <property name="sectionAwareness" >
+            <ref bean="org.sakaiproject.api.section.SectionAwareness"/>
+          </property>
+    </bean>
+
+    <bean id="TypeFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
 	</bean>
+      </property>
+    </bean>
+
+    <bean id="QuestionPoolFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.QuestionPoolFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="ItemFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.ItemFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="AssessmentFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="SectionFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.SectionFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="PublishedAssessmentFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="AssessmentGradingFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="AuthorizationFacadeQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="PagingUtilQueries"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.util.PagingUtilQueries">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
+
+    <bean id="AuthzQueriesFacade"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+      <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
+      <property name="transactionAttributes">
+        <props>
+          <prop key="*">PROPAGATION_REQUIRED</prop>
+        </props>
+      </property>
+      <property name="target">
+        <bean class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
+          <property name="sessionFactory"><ref bean="sakai-sam.sessionFactory"/></property>
+	</bean>
+      </property>
+    </bean>
 
 	<!-- Currently being used to AutoDdl at startup -->
 	<bean
