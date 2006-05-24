@@ -21,8 +21,6 @@
 
 package org.sakaiproject.content.cover;
 
-import java.util.Collection;
-
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -67,6 +65,8 @@ public class ContentHostingService
 
 	public static java.lang.String EVENT_RESOURCE_REMOVE = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_REMOVE;
 
+	public static java.lang.String EVENT_RESOURCE_ALL_GROUPS = org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ALL_GROUPS;
+	
 	public static java.lang.String EVENT_DROPBOX_OWN = org.sakaiproject.content.api.ContentHostingService.EVENT_DROPBOX_OWN;
 
 	public static java.lang.String EVENT_DROPBOX_MAINTAIN = org.sakaiproject.content.api.ContentHostingService.EVENT_DROPBOX_MAINTAIN;
