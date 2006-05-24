@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.index.ClusterFilesystem;
 
-import com.sun.tools.javac.v8.util.Hashtable;
+import java.util.Hashtable;
 
 /**
  * @author ieb
