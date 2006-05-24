@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -87,6 +88,12 @@ public class AliasesAction extends PagedResourceActionII
 	{
 		context.put("tlang", rb);
 		String template = null;
+
+		// if not logged in as the super user, we won't do anything
+		if (!SecurityService.isSuperUser())
+		{
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
 
 		// put $action into context for menus, forms and links
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
