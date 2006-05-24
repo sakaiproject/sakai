@@ -21,11 +21,13 @@
 package org.sakaiproject.component.app.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1787,12 +1789,26 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     			/** get level from config file */
     			levelName = ServerConfigurationService.getString(MC_DEFAULT
               + name);
+    			    			
+    			
     		}
       	        	
         if (levelName != null && levelName.trim().length() > 0)
         {
           level = permissionLevelManager.getPermissionLevelByName(levelName);
-        }                
+        } 
+        else{
+        	Collection siteIds = new Vector();
+        	siteIds.add(getContextSiteId());        	
+        	if (AuthzGroupService.getAllowedFunctions(name, siteIds)
+        			.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
+        		level = permissionLevelManager.getDefaultOwnerPermissionLevel();
+        	}
+        	else{
+        		level = permissionLevelManager.getDefaultContributorPermissionLevel();
+        	}
+        	
+        }
       }
     	PermissionLevel noneLevel = permissionLevelManager.getDefaultNonePermissionLevel();
       membershipItem = new DBMembershipItemImpl();
