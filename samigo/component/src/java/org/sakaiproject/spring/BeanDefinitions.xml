@@ -62,7 +62,6 @@
         <props>
           <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -77,7 +76,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -92,7 +94,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -125,7 +130,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -140,7 +148,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -155,7 +166,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -170,7 +184,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -185,7 +202,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">
@@ -200,7 +220,10 @@
       <property name="transactionManager"><ref bean="sakai-sam.transactionManager"/></property>
       <property name="transactionAttributes">
         <props>
-          <prop key="*">PROPAGATION_REQUIRED</prop>
+          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
+          <prop key="save*">PROPAGATION_REQUIRED</prop>
+          <prop key="update*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
       <property name="target">

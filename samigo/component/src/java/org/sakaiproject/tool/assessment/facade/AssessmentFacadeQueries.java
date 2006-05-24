@@ -473,6 +473,7 @@ public class AssessmentFacadeQueries
     }
   }
 
+  /* this assessment comes with a default section */
   public AssessmentData cloneAssessmentFromTemplate(AssessmentTemplateData t) {
       //log.debug("**** DEFAULT templateId inside clone" +
       //                 t.getAssessmentTemplateId());
@@ -557,71 +558,22 @@ public class AssessmentFacadeQueries
   public AssessmentFacade createAssessmentWithoutDefaultSection(
       String title, String description, Long typeId, Long templateId)
       throws Exception{
-    // #1 - get the template (a facade) and create Assessment based on it
-    AssessmentTemplateFacade template = getAssessmentTemplate(templateId);
-    AssessmentData assessment = cloneAssessmentFromTemplate( (
-        AssessmentTemplateData) template.getData());
-
-    // remove the default section added by cloneAssessmentFromTemplate
+    //this assessment came with one default section
+    AssessmentData assessment=null;
+    try{
+      assessment = prepareAssessment(title, description, typeId, templateId);
+    }
+    catch (Exception e){
+      throw new Exception(e); 
+    } 
     assessment.setSectionSet(new HashSet());
-
-    assessment.setTitle(title);
-    assessment.setDescription(description);
-    assessment.setTypeId(typeId);
-    AssessmentAccessControl control = (AssessmentAccessControl) assessment.
-        getAssessmentAccessControl();
-    if (control == null) {
-      control = new AssessmentAccessControl();
-    }
-    if (AgentFacade.isStandaloneEnvironment())
-      control.setReleaseTo("Authenticated Users");
-    else
-      control.setReleaseTo(AgentFacade.getCurrentSiteName());
-
-    EvaluationModel evaluation = (EvaluationModel) assessment.
-        getEvaluationModel();
-    if (evaluation == null) {
-        evaluation = new EvaluationModel();
-    }
-
-    GradebookService g = null;
-    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-    try{  // catch any GB error
-      if (integrated)
-      {
-        g = (GradebookService) SpringBeanLocator.getInstance().
-            getBean("org.sakaiproject.service.gradebook.GradebookService");
-      }
-
-      GradebookServiceHelper gbsHelper =
-        IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-      if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
-        evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
-    }
-    catch(HibernateQueryException e){
-      log.warn("Gradebook Error: "+e.getMessage());
-      evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
-      throw new Exception(e);
-    }
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().save(assessment);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem saving assessment: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-
-    registerWithCurrentSite(assessment.getAssessmentId().toString());
+    getHibernateTemplate().save(assessment);
     return new AssessmentFacade(assessment);
   }
 
-  public AssessmentFacade createAssessment(
-    String title, String description, Long typeId, Long templateId)
-    throws Exception { 
+  private AssessmentData prepareAssessment(
+    String title, String description, Long typeId, Long templateId) 
+    throws Exception{
     // #1 - get the template (a facade) and create Assessment based on it
     AssessmentTemplateFacade template = getAssessmentTemplate(templateId);
     AssessmentData assessment = cloneAssessmentFromTemplate( (
@@ -644,25 +596,41 @@ public class AssessmentFacadeQueries
     if (evaluation == null) {
       evaluation = new EvaluationModel();
     }
-
-   GradebookService g = null;
-   boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-   try{
-     if (integrated)
+    GradebookService g = null;
+    boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+    try{
+      if (integrated)
       {
         g = (GradebookService) SpringBeanLocator.getInstance().
           getBean("org.sakaiproject.service.gradebook.GradebookService");
       }
 
       GradebookServiceHelper gbsHelper =
-        IntegrationContextFactory.getInstance().getGradebookServiceHelper();    if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
-      evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
+        IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+      if (!gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g))
+        evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
     }
     catch(HibernateQueryException e){
       log.warn("Gradebook Error: "+e.getMessage());
       evaluation.setToGradeBook(EvaluationModelIfc.GRADEBOOK_NOT_AVAILABLE.toString());
       throw new Exception(e);
     }
+
+    return assessment;
+  }
+
+  public AssessmentFacade createAssessment(
+    String title, String description, Long typeId, Long templateId)
+    throws Exception { 
+
+    // this assessment comes with a default section
+    AssessmentData assessment = null;
+    try{
+      assessment = prepareAssessment(title, description, typeId, templateId);
+    }
+    catch (Exception e){
+      throw new Exception(e); 
+    } 
 
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
