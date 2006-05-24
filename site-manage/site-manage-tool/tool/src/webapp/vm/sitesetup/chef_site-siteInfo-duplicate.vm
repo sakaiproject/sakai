@@ -1,7 +1,9 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-duplicate.vm,v 1.2 2005/04/29 13:44:25 zqian.umich.edu Exp $ -->
 ## enter the site title for duplicated site.
 <div class="portletBody">
-	<form name = "classInformationForm" method = "post" action="#toolForm("SiteAction")">
+	<form name = "duplicateSiteForm" method = "post" action="#toolForm($action)">
+		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
+		<input type="hidden" name="option" value="cancel" />
 		<h3>
 			$tlang.getString("sitdup.dupsit") "$siteTitle"	
 		</h3>
@@ -31,10 +33,36 @@
 		<input type="hidden" name="template-index" value="29" />
 		<div class="act">
 			#if (!$!siteDuplicated)
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("sitdup.dup")" />
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitdup.can")" />
+				<input
+					type="button"
+					class="active"
+					name="$tlang.getString("sitdup.dup")"
+					id="duplicateSite" 
+					accesskey="s"
+					value="$tlang.getString("sitdup.dup")"
+					onclick="showNotif('submitnotif','duplicateSite','duplicateSiteForm');document.duplicateSiteForm.option.value='duplicate'; document.duplicateSiteForm.submit(); return false;"
+				/>
+				<input
+					class="disableme" 
+					type="button" 
+					name="$tlang.getString("sitdup.can")" 
+					id="$tlang.getString("sitdup.can")" 
+					accesskey="c"
+					value="$tlang.getString("sitdup.can")"
+					onclick="document.duplicateSiteForm.option.value='cancel'; document.duplicateSiteForm.submit(); return false;"
+				/>
+				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			#else
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString("pubuncon.fin")" />
+				<input
+					class="disableme" 
+					type="button" 
+					name="$tlang.getString("pubuncon.fin")" 
+					id="$tlang.getString("pubuncon.fin")" 
+					accesskey="c"
+					value="$tlang.getString("pubuncon.fin")"
+					onclick="document.duplicateSiteForm.option.value='finish'; document.duplicateSiteForm.submit(); return false;"
+				/>
 			#end
 		</div>
 	</form>

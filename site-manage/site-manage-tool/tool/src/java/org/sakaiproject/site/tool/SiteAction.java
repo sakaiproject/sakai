@@ -12801,6 +12801,27 @@ public class SiteAction extends PagedResourceActionII
 	}	// doAdd_site_option
 
 	/**
+	*  handle with duplicate site options
+	* 
+	*/
+	public void doDuplicate_site_option ( RunData data )
+	{
+		String option = data.getParameters().getString("option");
+		if (option.equals("duplicate"))
+		{
+			doContinue(data);
+		}
+		else if (option.equals("cancel"))
+		{
+			doCancel(data);
+		}
+		else if (option.equals("finish"))
+		{
+			doContinue(data);
+		}
+	}	// doDuplicate_site_option
+	
+	/**
 	 * Special check against the Dissertation service, which might not be here...
 	 * @return
 	 */
