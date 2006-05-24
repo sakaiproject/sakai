@@ -42,25 +42,27 @@
       <title><h:outputText value="#{msg.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
+<div class="portletBody">
 <!-- content... -->
 <!-- FORM -->
 <h:form>
 
 <!-- CHANGE TYPE -->
- <div class="shorttext tier1">
-  <h:outputText styleClass="number" value="1" />
+ 
+<h:panelGrid columns="2">
 
-<h:outputText value="#{qpmsg.sel_q_type}"/>
+  <h:outputText styleClass="number" value="1" />
+<h:panelGroup>
+<h:outputText value="#{qpmsg.sel_q_type} "/>
 <h:selectOneMenu id="selType" value="#{itemauthor.itemType}" required="true">
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 <h:message for="selType" styleClass="validate"/>
-</div>
- <div class="shorttext tier1">
+</h:panelGroup>
   <h:outputText styleClass="number" value="2" />
-</div>
-
 <h:outputText value="#{qpmsg.click_save}"/>
+</h:panelGrid>
+
 <p class="act">
 <h:commandButton accesskey="#{msg.a_save}" type="submit"  action="#{itemauthor.doit}" value="#{msg.button_save}" styleClass="active">
    <f:actionListener
@@ -73,7 +75,7 @@
 </p>
 
 </h:form>
-
+</div>
 
 <!-- end content -->
     </body>
