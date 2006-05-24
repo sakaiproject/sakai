@@ -46,7 +46,17 @@
 			$tlang.getString("gen.additems") 
 		#end
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	#if ($alertMessage || $createAlertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") 
+			#if ($alertMessage)
+				$validator.escapeHtml($alertMessage)
+			#end
+			#if ($createAlertMessage)
+				$validator.escapeHtml($createAlertMessage)
+			#end
+		</div>
+		<div style="display:block;clear:both" ></div>
+	#end
 	<p class="instruction">
 		#if($helper_instruction)
 			$helper_instruction

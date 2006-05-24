@@ -1184,6 +1184,10 @@
 					 ($n of $numberOfItems)
 				#end
 			</h4>
+			#if ($itemAlertMessage)
+				<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($itemAlertMessage)</div>
+				<div style="display:block;clear:both" ></div>
+			#end
 			#set($item = $new_items.get($i))
 			######################## ================ Content of Item ================ ########################
 			#if ($item.isFolder())

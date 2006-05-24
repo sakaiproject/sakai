@@ -273,6 +273,7 @@ public class ResourcesAction
 	private static final String STATE_STACK_STRUCTOBJ_ROOTNAME = "resources.stack_create_structured_object_root";
 
 	private static final String STATE_CREATE_ALERTS = "resources.create_alerts";
+	protected static final String STATE_CREATE_MESSAGE = "resources.create_message";
 	private static final String STATE_CREATE_MISSING_ITEM = "resources.create_missing_item";
 	private static final String STATE_STRUCTOBJ_HOMES = "resources.create_structured_object_home";
 	private static final String STATE_STACK_STRUCT_OBJ_SCHEMA = "resources.stack_create_structured_object_schema";
@@ -1194,6 +1195,13 @@ public class ResourcesAction
 				context.put("attaching_this_item", Boolean.TRUE.toString());
 			}
 			state.setAttribute(VelocityPortletPaneledAction.STATE_HELPER, ResourcesAction.class.getName());
+		}
+		
+		String msg = (String) state.getAttribute(STATE_CREATE_MESSAGE);
+		if (msg != null)
+		{
+			context.put("itemAlertMessage", msg);
+			state.removeAttribute(STATE_CREATE_MESSAGE);
 		}
 
 		context.put("max_upload_size", state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
@@ -2482,6 +2490,22 @@ public class ResourcesAction
 
 	}	// doCreate
 
+	
+	public static void addCreateContextAlert(SessionState state, String message)
+	{
+		String soFar = (String) state.getAttribute(STATE_CREATE_MESSAGE);
+		if (soFar != null)
+		{
+			soFar = soFar + " " + message;
+		}
+		else
+		{
+			soFar = message;
+		}
+		state.setAttribute(STATE_CREATE_MESSAGE, soFar);
+
+	} // addItemTypeContextAlert
+
 	/**
 	 * initiate creation of one or more resource items (file uploads, html docs, text docs, or urls -- not folders)
 	 * default type is file upload
@@ -2821,11 +2845,13 @@ public class ResourcesAction
 			alerts = new HashSet();
 			state.setAttribute(STATE_CREATE_ALERTS, alerts);
 		}
+		
 		Iterator alertIt = alerts.iterator();
 		while(alertIt.hasNext())
 		{
 			String alert = (String) alertIt.next();
-			addAlert(state, alert);
+			addCreateContextAlert(state, alert);
+			//addAlert(state, alert);
 		}
 		alerts.clear();
 		current_stack_frame.put(STATE_CREATE_MISSING_ITEM, missing);
@@ -4786,6 +4812,13 @@ public class ResourcesAction
 			}
 		}
 		
+		String msg = (String) state.getAttribute(STATE_CREATE_MESSAGE);
+		if (msg != null)
+		{
+			context.put("createAlertMessage", msg);
+			state.removeAttribute(STATE_CREATE_MESSAGE);
+		}
+
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
