@@ -72,9 +72,6 @@ public interface MessageService extends EntityProducer
 	/** The Reference type for a channel. */
 	public static final String REF_TYPE_CHANNEL = "channel";
 
-	/** The Reference type for a channel where site groups are to be considered in security computation. */
-	public static final String REF_TYPE_CHANNEL_GROUPS = "channel-groups";
-
 	/** The Reference type for a messgae. */
 	public static final String REF_TYPE_MESSAGE = "msg";
 

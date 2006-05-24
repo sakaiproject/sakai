@@ -42,26 +42,28 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -75,16 +77,16 @@ import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.api.MessageService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
@@ -95,20 +97,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * <p>
- * BaseMessageService is a simple implementation of the CHEF MessageService as a Turbine service.
- * </p>
- * <p>
- * BaseMessageService simply stored messages in memory and has no persistence past the lifetime of the service object.
- * </p>
- * <p>
- * Services Used:
- * <ul>
- * <li>SecurityService</li>
- * <li>EventTrackingService</li>
- * </ul>
- * </p>
- * Note: for simplicity, we implement only the Edit versions of message and header - otherwise we'd want to inherit from two places in the extensions. A non-edit version is implemented by the edit version. -ggolden
+ * BaseMessageService is...
  */
 public abstract class BaseMessageService implements MessageService, StorageUser, CacheRefresher
 {
@@ -162,6 +151,132 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	public void setServerConfigurationService(ServerConfigurationService service)
 	{
 		m_serverConfigurationService = service;
+	}
+
+	/** Dependency: SessionManager. */
+	protected SessionManager m_sessionManager = null;
+
+	/**
+	 * Dependency: SessionManager.
+	 * 
+	 * @param service
+	 *        The SessionManager.
+	 */
+	public void setSessionManager(SessionManager service)
+	{
+		m_sessionManager = service;
+	}
+
+	/** Dependency: AuthzGroupService. */
+	protected AuthzGroupService m_authzGroupService = null;
+
+	/**
+	 * Dependency: AuthzGroupService.
+	 * 
+	 * @param service
+	 *        The AuthzGroupService.
+	 */
+	public void setAuthzGroupService(AuthzGroupService service)
+	{
+		m_authzGroupService = service;
+	}
+
+	/** Dependency: SecurityService. */
+	protected SecurityService m_securityService = null;
+
+	/**
+	 * Dependency: SecurityService.
+	 * 
+	 * @param service
+	 *        The SecurityService.
+	 */
+	public void setSecurityService(SecurityService service)
+	{
+		m_securityService = service;
+	}
+
+	/** Dependency: TimeService. */
+	protected TimeService m_timeService = null;
+
+	/**
+	 * Dependency: TimeService.
+	 * 
+	 * @param service
+	 *        The TimeService.
+	 */
+	public void setTimeService(TimeService service)
+	{
+		m_timeService = service;
+	}
+
+	/** Dependency: EventTrackingService. */
+	protected EventTrackingService m_eventTrackingService = null;
+
+	/**
+	 * Dependency: EventTrackingService.
+	 * 
+	 * @param service
+	 *        The EventTrackingService.
+	 */
+	public void setEventTrackingService(EventTrackingService service)
+	{
+		m_eventTrackingService = service;
+	}
+
+	/** Dependency: IdManager. */
+	protected IdManager m_idManager = null;
+
+	/**
+	 * Dependency: IdManager.
+	 * 
+	 * @param service
+	 *        The IdManager.
+	 */
+	public void setIdManager(IdManager service)
+	{
+		m_idManager = service;
+	}
+
+	/** Dependency: SiteService. */
+	protected SiteService m_siteService = null;
+
+	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		m_siteService = service;
+	}
+
+	/** Dependency: UserDirectoryService. */
+	protected UserDirectoryService m_userDirectoryService = null;
+
+	/**
+	 * Dependency: UserDirectoryService.
+	 * 
+	 * @param service
+	 *        The UserDirectoryService.
+	 */
+	public void setUserDirectoryService(UserDirectoryService service)
+	{
+		m_userDirectoryService = service;
+	}
+
+	/** Dependency: ThreadLocalManager. */
+	protected ThreadLocalManager m_threadLocalManager = null;
+
+	/**
+	 * Dependency: ThreadLocalManager.
+	 * 
+	 * @param service
+	 *        The ThreadLocalManager.
+	 */
+	public void setThreadLocalManager(ThreadLocalManager service)
+	{
+		m_threadLocalManager = service;
 	}
 
 	/** Configuration: cache, or not. */
@@ -403,7 +518,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!SecurityService.unlock(eventId(lock), resource))
+		if (!m_securityService.unlock(eventId(lock), resource))
 		{
 			return false;
 		}
@@ -426,17 +541,17 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
 		// check the first lock
-		if (SecurityService.unlock(eventId(lock1), resource)) return true;
+		if (m_securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((lock1 != lock2) && (SecurityService.unlock(eventId(lock2), resource))) return true;
+		if ((lock1 != lock2) && (m_securityService.unlock(eventId(lock2), resource))) return true;
 
 		return false;
 
 	} // unlockCheck2
 
 	/**
-	 * Check security permission, for either of two locks/
+	 * Check security permission, for any of three locks/
 	 * 
 	 * @param lock1
 	 *        The lock id string.
@@ -449,13 +564,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	protected boolean unlockCheck3(String lock1, String lock2, String lock3, String resource)
 	{
 		// check the first lock
-		if (SecurityService.unlock(eventId(lock1), resource)) return true;
+		if (m_securityService.unlock(eventId(lock1), resource)) return true;
 
 		// if the second is different, check that
-		if ((lock1 != lock2) && (SecurityService.unlock(eventId(lock2), resource))) return true;
+		if ((lock1 != lock2) && (m_securityService.unlock(eventId(lock2), resource))) return true;
 
 		// if the third is different, check that
-		if ((lock1 != lock3) && (lock2 != lock3) && (SecurityService.unlock(eventId(lock3), resource))) return true;
+		if ((lock1 != lock3) && (lock2 != lock3) && (m_securityService.unlock(eventId(lock3), resource))) return true;
 
 		return false;
 
@@ -475,7 +590,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	{
 		if (!unlockCheck(lock, resource))
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(lock), resource);
+			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock), resource);
 		}
 
 	} // unlock
@@ -496,7 +611,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	{
 		if (!unlockCheck2(lock1, lock2, resource))
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2), resource);
+			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2), resource);
 		}
 
 	} // unlock2
@@ -519,7 +634,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	{
 		if (!unlockCheck3(lock1, lock2, lock3, resource))
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2) + "|"
+			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(lock1) + "|" + eventId(lock2) + "|"
 					+ eventId(lock3), resource);
 		}
 
@@ -637,7 +752,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
 		{
 			// if we have done this already in this thread, use that
-			channel = (MessageChannel) ThreadLocalManager.get(ref);
+			channel = (MessageChannel) m_threadLocalManager.get(ref);
 			if (channel == null)
 			{
 				channel = m_storage.getChannel(ref);
@@ -645,7 +760,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				// "cache" the channel in the current service in case they are needed again in this thread...
 				if (channel != null)
 				{
-					ThreadLocalManager.set(ref, channel);
+					m_threadLocalManager.set(ref, channel);
 				}
 			}
 
@@ -797,10 +912,10 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		m_storage.commitChannel(edit);
 
 		// track event (no notification)
-		Event event = EventTrackingService.newEvent(eventId(((BaseMessageChannelEdit) edit).getEvent()), edit.getReference(), true,
+		Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageChannelEdit) edit).getEvent()), edit.getReference(), true,
 				NotificationService.NOTI_NONE);
 
-		EventTrackingService.post(event);
+		m_eventTrackingService.post(event);
 
 		// close the edit object
 		((BaseMessageChannelEdit) edit).closeEdit();
@@ -885,8 +1000,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		m_storage.removeChannel(channel);
 
 		// track event
-		Event event = EventTrackingService.newEvent(eventId(SECURE_REMOVE_ANY), channel.getReference(), true);
-		EventTrackingService.post(event);
+		Event event = m_eventTrackingService.newEvent(eventId(SECURE_REMOVE_ANY), channel.getReference(), true);
+		m_eventTrackingService.post(event);
 
 		// mark the channel as removed
 		((BaseMessageChannelEdit) channel).setRemoved(event);
@@ -897,7 +1012,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// remove any realm defined for this resource
 		try
 		{
-			AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(channel.getReference()));
+			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(channel.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -931,7 +1046,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// check security on the message
 		if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference()))
 		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
+			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
 		}
 
 		// get the channel, no security check
@@ -958,12 +1073,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	protected boolean allowGetMessage(String channelRef, String msgRef)
 	{
 		// Assume this reference is for a message
-
-		// if the use has all_message permission for the channel/site, allow it
-		if (unlockCheck(SECURE_ALL_GROUPS, channelRef))
-		{
-			return true;
-		}
 
 		// check the message
 		return unlockCheck(SECURE_READ, msgRef);
@@ -1008,7 +1117,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			}
 			else
 			{
-				draftsForId = SessionManager.getCurrentSessionUserId();
+				draftsForId = m_sessionManager.getCurrentSessionUserId();
 			}
 		}
 
@@ -1098,10 +1207,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 
 			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
-					Collection copyrightAcceptedRefs)
+					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException
 			{
-				// TODO: permissions?
-
 				try
 				{
 					// We need to write to a temporary stream for better speed, plus
@@ -1190,6 +1297,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 						}
 					}
 				}
+				catch (PermissionException e)
+				{
+					throw new EntityPermissionException(e.getUser(), e.getLocalizedMessage(), e.getResource());
+				}
+				catch (IdUnusedException e)
+				{
+					throw new EntityNotDefinedException(e.getId());
+				}
 				catch (Throwable t)
 				{
 					throw new RuntimeException("Faied to find message ", t);
@@ -1210,7 +1325,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		try
 		{
 			// if this is a channel
-			if (REF_TYPE_CHANNEL.equals(ref.getSubType()) || REF_TYPE_CHANNEL_GROUPS.equals(ref.getSubType()))
+			if (REF_TYPE_CHANNEL.equals(ref.getSubType()))
 			{
 				MessageChannel channel = getChannel(ref.getReference());
 				rv = "Channel: " + channel.getId() + " (" + channel.getContext() + ")";
@@ -1241,7 +1356,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		try
 		{
 			// if this is a channel
-			if (REF_TYPE_CHANNEL.equals(ref.getSubType()) || REF_TYPE_CHANNEL_GROUPS.equals(ref.getSubType()))
+			if (REF_TYPE_CHANNEL.equals(ref.getSubType()))
 			{
 				MessageChannel channel = getChannel(ref.getReference());
 				rv = channel.getProperties();
@@ -1286,7 +1401,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		try
 		{
 			// if this is a channel
-			if (REF_TYPE_CHANNEL.equals(ref.getSubType()) || REF_TYPE_CHANNEL_GROUPS.equals(ref.getSubType()))
+			if (REF_TYPE_CHANNEL.equals(ref.getSubType()))
 			{
 				rv = getChannel(ref.getReference());
 			}
@@ -1329,6 +1444,8 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// for MessageService messages:
 		// if access set to CHANNEL (or PUBLIC), use the message, channel and site authzGroups.
 		// if access set to GROUPED, use the message, and the groups, but not the channel or site authzGroups.
+		// if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if CHANNEL
+
 		// for Channels, use the channel and site authzGroups.
 		// for Channels-groups, use the channel, site, and also any site group in the context
 		try
@@ -1338,20 +1455,26 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			{
 				// message
 				rv.add(ref.getReference());
-
-				// get the channel to get the message to get group information
-				// TODO: check for efficiency, cache and thread local caching usage -ggolden
+				
 				boolean grouped = false;
 				Collection groups = null;
-				String channelRef = channelReference(ref.getContext(), ref.getContainer());
-				MessageChannel c = findChannel(channelRef);
-				if (c != null)
+
+				// check SECURE_ALL_GROUPS - if not, check if the message has groups or not
+				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
+				if (!m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))
 				{
-					Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
-					if (m != null)
+					// get the channel to get the message to get group information
+					// TODO: check for efficiency, cache and thread local caching usage -ggolden
+					String channelRef = channelReference(ref.getContext(), ref.getContainer());
+					MessageChannel c = findChannel(channelRef);
+					if (c != null)
 					{
-						grouped = MessageHeader.MessageAccess.GROUPED == m.getHeader().getAccess();
-						groups = m.getHeader().getGroups();
+						Message m = ((BaseMessageChannelEdit) c).findMessage(ref.getId());
+						if (m != null)
+						{
+							grouped = MessageHeader.MessageAccess.GROUPED == m.getHeader().getAccess();
+							groups = m.getHeader().getGroups();
+						}
 					}
 				}
 
@@ -1365,14 +1488,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				else
 				{
 					// channel
-					rv.add(channelRef);
+					rv.add(channelReference(ref.getContext(), ref.getContainer()));
 
 					// site
 					ref.addSiteContextAuthzGroup(rv);
 				}
 			}
 
-			// for channel, or the channel+groups
+			// for channel
 			else
 			{
 				// channel
@@ -1380,21 +1503,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 				// site
 				ref.addSiteContextAuthzGroup(rv);
-
-				// for the specialy marked channel-group, also add any site group's azg
-				if (REF_TYPE_CHANNEL_GROUPS.equals(ref.getSubType()))
-				{
-					Site site = SiteService.getSite(ref.getContext());
-					Collection groups = site.getGroups();
-
-					// get a list of the group refs, which are authzGroup ids
-					Collection groupRefs = new Vector();
-					for (Iterator i = groups.iterator(); i.hasNext();)
-					{
-						Group group = (Group) i.next();
-						rv.add(group.getReference());
-					}
-				}
 			}
 		}
 		catch (Throwable e)
@@ -1417,7 +1525,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		try
 		{
 			// if this is a channel
-			if (REF_TYPE_CHANNEL.equals(ref.getSubType()) || REF_TYPE_CHANNEL_GROUPS.equals(ref.getSubType()))
+			if (REF_TYPE_CHANNEL.equals(ref.getSubType()))
 			{
 				MessageChannel channel = getChannel(ref.getReference());
 				url = channel.getUrl();
@@ -1602,7 +1710,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 												// adjust the id
 												String oldId = element4.getAttribute("id");
-												String newId = IdManager.createUuid();
+												String newId = m_idManager.createUuid();
 												ids.put(oldId, newId);
 												element4.setAttribute("id", newId);
 
@@ -2042,7 +2150,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// check security on the channel (throws if not permitted)
 			unlock(SECURE_READ, getReference());
 			// track event
-			// EventTrackingService.post(EventTrackingService.newEvent(eventId(SECURE_READ), getReference(), false));
+			// m_eventTrackingService.post(m_eventTrackingService.newEvent(eventId(SECURE_READ), getReference(), false));
 
 			return findFilterMessages(filter, ascending);
 
@@ -2064,7 +2172,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// check security on the message
 			if (!allowGetMessage(getReference(), messageReference(getReference(), messageId)))
 			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), messageReference(
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), messageReference(
 						getReference(), messageId));
 			}
 
@@ -2073,7 +2181,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			if (m == null) throw new IdUnusedException(messageId);
 
 			// track event
-			// EventTrackingService.post(EventTrackingService.newEvent(eventId(SECURE_READ), m.getReference(), false));
+			// m_eventTrackingService.post(m_eventTrackingService.newEvent(eventId(SECURE_READ), m.getReference(), false));
 
 			return m;
 
@@ -2104,54 +2212,18 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		protected boolean allowEditMessage(Message m, String fOwn, String fAny)
 		{
-			boolean channelCheck = MessageHeader.MessageAccess.CHANNEL == m.getHeader().getAccess();
-
-			// if the use has all_message permission for the channel/site, allow it
-			if (unlockCheck(SECURE_ALL_GROUPS, getReference()))
+			// is this the user's own?
+			if (m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 			{
-				return true;
+				// own or any
+				return unlockCheck2(fOwn, fAny, m.getReference());
 			}
 
-			// if the message is not grouped, do the regular check (message, channel, site)
-			if (channelCheck)
-			{
-				// is this the user's own?
-				if (m.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
-				{
-					// own or any
-					return unlockCheck2(fOwn, fAny, m.getReference());
-				}
-
-				else
-				{
-					// just any
-					return unlockCheck(fAny, m.getReference());
-				}
-			}
-
-			// if grouped, check that the user has permissions in every group that the message uses
 			else
 			{
-				for (Iterator i = m.getHeader().getGroups().iterator(); i.hasNext();)
-				{
-					String groupRef = (String) i.next();
-
-					// is this the user's own?
-					if (m.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
-					{
-						// own or any
-						if (!unlockCheck2(fOwn, fAny, groupRef)) return false;
-					}
-
-					else
-					{
-						// just any
-						if (!unlockCheck(fAny, groupRef)) return false;
-					}
-				}
+				// just any
+				return unlockCheck(fAny, m.getReference());
 			}
-
-			return true;
 		}
 
 		/**
@@ -2174,7 +2246,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 			// pick the security function
 			String function = null;
-			if (m.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
+			if (m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
 				function = SECURE_UPDATE_OWN;
@@ -2188,7 +2260,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// security check
 			if (!allowEditMessage(messageId))
 			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(function), m.getReference());
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(function), m.getReference());
 			}
 
 			// ignore the cache - get the message with a lock from the info store
@@ -2237,13 +2309,47 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				return;
 			}
 
-			// check permission - this checks if the message in its current form (grouped, channel, etc) is still valid for the end user to save
-			String ownSecurityFunction = (((BaseMessageEdit) edit).getEvent().equals(SECURE_ADD) ? SECURE_ADD : SECURE_UPDATE_OWN);
-			String anySecurityFunction = (((BaseMessageEdit) edit).getEvent().equals(SECURE_ADD) ? SECURE_ADD : SECURE_UPDATE_ANY);
-			if (!allowEditMessage(edit, ownSecurityFunction, anySecurityFunction))
+			// check permission - this checks if the change in message access is allowed.
+			boolean allowed = true;
+
+			// if channel now...
+			if (MessageHeader.MessageAccess.CHANNEL == edit.getHeader().getAccess())
+			{
+				// make sure the user can add channel messages
+				allowed = allowAddChannelMessage();
+			}
+
+			// if grouped now...
+			else
+			{
+				// the current (pre-edit) message's group definition (group ref strings)
+				Collection currentGroupRefs = findMessage(edit.getId()).getHeader().getGroups();
+				
+				// the Group objects the user has add permission
+				Collection allowedGroups = getGroupsAllowAddMessage();
+
+				// check all defined groups in the edit
+				for (Iterator i = edit.getHeader().getGroups().iterator(); i.hasNext();)
+				{
+					String groupRef = (String) i.next();
+					
+					// if this group has been added in this edit
+					if (!currentGroupRefs.contains(groupRef))
+					{
+						// make sure it's among those groups this user has add permissions for
+						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+						{
+							allowed = false;
+							break;
+						}
+					}
+				}
+			}
+
+			if (!allowed)
 			{
 				cancelMessage(edit);
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(),
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(),
 						eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference());
 			}
 
@@ -2254,12 +2360,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			m_storage.commitMessage(this, edit);
 
 			// clear out any thread local caching of this message, since it has just changed
-			ThreadLocalManager.set(edit.getReference(), null);
+			m_threadLocalManager.set(edit.getReference(), null);
 
 			// track event
-			Event event = EventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
+			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
 					priority);
-			EventTrackingService.post(event);
+			m_eventTrackingService.post(event);
 
 			// channel notification
 			notify(event);
@@ -2312,15 +2418,11 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public boolean allowAddMessage()
 		{
-			// base the check for SECURE_ADD on the site, any of the site's groups, and the channel
-			// if the user can SECURE_ADD anywhere in that mix, they can add a message
-			// this stack is not the normal azg set for channels, so use a special refernce to get this behavior
+			// checking allow at the channel (site) level
+			if (allowAddChannelMessage()) return true;
 
-			String specialReference = getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CHANNEL_GROUPS + Entity.SEPARATOR
-					+ m_context + Entity.SEPARATOR + m_id;
-
-			// check security on the channel (throws if not permitted)
-			return unlockCheck(SECURE_ADD, specialReference);
+			// if not, see if the user has any groups to which adds are allowed
+			return (!getGroupsAllowAddMessage().isEmpty());
 
 		} // allowAddMessage
 
@@ -2356,12 +2458,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// security check
 			if (!allowAddMessage())
 			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
 			}
 
 			String id = null;
-			// allocate a new unique message id, using the CHEF Service API cover
-			id = IdManager.createUuid();
+			// allocate a new unique message id
+			id = m_idManager.createUuid();
 
 			// get a new message in the info store
 			MessageEdit msg = m_storage.putMessage(this, id);
@@ -2477,7 +2579,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 			// pick the security function
 			String function = null;
-			if (message.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()))
+			if (message.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
 				function = SECURE_REMOVE_OWN;
@@ -2492,14 +2594,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			if (!allowRemoveMessage(message))
 			{
 				cancelMessage(message);
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(function), message.getReference());
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(function), message.getReference());
 			}
 
 			m_storage.removeMessage(this, message);
 
 			// track event
-			Event event = EventTrackingService.newEvent(eventId(function), message.getReference(), true);
-			EventTrackingService.post(event);
+			Event event = m_eventTrackingService.newEvent(eventId(function), message.getReference(), true);
+			m_eventTrackingService.post(event);
 
 			// channel notification
 			notify(event);
@@ -2510,7 +2612,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(message.getReference());
+				m_authzGroupService.removeAuthzGroup(message.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -2581,7 +2683,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
 			{
 				// if we have "cached" the entire set of messages in the thread, get that and find our message there
-				List msgs = (List) ThreadLocalManager.get(getReference() + ".msgs");
+				List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
 				if (msgs != null)
 				{
 					for (Iterator i = msgs.iterator(); i.hasNext();)
@@ -2595,7 +2697,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				}
 
 				// if we have this one message cached, get that
-				Message m = (Message) ThreadLocalManager.get(messageReference(getReference(), messageId));
+				Message m = (Message) m_threadLocalManager.get(messageReference(getReference(), messageId));
 
 				// if not, get from storage and cache
 				if (m == null)
@@ -2605,7 +2707,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					// if we got one, cache it in the thread
 					if (m != null)
 					{
-						ThreadLocalManager.set(m.getReference(), m);
+						m_threadLocalManager.set(m.getReference(), m);
 					}
 				}
 
@@ -2665,13 +2767,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
 			{
 				// if we have done this already in this thread, use that
-				List msgs = (List) ThreadLocalManager.get(getReference() + ".msgs");
+				List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
 				if (msgs == null)
 				{
 					msgs = m_storage.getMessages(this);
 
 					// "cache" the mesasge in the current service in case they are needed again in this thread...
-					ThreadLocalManager.set(getReference() + ".msgs", msgs);
+					m_threadLocalManager.set(getReference() + ".msgs", msgs);
 				}
 
 				return msgs;
@@ -2745,7 +2847,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		} // findMessages
 
 		/**
-		 * Find messages, sort, and filter.
+		 * Find messages, sort, filter by group and the provided filter.
 		 * 
 		 * @param filter
 		 *        A filtering object to accept messages, or null if no filtering is desired.
@@ -2830,6 +2932,23 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 			return false;
 		}
+		
+		/**
+		 * Test a collection of Group object for the specified group reference
+		 * @param groups The collection (Group) of groups
+		 * @param groupRef The string group reference to find.
+		 * @return true if found, false if not.
+		 */
+		protected boolean groupCollectionContainsRefString(Collection groups, String groupRef)
+		{
+			for (Iterator i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				if (group.getReference().equals(groupRef)) return true;
+			}
+
+			return false;
+		}
 
 		/**
 		 * Access the event code for this edit.
@@ -2897,6 +3016,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 * 
 		 * @param function
 		 *        The function to check
+		 * @return The Collection (Group) of groups defined for the context of this channel that the end user has specified permissions in, empty if none.
 		 */
 		protected Collection getGroupsAllowFunction(String function)
 		{
@@ -2905,11 +3025,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			try
 			{
 				// get the channel's site's groups
-				Site site = SiteService.getSite(m_context);
+				Site site = m_siteService.getSite(m_context);
 				Collection groups = site.getGroups();
 
-				// if the user has annc.allgrp for the channel (channel, site), and the function for the channel (channel,site), select all site groups
-				if (unlockCheck(SECURE_ALL_GROUPS, getReference()))
+				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), select all site groups
+				if (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
+						&& unlockCheck(function, getReference()))
 				{
 					return groups;
 				}
@@ -2925,7 +3046,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				}
 
 				// ask the authzGroup service to filter them down based on function
-				groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(UserDirectoryService.getCurrentUser().getId(),
+				groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_userDirectoryService.getCurrentUser().getId(),
 						eventId(function), groupRefs);
 
 				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
@@ -3061,7 +3182,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					{
 						if ((element.getChildNodes() != null) && (element.getChildNodes().item(0) != null))
 						{
-							// %%% JANDERSE - Handle conversion from plaintext messages to formatted text messages
+							// convert from plaintext messages to formatted text messages
 							m_body = element.getChildNodes().item(0).getNodeValue();
 							if (m_body != null) m_body = FormattedText.convertPlaintextToFormattedText(m_body);
 						}
@@ -3440,14 +3561,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 			m_message = msg;
 			m_id = id;
-			m_date = TimeService.newTime();
+			m_date = m_timeService.newTime();
 			try
 			{
-				m_from = UserDirectoryService.getUser(SessionManager.getCurrentSessionUserId());
+				m_from = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
 			}
 			catch (UserNotDefinedException e)
 			{
-				m_from = UserDirectoryService.getAnonymousUser();
+				m_from = m_userDirectoryService.getAnonymousUser();
 			}
 
 			// init the AttachmentContainer
@@ -3465,7 +3586,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		{
 			m_message = msg;
 			m_id = other.getId();
-			m_date = TimeService.newTime(other.getDate().getTime());
+			m_date = m_timeService.newTime(other.getDate().getTime());
 			m_from = other.getFrom();
 			m_draft = other.getDraft();
 			m_access = other.getAccess();
@@ -3489,13 +3610,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			m_id = el.getAttribute("id");
 			try
 			{
-				m_from = UserDirectoryService.getUser(el.getAttribute("from"));
+				m_from = m_userDirectoryService.getUser(el.getAttribute("from"));
 			}
 			catch (UserNotDefinedException e)
 			{
-				m_from = UserDirectoryService.getAnonymousUser();
+				m_from = m_userDirectoryService.getAnonymousUser();
 			}
-			m_date = TimeService.newTimeGmt(el.getAttribute("date"));
+			m_date = m_timeService.newTimeGmt(el.getAttribute("date"));
 			try
 			{
 				m_draft = new Boolean(el.getAttribute("draft")).booleanValue();
@@ -3604,24 +3725,45 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		}
 
 		/**
+		 * {@inheritDoc}
+		 */
+		public Collection getGroupObjects()
+		{
+			Vector rv = new Vector();
+			if (m_groups != null)
+			{
+				for (Iterator i = m_groups.iterator(); i.hasNext();)
+				{
+					String groupId = (String) i.next();
+					Group group = m_siteService.findGroup(groupId);
+					if (group != null)
+					{
+						rv.add(group);
+					}
+				}
+			}
+
+			return rv;
+		}
+
+		/**
 		 * @inheritDoc
 		 */
 		public void addGroup(Group group) throws PermissionException
 		{
 			if (group == null)
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
 
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
-			if (!unlockCheck(SECURE_ADD, group.getReference()))
+			if (!m_groups.contains(group.getReference()))
 			{
-				if (!unlockCheck(SECURE_ALL_GROUPS, ((BaseMessageEdit) m_message).m_channel.getReference()))
+				// this group must be one that the user has permission to SECURE_ADD in
+				if (!((BaseMessageEdit) this.m_message).m_channel.getGroupsAllowAddMessage().contains(group))
 				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group
-							.getReference());
+					throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group.getReference());
 				}
+	
+				m_groups.add(group.getReference());
 			}
-
-			if (!m_groups.contains(group.getReference())) m_groups.add(group.getReference());
 		}
 
 		/**
@@ -3630,17 +3772,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		public void removeGroup(Group group) throws PermissionException
 		{
 			if (group == null)
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
 
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
-			if (!unlockCheck(SECURE_ADD, group.getReference()))
-			{
-				if (!unlockCheck(SECURE_ALL_GROUPS, ((BaseMessageEdit) m_message).m_channel.getReference()))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group
-							.getReference());
-				}
-			}
+			// we don't check that the group is permitted, since it's alredy in the message being edited -ggolden
 
 			if (m_groups.contains(group.getReference())) m_groups.remove(group.getReference());
 		}

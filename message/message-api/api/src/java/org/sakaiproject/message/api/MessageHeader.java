@@ -109,6 +109,13 @@ public interface MessageHeader extends AttachmentContainer
 	Collection getGroups();
 
 	/**
+	 * Access the groups, as Group objects, defined for this message.
+	 * 
+	 * @return A Collection (Gropu) of group objects defined for this message; empty if none are defined.
+	 */
+	Collection getGroupObjects();
+
+	/**
 	 * Access the access mode for the message - how we compute who has access to the message.
 	 * 
 	 * @return The MessageAccess access mode for the message.
