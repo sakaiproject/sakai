@@ -72,8 +72,6 @@ public class ChatService
 
 	public static java.lang.String REF_TYPE_CHANNEL = org.sakaiproject.chat.api.ChatService.REF_TYPE_CHANNEL;
 
-	public static java.lang.String REF_TYPE_CHANNEL_GROUPS = org.sakaiproject.chat.api.ChatService.REF_TYPE_CHANNEL_GROUPS;
-
 	public static java.lang.String REF_TYPE_MESSAGE = org.sakaiproject.chat.api.ChatService.REF_TYPE_MESSAGE;
 
 	public static org.sakaiproject.chat.api.ChatChannel getChatChannel(java.lang.String param0)
