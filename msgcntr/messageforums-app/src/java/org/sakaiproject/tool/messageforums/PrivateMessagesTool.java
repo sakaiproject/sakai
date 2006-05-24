@@ -1157,7 +1157,7 @@ public class PrivateMessagesTool
       //aMsg.setCreated(getTime()) ;
       
       String authorString = "";
-      if("true".equalsIgnoreCase(ServerConfigurationService.getString
+      if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
   			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
   	  {
   	    try
