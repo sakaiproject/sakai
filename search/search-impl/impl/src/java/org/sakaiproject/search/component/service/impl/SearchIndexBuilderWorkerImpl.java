@@ -67,7 +67,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	private static final String NO_NODE = "none";
 
 	private static final String NODE_LOCK = "nodelockkey";
-
+	
 	private static Log log = LogFactory
 			.getLog(SearchIndexBuilderWorkerImpl.class);
 
@@ -919,6 +919,15 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		}
 		finally
 		{
+			if ( clearLock != null ) {
+				try {
+					clearLock.close();
+				} 
+				catch (SQLException e) 
+				{
+					log.error("Error Closing Prepared Statement ",e);
+				}
+			}
 			if (connection != null)
 			{
 				try

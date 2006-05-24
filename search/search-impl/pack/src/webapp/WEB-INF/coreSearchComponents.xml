@@ -144,9 +144,20 @@
   <bean id="clusterSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.ClusterFSIndexStorage" 
     >
-    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
+    <property name="clusterFS" ><ref bean="jdbcClusterIndexStore" /></property>    
   </bean>
+  
+  <!--
+  This is a cluster FS implementation 
+  -->
+  <bean id="jdbcClusterIndexStore" 
+    class="org.sakaiproject.search.index.impl.JDBCClusterIndexStore" 
+    >
+    <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
+  </bean>
+  
   
   <bean id="jdbcSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.JDBCIndexStorage" 

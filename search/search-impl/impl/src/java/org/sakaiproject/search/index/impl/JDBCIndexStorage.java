@@ -24,7 +24,6 @@ import org.apache.lucene.store.jdbc.dialect.Dialect;
 import org.apache.lucene.store.jdbc.dialect.HSQLDialect;
 import org.apache.lucene.store.jdbc.dialect.MySQLMyISAMDialect;
 import org.apache.lucene.store.jdbc.dialect.OracleDialect;
-import org.apache.lucene.store.jdbc.handler.NoOpFileEntryHandler;
 import org.apache.lucene.store.jdbc.index.JdbcBufferedIndexInput;
 import org.apache.lucene.store.jdbc.lock.PhantomReadLock;
 import org.apache.lucene.store.jdbc.support.JdbcTable;

@@ -58,8 +58,16 @@ public interface SearchIndexBuilderWorker
 	 */
 	List getNodeStatus();
 
+	/**
+	 * destroy the search index builder worker and release all resources
+	 *
+	 */
 	void destroy();
 
+	/**
+	 * forge the removal of the worker lock
+	 * @return
+	 */
 	boolean removeWorkerLock();
 
 }

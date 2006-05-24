@@ -36,6 +36,15 @@
         </includes>
         <filtering>false</filtering>
       </resource>
+
+     <resource>
+        <directory>${basedir}/src/sql</directory>
+        <includes>
+          <include>**/*.sql</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+
       <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
@@ -97,6 +106,12 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.2.1</version>
       <type>jar</type>
     </dependency>
        <dependency>

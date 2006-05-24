@@ -9,6 +9,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.PorterStemFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 
 /**
@@ -33,7 +34,7 @@ public class SnowballAnalyzerFactory implements AnalyzerFactory
          *      java.io.Reader)
          */
         public TokenStream tokenStream(String fieldName, Reader reader) {
-                if ("contents".equals(fieldName)) {
+                if (SearchService.FIELD_CONTENTS.equals(fieldName)) {
                         return new PorterStemFilter(keywordAnalyzer.tokenStream(
                                         fieldName, reader));
                 } else {

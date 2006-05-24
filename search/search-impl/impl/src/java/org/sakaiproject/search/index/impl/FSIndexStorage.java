@@ -17,6 +17,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.FSDirectory;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
@@ -24,11 +25,11 @@ public class FSIndexStorage implements IndexStorage
 {
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
 
-	private String searchIndexDirectory = "searchindex";
+	protected String searchIndexDirectory = "searchindex";
 
-	private AnalyzerFactory analyzerFactory = null;
+	protected AnalyzerFactory analyzerFactory = null;
 
-	private boolean recoverCorruptedIndex = false;
+	protected boolean recoverCorruptedIndex = false;
 
 	public void doPreIndexUpdate() throws IOException
 	{
@@ -138,7 +139,7 @@ public class FSIndexStorage implements IndexStorage
 			Document doc = new Document();
 			String message = "Index Recovery performed on "
 					+ (new Date()).toString();
-			doc.add(new Field("contents", message, Field.Store.YES,
+			doc.add(new Field(SearchService.FIELD_CONTENTS, message, Field.Store.NO,
 					Field.Index.TOKENIZED));
 			iw.addDocument(doc);
 			iw.close();
