@@ -137,7 +137,7 @@
   <bean id="filesystemSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     >
-    <property name="searchIndexDirectory"><value>${sakai.home}/searchindex</value></property>
+    <property name="searchIndexDirectory"><value>${sakai.home}searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
 
