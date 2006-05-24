@@ -64,7 +64,7 @@
     <h:outputText escape="false" value="#{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
-  <h:panelGrid columns="2" columnClasses="longtext">
+  <h:panelGrid columns="2">
 
     <h:outputLabel value="#{msg.course_name}"/>
     <h:outputText value="#{delivery.courseName}" />
