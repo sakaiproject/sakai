@@ -895,7 +895,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						// If any message is allowed to be removed
 						// Also check to see if the AnnouncementWrapper object thinks
 						// that this message is editable from the default site.
-						if (channel.allowRemoveMessage(message) && message.editable)
+						if (message.editable && channel.allowRemoveMessage(message))
 						{
 							menu_delete = true;
 							break;
@@ -1545,6 +1545,23 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				// group list which user can add message to
 				Collection groups = channel.getGroupsAllowAddMessage();
+				
+				// add to these any groups that the message already has
+				AnnouncementMessageEdit edit = state.getEdit();
+				if (edit != null)
+				{
+					Collection otherGroups = edit.getHeader().getGroupObjects();
+					for (Iterator i = otherGroups.iterator(); i.hasNext();)
+					{
+						Group g = (Group) i.next();
+						
+						if (!groups.contains(g))
+						{
+							groups.add(g);
+						}
+					}					
+				}
+
 				if (groups.size() > 0)
 				{
 					String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
@@ -2643,10 +2660,10 @@ public class AnnouncementAction extends PagedResourceActionII
 						if (channel.allowEditMessage(message.getId()))
 						{
 							state.setAttachments(message.getHeader().getAttachments());
-							// %%% -ggolden AnnouncementMessageEdit edit = channel.editAnnouncementMessage( messageIds[0] );
 							AnnouncementMessageEdit edit = channel.editAnnouncementMessage(this
 									.getMessageIDFromReference(messageReferences[0]));
 							state.setEdit(edit);
+							state.setTempAnnounceToGroups(edit.getAnnouncementHeader().getGroups());
 						}
 						else
 						{
@@ -2704,11 +2721,11 @@ public class AnnouncementAction extends PagedResourceActionII
 
 				if (channel.allowEditMessage(message.getId()))
 				{
-					// %%% -ggolden
 					AnnouncementMessageEdit edit = channel
 							.editAnnouncementMessage(this.getMessageIDFromReference(messageReference));
 					state.setEdit(edit);
 					state.setAttachments(message.getHeader().getAttachments());
+					state.setTempAnnounceToGroups(edit.getAnnouncementHeader().getGroups());
 				}
 				else
 				{
@@ -3302,12 +3319,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		state.setAttribute(STATE_CHANNEL_REF, channelId);
 		
-		// check if the channel is marked public read
-		if (SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
-		{
-			state.setAttribute(STATE_CHANNEL_PUBVIEW, STATE_CHANNEL_PUBVIEW);
-		}
-
 		if (state.getAttribute(STATE_SELECTED_VIEW) == null)
 		{
 			state.setAttribute(STATE_SELECTED_VIEW, rb.getString("view.all"));
@@ -3331,6 +3342,13 @@ public class AnnouncementAction extends PagedResourceActionII
 		if (state.getAttribute(STATE_INITED) == null)
 		{
 			state.setAttribute(STATE_INITED, STATE_INITED);
+
+			// check if the channel is marked public read
+			if (SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
+			{
+				state.setAttribute(STATE_CHANNEL_PUBVIEW, STATE_CHANNEL_PUBVIEW);
+			}
+
 			// // the delivery location for this tool
 			// String deliveryId = clientWindowId(state, portlet.getID());
 			//

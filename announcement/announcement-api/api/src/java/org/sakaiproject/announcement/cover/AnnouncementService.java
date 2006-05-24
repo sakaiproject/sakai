@@ -92,8 +92,6 @@ public class AnnouncementService
 
 	public static java.lang.String REF_TYPE_CHANNEL = org.sakaiproject.announcement.api.AnnouncementService.REF_TYPE_CHANNEL;
 
-	public static java.lang.String REF_TYPE_CHANNEL_GROUPS = org.sakaiproject.announcement.api.AnnouncementService.REF_TYPE_CHANNEL_GROUPS;
-
 	public static java.lang.String REF_TYPE_MESSAGE = org.sakaiproject.announcement.api.AnnouncementService.REF_TYPE_MESSAGE;
 
 	public static org.sakaiproject.announcement.api.AnnouncementChannel getAnnouncementChannel(java.lang.String param0)
