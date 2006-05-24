@@ -93,8 +93,6 @@ public class MailArchiveService
 
 	public static java.lang.String REF_TYPE_CHANNEL = org.sakaiproject.mailarchive.api.MailArchiveService.REF_TYPE_CHANNEL;
 
-	public static java.lang.String REF_TYPE_CHANNEL_GROUPS = org.sakaiproject.mailarchive.api.MailArchiveService.REF_TYPE_CHANNEL_GROUPS;
-
 	public static java.lang.String REF_TYPE_MESSAGE = org.sakaiproject.mailarchive.api.MailArchiveService.REF_TYPE_MESSAGE;
 
 	public static org.sakaiproject.mailarchive.api.MailArchiveChannel getMailArchiveChannel(java.lang.String param0)
