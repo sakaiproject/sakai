@@ -7156,7 +7156,7 @@ extends VelocityPortletStateAction
 		String siteRef = SiteService.siteReference(calendarRef.getContext());
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.SITE_REF, siteRef);
+		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
 
 		// ... with this description
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("java.set")
