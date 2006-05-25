@@ -39,10 +39,10 @@
 					</label>
 					<span class="skip">$tlang.getString("gen.listnavselect")</span>
 					<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
-						<option value="$!tlang.getString('view.all')" #if ($!view == "$!tlang.getString('view.all')")selected="selected"#end >$!tlang.getString('view.all')</option>
-						<option value="$!tlang.getString('view.public')"  #if ($!view == "$!tlang.getString('view.public')")selected="selected"#end >$!tlang.getString('view.public')</option>
+						<option value="view.all" #if ($!view == "view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
+						<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 						#if ($!groups)
-							<option value="$!tlang.getString('view.bygroup')" #if ($!view == "$!tlang.getString('view.bygroup')")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
+							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 						#end 
 					</select>
 				</form>
@@ -158,7 +158,7 @@
 							#end
 						</th>
 					</tr>
-					#if ($!view == "$!tlang.getString('view.all')")
+					#if ($!view == "view.all")
 					#set ($rowCount=0)
 					#foreach ($ann_item in $showMessagesList)
 						#set ($rowCount =$rowCount + 1)
@@ -232,7 +232,7 @@
 		#else
 			</div> ##end navPanel						
 			<div class="instruction clear">
-				#if ($!view == "$!tlang.getString('view.public')")
+				#if ($!view == "view.public")
 					$tlang.getString("gen.therearepublic")
 				#else
 					$tlang.getString("gen.thereare")
@@ -304,10 +304,10 @@
 								</label>
 								<span class="skip">$tlang.getString("gen.listnavselect")</span>
 								<select id="view" name="view" size="1" onchange="blur();document.viewForm.submit();">
-									<option value="$!tlang.getString('view.all')" #if ($!view == "$!tlang.getString('view.all')")selected="selected"#end >$!tlang.getString('view.all')</option>
-									<option value="$!tlang.getString('view.public')"  #if ($!view == "$!tlang.getString('view.public')")selected="selected"#end >$!tlang.getString('view.public')</option>
+									<option value="view.all" #if ($!view == "'view.all")selected="selected"#end >$!tlang.getString('view.all')</option>
+									<option value="view.public"  #if ($!view == "view.public")selected="selected"#end >$!tlang.getString('view.public')</option>
 									#if ($!groups)
-										<option value="$!tlang.getString('view.bygroup')" #if ($!view == "$!tlang.getString('view.bygroup')")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
+										<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 									#end 
 								</select>
 							</form>
@@ -435,7 +435,7 @@
 											#end
 										#end
 									</th>
-									#if ($!view != $!tlang.getString('view.bygroup'))
+									#if ($!view != "view.bygroup")
 										#if ($allow_delete)
 											<th class="screenOnly" id="checkbox">
 												 $tlang.getString("gen.remove_question")
@@ -500,7 +500,7 @@
 									#set ($ref = $entityManager.newReference($ann_item.Reference))
 									#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
 
-									#if ($!view != $!tlang.getString('view.bygroup'))
+									#if ($!view != "view.bygroup")
 										#if ($channel.allowRemoveMessage($ann_item.Message))
 											#if ($origChannelRef.equals($channel.Reference))
 											<td headers="checkbox" class="screenOnly">
@@ -534,7 +534,7 @@
 						#else
 							</div> ##end navPanel
 							<div class="instruction clear">
-								#if ($!view == "$!tlang.getString('view.public')")
+								#if ($!view == "view.public")
 									$tlang.getString("gen.therearepublic")
 								#else
 									$tlang.getString("gen.thereare")

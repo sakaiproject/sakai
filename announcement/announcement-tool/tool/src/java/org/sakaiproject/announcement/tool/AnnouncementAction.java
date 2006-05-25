@@ -177,6 +177,11 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String SC_FALSE = "false";
 
 	private static final String PUBLIC_DISPLAY_DISABLE_BOOLEAN = "publicDisplayBoolean";
+   
+   private static final String VIEW_MODE_ALL      = "view.all";
+   private static final String VIEW_MODE_PUBLIC   = "view.public";
+   private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
+   private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
 
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -726,7 +731,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String template = (String) getContext(runData).get("template");
 		return template + "-merge";
-		// return template + rb.getString("java.minimerge");
 	}
 
 	/**
@@ -865,15 +869,15 @@ public class AnnouncementAction extends PagedResourceActionII
 
 					if (view != null)
 					{
-						if (view.equals(rb.getString("view.all")))
+                  if (view.equals(VIEW_MODE_ALL))
 						{
 							messages = getMessages(channel, null, true, state, portlet);
 						}
-						else if (view.equals(rb.getString("view.bygroup")))
+						else if (view.equals(VIEW_MODE_BYGROUP))
 						{
 							messages = getMessagesByGroups(site, channel, null, true, state, portlet);
 						}
-						else if (view.equals(rb.getString("view.public")))
+						else if (view.equals(VIEW_MODE_PUBLIC))
 						{
 							messages = getMessagesPublic(site, channel, null, true, state, portlet);
 						}
@@ -1494,7 +1498,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		// pick the "browse" template based on the standard template name
 		String template = (String) getContext(rundata).get("template");
 		return template + "-preview";
-		// return template + rb.getString("java.preview");
 
 	} // buildPreviewContext
 
@@ -1653,7 +1656,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String template = (String) getContext(rundata).get("template");
 		return template + "-revise";
-		// return template + rb.getString("java.revise");
 
 	} // buildReviseAnnouncementContext
 
@@ -1755,7 +1757,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String template = (String) getContext(rundata).get("template");
 		return template + "-metadata";
-		// return template + rb.getString("java.metadata");
 
 	}
 
@@ -1924,7 +1925,6 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		String template = (String) getContext(rundata).get("template");
 		return template + "-delete";
-		// return template + rb.getString("java.delete");
 
 	} // buildDeleteAnnouncementContext
 
@@ -3321,7 +3321,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		
 		if (state.getAttribute(STATE_SELECTED_VIEW) == null)
 		{
-			state.setAttribute(STATE_SELECTED_VIEW, rb.getString("view.all"));
+			state.setAttribute(STATE_SELECTED_VIEW, VIEW_MODE_ALL);
 		}
 
 		// // get the current collection ID from state object or prolet initial parameter
@@ -3762,20 +3762,20 @@ public class AnnouncementAction extends PagedResourceActionII
 		String viewMode = data.getParameters().getString("view");
 		state.setAttribute(STATE_SELECTED_VIEW, viewMode);
 
-		if (viewMode.equalsIgnoreCase(rb.getString("view.all")))
+		if (viewMode.equals(VIEW_MODE_ALL))
 		{
 
 		}
-		else if (viewMode.equalsIgnoreCase(rb.getString("view.public")))
+		else if (viewMode.equals(VIEW_MODE_PUBLIC))
 		{
 
 		}
-		else if (viewMode.equalsIgnoreCase(rb.getString("view.bygroup")))
+		else if (viewMode.equals(VIEW_MODE_BYGROUP))
 		{
 			state.setAttribute(STATE_CURRENT_SORTED_BY, SORT_FOR);
 			state.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.TRUE);
 		}
-		else if (viewMode.equalsIgnoreCase(rb.getString("view.mygroups")))
+		else if (viewMode.equals(VIEW_MODE_MYGROUPS))
 		{
 
 		}
