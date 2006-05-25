@@ -2,13 +2,13 @@
 <div class="portletBody">
 		<div class="navIntraTool">
 			#if ($allowAddAssignment)
-				<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> | <span style="margin:.5em">$!tlang.getString("gen.liofass")</span>
+				<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> | <span style="margin:.5em">$!tlang.getString("lisofass1")</span>
 			#end
 			#if ($withGrade && $!allowGradeSubmission)
-				| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.grarep'))")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+				| <a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
 			#end
 			#if ($allowAddAssignment)
-				| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+				| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
 			#end
 			#if ($allowUpdateSite)
 				| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
@@ -35,8 +35,8 @@
 					<label for="view">$tlang.getString("gen.view2")</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 					<select name="view" id="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
-						<option value="$!tlang.getString('lisofass1')" >$!tlang.getString('lisofass1')</option>
-						<option value="$!tlang.getString('lisofass2')" selected="selected" >$!tlang.getString('lisofass2')</option>
+						<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
+						<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
 					</select>
 				</form>
 			</div>	

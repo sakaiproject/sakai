@@ -5,12 +5,12 @@
 		#if ($allowAddAssignment)
 			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
 		#end
-		<a href="#" title = "$!tlang.getString('gen.liofass')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.liofass')';document.gradeForm.submit();return false;">$!tlang.getString("gen.liofass")</a>
+		<a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a>
 		#if ($withGrade && $!allowGradeSubmission)
-			| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.grarep')';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+			| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
 		#end
 		#if ($allowAddAssignment)
-			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.stuvie')';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
 		#end
 		#if ($allowUpdateSite)
 			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a>

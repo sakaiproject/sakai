@@ -49,11 +49,11 @@
 <div class="portletBody">
 	<div class="navIntraTool">
 		#if ($allowAddAssignment)
-			<span class="margin:.5em">$!tlang.getString("new")</span> | <a href="#" title = "$!tlang.getString('gen.liofass')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.liofass')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.liofass")</a>
+			<span class="margin:.5em">$!tlang.getString("new")</span> | <a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.newAssignmentForm.submit();return false;">$!tlang.getString("lisofass1")</a>
 			#if ($withGrade && $!allowGradeSubmission)
-				| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.grarep')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
+				| <a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.grarep")</a>
 			#end
-			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='$!tlang.getString('gen.stuvie')';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
+			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
 		#end
 		#if ($allowUpdateSite)
 			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a>

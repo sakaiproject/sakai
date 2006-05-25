@@ -17,10 +17,10 @@
 		#else
 			#set($prevAction=true)
 		#end
-		#if (!$!view.equals($!tlang.getString('gen.liofass')))
-			<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.liofass'))")" title="$!tlang.getString('gen.liofass')">$!tlang.getString('gen.liofass')</a>
+		#if (!$!view.equals('lisofass1'))
+			<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
 		#else
-			<span style="margin:.5em">$!tlang.getString("gen.liofass")</span>
+			<span style="margin:.5em">$!tlang.getString("lisofass1")</span>
 		#end
 		#if ($withGrade && $!allowGradeSubmission)
 			#if ($prevAction)
@@ -28,7 +28,7 @@
 			#else
 				#set($prevAction=true)
 			#end
-			<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.grarep'))")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			<a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
 		#end
 		#if ($allowAddAssignment)
 			#if ($prevAction)
@@ -37,7 +37,7 @@
 				#set($prevAction=true)
 			#end
 			#if (!$!view.equals($!tlang.getString('gen.stuvie')))
-				<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+				<a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
 			#else
 				$!tlang.getString("gen.stuvie")
 			#end
@@ -52,7 +52,7 @@
 	#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<h3>
-		$!tlang.getString('gen.liofass')
+		$!tlang.getString('lisofass1')
 	</h3>
 	#if (!$!assignments.hasNext())
 		<p class="instruction">
@@ -61,7 +61,7 @@
 	#else
 	<div class="navPanel">
 		#if ($allowAddAssignment)
-			#if (!$!view.equals($!tlang.getString('gen.stuvie')))
+			#if (!$!view.equals('stuvie'))
 			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 					<input type="hidden" name="eventSubmit_doView" value="view" />
@@ -70,8 +70,8 @@
 					</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 					<select id="view" name="view" size="1" tabindex="3" onchange="blur();document.viewForm.submit();">
-						<option value="$!tlang.getString('lisofass1')" #if($!view.equals($!tlang.getString('lisofass1')))selected="selected"#end >$!tlang.getString('lisofass1')</option>
-						<option value="$!tlang.getString('lisofass2')" #if($!view.equals($!tlang.getString('lisofass2')))selected="selected"#end >$!tlang.getString('lisofass2')</option>
+						<option value="lisofass1" #if($!view.equals('lisofass1'))selected="selected"#end >$!tlang.getString('lisofass1')</option>
+						<option value="lisofass2" #if($!view.equals('lisofass2'))selected="selected"#end >$!tlang.getString('lisofass2')</option>
 					</select>
 				</form>
 			</div>
@@ -209,7 +209,7 @@
 						</a>
 					</th>
 					#if ($!allowGradeSubmission)
-						#if ($!view.equals($!tlang.getString('gen.liofass')))
+						#if ($!view.equals('lisofass1'))
 						<th id="num_submissions">
 							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=num_submissions")'; return false;" title="$tlang.getString("listassig.sorbynum1")">$tlang.getString("gen.in")</a>
 								#if ($sortedBy.equals("num_submissions")) 
@@ -249,7 +249,7 @@
 							</a>
 						</th>
 					#end
-					#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
+					#if ($!allowRemove && $!view.equals('lisofass1'))
 						<th id="remove" class="screenOnly"> 
 							$tlang.getString("gen.remove.q")
 						</th>
@@ -297,7 +297,7 @@
 								#end
 							</td>
 							<td headers="title">
-									#if ($!allowAddAssignment && $!view.equals($!tlang.getString('gen.liofass')))
+									#if ($!allowAddAssignment && $!view.equals('lisofass1'))
 										<h4>
 											## normal instructor view
 											#if ($assignment.draft && $!service.allowUpdateAssignment($assignmentReference) )
@@ -365,7 +365,7 @@
 								$!for
 							</td>
 							<td headers="status">
-								#if ($allowAddAssignment && $!view.equals($!tlang.getString('gen.liofass')))
+								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 									#if ($!assignment.Draft)
 										<span class="highlight">$tlang.getString("gen.dra1")</span>
 									#else
@@ -419,7 +419,7 @@
 								$!assignment.dueTime.toStringLocalFull()
 							</td>
 							#if ($!allowGradeSubmission)
-								#if ($!view.equals($!tlang.getString('gen.liofass')))
+								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
 									#set ($totalSubmission = $service.getSubmissions($assignment))
 									#set ($totalNumber = 0)
@@ -468,7 +468,7 @@
 									#end
 								</td>
 							#end
-							#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
+							#if ($!allowRemove && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
 									<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
 									<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label> 
@@ -478,7 +478,7 @@
 					#end
 				#end
 			</table>
-			#if ($!allowRemove && $!view.equals($!tlang.getString('gen.liofass')))
+			#if ($!allowRemove && $!view.equals('lisofass1'))
 				<p class="act">
 					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("update")" accesskey="s" />
 				</p>

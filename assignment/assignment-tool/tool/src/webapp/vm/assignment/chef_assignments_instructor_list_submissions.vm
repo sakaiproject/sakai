@@ -11,14 +11,14 @@
 		#else
 			#set($prevAction=true)
 		#end
-		<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.liofass'))")" title="$!tlang.getString('gen.liofass')">$!tlang.getString('gen.liofass')</a>
+		<a href="#toolLinkParam("$action" "doView" "lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
 		#if ($withGrade && $!allowGradeSubmission)
 			#if ($prevAction)
 			 | 
 			#else
 				#set($prevAction=true)
 			#end
-			<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.grarep'))")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
+			<a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a>
 		#end
 		#if ($allowAddAssignment)
 			#if ($prevAction)
@@ -26,8 +26,8 @@
 			#else
 				#set($prevAction=true)
 			#end
-			#if (!$!view.equals($!tlang.getString('gen.stuvie')))
-				<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
+			#if (!$!view.equals('stuvie'))
+				<a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
 			#else
 				$!tlang.getString("gen.stuvie")
 			#end

@@ -4,9 +4,9 @@
 		#if ($allowAddAssignment)
 			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
 		#end
-		<a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.liofass'))")" title="$!tlang.getString('gen.liofass')">$!tlang.getString('gen.liofass')</a> | <span style="margin:.5em">$!tlang.getString('gen.grarep')</span>
+		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a> | <span style="margin:.5em">$!tlang.getString('lisofass1')</span>
 		#if ($allowAddAssignment)
-			| <a href="#toolLinkParam("$action" "doView" "view=$validator.escapeUrl($!tlang.getString('gen.stuvie'))")" title="$!tlang.getString('gen.stuvie')">$!tlang.getString('gen.stuvie')</a>		
+			| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString('gen.stuvie')">$!tlang.getString('gen.stuvie')</a>		
 		#end
 		#if ($allowUpdateSite)
 			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>

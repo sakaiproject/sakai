@@ -369,7 +369,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** **************************** modes *************************** */
 	/** The list view of assignments */
-	private static final String MODE_LIST_ASSIGNMENTS = rb.getString("lisofass1");
+   private static final String MODE_LIST_ASSIGNMENTS = "lisofass1"; // set in velocity template
 
 	/** The student view of an assignment submission */
 	private static final String MODE_STUDENT_VIEW_SUBMISSION = "Assignment.mode_view_submission";
@@ -405,10 +405,13 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String MODE_INSTRUCTOR_VIEW_ASSIGNMENT = "Assignment.mode_instructor_view_assignments";
 
 	/** The instructor view to list students of an assignment */
-	private static final String MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT = rb.getString("lisofass2");
+   private static final String MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT = "lisofass2"; // set in velocity template
 
 	/** The instructor view of assignment submission report */
-	private static final String MODE_INSTRUCTOR_REPORT_SUBMISSIONS = rb.getString("grad4");
+   private static final String MODE_INSTRUCTOR_REPORT_SUBMISSIONS = "grarep"; // set in velocity template
+
+	/** The student view of assignment submission report */
+   private static final String MODE_STUDENT_VIEW = "stuvie"; // set in velocity template
 
 	/** ************************* vm names ************************** */
 	/** The list view of assignments */
@@ -452,15 +455,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The instructor view to assignment submission report */
 	private static final String TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS = "_instructor_report_submissions";
-
-	/** the alert message to be shown when there is a InUseException */
-	private static final String INUSE_ERROR_MESSAGE = rb.getString("somelsis") + " ";
-
-	/** the alert message to be shown when the close date is before open date */
-	private static final String CLOSE_OPEN_DATE_ERROR_MESSAGE = "Accept submissions deadline should be set after the open date. ";
-
-	/** the alert message to be shown when the close date is before due date */
-	private static final String CLOSE_DUE_DATE_ERROR_MESSAGE = rb.getString("acesubdea2");
 
 	/** The opening mark comment */
 	private static final String COMMENT_OPEN = "{{";
@@ -2417,7 +2411,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (InUseException e)
 		{
-			addAlert(state, INUSE_ERROR_MESSAGE + rb.getString("submiss"));
+			addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
 		} // try
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -2500,7 +2494,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (InUseException e)
 					{
-						addAlert(state, INUSE_ERROR_MESSAGE + rb.getString("submiss"));
+						addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
 					}
 				}
 				else
@@ -2768,7 +2762,7 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (InUseException e)
 					{
-						addAlert(state, INUSE_ERROR_MESSAGE + rb.getString("submiss"));
+						addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
 					}
 				}
 				else
@@ -3337,11 +3331,11 @@ public class AssignmentAction extends PagedResourceActionII
 				// if there is a close time, check it
 				if (closeTime.before(openTime))
 				{
-					addAlert(state, CLOSE_OPEN_DATE_ERROR_MESSAGE);
+					addAlert(state, rb.getString("acesubdea3"));
 				}
 				if (closeTime.before(dueTime))
 				{
-					addAlert(state, CLOSE_DUE_DATE_ERROR_MESSAGE);
+					addAlert(state, rb.getString("acesubdea2"));
 				}
 			}
 
@@ -3724,7 +3718,7 @@ public class AssignmentAction extends PagedResourceActionII
 										}
 										catch (InUseException ee)
 										{
-											Log.warn("chef", INUSE_ERROR_MESSAGE + rb.getString("calen"));
+											Log.warn("chef", rb.getString("somelsis") + " " + rb.getString("calen"));
 										}
 									}
 								}
@@ -4280,7 +4274,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (InUseException e)
 			{
-				addAlert(state, INUSE_ERROR_MESSAGE + "assignment. ");
+				addAlert(state, rb.getString("somelsis") + " " + rb.getString("assig2"));
 			}
 			catch (IdUnusedException e)
 			{
@@ -4335,7 +4329,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			catch (InUseException e)
 			{
-				addAlert(state, INUSE_ERROR_MESSAGE + "assignment. ");
+				addAlert(state, rb.getString("somelsis") + " " +  rb.getString("assig2"));
 			}
 		}
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -4510,7 +4504,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (InUseException e)
 		{
-			addAlert(state, INUSE_ERROR_MESSAGE + rb.getString("submiss"));
+			addAlert(state, rb.getString("somelsis") + " " + rb.getString("submiss"));
 		}
 
 	} // doRelease_grades
@@ -4954,7 +4948,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// show the list of assignment view first
 		if (state.getAttribute(STATE_SELECTED_VIEW) == null)
 		{
-			state.setAttribute(STATE_SELECTED_VIEW, rb.getString("lisofass1"));
+			state.setAttribute(STATE_SELECTED_VIEW, MODE_LIST_ASSIGNMENTS);
 		}
 
 		if (state.getAttribute(STATE_USER) == null)
@@ -6096,7 +6090,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING))
-					&& view.equals(rb.getString("lisofass1")))
+					&& view.equals(MODE_LIST_ASSIGNMENTS))
 			{
 				// read all Assignments
 				Iterator allAssignmentsIterator = null;
@@ -6161,7 +6155,7 @@ public class AssignmentAction extends PagedResourceActionII
 				returnResources = assignments;
 			}
 			else if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING))
-					&& view.equals(rb.getString("stuvie"))
+					&& view.equals(MODE_STUDENT_VIEW)
 					|| !AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING)))
 			{
 				// in the student list view of assignments
@@ -6397,7 +6391,7 @@ public class AssignmentAction extends PagedResourceActionII
 			size = 0;
 
 			if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING))
-					&& view.equals(rb.getString("lisofass1")))
+					&& view.equals(MODE_LIST_ASSIGNMENTS))
 			{
 
 				// read all Assignments
@@ -6460,7 +6454,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 			else if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING))
-					&& view.equals(rb.getString("stuvie"))
+					&& view.equals(MODE_STUDENT_VIEW)
 					|| !AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING)))
 			{
 				// in the student list view of assignments
@@ -6664,19 +6658,19 @@ public class AssignmentAction extends PagedResourceActionII
 			String viewMode = data.getParameters().getString("view");
 			state.setAttribute(STATE_SELECTED_VIEW, viewMode);
 
-			if (viewMode.equalsIgnoreCase(rb.getString("lisofass1")))
+			if (viewMode.equals(MODE_LIST_ASSIGNMENTS))
 			{
 				doList_assignments(data);
 			}
-			else if (viewMode.equalsIgnoreCase(rb.getString("lisofass2")))
+			else if (viewMode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 			{
 				doView_students_assignment(data);
 			}
-			else if (viewMode.equalsIgnoreCase(rb.getString("grad4")))
+			else if (viewMode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 			{
 				doReport_submissions(data);
 			}
-			else if (viewMode.equalsIgnoreCase(rb.getString("stuvie")))
+			else if (viewMode.equals(MODE_STUDENT_VIEW))
 			{
 				doView_student(data);
 			}
