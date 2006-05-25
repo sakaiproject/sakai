@@ -119,9 +119,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 	private static final String STATE_SUBJECT_OPTION = "allow-option-of-showing-subject";
 
-	/** channel problem messages */
-	private static final String CHANNEL_PERMISSION = rb.getString("youdonot");
-
 	/**
 	 * Populate the state object, if needed - override to do something!
 	 */
@@ -341,7 +338,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, CHANNEL_PERMISSION);
+			addAlert(state, rb.getString("youdonot"));
 		}
 
 		// inform the observing courier that we just updated the page...
