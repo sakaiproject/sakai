@@ -336,3 +336,43 @@ function showDiv(hideDivisionNo, context)
       }
   }
 }
+
+
+//Huong's adding for use of gradeStudent Results
+function toggleDiv(idNo)
+{ 
+  myDocumentElements=document.getElementsByTagName("span");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+       if (divisionNo!=idNo && divisionNo.indexOf(idNo.substring(0,idNo.length-1))>=0)
+        { var eleDiv=getTheElement(divisionNo);
+         var imgId=idNo+"Im";
+          var imgEle=getTheElement(imgId);
+            
+           if(eleDiv.style.display=='none')
+            { 
+            eleDiv.style.display='block';
+            if (imgEle)
+               imgEle.src = "/samigo/images/down_arrow.gif";
+            }
+           else
+            { 
+             eleDiv.style.display='none';
+             if (imgEle)
+               imgEle.src = "/samigo/images/right_arrow.gif";
+            }
+        }
+    }
+     
+}
+
+function hideAll()
+{ myDocumentElements=document.getElementsByTagName("span");
+    for (i=0;i<myDocumentElements.length;i++)
+    {
+      divisionNo = "" + myDocumentElements[i].id;
+     if(divisionNo.indexOf("q")>=0)
+      getTheElement(divisionNo).style.display="none";
+}
+}

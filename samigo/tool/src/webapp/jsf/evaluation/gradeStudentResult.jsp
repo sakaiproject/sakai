@@ -46,8 +46,10 @@ $Id$
       <title><h:outputText
         value="#{msg.title_total}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
+
       </head>
-    <body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>">
+    <%-- body onload="hideUnhideAllDivs('none');;<%= request.getAttribute("html.body.onload") %>"--%>
+  <body onload="hideAll();;<%= request.getAttribute("html.body.onload") %>"--%>
 <!-- $Id:  -->
 <!-- content... -->
  <div class="portletBody">
@@ -107,8 +109,22 @@ $Id$
   <h:column>
     <h:panelGroup>
 
+<%-- TEMP CLOSE - hideDivision does not work here!
+
     <samigo:hideDivision title = "#{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
        #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" >
+
+--%>
+
+<%-- NEW --%>
+<h:outputLink title="msg.t_toggleDiv" id="p"  value="#" onclick="toggleDiv(this.id)">
+<h:graphicImage id="pIm" url="/images/right_arrow.gif"/>
+</h:outputLink>
+<h:outputLabel value=" #{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
+       #{part.questions-part.unansweredQuestions}#{msg.splash}#{part.questions} #{dmsg.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{dmsg.pt}" />
+
+
+<%-- END NEW --%>
 
       <h:dataTable value="#{part.itemContents}" var="question">
       <h:column>
@@ -117,13 +133,17 @@ $Id$
           <h:outputText value="<a href=\"#" escape="false" />
           <h:outputText value="#{part.number}#{dmsg.underscore}#{question.number}\">"
             escape="false" />
-          <h:outputText value="#{question.number}#{dmsg.dot} #{question.strippedText} #{question.maxPoints} #{dmsg.pt} " escape="false" />
+          <h:outputText id="q" value="#{question.number}#{dmsg.dot} #{question.strippedText} #{question.maxPoints} #{dmsg.pt} " escape="false" />
           <h:outputText value="</a>" escape="false" />
         </h:panelGroup>
         <f:verbatim></h4></f:verbatim>
        </h:column>
       </h:dataTable>
+
+<%-- TEMP CLOSE
      </samigo:hideDivision>
+--%>
+
      </h:panelGroup>
    </h:column>
   </h:dataTable>
