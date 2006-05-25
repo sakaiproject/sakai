@@ -83,7 +83,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// templates, so if for some reason none have been defined yet,
 				// do that now.
 				if (gradingScales.isEmpty()) {
-					if (log.isWarnEnabled()) log.warn("No GradingScale defined yet. Defaults will be created.");
+					if (log.isInfoEnabled()) log.info("No Grading Scale defined yet. This is probably because you have upgraded or you are working with a new database. Default grading scales will be created. Any customized system-wide grade mappings you may have defined in previous versions will have to be reconfigured.");
 					gradingScales = GradebookServiceHibernateImpl.this.addDefaultGradingScales(session);
 				}
 
