@@ -139,9 +139,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	/** Number of times to attempt to find a unique resource id when copying or moving a resource */
 	protected static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-
-	/** Maximum number of characters in a valid resource-id */
-	protected static final int MAXIMUM_RESOURCE_ID_LENGTH = 255;
 	
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;

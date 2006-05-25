@@ -73,6 +73,8 @@ public class ContentHostingService
 
 	public static java.lang.String PROP_ALTERNATE_REFERENCE = org.sakaiproject.content.api.ContentHostingService.PROP_ALTERNATE_REFERENCE;
 
+	public static int MAXIMUM_RESOURCE_ID_LENGTH = org.sakaiproject.content.api.ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH;
+	
 	public static java.lang.String getUrl(java.lang.String param0)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();

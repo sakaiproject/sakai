@@ -124,7 +124,10 @@ public interface ContentHostingService extends EntityProducer
 	/** Property name on a Resource that will cause getUrl() and getRefernce() to return an alternal root reference. */
 	public static final String PROP_ALTERNATE_REFERENCE = "sakai:reference-root";
 
-   /**
+	/** The maximum number of characters allowed in a new resource ID: make is so the reference, /content/<id>, is 255 or less */
+	public static final int MAXIMUM_RESOURCE_ID_LENGTH = 247;
+	
+	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
 

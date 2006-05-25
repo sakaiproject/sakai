@@ -542,9 +542,6 @@ public class ResourcesAction
 	/** The String of new copyright */
 	private static final String NEW_COPYRIGHT = "newcopyright";
 
-	/** The maximum number of characters allowed in a new resource ID */
-	private static final int RESOURCE_ID_MAX_LENGTH = 254;
-
 	/** The resource not exist string */
 	private static final String RESOURCE_NOT_EXIST_STRING = rb.getString("notexist1");
 
@@ -3063,7 +3060,7 @@ public class ResourcesAction
 					String attemptStr = "";
 					String newResourceId = collectionId + filename + attemptStr + extension;
 
-					if(newResourceId.length() > RESOURCE_ID_MAX_LENGTH)
+					if(newResourceId.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
 					{
 						alerts.add(rb.getString("toolong") + " " + newResourceId);
 						continue outerloop;
@@ -3448,7 +3445,7 @@ public class ResourcesAction
 			}
 			String newCollectionId = collectionId + Validator.escapeResourceName(item.getName()) + Entity.SEPARATOR;
 
-			if(newCollectionId.length() > RESOURCE_ID_MAX_LENGTH)
+			if(newCollectionId.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
 			{
 				alerts.add(rb.getString("toolong") + " " + newCollectionId);
 				continue outerloop;
@@ -10204,15 +10201,13 @@ public class ResourcesAction
 			addAlert(state, rb.getString("notfindfol"));
 		}
 
+		// the folder to edit
 		Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-		String siteId = ref.getContext();
-		
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		// TODO: this used to be the "state_realm_id", but got changes to "site_ref", probably incorrectly -ggolden
-		state.setAttribute(PermissionsHelper.SITE_REF, ref.getReference());
+		state.setAttribute(PermissionsHelper.TARGET_REF, ref.getReference());
 
-		// ... using this realm's roles
-		//TODO: state.setAttribute(PermissionsAction.STATE_REALM_ROLES_ID, SiteService.siteReference(siteId));
+		// use the folder's context (as a site) for roles
+		String siteRef = SiteService.siteReference(ref.getContext());
+		state.setAttribute(PermissionsHelper.ROLES_REF, siteRef);
 
 		// ... with this description
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis") + " " + title);
@@ -10253,7 +10248,7 @@ public class ResourcesAction
 		String siteRef = SiteService.siteReference(ref.getContext());
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.SITE_REF, siteRef);
+		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
 
 		// ... with this description
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
