@@ -149,7 +149,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	private final static String ADDFIELDS_DELIMITER = "_,_";
 	
 	/** Security lock / event root for generic message events to make it a mail event. */
-	public static final String SECURE_SCHEDULE_ROOT = "schedule.";
+	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
 	/**
 	 * Access this service from the inner classes.
@@ -3065,7 +3065,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				Site site = SiteService.getSite(m_context);
 				Collection groups = site.getGroups();
 				
-				// if the user has annc.allgrp for the channel (channel, site), and the function for the channel (channel,site), select all site groups
+				// if the user has schedule.allgrp for the channel (channel, site), and the function for the channel (channel,site), select all site groups
 				if (unlockCheck(SECURE_ALL_GROUPS, getReference()))
 				{
 					return groups;
