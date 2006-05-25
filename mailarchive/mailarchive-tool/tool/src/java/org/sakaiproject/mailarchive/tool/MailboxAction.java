@@ -46,14 +46,12 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveChannelEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.cover.MailArchiveService;
-import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -1131,7 +1129,7 @@ public class MailboxAction extends PagedResourceActionII
 		String siteRef = SiteService.siteReference(channelRef.getContext());
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.SITE_REF, siteRef);
+		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
 
 		// ... with this description
 		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setperm")
