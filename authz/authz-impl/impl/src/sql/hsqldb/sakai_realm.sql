@@ -6,7 +6,7 @@
 
 CREATE TABLE SAKAI_REALM (
        REALM_KEY            INTEGER NOT NULL,
-       REALM_ID             VARCHAR (200) NOT NULL,
+       REALM_ID             VARCHAR (255) NOT NULL,
        PROVIDER_ID          VARCHAR (1024) NULL,
        MAINTAIN_ROLE        INTEGER NULL,
        CREATEDBY            VARCHAR (99) NULL,

@@ -28,11 +28,15 @@ package org.sakaiproject.authz.api;
  */
 public interface PermissionsHelper
 {
+	/** Set this tool state attribute with the prefix for the permission functions to consider for editing (i.e. "content.") */
 	static final String PREFIX = "sakaiproject.permissions.prefix";
 
+	/** Set this tool state attribute with descriptive text for the editor. */
 	static final String DESCRIPTION = "sakaiproject.permissions.description";
 
-	static final String SITE_REF = "sakaiproject.permissions.siteRef";
+	/** Set this tool state attribute to the entity reference of the entity whose AuthzGroup is to be edited. */
+	static final String TARGET_REF = "sakaiproject.permissions.targetRef";
 
-	static final String STARTED = "sakaiproject.permissions.started";
+	/** Set this tool state attribute to the entity reference of the entity which controls the role definitions, if different than the target_ref (leave it unset if target_ref has the roles needed). */
+	static final String ROLES_REF = "sakaiproject.permissions.rolesRef";
 }

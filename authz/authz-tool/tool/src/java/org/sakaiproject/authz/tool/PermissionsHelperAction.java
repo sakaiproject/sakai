@@ -46,6 +46,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 {
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
+	private static final String STARTED = "sakaiproject.permissions.started";
+
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException
 	{
@@ -53,11 +55,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		String mode = (String) sstate.getAttribute(PermissionsAction.STATE_MODE);
-		Object started = toolSession.getAttribute(PermissionsHelper.STARTED);
+		Object started = toolSession.getAttribute(STARTED);
 
 		if (mode == null && started != null)
 		{
-			toolSession.removeAttribute(PermissionsHelper.STARTED);
+			toolSession.removeAttribute(STARTED);
 			Tool tool = ToolManager.getCurrentTool();
 
 			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
@@ -108,14 +110,18 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
 		String prefix = (String) toolSession.getAttribute(PermissionsHelper.PREFIX);
-		String siteRef = (String) toolSession.getAttribute(PermissionsHelper.SITE_REF);
+		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
+		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
+		if (rolesRef == null) rolesRef = targetRef;
 
-		toolSession.setAttribute(PermissionsHelper.STARTED, new Boolean(true));
+		toolSession.setAttribute(STARTED, new Boolean(true));
 
 		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsAction.STATE_REALM_ID, siteRef);
-		state.setAttribute(PermissionsAction.STATE_REALM_ROLES_ID, siteRef);
+		state.setAttribute(PermissionsAction.STATE_REALM_ID, targetRef);
+		
+		// use the roles from this ref's AuthzGroup
+		state.setAttribute(PermissionsAction.STATE_REALM_ROLES_ID, rolesRef);
 
 		// ... with this description
 		state.setAttribute(PermissionsAction.STATE_DESCRIPTION, description);
