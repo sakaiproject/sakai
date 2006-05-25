@@ -21,6 +21,7 @@
 
 package org.sakaiproject.memory.tool;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -49,6 +50,13 @@ public class MemoryAction extends VelocityPortletPaneledAction
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		
+		// if not logged in as the super user, we won't do anything
+		if (!SecurityService.isSuperUser())
+		{
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
+
 		// put $action into context for menus, forms and links
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 
