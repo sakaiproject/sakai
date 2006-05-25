@@ -181,20 +181,6 @@ public class ChatAction extends VelocityPortletPaneledAction
 
 	private static final String NEW_CHAT_CHANNEL = "new-chat-channel";
 
-	/** channel problem messages */
-	private static final String CHANNEL_MISSING = rb.getString("thischat");
-
-	private static final String CHANNEL_PERMISSION = rb.getString("youdonot1");
-
-	private static final String CHANNEL_CREATE_PERMISSION = rb.getString("youdonot2");
-
-	/** UI messages. */
-	private static final String PERMISSION_POST_MESSAGE = rb.getString("youdonot3");
-
-	private static final String PERMISSION_DELETE_MESSAGE = rb.getString("youdonot4");
-
-	private static final String POST_PROBLEM_MESSAGE = rb.getString("therewaspro");
-
 	/** Resource property on the message indicating that the message had been deleted */
 	private static final String PROPERTY_MESSAGE_DELETED = "deleted";
 
@@ -384,13 +370,13 @@ public class ChatAction extends VelocityPortletPaneledAction
 			catch (IdInvalidException e)
 			{
 				// stranger, we cannot use this id!
-				state.setAttribute(STATE_CHANNEL_PROBLEM, CHANNEL_MISSING);
+				state.setAttribute(STATE_CHANNEL_PROBLEM, rb.getString("thischat"));
 				M_log.warn("doSend(): creating channel: ", e);
 			}
 			catch (PermissionException e)
 			{
 				// rats, this user cannot create the channel
-				state.setAttribute(STATE_CHANNEL_PROBLEM, CHANNEL_CREATE_PERMISSION);
+				state.setAttribute(STATE_CHANNEL_PROBLEM, rb.getString("youdonot2"));
 			}
 		}
 		return channel;
@@ -837,7 +823,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		}
 		catch (PermissionException e)
 		{
-			context.put("alertMessage", CHANNEL_PERMISSION);
+			context.put("alertMessage", rb.getString("youdonot1"));
 		}
 		catch (Exception e)
 		{
@@ -876,7 +862,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		boolean allowed = ChatService.allowAddChannel((String) state.getAttribute(STATE_CHANNEL_REF));
 		if (!allowed)
 		{
-			context.put("alertMessage", PERMISSION_POST_MESSAGE); // %%% or no message?
+			context.put("alertMessage", rb.getString("youdonot3")); // %%% or no message?
 		}
 		context.put("allow-send", new Boolean(allowed));
 
@@ -968,11 +954,11 @@ public class ChatAction extends VelocityPortletPaneledAction
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, PERMISSION_POST_MESSAGE);
+				addAlert(state, rb.getString("youdonot3"));
 			}
 			catch (Exception e) // %%% why?
 			{
-				addAlert(state, POST_PROBLEM_MESSAGE);
+				addAlert(state, rb.getString("therewaspro"));
 				M_log.warn("doSend()", e);
 			}
 		}
@@ -1109,7 +1095,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		}
 		catch (PermissionException e)
 		{
-			context.put("alertMessage", PERMISSION_DELETE_MESSAGE);
+			context.put("alertMessage", rb.getString("youdonot4"));
 		}
 		catch (IdUnusedException e)
 		{
@@ -1291,7 +1277,7 @@ public class ChatAction extends VelocityPortletPaneledAction
 		}
 		catch (PermissionException e)
 		{
-			context.put("alertMessage", PERMISSION_DELETE_MESSAGE);
+			context.put("alertMessage", rb.getString("youdonot4"));
 		}
 		catch (IdUnusedException e)
 		{
