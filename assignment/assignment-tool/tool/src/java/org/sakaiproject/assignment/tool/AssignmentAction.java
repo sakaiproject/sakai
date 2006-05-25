@@ -621,11 +621,15 @@ public class AssignmentAction extends PagedResourceActionII
 			template = build_list_assignments_context(portlet, context, data, state);
 		}
 
-		// show all the groups in this channal that user has get message in
-		Collection groups = AssignmentService.getGroupsAllowAddAssignment(contextString);
-		if (groups != null && groups.size() > 0)
+		// if group in assignment is allowed, show all the groups in this channal that user has get message in
+		boolean allowGroupForAssignment = ServerConfigurationService.getBoolean("allow.group.assignments", true);
+		if (allowGroupForAssignment)
 		{
-			context.put("groups", groups);
+			Collection groups = AssignmentService.getGroupsAllowAddAssignment(contextString);
+			if (groups != null && groups.size() > 0)
+			{
+				context.put("groups", groups);
+			}
 		}
 		return template;
 
@@ -1003,25 +1007,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-		Collection groupsAllowAddAssignment = AssignmentService.getGroupsAllowAddAssignment(contextString);
-		if (range != null && range.length() != 0)
-		{
-			context.put("range", range);
-		}
-		else
-		{
-			if (AssignmentService.allowAddSiteAssignment(contextString))
-			{
-				// default to make site selection
-				context.put("range", "site");
-			}
-			else if (groupsAllowAddAssignment.size() > 0)
-			{
-				// to group otherwise
-				context.put("range", "groups");
-			}
-		}
-
+		
 		// put site object into context
 		try
 		{
@@ -1032,21 +1018,44 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (Exception ignore)
 		{
 		}
-
-		// group list which user can add message to
-		if (groupsAllowAddAssignment.size() > 0)
+		
+		boolean allowGroupForAssignment = ServerConfigurationService.getBoolean("allow.group.assignments", true);
+		if (allowGroupForAssignment)
 		{
-			String sort = (String) state.getAttribute(SORTED_BY);
-			String asc = (String) state.getAttribute(SORTED_ASC);
-			if (sort == null || (!sort.equals(SORTED_BY_GROUP_TITLE) && !sort.equals(SORTED_BY_GROUP_DESCRIPTION)))
+			Collection groupsAllowAddAssignment = AssignmentService.getGroupsAllowAddAssignment(contextString);
+			if (range != null && range.length() != 0)
 			{
-				sort = SORTED_BY_GROUP_TITLE;
-				asc = Boolean.TRUE.toString();
-				state.setAttribute(SORTED_BY, sort);
-				state.setAttribute(SORTED_ASC, asc);
+				context.put("range", range);
 			}
-			context.put("groups", new SortedIterator(groupsAllowAddAssignment.iterator(), new AssignmentComparator(sort, asc)));
-			context.put("assignmentGroups", state.getAttribute(NEW_ASSIGNMENT_GROUPS));
+			else
+			{
+				if (AssignmentService.allowAddSiteAssignment(contextString))
+				{
+					// default to make site selection
+					context.put("range", "site");
+				}
+				else if (groupsAllowAddAssignment.size() > 0)
+				{
+					// to group otherwise
+					context.put("range", "groups");
+				}
+			}
+	
+			// group list which user can add message to
+			if (groupsAllowAddAssignment.size() > 0)
+			{
+				String sort = (String) state.getAttribute(SORTED_BY);
+				String asc = (String) state.getAttribute(SORTED_ASC);
+				if (sort == null || (!sort.equals(SORTED_BY_GROUP_TITLE) && !sort.equals(SORTED_BY_GROUP_DESCRIPTION)))
+				{
+					sort = SORTED_BY_GROUP_TITLE;
+					asc = Boolean.TRUE.toString();
+					state.setAttribute(SORTED_BY, sort);
+					state.setAttribute(SORTED_ASC, asc);
+				}
+				context.put("groups", new SortedIterator(groupsAllowAddAssignment.iterator(), new AssignmentComparator(sort, asc)));
+				context.put("assignmentGroups", state.getAttribute(NEW_ASSIGNMENT_GROUPS));
+			}
 		}
 
 	} // setAssignmentFormContext
@@ -3825,34 +3834,44 @@ public class AssignmentAction extends PagedResourceActionII
 							String addUpdateRemoveAssignment = "remove";
 							if (Boolean.valueOf(addtoGradebook).booleanValue())
 							{
-								if (newAssignment)
+								boolean allowGroupedAssignmentIntoGB=ServerConfigurationService.getBoolean("allow.group.assignments.in.gbook", false);
+								if (!allowGroupedAssignmentIntoGB && (range.equals("groups")))
 								{
-									addUpdateRemoveAssignment = "add";
+									// if grouped assignment is not allowed to add into Gradebook
+									addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
+									integrateGradebook(state, aReference, "remove", null, null, -1, null, null, null);
 								}
 								else
 								{
-									addUpdateRemoveAssignment = "update";
+									if (newAssignment)
+									{
+										addUpdateRemoveAssignment = "add";
+									}
+									else
+									{
+										addUpdateRemoveAssignment = "update";
+									}
+	
+									if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
+									{
+										try
+										{
+											// no assignment committed yet. Use user input data
+											integrateGradebook(state, aReference, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
+											
+											// add all existing grades, if any, into Gradebook
+											integrateGradebook(state, aReference, null, null, null, -1, null, null, "update");
+										}
+										catch (NumberFormatException nE)
+										{
+											alertInvalidPoint(state, gradePoints);
+										}
+									}
+									else
+									{
+										integrateGradebook(state, aReference, "remove", null, null, -1, null, null, null);
+									}
 								}
-							}
-
-							if (!addUpdateRemoveAssignment.equals("remove") && gradeType == 3)
-							{
-								try
-								{
-									// no assignment committed yet. Use user input data
-									integrateGradebook(state, aReference, addUpdateRemoveAssignment, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, null);
-									
-									// add all existing grades, if any, into Gradebook
-									integrateGradebook(state, aReference, null, null, null, -1, null, null, "update");
-								}
-								catch (NumberFormatException nE)
-								{
-									alertInvalidPoint(state, gradePoints);
-								}
-							}
-							else
-							{
-								integrateGradebook(state, aReference, "remove", null, null, -1, null, null, null);
 							}
 
 							state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);

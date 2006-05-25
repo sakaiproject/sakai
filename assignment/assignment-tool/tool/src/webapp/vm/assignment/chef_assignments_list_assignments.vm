@@ -161,17 +161,20 @@
 							#end 
 						</a>
 					</th>
-					<th id="$tlang.getString('gen.visible')">
-						#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
-							<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
-						#else
-							#if ($sortedAsc.equals("true"))
-								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+					#if ($!groups)
+						#only show it when there is at least a group in site
+						<th id="$tlang.getString('gen.visible')">
+							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
+								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
 							#else
-								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+								#if ($sortedAsc.equals("true"))
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyforasc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyforasc')" /></a>
+								#else
+									<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=$tlang.getString('gen.visible')")'; return false;"  title="$tlang.getString('gen.sortbyfordesc')">$tlang.getString("gen.visible") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyfordesc')" /></a>
+								#end
 							#end
-						#end
-					</th>
+						</th>
+					#end
 					<th id="status">
 						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;"  onkeypress="location='#toolLinkParam("$action" "doSort" "criteria=assignment_status")'; return false;" title="$tlang.getString("listassig.sorbysta")">
 							$tlang.getString("gen.status")
@@ -261,21 +264,6 @@
 					#set($submission=$service.getSubmission($assignment.Reference, $user))
 					#set ($assignmentReference = $assignment.Reference)
 					#set ($assignmentCount = $assignmentCount + 1)
-					## assignment range
-					#set($for="")
-					#if ($assignment.Access.toString().equals("site"))
-						##site assignment
-						#set($for=$tlang.getString("range.allgroups"))
-					#else
-						#set($count=1)
-						#foreach ($group in $assignment.Groups)
-							#if ($count>1)
-								#set($for=$for.concat(","))
-							#end
-							#set($for= $for.concat($!site.getGroup($group).Title))
-							#set($count=$count+1)
-						#end
-					#end
 					#if (($assignment.draft && $service.allowUpdateAssignment($assignmentReference)) || (!$assignment.draft && $service.allowGetAssignment($assignmentReference)))
 						<tr> 
 							<td headers="attachments" class="attach">
@@ -361,9 +349,27 @@
 										#end
 									#end
 							</td>
-							<td  style="padding-bottom:0">
-								$!for
-							</td>
+							#if ($!groups)
+								## only show it when there is at least one group
+								## assignment range
+								#set($for="")
+								#if ($assignment.Access.toString().equals("site"))
+									##site assignment
+									#set($for=$tlang.getString("range.allgroups"))
+								#else
+									#set($count=1)
+									#foreach ($group in $assignment.Groups)
+										#if ($count>1)
+											#set($for=$for.concat(","))
+										#end
+										#set($for= $for.concat($!site.getGroup($group).Title))
+										#set($count=$count+1)
+									#end
+								#end
+								<td  style="padding-bottom:0">
+									$!for
+								</td>
+							#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
 									#if ($!assignment.Draft)

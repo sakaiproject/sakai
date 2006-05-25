@@ -398,10 +398,15 @@
 			## group/section support
 			<br />
 			#if ($allowAddSiteAssignment)
-				<p class="checkbox  indnt1">
-					<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
-					<label for="site">$tlang.getString("displayto.site")</label>
-				</p>	
+				#if ($!groups)
+					<p class="checkbox  indnt1">
+						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+						<label for="site">$tlang.getString("displayto.site")</label>
+					</p>	
+				#else
+					##if there is no group for the site, assignment is defaulted to site-range, and no need to surface the choice in UI
+					<input type="hidden" name="range" id="site" value="site" />
+				#end
 			#elseif ($allowAddAssignment)
 				#if ($!groups.size() >1)
 					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
