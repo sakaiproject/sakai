@@ -86,9 +86,6 @@ import org.sakaiproject.util.Web;
  * <p>
  * A placement will be created for each tool in the context as needed, and will be tracked for the duration of the server run.
  * </p>
- * 
- * @author University of Michigan, Sakai Software Development Team
- * @version $Revision$
  */
 public class MercuryPortal extends HttpServlet
 {
@@ -146,40 +143,52 @@ public class MercuryPortal extends HttpServlet
 	{
 		try
 		{
+			// make sure the portal is enabled
+			if (!ServerConfigurationService.getString("mercury.enabled", "false").equalsIgnoreCase("true"))
+			{
+				doDisabled(req, res);
+				return;
+			}
+
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
-	
+
 			// recognize what to do from the path
 			String option = req.getPathInfo();
-	
+
 			// if missing, set it to home
 			if ((option == null) || ("/".equals(option)))
 			{
 				option = "/home";
 			}
-	
+
 			// get the parts, [0] = "", [1] is /login, or [1] is /home, or [2] is context and [1] is known tool id and [3..n] are for the tool
 			String[] parts = option.split("/");
-	
+
 			// recognize and dispatch the 'home' option
 			if ((parts.length == 2) && (parts[1].equals("home")))
 			{
 				doHome(req, res, session);
 			}
-	
+
 			// recognize and dispatch the 'login' option
 			else if ((parts.length == 2) && (parts[1].equals("login")))
 			{
 				doLogin(req, res, session);
 			}
+			// recognize and dispatch the 'logout' option
+			else if ((parts.length == 2) && (parts[1].equals("logout")))
+			{
+				doLogout(req, res, session);
+			}
 
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
 			{
-				doTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3),
-						Web.makePath(parts, 3, parts.length));
+				doTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath()
+						+ Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
 			}
-	
+
 			// handle an unrecognized request
 			else
 			{
@@ -228,14 +237,20 @@ public class MercuryPortal extends HttpServlet
 		out.println("<html><head><title>Sakai Mercury Portal</title></head><body>");
 
 		// fun
-		out.println("<img src=\"http://cvs.sakaiproject.org/images/sakai.gif\" width=\"110\" height=\"66\">");
-		out.println("<img src=\"http://cvs.sakaiproject.org/images/Hg-TableImage.png\" width=\"250\" height=\"75\">");
-		out.println("<img src=\"http://cvs.sakaiproject.org/images/mercury.gif\" width=\"78\" height=\"69\">");
-		out.println("<img src=\"http://cvs.sakaiproject.org/images/mercsymb.gif\" width=\"94\" height=\"75\"><br />");
+		out.println("<img src=\"/library/image/sakai.jpg\" width=\"110\" height=\"66\">");
+		out.println("<img src=\"/library/image/Hg-TableImage.png\" width=\"250\" height=\"75\">");
+		out.println("<img src=\"/library/image/mercury.gif\" width=\"78\" height=\"69\">");
+		out.println("<img src=\"/library/image/mercsymb.gif\" width=\"94\" height=\"75\"><br />");
 
 		// login
-		out.println("<p><a href=\"" + Web.returnUrl(req, "/login") + "\">login</a></p>");
-
+		if ((session.getUserId() == null) && (session.getUserEid() == null))
+		{
+			out.println("<p><a href=\"" + Web.returnUrl(req, "/login") + "\">login</a></p>");
+		}
+		else
+		{
+			out.println("<p><a href=\"" + Web.returnUrl(req, "/logout") + "\">logout</a></p>");
+		}
 		// Show session information
 		out.println("<H2>Session</H2>");
 		showSession(out, true);
@@ -243,7 +258,8 @@ public class MercuryPortal extends HttpServlet
 		// list the main tools
 		out.println("<H2>Tools</H2>");
 		out.println("<p>These are the tools registered with Sakai:</p>");
-		out.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
+		out
+				.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
 
 		// sorted
 		TreeSet sorted = new TreeSet(tools);
@@ -253,15 +269,16 @@ public class MercuryPortal extends HttpServlet
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
 			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
 					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>"
-					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
+					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
+					+ printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
 		// list the helper tools
 		out.println("<H2>Helper Tools</H2>");
 		out.println("<p>These are the tools registered as helperswith Sakai. (Helper tools cannot be directly invoked): </p>");
-		out.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
+		out
+				.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
 
 		// sorted
 		sorted = new TreeSet(helperTools);
@@ -270,17 +287,16 @@ public class MercuryPortal extends HttpServlet
 			Tool t = (Tool) i.next();
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
 			out.println("<tr><td>" + t.getId() + "</td><td>" + t.getTitle() + "</td><td>" + t.getDescription() + "</td><td>"
-					+ printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>"
-					+ printCategories(t.getCategories()) + "</td><td>"
-					+ printKeywords(t.getKeywords()) + "</td></tr>");
+					+ printConfiguration(t.getFinalConfig()) + "</td><td>" + printConfiguration(t.getMutableConfig()) + "</td><td>"
+					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
 		// list the sample tools
 		out.println("<H2>Sample Tools</H2>");
 		out.println("<p>These are the tools registered with Sakai, categorized as <i>sakai.sample</i>:</p>");
-		out.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
+		out
+				.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
 
 		// sorted
 		sorted = new TreeSet(sampleTools);
@@ -290,15 +306,16 @@ public class MercuryPortal extends HttpServlet
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
 			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
 					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>"
-					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
+					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
+					+ printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
 		// list the test tools
 		out.println("<H2>Test Tools</H2>");
 		out.println("<p>These are the tools registered with Sakai, categorized as <i>sakai.test</i>:</p>");
-		out.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
+		out
+				.println("<table border='1'><tr><th>id</th><th>title</th><th>description</th><th>final configuration</th><th>mutable configuration</th><th>categories</th><th>keywords</th></tr>");
 
 		// sorted
 		sorted = new TreeSet(testTools);
@@ -308,8 +325,8 @@ public class MercuryPortal extends HttpServlet
 			String toolUrl = Web.returnUrl(req, "/" + t.getId() + "/mercury");
 			out.println("<tr><td><a href=\"" + toolUrl + "\">" + t.getId() + "</a></td><td>" + t.getTitle() + "</td><td>"
 					+ t.getDescription() + "</td><td>" + printConfiguration(t.getFinalConfig()) + "</td><td>"
-					+ printConfiguration(t.getMutableConfig()) + "</td><td>"
-					+ printCategories(t.getCategories()) + "</td><td>" + printKeywords(t.getKeywords()) + "</td></tr>");
+					+ printConfiguration(t.getMutableConfig()) + "</td><td>" + printCategories(t.getCategories()) + "</td><td>"
+					+ printKeywords(t.getKeywords()) + "</td></tr>");
 		}
 		out.println("</table>");
 
@@ -345,6 +362,31 @@ public class MercuryPortal extends HttpServlet
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
 		String context = req.getContextPath() + req.getServletPath() + "/login";
 		tool.help(req, res, context, null);
+	}
+
+	/**
+	 * Process a logout - borrowed from CharonPortal.java
+	 * 
+	 * @param req
+	 *        Request object
+	 * @param res
+	 *        Response object
+	 * @param session
+	 *        Current session
+	 * @throws IOException
+	 */
+	protected void doLogout(HttpServletRequest req, HttpServletResponse res, Session session) throws ToolException
+	{
+		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
+		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		{
+			// where to go after
+			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, null));
+		}
+
+		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
+		String context = req.getContextPath() + req.getServletPath() + "/logout";
+		tool.help(req, res, context, "/logout");
 	}
 
 	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String toolId, String context,
@@ -394,6 +436,27 @@ public class MercuryPortal extends HttpServlet
 		out.println("</body></html>");
 	}
 
+	protected void doDisabled(HttpServletRequest req, HttpServletResponse res) throws IOException
+	{
+		// start the response
+		res.setContentType("text/html; charset=UTF-8");
+		res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+		res.addDateHeader("Last-Modified", System.currentTimeMillis());
+		res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+		res.addHeader("Pragma", "no-cache");
+
+		PrintWriter out = res.getWriter();
+		out.println("<html><head><title>Sakai Mercury Portal</title></head><body>");
+
+		// Show session information
+		out.println("<H2>Disabled</H2>");
+		out.println("<p>The Mercury Portal is currently disabled.</p>");
+		out.println("<p>To enable this, set \"mercury.enabled=true\" in your sakai.properties file.</p>");
+
+		// close the response
+		out.println("</body></html>");
+	}
+
 	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res, Throwable t)
 	{
 		ErrorReporter err = new ErrorReporter();
@@ -416,38 +479,38 @@ public class MercuryPortal extends HttpServlet
 		{
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
-	
+
 			// recognize what to do from the path
 			String option = req.getPathInfo();
-	
+
 			// if missing, set it to home
 			if ((option == null) || ("/".equals(option)))
 			{
 				option = "/home";
 			}
-	
+
 			// get the parts, [0] = "", [1] is /login, or [1] is /home, or [2] is context and [1] is known tool id and [3..n] are for the tool
 			String[] parts = option.split("/");
-	
+
 			// recognize and dispatch the 'home' option
 			if ((parts.length == 2) && (parts[1].equals("home")))
 			{
 				postHome(req, res, session);
 			}
-	
+
 			// recognize and dispatch the 'login' option
 			else if ((parts.length == 2) && (parts[1].equals("login")))
 			{
 				postLogin(req, res, session);
 			}
-	
+
 			// recognize and dispatch a tool request option: parts[2] is the context, parts[1] is a known tool id, parts[3..n] are for the tool
 			else if (parts.length >= 3)
 			{
-				postTool(req, res, session, parts[1], parts[2],
-						req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
+				postTool(req, res, session, parts[1], parts[2], req.getContextPath() + req.getServletPath()
+						+ Web.makePath(parts, 1, 3), Web.makePath(parts, 3, parts.length));
 			}
-	
+
 			// handle an unrecognized request
 			else
 			{
@@ -456,7 +519,7 @@ public class MercuryPortal extends HttpServlet
 		}
 		catch (Throwable t)
 		{
-			doThrowableError(req, res, t);			
+			doThrowableError(req, res, t);
 		}
 	}
 
@@ -526,7 +589,7 @@ public class MercuryPortal extends HttpServlet
 		req.setAttribute("sakai.html.head.css.skin", headCssToolSkin);
 		req.setAttribute("sakai.html.head.js", headJs);
 		req.setAttribute("sakai.html.body.onload", bodyonload.toString());
-        req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+		req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 
 		tool.forward(req, res, p, toolContextPath, toolPathInfo);
 	}
@@ -651,6 +714,3 @@ public class MercuryPortal extends HttpServlet
 		return buf.toString();
 	}
 }
-
-
-
