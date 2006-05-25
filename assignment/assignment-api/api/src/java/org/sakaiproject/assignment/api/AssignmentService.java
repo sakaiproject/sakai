@@ -668,4 +668,15 @@ public interface AssignmentService extends EntityProducer
 	 *        The id for the assignment object;
 	 */
 	public String submissionsZipReference(String context, String assignmentId);
+	
+	/**
+	 * Whether assignment could be assigned to groups
+	 */
+	public boolean getAllowGroupAssignments();
+	
+	/**
+	 * Whether assignment with group access can be added to gradebook
+	 */
+	public boolean getAllowGroupAssignmentsInGradebook();
+	
 }

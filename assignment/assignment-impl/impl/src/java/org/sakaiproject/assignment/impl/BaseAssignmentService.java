@@ -485,6 +485,50 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		m_serverConfigurationService = service;
 	}
 
+	/** Dependency: allowGroupAssignments setting */
+	protected boolean m_allowGroupAssignments = true;
+
+	/**
+	 * Dependency: allowGroupAssignments
+	 * 
+	 * @param allowGroupAssignments
+	 *        the setting
+	 */
+	public void setAllowGroupAssignments(boolean allowGroupAssignments)
+	{
+		m_allowGroupAssignments = allowGroupAssignments;
+	}
+	/**
+	 * Get
+	 * 
+	 * @return allowGroupAssignments
+	 */
+	public boolean getAllowGroupAssignments()
+	{
+		return m_allowGroupAssignments;
+	}
+	
+	/** Dependency: allowGroupAssignmentsInGradebook setting */
+	protected boolean m_allowGroupAssignmentsInGradebook = true;
+
+	/**
+	 * Dependency: allowGroupAssignmentsInGradebook
+	 * 
+	 * @param allowGroupAssignmentsInGradebook
+	 */
+	public void setAllowGroupAssignmentsInGradebook(boolean allowGroupAssignmentsInGradebook)
+	{
+		m_allowGroupAssignmentsInGradebook = allowGroupAssignmentsInGradebook;
+	}
+	/**
+	 * Get
+	 * 
+	 * @return allowGroupAssignmentsGradebook
+	 */
+	public boolean getAllowGroupAssignmentsInGradebook()
+	{
+		return m_allowGroupAssignmentsInGradebook;
+	}
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/

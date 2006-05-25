@@ -17,6 +17,14 @@
  		<property name="submissionTableName"><value>ASSIGNMENT_SUBMISSION</value></property>
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		
+ 		<!--use to allow group awareness option in assignments. 
+ 			By default this is true.-->
+ 		<property name="allowGroupAssignments"><value>true</value></property>
+ 		
+ 		<!--use to hide or show the Assignments 'Add to Gradebook' option for group particular assignments.
+ 			By default this is false -->
+ 		<property name="allowGroupAssignmentsInGradebook"><value>true</value></property>
 	</bean>
 
 </beans>

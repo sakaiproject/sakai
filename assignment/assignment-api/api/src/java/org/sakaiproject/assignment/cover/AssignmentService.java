@@ -572,4 +572,20 @@ public class AssignmentService
 
 		return service.archive(param0, param1, param2, param3, param4);
 	}
+	
+	public static boolean getAllowGroupAssignments()
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) return false;
+
+		return service.getAllowGroupAssignments();
+	}
+	
+	public static boolean getAllowGroupAssignmentsInGradebook()
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) return false;
+
+		return service.getAllowGroupAssignmentsInGradebook();
+	}
 }

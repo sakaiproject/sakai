@@ -622,8 +622,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		// if group in assignment is allowed, show all the groups in this channal that user has get message in
-		boolean allowGroupForAssignment = ServerConfigurationService.getBoolean("allow.group.assignments", true);
-		if (allowGroupForAssignment)
+		if (AssignmentService.getAllowGroupAssignments())
 		{
 			Collection groups = AssignmentService.getGroupsAllowAddAssignment(contextString);
 			if (groups != null && groups.size() > 0)
@@ -1019,8 +1018,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 		}
 		
-		boolean allowGroupForAssignment = ServerConfigurationService.getBoolean("allow.group.assignments", true);
-		if (allowGroupForAssignment)
+		if (AssignmentService.getAllowGroupAssignments())
 		{
 			Collection groupsAllowAddAssignment = AssignmentService.getGroupsAllowAddAssignment(contextString);
 			if (range != null && range.length() != 0)
@@ -1057,6 +1055,8 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("assignmentGroups", state.getAttribute(NEW_ASSIGNMENT_GROUPS));
 			}
 		}
+		
+		context.put("allowGroupAssignmentsInGradebook", new Boolean(AssignmentService.getAllowGroupAssignmentsInGradebook()));
 
 	} // setAssignmentFormContext
 
@@ -3834,11 +3834,23 @@ public class AssignmentAction extends PagedResourceActionII
 							String addUpdateRemoveAssignment = "remove";
 							if (Boolean.valueOf(addtoGradebook).booleanValue())
 							{
-								boolean allowGroupedAssignmentIntoGB=ServerConfigurationService.getBoolean("allow.group.assignments.in.gbook", false);
-								if (!allowGroupedAssignmentIntoGB && (range.equals("groups")))
+								if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
 								{
 									// if grouped assignment is not allowed to add into Gradebook
 									addAlert(state, rb.getString("java.alert.noGroupedAssignmentIntoGB"));
+									String ref = "";
+									try
+									{
+										ref = a.getReference();
+										AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+										aEdit.getPropertiesEdit().removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+										AssignmentService.commitEdit(aEdit);
+									}
+									catch (Exception ignore)
+									{
+										// ignore the exception
+										Log.warn("chef", rb.getString("cannotfin2") + ref);
+									}
 									integrateGradebook(state, aReference, "remove", null, null, -1, null, null, null);
 								}
 								else
