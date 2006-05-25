@@ -104,15 +104,6 @@ public class MailboxAction extends PagedResourceActionII
 
 	private static final String STATE_OPTION_ALIAS = "optAlias";
 
-	/** channel / message problem messages */
-	private static final String CHANNEL_MISSING = rb.getString("thismaiis");
-
-	private static final String CHANNEL_PERMISSION = rb.getString("youdonot1");
-
-	private static final String MESSAGE_MISSING = rb.getString("thiemames1");
-
-	private static final String MESSAGE_PERMISSION = rb.getString("youdonot2");
-
 	/** Sort codes. */
 	private static final int SORT_FROM = 0;
 
@@ -448,7 +439,7 @@ public class MailboxAction extends PagedResourceActionII
 		}
 		if (message == null)
 		{
-			context.put("message", MESSAGE_MISSING);
+			context.put("message", rb.getString("thiemames1"));
 		}
 
 		context.put("viewheaders", state.getAttribute(STATE_VIEW_HEADERS));
@@ -513,7 +504,7 @@ public class MailboxAction extends PagedResourceActionII
 
 		if (message == null)
 		{
-			context.put("message", MESSAGE_MISSING);
+			context.put("message", rb.getString("thiemames1"));
 		}
 
 		context.put("viewheaders", state.getAttribute(STATE_VIEW_HEADERS));
@@ -612,11 +603,11 @@ public class MailboxAction extends PagedResourceActionII
 		}
 		catch (IdUnusedException e)
 		{
-			addAlert(state, CHANNEL_MISSING);
+			addAlert(state, rb.getString("thismaiis"));
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, CHANNEL_PERMISSION);
+			addAlert(state, rb.getString("youdonot1"));
 		}
 		catch (Exception e)
 		{
