@@ -35,6 +35,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -116,6 +117,13 @@ public class RealmsAction extends PagedResourceActionII
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+
+		// if not logged in as the super user, we won't do anything
+		if (!SecurityService.isSuperUser())
+		{
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
+
 		String template = null;
 
 		// check mode and dispatch
