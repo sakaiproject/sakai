@@ -100,6 +100,13 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+
+		// if not logged in as the super user, we won't do anything
+		if (!SecurityService.isSuperUser())
+		{
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
+
 		String template = (String) getContext(rundata).get("template");
 
 		if (!SecurityService.isSuperUser())
