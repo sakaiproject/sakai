@@ -61,7 +61,14 @@ public class ArchiveAction
 			SessionState state)
 	{
 		String template = null;
-		
+
+		// if not logged in as the super user, we won't do anything
+		if (!SecurityService.isSuperUser())
+		{
+			context.put("tlang",rb);
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
+
 		// check mode and dispatch
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (mode == null)
