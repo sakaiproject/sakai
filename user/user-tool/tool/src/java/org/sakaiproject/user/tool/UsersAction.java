@@ -26,6 +26,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -133,6 +134,16 @@ public class UsersAction extends PagedResourceActionII
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
+		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
+
+		// if not logged in as the super user, we won't do anything
+		if ((!singleUser) && (!createUser) && (!SecurityService.isSuperUser()))
+		{
+			context.put("tlang",rb);
+			return (String) getContext(rundata).get("template") + "_noaccess";
+		}
+
 		String template = null;
 
 		// for the create-user create-login case, we set this in the do so we can process the redirect here
@@ -149,8 +160,6 @@ public class UsersAction extends PagedResourceActionII
 
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
-		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
-		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
 
 		if ((singleUser) && (mode != null) && (mode.equals("edit")))
 		{
