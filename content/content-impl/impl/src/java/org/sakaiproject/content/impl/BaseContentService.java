@@ -63,6 +63,7 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -252,6 +253,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public void setEntityManager(EntityManager service)
 	{
 		m_entityManager = service;
+	}
+	
+	/** Dependency: AuthzGroupService. */
+	protected AuthzGroupService m_authzGroupService = null;
+
+	/**
+	 * Dependency: AuthzGroupService.
+	 * 
+	 * @param service
+	 *        The AuthzGroupService.
+	 */
+	public void setAuthzGroupService(AuthzGroupService service)
+	{
+		m_authzGroupService = service;
+	}
+	
+	/** Dependency: SecurityService. */
+	protected SecurityService m_securityService = null;
+
+	/**
+	 * Dependency: SecurityService.
+	 * 
+	 * @param service
+	 *        The SecurityService.
+	 */
+	public void setSecurityService(SecurityService service)
+	{
+		m_securityService = service;
 	}
 
 	/**
@@ -1338,7 +1367,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // getCollection
 	
 	/**
-	 * Access a List of ContentEntities (resources and collections) objects in this path (and below) to which the current user has access.
+	 * Access a List of ContentEntity (resources and collections) objects in this path (and below) to which the current user has access.
 	 * 
 	 * @param id
 	 *        A collection id.
@@ -1708,8 +1737,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * 
 	 * @param edit
 	 *        The ContentCollectionEdit object to commit.
+	 * @throws PermissionException 
 	 */
-	public void commitCollection(ContentCollectionEdit edit)
+	public void commitCollection(ContentCollectionEdit edit) throws PermissionException
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -1723,6 +1753,65 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
 			}
 			return;
+		}
+
+		boolean allowed = true;
+		try
+		{
+			boolean inherited = false;
+			AccessMode access = findCollection(edit.getId()).getAccess(); //  edit.getAccess();
+			Collection currentGroupRefs = new TreeSet();
+			if(AccessMode.INHERITED.equals(access))
+			{
+				inherited = true;
+				access = findCollection(edit.getId()).getInheritedAccess();
+			}
+			
+			if(AccessMode.SITE.equals(access))
+			{
+				// make sure the user can add entities here
+				allowed = allowAddResource(edit.getId());
+			}
+			else if(AccessMode.GROUPED.equals(access))
+			{
+				if(inherited)
+				{
+					currentGroupRefs.addAll(findResource(edit.getId()).getInheritedGroups());
+				}
+				else
+				{
+					currentGroupRefs.addAll(findResource(edit.getId()).getGroups());
+				}
+				
+				// the Group objects the user has add permission
+				Collection allowedGroups = getGroupsWithAddPermission(edit.getId());
+	
+				// check all defined groups in the edit
+				for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
+				{
+					String groupRef = (String) i.next();
+					
+					// if this group has been added in this edit
+					if (!currentGroupRefs.contains(groupRef))
+					{
+						// make sure it's among those groups this user has add permissions for
+						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+						{
+							allowed = false;
+						}
+					}
+				}
+			}
+		}
+		catch(TypeException e)
+		{
+			// ignore
+		}
+		
+		if (!allowed)
+		{
+			cancelCollection(edit);
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
 		}
 
 		// update the properties for update
@@ -3621,8 +3710,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @exception PermissionException 
+	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException, PermissionException
 	{
 		commitResource(edit, NotificationService.NOTI_OPTIONAL);
 
@@ -3639,8 +3730,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @exception PermissionException 
+	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, PermissionException
 	{
 
 		// check for closed edit
@@ -3675,8 +3768,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The ContentResourceEdit object to commit.
 	 * @param priority
 	 *        The notification priority of this commit.
+	 * @throws PermissionException 
 	 */
-	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException
+	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException, PermissionException
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -3690,6 +3784,65 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				M_log.warn("commitResourceEdit(): closed ContentResourceEdit", e);
 			}
 			return;
+		}
+		
+		boolean allowed = true;
+		try
+		{
+			boolean inherited = false;
+			AccessMode access = findResource(edit.getId()).getAccess(); //  edit.getAccess();
+			Collection currentGroupRefs = new TreeSet();
+			if(AccessMode.INHERITED.equals(access))
+			{
+				inherited = true;
+				access = findResource(edit.getId()).getInheritedAccess();
+			}
+			
+			if(AccessMode.SITE.equals(access))
+			{
+				// make sure the user can add channel messages
+				allowed = allowAddResource(isolateContainingId(edit.getId()));
+			}
+			else if(AccessMode.GROUPED.equals(access))
+			{
+				if(inherited)
+				{
+					currentGroupRefs.addAll(findResource(edit.getId()).getInheritedGroups());
+				}
+				else
+				{
+					currentGroupRefs.addAll(findResource(edit.getId()).getGroups());
+				}
+				
+				// the Group objects the user has add permission
+				Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
+	
+				// check all defined groups in the edit
+				for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
+				{
+					String groupRef = (String) i.next();
+					
+					// if this group has been added in this edit
+					if (!currentGroupRefs.contains(groupRef))
+					{
+						// make sure it's among those groups this user has add permissions for
+						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+						{
+							allowed = false;
+						}
+					}
+				}
+			}
+		}
+		catch(TypeException e)
+		{
+			// ignore
+		}
+		
+		if (!allowed)
+		{
+			cancelResource(edit);
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
 		}
 
 		// update the properties for update
@@ -3706,6 +3859,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseResourceEdit) edit).closeEdit();
 
 	} // commitResourceEdit
+	
+	/**
+	 * Test a collection of Group object for the specified group reference
+	 * @param groups The collection (Group) of groups
+	 * @param groupRef The string group reference to find.
+	 * @return true if found, false if not.
+	 */
+	protected boolean groupCollectionContainsRefString(Collection groups, String groupRef)
+	{
+		for (Iterator i = groups.iterator(); i.hasNext();)
+		{
+			Group group = (Group) i.next();
+			if (group.getReference().equals(groupRef)) return true;
+		}
+
+		return false;
+	}
+
+
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.
@@ -4555,8 +4727,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// use the resources realm, all container (folder) realms
 
-		Collection rv = new Vector();
-
+		Collection rv = new TreeSet();
+		
+		
 		try
 		{
 			// try the resource, all the folders above it (don't include /)
@@ -4585,8 +4758,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				rv.add(m_siteService.siteReference(m_siteService.getUserSiteId(parts[3])));
 			}
 
-			// site
-			ref.addSiteContextAuthzGroup(rv);
+			ContentEntity entity = null;
+			try 
+			{
+				entity = findCollection(ref.getId());
+			} 
+			catch (TypeException e1) 
+			{
+				entity = findResource(ref.getId());
+			}
+			
+			boolean inherited = false;
+			AccessMode access = entity.getAccess();
+			if(AccessMode.INHERITED.equals(access))
+			{
+				inherited = true;
+				access = entity.getInheritedAccess();
+			}
+			if(AccessMode.SITE.equals(access))
+			{
+				// site
+				ref.addSiteContextAuthzGroup(rv);
+			}
+			else if(AccessMode.GROUPED.equals(access))
+			{
+				if(inherited)
+				{
+					rv.addAll(entity.getInheritedGroups());
+				}
+				else
+				{
+					rv.addAll(entity.getGroups());
+				}
+			}
 		}
 		catch (Throwable e)
 		{
@@ -6412,6 +6616,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			M_log.warn("createDropboxCollection(): InconsistentException: " + e.getMessage());
 			return;
 		}
+		catch (PermissionException e) 
+		{
+			M_log.warn("createDropboxCollection(): PermissionException: " + dropbox);
+			return;
+		}
 
 		// The EVENT_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
@@ -6446,6 +6655,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			catch (InconsistentException e)
 			{
 				M_log.warn("createDropboxCollection(): InconsistentException: " + userFolder);
+			}
+			catch (PermissionException e) 
+			{
+				M_log.warn("createDropboxCollection(): PermissionException: " + userFolder);
 			}
 		}
 	}
@@ -6498,6 +6711,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				catch (InconsistentException e)
 				{
 					M_log.warn("createIndividualDropbox(): InconsistentException: " + userFolder);
+				} 
+				catch (PermissionException e) 
+				{
+					M_log.warn("createIndividualDropbox(): PermissionException: " + userFolder);
 				}
 			}
 
@@ -6545,7 +6762,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *****************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Get a list of groups that are defined in the containing context of a collection and that this user can access. 
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.read" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) that 
+	 * this user can access. If access to the collection is determined by group-membership, the return is limited to groups that have 
+	 * access to the specified collection. If access is not defined by groups (i.e. it is "site" access), the return includes all groups
+	 * defined in the site for which this user has read permission.
 	 * 
 	 * @param collectionId
 	 *        The id for the collection.
@@ -6565,7 +6786,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
 	
 	/**
-	 * Get a list of groups that are defined in the containing context of a resource and that this user can access 
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.new" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) in which 
+	 * this user has permission to add content entities. If access to the collection is determined by group-membership, the return is limited 
+	 * to groups that have "add" permission in the specified collection. If access is not defined by groups (i.e. it is "site" access), the return 
+	 * includes all groups defined in the site for which this user has add permission in this collection.
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithAddPermission(String collectionId)
+	{
+		Collection rv = new Vector();
+		
+		String refString = getReference(collectionId);
+		Reference ref = m_entityManager.newReference(refString);
+		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_ADD, ref.getReference());
+		if(groups != null && ! groups.isEmpty())
+		{
+			rv.addAll(groups);
+		}
+		return rv;		
+	}
+	
+	/**
+	 * Get a collection (Group) of groups that are defined in the containing context of a resource and that this user can access 
 	 * in the way described by a function string.
 	 * 
 	 * @param function
@@ -6584,7 +6829,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			container = findCollection(ref.getId());
-			groups.addAll(container.getGroups());
+			if(AccessMode.INHERITED.equals(container.getAccess()))
+			{
+				groups.addAll(container.getInheritedGroupObjects());
+			}
+			else
+			{
+				groups.addAll(container.getGroupObjects());
+			}
 		}
 		catch (TypeException e1)
 		{
@@ -6608,7 +6860,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// otherwise, check the groups for function
 			else
 			{
-				Collection groupRefs = new Vector();
 				for (Iterator i = groups.iterator(); i.hasNext();)
 				{
 					Group group = (Group) i.next();
@@ -6626,13 +6877,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return rv;
 	}
 
-	public abstract class BasicGroupAwareEntity implements GroupAwareEntity
+	public abstract class BasicGroupAwareEdit implements GroupAwareEdit
 	{
 		/** The access mode for this entity (e.g., "group" vs "site") */ 
 		protected AccessMode m_access = AccessMode.SITE;
 
 		/** The Collection of group-ids for groups with access to this entity. */
-		protected Collection m_groups = new Vector();
+		protected Collection m_groups = new TreeSet();
 
 		/**
 		 * @inheritDoc
@@ -6641,6 +6892,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			return new Vector(m_groups);
 		}
+		
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getGroupObjects()
+		 */
+		public Collection getGroupObjects()
+		{
+			if(m_groups == null)
+			{
+				m_groups = new TreeSet();
+			}
+			Collection groups = new Vector();
+			Iterator it = m_groups.iterator();
+			while(it.hasNext())
+			{
+				String ref = (String) it.next();
+				Group group = m_siteService.findGroup(ref);
+				groups.add(group);
+			}
+			return groups;
+			
+		}
+
 	
 		/**
 		 * @inheritDoc
@@ -6650,6 +6924,65 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return m_access;
 		}
 	
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedGroups()
+		 */
+		public Collection getInheritedGroups() 
+		{
+			Collection groups = new TreeSet();
+			ContentEntity next = (ContentEntity) this;
+			while(next != null && AccessMode.INHERITED.equals(next.getAccess()))
+			{
+				next = next.getContainingCollection();
+			}
+			if(next != null && AccessMode.GROUPED.equals(next.getAccess()))
+			{
+				groups.addAll(next.getGroups());
+			}
+			return groups;
+		}
+
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedAccess()
+		 */
+		public AccessMode getInheritedAccess() 
+		{
+			AccessMode access = getAccess();
+			ContentCollection parent = ((ContentEntity) this).getContainingCollection();
+			while(AccessMode.INHERITED.equals(access) && parent != null)
+			{
+				access = parent.getAccess();
+				parent = parent.getContainingCollection();
+			}
+			if(AccessMode.INHERITED.equals(access))
+			{
+				access = AccessMode.SITE;
+			}
+			return access;
+		}
+		
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.GroupAwareEntity#getInheritedGroupObjects()
+		 */
+		public Collection getInheritedGroupObjects() 
+		{
+			Collection groups = new Vector();
+			Collection groupRefs = getInheritedGroups();
+			Iterator it = groupRefs.iterator();
+			while(it.hasNext())
+			{
+				String groupRef = (String) it.next();
+				Group group = m_siteService.findGroup(groupRef);
+				groups.add(group);				
+			}
+			return groups;
+		}
+
+
+		
 		/**
 		 * @inheritDoc
 		 */
@@ -6753,7 +7086,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * ContentCollection implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseCollectionEdit extends BasicGroupAwareEntity implements ContentCollectionEdit, SessionBindingListener
+	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener
 	{
 		/** Store the resource id */
 		protected String m_id = null;
@@ -7327,19 +7660,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return m_retractDate;
 		}
 
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.ContentEntity#isResource()
+		 */
 		public boolean isResource()
 		{
 			// TODO: this may need a different implementation in the handler
 			return false;
 		}
 
+		/**
+		 * @inheritDoc
+		 * @see org.sakaiproject.content.api.ContentEntity#isCollection()
+		 */
 		public boolean isCollection()
 		{
 			// TODO: this may need a different implementation in the handler
 			return true;
 		}
 
-		/* (non-Javadoc)
+		/**
+		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
 		 */
 		public ContentCollection getContainingCollection()
@@ -7362,7 +7704,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * ContentResource implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseResourceEdit extends BasicGroupAwareEntity implements ContentResourceEdit, SessionBindingListener
+	public class BaseResourceEdit extends BasicGroupAwareEdit implements ContentResourceEdit, SessionBindingListener
 	{
 		/** The resource id. */
 		protected String m_id = null;
@@ -7997,7 +8339,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return false;
 		}
 
-		/* (non-Javadoc)
+		/**
+		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
 		 */
 		public ContentCollection getContainingCollection()
@@ -8013,7 +8356,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			return container;
 		}
-		
+
 	} // BaseResource
 
 	/**********************************************************************************************************************************************************************************************************************************************************

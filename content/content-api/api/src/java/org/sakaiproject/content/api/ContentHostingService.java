@@ -343,8 +343,9 @@ public interface ContentHostingService extends EntityProducer
 	 * 
 	 * @param edit
 	 *        The ContentCollectionEdit object to commit.
+	 * @throws PermissionException 
 	 */
-	public void commitCollection(ContentCollectionEdit edit);
+	public void commitCollection(ContentCollectionEdit edit) throws PermissionException;
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.
@@ -820,8 +821,10 @@ public interface ContentHostingService extends EntityProducer
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @exception PermissionException 
+	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException;
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException, PermissionException;
 
 	/**
 	 * Commit the changes made, and release the lock. The Object is disabled, and not to be used after this call.
@@ -834,8 +837,10 @@ public interface ContentHostingService extends EntityProducer
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @exception PermissionException 
+	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException;
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, PermissionException;
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.
@@ -1221,11 +1226,28 @@ public interface ContentHostingService extends EntityProducer
 	public Comparator newContentHostingComparator(String property, boolean ascending);
 	
 	/**
-	 * Get a list of groups that are defined in the containing context of a collection and that this user can access. 
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.read" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) that 
+	 * this user can access. If access to the collection is determined by group-membership, the return is limited to groups that have 
+	 * access to the specified collection. If access is not defined by groups (i.e. it is "site" access), the return includes all groups
+	 * defined in the site for which this user has read permission.
+	 * 
 	 * 
 	 * @param collectionId
 	 *        The id for the collection.
 	 */
 	public Collection getGroupsWithReadAccess(String collectionId);
+	
+	/**
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.new" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) in which 
+	 * this user has permission to add content entities. If access to the collection is determined by group-membership, the return is limited 
+	 * to groups that have "add" permission in the specified collection. If access is not defined by groups (i.e. it is "site" access), the return 
+	 * includes all groups defined in the site for which this user has add permission in this collection.
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithAddPermission(String collectionId);
 
 }

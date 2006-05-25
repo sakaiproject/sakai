@@ -37,16 +37,47 @@ public interface GroupAwareEntity extends Entity
 	/**
 	 * Access the groups defined for this entity.
 	 * 
-	 * @return A Collection of Group objects defined for this entity; empty if none are defined.
+	 * @return A Collection of references to Group objects defined for this entity; empty if none are defined.
 	 */
-	Collection getGroups();
+	public Collection getGroups();
 
 	/**
-	 * Access the access mode for the entity - how we compute who has access to the entity.
+	 * Access the groups, as Group objects, defined for this entity.
 	 * 
-	 * @return The access mode for the Assignment.
+	 * @return A Collection (Group) of group objects defined for this entity; empty if none are defined.
 	 */
-	AccessMode getAccess();
+	public Collection getGroupObjects();
+	
+	/**
+	 * Access the access mode defined locally for the entity.
+	 * 
+	 * @return The access mode for the entity.
+	 */
+	public AccessMode getAccess();
+	
+	/**
+	 * Access the groups inherited by this entity.
+	 * 
+	 * @return A Collection of Group objects defined locally for this entity; empty if none are defined.
+	 */
+	public Collection getInheritedGroups();
+
+	/**
+	 * Access the groups, as Group objects, inherited by this entity.
+	 * 
+	 * @return A Collection (Group) of group objects defined for this entity; empty if none are defined.
+	 */
+	public Collection getInheritedGroupObjects();
+	
+	/**
+	 * Access the actual access mode used to compute who has access to the entity
+	 * (usually SITE or GROUPED, but not INHERITED).  This may be defined locally 
+	 * or inherited from elsewhere for the entity.  If the local access mode is 
+	 * INHERITED, the actual access mode must be retrieved from elsewhere. 
+	 * 
+	 * @return The actual access mode for the entity.
+	 */
+	public AccessMode getInheritedAccess();
 	
 	/**
 	 * <p>
@@ -83,13 +114,17 @@ public interface GroupAwareEntity extends Entity
 		{
 			if (SITE.m_id.equals(access)) return SITE;
 			if (GROUPED.m_id.equals(access)) return GROUPED;
+			if (INHERITED.m_id.equals(access)) return INHERITED;
 			return null;
 		}
 
-		/** channel (site) level access to the message */
+		/** channel (site) level access to the entity */
 		public static final AccessMode SITE = new AccessMode("site");
 
 		/** grouped access; only members of the getGroup() groups (authorization groups) have access */
 		public static final AccessMode GROUPED = new AccessMode("grouped");
+
+		/** inherited access; must look up a hierarchy to determine actual access */
+		public static final AccessMode INHERITED = new AccessMode("inherited");
 	}
 }

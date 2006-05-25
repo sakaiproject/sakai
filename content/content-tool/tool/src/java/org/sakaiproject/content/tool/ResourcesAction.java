@@ -3496,6 +3496,7 @@ public class ResourcesAction
 						}
 					}
 					
+					// TODO: Where should new Permission Exception be caught??
 					ContentHostingService.commitCollection(edit);
 				}
 				catch (IdUnusedException e)
@@ -7855,6 +7856,7 @@ public class ResourcesAction
 			catch(RuntimeException e)
 			{
 				logger.error("ResourcesAction.doSavechanges ***** Unknown Exception ***** " + e.getMessage());
+				logger.error("ResourcesAction.doSavechanges ***** Unknown Exception ***** ", e);
 				alerts.add(rb.getString("failed"));
 			}
 		}	// if - else
