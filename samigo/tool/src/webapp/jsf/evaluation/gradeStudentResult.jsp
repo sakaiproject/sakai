@@ -117,7 +117,7 @@ $Id$
 --%>
 
 <%-- NEW --%>
-<h:outputLink title="msg.t_toggleDiv" id="p"  value="#" onclick="toggleDiv(this.id)">
+<h:outputLink title="msg.t_toggleDiv" id="p"  value="#" onclick="toggleDiv(this.id)" onkeypress="toggleDiv(this.id)">
 <h:graphicImage id="pIm" url="/images/right_arrow.gif"/>
 </h:outputLink>
 <h:outputLabel value=" #{dmsg.p} #{part.number} #{msg.dash} #{part.text} #{msg.dash}
