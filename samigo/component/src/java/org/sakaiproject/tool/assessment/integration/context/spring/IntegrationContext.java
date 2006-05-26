@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.TimeServiceHelper;
 
 /**
  * IntegrationContext is an internal implementation of IntegrationContextFactory.
@@ -49,6 +50,7 @@ public class IntegrationContext extends IntegrationContextFactory
   private PublishingTargetHelper publishingTargetHelper;
   private SectionAwareServiceHelper sectionAwareServiceHelper;
   private ServerConfigurationServiceHelper serverConfigurationServiceHelper;
+  private TimeServiceHelper timeServiceHelper;
 
   // plain old Java bean properties, nothing mysterious here
   // just that we add mutators for Spring to hook, these are not
@@ -112,4 +114,16 @@ public class IntegrationContext extends IntegrationContextFactory
   {
     this.serverConfigurationServiceHelper = serverConfigurationServiceHelper;
   }
+
+
+  public TimeServiceHelper getTimeServiceHelper()
+  {
+    System.out.println("getTimeServiceHelper = " + timeServiceHelper);
+    return timeServiceHelper;
+  }
+  public void setTimeServiceHelper(TimeServiceHelper  timeServiceHelper)  
+  {
+    this.timeServiceHelper= timeServiceHelper;
+  }
+
 }

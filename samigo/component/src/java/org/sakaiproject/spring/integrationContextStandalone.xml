@@ -38,6 +38,9 @@
      <ref bean="serverConfigurationServiceHelper"/>
    </property>
 
+   <property name="timeServiceHelper">
+     <ref bean="timeServiceHelper"/>
+   </property>
 </bean>
 
 <!-- context-sensitive agent behavior -->
@@ -67,6 +70,10 @@
 
 <bean name="serverConfigurationServiceHelper"
      class="org.sakaiproject.tool.assessment.integration.helper.standalone.ServerConfigurationServiceHelperImpl">
+</bean>
+
+<bean name="timeServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.TimeServiceHelperImpl">
 </bean>
 
 </beans>
