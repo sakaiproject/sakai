@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.time.api.Time;
@@ -44,7 +46,7 @@ public interface ContentCollectionEdit
 		 * @param time The date/time at which access to the entity should be restricted.
 		 */
 		public void getRetractDate(Time time);
-		
+
 }	// ContentCollectionEdit
 
 

@@ -177,6 +177,35 @@ public interface ContentHostingService extends EntityProducer
 			PermissionException, InconsistentException;
 
 	/**
+	 * Create a new collection with the given resource id.
+	 * 
+	 * @param id
+	 *        The id of the collection.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new collection.
+	 * @param accessMode
+	 *        The id of the access mode ("grouped", "site", etc).
+	 * @param groups
+	 *        The (possibly empty) collection of groups associated with this entity.
+	 * 
+	 * @exception IdUsedException
+	 *            if the id is already in use.
+	 * @exception IdInvalidException
+	 *            if the id is invalid.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a collection, or add a member to a collection.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @return a new ContentCollection object.
+	 * @throws InconsistentException 
+	 * @throws PermissionException 
+	 * @throws IdInvalidException 
+	 * @throws IdUsedException 
+	 */
+	public ContentCollection addCollection(String id, ResourceProperties properties, String accessMode, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
+
+
+	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
 	 * 
 	 * @param id

@@ -144,6 +144,17 @@ public class ContentHostingService
 		return service.addCollection(param0, param1);
 	}
 
+	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
+			org.sakaiproject.entity.api.ResourceProperties param1, java.lang.String param2, java.util.Collection param3) throws org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,
+			org.sakaiproject.exception.InconsistentException
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.addCollection(param0, param1, param2, param3);
+	}
+
 	public static org.sakaiproject.content.api.ContentCollectionEdit addCollection(java.lang.String param0)
 			throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException,
 			org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.InconsistentException
@@ -842,5 +853,5 @@ public class ContentHostingService
 
 		return service.getGroupsWithReadAccess(param0);
 	}
-	
+
 }

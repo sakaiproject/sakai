@@ -3460,7 +3460,7 @@ public class ResourcesAction
 				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
 				saveMetadata(resourceProperties, metadataGroups, item);
 
-				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties);
+				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, item.getAccess(), item.getGroups());
 				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
@@ -3480,37 +3480,6 @@ public class ResourcesAction
 					}
 				}
 				
-				try
-				{
-					ContentCollectionEdit edit = ContentHostingService.editCollection(newCollectionId);
-					
-					edit.setAccess(new AccessMode(item.getAccess()));
-					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
-					{
-						List groups = item.getGroups();
-						Iterator it = groups.iterator();
-						while(it.hasNext())
-						{
-							Group group = (Group) it.next();
-							edit.addGroup(group);
-						}
-					}
-					
-					// TODO: Where should new Permission Exception be caught??
-					ContentHostingService.commitCollection(edit);
-				}
-				catch (IdUnusedException e)
-				{
-					
-				}
-				catch (TypeException e)
-				{
-					
-				}
-				catch (InUseException e)
-				{
-					
-				}
 			}
 			catch (IdUsedException e)
 			{
@@ -7702,7 +7671,7 @@ public class ResourcesAction
 				}
 				if(item.isFolder())
 				{
-					cedit.setAccess(new AccessMode(item.getAccess()));
+					cedit.setAccess(new AccessMode(item.getEntityAccess()));
 					Set groups = new TreeSet(cedit.getGroups());
 					Set newGroupRefs = new TreeSet();
 					Iterator it = item.getGroups().iterator();
@@ -9497,20 +9466,36 @@ public class ResourcesAction
 			folder.setRights(rightsObj);
 			
 			AccessMode access = collection.getAccess();
-			if(access == null)
+			if(access == null || AccessMode.SITE.equals(access))
 			{
-				folder.setAccess(AccessMode.SITE.toString());
+				folder.setAccess(AccessMode.INHERITED.toString());
 			}
 			else
 			{
 				folder.setAccess(access.toString());
 			}
 			
-			List access_groups = new Vector(collection.getGroups());
-			if(access_groups != null)
+			AccessMode inherited_access = collection.getAccess();
+			if(inherited_access == null || AccessMode.SITE.equals(inherited_access))
 			{
-				folder.setGroups(access_groups);
+				folder.setAccess(AccessMode.INHERITED.toString());
 			}
+			else
+			{
+				folder.setAccess(inherited_access.toString());
+			}
+			
+			Collection access_groups = collection.getGroupObjects();
+			if(access_groups == null)
+			{
+				access_groups = new Vector();
+			}
+			Collection inherited_access_groups = collection.getInheritedGroupObjects();
+			if(inherited_access_groups == null)
+			{
+				inherited_access_groups = new Vector();
+			}
+			folder.setInheritedGroups(access_groups);
 
 			if(highlightedItems == null || highlightedItems.isEmpty())
 			{
@@ -9642,11 +9627,18 @@ public class ResourcesAction
 							newItem.setAccess(access_mode.toString());
 						}
 						
-						List groups = new Vector(((GroupAwareEntity) resource).getGroups());
-						if(groups != null)
+						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
+						if(groups == null)
 						{
-							newItem.setGroups(groups);
+							groups = new Vector();
 						}
+						Collection inheritedGroups = ((GroupAwareEntity) resource).getInheritedGroupObjects();
+						if(inheritedGroups == null)
+						{
+							inheritedGroups = new Vector();
+						}
+						newItem.setGroups(groups);	
+						newItem.setInheritedGroups(inheritedGroups);
 
 						newItem.setContainer(collectionId);
 						newItem.setRoot(folder.getRoot());
@@ -10611,7 +10603,9 @@ public class ResourcesAction
 		private boolean m_canUpdate;
 		private boolean m_toobig;
 		protected String m_access;
+		protected String m_inheritedAccess;
 		protected List m_groups;
+		protected List m_inheritedGroups;
 		protected BasicRightsAssignment m_rights;
 
 
@@ -11187,12 +11181,56 @@ public class ResourcesAction
 		}
 
 		/**
+		 * Access the access mode for this item.
+		 * @return The access mode.
+		 */
+		public String getInheritedAccess()
+		{
+			return m_inheritedAccess;
+		}
+		
+		public String getEntityAccess()
+		{
+			String rv = AccessMode.INHERITED.toString();
+			boolean sameGroups = true;
+			if(AccessMode.GROUPED.equals(m_access))
+			{
+				Iterator it = getGroups().iterator();
+				while(sameGroups && it.hasNext())
+				{
+					Group g = (Group) it.next();
+					sameGroups = inheritsGroup(g.getReference());
+				}
+				it = getInheritedGroups().iterator();
+				while(sameGroups && it.hasNext())
+				{
+					Group g = (Group) it.next();
+					sameGroups = hasGroup(g.getReference());
+				}
+				if(!sameGroups)
+				{
+					rv = AccessMode.GROUPED.toString();
+				}
+			}
+			return rv;
+		}
+
+		/**
 		 * Set the access mode for this item.
 		 * @param access
 		 */
 		public void setAccess(String access)
 		{
 			m_access = access;
+		}
+
+		/**
+		 * Set the access mode for this item.
+		 * @param access
+		 */
+		public void setInheritedAccess(String access)
+		{
+			m_inheritedAccess = access;
 		}
 
 		/**
@@ -11206,6 +11244,19 @@ public class ResourcesAction
 				m_groups = new Vector();
 			}
 			return m_groups;
+		}
+		
+		/**
+		 * Access a list of Group objects that can access this item.
+		 * @return Returns the groups.
+		 */
+		public List getInheritedGroups()
+		{
+			if(m_inheritedGroups == null)
+			{
+				m_inheritedGroups = new Vector();
+			}
+			return m_inheritedGroups;
 		}
 		
 		/**
@@ -11231,10 +11282,41 @@ public class ResourcesAction
 		}
 
 		/**
+		 * Determine whether a group has access to this item. 
+		 * @param groupRef The internal reference string that uniquely identifies the group.
+		 * @return true if the group has access, false otherwise.
+		 */
+		public boolean inheritsGroup(String groupRef)
+		{
+			if(m_inheritedGroups == null)
+			{
+				m_inheritedGroups = new Vector();
+			}
+			boolean found = false;
+			Iterator it = m_inheritedGroups.iterator();
+			while(it.hasNext() && !found)
+			{
+				Group gr = (Group) it.next();
+				found = gr.getReference().equals(groupRef);
+			}
+	
+			return found;
+		}
+
+		/**
 		 * Replace the current list of groups with this list of Group objects representing the groups that have access to this item.
 		 * @param groups The groups to set.
 		 */
-		public void setGroups(List groups)
+		public void setGroups(Collection groups)
+		{
+			m_groups = new Vector(groups);
+		}
+		
+		/**
+		 * Replace the current list of groups with this list of Group objects representing the groups that have access to this item.
+		 * @param groups The groups to set.
+		 */
+		public void setInheritedGroups(Collection groups)
 		{
 			m_groups = new Vector(groups);
 		}
@@ -11243,44 +11325,44 @@ public class ResourcesAction
 		 * Add a string reference identifying a Group to the list of groups that have access to this item.
 		 * @param groupRef
 		 */
-		public void addGroup(String groupRef)
+		public void addGroup(String groupId)
 		{
 			if(m_groups == null)
 			{
 				m_groups = new Vector();
 			}
-			if(! hasGroup(groupRef))
+			if(m_container == null)
 			{
-				boolean found = false;
-				if(m_container == null)
+				if(m_id == null)
 				{
-					if(m_id == null)
-					{
-						m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-					}
-					else
-					{
-						m_container = ContentHostingService.getContainingCollectionId(m_id);
-					}
-					if(m_container == null || m_container.trim() == "")
-					{
-						m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-					}
-
+					m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 				}
-				Collection groups = ContentHostingService.getGroupsWithReadAccess(m_container);
-				Iterator it = groups.iterator();
-				while( it.hasNext() && !found)
+				else
 				{
-					Group group = (Group) it.next();
-					if(group.getReference().equals(groupRef))
-					{
-						m_groups.add(group);
-						found = true;
-					}
+					m_container = ContentHostingService.getContainingCollectionId(m_id);
+				}
+				if(m_container == null || m_container.trim() == "")
+				{
+					m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 				}
 
 			}
+			boolean found = false;
+			Collection groups = ContentHostingService.getGroupsWithReadAccess(m_container);
+			Iterator it = groups.iterator();
+			while( it.hasNext() && !found )
+			{
+				Group group = (Group) it.next();
+				if(group.getId().equals(groupId))
+				{
+					if(! hasGroup(group.getReference()))
+					{
+						m_groups.add(group);
+					}
+					found = true;
+				}
+			}
+
 		}
 		
 		/**

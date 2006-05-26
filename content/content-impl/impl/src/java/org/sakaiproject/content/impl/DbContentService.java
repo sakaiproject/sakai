@@ -1264,4 +1264,5 @@ public class DbContentService extends BaseContentService
 	{
 		return m_storage.getFlatResources(parentId);
 	}
+
 }

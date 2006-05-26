@@ -1232,6 +1232,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	} // addCollection
 
+	public ContentCollection addCollection(String id, ResourceProperties properties, String accessMode, Collection groups) 
+		throws IdUsedException, IdInvalidException, PermissionException, InconsistentException 
+	{
+		ContentCollectionEdit edit = addCollection(id);
+
+		// add the provided of properties
+		addProperties(edit.getPropertiesEdit(), properties);
+		
+		((BasicGroupAwareEdit) edit).addGroups(accessMode, groups);
+
+		// commit the change
+		commitCollection(edit);
+
+		return edit;
+
+	}
+
 	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
 	 * 
@@ -1499,7 +1516,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ContentCollection collection = null;
 		try
 		{
-			collection = (ContentCollection) ThreadLocalManager.get(ref);
+			collection = (ContentCollection) ThreadLocalManager.get("findCollection@" + ref);
 		}
 		catch(ClassCastException e)
 		{
@@ -1512,7 +1529,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(collection != null)
 			{
-				ThreadLocalManager.set(ref, collection);
+				ThreadLocalManager.set("findCollection@" + ref, collection);
 			}
 		}
 
@@ -1786,13 +1803,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			else if(AccessMode.GROUPED.equals(access))
 			{
+				GroupAwareEntity entity = findCollection(edit.getId());
+				if(entity == null)
+				{
+					entity = edit;
+				}
 				if(inherited)
 				{
-					currentGroupRefs.addAll(findResource(edit.getId()).getInheritedGroups());
+					currentGroupRefs.addAll(entity.getInheritedGroups());
 				}
 				else
 				{
-					currentGroupRefs.addAll(findResource(edit.getId()).getGroups());
+					currentGroupRefs.addAll(entity.getGroups());
 				}
 				
 				// the Group objects the user has add permission
@@ -2594,7 +2616,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ContentResource resource = null;
 		try
 		{
-			resource = (ContentResource) ThreadLocalManager.get(ref);
+			resource = (ContentResource) ThreadLocalManager.get("findResource@" + ref);
 		}
 		catch(ClassCastException e)
 		{
@@ -2607,7 +2629,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(resource != null)
 			{
-				ThreadLocalManager.set(ref, resource);
+				ThreadLocalManager.set("findResource@" + ref, resource);
 			}
 		}
 		
@@ -7038,6 +7060,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		}
 	
+		public void addGroups(String accessMode, Collection groups)
+		{
+			this.m_access = new AccessMode(accessMode);
+			this.m_groups = new Vector(groups);
+		}
+		
+
 		/**
 		 * @inheritDoc
 		 */
