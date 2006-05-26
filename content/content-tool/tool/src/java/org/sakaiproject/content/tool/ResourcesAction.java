@@ -7693,7 +7693,34 @@ public class ResourcesAction
 					redit = ContentHostingService.editResource(item.getId());
 					pedit = redit.getPropertiesEdit();
 				}
-				if(!item.isFolder())
+				if(item.isFolder())
+				{
+					cedit.setAccess(new AccessMode(item.getAccess()));
+					Set groups = new TreeSet(cedit.getGroups());
+					Set newGroupRefs = new TreeSet();
+					Iterator it = item.getGroups().iterator();
+					while(it.hasNext())
+					{
+						Group group = (Group) it.next();
+						if(! groups.contains(group.getReference()))
+						{
+							cedit.addGroup(group);
+						}
+						newGroupRefs.add(group.getReference());
+					}
+					
+					it = cedit.getGroups().iterator();
+					while(it.hasNext())
+					{
+						String groupRef = (String) it.next();
+						if(! newGroupRefs.contains(groupRef))
+						{
+							Group g = SiteService.findGroup(groupRef);
+							cedit.removeGroup(g);
+						}
+					}
+				}
+				else
 				{
 					if(item.isUrl())
 					{
@@ -7716,6 +7743,30 @@ public class ResourcesAction
 
 					BasicRightsAssignment rightsObj = item.getRights();
 					rightsObj.addResourceProperties(pedit);
+					
+					redit.setAccess(new AccessMode(item.getAccess()));
+					Set newGroupRefs = new TreeSet();
+					Set groups = new TreeSet(redit.getGroups());
+					Iterator it = item.getGroups().iterator();
+					while(it.hasNext())
+					{
+						Group group = (Group) it.next();
+						if(! groups.contains(group.getReference()))
+						{
+							redit.addGroup(group);
+						}
+						newGroupRefs.add(group.getReference());
+					}
+					it = redit.getGroups().iterator();
+					while(it.hasNext())
+					{
+						String groupRef = (String) it.next();
+						if(! newGroupRefs.contains(groupRef))
+						{
+							Group g = SiteService.findGroup(groupRef);
+							redit.removeGroup(g);
+						}
+					}
 
 					String copyright = StringUtil.trimToNull(params.getString ("copyright"));
 					String newcopyright = StringUtil.trimToNull(params.getCleanString (NEW_COPYRIGHT));

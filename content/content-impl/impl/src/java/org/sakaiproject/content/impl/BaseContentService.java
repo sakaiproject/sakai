@@ -863,6 +863,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if(entity != null)
 			{
 				AccessMode access_mode = entity.getAccess();
+				if(AccessMode.INHERITED.equals(access_mode))
+				{
+					access_mode = entity.getInheritedAccess();
+				}
 			
 				rv = AccessMode.GROUPED.equals(access_mode);
 			}
@@ -1492,7 +1496,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		String ref = getReference(id);
 		
-		ContentCollection collection = (ContentCollection) ThreadLocalManager.get(ref);
+		ContentCollection collection = null;
+		try
+		{
+			collection = (ContentCollection) ThreadLocalManager.get(ref);
+		}
+		catch(ClassCastException e)
+		{
+			throw new TypeException(ref);
+		}
 		
 		if(collection == null)
 		{
@@ -1760,7 +1772,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			boolean inherited = false;
 			AccessMode access = findCollection(edit.getId()).getAccess(); //  edit.getAccess();
-			Collection currentGroupRefs = new TreeSet();
+			Collection currentGroupRefs = new Vector();
 			if(AccessMode.INHERITED.equals(access))
 			{
 				inherited = true;
@@ -2579,7 +2591,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		String ref = getReference(id);
 		
-		ContentResource resource = (ContentResource) ThreadLocalManager.get(ref);
+		ContentResource resource = null;
+		try
+		{
+			resource = (ContentResource) ThreadLocalManager.get(ref);
+		}
+		catch(ClassCastException e)
+		{
+			throw new TypeException(ref);
+		}
 		
 		if(resource == null)
 		{
@@ -3791,7 +3811,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			boolean inherited = false;
 			AccessMode access = findResource(edit.getId()).getAccess(); //  edit.getAccess();
-			Collection currentGroupRefs = new TreeSet();
+			Collection currentGroupRefs = new Vector();
 			if(AccessMode.INHERITED.equals(access))
 			{
 				inherited = true;
@@ -4727,7 +4747,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// use the resources realm, all container (folder) realms
 
-		Collection rv = new TreeSet();
+		Collection rv = new Vector();
 		
 		
 		try
@@ -6883,7 +6903,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected AccessMode m_access = AccessMode.SITE;
 
 		/** The Collection of group-ids for groups with access to this entity. */
-		protected Collection m_groups = new TreeSet();
+		protected Collection m_groups = new Vector();
 
 		/**
 		 * @inheritDoc
@@ -6901,7 +6921,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if(m_groups == null)
 			{
-				m_groups = new TreeSet();
+				m_groups = new Vector();
 			}
 			Collection groups = new Vector();
 			Iterator it = m_groups.iterator();
@@ -6930,7 +6950,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public Collection getInheritedGroups() 
 		{
-			Collection groups = new TreeSet();
+			Collection groups = new Vector();
 			ContentEntity next = (ContentEntity) this;
 			while(next != null && AccessMode.INHERITED.equals(next.getAccess()))
 			{
