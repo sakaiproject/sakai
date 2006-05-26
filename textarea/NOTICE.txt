@@ -1,0 +1,3 @@
+The connector for the FCK editor was written by
+
+Joshua Ryan <Joshua.Ryan@asu.edu>
