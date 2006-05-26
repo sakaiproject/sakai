@@ -11,7 +11,8 @@
 		<configuration name="pagesize" value="10" />
 
 		<category name="course" />
-		<category name="project" />
+      <category name="project" />
+      <category name="portfolio" />
 		<category name="myworkspace" />
 
 	</tool>
