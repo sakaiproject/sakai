@@ -7028,13 +7028,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			Iterator it = m_groups.iterator();
 			while(it.hasNext() && !found)
 			{
-				Group gr = (Group) it.next();
-				found = gr.getReference().equals(group.getReference());
+				String groupRef = (String) it.next();
+				found = groupRef.equals(group.getReference());
 			}
 	
 			if (!found) 
 			{
-				m_groups.add(group);
+				m_groups.add(group.getReference());
 			}
 		}
 	
@@ -7201,11 +7201,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// look for groups 
 				else if(element.getTagName().equals(GROUP_LIST))
 				{
-					String groupId = element.getAttribute(GROUP_NAME);
-					if(site != null && groupId != null)
+					String groupRef = element.getAttribute(GROUP_NAME);
+					if(groupRef != null)
 					{
-						Group group = site.getGroup(groupId);
-						m_groups.add(group);
+						m_groups.add(groupRef);
 					} 
 				}
 				else if(element.getTagName().equals("rightsAssignment"))
@@ -7565,9 +7564,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				Iterator groupIt = m_groups.iterator();
 				while( groupIt.hasNext())
 				{
-					Group group = (Group) groupIt.next();
+					String groupRef = (String) groupIt.next();
 					Element sect = doc.createElement(GROUP_LIST);
-					sect.setAttribute(GROUP_NAME, group.getReference());
+					sect.setAttribute(GROUP_NAME, groupRef);
 					collection.appendChild(sect);
 				}
 			}
@@ -8233,9 +8232,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				Iterator groupIt = m_groups.iterator();
 				while( groupIt.hasNext())
 				{
-					String group = (String) groupIt.next();
+					String groupRef = (String) groupIt.next();
 					Element sect = doc.createElement(GROUP_LIST);
-					sect.setAttribute(GROUP_NAME, group);
+					sect.setAttribute(GROUP_NAME, groupRef);
 					resource.appendChild(sect);
 				}
 			}
