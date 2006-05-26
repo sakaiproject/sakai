@@ -1387,7 +1387,7 @@
 													<tr>
 														<td headers="selected" style="padding-bottom:0;" style="width:2em">
 															#set($selected=false)
-															#if($item.hasGroup($group.id))
+															#if($item.hasGroup("$!group.reference"))
 																#set($selected=true)
 															#end
 															<input type="checkbox" name="access_groups$i" id="access_groups$i_$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />

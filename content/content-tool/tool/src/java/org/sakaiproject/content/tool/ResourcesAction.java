@@ -5828,7 +5828,14 @@ public class ResourcesAction
 			List access_groups = new Vector(((GroupAwareEntity) entity).getGroups());
 			if(access_groups != null)
 			{
-				item.setGroups(access_groups);
+				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				Iterator it = access_groups.iterator();
+				while(it.hasNext())
+				{
+					String groupRef = (String) it.next();
+					item.addGroup(groupRef);
+					
+				}
 			}
 
 			if(item.isUrl())
@@ -11203,10 +11210,10 @@ public class ResourcesAction
 		
 		/**
 		 * Determine whether a group has access to this item. 
-		 * @param groupId The id of the group.
+		 * @param groupRef The internal reference string that uniquely identifies the group.
 		 * @return true if the group has access, false otherwise.
 		 */
-		public boolean hasGroup(String groupId)
+		public boolean hasGroup(String groupRef)
 		{
 			if(m_groups == null)
 			{
@@ -11217,7 +11224,7 @@ public class ResourcesAction
 			while(it.hasNext() && !found)
 			{
 				Group gr = (Group) it.next();
-				found = gr.getId().equals(groupId);
+				found = gr.getReference().equals(groupRef);
 			}
 	
 			return found;
@@ -11233,16 +11240,16 @@ public class ResourcesAction
 		}
 		
 		/**
-		 * Add a group-id to the list of groups that have access to this item.
-		 * @param groupId
+		 * Add a string reference identifying a Group to the list of groups that have access to this item.
+		 * @param groupRef
 		 */
-		public void addGroup(String groupId)
+		public void addGroup(String groupRef)
 		{
 			if(m_groups == null)
 			{
 				m_groups = new Vector();
 			}
-			if(! this.hasGroup(groupId))
+			if(! hasGroup(groupRef))
 			{
 				boolean found = false;
 				if(m_container == null)
@@ -11266,7 +11273,7 @@ public class ResourcesAction
 				while( it.hasNext() && !found)
 				{
 					Group group = (Group) it.next();
-					if(group.getId().equals(groupId))
+					if(group.getReference().equals(groupRef))
 					{
 						m_groups.add(group);
 						found = true;
