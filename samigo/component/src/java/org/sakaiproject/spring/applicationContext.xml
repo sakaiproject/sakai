@@ -5,15 +5,13 @@
 <beans>
 
   <!-- Use the Sakai session factory, pre-configured, instead of one local to Samigo -->
-  <bean id="sakai-sam.transactionManager"
-    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory">
-      <ref bean="sakai-sam.sessionFactory" />
-    </property>
+  <bean id="sakai-sam.sessionFactory"
+    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
+    class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
   </bean>
 
-  <bean id="sakai-sam.sessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase"
-                class="org.sakaiproject.springframework.orm.hibernate.AddableSessionFactoryBean">
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
+                class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 
     <property name="mappingResources">
       <list>
@@ -47,6 +45,13 @@
       </list>
     </property>
 
+  </bean>
+
+  <bean id="sakai-sam.transactionManager"
+    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory">
+      <ref local="sakai-sam.sessionFactory" />
+    </property>
   </bean>
 
 </beans>
