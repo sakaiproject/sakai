@@ -83,9 +83,6 @@ public class TestGradebookLoader extends GradebookLoaderBase {
         	int pts = (i + 1) * 10;
         	Date date = new Date();
             date.setTime(date.getTime() - ((6 - i) * 86400000));
-
-            log.info("i=" + i + ", date=" + date);
-
             gradebookManager.createAssignment(gb.getId(), ASN_BASE_NAME + i, new Double(pts), date, Boolean.FALSE);
         }
 

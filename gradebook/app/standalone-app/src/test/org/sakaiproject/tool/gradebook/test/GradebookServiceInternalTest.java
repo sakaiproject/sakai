@@ -89,7 +89,6 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		setAuthnId(TA_UID);
 
 		List assignments = gradebookService.getAssignments(GRADEBOOK_UID);
-		log.info("assignments=" + assignments);
 		Assert.assertTrue(assignments.size() == 2);
 
 		for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
