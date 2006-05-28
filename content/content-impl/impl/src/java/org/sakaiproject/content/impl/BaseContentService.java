@@ -98,12 +98,14 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -6384,10 +6386,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * Return a map of Worksite collections roots that the user has access to.
 	 * 
-	 * @return Map of worksite title (String) to worksite resource root id (String)
+	 * @return Map of worksite resource root id (String) to worksite title (String) 
 	 */
 	public Map getCollectionMap()
 	{
+		/*
+		List sites = m_siteService.getSites("",null,"",new Hashtable(), SortType.TITLE_ASC, new PagingPosition());
+		Iterator siteIt = sites.iterator();
+		while(siteIt.hasNext())
+		{
+			Site site = (Site) siteIt.next();
+			
+		}
+		*/
 		return CollectionUtil.getCollectionMap();
 	}
 
@@ -7032,8 +7043,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if (group == null)
 			{
-				// throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
-				return;
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, "null");
 			}
 	
 			// does the current user have SECURE_ADD permission in this group's authorization group, or EVENT_RESOURCE_WRITE in the containing collection?
@@ -7065,7 +7075,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.m_access = new AccessMode(accessMode);
 			this.m_groups = new Vector(groups);
 		}
-		
 
 		/**
 		 * @inheritDoc
@@ -7074,20 +7083,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if (group == null)
 			{
-				// throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
-				return;
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, "null");
 			}
 
-			// does the current user have SECURE_ADD permission in this group's authorization group, or EVENT_RESOURCE_ADD in the site?
-			if (!unlockCheck(EVENT_RESOURCE_ADD, group.getReference()))
-			{
-				String collectionId = getContainingCollectionId(getReference());
-				if (!unlockCheck(EVENT_RESOURCE_WRITE, collectionId))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, group.getReference());
-				}
-			}
-
+			// we don't check that the group is permitted, since it's alredy in the message being edited -ggolden
 			if (m_groups.contains(group.getReference()))
 			{
 				m_groups.remove(group.getReference());

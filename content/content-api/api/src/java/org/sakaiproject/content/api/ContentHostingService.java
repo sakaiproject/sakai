@@ -1159,7 +1159,7 @@ public interface ContentHostingService extends EntityProducer
 	/**
 	 * Return a map of Worksite collections roots that the user has access to.
 	 * 
-	 * @return Map of worksite title (String) to worksite resource root id (String)
+	 * @return Map of worksite resource root id (String) to worksite title (String) 
 	 */
 	public Map getCollectionMap();
 

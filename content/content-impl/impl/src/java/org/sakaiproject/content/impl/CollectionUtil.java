@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.SessionManager;
 
 public class CollectionUtil
@@ -94,7 +95,7 @@ public class CollectionUtil
 		for (Iterator i = collectionList.iterator(); i.hasNext();)
 		{
 			List arrayList = (List) i.next();
-			collectionMap.put(arrayList.get(1), arrayList.get(0)); // title, collection_id
+			collectionMap.put(arrayList.get(0), arrayList.get(1)); // title, collection_id
 		}
 		return collectionMap;
 	}

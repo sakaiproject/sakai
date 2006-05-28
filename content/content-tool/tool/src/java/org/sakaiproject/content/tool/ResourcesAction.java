@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -564,6 +565,8 @@ public class ResourcesAction
 
 	private static final String STATE_ENCODING = "resources.encoding";
 
+	private static final String DELIM = "@";
+
 	/**
 	* Build the context for normal display
 	*/
@@ -853,6 +856,7 @@ public class ResourcesAction
 			if(atHome && show_all_sites)
 			{
 				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
+				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
 				other_sites.addAll(readAllResources(state));
 				all_roots.addAll(other_sites);
 
@@ -3663,8 +3667,8 @@ public class ResourcesAction
 				try
 				{
 					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-					edit.setAccess(new AccessMode(item.getAccess()));
-					if(AccessMode.GROUPED.toString().equals(item.getAccess()))
+					edit.setAccess(new AccessMode(item.getEntityAccess()));
+					if(AccessMode.GROUPED.toString().equals(item.getEntityAccess()))
 					{
 						List groups = item.getGroups();
 						Iterator it = groups.iterator();
@@ -5974,19 +5978,24 @@ public class ResourcesAction
 			// for collections only
 			if(item.isFolder())
 			{
-				// setup for quota - ADMIN only, collection only
+				// setup for quota - ADMIN only, site-root collection only
 				if (SecurityService.isSuperUser())
 				{
-
-					item.setCanSetQuota(true);
-					try
+					Reference ref = EntityManager.newReference(entity.getReference());
+					String context = ref.getContext();
+					String siteCollectionId = ContentHostingService.getSiteCollection(context);
+					if(siteCollectionId.equals(entity.getId()))
 					{
-						long quota = properties.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
-						item.setHasQuota(true);
-						item.setQuota(Long.toString(quota));
-					}
-					catch (Exception any)
-					{
+						item.setCanSetQuota(true);
+						try
+						{
+							long quota = properties.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+							item.setHasQuota(true);
+							item.setQuota(Long.toString(quota));
+						}
+						catch (Exception any)
+						{
+						}
 					}
 				}
 			}
@@ -11193,7 +11202,7 @@ public class ResourcesAction
 		{
 			String rv = AccessMode.INHERITED.toString();
 			boolean sameGroups = true;
-			if(AccessMode.GROUPED.equals(m_access))
+			if(AccessMode.GROUPED.toString().equals(m_access))
 			{
 				Iterator it = getGroups().iterator();
 				while(sameGroups && it.hasNext())
@@ -12764,20 +12773,30 @@ public class ResourcesAction
 		 */
 		Map othersites = ContentHostingService.getCollectionMap();
 		Iterator siteIt = othersites.keySet().iterator();
+		SortedSet sort = new TreeSet();
 		while(siteIt.hasNext())
 		{
-              String displayName = (String) siteIt.next();
-              String collId = (String) othersites.get(displayName);
-              if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
-              {
-                  List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
-                  if(members != null && members.size() > 0)
-                  {
-                      BrowseItem root = (BrowseItem) members.remove(0);
-                      root.addMembers(members);
-                      root.setName(displayName);
-                      other_sites.add(root);
-                   }
+              String collId = (String) siteIt.next();
+              String displayName = (String) othersites.get(collId);
+              sort.add(displayName + DELIM + collId);
+		}
+		
+		Iterator sortIt = sort.iterator();
+		while(sortIt.hasNext())
+		{
+			String item = (String) sortIt.next();
+			String displayName = item.substring(0, item.lastIndexOf(DELIM));
+			String collId = item.substring(item.lastIndexOf(DELIM) + 1);
+			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
+			{
+				List members = getBrowseItems(collId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
+				if(members != null && members.size() > 0)
+				{
+					BrowseItem root = (BrowseItem) members.remove(0);
+					root.addMembers(members);
+					root.setName(displayName);
+					other_sites.add(root);
+				}
               }
           }
 		
