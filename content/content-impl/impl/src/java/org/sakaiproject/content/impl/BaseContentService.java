@@ -778,47 +778,56 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	private boolean userHasGroupPermission(String ref)
 	{
-		boolean isAllowed = false;
-		
-		ContentEntity entity = null;
-		try
+		boolean isAllowed = SecurityService.isSuperUser();
+
+		if(! isAllowed)
 		{
-			if(isCollection(ref))
+			try
 			{
-				entity = findCollection(ref);
-			}
-			else
-			{
-				entity = findResource(ref);
-			}
-			String userId = SessionManager.getCurrentSessionUserId();
-			
-			if(entity != null)
-			{
-				Collection groups = entity.getGroups();
-				Group group = null;
-				Iterator it = groups.iterator();
-				if(it.hasNext())
-				{
-					group = (Group) it.next();
-					isAllowed = group.getContainingSite().isAllowed(userId, ALL_GROUP_ACCESS);
-				}
-				it = groups.iterator();
-				while(it.hasNext() && ! isAllowed)
-				{
-					group = (Group) it.next();
-					isAllowed =  group.isAllowed(userId, EVENT_RESOURCE_READ);
-				}
+				String userId = SessionManager.getCurrentSessionUserId();
+				Reference reference = m_entityManager.newReference(ref);
+				Site site = m_siteService.getSite(reference.getContext());
 				
+				isAllowed = site.isAllowed(userId, EVENT_RESOURCE_ALL_GROUPS);
+				if(!isAllowed)
+				{
+					ContentEntity entity = null;
+					
+					if(isCollection(ref))
+					{
+						entity = findCollection(ref);
+					}
+					else
+					{
+						entity = findResource(ref);
+					}
+					
+					if(entity != null)
+					{
+						Collection groupRefs = entity.getGroups();
+						Iterator it = groupRefs.iterator();
+						while(it.hasNext() && ! isAllowed)
+						{
+							String groupRef = (String) it.next();
+							Group group = site.getGroup(groupRef);
+							isAllowed =  group.isAllowed(userId, EVENT_RESOURCE_READ);
+						}
+						
+					}
+				}
 			}
-		}
-		catch (TypeException e)
-		{
-			// ignore -- return false
-		}
-		catch (IdInvalidException e)
-		{
-			// ignore -- return false
+			catch (TypeException e)
+			{
+				// ignore -- return false
+			}
+			catch (IdInvalidException e)
+			{
+				// ignore -- return false
+			} 
+			catch (IdUnusedException e) 
+			{
+				// ignore -- return false
+			}
 		}
 		
 		return isAllowed;
@@ -936,11 +945,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (id != null)
 			{
 				ref = getReference(id);
-				if(SecurityService.unlock(lock, ref))
-				{
-					isAllowed = ! accessLimitedByGroup(id) || userHasGroupPermission(id);
-				}
 			}
+			
+			isAllowed = ref != null && SecurityService.unlock(lock, ref);
 		}
 		
 		return isAllowed;
@@ -995,21 +1002,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
 		}
 		
-		if(accessLimitedByGroup(id))
-		{
-			if(! userHasGroupPermission(id))
-			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
-			}
-		}
-
-		/*
-		if(accessLimitedByGroup(id) && ! userHasGroupPermission(id))
-		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, getReference(id));
-		}
-		*/
-
 	} // unlock
 
 	/**
