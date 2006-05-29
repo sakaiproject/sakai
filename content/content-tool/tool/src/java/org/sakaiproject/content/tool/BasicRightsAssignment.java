@@ -22,7 +22,9 @@
 package org.sakaiproject.content.tool;
 
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -46,7 +48,185 @@ import org.w3c.dom.Element;
  */
 public class BasicRightsAssignment
 {
-	protected static final String URL = "http://creativecommons.org/license/publicdomain";
+	/** Resource bundle using current language locale */
+    private static ResourceLoader rb = new ResourceLoader("right");
+    
+	public class RightsChoice
+	{
+		protected String id;
+		protected String renderAs;
+		protected String label;
+		protected List  options;
+		protected Map optionMapping;
+		protected String moreInfoUrl;
+		protected String moreInfoTitle;
+		protected String moreInfoText;
+		
+		public RightsChoice(String id, String label, String renderAs, List options, Map optionsMapping)
+		{
+			this.id = id;
+			this.label = label;
+			this.renderAs = renderAs;
+			this.options = new Vector(options);
+			this.optionMapping = new Hashtable(optionMapping);
+		}
+		
+		public String getId() 
+		{
+			return id;
+		}
+		public void setId(String id) 
+		{
+			this.id = id;
+		}
+		public String getLabel()
+		{
+			return label;
+		}
+		public void setLabel(String label) 
+		{
+			this.label = label;
+		}
+		public String getMoreInfoTitle() 
+		{
+			return moreInfoTitle;
+		}
+
+		public void setMoreInfoTitle(String moreInfoLabel) 
+		{
+			this.moreInfoTitle = moreInfoLabel;
+		}
+
+		public String getMoreInfoText() 
+		{
+			return moreInfoText;
+		}
+
+		public void setMoreInfoText(String moreInfoText) 
+		{
+			this.moreInfoText = moreInfoText;
+		}
+
+		public String getMoreInfoUrl() 
+		{
+			return moreInfoUrl;
+		}
+
+		public void setMoreInfoUrl(String moreInfoUrl) 
+		{
+			this.moreInfoUrl = moreInfoUrl;
+		}
+
+		public Map getOptionMapping() 
+		{
+			return optionMapping;
+		}
+		public void setOptionMapping(Map optionMapping) 
+		{
+			this.optionMapping = optionMapping;
+		}
+		public List getOptions() 
+		{
+			return options;
+		}
+		public void setOptions(List options) 
+		{
+			this.options = options;
+		}
+		public String getRenderAs() 
+		{
+			return renderAs;
+		}
+		public void setRenderAs(String renderAs) 
+		{
+			this.renderAs = renderAs;
+		}
+	}
+	
+	public class RightsOption
+	{
+		protected String id;
+		protected String label;
+		protected String moreInfoUrl;
+		protected String moreInfoTitle;
+		protected String moreInfoText;
+
+		public RightsOption(String id, String label)
+		{
+			this.id = id;
+			this.label = label;
+		}
+		public String getId() 
+		{
+			return id;
+		}
+		public void setId(String id) 
+		{
+			this.id = id;
+		}
+		public String getLabel()
+		{
+			return label;
+		}
+		public void setLabel(String label) 
+		{
+			this.label = label;
+		}
+		
+		public String getMoreInfoTitle() 
+		{
+			return moreInfoTitle;
+		}
+
+		public void setMoreInfoTitle(String moreInfoLabel) 
+		{
+			this.moreInfoTitle = moreInfoLabel;
+		}
+
+		public String getMoreInfoText() 
+		{
+			return moreInfoText;
+		}
+
+		public void setMoreInfoText(String moreInfoText) 
+		{
+			this.moreInfoText = moreInfoText;
+		}
+
+		public String getMoreInfoUrl() 
+		{
+			return moreInfoUrl;
+		}
+
+		public void setMoreInfoUrl(String moreInfoUrl) 
+		{
+			this.moreInfoUrl = moreInfoUrl;
+		}
+
+	}
+	
+	protected static final String RENDER_AS_TEXT_INPUT = "text";
+	protected static final String RENDER_AS_RADIO_BUTTONS = "radio";
+	protected static final String RENDER_AS_TEXTAREA = "textarea";
+	protected static final String RENDER_AS_SELECT = "select";
+	protected static final String RENDER_AS_DATE_INPUT = "date";
+	protected static final String RENDER_AS_CHECKBOX = "checkbox";
+	protected static final String RENDER_AS_CHECKBOXES = "checkboxes";
+	
+	protected String[] user = { UserDirectoryService.getCurrentUser().getDisplayName() };
+	
+	/*
+	status.label						= Who owns the rights to this material?
+	status.unknown					= Copyright status is not yet determined.
+	status.other						= Someone else holds the copyright on this material.
+	status.mine						= I hold the copyright on this material.
+	status.public_domain				= This material is in the public domain.
+
+
+	 */
+	
+	
+	protected static final String PD_URL = "http://creativecommons.org/license/publicdomain";
 	
 	protected static final String DELIM = "_";
 
@@ -104,9 +284,6 @@ public class BasicRightsAssignment
 
 	protected static final String[] KEYLIST_TERMS = { KEY_MY_COPYRIGHT, KEY_OTHER_COPYRIGHT, KEY_PUBLIC_DOMAIN };
 	
-	/** Resource bundle using current language locale */
-    private static ResourceLoader rb = new ResourceLoader("right");
-    
    protected String ccCommercialUse;
     
     protected String ccModifications;
