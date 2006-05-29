@@ -694,7 +694,7 @@ public class ResourcesAction
 		}
 		else
 		{
-			context.put("dropboxMode", Boolean.FALSE);
+			//context.put("dropboxMode", Boolean.FALSE);
 		}
 
 		// make sure the channedId is set
@@ -2523,11 +2523,11 @@ public class ResourcesAction
 
 		Map current_stack_frame = peekAtStack(state);
 		boolean pop = false;
-		boolean push = false;
+		
 
 		String itemType = params.getString("itemType");
 		String flow = params.getString("flow");
-		boolean attach_me = params.getBoolean("attach_me");
+		
 
 		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
 		if(alerts == null)
@@ -2740,7 +2740,7 @@ public class ResourcesAction
 		{
 			captureMultipleValues(state, params, false);
 			createLink(data, state);
-			push = true;
+			
 		}
 		else if(flow.equals("showOptional"))
 		{
@@ -11318,7 +11318,12 @@ public class ResourcesAction
 		 */
 		public void setGroups(Collection groups)
 		{
-			m_groups = new Vector(groups);
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			m_groups.clear();
+			m_groups.addAll(groups);
 		}
 		
 		/**

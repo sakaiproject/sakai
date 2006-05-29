@@ -7074,7 +7074,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void addGroups(String accessMode, Collection groups)
 		{
 			this.m_access = new AccessMode(accessMode);
-			this.m_groups = new Vector(groups);
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			Iterator it = groups.iterator();
+			while(it.hasNext())
+			{
+				Object obj = it.next();
+				if(obj instanceof Group)
+				{
+					m_groups.add(((Group) obj).getReference());
+				}
+				else if(obj instanceof String)
+				{
+					// assume that the string is a group ref.
+					// will fail gracefully later if not.
+					m_groups.add(obj);
+				}
+			}
 		}
 
 		/**
@@ -7593,6 +7611,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				Iterator groupIt = m_groups.iterator();
 				while( groupIt.hasNext())
 				{
+					// how does this get to be a Group instead of a groupRef???
 					String groupRef = (String) groupIt.next();
 					Element sect = doc.createElement(GROUP_LIST);
 					sect.setAttribute(GROUP_NAME, groupRef);
