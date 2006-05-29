@@ -1790,12 +1790,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			boolean inherited = false;
-			AccessMode access = findCollection(edit.getId()).getAccess(); //  edit.getAccess();
+			GroupAwareEntity gaEntity = findCollection(edit.getId());
+			AccessMode access = gaEntity.getAccess(); //  edit.getAccess();
 			Collection currentGroupRefs = new Vector();
 			if(AccessMode.INHERITED.equals(access))
 			{
 				inherited = true;
-				access = findCollection(edit.getId()).getInheritedAccess();
+				access = gaEntity.getInheritedAccess();
 			}
 			
 			if(AccessMode.SITE.equals(access))
@@ -1805,35 +1806,43 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			else if(AccessMode.GROUPED.equals(access))
 			{
-				GroupAwareEntity entity = findCollection(edit.getId());
-				if(entity == null)
+				Reference ref = m_entityManager.newReference(edit.getReference());
+				if(SecurityService.isSuperUser() || SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, ref.getContext()))
 				{
-					entity = edit;
-				}
-				if(inherited)
-				{
-					currentGroupRefs.addAll(entity.getInheritedGroups());
+					allowed = true;
 				}
 				else
 				{
-					currentGroupRefs.addAll(entity.getGroups());
-				}
-				
-				// the Group objects the user has add permission
-				Collection allowedGroups = getGroupsWithAddPermission(edit.getId());
-	
-				// check all defined groups in the edit
-				for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
-				{
-					String groupRef = (String) i.next();
-					
-					// if this group has been added in this edit
-					if (!currentGroupRefs.contains(groupRef))
+					GroupAwareEntity entity = findCollection(edit.getId());
+					if(entity == null)
 					{
-						// make sure it's among those groups this user has add permissions for
-						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+						entity = edit;
+					}
+					if(inherited)
+					{
+						currentGroupRefs.addAll(entity.getInheritedGroups());
+					}
+					else
+					{
+						currentGroupRefs.addAll(entity.getGroups());
+					}
+					
+					// the Group objects the user has add permission
+					Collection allowedGroups = getGroupsWithAddPermission(edit.getId());
+		
+					// check all defined groups in the edit
+					for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
+					{
+						String groupRef = (String) i.next();
+						
+						// if this group has been added in this edit
+						if (!currentGroupRefs.contains(groupRef))
 						{
-							allowed = false;
+							// make sure it's among those groups this user has add permissions for
+							if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+							{
+								allowed = false;
+							}
 						}
 					}
 				}
@@ -7242,7 +7251,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 			// extract access
-			AccessMode access = AccessMode.SITE;
+			AccessMode access = AccessMode.INHERITED;
 			String access_mode = el.getAttribute(ACCESS_MODE);
 			if(access_mode != null && !access_mode.trim().equals(""))
 			{

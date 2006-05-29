@@ -5806,8 +5806,8 @@ public class ResourcesAction
 				while(it.hasNext())
 				{
 					String groupRef = (String) it.next();
-					item.addGroup(groupRef);
-					
+					Group group = site.getGroup(groupRef);
+					item.addGroup(group.getId());
 				}
 			}
 
