@@ -22,6 +22,7 @@
 package org.sakaiproject.search.component.adapter.contenthosting;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -178,6 +179,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			throw new RuntimeException("Failed to resolve resource "+cr, e);
 		}
+		if ( contentResource.getContentLength() <= 0 ) {
+			return new StringReader("");
+		}
 		ContentDigester digester = getDigester(contentResource);
 		Reader reader = null;
 		try
@@ -223,6 +227,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		catch (Exception e)
 		{
 			throw new RuntimeException("Failed to resolve resource ", e);
+		}
+		if ( contentResource.getContentLength() <= 0 ) {
+			return "";
 		}
 		ContentDigester digester = getDigester(contentResource);
 		String content = null;
