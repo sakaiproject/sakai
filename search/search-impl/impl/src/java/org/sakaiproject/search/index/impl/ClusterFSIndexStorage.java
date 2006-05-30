@@ -1,6 +1,24 @@
-/**
- * 
- */
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
@@ -23,6 +41,12 @@ import org.sakaiproject.search.index.ClusterFilesystem;
 import org.sakaiproject.search.index.IndexStorage;
 
 /**
+ * Inpmelemtation of IndexStorage using a Cluster File system.
+ * This implementation perfoms all index write operations in a new
+ * temporary segment. On completion of the index operation it is
+ * merged with the current segment. If the current segment is larger
+ * than the threshold, a new segment is created. Managing the segments
+ * and how they relate to the cluster is delegateed to the ClusterFilesystem
  * @author ieb
  */
 public class ClusterFSIndexStorage implements IndexStorage
@@ -30,15 +54,29 @@ public class ClusterFSIndexStorage implements IndexStorage
 	private static final Log log = LogFactory
 			.getLog(ClusterFSIndexStorage.class);
 
+	/**
+	 * Location of the index store on local disk, passed to the underlying index store
+	 */
 	private String searchIndexDirectory = null;
 
+	/**
+	 * The token analyzer
+	 */
 	private AnalyzerFactory analyzerFactory = null;
+	
 
+	/**
+	 * Maximum size of a segment
+	 */
 	private long segmentThreshold = 1024 * 1024 * 2; // Maximum Segment size
 
 	// is 2M
 
 	private ClusterFilesystem clusterFS = null;
+	
+	public void init() {
+		clusterFS.setLocation(searchIndexDirectory);
+	}
 
 	public IndexReader getIndexReader() throws IOException
 	{
@@ -213,7 +251,9 @@ public class ClusterFSIndexStorage implements IndexStorage
 	public void setLocation(String location)
 	{
 		searchIndexDirectory = location;
-		clusterFS.setLocation(location);
+		if ( clusterFS != null ) {
+			clusterFS.setLocation(location);
+		}
 
 	}
 
@@ -315,5 +355,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	{
 		this.clusterFS = clusterFS;
 	}
+
 
 }

@@ -77,7 +77,7 @@ public class SearchBeanImpl implements SearchBean
 	/**
 	 * The number of results per page
 	 */
-	private int pagesize = 20;
+	private int pagesize = 10;
 
 	/**
 	 * The number of list links
@@ -151,7 +151,7 @@ public class SearchBeanImpl implements SearchBean
 			{
 				SearchResult sr = (SearchResult) i.next();
 				sb.append(MessageFormat.format(searchItemFormat, new Object[] {
-						String.valueOf(sr.getIndex()), sr.getUrl(),
+						String.valueOf(sr.getIndex() + 1), sr.getUrl(),
 						sr.getTitle(), sr.getSearchResult(),
 						new Double(sr.getScore()) }));
 
@@ -164,7 +164,7 @@ public class SearchBeanImpl implements SearchBean
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getPager(String pagerFormat)
+	public String getPager(String pagerFormat, String singlePageFormat)
 			throws UnsupportedEncodingException
 	{
 		SearchList sr = (SearchList) search();
@@ -179,24 +179,32 @@ public class SearchBeanImpl implements SearchBean
 
 		int lastPage = Math.min(cpage + nlistPages, npages);
 		boolean first = true;
-		while (cpage <= lastPage)
+		if (cpage == lastPage)
 		{
-			String searchURL = "?search=" + URLEncoder.encode(search, "UTF-8")
-					+ "&page=" + String.valueOf(cpage);
-			String cssInd = "1";
-			if (first)
+			sb.append(singlePageFormat);
+		}
+		else
+		{
+			while (cpage <= lastPage)
 			{
-				cssInd = "0";
-				first = false;
-			}
-			if (cpage == lastPage - 1)
-			{
-				cssInd = "2";
-			}
+				String searchURL = "?search="
+						+ URLEncoder.encode(search, "UTF-8") + "&page="
+						+ String.valueOf(cpage);
+				String cssInd = "1";
+				if (first)
+				{
+					cssInd = "0";
+					first = false;
+				}
+				else if (cpage == (lastPage))
+				{
+					cssInd = "2";
+				}
 
-			sb.append(MessageFormat.format(pagerFormat, new Object[] {
-					searchURL, String.valueOf(cpage + 1), cssInd }));
-			cpage++;
+				sb.append(MessageFormat.format(pagerFormat, new Object[] {
+						searchURL, String.valueOf(cpage + 1), cssInd }));
+				cpage++;
+			}
 		}
 
 		return sb.toString();
@@ -204,8 +212,8 @@ public class SearchBeanImpl implements SearchBean
 
 	public boolean isEnabled()
 	{
-		return ("true".equals(ServerConfigurationService
-				.getString("search.experimental","true")));
+		return ("true".equals(ServerConfigurationService.getString(
+				"search.experimental", "true")));
 
 	}
 
@@ -222,8 +230,8 @@ public class SearchBeanImpl implements SearchBean
 		int end = 0;
 		if (total > 0)
 		{
-			start = ((SearchResult) sr.get(0)).getIndex();
-			end = start + sr.size();
+			start = sr.getStart();
+			end = Math.min(start + sr.size(), total);
 			start++;
 		}
 		return MessageFormat.format(headerFormat, new Object[] {
@@ -361,8 +369,9 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public String getToolUrl()
 	{
-		
-		return  ServerConfigurationService.getString("portalPath") + "/tool/"+ placementId;
+
+		return ServerConfigurationService.getString("portalPath") + "/tool/"
+				+ placementId;
 	}
 
 }

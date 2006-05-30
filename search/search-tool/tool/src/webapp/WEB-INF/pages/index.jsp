@@ -7,11 +7,12 @@
 	
 	String searchItemFormat = "<p class=\"searchItem\" ><a href=\"{1}\" target=\"searchresult\" >{2}</a><br />"
 			+ "{3} <br/> "
-			+ "<span class=\"searchScore\" >"
+			+ "<span class=\"searchScore\" > Hit: {0} "
 			+ " Score: {4} <a href=\"{1}\" target=\"searchresult\" >{1}</a> "
 			+ "</span></p>";
 
-	String pagerFormat = "<a href=\"{0}\" class=\"searchPage{2}\" >{1}</a>&#160;";
+	String pagerFormat = "<td class=\"searchPage{2}\" ><a href=\"{0}\" class=\"searchPage{2}\" ><img src=\"/sakai-search-tool/images/pager{2}.gif\" border=\"0\" alt=\"Page {1}\" /><br />{1}</a></td>";
+	String singlePageFormat = "<td><div class=\"singleSearchPage\" >&#160;</div></td>";
 
 	String searchHeaderFormat = "<div class=\"searchHeader\">Found {0} to {1} of {2} documents ({3} seconds)</div>";
 
@@ -20,58 +21,6 @@
   <head>
      <title>Search: <%= searchBean.getSearchTitle() %></title>
       <%= request.getAttribute("sakai.html.head") %>
-      
-      <style type="text/css">
-    .searchScore {
-           font-size: smaller;
-    }
-    .searchItem {
-		margin-top:1em; 
-		margin-bottom:2em; 
-		clear:both;
-		display:block;
-      }
-     .searchHeader {
-     	color:#000;
-     	padding:.3em;
-     	text-align:right;
-     	font-size:.9em;
-     	line-height:1.3em;
-     	background:#DDDFE4;
-     	border-top:1px solid #000;
-     	border-bottom:1px solid #fff;
-	color:#084A87;
-      }
-      .searchBox {
-	text-align: center;
-        padding-top: 4px;
-        padding-bottom: 5px;
-      }
-      .searchPager {
-        text-align:center;
-      }
-      .searchPage0 {
-      	background: url("/images/pager0.gif") no-repeat; 
-		float: left; 
-		height: 14px; 
-		width: 26px; 
-		padding-right: 3px
-      }
-      .searchPage1 {
-      	background: url("/images/pager1.gif") no-repeat; 
-		float: left; 
-		height: 14px; 
-		width: 26px; 
-		padding-right: 3px
-      }
-      .searchPage2 {
-      	background: url("/images/pager2.gif") no-repeat; 
-		float: left; 
-		height: 14px; 
-		width: 26px; 
-		padding-right: 3px
-      }
-      </style>
     </head>
     <body 
     onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep,ignoreCourier); " 
@@ -105,13 +54,17 @@
 	
 	<%= searchBean.getHeader(searchHeaderFormat) %>
 
+    <table cellspacing="0" cellpadding="0" >
+    <tr valign="top">
+    <%= searchBean.getPager(pagerFormat, singlePageFormat) %>
+    </tr>
+    </table>
+
     <%= searchBean.getSearchResults(searchItemFormat) %>
     
-    <table class="listHier" >
-    <tr>
-	<td>
-    <%= searchBean.getPager(pagerFormat) %>
-	</td>
+    <table cellspacing="0" cellpadding="0" >
+    <tr valign="top" >
+    <%= searchBean.getPager(pagerFormat, singlePageFormat) %>
     </tr>
     </table>
     <%

@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.api;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -69,5 +68,29 @@ public interface SearchIndexBuilderWorker
 	 * @return
 	 */
 	boolean removeWorkerLock();
+
+	/**
+	 * Increment the activity counter
+	 *
+	 */
+	void incrementActivity();
+
+	/**
+	 * get an indication of the current activity level
+	 * @return
+	 */
+	int getActivity();
+
+	/**
+	 * reset the activity levels
+	 *
+	 */
+	void resetActivity();
+
+	/**
+	 * Get the ms time of the last search add/remove event (excluding master events)
+	 * @return
+	 */
+	long getLastEventTime();
 
 }

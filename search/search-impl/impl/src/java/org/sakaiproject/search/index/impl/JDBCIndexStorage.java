@@ -1,6 +1,23 @@
-/**
- * 
- */
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
 package org.sakaiproject.search.index.impl;
 
 import java.io.IOException;
@@ -32,6 +49,12 @@ import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
 /**
+ * This is a pure JDBC implementation of the IndexStore. It uses the 
+ * JDBCDrirectory from the Compass OpenSymphony search framework. This storeds
+ * the segments of the index in the database directly as Blobs. These are then directly 
+ * accessed when searching. Obviously there are significant performance implications of
+ * this approach. (lots of DB traffic on search and index creationg and about 1/10
+ * performance.
  * @author ieb
  */
 public class JDBCIndexStorage implements IndexStorage

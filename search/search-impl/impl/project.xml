@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://maven.apache.org/maven-v3_0_0.xsd">
+<project>
   <extend>../../../master/project.xml</extend>
   <pomVersion>3</pomVersion>
   <name>sakai-search-impl</name>

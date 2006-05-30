@@ -43,4 +43,10 @@ public interface SearchList extends List
 	 */
 	int getFullSize();
 
+	/**
+	 * @return the start of the list
+	 */
+	int getStart();
+
+
 }

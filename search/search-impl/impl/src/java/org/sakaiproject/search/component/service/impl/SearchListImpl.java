@@ -34,6 +34,7 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
+import org.sakaiproject.search.filter.SearchItemFilter;
 
 /**
  * @author ieb
@@ -53,13 +54,17 @@ public class SearchListImpl implements SearchList
 
 	private Analyzer analyzer;
 
-	public SearchListImpl(Hits h, Query query, int start, int end, Analyzer analyzer)
+	private SearchItemFilter filter;
+
+	public SearchListImpl(Hits h, Query query, int start, int end,
+			Analyzer analyzer, SearchItemFilter filter)
 	{
 		this.h = h;
 		this.query = query;
 		this.start = start;
 		this.end = end;
 		this.analyzer = analyzer;
+		this.filter = filter;
 
 	}
 
@@ -84,7 +89,8 @@ public class SearchListImpl implements SearchList
 				{
 					final int thisHit = counter;
 					counter++;
-					return new SearchResultImpl(h, thisHit, query, analyzer );
+					return filter.filter(new SearchResultImpl(h, thisHit,
+							query, analyzer));
 				}
 				catch (IOException e)
 				{
@@ -135,7 +141,8 @@ public class SearchListImpl implements SearchList
 			for (int i = 0; i < o.length; i++)
 			{
 
-				o[i + start] = new SearchResultImpl(h, i + start, query, analyzer);
+				o[i + start] = filter.filter(new SearchResultImpl(h, i + start,
+						query, analyzer));
 			}
 		}
 		catch (IOException e)
@@ -198,7 +205,8 @@ public class SearchListImpl implements SearchList
 	{
 		try
 		{
-			return new SearchResultImpl(h, arg0, query, analyzer);
+			return filter
+					.filter(new SearchResultImpl(h, arg0, query, analyzer));
 		}
 		catch (IOException e)
 		{
@@ -246,6 +254,11 @@ public class SearchListImpl implements SearchList
 	public List subList(int arg0, int arg1)
 	{
 		throw new UnsupportedOperationException("Not Implemented");
+	}
+
+	public int getStart()
+	{
+		return start;
 	}
 
 }

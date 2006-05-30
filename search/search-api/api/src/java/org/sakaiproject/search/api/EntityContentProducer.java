@@ -143,6 +143,13 @@ public interface EntityContentProducer
 	 */
 	boolean isForIndex(Reference ref);
 
+	/**
+	 * returns true if the current user can view the search result
+	 * @param ref 
+	 * @return
+	 */
+	boolean canRead(Reference ref);
+
 	
 
 }

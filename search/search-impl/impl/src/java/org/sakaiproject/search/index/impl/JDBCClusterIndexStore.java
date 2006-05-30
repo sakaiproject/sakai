@@ -1,6 +1,24 @@
-/**
- * 
- */
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
@@ -18,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -31,9 +50,16 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.index.ClusterFilesystem;
 
-import java.util.Hashtable;
-
 /**
+ * This is a JDBC implementation of the ClusterFilesystem. It syncronizes the
+ * local search index segments with the database, by sipping each segment and
+ * pushing it to the database. Each Segment has an extra file that contains an
+ * MD5 of the segment and a time stamp of the last update. If any segments are
+ * missing in the local segment store (including no segments at all, as with a
+ * new cluster node) the missing segments are downloaded from the JDBC store. If
+ * any of the segments on the local store are found to be dammaged they are
+ * reloaded from the database.
+ * 
  * @author ieb
  */
 public class JDBCClusterIndexStore implements ClusterFilesystem
@@ -54,6 +80,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private boolean autoDdl = false;
 
+	/**
+	 * If validate is true, all segments will be checked on initial startup and
+	 * upload. This can take a long time. If its false, only when an index is
+	 * updated is the MD5 checked. Recomendation is to leave this false.
+	 */
 	private boolean validate = false;
 
 	private static Hashtable checked = new Hashtable();
@@ -67,12 +98,21 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	public void init()
 	{
-
-		if (autoDdl)
+		log.info(this + ":init() ");
+		try
 		{
-			SqlService.getInstance().ddl(this.getClass().getClassLoader(),
-					"search_cluster");
+			if (autoDdl)
+			{
+				SqlService.getInstance().ddl(this.getClass().getClassLoader(),
+						"search_cluster");
+			}
 		}
+		catch (Exception ex)
+		{
+			log.error("Failed to init JDBCClusterIndexStorage", ex);
+		}
+		log.info(this + ":init() Ok ");
+
 	}
 
 	/**
@@ -90,8 +130,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// remove files not in the dbSegmentList
 			List localSegments = getLocalSegments();
 			log.debug("Update: Local Segments = " + localSegments.size());
-			
-
 
 			// which of the dbSegments are not present locally
 
@@ -188,7 +226,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				File f = new File(searchIndexDirectory, si.getName());
 				segmentList.add(f.getPath());
 			}
-			
 
 			connection.commit();
 		}
@@ -785,8 +822,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 		}
 		setTimeStampFields(fields, timestamp);
-		//  update the cache
-		checked.put(segmentdir.getName(),fields[1]);
+		// update the cache
+		checked.put(segmentdir.getName(), fields[1]);
 	}
 
 	private String getCheckSum(String segmentName) throws IOException
@@ -1060,7 +1097,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		File segmentFile = new File(searchIndexDirectory, addsi.getName());
 		setCheckSum(segmentFile);
 		setTimeStamp(segmentFile, newVersion);
-		
 
 		byte[] buffer = new byte[4096];
 		if (segmentFile.isDirectory())
@@ -1208,6 +1244,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 
 		searchIndexDirectory = location;
+		log.info("Search Index Location is "+location);
 
 	}
 
@@ -1315,7 +1352,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 
 			liveCheckSum = getNewCheckSum(segmentName);
-			
 
 		}
 		else
@@ -1331,10 +1367,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			boolean check = false;
 			if (cached)
 			{
-				
+
 				log.debug("Performing Retry");
 				check = checkSegmentValidity(segmentName, true);
-			} else {
+			}
+			else
+			{
 				log.debug(" No Retry");
 			}
 			if (!check)

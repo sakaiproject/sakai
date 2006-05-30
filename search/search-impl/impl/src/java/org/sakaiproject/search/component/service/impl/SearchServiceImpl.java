@@ -45,6 +45,7 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchWriterLock;
 
@@ -91,6 +92,8 @@ public class SearchServiceImpl implements SearchService
 
 	private IndexStorage indexStorage = null;
 
+	private SearchItemFilter filter;
+
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
@@ -119,6 +122,10 @@ public class SearchServiceImpl implements SearchService
 			{
 				log.error(" searchIndexBuilder must be set");
 				throw new RuntimeException("Must set searchIndexBuilder");
+			}
+			if ( filter == null ) {
+				log.error("filter must be set, even if its a null filter");
+				throw new RuntimeException("Must set filter");
 			}
 
 			// register a transient notification for resources
@@ -237,7 +244,7 @@ public class SearchServiceImpl implements SearchService
 				log.debug("Got " + h.length() + " hits");
 
 				return new SearchListImpl(h, textQuery, start, end,
-						indexStorage.getAnalyzer());
+						indexStorage.getAnalyzer(),filter);
 			}
 			else
 			{
@@ -255,6 +262,7 @@ public class SearchServiceImpl implements SearchService
 			throw new RuntimeException("Failed to run Search ", e);
 		}
 	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -438,6 +446,22 @@ public class SearchServiceImpl implements SearchService
 	public void setIndexStorage(IndexStorage indexStorage)
 	{
 		this.indexStorage = indexStorage;
+	}
+
+	/**
+	 * @return Returns the filter.
+	 */
+	public SearchItemFilter getFilter()
+	{
+		return filter;
+	}
+
+	/**
+	 * @param filter The filter to set.
+	 */
+	public void setFilter(SearchItemFilter filter)
+	{
+		this.filter = filter;
 	}
 
 }

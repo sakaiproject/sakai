@@ -19,22 +19,23 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.index.impl;
+package org.sakaiproject.search.filter;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.sakaiproject.search.index.AnalyzerFactory;
+import org.sakaiproject.search.api.SearchResult;
 
 /**
+ * Provides a mechnism whereby a search item can be filtered from the list
+ * 
  * @author ieb
- *
  */
-public class StandardAnalyzerFactory implements AnalyzerFactory
+public interface SearchItemFilter
 {
-
-	public Analyzer newAnalyzer()
-	{
-		return new StandardAnalyzer();
-	}
+	/**
+	 * performs the filter operation on a result, retruning the filtered result
+	 * 
+	 * @param result
+	 * @return
+	 */
+	SearchResult filter(SearchResult result);
 
 }

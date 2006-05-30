@@ -169,4 +169,9 @@ public class SearchResultImpl implements SearchResult
 		}
 	}
 
+	public String getReference()
+	{
+		return doc.get(SearchService.FIELD_REFERENCE);
+	}
+
 }

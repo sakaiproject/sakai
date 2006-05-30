@@ -1,6 +1,24 @@
-/**
- * 
- */
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
@@ -21,6 +39,13 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.AnalyzerFactory;
 import org.sakaiproject.search.index.IndexStorage;
 
+/**
+ * A local only filestore implementation. This is a simple IndexImplementation
+ * that performs all its indexing in a single, unoptimzed segment on the local 
+ * filesystem
+ * @author ieb
+ *
+ */
 public class FSIndexStorage implements IndexStorage
 {
 	private static Log log = LogFactory.getLog(FSIndexStorage.class);
@@ -31,6 +56,10 @@ public class FSIndexStorage implements IndexStorage
 
 	protected boolean recoverCorruptedIndex = false;
 
+	public void init() {
+		
+	}
+	
 	public void doPreIndexUpdate() throws IOException
 	{
 		log.debug("Starting process List on " + searchIndexDirectory);
@@ -78,14 +107,6 @@ public class FSIndexStorage implements IndexStorage
 		return searchIndexDirectory;
 	}
 
-	/**
-	 * @param searchIndexDirectory
-	 *        The searchIndexDirectory to set.
-	 */
-	public void setSearchIndexDirectory(String searchIndexDirectory)
-	{
-		this.searchIndexDirectory = searchIndexDirectory;
-	}
 
 	public IndexSearcher getIndexSearcher() throws IOException
 	{

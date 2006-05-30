@@ -92,4 +92,10 @@ public interface SearchResult
 	 */
 	String getSearchResult();
 
+	/**
+	 * get the Sakai Entity Reference String
+	 * @return
+	 */
+	String getReference();
+
 }

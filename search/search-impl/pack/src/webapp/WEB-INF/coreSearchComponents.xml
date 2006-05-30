@@ -29,6 +29,7 @@
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
+    <property name="filter"><ref bean="searchSecurityFilterImpl" /></property>
   </bean> 
     
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -136,14 +137,15 @@
   
   <bean id="filesystemSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
-    >
-    <property name="searchIndexDirectory"><value>${sakai.home}searchindex</value></property>
+    init-method="init" >
+    <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
 
   <bean id="clusterSearchStorageImpl" 
     class="org.sakaiproject.search.index.impl.ClusterFSIndexStorage" 
-    >
+    init-method="init" >
+    <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
     <property name="clusterFS" ><ref bean="jdbcClusterIndexStore" /></property>    
   </bean>
@@ -153,7 +155,8 @@
   -->
   <bean id="jdbcClusterIndexStore" 
     class="org.sakaiproject.search.index.impl.JDBCClusterIndexStore" 
-    >
+    init-method="init" >
+    <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
   </bean>
@@ -191,5 +194,15 @@
     
   </bean>
   
+  
+  <!--
+  ==============================RESULT FILTERS===============================
+  -->
+
+  <bean id="searchSecurityFilterImpl" 
+    class="org.sakaiproject.search.filter.impl.SearchSecurityFilter" 
+    init-method="init">
+    <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+  </bean>
   
 </beans>

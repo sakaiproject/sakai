@@ -71,7 +71,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	private static Log log = LogFactory
 			.getLog(SearchIndexBuilderWorkerImpl.class);
 
-	private final int numThreads = 10;
+	private final int numThreads = 2;
 
 	/**
 	 * The maximum sleep time for the wait/notify semaphore
@@ -130,6 +130,14 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	private SearchIndexBuilderWorkerDao searchIndexBuilderWorkerDao = null;
 
 	private long lastLock = System.currentTimeMillis();
+
+	/**
+	 * Activity acts as a counter that indicates the number of events recieved.
+	 * The Workers may consult this to determine if they should run.
+	 */
+	private int activity = 0;
+
+	private long lastEvent = System.currentTimeMillis();
 
 	private static HashMap nodeIDList = new HashMap();;
 
@@ -273,7 +281,30 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					sessionManager.setCurrentSession(s);
 					try
 					{
-						if (getLockTransaction())
+						int totalDocs = searchIndexBuilder.getPendingDocuments();
+						long lastEvent = getLastEventTime();
+						int activity = getActivity();
+						long now = System.currentTimeMillis();
+						long interval = now-lastEvent;
+					
+						// if activity == totalDocs and interval > 10
+						boolean process = false;
+						if ( totalDocs < 20 && interval > 20000 ) {
+							process = true;
+						} else if ( totalDocs >= 20 && totalDocs < 50 && interval > 10000   ) {
+							process = true;
+						} else if ( totalDocs >= 50 && totalDocs < 90 && interval > 5000 ) {
+							process = true;
+						} else if ( totalDocs > 90 ) {
+							process = true;
+						}
+						if ( process ) {
+							resetActivity();
+						} else {
+							log.info("Sleeping");
+						}
+
+						if (process && getLockTransaction())
 						{
 							// should this node consider taking the lock ?
 							if ((System.currentTimeMillis() - lastLock) > 60000L)
@@ -321,14 +352,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					finally
 					{
 						clearLockTransaction();
-						try
-						{
-							Thread.sleep(60000);
-						}
-						catch (Exception ex)
-						{
-
-						}
 					}
 				}
 				if (!runThreads)
@@ -1381,6 +1404,30 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				connection = null;
 			}
 		}
+	}
+
+	/**
+	 * @return Returns the activity.
+	 */
+	public int getActivity()
+	{
+		return activity;
+	}
+	public long getLastEventTime() {
+		return lastEvent ;
+	}
+
+	/**
+	 * @param activity The activity to set.
+	 */
+	public void resetActivity()
+	{
+		this.activity = 0;
+		
+	}
+	public void incrementActivity() {
+		activity++;
+		lastEvent = System.currentTimeMillis();
 	}
 
 }

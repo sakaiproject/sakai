@@ -61,8 +61,6 @@ public class ControllerServlet extends HttpServlet
 
 	private WebApplicationContext wac;
 
-	private String headerPreContent;
-
 	private SearchBeanFactory searchBeanFactory = null;
 
 	private SessionManager sessionManager;
@@ -127,6 +125,8 @@ public class ControllerServlet extends HttpServlet
 
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
+		addLocalHeaders(request);
+
 		String targetURL = persistState(request);
 		if (targetURL != null && targetURL.trim().length() > 0)
 		{
@@ -163,10 +163,12 @@ public class ControllerServlet extends HttpServlet
 		request.removeAttribute(Tool.NATIVE_URL);
 	}
 
-	public void addWikiStylesheet(HttpServletRequest request)
+	public void addLocalHeaders(HttpServletRequest request)
 	{
 		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
-		request.setAttribute("sakai.html.head", headerPreContent + sakaiHeader);
+		String skin = "default/"; // this could be changed in the future to make search skin awaire
+		String localStylesheet = "<link href=\"/sakai-search-tool/styles/"+skin+"searchStyle.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />";
+		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader);
 	}
 
 	/**

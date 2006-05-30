@@ -165,11 +165,15 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					// Load the list
 
 					List runtimeToDo = findPending(indexBatchSize, session);
-					log
-							.debug("Processing " + runtimeToDo.size()
-									+ " documents");
+					
 					totalDocs = runtimeToDo.size();
-
+					
+					
+					
+					log
+							.debug("Processing " + totalDocs
+									+ " documents");
+	
 					if (totalDocs > 0)
 					{
 						try
@@ -394,7 +398,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									catch (Exception e1)
 									{
-										log.info(" Failed to index document cause: "+e1.getMessage());
+										log.debug(" Failed to index document cause: "+e1.getMessage());
 									}
 									// update this node lock to indicate its
 									// still alove, no document should
@@ -474,8 +478,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		int totalDocs = 0;
 		if (worker.isRunning())
 		{
-			totalDocs = ((Integer) getHibernateTemplate().execute(callback))
-					.intValue();
+			Integer nprocessed = (Integer) getHibernateTemplate().execute(callback);
+			if ( nprocessed == null ) {
+				return;
+			}
+			totalDocs = nprocessed.intValue();
 		}
 
 		try

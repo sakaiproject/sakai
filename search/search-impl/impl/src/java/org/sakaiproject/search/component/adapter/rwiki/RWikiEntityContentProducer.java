@@ -245,4 +245,18 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		return false;
 	}
 
+	public boolean canRead(Reference ref)
+	{
+		try
+		{
+			RWikiEntity rwe = (RWikiEntity) ref.getEntity();
+			RWikiObject rwo = rwe.getRWikiObject();
+			return objectService.checkRead(rwo);
+		}
+		catch (Exception ex)
+		{
+		}
+		return false;
+	}
+
 }

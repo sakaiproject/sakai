@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="searchContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content1</value>
+    </property>
+    <property name="name">
+      <value>Search Overview</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/overview.htm</value>
+    </property>
+    <property name="defaultForTool"><value>sakai.search</value></property>
+
+  </bean>
+  <bean id="searchContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content2</value>
+    </property>
+    <property name="name">
+      <value>Basic Search</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/basic_search.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content3</value>
+    </property>
+    <property name="name">
+      <value>Advanced Search</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/advanced_search.htm</value>
+    </property>
+  </bean>
+  <bean id="searchContent4" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>search_content4</value>
+    </property>
+    <property name="name">
+      <value>Administration</value>
+    </property>
+    <property name="location">
+      <value>/sakai_search/administration.htm</value>
+    </property>
+  </bean>
+  <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+    <property name="name">
+      <value>root</value>
+    </property>
+    <property name="categories">
+      <list>
+        <bean id="search1" class="org.sakaiproject.component.app.help.model.CategoryBean">
+          <property name="name">
+            <value>Search</value>
+          </property>
+          <property name="resources">
+            <list>
+              <ref bean="searchContent1"/>
+              <ref bean="searchContent2"/>
+              <ref bean="searchContent3"/>
+              <ref bean="searchContent4"/>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>

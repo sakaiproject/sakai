@@ -161,7 +161,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource ", e);
+			throw new RuntimeException("Failed to resolve resource "+cr, e);
 		}
 		if (contentResource.getContentLength() > readerSizeLimit) return true;
 		return false;
@@ -176,7 +176,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource ", e);
+			throw new RuntimeException("Failed to resolve resource "+cr, e);
 		}
 		ContentDigester digester = getDigester(contentResource);
 		Reader reader = null;
@@ -426,6 +426,17 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		return true;
 	}
+
+	public boolean canRead(Reference ref)
+	{
+		try {
+			contentHostingService.checkResource(ref.getId());
+			return true;
+		} catch ( Exception ex ) {
+			return false;
+		}
+	}
+
 
 
 }

@@ -168,6 +168,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					+ " 5 attempts, this resource will"
 					+ " not be indexed untill it is modified");
 		}
+		searchIndexBuilderWorker.incrementActivity();
 		restartBuilder();
 	}
 

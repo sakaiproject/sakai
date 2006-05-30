@@ -47,7 +47,6 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.model.SearchBuilderItem;
 
-
 /**
  * @author ieb
  */
@@ -89,9 +88,9 @@ public class MessageContentProducer implements EntityContentProducer
 				SearchIndexBuilder.class.getName());
 
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-		
-		if ("true".equals(ServerConfigurationService
-				.getString("search.experimental","true")))
+
+		if ("true".equals(ServerConfigurationService.getString(
+				"search.experimental", "true")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{
@@ -152,7 +151,8 @@ public class MessageContentProducer implements EntityContentProducer
 						.append("\n");
 				sb.append("Message Body\n");
 				sb.append(m.getBody()).append("\n");
-				log.debug("Message Content for "+cr.getReference()+" is "+sb.toString());
+				log.debug("Message Content for " + cr.getReference() + " is "
+						+ sb.toString());
 				return sb.toString();
 			}
 			catch (IdUnusedException e)
@@ -362,10 +362,6 @@ public class MessageContentProducer implements EntityContentProducer
 		this.removeEvents = removeEvents;
 	}
 
-	
-
-	
-
 	public String getSiteId(Reference ref)
 	{
 		return ref.getContext();
@@ -373,7 +369,7 @@ public class MessageContentProducer implements EntityContentProducer
 
 	public String getSiteId(String resourceName)
 	{
-		
+
 		return getSiteId(entityManager.newReference(resourceName));
 	}
 
@@ -386,7 +382,7 @@ public class MessageContentProducer implements EntityContentProducer
 			String chanellId = (String) i.next();
 			try
 			{
-				
+
 				MessageChannel c = messageService.getChannel(chanellId);
 
 				List messages = c.getMessages(null, true);
@@ -402,7 +398,7 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.debug("Failed to get channel "+chanellId);
+				log.debug("Failed to get channel " + chanellId);
 
 			}
 		}
@@ -419,22 +415,42 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
-				if ( m == null ) {
-					log.debug("Rejected null message "+ref.getReference());
+				if (m == null)
+				{
+					log.debug("Rejected null message " + ref.getReference());
 					return false;
 				}
 			}
 			catch (IdUnusedException e)
 			{
-				log.debug("Rejected Missing message or Collection "+ref.getReference());
+				log.debug("Rejected Missing message or Collection "
+						+ ref.getReference());
 				return false;
 			}
 			catch (PermissionException e)
 			{
-				log.warn("Rejected private message "+ref.getReference());
+				log.warn("Rejected private message " + ref.getReference());
 				return false;
 			}
 			return true;
+		}
+		return false;
+	}
+
+	public boolean canRead(Reference ref)
+	{
+		EntityProducer ep = ref.getEntityProducer();
+		if (ep instanceof MessageService)
+		{
+			try
+			{
+				MessageService ms = (MessageService) ep;
+				ms.getMessage(ref);
+				return true;
+			}
+			catch (Exception ex)
+			{
+			}
 		}
 		return false;
 	}

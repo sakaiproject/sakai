@@ -50,7 +50,7 @@ public interface SearchBean
 	 *        text, {2} is a css class id, 0 for first, 1 for middle, 2 for end
 	 * @return
 	 */
-	String getPager(String pagerFormat) throws UnsupportedEncodingException;
+	String getPager(String pagerFormati, String singlePageFormat) throws UnsupportedEncodingException;
 
 	/**
 	 * Title for the search page
