@@ -13,14 +13,23 @@
 
 	String pagerFormat = "<td class=\"searchPage{2}\" ><a href=\"{0}\" class=\"searchPage{2}\" ><img src=\"/sakai-search-tool/images/pager{2}.gif\" border=\"0\" alt=\"Page {1}\" /><br />{1}</a></td>";
 	String singlePageFormat = "<td><div class=\"singleSearchPage\" >&#160;</div></td>";
-
-	String searchHeaderFormat = "<div class=\"searchHeader\">Found {0} to {1} of {2} documents ({3} seconds)</div>";
+	String searchTerms = searchBean.getSearch();
+	String rssURL = "";
+	String rssLink = "";
+	if ( searchTerms != null && searchTerms.length() > 0 ) {
+		rssURL = searchBean.getToolUrl()+"/rss20?search="+java.net.URLEncoder.encode(searchBean.getSearch());
+		rssLink = "<link rel=\"alternate\" title=\"Sakai RSS Search for: "+searchTerms+" \" " 
+ 			+ " href=\""+rssURL+"\" type=\"application/rss+xml\" /> ";
+    
+	}
+	String searchHeaderFormat = "<div class=\"searchHeader\">Found {0} to {1} of {2} documents ({3} seconds) <a href=\""+rssURL+"\" target=\"rss\" ><img src=\"/sakai-search-tool/images/rss.gif\" alt=\"RSS\" border=\"0\" /></a></div>";
 
 %>
 <html>
   <head>
      <title>Search: <%= searchBean.getSearchTitle() %></title>
       <%= request.getAttribute("sakai.html.head") %>
+      <%= rssLink %>  
     </head>
     <body 
     onload="<%= request.getAttribute("sakai.html.body.onload") %> parent.updCourier(doubleDeep,ignoreCourier); " 
