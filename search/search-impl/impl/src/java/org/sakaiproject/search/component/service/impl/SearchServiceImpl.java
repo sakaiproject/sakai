@@ -236,7 +236,7 @@ public class SearchServiceImpl implements SearchService
 			Query textQuery = qp.parse(searchTerms);
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
-			log.debug("Query is " + query.toString());
+			log.info("Compiled Query is " + query.toString());
 			IndexSearcher indexSearcher = getIndexSearcher(false);
 			if (indexSearcher != null)
 			{

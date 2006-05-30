@@ -24,6 +24,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -257,6 +258,16 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		{
 		}
 		return false;
+	}
+
+	public Map getCustomProperties()
+	{
+		return null;
+	}
+
+	public String getCustomRDF()
+	{
+		return null;
 	}
 
 }

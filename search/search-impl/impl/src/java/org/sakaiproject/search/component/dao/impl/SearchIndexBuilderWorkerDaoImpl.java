@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,8 +64,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		implements SearchIndexBuilderWorkerDao
 {
-
-	
 
 	private static Log log = LogFactory
 			.getLog(SearchIndexBuilderWorkerDaoImpl.class);
@@ -165,15 +164,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					// Load the list
 
 					List runtimeToDo = findPending(indexBatchSize, session);
-					
+
 					totalDocs = runtimeToDo.size();
-					
-					
-					
-					log
-							.debug("Processing " + totalDocs
-									+ " documents");
-	
+
+					log.debug("Processing " + totalDocs + " documents");
+
 					if (totalDocs > 0)
 					{
 						try
@@ -215,8 +210,8 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 										{
 											indexReader
 													.deleteDocuments(new Term(
-															SearchService.FIELD_REFERENCE, sbi
-																	.getName()));
+															SearchService.FIELD_REFERENCE,
+															sbi.getName()));
 											if (SearchBuilderItem.ACTION_DELETE
 													.equals(sbi
 															.getSearchaction()))
@@ -310,25 +305,34 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 													.getContainer();
 											if (container == null)
 												container = "";
-											doc.add(new Field(SearchService.FIELD_CONTAINER,
-													container, Field.Store.YES,
-													Field.Index.UN_TOKENIZED));
-											doc.add(new Field(SearchService.FIELD_ID,
-													ref.getId(),
+											doc
+													.add(new Field(
+															SearchService.FIELD_CONTAINER,
+															container,
+															Field.Store.YES,
+															Field.Index.UN_TOKENIZED));
+											doc.add(new Field(
+													SearchService.FIELD_ID, ref
+															.getId(),
 													Field.Store.YES,
 													Field.Index.NO));
-											doc.add(new Field(SearchService.FIELD_TYPE, ref
-													.getType(),
+											doc.add(new Field(
+													SearchService.FIELD_TYPE,
+													ref.getType(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field(SearchService.FIELD_SUBTYPE, ref
-													.getSubType(),
-													Field.Store.YES,
-													Field.Index.UN_TOKENIZED));
-											doc.add(new Field(SearchService.FIELD_REFERENCE, ref
-													.getReference(),
-													Field.Store.YES,
-													Field.Index.UN_TOKENIZED));
+											doc
+													.add(new Field(
+															SearchService.FIELD_SUBTYPE,
+															ref.getSubType(),
+															Field.Store.YES,
+															Field.Index.UN_TOKENIZED));
+											doc
+													.add(new Field(
+															SearchService.FIELD_REFERENCE,
+															ref.getReference(),
+															Field.Store.YES,
+															Field.Index.UN_TOKENIZED));
 											Collection c = ref.getRealms();
 											for (Iterator ic = c.iterator(); ic
 													.hasNext();)
@@ -343,46 +347,103 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 																Field.Index.UN_TOKENIZED));
 											}
 
-											doc.add(new Field(SearchService.FIELD_CONTEXT, sep
-													.getSiteId(ref),
-													Field.Store.YES,
-													Field.Index.UN_TOKENIZED));
+											doc
+													.add(new Field(
+															SearchService.FIELD_CONTEXT,
+															sep.getSiteId(ref),
+															Field.Store.YES,
+															Field.Index.UN_TOKENIZED));
 											if (sep.isContentFromReader(entity))
 											{
 												contentReader = sep
 														.getContentReader(entity);
-												doc.add(new Field(SearchService.FIELD_CONTENTS,
-														contentReader,
-														Field.TermVector.YES));
+												doc
+														.add(new Field(
+																SearchService.FIELD_CONTENTS,
+																contentReader,
+																Field.TermVector.YES));
 											}
 											else
 											{
-												doc.add(new Field(SearchService.FIELD_CONTENTS,
-														sep.getContent(entity),
-														Field.Store.YES,
-														Field.Index.TOKENIZED,
-														Field.TermVector.YES));
+												doc
+														.add(new Field(
+																SearchService.FIELD_CONTENTS,
+																sep
+																		.getContent(entity),
+																Field.Store.YES,
+																Field.Index.TOKENIZED,
+																Field.TermVector.YES));
 											}
-											doc.add(new Field(SearchService.FIELD_TITLE, sep
-													.getTitle(entity),
+											doc.add(new Field(
+													SearchService.FIELD_TITLE,
+													sep.getTitle(entity),
 													Field.Store.YES,
 													Field.Index.TOKENIZED,
 													Field.TermVector.YES));
-											doc.add(new Field(SearchService.FIELD_TOOL, sep
-													.getTool(),
+											doc.add(new Field(
+													SearchService.FIELD_TOOL,
+													sep.getTool(),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field(SearchService.FIELD_URL, sep
-													.getUrl(entity),
+											doc.add(new Field(
+													SearchService.FIELD_URL,
+													sep.getUrl(entity),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
-											doc.add(new Field(SearchService.FIELD_SITEID, sep
-													.getSiteId(ref),
+											doc.add(new Field(
+													SearchService.FIELD_SITEID,
+													sep.getSiteId(ref),
 													Field.Store.YES,
 													Field.Index.UN_TOKENIZED));
 
+											// add the custom properties
+
+											Map m = sep.getCustomProperties();
+											if (m != null)
+											{
+												for (Iterator cprops = m
+														.keySet().iterator(); cprops
+														.hasNext();)
+												{
+													String key = (String) cprops
+															.next();
+													Object value = m.get(key);
+													String[] values = null;
+													if (value instanceof String)
+													{
+														values = new String[1];
+														values[0] = (String) value;
+													}
+													if (value instanceof String[])
+													{
+														values = (String[]) value;
+													}
+													if (values == null)
+													{
+														log
+																.info("Null Custom Properties value has been suppled by "
+																		+ sep
+																		+ " in index "
+																		+ key);
+													}
+													else
+													{
+														for (int i = 0; i < values.length; i++)
+														{
+															doc
+																	.add(new Field(
+																			key,
+																			values[i],
+																			Field.Store.YES,
+																			Field.Index.UN_TOKENIZED));
+														}
+													}
+												}
+											}
+
 											log.debug("Indexing Document "
 													+ doc);
+
 											indexWrite.addDocument(doc);
 
 											log.debug("Done Indexing Document "
@@ -398,7 +459,9 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									catch (Exception e1)
 									{
-										log.debug(" Failed to index document cause: "+e1.getMessage());
+										log
+												.debug(" Failed to index document cause: "
+														+ e1.getMessage());
 									}
 									// update this node lock to indicate its
 									// still alove, no document should
@@ -478,8 +541,10 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		int totalDocs = 0;
 		if (worker.isRunning())
 		{
-			Integer nprocessed = (Integer) getHibernateTemplate().execute(callback);
-			if ( nprocessed == null ) {
+			Integer nprocessed = (Integer) getHibernateTemplate().execute(
+					callback);
+			if (nprocessed == null)
+			{
 				return;
 			}
 			totalDocs = nprocessed.intValue();

@@ -23,6 +23,7 @@ package org.sakaiproject.search.api;
 
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -150,6 +151,23 @@ public interface EntityContentProducer
 	 */
 	boolean canRead(Reference ref);
 
-	
+	/**
+	 * Gets a map of custom document properties. The names of the map map will contain 
+	 * the index name to which the value is added.
+	 * The value is expected to be a String or String[], containig the value, values to be
+	 * added. Before using this method in your entity producer, be certain that the value
+	 * is not already in the index. ( See SearchService for list of Fields)
+	 * @return
+	 */
+	Map getCustomProperties();
+
+	/**
+	 * At the moment this is a placeholder, but eventually
+	 * It will return a block of Custom RDF, that the EntityContentProducer wants
+	 * the search index to index. This is ontop of any RDF that the search index is 
+	 * already processing. 
+	 * @return
+	 */
+	String getCustomRDF();
 
 }
