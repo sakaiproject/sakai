@@ -33,11 +33,14 @@
 
 <h:dataTable id="TreeTable" value="#{questionpool.copyQpools}"
      var="pool" cellpadding="0" cellspacing="0" styleClass="listHier" >
+  
 
+    <h:column  id="radiocol">
+<f:facet name="header">
+<h:outputText value=" "/>
+</f:facet>
 
-    <h:column  id="radiocol" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
-
-<h:selectManyCheckbox  id="checkboxes" layout="pageDirection"
+<h:selectManyCheckbox  rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" id="checkboxes" layout="pageDirection"
 		value="#{questionpool.destPools}">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
 </h:selectManyCheckbox>
