@@ -228,6 +228,7 @@ public class MessageContentProducer implements EntityContentProducer
 		List l = messageService.getChannels();
 		for (Iterator i = l.iterator(); i.hasNext();)
 		{
+			
 			try
 			{
 				MessageChannel c = (MessageChannel) i.next();
@@ -239,12 +240,13 @@ public class MessageContentProducer implements EntityContentProducer
 				// thread this may not work
 				for (Iterator mi = messages.iterator(); mi.hasNext();)
 				{
-					Message m = (Message) i.next();
+					Message m = (Message) mi.next();
 					all.add(m.getReference());
 				}
 			}
 			catch (Exception ex)
 			{
+				log.error("Got error on channel ",ex);
 
 			}
 		}
@@ -392,7 +394,7 @@ public class MessageContentProducer implements EntityContentProducer
 				// thread this may not work
 				for (Iterator mi = messages.iterator(); mi.hasNext();)
 				{
-					Message m = (Message) i.next();
+					Message m = (Message) mi.next();
 					all.add(m.getReference());
 				}
 			}
