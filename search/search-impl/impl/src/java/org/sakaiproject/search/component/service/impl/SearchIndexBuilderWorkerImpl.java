@@ -300,9 +300,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						}
 						if ( process ) {
 							resetActivity();
-						} else {
-							log.info("Sleeping");
-						}
+						} 
 
 						if (process && getLockTransaction())
 						{
