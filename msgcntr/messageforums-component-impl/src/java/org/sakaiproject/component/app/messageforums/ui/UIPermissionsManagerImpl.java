@@ -529,9 +529,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         DBMembershipItem item = (DBMembershipItem) iter.next();
         if (item.getPermissionLevel().getRead().booleanValue()
             && forum.getDraft().equals(Boolean.FALSE)
-            && forum.getLocked().equals(Boolean.FALSE)
-            && topic.getDraft().equals(Boolean.FALSE)
-            && topic.getLocked().equals(Boolean.FALSE))
+//            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE))
+//            && topic.getLocked().equals(Boolean.FALSE))
         {
           return true;
         }
