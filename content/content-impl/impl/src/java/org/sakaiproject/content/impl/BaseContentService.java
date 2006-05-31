@@ -938,6 +938,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		boolean isAllowed = SecurityService.isSuperUser();
 		if(! isAllowed)
 		{
+			// need to check whether user has all_groups??
+			
 			lock = convertLockIfDropbox(lock, id);
 	
 			// make a reference from the resource id, if specified
@@ -4812,22 +4814,38 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				entity = findResource(ref.getId());
 			}
+			if(entity == null)
+			{
+				entity = findCollection(isolateContainingId(ref.getId()));
+			}
 			
 			boolean inherited = false;
 			AccessMode access = entity.getAccess();
+			
 			if(AccessMode.INHERITED.equals(access))
 			{
 				inherited = true;
 				access = entity.getInheritedAccess();
 			}
-			if(AccessMode.SITE.equals(access))
+			if(AccessMode.SITE.equals(access) || AccessMode.INHERITED.equals(access))
 			{
 				// site
 				ref.addSiteContextAuthzGroup(rv);
 			}
 			else if(AccessMode.GROUPED.equals(access))
 			{
-				if(inherited)
+				Site site = m_siteService.getSite(ref.getContext());
+				User user = UserDirectoryService.getCurrentUser();
+				boolean useSiteAsContext = false;
+				if(site != null && user != null)
+				{
+					useSiteAsContext = site.isAllowed(user.getId(), EVENT_RESOURCE_ALL_GROUPS);
+				}
+				if(useSiteAsContext)
+				{
+					ref.addSiteContextAuthzGroup(rv);
+				}
+				else if(inherited)
 				{
 					rv.addAll(entity.getInheritedGroups());
 				}
@@ -7954,7 +7972,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 
 				// extract access
-				AccessMode access = AccessMode.SITE;
+				AccessMode access = AccessMode.INHERITED;
 				String access_mode = el.getAttribute(ACCESS_MODE);
 				if(access_mode != null && !access_mode.trim().equals(""))
 				{

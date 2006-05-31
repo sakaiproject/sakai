@@ -2171,6 +2171,7 @@ public class ResourcesAction
 
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 
 		String collectionId = (String) current_stack_frame.get(STATE_STACK_EDIT_COLLECTION_ID);
 		context.put ("collectionId", collectionId);
@@ -4755,6 +4756,7 @@ public class ResourcesAction
 		
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 
 		context.put("max_upload_size", state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
 
@@ -5791,7 +5793,7 @@ public class ResourcesAction
 			AccessMode access = ((GroupAwareEntity) entity).getAccess();
 			if(access == null)
 			{
-				item.setAccess(AccessMode.SITE.toString());
+				item.setAccess(AccessMode.INHERITED.toString());
 			}
 			else
 			{
@@ -10670,7 +10672,7 @@ public class ResourcesAction
 			m_canAddFolder = false;
 			m_canUpdate = false;
 			
-			m_access = AccessMode.SITE.toString();
+			m_access = AccessMode.INHERITED.toString();
 			m_groups = new Vector();
 		
 		}
