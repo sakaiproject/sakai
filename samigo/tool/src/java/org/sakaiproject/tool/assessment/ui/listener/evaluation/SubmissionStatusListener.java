@@ -157,7 +157,8 @@ public class SubmissionStatusListener
       bean.setPublishedId(publishedId);
       // we are only interested in showing last submissions
 
-      ArrayList scores = delegate.getLastAssessmentGradingList(new Long(publishedId));
+      //ArrayList scores = delegate.getLastAssessmentGradingList(new Long(publishedId));
+      ArrayList scores = delegate.getLastSubmittedAssessmentGradingList(new Long(publishedId));
       ArrayList agents = new ArrayList();
       Iterator iter = scores.iterator();
       if (!iter.hasNext())

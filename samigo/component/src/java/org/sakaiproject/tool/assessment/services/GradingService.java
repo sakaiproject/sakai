@@ -126,6 +126,18 @@ public class GradingService
     return results;
   }
 
+  public ArrayList getLastSubmittedAssessmentGradingList(Long publishedId)
+  {
+    ArrayList results = null;
+    try {
+      results =
+        (ArrayList) PersistenceService.getInstance().
+           getAssessmentGradingFacadeQueries().getLastSubmittedAssessmentGradingList(publishedId);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
 
   public void saveTotalScores(ArrayList gdataList, PublishedAssessmentIfc pub)
   {
