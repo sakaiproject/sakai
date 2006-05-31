@@ -41,7 +41,7 @@ public class SakaiLogin
                 }
                 else
                 {
-			s.setUserId(id);
+			s.setUserId(user.getId()); 
 			s.setUserEid(id);
                 	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Web Services Login " + id );
 			return s.getId();

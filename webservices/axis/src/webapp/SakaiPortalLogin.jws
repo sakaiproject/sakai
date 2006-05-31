@@ -81,7 +81,7 @@ public class SakaiPortalLogin {
                 }
                 else
                 {
-			s.setUserId(id);
+                        s.setUserId(user.getId());
 			s.setUserEid(id);
 			try {
 				String siteId = SiteService.getUserSiteId(s.getUserId());

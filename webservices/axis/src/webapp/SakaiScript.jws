@@ -75,7 +75,7 @@ public String login(String id,String pw) {
 		}
 		else
 		{
-			s.setUserId(id);
+                        s.setUserId(user.getId());
 			s.setUserEid(id);
 			return s.getId();
 		}
