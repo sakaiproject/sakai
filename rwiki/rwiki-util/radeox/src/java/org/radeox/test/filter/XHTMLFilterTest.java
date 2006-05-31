@@ -63,7 +63,8 @@ public class XHTMLFilterTest extends FilterTestSupport
 			String resultstring = getTestPattern("/testpatterns/xhtmltest" + i
 					+ "_out.xml");
 			String result = filter.filter(teststring, context);
-			System.err.println(":" + result + ":");
+			System.err.println("IN:" + teststring + ":IN");
+			System.err.println("OUT:" + result + ":OUT");
 			if (resultstring != null)
 			{
 				assertEquals(resultstring, result);

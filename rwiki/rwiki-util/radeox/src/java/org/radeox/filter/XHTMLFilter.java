@@ -100,7 +100,14 @@ public class XHTMLFilter implements Filter, CacheFilter
 		emptyTag.put("br", "br");
 		emptyTag.put("hr", "hr");
 		// here because our current p implementation is broken
-		emptyTag.put("p", "p");
+		// emptyTag.put("p", "p");
+	}
+
+	private static HashMap ignoreEmpty = new HashMap();
+
+	static
+	{
+		ignoreEmpty.put("p", "p");
 	}
 
 	private InitialRenderContext initialContext;
@@ -111,6 +118,8 @@ public class XHTMLFilter implements Filter, CacheFilter
 		try
 		{
 			DeblockFilter dbf = new DeblockFilter();
+			EmptyFilter epf = new EmptyFilter();
+			
 			dbf.setBlockElements(blockElements);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			SpecialXHTMLSerializer xser = new SpecialXHTMLSerializer();
@@ -118,12 +127,13 @@ public class XHTMLFilter implements Filter, CacheFilter
 			xser.setIndent(true);
 			xser.setEncoding("UTF-8");
 			xser.setIndentAmount(4);
-			dbf.setContentHandler(xser.asContentHandler());
+			dbf.setContentHandler(epf);
+			epf.setContentHander(xser.asContentHandler());
 
 			XMLReader xmlr = XMLReaderFactory
 					.createXMLReader("org.apache.xerces.parsers.SAXParser");
 			xmlr.setContentHandler(dbf);
-//			log.warn("Input is "+input);
+			// log.warn("Input is "+input);
 			xmlr.parse(new InputSource(new StringReader("<sr>" + input
 					+ "</sr>")));
 
@@ -131,7 +141,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			int startBlock = output.indexOf("<sr>");
 			int endBlock = output.indexOf("</sr>");
 			finalOutput = output.substring(startBlock + 4, endBlock);
-//			log.warn("Output is "+finalOutput);
+			// log.warn("Output is "+finalOutput);
 		}
 		catch (Throwable t)
 		{
@@ -195,38 +205,6 @@ public class XHTMLFilter implements Filter, CacheFilter
 			l.add(unnested);
 		}
 
-		public class EStack
-		{
-			public EStack(String ns, String qname, String lname,
-					Attributes atts, Stack restore)
-			{
-				this.ns = ns;
-				this.qname = qname;
-				this.lname = lname;
-				this.atts = new AttributesImpl(atts);
-				this.restore = restore;
-			}
-
-			public EStack(EStack es)
-			{
-				this.ns = es.ns;
-				this.qname = es.qname;
-				this.lname = es.lname;
-				this.atts = new AttributesImpl(es.atts);
-				this.restore = es.restore;
-			}
-
-			Stack restore = null;
-
-			String ns;
-
-			String qname;
-
-			String lname;
-
-			Attributes atts;
-		}
-
 		/**
 		 * Unwind the xpath stack back to the first instance of the requested
 		 * emement
@@ -249,11 +227,11 @@ public class XHTMLFilter implements Filter, CacheFilter
 			while (s.size() > firstIndex)
 			{
 				es = (EStack) s.pop();
-//				log.warn("Closing "+es.qname);
+				// log.warn("Closing "+es.qname);
 				ch.endElement(es.ns, es.qname, es.lname);
 				sb.push(es);
 			}
-//			log.warn("End Close");
+			// log.warn("End Close");
 			return sb;
 		}
 
@@ -296,7 +274,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 				while (es.restore.size() > 0)
 				{
 					EStack esr = (EStack) es.restore.pop();
-//					log.warn("Restore "+esr.lname);
+					// log.warn("Restore "+esr.lname);
 					ch.startElement(esr.ns, esr.qname, esr.lname, esr.atts);
 					s.push(esr);
 				}
@@ -352,6 +330,156 @@ public class XHTMLFilter implements Filter, CacheFilter
 			ch.endPrefixMapping(arg0);
 		}
 
+	}
+
+	public class EmptyFilter implements ContentHandler
+	{
+
+		
+		private ContentHandler next = null;
+
+		private EStack lastElement = null;
+
+		public EmptyFilter()
+		{
+		}
+
+		public void setContentHander(ContentHandler handler)
+		{
+			next = handler;
+		}
+
+		public void setDocumentLocator(Locator arg0)
+		{
+			next.setDocumentLocator(arg0);
+		}
+
+		public void startDocument() throws SAXException
+		{
+			emitLast();
+			next.startDocument();
+		}
+
+		public void endDocument() throws SAXException
+		{
+			emitLast();
+			next.endDocument();
+		}
+
+		public void startPrefixMapping(String arg0, String arg1)
+				throws SAXException
+		{
+			emitLast();
+			next.startPrefixMapping(arg0, arg1);
+		}
+
+		public void endPrefixMapping(String arg0) throws SAXException
+		{
+			emitLast();
+			next.endPrefixMapping(arg0);
+		}
+
+		public void emitLast() throws SAXException
+		{
+			if (lastElement != null)
+			{
+				// this means that there was a startElement, startElement,
+				// so the lastElement MUST be emited
+				next.startElement(lastElement.ns, lastElement.qname,
+						lastElement.lname, lastElement.atts);
+				lastElement = null;
+			}
+		}
+
+		public void startElement(String ns, String qname, String lname,
+				Attributes atts) throws SAXException
+		{
+			emitLast();
+			if (ignoreEmpty.get(lname.toLowerCase()) != null)
+			{
+				lastElement = new EStack(ns, qname, lname, atts, null);
+			}
+			else
+			{
+				next.startElement(ns, qname, lname, atts);
+			}
+		}
+
+		public void endElement(String arg0, String arg1, String arg2)
+				throws SAXException
+		{
+			if (lastElement != null)
+			{
+				// there was a start, then an end with nothing in between
+				// so ignore alltogether
+				lastElement = null;
+			}
+			else
+			{
+				next.endElement(arg0, arg1, arg2);
+			}
+		}
+
+		public void characters(char[] arg0, int arg1, int arg2)
+				throws SAXException
+		{
+			emitLast();
+			next.characters(arg0, arg1, arg2);
+		}
+
+		public void ignorableWhitespace(char[] arg0, int arg1, int arg2)
+				throws SAXException
+		{
+			emitLast();
+			next.ignorableWhitespace(arg0, arg1, arg2);
+		}
+
+		public void processingInstruction(String arg0, String arg1)
+				throws SAXException
+		{
+			emitLast();
+			next.processingInstruction(arg0, arg1);
+		}
+
+		public void skippedEntity(String arg0) throws SAXException
+		{
+			emitLast();
+			next.skippedEntity(arg0);
+		}
+
+
+	}
+
+	public class EStack
+	{
+		public EStack(String ns, String qname, String lname, Attributes atts,
+				Stack restore)
+		{
+			this.ns = ns;
+			this.qname = qname;
+			this.lname = lname;
+			this.atts = new AttributesImpl(atts);
+			this.restore = restore;
+		}
+
+		public EStack(EStack es)
+		{
+			this.ns = es.ns;
+			this.qname = es.qname;
+			this.lname = es.lname;
+			this.atts = new AttributesImpl(es.atts);
+			this.restore = es.restore;
+		}
+
+		Stack restore = null;
+
+		String ns;
+
+		String qname;
+
+		String lname;
+
+		Attributes atts;
 	}
 
 	/**

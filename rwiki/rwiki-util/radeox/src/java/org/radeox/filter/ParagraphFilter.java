@@ -62,49 +62,147 @@ public class ParagraphFilter implements Filter, CacheFilter
 
 	public String filter(String input, FilterContext context)
 	{
+		return simpleFilter(input,context);
+	}
+
+	public String simpleFilter(String input, FilterContext context)
+	{
 
 		log.debug("Paragraph Filter Input " + input);
-		// Pattern patternFirst = Pattern.compile(patternFristRE);
-		// Pattern patternLast = Pattern.compile(patternLastRE);
 		Pattern patternBreaks = Pattern.compile(breaksRE);
 
+		// attempts to locate lin breaks in the content with ([ \t\r]*[\n]){2}
 		String[] p = patternBreaks.split(input);
 		if (p.length == 1)
 		{
+			// only 1, therefor no embeded paragraphs
 			return input;
 		}
-		// Matcher m = patternFirst.matcher(p[0]);
+
 		StringBuffer sb = new StringBuffer();
-		int ins = p[0].lastIndexOf(">") + 1;
-		sb.append(p[0].substring(0, ins));
-		sb.append(replaceFirst);
-		sb.append(p[0].substring(ins));
-		for (int i = 1; i < p.length - 1; i++)
+		int nsplits = 0;
+		for (int i = 0; i < p.length; i++)
 		{
-			sb.append(replaceAll);
+			if (nsplits == 0)
+			{
+				sb.append(replaceFirst);
+				nsplits++;
+			}
+			else
+			{
+				sb.append(replaceAll);
+				nsplits++;
+			}
 			sb.append(p[i]);
 		}
-		ins = p[p.length - 1].indexOf("<") - 1;
+
+		if (nsplits > 0)
+		{
+			sb.append(replaceLast);
+			nsplits++;
+		}
+		String output = sb.toString();
+		log.debug("Paragraph Filter Input " + output);
+
+		return output;
+	}
+
+	public String complexFilter(String input, FilterContext context)
+	{
+
+		log.debug("Paragraph Filter Input " + input);
+		Pattern patternBreaks = Pattern.compile(breaksRE);
+
+		// attempts to locate lin breaks in the content with ([ \t\r]*[\n]){2}
+		String[] p = patternBreaks.split(input);
+		if (p.length == 1)
+		{
+			// only 1, therefor no embeded paragraphs
+			return input;
+		}
+
+		StringBuffer sb = new StringBuffer();
+		int nsplits = 0;
+		// find the last > in the first paragraph
+		int ins = p[0].lastIndexOf(">");
+		if (ins > 0 && ins + 1 < p[0].length())
+		{
+			// add all upto the last > into the buffer
+			sb.append(p[0].substring(0, ins + 1));
+			// then put <p class=\"paragraph\">
+			sb.append(replaceFirst);
+			nsplits++;
+			// then append the remainder
+			sb.append(p[0].substring(ins + 1));
+		}
+		else
+		{
+			sb.append(p[0]);
+
+		}
+
+		for (int i = 1; i < p.length - 1; i++)
+		{
+			// for all the following, add in </p><p class=\"paragraph\">
+			if (nsplits == 0)
+			{
+				sb.append(replaceFirst);
+				nsplits++;
+			}
+			else
+			{
+				sb.append(replaceAll);
+				nsplits++;
+			}
+			sb.append(p[i]);
+		}
+
+		// in the last block find fidn the first <
+		ins = p[p.length - 1].indexOf("<");
 		if (ins > 0)
 		{
-			sb.append(replaceAll);
-			sb.append(p[p.length - 1].substring(0, ins));
-			sb.append(replaceLast);
-			sb.append(p[p.length - 1].substring(ins));
+			// put the standard line para blreak block in </p><p
+			// class=\"paragraph\">
+			if (nsplits == 0)
+			{
+				sb.append(replaceFirst);
+				nsplits++;
+			}
+			else
+			{
+				sb.append(replaceAll);
+				nsplits++;
+			}
+			// append the first part of the last block
+			sb.append(p[p.length - 1].substring(0, ins - 1));
+			// append the last seperator </p>
+			if (nsplits > 0)
+			{
+				sb.append(replaceLast);
+				nsplits++;
+			}
+			// append the remainder block
+			sb.append(p[p.length - 1].substring(ins - 1));
 		}
 		else if (ins == 0)
 		{
-			sb.append(replaceLast);
+			// found "<" inposition found in last block so do </p>
+			if (nsplits > 0)
+			{
+				sb.append(replaceLast);
+				nsplits++;
+			}
 			sb.append(p[p.length - 1]);
 		}
 		else
 		{
-			if (p.length == 2)
+			// append the last </p>
+			if (nsplits > 0)
 			{
-				sb.append(replaceAll);
+				sb.append(replaceLast);
+				nsplits++;
 			}
 			sb.append(p[p.length - 1]);
-			sb.append(replaceLast);
 		}
 		String output = sb.toString();
 		log.debug("Paragraph Filter Input " + output);

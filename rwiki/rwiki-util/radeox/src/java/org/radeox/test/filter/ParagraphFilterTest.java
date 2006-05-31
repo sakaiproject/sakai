@@ -55,7 +55,24 @@ public class ParagraphFilterTest extends FilterTestSupport
 		String result = filter.filter(
 				"<h1>test</h1>TextA \n\n TextB\n <h2>Head2</h2>", context);
 		System.err.println(":" + result + ":");
-		assertEquals("<h1>test</h1><p class=\"paragraph\">TextA</p><p class=\"paragraph\"> TextB\n</p> <h2>Head2</h2>", result);
+		assertEquals("" +
+	   "<p class=\"paragraph\"><h1>test</h1>TextA</p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
+	}
+	public void testParagraph2()
+	{
+
+		String result = filter.filter(
+				"<h1>test</h1>\n\n TextB\n <h2>Head2</h2>", context);
+		System.err.println(":" + result + ":");
+		assertEquals("<p class=\"paragraph\"><h1>test</h1></p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
+	}
+	public void testParagraph3()
+	{
+
+		String result = filter.filter(
+				"TextA \n\n TextB\n <h2>Head2</h2>", context);
+		System.err.println(":" + result + ":");
+		assertEquals("<p class=\"paragraph\">TextA</p><p class=\"paragraph\"> TextB\n <h2>Head2</h2></p>", result);
 	}
 	
 	public void testNoChangeParagraph()
@@ -89,6 +106,24 @@ public class ParagraphFilterTest extends FilterTestSupport
 				"\nSome\n\n__Simple__ Content", context);
 		System.err.println(":" + result + ":");
 		assertEquals("<p class=\"paragraph\">\nSome</p><p class=\"paragraph\">__Simple__ Content</p>", result);
+	}
+	
+	public void testEmbededLinkParagraph() 
+	{
+		String result = filter.filter(
+				"sdfdgdfgdd dfgdf gdfg dfgd fgdgf dfg <span class=\"nobr\">\n"
+        + "<img src=\"/sakai-rwiki-tool/images/icklearrow.gif\" alt=\"external link: \" title=\"external link\"/> "
+        + "<a href=\"link\">link</a></span> part of the same paragraph\n"
+				+"\n"
+				+"Annother paragraph\n"
+				+"\n"
+				+"Annother paragraph\n", context);
+		System.err.println(":" + result + ":");
+		assertEquals(
+				"<p class=\"paragraph\">sdfdgdfgdd dfgdf gdfg dfgd fgdgf dfg <span class=\"nobr\">\n"
+				+"<img src=\"/sakai-rwiki-tool/images/icklearrow.gif\" alt=\"external link: \" title=\"external link\"/> <a href=\"link\">link</a></span> part of the same paragraph</p><p class=\"paragraph\">Annother paragraph</p><p class=\"paragraph\">Annother paragraph\n"
+				+"</p>"
+				, result);
 	}
 
 }
