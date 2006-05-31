@@ -1328,6 +1328,7 @@
 						#if(!$preventPublicDisplay && $item.isPubviewset())
 							$tlang.getString("gen.setyes")
 						#else
+						<!-- "$!item.inheritedAccess" == "$GROUP_ACCESS" == "$item.getInheritedAccess()" -->
 							<table border="0">
 								#if("$!item.inheritedAccess" == "$GROUP_ACCESS")
 								#else

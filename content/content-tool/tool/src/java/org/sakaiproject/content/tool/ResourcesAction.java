@@ -1263,8 +1263,33 @@ public class ResourcesAction
 				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 
+			Site site;
+			try {
+				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			} catch (IdUnusedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			String encoding = data.getRequest().getCharacterEncoding();
-
+			List inherited_access_groups = new Vector();
+			
+			AccessMode inherited_access = AccessMode.INHERITED;
+			try 
+			{
+				ContentCollection parent = ContentHostingService.getCollection(collectionId);
+				inherited_access = parent.getInheritedAccess();
+				inherited_access_groups.addAll(parent.getInheritedGroups());
+			} 
+			catch (IdUnusedException e) 
+			{
+			} 
+			catch (TypeException e) 
+			{
+			} 
+			catch (PermissionException e) 
+			{
+			}
+			
 			new_items = new Vector();
 			List theGroupsInThisSite = new Vector();
 			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
@@ -1277,6 +1302,19 @@ public class ResourcesAction
 				item.setCopyrightStatus(defaultCopyrightStatus);
 				new_items.add(item);
 				theGroupsInThisSite.add(new Vector(groups));
+				if(inherited_access_groups != null)
+				{
+					item.setInheritedGroups(inherited_access_groups);
+				}
+				if(inherited_access == null || inherited_access.equals(AccessMode.SITE))
+				{
+					item.setInheritedAccess(AccessMode.INHERITED.toString());
+				}
+				else
+				{
+					item.setInheritedAccess(inherited_access.toString());
+				}
+				
 			}
 			context.put("theGroupsInThisSite", theGroupsInThisSite);
 
@@ -5799,12 +5837,35 @@ public class ResourcesAction
 			{
 				item.setAccess(access.toString());
 			}
+
+			AccessMode inherited_access = ((GroupAwareEntity) entity).getInheritedAccess();
+			if(inherited_access == null || inherited_access.equals(AccessMode.SITE))
+			{
+				item.setInheritedAccess(AccessMode.INHERITED.toString());
+			}
+			else
+			{
+				item.setInheritedAccess(inherited_access.toString());
+			}
 			
 			List access_groups = new Vector(((GroupAwareEntity) entity).getGroups());
 			if(access_groups != null)
 			{
 				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 				Iterator it = access_groups.iterator();
+				while(it.hasNext())
+				{
+					String groupRef = (String) it.next();
+					Group group = site.getGroup(groupRef);
+					item.addGroup(group.getId());
+				}
+			}
+
+			List inherited_access_groups = new Vector(((GroupAwareEntity) entity).getInheritedGroups());
+			if(inherited_access_groups != null)
+			{
+				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				Iterator it = inherited_access_groups.iterator();
 				while(it.hasNext())
 				{
 					String groupRef = (String) it.next();
@@ -9486,14 +9547,14 @@ public class ResourcesAction
 				folder.setAccess(access.toString());
 			}
 			
-			AccessMode inherited_access = collection.getAccess();
+			AccessMode inherited_access = collection.getInheritedAccess();
 			if(inherited_access == null || AccessMode.SITE.equals(inherited_access))
 			{
-				folder.setAccess(AccessMode.INHERITED.toString());
+				folder.setInheritedAccess(AccessMode.INHERITED.toString());
 			}
 			else
 			{
-				folder.setAccess(inherited_access.toString());
+				folder.setInheritedAccess(inherited_access.toString());
 			}
 			
 			Collection access_groups = collection.getGroupObjects();
@@ -11320,12 +11381,28 @@ public class ResourcesAction
 		 */
 		public void setGroups(Collection groups)
 		{
+			if(groups == null)
+			{
+				return;
+			}
 			if(m_groups == null)
 			{
 				m_groups = new Vector();
 			}
 			m_groups.clear();
-			m_groups.addAll(groups);
+			Iterator it = groups.iterator();
+			while(it.hasNext())
+			{
+				Object obj = it.next();
+				if(obj instanceof Group)
+				{
+					m_groups.add(obj);
+				}
+				else if(obj instanceof String)
+				{
+					addGroup((String) obj);
+				}
+			}
 		}
 		
 		/**
@@ -11334,7 +11411,28 @@ public class ResourcesAction
 		 */
 		public void setInheritedGroups(Collection groups)
 		{
-			m_groups = new Vector(groups);
+			if(groups == null)
+			{
+				return;
+			}
+			if(m_inheritedGroups == null)
+			{
+				m_inheritedGroups = new Vector();
+			}
+			m_inheritedGroups.clear();
+			Iterator it = groups.iterator();
+			while(it.hasNext())
+			{
+				Object obj = it.next();
+				if(obj instanceof Group)
+				{
+					m_inheritedGroups.add(obj);
+				}
+				else if(obj instanceof String)
+				{
+					addInheritedGroup((String) obj);
+				}
+			}
 		}
 		
 		/**
@@ -11382,6 +11480,50 @@ public class ResourcesAction
 		}
 		
 		/**
+		 * Add a string reference identifying a Group to the list of groups that have access to this item.
+		 * @param groupRef
+		 */
+		public void addInheritedGroup(String groupId)
+		{
+			if(m_inheritedGroups == null)
+			{
+				m_inheritedGroups = new Vector();
+			}
+			if(m_container == null)
+			{
+				if(m_id == null)
+				{
+					m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+				}
+				else
+				{
+					m_container = ContentHostingService.getContainingCollectionId(m_id);
+				}
+				if(m_container == null || m_container.trim() == "")
+				{
+					m_container = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+				}
+
+			}
+			boolean found = false;
+			Collection groups = ContentHostingService.getGroupsWithReadAccess(m_container);
+			Iterator it = groups.iterator();
+			while( it.hasNext() && !found )
+			{
+				Group group = (Group) it.next();
+				if(group.getId().equals(groupId))
+				{
+					if(! hasGroup(group.getReference()))
+					{
+						m_inheritedGroups.add(group);
+					}
+					found = true;
+				}
+			}
+
+		}
+		
+		/**
 		 * Remove all groups from the item.
 		 */
 		public void clearGroups()
@@ -11391,6 +11533,18 @@ public class ResourcesAction
 				m_groups = new Vector();
 			}
 			m_groups.clear();
+		}
+
+		/**
+		 * Remove all inherited groups from the item.
+		 */
+		public void clearInheritedGroups()
+		{
+			if(m_inheritedGroups == null)
+			{
+				m_inheritedGroups = new Vector();
+			}
+			m_inheritedGroups.clear();
 		}
 
 		/**

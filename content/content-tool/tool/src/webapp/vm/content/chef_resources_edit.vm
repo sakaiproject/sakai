@@ -1350,6 +1350,7 @@
 									</td>
 								</tr>
 							#end
+							<!-- "$!item.access" == "$GROUP_ACCESS" -->
 							#if($siteHasGroups)
 								#if("$!item.access" == "$GROUP_ACCESS")
 									#set ($listDisplay="block")
