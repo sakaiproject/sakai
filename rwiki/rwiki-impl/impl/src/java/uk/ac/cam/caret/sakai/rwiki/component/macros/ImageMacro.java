@@ -27,6 +27,9 @@ import java.io.Writer;
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Encoder;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 
@@ -116,19 +119,18 @@ public class ImageMacro extends BaseMacro
 
 			String link = params.get("link");
 
+			String siteType = null;
+			try
+			{
+				Site s = SiteService.getSite(siteId);
+				siteType = s.getType();
+			}
+			catch (IdUnusedException e)
+			{
+			}
 			if (link != null)
 			{
-				// check url for sakai:// or worksite://
-				if (link.startsWith("sakai:/"))
-				{
-					link = "/access/content/group/"
-							+ link.substring("sakai:/".length());
-				}
-				else if (link.startsWith("worksite:/"))
-				{
-					link = "/access/content/group/" + siteId + "/"
-							+ link.substring("worksite:/".length());
-				}
+				link = convertLink(link, siteType, siteId);
 
 				writer.write("<a href=\"" + Encoder.escape(link) + "\"");
 				if (target != null)
@@ -146,16 +148,8 @@ public class ImageMacro extends BaseMacro
 					|| imageName.startsWith("ftp://"))
 				throw new IllegalArgumentException(
 						"External URLs are not allowed, only relative or absolute");
-			if (imageName.startsWith("worksite:/"))
-			{
-				imageName = imageName.substring("worksite:/".length());
-				imageName = "/access/content/group/" + siteId + "/" + imageName;
-			}
-			if (imageName.startsWith("sakai:/"))
-			{
-				imageName = imageName.substring("sakai:/".length());
-				imageName = "/access/content/group/" + imageName;
-			}
+
+			imageName = convertLink(imageName, siteType, siteId);
 			writer.write("<img src=\"");
 			writer.write(imageName);
 			writer.write("\" ");
@@ -187,6 +181,75 @@ public class ImageMacro extends BaseMacro
 		}
 		return;
 
+	}
+
+	private String convertLink(String link, String siteType, String siteId)
+	{
+
+		if (link.startsWith("sakai:/"))
+		{
+			String refSiteUrl = link.substring("sakai:/".length());
+			if ( refSiteUrl.startsWith("/") ) {
+				refSiteUrl = refSiteUrl.substring(1);
+			}
+			String[] parts = refSiteUrl.split("/");
+			if (parts == null || parts.length < 1)
+			{
+				return "Link Cant be resolved";
+			}
+
+			String regSiteId = parts[0];
+			String regSiteType = "group";
+			try
+			{
+				Site s = SiteService.getSite(regSiteId);
+				regSiteType = s.getType();
+
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			if ((regSiteId != null && regSiteId.startsWith("~")) || regSiteType == null)
+			{
+				String remLink = link.substring("sakai:/".length());
+				if ( remLink.startsWith("/") ) {
+					remLink = remLink.substring(1);
+				}
+				if ( remLink.startsWith("~") ) {
+					remLink = remLink.substring(1);
+				}
+				link = "/access/content/user/"
+						+ remLink;
+
+			}
+			else
+			{
+				link = "/access/content/group/"
+						+ link.substring("sakai:/".length());
+			}
+		}
+		else if (link.startsWith("worksite:/"))
+		{
+			// need to check siteid
+
+			
+			if ((siteId != null && siteId.startsWith("~")) || siteType == null)
+			{
+				if ( siteId.startsWith("~") ) {
+					siteId = siteId.substring(1);
+				}
+				link = "/access/content/user/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+
+			}
+			else
+			{
+				link = "/access/content/group/" + siteId + "/"
+						+ link.substring("worksite:/".length());
+			}
+
+		}
+		return link;
 	}
 
 }
