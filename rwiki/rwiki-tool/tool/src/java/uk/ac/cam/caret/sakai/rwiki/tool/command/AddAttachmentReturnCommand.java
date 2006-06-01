@@ -59,13 +59,13 @@ public class AddAttachmentReturnCommand implements HttpCommand
 
 	private static Log log = LogFactory.getLog(AddAttachmentReturnCommand.class);
 	
-	private static final String MULTIPLE_ATTACHMENT_HEADER_START = "__";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_START = "";
 
-	private static final String MULTIPLE_ATTACHMENT_HEADER_BODY = "see attachments:";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_BODY = "";
 
-	private static final String MULTIPLE_ATTACHMENT_HEADER_END = "__";
+	private static final String MULTIPLE_ATTACHMENT_HEADER_END = "";
 
-	private static final String MULTIPLE_ATTACHMENT_ITEM = "\n* ";
+	private static final String MULTIPLE_ATTACHMENT_ITEM = "\n ";
 
 	private static final String MULTIPLE_ATTACHMENT_ITEMS_END = "\n";
 
@@ -342,11 +342,29 @@ public class AddAttachmentReturnCommand implements HttpCommand
 			url = referenceString.substring("/content/group/".length());
 			if (url.startsWith(currentSiteId))
 			{
-				url = "worksite:/" + url.substring(currentSiteId.length());
+				url = "worksite:/" + url.substring(currentSiteId.length()+1);
 			}
 			else
 			{
 				url = "sakai:/" + url;
+			}
+		}
+		else if (referenceString.startsWith("/content/user/"))
+		{
+			url = referenceString.substring("/content/user/".length());
+			if ( url.startsWith("~") ) {
+				url = url.substring(1);
+			}
+			if ( currentSiteId.startsWith("~") ) {
+				currentSiteId = currentSiteId.substring(1);
+			}
+			if (url.startsWith(currentSiteId))
+			{
+				url = "worksite:/" + url.substring(currentSiteId.length()+1);
+			}
+			else
+			{
+				url = "sakai:/~" + url;
 			}
 		}
 
