@@ -32,9 +32,13 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.jsf.util.ConfigurationResource;
 import org.sakaiproject.jsf.util.RendererUtil;
 import org.sakaiproject.jsf.model.InitObjectContainer;
+
 
 import java.util.*;
 import java.text.MessageFormat;
@@ -184,30 +188,96 @@ public class InputRichTextRenderer extends Renderer
 
     Locale locale = Locale.getDefault();
 
-   // Render JavaScripts.
-   writeExternalScripts(locale, writer);
+    String editor = ServerConfigurationService.getString("wysiwyg.editor");
+    if(editor != null && !editor.equalsIgnoreCase("FCKeditor"))
+    {
+      // Render JavaScripts.
+      writeExternalScripts(locale, writer);
 
-   // Render base textarea.
-   writeTextArea(clientId, value, textareaRows, textareaColumns, writer);
+      // Render base textarea.
+      writeTextArea(clientId, value, textareaRows, textareaColumns, writer);
 
-   // Make textarea rich text (unless textareaOnly is true).
-   if (!"true".equals(textareaOnly))
-   {
-     String toolbarScript;
+      // Make textarea rich text (unless textareaOnly is true).
+      if (!"true".equals(textareaOnly))
+      {
+        String toolbarScript;
 
-     if (buttonList != null)
-     {
-       toolbarScript = makeToolbarScript(buttonList);
-     }
-     else
-     {
-       toolbarScript = getStandardToolbarScript(buttonSet);
-     }
+        if (buttonList != null)
+        {
+          toolbarScript = makeToolbarScript(buttonList);
+        }
+        else
+        {
+          toolbarScript = getStandardToolbarScript(buttonSet);
+        }
 
-     // hook up configuration object
-     writeConfigurationScript(context, component, clientId, toolbarScript, widthPx, heightPx, showXPath, locale, writer);
-   }
+        // hook up configuration object
+        writeConfigurationScript(context, component, clientId, toolbarScript, widthPx, heightPx, showXPath, locale, writer);
+      }
+    }
+    else
+    {
+       //not as slick as the way htmlarea is rendered, but the difference in functionality doesn't all
+       //make sense for FCK at this time since it's already got the ability to insert files and such.
+       String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 
+       //is there a slicker way to get this? 
+       String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+
+       writer.write("<table border=\"0\"><tr><td>");
+       writer.write("<textarea name=\"" + clientId + "_inputRichText\" id=\"" + clientId + "_inputRichText\"");
+       if (textareaColumns > 0) writer.write(" cols=\""+textareaColumns+"\"");
+       if (textareaRows > 0) writer.write(" rows=\""+textareaRows+"\"");
+       writer.write(">");
+       writer.write((String) value);
+       writer.write("</textarea>");
+
+       writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
+       writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+       writer.write("function chef_setupformattedtextarea(textarea_id){\n");
+       writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
+       writer.write("oFCKeditor.BasePath = \"/library/editor/FCKeditor/\";\n");
+
+       if (widthPx < 0)
+         widthPx = 600;
+       if (heightPx < 0)
+         heightPx = 400;
+       //FCK's toolset is larger then htmlarea and this prevents tools from ending up with all toolbar
+       //and no actual editing area.
+       if (heightPx < 200)
+         heightPx = 200;
+
+       writer.write("oFCKeditor.Width  = \"" + widthPx + "\" ;\n");
+       writer.write("oFCKeditor.Height = \"" + heightPx + "\" ;\n");
+
+       if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
+          writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
+       else {
+
+         writer.write("\n\t\tvar courseId = \"" + collectionId  + "\";");
+         writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " +
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+         writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " +
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+         writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+         writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +
+               "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+         writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +
+               "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+         writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +
+               "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+
+         writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+
+         writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
+       }
+
+       writer.write("oFCKeditor.ReplaceTextarea() ;}\n");
+       writer.write("</script>\n");
+       writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('"+clientId+"_inputRichText');</script>");
+       writer.write("</td></tr></table>\n");
+    }
   }
 
   /**
