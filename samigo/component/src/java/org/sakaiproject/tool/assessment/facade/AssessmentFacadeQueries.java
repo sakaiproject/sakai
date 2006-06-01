@@ -568,6 +568,7 @@ public class AssessmentFacadeQueries
     } 
     assessment.setSectionSet(new HashSet());
     getHibernateTemplate().save(assessment);
+    registerWithCurrentSite(assessment.getAssessmentId().toString());
     return new AssessmentFacade(assessment);
   }
 
