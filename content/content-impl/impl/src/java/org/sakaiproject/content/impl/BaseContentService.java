@@ -6773,7 +6773,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			container = findCollection(ref.getId());
-			if(AccessMode.INHERITED.equals(container.getAccess()))
+			if(AccessMode.INHERITED == container.getAccess())
 			{
 				groups.addAll(container.getInheritedGroupObjects());
 			}
@@ -6789,15 +6789,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		try
 		{
+			Site site = m_siteService.getSite(ref.getContext());
 			if(groups.isEmpty())
 			{
 				// get the channel's site's groups
-				Site site = m_siteService.getSite(ref.getContext());
 				groups.addAll(site.getGroups());
 			}
 
 			// if the user has permission to create resources in the root-level of the site, return all groups
-			if (SecurityService.unlock(ALL_GROUP_ACCESS, ref.getContext()))
+			if (SecurityService.unlock(ALL_GROUP_ACCESS, site.getReference()))
 			{
 				rv.addAll(groups);
 			}
