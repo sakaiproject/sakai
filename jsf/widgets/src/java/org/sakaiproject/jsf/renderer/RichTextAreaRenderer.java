@@ -355,8 +355,14 @@ public class RichTextAreaRenderer extends Renderer
         	writer.write("function chef_setupformattedtextarea(textarea_id){\n");
         	writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
         	writer.write("oFCKeditor.BasePath = \"/library/editor/FCKeditor/\";\n");
-        	writer.write("oFCKeditor.Width  = \"600\" ;\n");
-        	writer.write("oFCKeditor.Height = \"400\" ;\n");
+
+                if (width < 0) 
+                     width = 600;
+                if (height < 0) 
+                     height = 400;
+
+        	writer.write("oFCKeditor.Width  = \"" + width + "\" ;\n");
+        	writer.write("oFCKeditor.Height = \"" + height + "\" ;\n");
 
                 if ("archival".equals(ServerConfigurationService.getString("tags.focus")))
                      writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
