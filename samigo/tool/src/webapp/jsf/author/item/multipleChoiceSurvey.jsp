@@ -90,7 +90,7 @@
 <div class="longtext">
     <h:outputLabel value="#{msg.answer} " /> </div>
    <div class="tier2">
-     <h:message for="selectscale" styleClass="validate"/>
+     
     <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale" required="true">
      <f:selectItem itemValue="YES" itemLabel="#{msg.yes_no}" />
      <f:selectItem itemValue="AGREE" itemLabel="#{msg.disagree_agree}" />
@@ -105,7 +105,7 @@
      <f:selectItem itemValue="10" itemLabel="#{msg.scale10}" />
     </h:selectOneRadio>
   <br />
-
+<h:message for="selectscale" styleClass="validate"/>
   </div>
     <!-- 4 PART -->
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
