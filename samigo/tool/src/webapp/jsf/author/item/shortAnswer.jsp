@@ -62,12 +62,13 @@
   <!-- 1 POINTS -->
   <div class="tier2">
    <span id="num1" class="number"></span>
-    <div class="shorttext">  <h:outputLabel value="#{msg.answer_point_value}" />
+    <h:panelGrid columns="2" columnClasses="shorttext">  <h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
 <f:validateDoubleRange/>
 </h:inputText>
+</h:panelGrid>
 <br/> <h:message for="answerptr" styleClass="validate"/>
-  </div>
+
 <br/>
   <!-- 2 TEXT -->
 
@@ -88,7 +89,7 @@
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim><span id="num3" class="number"></span></f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_p}" />
+  <h:outputLabel for="assignToPart" value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
@@ -100,7 +101,7 @@
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim><span id="num4" class="number"></span></f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_question_p}" />
+  <h:outputLabel for="assignToPool" value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
@@ -144,11 +145,11 @@
 
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{msg.objective}" />
+<h:outputLabel for="obj" value="#{msg.objective}" />
   <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{msg.keyword}" />
+<h:outputLabel for="keyword" value="#{msg.keyword}" />
   <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{msg.rubric_colon}" />
+<h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
 

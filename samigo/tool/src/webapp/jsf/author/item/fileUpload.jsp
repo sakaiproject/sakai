@@ -56,21 +56,21 @@
 <div class="tier2">
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
-
-   <span id="num1" class="number"></span>
-  <div class="shorttext">
-    <h:outputLabel value="#{msg.answer_point_value}" />
+<h:panelGrid columns="3" columnClasses="shorttext">
+   <f:verbatim> <span id="num1" class="number"></span> </f:verbatim>
+    <h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
+<h:panelGroup>
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
 <f:validateDoubleRange/>
 </h:inputText>
-    <h:message for="answerptr" styleClass="validate"/><br/>
-  </div>
-<br/>
+    <h:message for="answerptr" styleClass="validate"/>
+  </h:panelGroup>
+ </h:panelGrid>
   <!-- 2 TEXT -->
+<h:panelGroup styleClass="longtext">
+<f:verbatim> <span id="num2" class="number"></span></f:verbatim>
 
-   <span id="num2" class="number"></span>
- <div class="longtext">
-  <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
+  <h:outputLabel value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
     <%--
@@ -85,16 +85,16 @@
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
+</h:panelGroup>
 
-  </div>
-<%--  <div class="shorttext tier1"> --%>
+
   <!-- 3 PART -->
 
 
   <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}" columns="3">
 <f:verbatim><span id="num3" class="number"></span></f:verbatim>
 
-  <h:outputLabel value="#{msg.assign_to_p}" />
+  <h:outputLabel for="assignToPart" value="#{msg.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
@@ -108,7 +108,7 @@
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
    <f:verbatim><span id="num4" class="number"></span></f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_question_p}" />
+  <h:outputLabel for="assignToPool" value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
@@ -139,11 +139,11 @@
 <f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{msg.objective}" />
+<h:outputLabel for="obj" value="#{msg.objective}" />
   <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{msg.keyword}" />
+<h:outputLabel for="keyword" value="#{msg.keyword}" />
   <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{msg.rubric_colon}" />
+<h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
  <f:verbatim></div></f:verbatim>
