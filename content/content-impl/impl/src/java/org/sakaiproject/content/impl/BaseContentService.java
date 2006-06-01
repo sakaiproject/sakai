@@ -98,14 +98,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -2391,8 +2389,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public ContentResourceEdit editResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
 	{
-		String ref = getReference(id);
-
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
 		unlock(EVENT_RESOURCE_WRITE, id);
@@ -4293,8 +4289,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		try
 		{
-			ResourceProperties properties = resource.getProperties();
-
 			// changed to int from long because res.setContentLength won't take long param -- JE
 			int len = resource.getContentLength();
 			String contentType = resource.getContentType();

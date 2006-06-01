@@ -3503,7 +3503,7 @@ public class ResourcesAction
 				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
 				saveMetadata(resourceProperties, metadataGroups, item);
 
-				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, item.getAccess(), item.getGroups());
+				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, item.getGroups());
 				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
@@ -3705,20 +3705,22 @@ public class ResourcesAction
 				
 				try
 				{
-					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-					edit.setAccess(new AccessMode(item.getEntityAccess()));
-					if(AccessMode.GROUPED.toString().equals(item.getEntityAccess()))
+					Collection groupRefs = new Vector();
+					Iterator it = item.getGroups().iterator();
+					while(it.hasNext())
 					{
-						List groups = item.getGroups();
-						Iterator it = groups.iterator();
-						while(it.hasNext())
-						{
-							Group group = (Group) it.next();
-							edit.addGroup(group);
-						}
+						Group group = (Group) it.next();
+						groupRefs.add(group.getReference());
 					}
-					
-					ContentHostingService.commitResource(edit);
+					// TODO: what if parent has groups and user tries to set no groups??  
+					// Should tool prevent that without needing exception??
+					if(!groupRefs.isEmpty())
+					{
+						// TODO: must be atomic with constructor
+						ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+						edit.setGroupAccess(groupRefs);
+						ContentHostingService.commitResource(edit);
+					}
 				}
 				catch (IdUnusedException e)
 				{
@@ -3731,6 +3733,10 @@ public class ResourcesAction
 				catch (InUseException e)
 				{
 					
+				}
+				catch(InconsistentException e)
+				{
+					alerts.add(rb.getString("add.nogroups"));
 				}
 
 
@@ -7743,29 +7749,28 @@ public class ResourcesAction
 				}
 				if(item.isFolder())
 				{
-					cedit.setAccess(new AccessMode(item.getEntityAccess()));
-					Set groups = new TreeSet(cedit.getGroups());
-					Set newGroupRefs = new TreeSet();
+					Collection groupRefs = new Vector();
 					Iterator it = item.getGroups().iterator();
 					while(it.hasNext())
 					{
 						Group group = (Group) it.next();
-						if(! groups.contains(group.getReference()))
-						{
-							cedit.addGroup(group);
-						}
-						newGroupRefs.add(group.getReference());
+						groupRefs.add(group.getReference());
 					}
-					
-					it = cedit.getGroups().iterator();
-					while(it.hasNext())
+					try
 					{
-						String groupRef = (String) it.next();
-						if(! newGroupRefs.contains(groupRef))
+						if(cedit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
 						{
-							Group g = SiteService.findGroup(groupRef);
-							cedit.removeGroup(g);
+							cedit.clearGroupAccess();
 						}
+						else if(!groupRefs.isEmpty())
+						{
+							cedit.setGroupAccess(groupRefs);
+						}
+					}
+					catch(InconsistentException e)
+					{
+						// TODO: Should this be reported to user??
+						logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 					}
 				}
 				else
@@ -7792,30 +7797,31 @@ public class ResourcesAction
 					BasicRightsAssignment rightsObj = item.getRights();
 					rightsObj.addResourceProperties(pedit);
 					
-					redit.setAccess(new AccessMode(item.getAccess()));
-					Set newGroupRefs = new TreeSet();
-					Set groups = new TreeSet(redit.getGroups());
+					Collection groupRefs = new Vector();
 					Iterator it = item.getGroups().iterator();
 					while(it.hasNext())
 					{
 						Group group = (Group) it.next();
-						if(! groups.contains(group.getReference()))
-						{
-							redit.addGroup(group);
-						}
-						newGroupRefs.add(group.getReference());
+						groupRefs.add(group.getReference());
 					}
-					it = redit.getGroups().iterator();
-					while(it.hasNext())
+					try
 					{
-						String groupRef = (String) it.next();
-						if(! newGroupRefs.contains(groupRef))
+						if(redit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
 						{
-							Group g = SiteService.findGroup(groupRef);
-							redit.removeGroup(g);
+							redit.clearGroupAccess();
+						}
+						else if(!groupRefs.isEmpty())
+						{
+							redit.setGroupAccess(groupRefs);
 						}
 					}
-
+					catch(InconsistentException e)
+					{
+						// TODO: Should this be reported to user??
+						logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
+						
+					}
+					
 					String copyright = StringUtil.trimToNull(params.getString ("copyright"));
 					String newcopyright = StringUtil.trimToNull(params.getCleanString (NEW_COPYRIGHT));
 					String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
