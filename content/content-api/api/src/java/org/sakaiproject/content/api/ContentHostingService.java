@@ -183,8 +183,6 @@ public interface ContentHostingService extends EntityProducer
 	 *        The id of the collection.
 	 * @param properties
 	 *        A ResourceProperties object with the properties to add to the new collection.
-	 * @param accessMode
-	 *        The id of the access mode ("grouped", "site", etc).
 	 * @param groups
 	 *        The (possibly empty) collection of groups associated with this entity.
 	 * 
@@ -202,7 +200,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, String accessMode, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 
 	/**

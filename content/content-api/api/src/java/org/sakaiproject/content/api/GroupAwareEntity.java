@@ -86,9 +86,9 @@ public interface GroupAwareEntity extends Entity
 	 */
 	public class AccessMode
 	{
-		private final String m_id;
+		protected final String m_id;
 
-		public AccessMode(String id)
+		private AccessMode(String id)
 		{
 			m_id = id;
 		}

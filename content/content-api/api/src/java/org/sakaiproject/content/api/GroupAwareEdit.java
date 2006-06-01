@@ -21,7 +21,10 @@
 
 package org.sakaiproject.content.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 
@@ -33,31 +36,18 @@ import org.sakaiproject.site.api.Group;
 public interface GroupAwareEdit extends GroupAwareEntity, Edit
 {
 	/**
-	 * Add a Group to the list of groups for this assignment.
 	 * 
-	 * @param group
-	 *        The Group to add to those for this assignment.
+	 * @throws InconsistentException
 	 * @throws PermissionException
-	 *         if the end user does not have permission to do this.
 	 */
-	void addGroup(Group group) throws PermissionException;
-
+	public void clearGroupAccess() throws InconsistentException, PermissionException;
+	
 	/**
-	 * Remove this Group from the list of groups for this assignment.
 	 * 
-	 * @param group
-	 *        The Group to remove from those for this assignment.
+	 * @param groups
+	 * @throws InconsistentException
 	 * @throws PermissionException
-	 *         if the end user does not have permission to do this.
 	 */
-	void removeGroup(Group group) throws PermissionException;
-
-	/**
-	 * Set the access mode for the assignment - how we compute who has access to the assignment.
-	 * 
-	 * @param access
-	 *        The AssignmentAccess access mode for the message.
-	 */
-	void setAccess(AccessMode access);
+	public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException;
 
 }

@@ -770,135 +770,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // getAccessPoint
 
 	/**
-	 * Test whether the current user has access to an entity by virtue of group membership.  
-	 * The assumption will be that the user lacks group-access unless we find explicit 
-	 * evidence that such access exists. 
-	 * @param ref The internal reference string that identifies the entity.
-	 * @return true if this user belongs to a group with access, false otherwise.
-	 */
-	private boolean userHasGroupPermission(String ref)
-	{
-		boolean isAllowed = SecurityService.isSuperUser();
-
-		if(! isAllowed)
-		{
-			try
-			{
-				String userId = SessionManager.getCurrentSessionUserId();
-				Reference reference = m_entityManager.newReference(ref);
-				Site site = m_siteService.getSite(reference.getContext());
-				
-				isAllowed = site.isAllowed(userId, EVENT_RESOURCE_ALL_GROUPS);
-				if(!isAllowed)
-				{
-					ContentEntity entity = null;
-					
-					if(isCollection(ref))
-					{
-						entity = findCollection(ref);
-					}
-					else
-					{
-						entity = findResource(ref);
-					}
-					
-					if(entity != null)
-					{
-						Collection groupRefs = entity.getGroups();
-						Iterator it = groupRefs.iterator();
-						while(it.hasNext() && ! isAllowed)
-						{
-							String groupRef = (String) it.next();
-							Group group = site.getGroup(groupRef);
-							isAllowed =  group.isAllowed(userId, EVENT_RESOURCE_READ);
-						}
-						
-					}
-				}
-			}
-			catch (TypeException e)
-			{
-				// ignore -- return false
-			}
-			catch (IdInvalidException e)
-			{
-				// ignore -- return false
-			} 
-			catch (IdUnusedException e) 
-			{
-				// ignore -- return false
-			}
-		}
-		
-		return isAllowed;
-	}
-
-	/**
-	 * Checks whether the reference string is for a collection.  Does not check whether the entity actually exists,
-	 * just whether it is of a form to identify a collection.
-	 * @param ref
-	 * @return
-	 * @throws IdInvalidException
-	 */
-	private boolean isCollection(String ref) throws IdInvalidException
-	{
-		if(ref == null || ref.trim().equals(""))
-		{
-			throw new IdInvalidException(ref);
-		}
-		return ref.endsWith(Entity.SEPARATOR);
-	}
-
-	/**
-	 * Test whether access to a particular entity is restricted to particular groups within a site.  
-	 * The assumption will be that access-mode is not group unless we know for sure it is group.
-	 * @param ref The internal reference string that identifies the entity.
-	 * @return true if access is restricted by group, false otherwise.
-	 */
-	private boolean accessLimitedByGroup(String ref)
-	{
-		boolean rv = false;
-		
-		ContentEntity entity = null;
-		try
-		{
-			if(isCollection(ref))
-			{
-				entity = findCollection(ref);
-			}
-			else
-			{
-				entity = findResource(ref);
-			}
-			
-			if(entity != null)
-			{
-				AccessMode access_mode = entity.getAccess();
-				if(AccessMode.INHERITED.equals(access_mode))
-				{
-					access_mode = entity.getInheritedAccess();
-				}
-			
-				rv = AccessMode.GROUPED.equals(access_mode);
-			}
-		}
-		catch (TypeException e)
-		{
-			// ignore -- return false
-		}
-		catch (IdInvalidException e)
-		{
-			// ignore -- return false
-		}
-		catch(Exception e)
-		{
-			// ignore -- return false
-		}
-		
-		return rv;
-	}
-
-	/**
 	 * If the id is for a resource in a dropbox, change the function to a dropbox check, which is to check for write.<br />
 	 * You have full or no access to a dropbox.
 	 * 
@@ -1179,8 +1050,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * check permissions for addCollection().
 	 * 
-	 * @param channelId
-	 *        The channel id.
+	 * @param id
+	 *        The id of the new collection.
 	 * @return true if the user is allowed to addCollection(id), false if not.
 	 */
 	public boolean allowAddCollection(String id)
@@ -1228,7 +1099,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	} // addCollection
 
-	public ContentCollection addCollection(String id, ResourceProperties properties, String accessMode, Collection groups) 
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) 
 		throws IdUsedException, IdInvalidException, PermissionException, InconsistentException 
 	{
 		ContentCollectionEdit edit = addCollection(id);
@@ -1236,7 +1107,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// add the provided of properties
 		addProperties(edit.getPropertiesEdit(), properties);
 		
-		((BasicGroupAwareEdit) edit).addGroups(accessMode, groups);
+		((BasicGroupAwareEdit) edit).setGroupAccess(groups);
 
 		// commit the change
 		commitCollection(edit);
@@ -4790,19 +4661,26 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				for (int next = 2; next < paths.length; next++)
 				{
 					root = root + paths[next];
-					if ((next < paths.length - 1) || container)
+					if (next < paths.length - 1)
 					{
 						root = root + Entity.SEPARATOR;
+					}
+					else if(container)
+					{
+						// don't include the container itself
+						break;
 					}
 					rv.add(root);
 				}
 			}
 
+			boolean isDropbox = false;
 			// special check for group-user : the grant's in the user's My Workspace site
 			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
 			if ((parts.length > 3) && (parts[1].equals("group-user")))
 			{
 				rv.add(m_siteService.siteReference(m_siteService.getUserSiteId(parts[3])));
+				isDropbox = true;
 			}
 
 			ContentEntity entity = null;
@@ -4827,7 +4705,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				inherited = true;
 				access = entity.getInheritedAccess();
 			}
-			if(AccessMode.SITE.equals(access) || AccessMode.INHERITED.equals(access))
+			if(isDropbox || AccessMode.SITE.equals(access) || AccessMode.INHERITED.equals(access))
 			{
 				// site
 				ref.addSiteContextAuthzGroup(rv);
@@ -6967,6 +6845,72 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		/**
 		 * @inheritDoc
+		 */
+		public void clearGroupAccess() throws InconsistentException, PermissionException 
+		{
+			if(this.m_access != AccessMode.GROUPED)
+			{
+				throw new InconsistentException(this.getReference());
+			}
+			
+			this.m_access = AccessMode.INHERITED;
+			this.m_groups.clear();
+			
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException 
+		{
+			if (groups == null || groups.isEmpty())
+			{
+				throw new InconsistentException(this.getReference());
+			}
+			
+			SortedSet groupRefs = new TreeSet();
+			if(this.getInheritedAccess() == AccessMode.GROUPED)
+			{
+				groupRefs.addAll(this.getInheritedGroups());
+			}
+			else
+			{
+				try
+				{
+					Reference ref = m_entityManager.newReference(this.getReference());
+					Site site = m_siteService.getSite(ref.getContext());
+					Iterator iterator = site.getGroups().iterator();
+					while(iterator.hasNext())
+					{
+						Group group = (Group) iterator.next();
+						groupRefs.add(group.getReference());
+					}
+				}
+				catch (IdUnusedException e)
+				{
+					
+				} 
+			}
+			
+			Iterator groupIt = groups.iterator();
+			while(groupIt.hasNext())
+			{
+				String groupRef = (String) groupIt.next();
+				if(! groupRefs.contains(groupRef))
+				{
+					throw new InconsistentException(this.getReference());
+				}
+			}
+	
+			this.m_access = AccessMode.INHERITED;
+			this.m_groups.addAll(groups);
+			
+		}
+
+
+		
+		/**
+		 * @inheritDoc
 		 * @see org.sakaiproject.content.api.GroupAwareEntity#getGroupObjects()
 		 */
 		public Collection getGroupObjects()
@@ -6987,7 +6931,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 		}
 
-	
 		/**
 		 * @inheritDoc
 		 */
@@ -7053,91 +6996,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return groups;
 		}
 
-
-		
-		/**
-		 * @inheritDoc
-		 */
-		public void addGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, "null");
-			}
-	
-			// does the current user have SECURE_ADD permission in this group's authorization group, or EVENT_RESOURCE_WRITE in the containing collection?
-			if (!unlockCheck(EVENT_RESOURCE_ADD, group.getReference()))
-			{
-				String collectionId = getContainingCollectionId(getReference());
-				if (!unlockCheck(EVENT_RESOURCE_WRITE, collectionId))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, group.getReference());
-				}
-			}
-			
-			boolean found = false;
-			Iterator it = m_groups.iterator();
-			while(it.hasNext() && !found)
-			{
-				String groupRef = (String) it.next();
-				found = groupRef.equals(group.getReference());
-			}
-	
-			if (!found) 
-			{
-				m_groups.add(group.getReference());
-			}
-		}
-	
-		public void addGroups(String accessMode, Collection groups)
-		{
-			this.m_access = new AccessMode(accessMode);
-			if(m_groups == null)
-			{
-				m_groups = new Vector();
-			}
-			Iterator it = groups.iterator();
-			while(it.hasNext())
-			{
-				Object obj = it.next();
-				if(obj instanceof Group)
-				{
-					m_groups.add(((Group) obj).getReference());
-				}
-				else if(obj instanceof String)
-				{
-					// assume that the string is a group ref.
-					// will fail gracefully later if not.
-					m_groups.add(obj);
-				}
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void removeGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-			{
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_RESOURCE_ADD, "null");
-			}
-
-			// we don't check that the group is permitted, since it's alredy in the message being edited -ggolden
-			if (m_groups.contains(group.getReference()))
-			{
-				m_groups.remove(group.getReference());
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setAccess(AccessMode access)
-		{
-			m_access = access;
-		}
-		
 		/** 
 		 * Determine whether current user can update the group assignments (add/remove groups) for the current resource.
 		 * This is based on whether the user has adequate rights defined for the group (EVENT_RESOURCE_ADD) or for the 
