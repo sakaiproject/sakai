@@ -35,9 +35,9 @@ import org.apache.commons.logging.LogFactory;
 //import org.springframework.web.context.WebApplicationContext;
 
 import java.util.TimeZone;
+// need to move this out to support standalone,  using spring injection 
 
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.TimeServiceHelper;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>Description: Time conversion utility class</p>
@@ -52,10 +52,7 @@ public class TimeUtil
   private TimeZone m_server_timezone= null;
 
   public TimeUtil() {
-      TimeServiceHelper timeHelper =
-      IntegrationContextFactory.getInstance().getTimeServiceHelper();
-
-    m_client_timezone= timeHelper.getLocalTimeZone();
+    m_client_timezone= TimeService.getLocalTimeZone();
     m_server_timezone= TimeZone.getDefault();
   }
 

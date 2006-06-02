@@ -1,3 +1,4 @@
+
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
@@ -31,7 +32,7 @@
 --%>
 -->
   <f:view>
-   
+  
     <f:loadBundle
      basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
      var="msg"/>
@@ -50,28 +51,30 @@
 <!-- FORM -->
 
 
+
 <!-- HEADING -->
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
-  <!-- QUESTION PROPERTIES -->
-  <!-- this is for creating multiple choice SURVEY questions only -->
-  <!-- text for answers are predetermined(in properties file), do not allow users to change -->
-
+ <div class="tier2">
+<!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
-  <div class="tier2">
-<span id="num1" class="number"></span>
-<h:panelGrid columns="2" columnClasses="shorttext">
 
-    <h:outputLabel for="answerptr" value="#{msg.answer_point_value}"/>
-    <h:outputText id="answerptr" value="#{msg.zeropoints}"/>
- </h:panelGrid>
-<br/>
+   <span id="num1" class="number"></span>
+<div class="shorttext">
+    <h:outputLabel value="#{msg.answer_point_value}"/>
+    <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
+<f:validateDoubleRange />
+</h:inputText>
+ <h:message for="answerptr" styleClass="validate"/>
+  </div><br/>
+
   <!-- 2 TEXT -->
- <span id="num2" class="number"></span>
-  <div class="longtext">
+     <span id="num2" class="number"></span>
+ <div class="longtext">
   <h:outputLabel value="#{msg.q_text}" />
+  <!-- STUB FOR WYSIWYG -->
+
   <!-- WYSIWYG -->
-  <br/>
    
   <h:panelGrid>
    <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}">
@@ -82,89 +85,125 @@
   </div>
 
   <!-- 3 ANSWER -->
-  <!-- qti survey type  
-       PREDEFINED_SCALE: YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
-  -->
-
  <span id="num3" class="number"></span>
-<div class="longtext">
-    <h:outputLabel value="#{msg.answer} " /> </div>
+  <div class="longtext">
+  <h:outputLabel value="#{msg.answer} " /></div>
    <div class="tier2">
-     
-    <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale" required="true">
-     <f:selectItem itemValue="YES" itemLabel="#{msg.yes_no}" />
-     <f:selectItem itemValue="AGREE" itemLabel="#{msg.disagree_agree}" />
-     <f:selectItem itemValue="UNDECIDED" itemLabel="#{msg.disagree_undecided}" />
-     <f:selectItem itemValue="AVERAGE"
-	itemLabel="#{msg.below_average} -> #{msg.above_average}" />
-     <f:selectItem itemValue="STRONGLY_AGREE"
-       itemLabel="#{msg.strongly_disagree} -> #{msg.strongly_agree}" />
-     <f:selectItem itemValue="EXCELLENT"
-        itemLabel="#{msg.unacceptable} -> #{msg.excellent}" />
-     <f:selectItem itemValue="5" itemLabel="#{msg.scale5}" />
-     <f:selectItem itemValue="10" itemLabel="#{msg.scale10}" />
+
+  <h:selectOneRadio layout="lineDirection" id="TF" border="0"
+     value="#{itemauthor.currentItem.corrAnswer}" required="true">
+     <f:selectItems value="#{itemauthor.trueFalseAnswerSelectList}" />
+  </h:selectOneRadio>
+<h:message for="TF" styleClass="validate"/>
+</div>
+
+    <!-- 4 RATIONALE -->
+
+     <span id="num4" class="number"></span>
+    <div class="longtext">
+    <h:outputLabel value="#{msg.req_rationale}" />
+    <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" id="rational" required="true">
+     <f:selectItem itemValue="true"
+       itemLabel="#{msg.yes}" />
+     <f:selectItem itemValue="false"
+       itemLabel="#{msg.no}" />
     </h:selectOneRadio>
-  <br />
-<h:message for="selectscale" styleClass="validate"/>
+<br/> <h:message for="rational" styleClass="validate"/><br/>
   </div>
-    <!-- 4 PART -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
-<f:verbatim><span id="num4" class="number"></span></f:verbatim>
-  <h:outputLabel for="assignToPart" rendered="#{itemauthor.target == 'assessment'}" value="#{msg.assign_to_p}" />
-  <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
+
+  <!-- 5 PART -->
+
+  <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">  <h:panelGroup>
+   <f:verbatim><span id="num5" class="number"></span></f:verbatim>
+  <h:outputLabel value="#{msg.assign_to_p}" />
+  <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
+     <!-- use this in real  value="#{section.sectionNumberList}" -->
   </h:selectOneMenu>
- </h:panelGrid>
+  </h:panelGroup>
+  </h:panelGrid>
 
-    <!-- 5 POOL -->
-<h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
 
- <f:verbatim><span id="num5" class="number"></span></f:verbatim>
-  <h:outputLabel for="assignToPool" rendered="#{itemauthor.target == 'assessment'}" value="#{msg.assign_to_question_p}" />
+  <!-- 6 POOL -->
+
+  <h:panelGrid rendered="#{itemauthor.target == 'assessment'}" columnClasses="shorttext">
+  <h:panelGroup>
+   <f:verbatim><span id="num6" class="number"></span></f:verbatim>
+  <h:outputLabel value="#{msg.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
      <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
+  </h:panelGroup>
   </h:panelGrid>
+<h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
 
  <!-- FEEDBACK -->
- <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
- <f:verbatim><span id="num6" class="number"></span><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{msg.feedback_optional}<br />" />
-<f:verbatim><div class="tier2"></f:verbatim>
+
+  
+  <f:verbatim><span id="num7" class="number"></span><div class="longtext"></f:verbatim>
+  <h:outputLabel value="#{msg.correct_incorrect_an}" />
+<f:verbatim></div>
+ <div class="longtext"></f:verbatim>
+  <h:outputLabel value="#{msg.correct_answer_opti}" />
+  <h:panelGrid>
+ 
   <!-- WYSIWYG -->
 
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" >
+     <f:validateLength maximum="4000"/>
+   </samigo:wysiwyg>
+</h:panelGrid>
+
+ <f:verbatim></div><div class="longtext"></f:verbatim>
+ <h:outputLabel  value="#{msg.incorrect_answer_op}" />
+
+  <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" >
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
-  </h:panelGrid>
- <f:verbatim> </div></div></f:verbatim>
+  </h:panelGrid><f:verbatim></div></f:verbatim>
 </h:panelGroup>
-<!-- METADATA -->
+ <!-- METADATA -->
 <h:panelGroup rendered="#{itemauthor.showMetadata == 'true'}" styleClass="longtext">
 <f:verbatim><span id="num9" class="number"></span></f:verbatim>
 <h:outputLabel value="Metadata"/><br/>
-<f:verbatim><div class="tier2"></f:verbatim>
+<f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-  <h:outputLabel for="obj" value="#{msg.objective}" />
+<h:outputLabel value="#{msg.objective}" />
   <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-
-  <h:outputLabel for="keyword" value="#{msg.keyword}" />
+<h:outputLabel value="#{msg.keyword}" />
   <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-
-  <h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
+<h:outputLabel value="#{msg.rubric_colon}" />
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
-  </h:panelGrid>
+</h:panelGrid>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
-  </div>
+
 </div>
 
-<p class="act">
 
+<%--
+<div class="longtext tier1">
+  <h:panelGrid columns="3" rendered="#{itemauthor.showMetadata == 'true'}">
+  <f:verbatim><span id="num8" class="number"></span></f:verbatim>
+  <h:outputLabel for="obj" value="#{msg.objective}" />
+  <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
+  <f:verbatim><span id="num9" class="number"></span></f:verbatim>
+  <h:outputLabel for="keyword" value="#{msg.keyword}" />
+  <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
+  <f:verbatim><span id="num10" class="number"></span></f:verbatim>
+  <h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
+  <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
+  </h:panelGrid>
+
+  </div>
+--%>
+
+<p class="act">
   <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_save}" action="editAssessment" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
@@ -177,12 +216,13 @@
 
   <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true"/>
  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true"/>
+
 </p>
 </h:form>
+
+
 <!-- end content -->
 </div>
-
     </body>
   </html>
 </f:view>
-

@@ -33,12 +33,9 @@
 <h:dataTable cellpadding="0" cellspacing="0" id="TreeTable" value="#{questionpool.moveQpools}"
    var="pool" styleClass="listHier" >
 
-    <h:column  id="radiocol">
-<f:facet name="header">
-<h:outputText value=" "/>
-</f:facet>
 
-<h:selectOneRadio rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}" onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="radiobtn" layout="pageDirection"
+    <h:column  id="radiocol" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
+<h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="radiobtn" layout="pageDirection"
 		value="#{questionpool.destPool}">
                 <f:selectItem itemValue="#{pool.questionPoolId}" itemLabel=""/>
 </h:selectOneRadio>

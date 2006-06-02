@@ -89,11 +89,14 @@ should be included in file importing DeliveryMessages
         </h:column>
       </h:dataTable>
 </h:panelGroup>
-<h:panelGroup rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
-            && delivery.navigation ne '1'}">
-<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"  />
-<h:outputLabel for="mark_for_review" value="#{msg.mark}"/>
-</h:panelGroup>
+
+<h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" 
+   rendered="#{delivery.actionString=='takeAssessment'
+            || delivery.actionString=='takeAssessmentViaUrl'}" />
+<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+  rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
+            && delivery.navigation ne '1'}" />
+
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
