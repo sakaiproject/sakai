@@ -1104,9 +1104,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// add the provided of properties
 		addProperties(edit.getPropertiesEdit(), properties);
+		try
+		{
+			if(groups == null || groups.isEmpty())
+			{
+				((BasicGroupAwareEdit) edit).clearGroupAccess();
+			}
+			else
+			{
+				((BasicGroupAwareEdit) edit).setGroupAccess(groups);
+			}
+		}
+		catch(InconsistentException e)
+		{
+			// ignore
+		}
 		
-		((BasicGroupAwareEdit) edit).setGroupAccess(groups);
-
 		// commit the change
 		commitCollection(edit);
 
@@ -1638,14 +1651,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
-			}
+			Exception e = new Exception();
+			M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -1656,18 +1663,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			GroupAwareEntity gaEntity = findCollection(edit.getId());
 			AccessMode access = gaEntity.getAccess(); //  edit.getAccess();
 			Collection currentGroupRefs = new Vector();
-			if(AccessMode.INHERITED.equals(access))
+			if(AccessMode.INHERITED == access)
 			{
 				inherited = true;
 				access = gaEntity.getInheritedAccess();
 			}
 			
-			if(AccessMode.SITE.equals(access))
-			{
-				// make sure the user can add entities here
-				allowed = allowAddResource(edit.getId());
-			}
-			else if(AccessMode.GROUPED.equals(access))
+			if(AccessMode.GROUPED.equals(access))
 			{
 				Reference ref = m_entityManager.newReference(edit.getReference());
 				if(SecurityService.isSuperUser() || SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, ref.getContext()))
@@ -1681,6 +1683,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					{
 						entity = edit;
 					}
+					
 					if(inherited)
 					{
 						currentGroupRefs.addAll(entity.getInheritedGroups());
@@ -1691,7 +1694,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					}
 					
 					// the Group objects the user has add permission
-					Collection allowedGroups = getGroupsWithAddPermission(edit.getId());
+					Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
 		
 					// check all defined groups in the edit
 					for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
@@ -3704,28 +3707,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			boolean inherited = false;
-			AccessMode access = findResource(edit.getId()).getAccess(); //  edit.getAccess();
+			ContentResource entity = findResource(edit.getId());
+			if(entity == null)
+			{
+				entity = edit;
+			}
+			AccessMode access = entity.getAccess(); //  edit.getAccess();
 			Collection currentGroupRefs = new Vector();
-			if(AccessMode.INHERITED.equals(access))
+			if(AccessMode.INHERITED == access)
 			{
 				inherited = true;
-				access = findResource(edit.getId()).getInheritedAccess();
+				access = entity.getInheritedAccess();
 			}
 			
-			if(AccessMode.SITE.equals(access))
-			{
-				// make sure the user can add channel messages
-				allowed = allowAddResource(isolateContainingId(edit.getId()));
-			}
-			else if(AccessMode.GROUPED.equals(access))
+			if(AccessMode.GROUPED.equals(access))
 			{
 				if(inherited)
 				{
-					currentGroupRefs.addAll(findResource(edit.getId()).getInheritedGroups());
+					currentGroupRefs.addAll(entity.getInheritedGroups());
 				}
 				else
 				{
-					currentGroupRefs.addAll(findResource(edit.getId()).getGroups());
+					currentGroupRefs.addAll(entity.getGroups());
 				}
 				
 				// the Group objects the user has add permission
@@ -6896,7 +6899,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			}
 	
-			this.m_access = AccessMode.INHERITED;
+			this.m_access = AccessMode.GROUPED;
 			this.m_groups.addAll(groups);
 			
 		}
