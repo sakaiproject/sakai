@@ -40,7 +40,7 @@
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-audio</artifactId>
-      <version>${sakai.version}</version>
+      <version>dev</version>
       <properties>
         <war.target.path>applets</war.target.path>
       </properties>
