@@ -35,8 +35,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+//import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionData
     implements java.io.Serializable, SectionDataIfc, Comparable{
@@ -282,10 +282,13 @@ public class SectionData
   }
 
   public TypeIfc getType() {
+      /*
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     TypeIfc type = typeFacadeQueries.getTypeFacadeById(this.typeId);
     return new TypeD(type.getAuthority(), type.getDomain(),
                     type.getKeyword(), type.getDescription());
+      */
+     return null;
   }
 
   public int compareTo(Object o) {

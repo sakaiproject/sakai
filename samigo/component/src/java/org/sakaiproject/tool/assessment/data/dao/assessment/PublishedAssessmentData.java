@@ -37,10 +37,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+//import org.sakaiproject.tool.assessment.facade.AgentFacade;
+//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+//import org.sakaiproject.tool.assessment.services.PersistenceService;
+//import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 public class PublishedAssessmentData
     implements java.io.Serializable,
@@ -462,6 +462,7 @@ public class PublishedAssessmentData
   }
 
   public TypeIfc getType() {
+      /*
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().
         getTypeFacadeQueries();
     TypeIfc type = typeFacadeQueries.getTypeFacadeById(this.typeId);
@@ -469,6 +470,8 @@ public class PublishedAssessmentData
                             type.getKeyword(), type.getDescription());
     typeD.setTypeId(this.typeId);
     return typeD;
+      */
+    return null;
   }
 
   public String getReleaseTo() {
@@ -590,15 +593,23 @@ public class PublishedAssessmentData
     this.ownerSiteName = ownerSiteName;
   }
 
+
   public String getOwnerSite(){
+      /*
     PublishedAssessmentService service = new PublishedAssessmentService();
     String ownerSiteId = service.getPublishedAssessmentOwner(this.assessmentBaseId);
     this.ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
     return this.ownerSiteName;
+      */
+      return null;
   }
 
   public String getOwnerSiteId(){
+      /*
     PublishedAssessmentService service = new PublishedAssessmentService();
     return service.getPublishedAssessmentOwner(this.assessmentBaseId);
+      */
+      return null;
   }
+
 }

@@ -37,10 +37,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+//import org.sakaiproject.tool.assessment.facade.AgentFacade;
+//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+//import org.sakaiproject.tool.assessment.services.GradingService;
+//import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class PublishedItemData
     implements java.io.Serializable, ItemDataIfc, Comparable {
@@ -473,12 +473,15 @@ public class PublishedItemData
    }
 
    public TypeIfc getType() {
+       /*
      TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
      TypeIfc type = typeFacadeQueries.getTypeFacadeById(this.typeId);
      TypeD typeD = new TypeD(type.getAuthority(), type.getDomain(),
                      type.getKeyword(), type.getDescription());
      typeD.setTypeId(this.typeId);
      return typeD;
+       */
+       return null;
    }
 
    public ArrayList getItemTextArray() {
@@ -553,6 +556,7 @@ public class PublishedItemData
       return sequence.compareTo(a.sequence);
   }
 
+    /*
   public ItemGradingData getLastItemGradingDataByAgent(){
     GradingService service = new GradingService();
     ItemGradingData i= service.getLastItemGradingDataByAgent(
@@ -566,4 +570,6 @@ public class PublishedItemData
         this.itemId.toString(), "jon");
     return i;
   }
+    */
+
 }
