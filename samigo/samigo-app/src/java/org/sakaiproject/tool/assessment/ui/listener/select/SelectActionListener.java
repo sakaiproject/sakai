@@ -254,7 +254,8 @@ public class SelectActionListener
          bs2.toStringSort();
     }
     bs.sort();
-    bs2.sort();
+    // this is not working right
+    //bs2.sort();
 
     submittedAssessmentGradingList = new ArrayList();
     submittedAssessmentGradingList.addAll(scored);
