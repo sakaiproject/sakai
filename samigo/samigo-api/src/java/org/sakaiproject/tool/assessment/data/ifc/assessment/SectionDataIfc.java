@@ -108,8 +108,10 @@ public interface SectionDataIfc
 
    ArrayList getItemArraySortedForGrading();
 
+/*
    ArrayList getItemArraySorted();
    ArrayList getItemArraySortedWithRandom(long seed);
+*/
 
    Set getSectionMetaDataSet();
 
