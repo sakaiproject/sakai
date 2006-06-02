@@ -32,6 +32,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -786,21 +787,18 @@ public class ItemContentsBean
   {
     ArrayList mediaArray = new ArrayList();
     ItemGradingData itemGradingData = null;
-    try
-    {
+    try{
       Iterator iter = getItemGradingDataArray().iterator();
-      if (iter.hasNext())
-      {
+      if (iter.hasNext()){
         itemGradingData = (ItemGradingData) iter.next();
       }
     }
-    catch (Exception e)
-    {
+    catch (Exception e){
       e.printStackTrace();
     }
-    if (itemGradingData != null)
-    {
-      mediaArray = itemGradingData.getMediaArray();
+    if (itemGradingData != null && itemGradingData.getItemGradingId()!=null ){
+      GradingService service = new GradingService();
+      mediaArray = service.getMediaArray(itemGradingData.getItemGradingId().toString());
     }
     return mediaArray;
   }

@@ -589,26 +589,4 @@ public class PublishedAssessmentData
     return new Float(total);
   }
 
-  public void setOwnerSite(String ownerSiteName){
-    this.ownerSiteName = ownerSiteName;
-  }
-
-
-      /*
-  public String getOwnerSite(){
-
-    PublishedAssessmentService service = new PublishedAssessmentService();
-    String ownerSiteId = service.getPublishedAssessmentOwner(this.assessmentBaseId);
-    this.ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
-    return this.ownerSiteName;
-  }
-      */
-
-    /*
-  public String getOwnerSiteId(){
-    PublishedAssessmentService service = new PublishedAssessmentService();
-    return service.getPublishedAssessmentOwner(this.assessmentBaseId);
-  }
-    */
-
 }

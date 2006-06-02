@@ -29,7 +29,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import java.util.Date;
 import java.util.ArrayList;
 import java.lang.Float;
-//import org.sakaiproject.tool.assessment.services.GradingService;
 
 /**
  * <p>Title: </p>
@@ -198,16 +197,6 @@ public class ItemGradingData
 
   public void setReview(Boolean newReview) {
     review = newReview;
-  }
-
-  public ArrayList getMediaArray(){
-      /*
-    GradingService service = new GradingService();
-    if (itemGradingId != null)
-      return service.getMediaArray(itemGradingId.toString());
-    else
-      */
-      return new ArrayList();
   }
 
   public Integer getAttemptsRemaining() {

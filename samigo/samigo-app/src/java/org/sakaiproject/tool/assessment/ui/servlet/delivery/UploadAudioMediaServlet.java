@@ -208,9 +208,9 @@ public class UploadAudioMediaServlet extends HttpServlet
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     String agentId = mediaLocation.substring(agentIndex+1, myfileIndex);
-    System.out.println("****pubAss="+pubAssessmentId);
-    System.out.println("****questionId="+questionId);
-    System.out.println("****agent="+agentId);
+    //System.out.println("****pubAss="+pubAssessmentId);
+    //System.out.println("****questionId="+questionId);
+    //System.out.println("****agent="+agentId);
 
     PublishedItemData item = pubService.loadPublishedItem(questionId);
     PublishedItemText itemText = (PublishedItemText)(item.getItemTextSet()).iterator().next();
@@ -229,9 +229,13 @@ public class UploadAudioMediaServlet extends HttpServlet
     //    also work out no. of attempts remaining 
     ItemGradingData itemGrading = gradingService.getItemGradingData(
                                   adata.getAssessmentGradingId().toString(), questionId);
+    ArrayList mediaList = new ArrayList();
     if (itemGrading != null){
       // just need update itemGrading, and media.media 
-      ArrayList mediaList = itemGrading.getMediaArray();
+      GradingService service = new GradingService();
+      if (itemGrading.getItemGradingId() != null)
+	mediaList = service.getMediaArray(itemGrading.getItemGradingId().toString());
+
       if (mediaList.size()>0){
         System.out.println("*** delete old audio");
         gradingService.deleteAll(mediaList);
