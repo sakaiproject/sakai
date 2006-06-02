@@ -257,50 +257,6 @@ public class PublishedSectionData
     return list;
   }
 
-  public ArrayList getItemArraySorted() {
-      /*
-    long seed = (long) AgentFacade.getAgentString().hashCode();
-    return getItemArraySortedWithRandom(seed);
-      */
-    return new ArrayList();
-  }
-
-  public ArrayList getItemArraySortedWithRandom(long seed) {
-
-    ArrayList list = getItemArray();
-    Integer numberToBeDrawn= null;
-
-    if ((getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
-
-      // same ordering for each student
-      ArrayList randomsample = new ArrayList();
-      //long seed = (long) AgentFacade.getAgentString().hashCode();
-      Collections.shuffle(list,  new Random(seed));
-
-      if (getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
-        numberToBeDrawn= new Integer(getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
-      }
-
-      int samplesize = numberToBeDrawn.intValue();
-      for (int i=0; i<samplesize; i++){
-        randomsample.add(list.get(i));
-      }
-      return randomsample;
-
-    }
-    else if((getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING)!=null ) && (getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING).equals(SectionDataIfc.RANDOM_WITHIN_PART.toString())) ){
-         // same ordering for each student
-    //long seed = (long) AgentFacade.getAgentString().hashCode();
-    Collections.shuffle(list,  new Random(seed));
-    return list;
-
-    }
-    else {
-    Collections.sort(list);
-    return list;
-    }
-  }
-
   public void addItem(ItemDataIfc item) {
     if (itemSet == null)
       itemSet = new HashSet();

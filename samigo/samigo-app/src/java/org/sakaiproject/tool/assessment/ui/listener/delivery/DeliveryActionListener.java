@@ -525,7 +525,10 @@ public class DeliveryActionListener
 
       //questionCount = secFacade.getItemSet().size();
       // need to  get ItemArraySort, insteand of getItemSet, to return corr number for random draw parts
-      questionCount = secFacade.getItemArraySorted().size();
+      ArrayList itemlist = secFacade.getItemArray();
+      long seed = (long) AgentFacade.getAgentString().hashCode();
+      ArrayList sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
+      questionCount = sortedlist.size();
 
       if (itemIndex > (questionCount - 1) && sectionCount == sectionIndex)
       {
@@ -592,14 +595,16 @@ public class DeliveryActionListener
     SectionContentsBean sec = new SectionContentsBean(part);
 
     ArrayList itemSet = null;
+    ArrayList itemlist = part.getItemArray();
+    long seed = 0;
     if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
-      long seed = (long) studentscorebean.getStudentId().hashCode();
-      itemSet = part.getItemArraySortedWithRandom(seed);
+      seed = (long) studentscorebean.getStudentId().hashCode();
     }
     else {
-      itemSet = part.getItemArraySorted();
+      seed = (long) AgentFacade.getAgentString().hashCode();
     }
+    itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
 
     // i think this is already set by new SectionContentsBean(part) - daisyf
     sec.setQuestions(itemSet.size()); 
@@ -682,7 +687,9 @@ public class DeliveryActionListener
 
     //SectionContentsBean sec = new SectionContentsBean();
     SectionContentsBean sec = new SectionContentsBean(part);
-    ArrayList itemSet = part.getItemArraySorted();
+    ArrayList itemlist = part.getItemArray();
+    long seed = (long) AgentFacade.getAgentString().hashCode();
+    ArrayList itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
 
     sec.setQuestions(itemSet.size());
 
@@ -1484,14 +1491,17 @@ public class DeliveryActionListener
       SectionDataIfc section = (SectionDataIfc) i1.next();
       Iterator i2 = null;
 
+      ArrayList itemlist = section.getItemArray();
+      long seed = 0;
       if (delivery.getActionMode()==delivery.GRADE_ASSESSMENT) {
         StudentScoresBean studentscorebean = (StudentScoresBean) cu.lookupBean("studentScores");
-        long seed = (long) studentscorebean.getStudentId().hashCode();
-        i2 = section.getItemArraySortedWithRandom(seed).iterator();
+        seed = (long) studentscorebean.getStudentId().hashCode();
       }
       else {
-        i2 = section.getItemArraySorted().iterator();
+        seed = (long) AgentFacade.getAgentString().hashCode();
       }
+      ArrayList sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
+      i2 = sortedlist.iterator();
 
       while (i2.hasNext()) {
         items = items + 1; // bug 464
@@ -1602,6 +1612,41 @@ public class DeliveryActionListener
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(adata);
     return adata;
+  }
+
+  /* this method takes the list returned from the data/dao class, and checks for part type and returns a sorted list of items. If part type is not random then return the original list
+  */
+  private ArrayList getItemArraySortedWithRandom(SectionDataIfc part, ArrayList list, long seed) {
+
+    Integer numberToBeDrawn= null;
+
+    if ((part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (part.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+
+      // same ordering for each student
+      ArrayList randomsample = new ArrayList();
+      Collections.shuffle(list,  new Random(seed));
+
+      if (part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
+        numberToBeDrawn= new Integer(part.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
+      }
+
+      int samplesize = numberToBeDrawn.intValue();
+      for (int i=0; i<samplesize; i++){
+        randomsample.add(list.get(i));
+      }
+      return randomsample;
+
+    }
+    else if((part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING)!=null ) && (part.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_ORDERING).equals(SectionDataIfc.RANDOM_WITHIN_PART.toString())) ){
+         // same ordering for each student
+    Collections.shuffle(list,  new Random(seed));
+    return list;
+
+    }
+    else {
+    Collections.sort(list);
+    return list;
+    }
   }
 
 }
