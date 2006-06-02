@@ -26,6 +26,11 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
     </dependencies>
     <build>
         <sourceDirectory>src/java</sourceDirectory>

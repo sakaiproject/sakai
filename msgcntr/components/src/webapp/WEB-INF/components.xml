@@ -19,6 +19,19 @@
             </list>
         </property>
     </bean>
+	   
+    <bean id="org.sakaiproject.api.app.messageforums.DiscussionForumService" 
+        class="org.sakaiproject.component.app.messageforums.DiscussionForumServiceImpl">
+        <property name="forumManager">
+     		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        </property>		       
+        <property name="areaManager">
+  	        <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        </property>
+        <property name="messageManager">
+            <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        </property>
+    </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
         class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl">
