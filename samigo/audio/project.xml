@@ -6,6 +6,8 @@
   <shortDescription>Samigo (Test and Quizzes) recorder applet.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-audio</id>
+  <currentVersion>dev</currentVersion>
+<!-- keep it as dev, jar to be included in samigo.war -->
   <currentVersion>${sakai.version}</currentVersion>
 
   <organization>
@@ -17,7 +19,6 @@
 
   <properties>
     <deploy.type>jar</deploy.type>
-    <deploy.target>shared</deploy.target>
   </properties>
 
   <build>
