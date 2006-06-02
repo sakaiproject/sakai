@@ -56,8 +56,8 @@ public class InitAction extends HttpServlet{
   public void init(){
     // store all types in memory
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
-    log.debug("*** LOADING INTERNAL API ***");
-    log.debug("*****#2 InitAction: typeFacadeQueries ="+typeFacadeQueries);
+    log.info("*****#1 InitAction: "+PersistenceService.getInstance());
+    log.info("*****#2 InitAction: typeFacadeQueries ="+typeFacadeQueries);
     if ( typeFacadeQueries != null ){
       typeFacadeQueries.setTypeFacadeMap();
       typeFacadeQueries.setFacadeItemTypes();
@@ -65,72 +65,72 @@ public class InitAction extends HttpServlet{
 
     // questionpool facade
     QuestionPoolFacadeQueriesAPI questionpoolFacadeQueries = PersistenceService.getInstance().getQuestionPoolFacadeQueries();
-    log.debug("*****#3  InitAction: questionpoolFacadeQueries ="+questionpoolFacadeQueries);
+    log.info("*****#3  InitAction: questionpoolFacadeQueries ="+questionpoolFacadeQueries);
 
     // assessment facade
     AssessmentFacadeQueriesAPI assessmentFacadeQueries = PersistenceService.getInstance().getAssessmentFacadeQueries();
-    log.debug("*****#4  InitAction: assessmentFacadeQueries ="+assessmentFacadeQueries);
+    log.info("*****#4  InitAction: assessmentFacadeQueries ="+assessmentFacadeQueries);
 
     // item facade
     ItemFacadeQueriesAPI itemFacadeQueries = PersistenceService.getInstance().getItemFacadeQueries();
-    log.debug("*****#5  InitAction: itemFacadeQueries ="+itemFacadeQueries);
+    log.info("*****#5  InitAction: itemFacadeQueries ="+itemFacadeQueries);
 
     // section facade
     SectionFacadeQueriesAPI sectionFacadeQueries = PersistenceService.getInstance().getSectionFacadeQueries();
-    log.debug("*****#6  InitAction: sectionFacadeQueries ="+sectionFacadeQueries);
+    log.info("*****#6  InitAction: sectionFacadeQueries ="+sectionFacadeQueries);
 
     // published assessment facade
     PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries();
-    log.debug("*****#7  InitAction: publishedAssessmentFacadeQueries ="+publishedAssessmentFacadeQueries);
+    log.info("*****#7  InitAction: publishedAssessmentFacadeQueries ="+publishedAssessmentFacadeQueries);
 
     // assessment grading facade
     AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries = PersistenceService.getInstance().getAssessmentGradingFacadeQueries();
-    log.debug("*****#8  InitAction: assessmentGradingFacadeQueries ="+assessmentGradingFacadeQueries);
+    log.info("*****#8  InitAction: assessmentGradingFacadeQueries ="+assessmentGradingFacadeQueries);
 
     // authorization facade
     AuthorizationFacadeQueriesAPI authorizationFacadeQueries = PersistenceService.getInstance().getAuthorizationFacadeQueries();
-    log.debug("*****#9  InitAction: authorizationFacadeQueries ="+authorizationFacadeQueries);
+    log.info("*****#9  InitAction: authorizationFacadeQueries ="+authorizationFacadeQueries);
 
     // PagingUtil
     PagingUtilQueriesAPI pagingUtilQueries = PersistenceService.getInstance().getPagingUtilQueries();
-    log.debug("*****#10  InitAction: pagingUtilQueries ="+pagingUtilQueries);
+    log.info("*****#10  InitAction: pagingUtilQueries ="+pagingUtilQueries);
 
     // authorization facade
     AuthzQueriesFacadeAPI authzQueriesFacade = PersistenceService.getInstance().getAuthzQueriesFacade();
-    log.debug("*****#11  InitAction: authzQueriesFacade ="+authzQueriesFacade);
+    log.info("*****#11  InitAction: authzQueriesFacade ="+authzQueriesFacade);
 
-    log.debug("*** LOADING EXTERNAL API ***");
-    log.debug("*****#12  InitAction: SamigoApiFactory.getInstance()=" + SamigoApiFactory.getInstance());
+    log.info("*** LOADING EXTERNAL API ***");
+    log.info("*****#12  InitAction: SamigoApiFactory.getInstance()=" + SamigoApiFactory.getInstance());
 
     AssessmentServiceAPI assessmentServiceAPI = SamigoApiFactory.getInstance().getAssessmentServiceAPI();
-    log.debug("AssessmentServiceAPI: " + assessmentServiceAPI);
+    log.info("AssessmentServiceAPI: " + assessmentServiceAPI);
 
     GradebookServiceAPI gradebookServiceAPI = SamigoApiFactory.getInstance().getGradebookServiceAPI();
-    log.debug("GradebookServiceAPI: " + gradebookServiceAPI);
+    log.info("GradebookServiceAPI: " + gradebookServiceAPI);
 
     GradingServiceAPI gradingServiceAPI = SamigoApiFactory.getInstance().getGradingServiceAPI();
-    log.debug("gradingServiceAPI: " + gradingServiceAPI);
+    log.info("gradingServiceAPI: " + gradingServiceAPI);
 
     ItemServiceAPI itemServiceAPI = SamigoApiFactory.getInstance().getItemServiceAPI();
-    log.debug("ItemServiceAPI: " + itemServiceAPI);
+    log.info("ItemServiceAPI: " + itemServiceAPI);
 
     MediaServiceAPI mediaServiceAPI = SamigoApiFactory.getInstance().getMediaServiceAPI();
-    log.debug("MediaServiceAPI: " + mediaServiceAPI);
+    log.info("MediaServiceAPI: " + mediaServiceAPI);
 
     PublishedAssessmentServiceAPI publishedAssessmentServiceAPI = SamigoApiFactory.getInstance().getPublishedAssessmentServiceAPI();
-    log.debug("PublishedAssessmentServiceAPI: " + publishedAssessmentServiceAPI);
+    log.info("PublishedAssessmentServiceAPI: " + publishedAssessmentServiceAPI);
 
     QTIServiceAPI qtiServiceAPI = SamigoApiFactory.getInstance().getQtiServiceAPI();
-    log.debug("QtiServiceAPI: " + qtiServiceAPI);
+    log.info("QtiServiceAPI: " + qtiServiceAPI);
 
     QuestionPoolServiceAPI questionPoolServiceAPI = SamigoApiFactory.getInstance().getQuestionPoolServiceAPI();
-    log.debug("QuestionPoolServiceAPI: " + questionPoolServiceAPI);
+    log.info("QuestionPoolServiceAPI: " + questionPoolServiceAPI);
 
     SectionServiceAPI sectionServiceAPI = SamigoApiFactory.getInstance().getSectionServiceAPI();
-    log.debug("SectionServiceAPI: " + sectionServiceAPI);
+    log.info("SectionServiceAPI: " + sectionServiceAPI);
 
     TypeServiceAPI typeServiceAPI = SamigoApiFactory.getInstance().getTypeServiceAPI();
-    log.debug("TypeServiceAPI: " + typeServiceAPI);
+    log.info("TypeServiceAPI: " + typeServiceAPI);
 
   }
 }

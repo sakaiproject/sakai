@@ -5,7 +5,7 @@
   <name>Sakai Samigo Components</name>
   <shortDescription>Test and Quizzes component.</shortDescription>
   <groupId>sakaiproject</groupId>
-  <id>sakai-samigo-component</id>
+  <id>sakai-samigo-hibernate</id>
   <currentVersion>${sakai.version}</currentVersion>
 
   <organization>

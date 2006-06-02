@@ -1,0 +1,131 @@
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/component/src/java/org/sakaiproject/tool/assessment/osid/authz/impl/QualifierImpl.java $
+ * $Id: QualifierImpl.java 9276 2006-05-10 23:04:20Z daisyf@stanford.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the"License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+package org.sakaiproject.tool.assessment.osid.authz.impl;
+
+import org.osid.authorization.Qualifier;
+import org.osid.shared.Id;
+import org.osid.authorization.AuthorizationException;
+import org.osid.shared.Type;
+import org.osid.authorization.QualifierIterator;
+import java.util.ArrayList;
+
+public class QualifierImpl implements Qualifier {
+  private Id id;
+  private QualifierIterator childrenIter;
+  private QualifierIterator parentIter;
+  private String referenceName;
+  private String description;
+  private Type qualifierType;
+
+  public QualifierImpl() {
+  }
+
+  public Id getId() throws org.osid.authorization.AuthorizationException {
+    return id;
+  }
+
+  public String getReferenceName() throws org.osid.authorization.AuthorizationException {
+    return referenceName;
+  }
+
+  public String getDescription() throws org.osid.authorization.AuthorizationException {
+    return description;
+  }
+
+  public boolean isParent() throws org.osid.authorization.AuthorizationException {
+    boolean returnValue = false;
+    ArrayList a = new ArrayList();
+    while (childrenIter.hasNextQualifier()){
+      Id i = (Id)childrenIter.nextQualifier();
+      if (i.equals(this.id)){
+        returnValue = true;
+        break;
+      }
+    }
+    return returnValue;
+  }
+
+  public Type getQualifierType() throws org.osid.authorization.AuthorizationException {
+    return qualifierType;
+  }
+
+  public void updateDescription(String parm1) throws org.osid.authorization.AuthorizationException {
+    this.description = description;
+  }
+
+  public void addParent(Id parm1) throws org.osid.authorization.AuthorizationException {
+    ArrayList a = new ArrayList();
+    while (parentIter.hasNextQualifier()){
+      Id i = (Id)parentIter.nextQualifier();
+      a.add(i);
+    }
+    a.add(parm1);
+    this.parentIter = new QualifierIteratorImpl(a);
+  }
+
+  public void removeParent(Id parm1) throws org.osid.authorization.AuthorizationException {
+    ArrayList a = new ArrayList();
+    while (parentIter.hasNextQualifier()){
+      Id i = (Id)parentIter.nextQualifier();
+      if (!parm1.equals(i))
+        a.add(i);
+    }
+    this.parentIter = new QualifierIteratorImpl(a);
+  }
+
+  public void changeParent(Id oldParent, Id newParent) throws org.osid.authorization.AuthorizationException {
+    ArrayList a = new ArrayList();
+    while (parentIter.hasNextQualifier()){
+      Id i = (Id)parentIter.nextQualifier();
+      if (!oldParent.equals(i))
+        a.add(i);
+      else
+        a.add(newParent); // replace oldParent with newParent
+    }
+    this.parentIter = new QualifierIteratorImpl(a);
+  }
+
+  public boolean isChildOf(Id parent) throws org.osid.authorization.AuthorizationException {
+    boolean returnValue = false;
+    ArrayList a = new ArrayList();
+    while (parentIter.hasNextQualifier()){
+      Id i = (Id)parentIter.nextQualifier();
+      if (parent.equals(i)){
+        returnValue = true;
+        break;
+      }
+    }
+    return returnValue;
+  }
+
+  public boolean isDescendantOf(Id parent) throws org.osid.authorization.AuthorizationException {
+    throw new AuthorizationException(AuthorizationException.UNIMPLEMENTED);
+  }
+
+  public QualifierIterator getChildren() throws org.osid.authorization.AuthorizationException {
+    return childrenIter;
+  }
+  public QualifierIterator getParents() throws org.osid.authorization.AuthorizationException {
+    return parentIter;
+  }
+
+}

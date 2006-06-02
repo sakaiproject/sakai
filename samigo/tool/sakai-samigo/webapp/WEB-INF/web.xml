@@ -7,6 +7,7 @@
   <description>Sakai Assessment Manager</description>
 
   <!-- Context Params -->
+<!--
   <context-param>
     <param-name>PathToSecurity</param-name>
     <param-value>/opt/sa_forms/java/dev</param-value>
@@ -16,7 +17,7 @@
     <param-name>PathToSettings</param-name>
     <param-value>/opt/j2ee/dev</param-value>
   </context-param>
-
+-->
   <context-param>
      <param-name>contextConfigLocation</param-name>
      <param-value>classpath:/org/sakaiproject/spring/applicationContext.xml,
@@ -147,9 +148,11 @@
   </listener>
 
   <!-- PathInfo -->
+<!--
   <listener>
     <listener-class>org.sakaiproject.tool.assessment.settings.PathInfoInitListener</listener-class>
   </listener>
+-->
 
   <!-- Spring Locator -->
   <!--  Don't use Spring's, use Sakai's!  This allows sharing of Spring across webapps -->
