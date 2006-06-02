@@ -166,7 +166,10 @@ public class BeginDeliveryActionListener implements ActionListener
   private void populateBeanFromCourse(PublishedAssessmentIfc pub, DeliveryBean delivery,
     CourseManagementBean course)
   {
-    delivery.setCourseName(pub.getOwnerSite());
+    PublishedAssessmentService service = new PublishedAssessmentService();
+    String ownerSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
+    String ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
+    delivery.setCourseName(ownerSiteName);
     delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pub.getCreatedBy()));
   }
 
@@ -216,8 +219,12 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
     delivery.setInstructorMessage(pubAssessment.getDescription());
+
+    String ownerSiteId = service.getPublishedAssessmentOwner(pubAssessment.getPublishedAssessmentId());
+    String ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
+    delivery.setCourseName(ownerSiteName);
+
     // for now instructor is the creator 'cos sakai don't have instructor role in 1.5
-    delivery.setCourseName(pubAssessment.getOwnerSite());
     delivery.setCreatorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setInstructorName(AgentFacade.getDisplayNameByAgentId(pubAssessment.getCreatedBy()));
     delivery.setSubmitted(false);

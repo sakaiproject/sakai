@@ -22,6 +22,7 @@
 
 
 package org.sakaiproject.tool.assessment.ui.servlet.delivery;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -88,8 +89,10 @@ public class ShowMediaServlet extends HttpServlet
     if (mediaData != null){
       Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
       PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByAssessmentGradingId(assessmentGradingId.toString()); 
-      if (pub!=null)
-        currentSiteId = pub.getOwnerSiteId();
+      if (pub!=null){
+        PublishedAssessmentService service = new PublishedAssessmentService();
+        currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
+      }
     }
 
     // some log checking

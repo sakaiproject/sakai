@@ -43,11 +43,13 @@ public interface PublishedAssessmentIfc
 
   public void setAssessmentId(Long assessmentId);
 
+    /*
   String getOwnerSite();
 
   void setOwnerSite(String ownerSite);
 
   String getOwnerSiteId();
+    */
 
   Float getTotalScore();
 }

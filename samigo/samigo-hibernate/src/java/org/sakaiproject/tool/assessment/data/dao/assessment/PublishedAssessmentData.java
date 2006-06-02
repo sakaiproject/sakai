@@ -594,22 +594,21 @@ public class PublishedAssessmentData
   }
 
 
-  public String getOwnerSite(){
       /*
+  public String getOwnerSite(){
+
     PublishedAssessmentService service = new PublishedAssessmentService();
     String ownerSiteId = service.getPublishedAssessmentOwner(this.assessmentBaseId);
     this.ownerSiteName = AgentFacade.getSiteName(ownerSiteId);
     return this.ownerSiteName;
-      */
-      return null;
   }
+      */
 
+    /*
   public String getOwnerSiteId(){
-      /*
     PublishedAssessmentService service = new PublishedAssessmentService();
     return service.getPublishedAssessmentOwner(this.assessmentBaseId);
-      */
-      return null;
   }
+    */
 
 }
