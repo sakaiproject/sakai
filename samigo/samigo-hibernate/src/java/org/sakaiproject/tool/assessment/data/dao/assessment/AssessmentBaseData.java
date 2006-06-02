@@ -33,8 +33,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-//import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class AssessmentBaseData
     implements java.io.Serializable,
@@ -335,14 +335,11 @@ public class AssessmentBaseData
   }
 
   public TypeIfc getType() {
-      /*
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     TypeIfc type = typeFacadeQueries.getTypeFacadeById(this.typeId);
     TypeD typeD = new TypeD(type.getAuthority(), type.getDomain(),
                     type.getKeyword(), type.getDescription());
     typeD.setTypeId(this.typeId);
     return typeD;
-      */
-    return null;
   }
 }

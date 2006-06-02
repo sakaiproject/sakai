@@ -36,9 +36,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-//import org.sakaiproject.tool.assessment.facade.AgentFacade;
-//import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
-//import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class PublishedSectionData
     implements java.io.Serializable, SectionDataIfc, Comparable{
@@ -258,11 +258,8 @@ public class PublishedSectionData
   }
 
   public ArrayList getItemArraySorted() {
-      /*
     long seed = (long) AgentFacade.getAgentString().hashCode();
     return getItemArraySortedWithRandom(seed);
-      */
-    return new ArrayList();
   }
 
   public ArrayList getItemArraySortedWithRandom(long seed) {
@@ -317,15 +314,12 @@ public class PublishedSectionData
   }
 
   public TypeIfc getType() {
-      /*
     TypeFacadeQueriesAPI typeFacadeQueries = PersistenceService.getInstance().getTypeFacadeQueries();
     TypeIfc type = typeFacadeQueries.getTypeFacadeById(this.typeId);
     TypeD typeD = new TypeD(type.getAuthority(), type.getDomain(),
                     type.getKeyword(), type.getDescription());
     typeD.setTypeId(this.typeId);
     return typeD;
-      */
-      return null;
   }
 
   public int compareTo(Object o) {
