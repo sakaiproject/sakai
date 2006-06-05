@@ -81,7 +81,7 @@ languages, as follows:
 13) Spanish (Spain)
     Status: released in 2.1.2 (mostly completed)
     Translated by: David Roldán Martínez, Diego del Blanco, Raúl Mengod
-    Contact: David Roldan Martinez (darolmar@abierta.upv.es)
+    Contact: Federico Jesœs Carvajal Rodrigo (fcarvajal@abierta.upv.es)
     Local ID: es_ES
 
 14) Spanish (Mexico)
