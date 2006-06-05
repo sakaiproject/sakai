@@ -127,6 +127,8 @@ public class RequestScopeSuperBean
 	private SiteService siteService;
 
 	private String defaultUIHomePageName;
+
+	private boolean searchExperimental = false;
 	
 	public static RequestScopeSuperBean getFromRequest(
 			HttpServletRequest request)
@@ -184,20 +186,27 @@ public class RequestScopeSuperBean
 		siteService = (SiteService) context
 				.getBean(SiteService.class.getName());
 
-		searchService = (SearchService) context.getBean(SearchService.class
-				.getName());
 
 		messageService = (MessageService) context.getBean(MessageService.class
 				.getName());
 
 		experimental = ServerConfigurationService.getBoolean(
 				"wiki.experimental", false);
+
+		searchExperimental  = ServerConfigurationService.getBoolean(
+				"search.experimental", false);
+
 		withnotification = ServerConfigurationService.getBoolean(
 				"wiki.notification", false);
 		withcomments = ServerConfigurationService.getBoolean("wiki.comments",
 				false);
 		defaultUIHomePageName = ServerConfigurationService.getString(
 				"wiki.ui.homepage", "Home");
+		
+		if ( experimental && searchExperimental ) {
+			searchService = (SearchService) context.getBean(SearchService.class
+				.getName());
+		}
 		
 		// if the message service has been configured
 		// update the presence
@@ -467,16 +476,20 @@ public class RequestScopeSuperBean
 
 	public FullSearchBean getFullSearchBean()
 	{
-		String key = "fullSearchBean";
-		if (map.get(key) == null)
+		if ( experimental && searchExperimental ) 
 		{
-			FullSearchBean sb = new FullSearchBean(getCurrentSearch(),
-					getCurrentSearchPage(), getCurrentLocalSpace(),
-					searchService, toolManager);
-			map.put(key, sb);
-
-		}
-		return (FullSearchBean) map.get(key);
+			String key = "fullSearchBean";
+			if (map.get(key) == null)
+			{
+				FullSearchBean sb = new FullSearchBean(getCurrentSearch(),
+						getCurrentSearchPage(), getCurrentLocalSpace(),
+						searchService, toolManager);
+				map.put(key, sb);
+				
+			}
+			return (FullSearchBean) map.get(key);
+		} 
+		return null;
 	}
 
 	public SearchBean getSearchBean()
@@ -780,7 +793,7 @@ public class RequestScopeSuperBean
 
 	public String getSearchTarget()
 	{
-		if (experimental)
+		if (experimental && searchExperimental )
 		{
 			return WikiPageAction.FULL_SEARCH_ACTION.getName();
 		}
