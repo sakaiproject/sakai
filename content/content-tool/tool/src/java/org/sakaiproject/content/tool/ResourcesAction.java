@@ -71,6 +71,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -7735,47 +7736,52 @@ public class ResourcesAction
 				// get an edit
 				ContentCollectionEdit cedit = null;
 				ContentResourceEdit redit = null;
+				GroupAwareEdit gedit = null;
 				ResourcePropertiesEdit pedit = null;
 
 				if(item.isFolder())
 				{
 					cedit = ContentHostingService.editCollection(item.getId());
+					gedit = cedit;
 					pedit = cedit.getPropertiesEdit();
 				}
 				else
 				{
 					redit = ContentHostingService.editResource(item.getId());
+					gedit = redit;
 					pedit = redit.getPropertiesEdit();
 				}
+				
+				try
+				{
+					if((AccessMode.INHERITED.toString().equals(item.getAccess()) || AccessMode.SITE.toString().equals(item.getAccess())) && AccessMode.GROUPED == gedit.getAccess())
+					{
+						gedit.clearGroupAccess();
+					}
+					else if(gedit.getAccess() == AccessMode.GROUPED && item.getGroups().isEmpty())
+					{
+						gedit.clearGroupAccess();
+					}
+					else if(!item.getGroups().isEmpty())
+					{
+						Collection groupRefs = new Vector();
+						Iterator it = item.getGroups().iterator();
+						while(it.hasNext())
+						{
+							Group group = (Group) it.next();
+							groupRefs.add(group.getReference());
+						}
+						gedit.setGroupAccess(groupRefs);
+					}
+				}
+				catch(InconsistentException e)
+				{
+					// TODO: Should this be reported to user??
+					logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
+				}
+				
 				if(item.isFolder())
 				{
-					Collection groupRefs = new Vector();
-					Iterator it = item.getGroups().iterator();
-					while(it.hasNext())
-					{
-						Group group = (Group) it.next();
-						groupRefs.add(group.getReference());
-					}
-					try
-					{
-						if((AccessMode.INHERITED.toString().equals(item.getAccess()) || AccessMode.SITE.toString().equals(item.getAccess())) && AccessMode.GROUPED == cedit.getAccess())
-						{
-							cedit.clearGroupAccess();
-						}
-						else if(cedit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
-						{
-							cedit.clearGroupAccess();
-						}
-						else if(!groupRefs.isEmpty())
-						{
-							cedit.setGroupAccess(groupRefs);
-						}
-					}
-					catch(InconsistentException e)
-					{
-						// TODO: Should this be reported to user??
-						logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
-					}
 				}
 				else
 				{
@@ -7800,32 +7806,7 @@ public class ResourcesAction
 
 					BasicRightsAssignment rightsObj = item.getRights();
 					rightsObj.addResourceProperties(pedit);
-					
-					Collection groupRefs = new Vector();
-					Iterator it = item.getGroups().iterator();
-					while(it.hasNext())
-					{
-						Group group = (Group) it.next();
-						groupRefs.add(group.getReference());
-					}
-					try
-					{
-						if(redit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
-						{
-							redit.clearGroupAccess();
-						}
-						else if(!groupRefs.isEmpty())
-						{
-							redit.setGroupAccess(groupRefs);
-						}
-					}
-					catch(InconsistentException e)
-					{
-						// TODO: Should this be reported to user??
-						logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
-						
-					}
-					
+										
 					String copyright = StringUtil.trimToNull(params.getString ("copyright"));
 					String newcopyright = StringUtil.trimToNull(params.getCleanString (NEW_COPYRIGHT));
 					String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
