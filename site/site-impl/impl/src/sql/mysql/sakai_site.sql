@@ -247,6 +247,7 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-700', '!admin', 'Memory', '0', 10, '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-710', '!admin-700', '!admin', 'sakai.memory', 1, 'Memory', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-900', '!admin', 'Site Archive', '0', 11, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-910', '!admin-900', '!admin', 'sakai.archive', 1, 'Site Archive / Import', NULL );
+INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 
 -- Create the !error site to be displayed when there is a problem accessing a site.
 
