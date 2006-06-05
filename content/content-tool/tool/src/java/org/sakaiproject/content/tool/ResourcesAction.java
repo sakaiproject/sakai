@@ -10711,7 +10711,7 @@ public class ResourcesAction
 			m_itemnum = "Item00000000".substring(0,10 - snum.toString().length()) + snum.toString();
 
 			// set defaults
-			m_rights = new BasicRightsAssignment(m_itemnum, true);
+			m_rights = new BasicRightsAssignment(m_itemnum, false);
 			m_members = new LinkedList();
 			m_canRead = false;
 			m_canRevise = false;

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.time.cover.TimeService;
@@ -225,6 +227,7 @@ public class BasicRightsAssignment
 
 	 */
 	
+	protected static final String USING_CREATIVE_COMMONS = "usingCreativeCommons";
 	
 	protected static final String PD_URL = "http://creativecommons.org/license/publicdomain";
 	
@@ -341,7 +344,8 @@ public class BasicRightsAssignment
 	 */
 	public BasicRightsAssignment(Element el)
 	{
-		this.usingCreativeCommons = usingCreativeCommons;
+		String usingCC = el.getAttribute(USING_CREATIVE_COMMONS);
+		this.usingCreativeCommons = Boolean.TRUE.toString().equals(usingCC);
 		this.terms = el.getAttribute(FIELD_TERMS);
 		if(this.terms == null)
 		{
@@ -388,7 +392,14 @@ public class BasicRightsAssignment
 	public BasicRightsAssignment(String name, ResourceProperties properties)
 	{
 		this.name = name;
-		this.usingCreativeCommons = usingCreativeCommons;
+		try 
+		{
+			this.usingCreativeCommons = properties.getBooleanProperty(USING_CREATIVE_COMMONS);
+		} 
+		catch (Exception e) 
+		{
+			this.usingCreativeCommons = false;
+		}
 
 		this.terms = properties.getProperty(FIELD_TERMS);
 		if(this.terms == null)
@@ -1165,6 +1176,15 @@ public class BasicRightsAssignment
 
 		stack.push(rightsAssignment);
 
+		if(usingCreativeCommons)
+		{
+			rightsAssignment.setAttribute(USING_CREATIVE_COMMONS, "true");
+		}
+		else
+		{
+			rightsAssignment.setAttribute(USING_CREATIVE_COMMONS, "false");
+		}
+		
 		rightsAssignment.setAttribute(FIELD_TERMS, terms);
 		if(KEY_MY_COPYRIGHT.equals(terms))
 		{
@@ -1222,6 +1242,7 @@ public class BasicRightsAssignment
 		properties.removeProperty(FIELD_OTHER_MODIFICATIONS);
 		properties.removeProperty(FIELD_OTHER_COMMERCIAL_USE);
 		properties.addProperty(FIELD_TERMS, terms);
+		properties.addProperty(USING_CREATIVE_COMMONS, Boolean.toString(usingCreativeCommons));
 		if(KEY_MY_COPYRIGHT.equals(terms))
 		{
 			properties.addProperty(FIELD_MY_CR_YEAR, myCopyrightYear);

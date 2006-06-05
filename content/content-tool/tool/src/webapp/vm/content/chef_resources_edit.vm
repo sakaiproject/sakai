@@ -1314,7 +1314,53 @@
 			<textarea id="description" name="description" rows="2" cols="40" wrap="virtual">$validator.escapeHtmlTextarea("$!item.description")</textarea>
 		</p>	
 		#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
-			#getRightsAssignment($item.rights)
+			##getRightsAssignment($item.rights)
+			
+					#if ($!copyrightTypes)
+						<p class="shorttext">
+							<span class="reqStar">*</span>
+							<label for="copyright">
+								$tlang.getString("edit.cstatus")
+							</label>	
+							<select name="copyright" id ="copyright" onchange="javascript:updateCopyright(this);">
+								#foreach ($copyright in $copyrightTypes)
+									<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
+								#end
+							</select>
+							#if ($!fairuseurl)
+								(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
+							#end
+						</p>
+						<div id="copyright_status">
+							#if($item.copyrightStatus == $USE_THIS_COPYRIGHT)
+								<p class="shorttext">
+									<span class="reqStar">*</span>
+									<label for="newcopyright">
+										$tlang.getString("edit.cinfo")
+									</label>	
+									<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
+								</p>	
+							#else
+								<input type="hidden" name="newcopyright" id="newcopyright" value="$!item.copyrightInfo" />
+							#end
+						</div>
+						<table border="0">
+							<tr>
+								<td style="width:180px;padding-left:1em;vertical-align:top">
+									<label for="copyrightAlert">
+										$tlang.getString("edit.calert")
+									</label>
+								</td>
+								<td style="vertical-align:top">
+									<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
+									$tlang.getString("edit.display1")
+									<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
+									$tlang.getString("edit.display3")
+								</td>
+							</tr>
+						</table>
+					#end
+			
 		#end
 	
 		######### begin access section ##########
