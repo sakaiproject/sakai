@@ -26,8 +26,12 @@ import java.io.Serializable;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.beanutils.BeanUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * DOCUMENTATION PENDING
@@ -38,6 +42,7 @@ import org.apache.commons.beanutils.BeanUtils;
 public class BeanSortComparator
   implements Comparator
 {
+  private static Log log = LogFactory.getLog(BeanSortComparator.class);
   private String propertyName;
 
   /**
@@ -110,7 +115,7 @@ public class BeanSortComparator
    */
   protected Map describeBean(Object o)
   {
-    Map m;
+    Map m= new HashMap();
 
     try
     {
@@ -118,8 +123,12 @@ public class BeanSortComparator
     }
     catch(Throwable t)
     {
+      log.debug("Caught error in BeanUtils.describe(): " + t.getMessage());
+      //t.printStackTrace();
+      /* 
       throw new java.lang.UnsupportedOperationException(
         "Invalid describeBean. Objects may not be Java Beans.  " + t);
+      */
     }
 
     return m;
