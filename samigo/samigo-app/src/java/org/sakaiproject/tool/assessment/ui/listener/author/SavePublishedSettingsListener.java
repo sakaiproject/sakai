@@ -129,7 +129,10 @@ public class SavePublishedSettingsListener
         //add and copy scores over if any
 
         try{
-          gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+         log.debug("before gbsHelper.addToGradebook()");
+         gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+         log.debug("before gbsHelper.updateGradebook()");
+         gbsHelper.updateGradebook((PublishedAssessmentData)assessment.getData(), g);
           // any score to copy over? get all the assessmentGradingData and copy over
           GradingService gradingService = new GradingService();
           ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());

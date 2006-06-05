@@ -164,6 +164,34 @@ public void removeExternalAssessment(String gradebookUId,
   }
 
   /**
+   * Update a gradebook.
+   * @param publishedAssessment the published assessment
+   * @param g  the Gradebook Service
+   * @return false: cannot update the gradebook
+   * @throws java.lang.Exception
+   */
+  public boolean updateGradebook(PublishedAssessmentData publishedAssessment,
+		  GradebookService g) throws Exception
+  {
+    log.debug("updateGradebook start");
+    String gradebookUId = GradebookFacade.getGradebookUId();
+    if (gradebookUId == null)
+    {
+      return false;
+    }
+
+    log.debug("before g.isAssignmentDefined()");
+	g.updateExternalAssessment(gradebookUId,
+				publishedAssessment.getPublishedAssessmentId().
+				toString(), null,
+				publishedAssessment.getTitle(),
+				publishedAssessment.getTotalScore().doubleValue(),
+				publishedAssessment.getAssessmentAccessControl().
+				getDueDate());
+    return true;
+  }
+  
+  /**
    * Update the grading of the assessment.
    * @param ag the assessment grading.
    * @param g  the Gradebook Service
