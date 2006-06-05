@@ -44,7 +44,7 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	
 	/**
 	 * 
-	 * @param groups
+	 * @param groups The collection (String) of reference-strings identifying the groups to be added.
 	 * @throws InconsistentException
 	 * @throws PermissionException
 	 */

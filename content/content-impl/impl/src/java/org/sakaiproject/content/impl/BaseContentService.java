@@ -1461,50 +1461,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // allowUpdateCollection
 
 	/**
-	 * Access the collection with this local resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done! The collection internal members and properties are accessible from the returned Collection object.
-	 * 
-	 * @param id
-	 *        The id of the collection.
-	 * @exception IdUnusedException
-	 *            if the id does not exist.
-	 * @exception TypeException
-	 *            if the resource exists but is not a collection.
-	 * @exception PermissionException
-	 *            if the user does not have permissions to see this collection (or read through containing collections).
-	 * @exception InUseException
-	 *            if the Collection is locked by someone else.
-	 * @return The ContentCollection object found.
-	 */
-	public ContentCollectionEdit editCollection(String id) throws IdUnusedException, TypeException, PermissionException,
-			InUseException
-	{
-		String ref = getReference(id);
-
-		if (isLocked(getUuid(id)))
-		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), id, ref);
-		}
-
-		// check security (throws if not permitted)
-		unlock(EVENT_RESOURCE_WRITE, id);
-
-		// check for existance
-		if (!m_storage.checkCollection(id))
-		{
-			throw new IdUnusedException(id);
-		}
-
-		// ignore the cache - get the collection with a lock from the info store
-		BaseCollectionEdit collection = (BaseCollectionEdit) m_storage.editCollection(id);
-		if (collection == null) throw new InUseException(id);
-
-		collection.setEvent(EVENT_RESOURCE_WRITE);
-
-		return collection;
-
-	} // editCollection
-
-	/**
 	 * check permissions for removeCollection(). Note: for just this collection, not the members on down.
 	 * 
 	 * @param id
@@ -2394,6 +2350,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		// check security (throws if not permitted)
 		checkExplicitLock(id);
+		
 		unlock(EVENT_RESOURCE_WRITE, id);
 
 		// check for existance
@@ -2474,6 +2431,45 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return resource;
 
 	} // getResource
+
+	/**
+	 * Access the collection with this local resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done! The collection internal members and properties are accessible from the returned Collection object.
+	 * 
+	 * @param id
+	 *        The id of the collection.
+	 * @exception IdUnusedException
+	 *            if the id does not exist.
+	 * @exception TypeException
+	 *            if the resource exists but is not a collection.
+	 * @exception PermissionException
+	 *            if the user does not have permissions to see this collection (or read through containing collections).
+	 * @exception InUseException
+	 *            if the Collection is locked by someone else.
+	 * @return The ContentCollection object found.
+	 */
+	public ContentCollectionEdit editCollection(String id) throws IdUnusedException, TypeException, PermissionException,
+			InUseException
+	{
+		checkExplicitLock(id);
+	
+		// check security (throws if not permitted)
+		unlock(EVENT_RESOURCE_WRITE, id);
+	
+		// check for existance
+		if (!m_storage.checkCollection(id))
+		{
+			throw new IdUnusedException(id);
+		}
+	
+		// ignore the cache - get the collection with a lock from the info store
+		BaseCollectionEdit collection = (BaseCollectionEdit) m_storage.editCollection(id);
+		if (collection == null) throw new InUseException(id);
+	
+		collection.setEvent(EVENT_RESOURCE_WRITE);
+	
+		return collection;
+	
+	} // editCollection
 
 	/**
 	 * Access the resource with this resource id. For non-collection resources only. Internal find that doesn't do security or event tracking The resource content and properties are accessible from the returned Resource object.
@@ -6889,18 +6885,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				} 
 			}
 			
+			Collection newGroups = new Vector();
 			Iterator groupIt = groups.iterator();
 			while(groupIt.hasNext())
 			{
-				String groupRef = (String) groupIt.next();
+				String groupRef = null;
+				Object obj = groupIt.next();
+				if(obj instanceof String)
+				{
+					groupRef = (String) obj;
+				}
+				else if(obj instanceof Group)
+				{
+					groupRef = ((Group) obj).getReference();
+				}
 				if(! groupRefs.contains(groupRef))
 				{
 					throw new InconsistentException(this.getReference());
 				}
+				newGroups.add(groupRef);
 			}
 	
 			this.m_access = AccessMode.GROUPED;
-			this.m_groups.addAll(groups);
+			this.m_groups.clear();
+			this.m_groups.addAll(newGroups);
 			
 		}
 
@@ -6961,14 +6969,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public AccessMode getInheritedAccess() 
 		{
-			AccessMode access = getAccess();
+			AccessMode access = AccessMode.INHERITED;
 			ContentCollection parent = ((ContentEntity) this).getContainingCollection();
-			while(AccessMode.INHERITED.equals(access) && parent != null)
+			if(parent != null)
+			{
+				access = parent.getAccess();
+			}
+			while(AccessMode.INHERITED == access && parent != null)
 			{
 				access = parent.getAccess();
 				parent = parent.getContainingCollection();
 			}
-			if(AccessMode.INHERITED.equals(access))
+			if(AccessMode.INHERITED == access)
 			{
 				access = AccessMode.SITE;
 			}

@@ -184,7 +184,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @param properties
 	 *        A ResourceProperties object with the properties to add to the new collection.
 	 * @param groups
-	 *        The (possibly empty) collection of groups associated with this entity.
+	 *        The (possibly empty) collection (String) of reference-strings for groups to be associated with this entity.
 	 * 
 	 * @exception IdUsedException
 	 *            if the id is already in use.

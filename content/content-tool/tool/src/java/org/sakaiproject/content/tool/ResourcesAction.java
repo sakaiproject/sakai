@@ -7758,7 +7758,11 @@ public class ResourcesAction
 					}
 					try
 					{
-						if(cedit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
+						if((AccessMode.INHERITED.toString().equals(item.getAccess()) || AccessMode.SITE.toString().equals(item.getAccess())) && AccessMode.GROUPED == cedit.getAccess())
+						{
+							cedit.clearGroupAccess();
+						}
+						else if(cedit.getAccess() == AccessMode.GROUPED && groupRefs.isEmpty())
 						{
 							cedit.clearGroupAccess();
 						}

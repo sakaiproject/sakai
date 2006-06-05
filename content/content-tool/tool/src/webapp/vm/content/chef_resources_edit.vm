@@ -1345,7 +1345,7 @@
 								#end
 								<tr>
 									<td class="checkbox">
-										<input type="radio" name="access_mode" id="access_mode_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
+										<input type="radio" name="access_mode" id="access_mode_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
 										<label for="access_mode_$SITE_ACCESS">$tlang.getString("edit.access3")</label>
 									</td>
 								</tr>
