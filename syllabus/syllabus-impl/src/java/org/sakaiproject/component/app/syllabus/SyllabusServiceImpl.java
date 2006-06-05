@@ -62,6 +62,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.Validator;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -87,6 +88,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
   private static final String SYLLABUS_DATA_EMAIL_NOTIFICATION = "emailNotification";
   private static final String SYLLABUS_DATA_STATUS = "status";
   private static final String SYLLABUS_DATA_ASSET = "asset";
+  private static final String SYLLABUS_ATTACHMENT = "attachment";
   private static final String PAGE_ARCHIVE = "pageArchive";
   private static final String SITE_NAME = "siteName";
   private static final String SITE_ID = "siteId";
@@ -513,6 +515,8 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                               if (syDataElement.getTagName().equals(
                                   SYLLABUS_DATA))
                               {
+                              	List attachStringList = new ArrayList();
+                              	
                                 syDataCount = syDataCount + 1;
                                 SyllabusData syData = new SyllabusDataImpl();
                                 syData.setView(syDataElement
@@ -575,6 +579,36 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                         }
                                       }*/
                                     }
+                                    if (assetEle.getTagName().equals(
+                                        SYLLABUS_ATTACHMENT))
+                                    {
+                                    	Element attachElement = (Element) child3;
+        															String oldUrl = attachElement.getAttribute("relative-url");
+        															if (oldUrl.startsWith("/content/attachment/"))
+        															{
+        																String newUrl = (String) attachmentNames.get(oldUrl);
+        																if (newUrl != null)
+        																{
+        																	////if (newUrl.startsWith("/attachment/"))
+        																		////newUrl = "/content".concat(newUrl);
+
+        																	attachElement.setAttribute("relative-url", Validator
+        																			.escapeQuestionMark(newUrl));
+        																	
+        																	attachStringList.add(Validator.escapeQuestionMark(newUrl));
+
+        																}
+        															}
+        															else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
+        															{
+        																String newUrl = "/content/group/" + siteId
+        																		+ oldUrl.substring(15 + fromSiteId.length());
+        																attachElement.setAttribute("relative-url", Validator
+        																		.escapeQuestionMark(newUrl));
+        																
+        																attachStringList.add(Validator.escapeQuestionMark(newUrl));
+        															}
+                                    }
                                   }
                                 }
 
@@ -587,6 +621,23 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                             initPosition)), syData.getAsset(),
                                         syData.getView(), syData.getStatus(),
                                         syData.getEmailNotification());
+                            		Set attachSet = new TreeSet();
+                            		for(int m=0; m<attachStringList.size(); m++)
+                            		{
+                            			ContentResource cr = ContentHostingService.getResource((String)attachStringList.get(m));
+                            			ResourceProperties rp = cr.getProperties();
+                            			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
+                            					(String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                            			tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                            			tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+                            			tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+                            			tempAttach.setUrl(cr.getUrl());
+                            			tempAttach.setAttachmentId(cr.getId());
+                            			
+                            			attachSet.add(tempAttach);
+                            		}
+                            		syData.setAttachments(attachSet);
+                                
                                 syllabusManager.addSyllabusToSyllabusItem(
                                     syllabusItem, syData);
 
