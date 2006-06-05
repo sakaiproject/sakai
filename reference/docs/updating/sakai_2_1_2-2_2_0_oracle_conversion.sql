@@ -16,6 +16,21 @@
 -- 		the users we find in the user table with the users who have been granted any permissions in the system.
 ----------------------------------------------------------------------------------------------------------------------------------------
 
+CREATE TABLE SAKAI_USER_ID_MAP
+(
+       USER_ID             VARCHAR2(99) NOT NULL,
+       EID                 VARCHAR2(99) NOT NULL
+);
+
+
+ALTER TABLE SAKAI_USER_ID_MAP
+       ADD  ( PRIMARY KEY (USER_ID) ) ;
+
+CREATE UNIQUE INDEX AK_SAKAI_USER_ID_MAP_EID ON SAKAI_USER_ID_MAP
+(
+       EID                       ASC
+);
+
 INSERT INTO SAKAI_USER_ID_MAP (USER_ID, EID)
 SELECT USER_ID, USER_ID FROM SAKAI_USER WHERE USER_ID NOT IN (SELECT USER_ID FROM SAKAI_USER_ID_MAP);
 
