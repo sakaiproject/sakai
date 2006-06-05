@@ -293,3 +293,19 @@ DROP TABLE PERMISSIONS_TEMP;
 alter table SAM_ITEMGRADING_T add column ATTEMPTSREMAINING integer;
 alter table SAM_ITEMGRADING_T add column LASTDURATION varchar(36);
 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Search
+----------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE search_segments
+(
+	name_ varchar(255) not null,
+	version_ BIGINT not null,
+	size_ BIGINT not null,
+	packet_ LONGBLOB
+);
+CREATE UNIQUE INDEX search_segments_index ON search_segments
+(
+        name_
+);
