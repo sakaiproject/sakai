@@ -283,3 +283,13 @@ FROM
 
 DROP TABLE PERMISSIONS_TEMP;
 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Samigo
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-- added two columns in SAM_ITEMGRADING_T to support audio recording question type implemented in samigo 2.2, please see JIRA task SAK-1894 for specification
+
+alter table SAM_ITEMGRADING_T add column ATTEMPTSREMAINING integer;
+alter table SAM_ITEMGRADING_T add column LASTDURATION varchar(36);
+
