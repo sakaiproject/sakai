@@ -841,41 +841,18 @@ public class AssessmentFacadeQueries
 
   public void saveOrUpdate(final AssessmentFacade assessment) {
     // delete old IP before save
-	    HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"from SecuredIPAddress s where s.assessment.assessmentBaseId = ?");
-	    		q.setLong(0, assessment.getAssessmentId().longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List ip = getHibernateTemplate().executeFind(hcb);
+    HibernateCallback hcb = new HibernateCallback(){
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        Query q = session.createQuery(
+                  "from SecuredIPAddress s where s.assessment.assessmentBaseId = ?");
+                   q.setLong(0, assessment.getAssessmentId().longValue());
+        return q.list();
+      };
+    };
+    List ip = getHibernateTemplate().executeFind(hcb);
+    getHibernateTemplate().deleteAll(ip);
 	  
-//	  List ip = getHibernateTemplate().find(
-//        "from SecuredIPAddress s where s.assessment.assessmentBaseId = ?",
-//        new Object[] {assessment.getAssessmentId()}
-//        , new org.hibernate.type.Type[] {Hibernate.LONG});
-    if (ip != null) {
-      Iterator iter = ip.iterator();
-      while (iter.hasNext()) {
-        //log.debug("Deleting ip");
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().delete( (SecuredIPAddress) iter.next());
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem delete old IP: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-      }
-    }
     final AssessmentData data = (AssessmentData) assessment.getData();
-
-    //FIXME This is a hack to workaround org.hibernate.NonUniqueObjectException
-    //    getHibernateTemplate().clear();
 
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
