@@ -273,7 +273,10 @@ public class AgentResults
 
   public String getFullAnswer() {
     String unicodeFullAnswer = ContextUtil.getStringInUnicode(fullAnswer);
-    return Validator.check(unicodeFullAnswer, "");
+    //System.out.println("UNICODEFULLANSWER "+unicodeFullAnswer);
+    // System.out.println("FULL ANSWER: "+fullAnswer);
+    return Validator.check(fullAnswer,"");
+    //return Validator.check(escFullAnswer, "");
   }
   public void setFullAnswer(String answer) {
     this.fullAnswer = answer;
