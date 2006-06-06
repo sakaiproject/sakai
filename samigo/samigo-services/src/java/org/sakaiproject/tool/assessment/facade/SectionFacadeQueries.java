@@ -39,11 +39,24 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(SectionFacadeQueries.class);
 
   public SectionFacadeQueries () {
+  }
+
+  public IdImpl getId(String id) {
+    return new IdImpl(id);
+  }
+
+  public IdImpl getId(Long id) {
+    return new IdImpl(id);
+  }
+
+  public IdImpl getId(long id) {
+    return new IdImpl(id);
   }
 
   public static void main(String[] args) throws DataFacadeException {

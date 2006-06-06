@@ -857,11 +857,11 @@ public class AssessmentFacadeQueries
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().saveOrUpdate(data);
+        getHibernateTemplate().merge(data);
         retryCount = 0;
       }
       catch (Exception e) {
-        log.warn("problem save new IP: "+e.getMessage());
+        log.warn("problem save new settings: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
@@ -878,10 +878,12 @@ public class AssessmentFacadeQueries
 	    };
 	    List metadatas = getHibernateTemplate().executeFind(hcb);
 	  
+          getHibernateTemplate().deleteAll(metadatas);
 //	  List metadatas = getHibernateTemplate().find(
 //        "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?",
 //        new Object[] {template.getAssessmentTemplateId()}
 //        , new org.hibernate.type.Type[] {Hibernate.LONG});
+/*
     log.debug("Rachel: metadata size = " + metadatas.size());
     Iterator iter = metadatas.iterator();
     while (iter.hasNext()) {
@@ -898,10 +900,12 @@ public class AssessmentFacadeQueries
       }
     }
     }
+*/
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().saveOrUpdate(template);
+        getHibernateTemplate().merge(template);
+        //getHibernateTemplate().saveOrUpdate(template);
         retryCount = 0;
       }
       catch (Exception e) {

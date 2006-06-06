@@ -150,12 +150,15 @@ public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
     catch (AssessmentException ex) {
       throw new DataFacadeException(ex.getMessage());
     }
+
+    SectionFacadeQueriesAPI sectionFacadeQueries = PersistenceService.getInstance().getSectionFacadeQueries();
+    return sectionFacadeQueries.getId(this.data.getSectionId());
     /**
     SectionFacadeQueries sectionFacadeQueries = new SectionFacadeQueries();
     return sectionFacadeQueries.getSectionId(this.data.getSectionId());
-    */
     ItemFacadeQueriesAPI itemFacadeQueries = new ItemFacadeQueries();
     return itemFacadeQueries.getItemId(this.data.getSectionId());
+    */
   }
 
   /**
