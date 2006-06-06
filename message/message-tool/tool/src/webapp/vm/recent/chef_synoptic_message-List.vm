@@ -1,13 +1,15 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/recent/chef_synoptic_message-List.vm,v 1.6 2005/05/20 17:28:19 suiyy.umich.edu Exp $
 <div class="portletBody">
 	#set($counter = 0)
-	#if($menu)
+
 		#if ($toolId=="sakai.motd")
+			#if($menu)
 			<div class="navIntraTool">
 				<a href="#" title="$tlang.getString("motd.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 					$tlang.getString("gen.options")
 				</a>
 			</div>
+			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
 				#set($counter = $counter + 1)
@@ -52,11 +54,13 @@
 			#end	
 		#end
 		#if ($toolId=="sakai.synoptic.chat")
+			#if($menu)
 			<div class="navIntraTool">
 				<a href="#" title="$tlang.getString("chat.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 					$tlang.getString("gen.options")
 				</a>
 			</div>
+			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
 				#set($counter = $counter + 1)
@@ -66,11 +70,13 @@
 			#end	
 		#end	
 		#if ($toolId=="sakai.synoptic.discussion")
+			#if($menu)
 			<div class="navIntraTool">
 				<a href="#" title="$tlang.getString("disc.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
 					$tlang.getString("gen.options")
 				</a>
 			</div>
+			#end
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 			#foreach ($item in $messages)
 				#set($counter = $counter + 1)
@@ -83,7 +89,7 @@
 				#end	
 			#end	
 		#end
-	#end
+		
 	#if ($counter == 0)
 		<p class="instruction">
 			$tlang.getString("lis.the")
