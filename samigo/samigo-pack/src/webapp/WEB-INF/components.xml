@@ -65,8 +65,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -82,8 +80,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -99,8 +95,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -116,8 +110,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -133,8 +125,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -150,8 +140,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -167,8 +155,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -184,8 +170,6 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
@@ -201,16 +185,14 @@
       </property>
       <property name="transactionAttributes">
         <props>
-          <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop> 
-          <prop key="load*">PROPAGATION_REQUIRED,readOnly</prop> 
           <prop key="*">PROPAGATION_REQUIRED</prop>
         </props>
       </property>
     </bean>
 
     <!-- Currently being used to AutoDdl at startup -->
-    <bean id="org.sakaiproject.tool.assessment.data.dao.shared.SakaiBootStrap"
-          class="org.sakaiproject.tool.assessment.data.dao.shared.SakaiBootStrap"
+    <bean id="org.sakaiproject.tool.assessment.shared.SakaiBootStrap"
+          class="org.sakaiproject.tool.assessment.shared.SakaiBootStrap"
           init-method="init" depends-on="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory">
       <property name="autoDdl">
 	<value>true</value>
