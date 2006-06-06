@@ -35,8 +35,8 @@
               <column name="id" length="36" not-null="true"/>
               <generator class="uuid.hex" />
           </id>
-          <property name="sessionid" column="sessionid" index="true" />
-          <property name="user" column="userid" not-null="true" index="true" type="string" length="64" />
+          <property name="sessionid" column="sessionid" index="irwikipp_sessionid" />
+          <property name="user" column="userid" not-null="true" index="irwikipp_user" type="string" length="64" />
           <property name="pagespace" column="pagespace" type="string" length="255"/>
           <property name="pagename" column="pagename" type="string" length="255" />
           <property name="lastseen" column="lastseen" type="timestamp" />
@@ -50,7 +50,7 @@
               <column name="id" length="36" not-null="true"/>
               <generator class="uuid.hex" />
           </id>
-          <property name="userid" column="userid" not-null="true" index="true" type="string" length="64" />
+          <property name="userid" column="userid" not-null="true" index="irwikipr_userid" type="string" length="64" />
           <property name="lastseen" column="lastseen" type="timestamp" />
           <property name="prefcontext" column="prefcontext" type="string" length="255" />
           <property name="preftype" column="preftype" type="string"  length="64" />
@@ -67,10 +67,10 @@
               <column name="id" length="36" not-null="true"/>
               <generator class="uuid.hex" />
           </id>
-          <property name="sessionid" column="sessionid"  index="true" />
-          <property name="user" column="userid" not-null="true" index="true" type="string" length="64" />
-          <property name="pagespace" column="pagespace" type="string" index="true" length="255"/>
-          <property name="pagename" column="pagename" type="string"  index="true" length="255" />
+          <property name="sessionid" column="sessionid"  index="irwikipm_sessionid" />
+          <property name="user" column="userid" not-null="true" index="irwikipm_user" type="string" length="64" />
+          <property name="pagespace" column="pagespace" type="string" index="irwikipm_pagespace" length="255"/>
+          <property name="pagename" column="pagename" type="string"  index="irwikipm_pagename" length="255" />
           <property name="lastseen" column="lastseen" type="timestamp" />
           <property name="message" type="text" />
       </class>
@@ -81,9 +81,9 @@
               <column name="id" length="36" not-null="true"/>
               <generator class="uuid.hex" />
           </id>
-          <property name="user" column="userid" not-null="true" index="true" type="string" length="64" />
-          <property name="pagespace" column="pagespace" type="string" index="true" length="255"/>
-          <property name="pagename" column="pagename" type="string"  index="true" length="255" />
+          <property name="user" column="userid" not-null="true" index="irwikipt_user" type="string" length="64" />
+          <property name="pagespace" column="pagespace" type="string" index="irwikipt_pagespace" length="255"/>
+          <property name="pagename" column="pagename" type="string"  index="irwikipt_pavename" length="255" />
           <property name="lastseen" column="lastseen" type="timestamp" />
           <property name="triggerspec" type="text" />
       </class>

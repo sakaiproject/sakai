@@ -37,7 +37,7 @@
 			<column name="id" length="36" not-null="true"/>
 			<generator class="uuid.hex" />
 		</id>
-		<property name="name" column="name" not-null="true" index="true" type="string" unique="true" length="255" />
+		<property name="name" column="name" not-null="true" index="irwikiproperties_name" type="string" unique="true" length="255" />
 		<property name="value" column="value" type="string" length="4000" />
 	</class>
 	
@@ -83,15 +83,15 @@
 		
 		<property name="version" type="timestamp" not-null="false"/>		
 		<!-- this is the name of the page -->
-		<property name="name" column="name" not-null="true" index="true" type="string"  length="255"/>
+		<property name="name" column="name" not-null="true" index="irwikihistory_name" type="string"  length="255"/>
 		<!-- this is the realm that the page belongs to -->
-		<property name="realm" not-null="false" type="string" index="true" length="255" />
+		<property name="realm" not-null="false" type="string" index="irwikihistory_realm" length="255" />
 		<!-- this is the content of the wiki -->
 		<!-- MOVED to seperate conten ovject
 		<property name="content" not-null="false" type="text" />
 		-->
 		<!-- enough for about 400 pages, dont want to use a clob here -->
-		<property name="referenced" not-null="false" length="4000" index="true" />
+		<property name="referenced" not-null="false" length="4000" index="irwikihistory_ref" />
 		<!-- the user that edited this page. -->
 		<!-- when versioning is on, the last entry is the last updated -->
 		<!-- the first entry is the creator -->
@@ -130,9 +130,9 @@
 	<version name="version" type="timestamp" unsaved-value="null"/>
 
     <!-- this is the name of the page -->
-    <property name="name" column="name" not-null="true" index="true" type="string" unique="true" length="255"/>
+    <property name="name" column="name" not-null="true" index="irwikiobject_name" type="string" unique="true" length="255"/>
 	<!-- this is the realm that the page belongs to -->
-	<property name="realm" not-null="false" type="string" index="true" length="255" />
+	<property name="realm" not-null="false" type="string" index="irwikiobject_realm" length="255" />
 	
 	<!-- this is the content of the wiki -->
 	<!-- MOVED TO SEPERATE CONTENT OBJECT
@@ -140,7 +140,7 @@
 	-->
 
     <!-- enough for about 400 pages, dont want to use a clob here -->
-	<property name="referenced" not-null="false" length="4000" index="true" />
+	<property name="referenced" not-null="false" length="4000" index="irwikiobject_ref" />
 
 	<!-- the user that edited this page. -->
 	<!-- when versioning is on, the last entry is the last updated -->

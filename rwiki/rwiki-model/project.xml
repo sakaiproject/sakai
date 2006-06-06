@@ -52,6 +52,12 @@
       <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+<dependency>
+      <groupId>${sakai.hibernate.groupId}</groupId>
+      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+      <version>${sakai.hibernate.version}</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
   
 </project>
