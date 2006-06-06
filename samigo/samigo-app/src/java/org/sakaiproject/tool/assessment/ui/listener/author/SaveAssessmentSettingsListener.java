@@ -82,38 +82,39 @@ public class SaveAssessmentSettingsListener
     AssessmentService assessmentService = new AssessmentService();
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     String assessmentName=assessmentSettings.getTitle();
-
+    System.out.println ("BEFORE CHECK NAME EMPTY");
     // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
+ System.out.println ("BEFORE CHECK NAME UNIQUE");
     // check if name is unique 
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
 	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
-
+    // Huong's fix for assessment Settings - Save Assessment Settings should not be checked for duplication with the gradebook.(see bug)
     // check if gradebook exist, if so, if assessment title already exists in GB
-    GradebookService g = null;
-    if (integrated){
-      g = (GradebookService) SpringBeanLocator.getInstance().
-	    getBean("org.sakaiproject.service.gradebook.GradebookService");
-    }
-    String toGradebook = assessmentSettings.getToDefaultGradebook();
-    try{
-      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-          gbsHelper.isAssignmentDefined(assessmentName, g)){
-        String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
-	context.addMessage(null,new FacesMessage(gbConflict_err));
-	error=true;
-      }
-    }
-    catch(Exception e){
-      log.warn("external assessment in GB has the same title:"+e.getMessage());
-    }
+    // GradebookService g = null;
+    //  if (integrated){
+    //  g = (GradebookService) SpringBeanLocator.getInstance().
+    //	    getBean("org.sakaiproject.service.gradebook.GradebookService");
+    //  }
+    //  String toGradebook = assessmentSettings.getToDefaultGradebook();
+    // try{
+    //  if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+    //      gbsHelper.isAssignmentDefined(assessmentName, g)){
+    //    String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+    //	context.addMessage(null,new FacesMessage(gbConflict_err));
+    //	error=true;
+    // }
+    //  }
+    //catch(Exception e){
+    //  log.warn("external assessment in GB has the same title:"+e.getMessage());
+    // }
 
     //  if timed assessment, does it has value for time
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
