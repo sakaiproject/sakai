@@ -11600,7 +11600,7 @@ public class ResourcesAction
 		protected boolean m_isUrl;
 		protected boolean m_contentHasChanged;
 		protected boolean m_contentTypeHasChanged;
-		protected int m_notification;
+		protected int m_notification = NotificationService.NOTI_NONE;
 
 		protected String m_formtype;
 		protected String m_rootname;
