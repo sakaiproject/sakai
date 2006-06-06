@@ -1680,7 +1680,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			cancelCollection(edit);
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
 		}
-
+		
 		// update the properties for update
 		addLiveUpdateCollectionProperties(edit);
 

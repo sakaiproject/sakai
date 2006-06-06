@@ -41,7 +41,8 @@ public class BaseExtensionResourceFilter implements ContentResourceFilter
 
 	public boolean allowSelect(ContentResource resource)
 	{
-		String mimeType = resource.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+		// on a new resource, it seems that getContentType is more reliable than accessing that value through properties.
+		String mimeType = resource.getContentType();  // .getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE);
 		String[] parts = mimeType.split("/");
 		String primaryType = parts[0];
 

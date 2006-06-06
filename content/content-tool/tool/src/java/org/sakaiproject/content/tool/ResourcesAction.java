@@ -2916,18 +2916,34 @@ public class ResourcesAction
 					while(it.hasNext())
 					{
 						AttachItem item = (AttachItem) it.next();
+						try 
+						{	
+							ContentResource resource = ContentHostingService.getResource(item.getId());
+							if (checkSelctItemFilter(resource, state))
+							{
+								attachments.add(resource.getReference());
+							}
+							else
+							{
+								it.remove();
+								addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{item.getDisplayName()}));
+							}
+						} 
+						catch (PermissionException e) 
+						{
+							addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{item.getDisplayName()}));
+						} 
+						catch (IdUnusedException e) 
+						{
+							addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{item.getDisplayName()}));
+						} 
+						catch (TypeException e) 
+						{
+							addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{item.getDisplayName()}));
+						}
+						
 						Reference ref = EntityManager.newReference(ContentHostingService.getReference(item.getId()));
 
-		                  if (checkSelctItemFilter((ContentResource) ref.getEntity(), state))
-		                  {
-		                     attachments.add(ref);
-		                  }
-		                  else
-		                  {
-		                     it.remove();
-		                     addAlert(state, (String) rb.getFormattedMessage("filter",
-		                        new Object[]{item.getDisplayName()}));
-		                  }
 		               }
 				}
 			}
@@ -9840,19 +9856,20 @@ public class ResourcesAction
 	      return true;
 	}
 
-   protected static boolean checkSelctItemFilter(ContentResource resource, SessionState state) 
-   {
-      ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
+	protected static boolean checkSelctItemFilter(ContentResource resource, SessionState state) 
+	{
+		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACH_FILTER);
+		
+		if (filter != null)
+		{
+			return filter.allowSelect(resource);
+		}
+		return true;
+	}
 
-      if (filter != null) {
-         return filter.allowSelect(resource);
-      }
-      return true;
-   }
-
-   /**
-	* set the state name to be "copy" if any item has been selected for copying
-	*/
+    /**
+	 * set the state name to be "copy" if any item has been selected for copying
+	 */
 	public void doCopyitem ( RunData data )
 	{
 		// get the state object
@@ -12741,7 +12758,12 @@ public class ResourcesAction
 		 */
 		public String getDisplayName()
 		{
-			return m_displayName;
+			String displayName = m_displayName;
+			if(displayName == null || displayName.trim().equals(""))
+			{
+				displayName = isolateName(m_id);
+			}
+			return displayName;
 		}
 		/**
 		 * @param name The name to set.
@@ -13220,5 +13242,24 @@ public class ResourcesAction
 		
 		return null;
 	}
+
+	/**
+	 * Find the resource name of a given resource id or filepath.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the resource name.
+	 */
+	protected static String isolateName(String id)
+	{
+		if (id == null) return null;
+		if (id.length() == 0) return null;
+
+		// take after the last resource path separator, not counting one at the very end if there
+		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
+		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
+
+	} // isolateName
+
 
 }	// ResourcesAction
