@@ -44,7 +44,7 @@ public class ContentServlet extends HttpServlet
 {
 
   private static final String DOC_ID = "docId";
-  private static final String TEXT_HTML = "text/html";
+  private static final String TEXT_HTML = "text/html; charset=UTF-8";
   private HelpManager helpManager;
 
   /**
