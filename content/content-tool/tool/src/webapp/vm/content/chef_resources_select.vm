@@ -598,10 +598,10 @@
 			</table>
 		
 		<p class="act" >
-			<input type="button" name="attachButton" id="attachButton" 
+			<input type="button" name="attachButton" id="attachButton" accesskey="s"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doAddattachments")'; submitform('attachForm');" 
 				value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-			<input type="button" name="cancelButton" id="cancelButton" 
+			<input type="button" name="cancelButton" id="cancelButton" accesskey="x"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doCancel")'; submitform('attachForm');" 
 				value="$tlang.getString("att.cancel")"  />
 		</p>

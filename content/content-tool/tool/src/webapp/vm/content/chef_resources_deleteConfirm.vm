@@ -70,8 +70,8 @@
 				#end
 			</table>
 			<p class ="act">
-				<input type="submit" class="active"  name="eventSubmit_doDelete" value="$tlang.getString("del.del1")" />
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" />
+				<input type="submit" class="active"  name="eventSubmit_doDelete" value="$tlang.getString("del.del1")" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" accesskey="x" />
 			</p>
 		#end
 	</form>

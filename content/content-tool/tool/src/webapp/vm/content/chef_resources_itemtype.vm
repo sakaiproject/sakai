@@ -1192,7 +1192,7 @@
 			######################## ================ Content of Item ================ ########################
 			#if ($item.isFolder())
 				#if($!{item.isMissing("name")})
-					<p class="shorttext validation">
+					<p class="shorttext validFail">
 				#else
 					<p class="shorttext">
 				#end
@@ -1204,7 +1204,7 @@
 				</p>	
 			#elseif ($item.isUrl())
 				#if($!{item.isMissing("Url")})
-					<p class="shorttext validation">
+					<p class="shorttext validFail">
 				#else
 					<p class="shorttext">
 						<span class="reqStar">*</span>
@@ -1595,8 +1595,8 @@
 
 		######################## ================ Add Button, Cancel Button ================ ########################
 		<p class="act">
-				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');" onkeypress="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='attach'; submitform('createForm');"  value="$tlang.getString("gen.add")" />
-				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');" onkeypress="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"  value="$tlang.getString("gen.cancel")" />
+				<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='create'; submitform('createForm');" onkeypress="javascript:showNotif('submitnotif','saveChanges','createForm');document.getElementById('flow').value='attach'; submitform('createForm');"  value="$tlang.getString("gen.add")" accesskey="s" />
+				<input type="button" name="cancel" onclick="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');" onkeypress="javascript:document.getElementById('createForm').action='#toolLinkParam("ResourcesAction" "doCreateitem" "flow=cancel")';submitform('createForm');"  value="$tlang.getString("gen.cancel")" accesskey="x" />
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 		#if("$itemType" == "$TYPE_UPLOAD")

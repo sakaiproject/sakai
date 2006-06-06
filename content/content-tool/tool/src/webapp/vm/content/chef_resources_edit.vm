@@ -1662,11 +1662,11 @@
 		<p class="act">
 	##if("$itemType" == "$TYPE_UPLOAD") 
 	#if($item.isFileUpload())
-			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "special=upload&flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" />
+			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "special=upload&flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" accesskey="s" />
 	#else
-			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" />
+			<input type="button" class="active" name="doSavechanges" onclick="document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "flow=update")';submitform('propertyForm');" value="$tlang.getString("edit.update")" accesskey="s" />
 	#end
-			<input type="button" name="doCancel" onclick="javascript:document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "flow=cancel")';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" />
+			<input type="button" name="doCancel" onclick="javascript:document.getElementById('propertyForm').action='#toolLinkParam("ResourcesAction" "doSavechanges" "flow=cancel")';submitform('propertyForm');" value="$tlang.getString("gen.cancel")" accesskey="x" />
 		</p>
 		
 	</form>
