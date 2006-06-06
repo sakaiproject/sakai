@@ -1836,7 +1836,7 @@ public class CharonPortal extends HttpServlet
 		if (session.getUserId() != null)
 		{
 			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
-			ResourceProperties props = prefs.getProperties("sakai.portal.sitenav");
+			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 			try
 			{
 				prefTabs = (int) props.getLongProperty("tabs");
