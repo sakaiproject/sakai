@@ -296,17 +296,15 @@ alter table SAM_ITEMGRADING_T add (LASTDURATION varchar(36));
 -- Search
 ----------------------------------------------------------------------------------------------------------------------------------------
 
-CREATE TABLE search_segments
-(
-	name_ varchar(256) not null,
-	version_ NUMBER(20.0) not null,
-	size_ NUMBER(20.0) not null,
-	packet_ BLOB
-);
-CREATE UNIQUE INDEX search_segments_index ON search_segments
-(
-        name_
-);
+drop table search_segments cascade constraints;
+drop table searchbuilderitem cascade constraints;
+drop table searchwriterlock cascade constraints;
+create table search_segments (name_ varchar2(254 char) not null, version_ number(19,0) not null, size_ number(19,0) not null, packet_ blob, primary key (name_));
+create table searchbuilderitem (id varchar2(64 char) not null, version timestamp not null, name varchar2(255 char) not null unique, context varchar2(255 char) not null, searchaction number(10,0), searchstate number(10,0), primary key (id));
+create table searchwriterlock (id varchar2(64 char) not null, lockkey varchar2(64 char) not null unique, nodename varchar2(64 char), expires timestamp not null, primary key (id));
+create index isearchbuilderitem_context on searchbuilderitem (context);
+create index isearchbuilderitem_name on searchbuilderitem (name);
+create index isearchwriterlock_lockkey on searchwriterlock (lockkey);
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------

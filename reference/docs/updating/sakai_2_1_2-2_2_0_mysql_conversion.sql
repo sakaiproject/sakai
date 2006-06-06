@@ -298,17 +298,15 @@ alter table SAM_ITEMGRADING_T add column LASTDURATION varchar(36);
 -- Search
 ----------------------------------------------------------------------------------------------------------------------------------------
 
-CREATE TABLE search_segments
-(
-	name_ varchar(255) not null,
-	version_ BIGINT not null,
-	size_ BIGINT not null,
-	packet_ LONGBLOB
-);
-CREATE UNIQUE INDEX search_segments_index ON search_segments
-(
-        name_
-);
+drop table if exists search_segments;
+drop table if exists searchbuilderitem;
+drop table if exists searchwriterlock;
+create table search_segments (name_ varchar(254) not null, version_ bigint not null, size_ bigint not null, packet_ longblob, primary key (name_));
+create table searchbuilderitem (id varchar(64) not null, version datetime not null, name varchar(255) not null unique, context varchar(255) not null, searchaction integer, searchstate integer, primary key (id));
+create table searchwriterlock (id varchar(64) not null, lockkey varchar(64) not null unique, nodename varchar(64), expires datetime not null, primary key (id));
+create index isearchbuilderitem_context on searchbuilderitem (context);
+create index isearchbuilderitem_name on searchbuilderitem (name);
+create index isearchwriterlock_lockkey on searchwriterlock (lockkey);
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------
