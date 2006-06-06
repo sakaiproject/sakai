@@ -30,81 +30,88 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 
 /**
- *
- * <p>Description:
- * This is a stub standalone context implementation helper delegate class for
- * the GradebookService class.  The helper methods are stubs because in
- * standalone there isn't gradebook integration.  "Standalone" means that
-   * Samigo (Tests and Quizzes) is running without the context of the Sakai portal
- * and authentication mechanisms, and therefore we use stub methods.</p>
- * <p>Note: To customize behavior you can add your own helper class to the
- * Spring injection via the integrationContext.xml for your context.
- * The particular integrationContext.xml to be used is selected by the
- * build process.
+ * <p>
+ * Description: This is a stub standalone context implementation helper delegate class for the GradebookService class.<br />
+ * The helper methods are stubs because in standalone there isn't gradebook integration.<br />
+ * "Standalone" means that Samigo (Tests and Quizzes) is running without the context of the Sakai portal and authentication mechanisms, and therefore we use stub methods.
  * </p>
- * <p>Sakai Project Copyright (c) 2005</p>
- * <p> </p>
+ * <p>
+ * Note: To customize behavior you can add your own helper class to the Spring injection via the integrationContext.xml for your context.<br />
+ * The particular integrationContext.xml to be used is selected by the build process.
+ * </p>
+ * 
  * @author Ed Smiley <esmiley@stanford.edu>
- *
  */
-
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
+	private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
 
-  public boolean isAssignmentDefined(String assessmentTitle,
-                                GradebookService g)
-  {
-    return false;
-  }
+	public boolean isAssignmentDefined(String assessmentTitle, GradebookService g)
+	{
+		return false;
+	}
 
-  /**
-   * STUB.  NO-OP.
-   * @param publishedAssessment the published assessment
-   * @param g  the Gradebook Service
-   * @return false: cannot add to gradebook
-   * @throws java.lang.Exception
-   */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
-                                GradebookService g)
-  {
-    return false;
-  }
+	/**
+	 * STUB. NO-OP.
+	 * 
+	 * @param publishedAssessment
+	 *        the published assessment
+	 * @param g
+	 *        the Gradebook Service
+	 * @return false: cannot add to gradebook
+	 * @throws java.lang.Exception
+	 */
+	public boolean addToGradebook(PublishedAssessmentData publishedAssessment, GradebookService g)
+	{
+		return false;
+	}
 
-  /**
-   * STUB.  NO-OP.
-   * @param gradebookUId the gradebook id
-   * @param publishedAssessmentId the id of the published assessment
-   * @param g  the Gradebook Service
-   * @throws java.lang.Exception
-   */
-  public void removeExternalAssessment(String gradebookUId,
-                                       String publishedAssessmentId,
-                                       GradebookService g) throws Exception
-  {
-  }
+	/**
+	 * STUB. NO-OP.
+	 * 
+	 * @param gradebookUId
+	 *        the gradebook id
+	 * @param publishedAssessmentId
+	 *        the id of the published assessment
+	 * @param g
+	 *        the Gradebook Service
+	 * @throws java.lang.Exception
+	 */
+	public void removeExternalAssessment(String gradebookUId, String publishedAssessmentId, GradebookService g) throws Exception
+	{
+	}
 
-  /**
-   * Always returns false, because standalone.
-   * @param gradebookUId the gradebook id
-   * @param g  the Gradebook Service
-   * @return false, no gradebook integration
-   */
-  public boolean gradebookExists(String gradebookUId, GradebookService g)
-  {
-    return false;
-  }
+	/**
+	 * Always returns false, because standalone.
+	 * 
+	 * @param gradebookUId
+	 *        the gradebook id
+	 * @param g
+	 *        the Gradebook Service
+	 * @return false, no gradebook integration
+	 */
+	public boolean gradebookExists(String gradebookUId, GradebookService g)
+	{
+		return false;
+	}
 
-  /**
-   * STUB.  NO-OP.
-   * @param ag the assessment grading
-   * @param g  the Gradebook Service
-   * @throws java.lang.Exception
-   */
-  public void updateExternalAssessmentScore(AssessmentGradingIfc ag,
-                                            GradebookService g) throws
-    Exception
-  {
-  }
+	/**
+	 * STUB. NO-OP.
+	 * 
+	 * @param ag
+	 *        the assessment grading
+	 * @param g
+	 *        the Gradebook Service
+	 * @throws java.lang.Exception
+	 */
+	public void updateExternalAssessmentScore(AssessmentGradingIfc ag, GradebookService g) throws Exception
+	{
+	}
+
+	public boolean updateGradebook(PublishedAssessmentData publishedAssessment, GradebookService g) throws Exception
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }
