@@ -692,10 +692,34 @@ public class RequestFilter implements Filter
 			for (int i = 0; i < list.size(); i++)
 			{
 				FileItem item = (FileItem) list.get(i);
+				
 				if (item.isFormField())
 				{
 					String str = item.getString(encoding);
-					map.put(item.getFieldName(), new String[] { str });
+					
+					Object obj = map.get(item.getFieldName());
+					if(obj == null)
+					{
+						map.put(item.getFieldName(), new String[] { str });
+					}
+					else if(obj instanceof String[])
+					{
+						String[] old_vals = (String[]) obj;
+						String[] values = new String[old_vals.length + 1];
+						for(int i1 = 0; i1 < old_vals.length; i1++)
+						{
+							values[i1] = old_vals[i1];
+						}
+						values[values.length - 1] = str;
+						map.put(item.getFieldName(), values);
+					}
+					else if(obj instanceof String)
+					{
+						String[] values = new String[2];
+						values[0] = (String) obj;
+						values[1] = str;
+						map.put(item.getFieldName(), values);
+					}
 				}
 				else
 				{
