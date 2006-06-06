@@ -54,6 +54,8 @@ import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.api.rdf.RDFIndexException;
+import org.sakaiproject.search.api.rdf.RDFSearchService;
 import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchBuilderItem;
@@ -88,6 +90,9 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 
 	private EventTrackingService eventTrackingService;
 
+	private RDFSearchService rdfSearchService = null;
+
+	
 	/**
 	 * injected to abstract the storage impl
 	 */
@@ -102,6 +107,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName());
+		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName());
 
 		enabled = "true".equals(ServerConfigurationService.getString(
 				"search.experimental", "true"));
@@ -123,6 +129,13 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			{
 				log.error("Search Index Worker needs indexStorage ");
 			}
+			if (rdfSearchService == null)
+			{
+				log.info("No rdfSearchService has been defined, there will be no rdfIndexing performed, this is Ok for 2.2");
+			} else {
+				log.warn("Experimental RDF Search Service is enabled using implementation "+rdfSearchService);
+			}
+
 		}
 		catch (Throwable t)
 		{
@@ -448,6 +461,9 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 
 											log.debug("Done Indexing Document "
 													+ doc);
+											
+											processRDF(sep);
+											
 										}
 										else
 										{
@@ -537,6 +553,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 				}
 			}
 
+
 		};
 		int totalDocs = 0;
 		if (worker.isRunning())
@@ -577,6 +594,15 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			}
 		}
 
+	}
+	private void processRDF(EntityContentProducer sep) throws RDFIndexException
+	{
+		if ( rdfSearchService != null ) {
+			String s = sep.getCustomRDF();
+			if ( s != null ) {
+				rdfSearchService.addData(s);
+			}
+		}
 	}
 
 	/**
