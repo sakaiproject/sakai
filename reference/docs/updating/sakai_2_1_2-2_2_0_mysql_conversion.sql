@@ -75,7 +75,7 @@ create table GB_GRADING_SCALE_PERCENTS_T (
 );
 alter table GB_GRADE_MAP_T add column (GB_GRADING_SCALE_T bigint);
 alter table GB_GRADING_SCALE_GRADES_T add index FK5D3F0C955A72817B (GRADING_SCALE_ID), add constraint FK5D3F0C955A72817B foreign key (GRADING_SCALE_ID) references GB_GRADING_SCALE_T (ID);
-alter table GB_GRADE_TO_PERCENT_MAPPING_T add index FKCDEA021164995486 (GRADE_MAP_ID), add constraint FKCDEA021164995486 foreign key (GRADE_MAP_ID) references GB_GRADE_MAP_T (ID);
+
 alter table GB_GRADING_SCALE_PERCENTS_T add index FKC98BE4675A72817B (GRADING_SCALE_ID), add constraint FKC98BE4675A72817B foreign key (GRADING_SCALE_ID) references GB_GRADING_SCALE_T (ID);
 
 -- Add indexes for improved performance and reduced locking.
@@ -309,3 +309,14 @@ CREATE UNIQUE INDEX search_segments_index ON search_segments
 (
         name_
 );
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Schedule Summary Tool
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-- If you have run the new, provisional, schedule summary tool in its old form, the registration has changed, so run this
+
+UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.summary.calendar' WHERE REGISTRATION='sakai.synoptic.calendar';
+
+

@@ -307,3 +307,12 @@ CREATE UNIQUE INDEX search_segments_index ON search_segments
 (
         name_
 );
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Schedule Summary Tool
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-- If you have run the new, provisional, schedule summary tool in its old form, the registration has changed, so run this
+
+UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.summary.calendar' WHERE REGISTRATION='sakai.synoptic.calendar';
