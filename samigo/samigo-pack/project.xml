@@ -33,6 +33,14 @@
 
     <build>
       <sourceDirectory>src/java</sourceDirectory>
+      <resources>
+        <resource>
+          <directory>src/sql</directory>
+	  <includes>
+            <include>**/*.sql</include>
+	  </includes>
+        </resource>
+      </resources>
     </build>
 
 </project>
