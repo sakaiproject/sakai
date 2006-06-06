@@ -99,6 +99,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void init()
 	{
 		log.info(this + ":init() ");
+		/*
+		 The storage is created by hibernate now
 		try
 		{
 			if (autoDdl)
@@ -111,6 +113,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		{
 			log.error("Failed to init JDBCClusterIndexStorage", ex);
 		}
+		*/
 		log.info(this + ":init() Ok ");
 
 	}

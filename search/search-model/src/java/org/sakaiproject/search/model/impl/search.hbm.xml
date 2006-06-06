@@ -40,7 +40,7 @@
               name="name" 
               column="name" 
               not-null="true" 
-              index="true" 
+              index="isearchbuilderitem_name" 
               type="string" 
               unique="true" 
               length="255" />
@@ -48,7 +48,7 @@
               name="context" 
               column="context" 
               not-null="true" 
-              index="true" 
+              index="isearchbuilderitem_context" 
               type="string" 
               unique="false" 
               length="255" />
@@ -76,7 +76,7 @@
               name="lockkey" 
               column="lockkey" 
               not-null="true" 
-              index="true" 
+              index="isearchwriterlock_lockkey" 
               type="string" 
               unique="true" 
               length="64" />
@@ -89,6 +89,30 @@
               column="expires"
               type="timestamp"
               not-null="true" />
+ 
+      </class>
+      <class name="org.sakaiproject.search.model.impl.SearchClusterImpl"
+          table="search_segments" >
+          <!-- this is the segment name -->
+          <id name="name" unsaved-value="null"  >
+              <column name="name_" length="254" not-null="true"/>
+          </id>
+          <property 
+              name="version" 
+              column="version_" 
+              not-null="true" 
+              type="long" />
+          <property 
+              name="size" 
+              column="size_" 
+              not-null="true" 
+              type="long" />
+             <!-- the size is ste to generate the correct storage pattern -->
+          <property 
+              name="packet" 
+              column="packet_" 
+              type="blob" 
+              length="100000000" />
  
       </class>
           
