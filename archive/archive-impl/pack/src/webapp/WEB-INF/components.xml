@@ -13,7 +13,7 @@
  		<property name="storagePath"><value>${sakai.home}archive/</value></property>
 	</bean>
 
-	<bean id="org.sakaiproject.service.archive.api.ImportMetadataService"
+	<bean id="org.sakaiproject.archive.api.ImportMetadataService"
 			class="org.sakaiproject.archive.impl.ImportMetadataServiceImpl">
 	</bean>
 

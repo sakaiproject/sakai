@@ -55,6 +55,7 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
   // For Site.xml
   private static final String SITE_ROOT = "archive";
   private static final String SITE_SERVICE = "org.sakaiproject.site.api.SiteService";
+  private static final String SITE_APPLICATION_ID = "sakai:site";
   private static final String SITE = "site";
   private static final String SITE_ROLES = "roles";
   private static final String SITE_ROLE_MAINTAIN = "maintain";
@@ -249,7 +250,7 @@ public class ImportMetadataServiceImpl implements ImportMetadataService
             continue;
           }
           Element serviceElement = (Element) service;
-          if (serviceElement.getTagName().equals(SITE_SERVICE))
+          if (serviceElement.getTagName().equals(SITE_SERVICE) || serviceElement.getTagName().equals(SITE_APPLICATION_ID))
           {
             NodeList siteNodes = serviceElement.getChildNodes();
             final int siteNodeLength = siteNodes.getLength();

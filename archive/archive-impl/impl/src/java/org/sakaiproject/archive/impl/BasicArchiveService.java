@@ -104,7 +104,8 @@ public class BasicArchiveService
 		"DiscussionService",
 		"MailArchiveService",
 		"SyllabusService",
-		"RWikiObjectService"
+		"RWikiObjectService",
+		"DiscussionForumService"
 		};
 		
 	public String[] CT_tools_toImport = {};
