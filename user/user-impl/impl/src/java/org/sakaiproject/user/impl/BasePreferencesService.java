@@ -645,25 +645,44 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 				{
 					String key = element.getAttribute("key");
 
-					// convert old CHEF 1.2.10 service ids! (also converts the Sakai pre 2.2 ids)
+					// convert old pre Sakai 2.2 keys to new values (copied here to avoid build dependencies - WATCH OUT! -ggolden)
 					if (key.startsWith(NotificationService.PREFS_TYPE))
 					{
 						if (key.endsWith("AnnouncementService"))
 						{
-							key = NotificationService.PREFS_TYPE + "org.sakaiproject.announcement.api.AnnouncementService";
+							// matches AnnouncementService.APPLICATION_ID
+							key = NotificationService.PREFS_TYPE + "sakai:announcement";	
 						}
 						else if (key.endsWith("ContentHostingService"))
 						{
-							key = NotificationService.PREFS_TYPE + "org.sakaiproject.content.api.ContentHostingService";
+							// matches ContentHostingService.APPLICATION_ID
+							key = NotificationService.PREFS_TYPE + "sakai:content";
 						}
 						else if (key.endsWith("MailArchiveService"))
 						{
-							key = NotificationService.PREFS_TYPE + "org.sakaiproject.email.api.EmailArchiveService";
+							// matches MailArchiveService.APPLICATION_ID
+							key = NotificationService.PREFS_TYPE + "sakai:mailarchive";
 						}
 						else if (key.endsWith("SyllabusService"))
 						{
-							key = NotificationService.PREFS_TYPE + "org.sakaiproject.api.app.syllabus.SyllabusService";
+							// matches SyllabusService.APPLICATION_ID
+							key = NotificationService.PREFS_TYPE + "sakai:syllabus";
 						}
+					}
+					else if (key.endsWith("TimeService"))
+					{
+						// matches TimeService.APPLICATION_ID
+						key = "sakai:time";
+					}
+					else if (key.endsWith("sitenav"))
+					{
+						// matches Charon portal's value
+						key = "sakai:portal:sitenav";
+					}
+					else if (key.endsWith("ResourceLoader"))
+					{
+						// matches ResourceLoader.APPLICATION_ID
+						key = "sakai:resourceloader";
 					}
 
 					BaseResourcePropertiesEdit props = null;
@@ -737,36 +756,17 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 			for (Iterator it = m_props.entrySet().iterator(); it.hasNext();)
 			{
 				Map.Entry entry = (Map.Entry) it.next();
+				String key = (String) entry.getKey();
+				ResourceProperties properties = (ResourceProperties) entry.getValue();
+				
+				// if the props are empty, skip it
+				if (properties.getPropertyNames().next() == null) continue;
 
 				Element props = doc.createElement("prefs");
 				prefs.appendChild(props);
-
-				String key = (String) entry.getKey();
-
-				// TODO: [DONE] adjust for CHEF 1.2.10 compatibility
-				if (key.startsWith(NotificationService.PREFS_TYPE))
-				{
-					if (key.endsWith("AnnouncementService"))
-					{
-						key = NotificationService.PREFS_TYPE + "org.chefproject.service.generic.GenericAnnouncementService";
-					}
-					else if (key.endsWith("ContentHostingService"))
-					{
-						key = NotificationService.PREFS_TYPE + "org.chefproject.service.generic.GenericContentHostingService";
-					}
-					else if (key.endsWith("MailArchiveService"))
-					{
-						key = NotificationService.PREFS_TYPE + "org.chefproject.service.generic.GenericMailArchiveService";
-					}
-					else if (key.endsWith("SyllabusService"))
-					{
-						key = NotificationService.PREFS_TYPE + "org.sakaiproject.api.app.syllabus.SyllabusService";
-					}
-				}
-
 				props.setAttribute("key", key);
 				stack.push(props);
-				((ResourceProperties) entry.getValue()).toXml(doc, stack);
+				properties.toXml(doc, stack);
 				stack.pop();
 			}
 			stack.pop();

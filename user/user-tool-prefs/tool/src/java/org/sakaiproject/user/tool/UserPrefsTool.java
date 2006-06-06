@@ -37,6 +37,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.syllabus.SyllabusService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -63,6 +64,9 @@ public class UserPrefsTool
 
 	/** * Resource bundle messages */
 	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
+
+	/** The string that Charon uses for preferences. */
+	private static final String CHARON_PREFS = "sakai:portal:sitenav";
 
 	/**
 	 * Represents a name value pair in a keyed preferences set.
@@ -285,6 +289,11 @@ public class UserPrefsTool
 	public String getMsgNotiSyll2()
 	{
 		return msgs.getString("noti_syll_2");
+	}
+
+	public String getMsgNotiSyll3()
+	{
+		return msgs.getString("noti_syll_3");
 	}
 
 	/**
@@ -811,7 +820,7 @@ public class UserPrefsTool
 		List prefOrder = new Vector();
 
 		Preferences prefs = m_preferencesService.getPreferences(getUserId());
-		ResourceProperties props = prefs.getProperties("sakai.portal.sitenav");
+		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
 		List l = props.getPropertyList("exclude");
 		if (l != null)
 		{
@@ -887,7 +896,7 @@ public class UserPrefsTool
 
 		setUserEditingOn();
 		// Remove existing property
-		ResourcePropertiesEdit props = m_edit.getPropertiesEdit("sakai.portal.sitenav");
+		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(CHARON_PREFS);
 		props.removeProperty("exclude");
 		props.removeProperty("order");
 		// Commit to remove from database, for next set of value storing
@@ -909,10 +918,10 @@ public class UserPrefsTool
 			oparts += value + ", ";
 		}
 		// add property name and value for saving
-		m_stuff.add(new KeyNameValue("sakai.portal.sitenav", "exclude", eparts, true));
-		m_stuff.add(new KeyNameValue("sakai.portal.sitenav", "order", oparts, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
 		// TODO tab size is set to 4 by default. i can't set null , not "" as in portal code "" will be number to display on tab
-		// m_stuff.add(new KeyNameValue("sakai.portal.sitenav", "tabs", "4", false));
+		// m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", "4", false));
 
 		// save
 		saveEdit();
@@ -1177,7 +1186,7 @@ public class UserPrefsTool
 
 	private String selectedRsrcItem = "";
 
-	private String selectedSyllItem = ""; // syllabus notification
+	private String selectedSyllItem = "";
 
 	protected boolean notiUpdated = false;
 
@@ -1306,14 +1315,14 @@ public class UserPrefsTool
 		if (!hasValue(this.selectedSyllItem))
 		{
 			Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-			String a = buildTypePrefsContext("org.sakaiproject.api.app.syllabus.SyllabusService", "syll", selectedSyllItem, prefs);
+			String a = buildTypePrefsContext(SyllabusService.APPLICATION_ID, "syll", selectedSyllItem, prefs);
 			if (hasValue(a))
 			{
 				selectedSyllItem = a; // load from saved data
 			}
 			else
 			{
-				selectedSyllItem = "2"; // default setting
+				selectedSyllItem = "3"; // default setting
 			}
 		}
 		return selectedSyllItem;
@@ -1395,13 +1404,11 @@ public class UserPrefsTool
 		setUserEditingOn();
 		if (m_edit != null)
 		{
-			// TODO: hard coded -ggolden
-			// read each type specific
 			readTypePrefs(AnnouncementService.APPLICATION_ID, "annc", m_edit, getSelectedAnnItem());
 			readTypePrefs(MailArchiveService.APPLICATION_ID, "mail", m_edit, getSelectedMailItem());
 			readTypePrefs(ContentHostingService.APPLICATION_ID, "rsrc", m_edit, getSelectedRsrcItem());
-			// save syllabus
-			readTypePrefs("org.sakaiproject.api.app.syllabus.SyllabusService", "syll", m_edit, getSelectedSyllItem());
+			readTypePrefs(SyllabusService.APPLICATION_ID, "syll", m_edit, getSelectedSyllItem());
+
 			// update the edit and release it
 			m_preferencesService.commit(m_edit);
 		}
@@ -1542,7 +1549,7 @@ public class UserPrefsTool
 			selectedRsrcItem = "3"; // default setting
 		}
 		// syllabus
-		String s = buildTypePrefsContext("org.sakaiproject.api.app.syllabus.SyllabusService", "syll", selectedSyllItem, prefs);
+		String s = buildTypePrefsContext(SyllabusService.APPLICATION_ID, "syll", selectedSyllItem, prefs);
 		if (hasValue(s))
 		{
 			selectedSyllItem = s; // load from saved data
@@ -1575,6 +1582,7 @@ public class UserPrefsTool
 
 		// update the default settings from the form
 		ResourcePropertiesEdit props = edit.getPropertiesEdit(NotificationService.PREFS_TYPE + type);
+
 		// read the defaults
 		props.addProperty(Integer.toString(NotificationService.NOTI_OPTIONAL), data);
 
@@ -1601,11 +1609,10 @@ public class UserPrefsTool
 		}
 
 		ResourceProperties props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
-		String value = "";
-		value = props.getProperty(new Integer(NotificationService.NOTI_OPTIONAL).toString());
-		// String value=(String)props.getProperty("2");
+		String value = props.getProperty(new Integer(NotificationService.NOTI_OPTIONAL).toString());
+
 		return value;
-	} // buildTypePrefsContext
+	}
 
 	// ////////////////////////////////////// REFRESH //////////////////////////////////////////
 	private String selectedRefreshItem = "";

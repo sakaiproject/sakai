@@ -52,6 +52,7 @@
   			</h:selectOneRadio>
   			<h4><h:outputText value="#{msgs.noti_syll}"/></h4>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedSyllItem}" layout="pageDirection" styleClass="indnt2">
+    			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiSyll3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiSyll2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiSyll1}"/>
   			</h:selectOneRadio>  			
