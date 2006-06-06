@@ -3326,6 +3326,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		while (propertyNames.hasNext())
 		{
 			String propertyName = (String) propertyNames.next();
+			resourceProperties.addProperty(propertyName, properties.getProperty(propertyName));
+			/*
 			if (!properties.isLiveProperty(propertyName))
 			{
 				if (propertyName.equals(ResourceProperties.PROP_DISPLAY_NAME))
@@ -3340,6 +3342,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					resourceProperties.addProperty(propertyName, properties.getProperty(propertyName));
 				} // if-else
 			} // if
+				*/
 		} // while
 		return resourceProperties;
 
@@ -3529,11 +3532,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			IdUsedException, ServerOverloadException
 	{
 		String name = isolateName(new_folder_id);
-		name = Validator.escapeResourceName(name);
-
 		ResourceProperties properties = thisCollection.getProperties();
 		ResourcePropertiesEdit newProps = duplicateResourceProperties(properties, thisCollection.getId());
-		newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+		if(newProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME) == null)
+		{
+			name = Validator.escapeResourceName(name);
+
+			newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+		}
 
 		if (M_log.isDebugEnabled()) M_log.debug("copyCollection adding colletion=" + new_folder_id + " name=" + name);
 

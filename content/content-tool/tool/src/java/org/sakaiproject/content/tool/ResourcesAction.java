@@ -6829,6 +6829,8 @@ public class ResourcesAction
 			item.setAccess(access_mode);
 			if(AccessMode.GROUPED.toString().equals(access_mode))
 			{
+				String xxx = params.getString("access_groups");
+
 				String[] access_groups = params.getStrings("access_groups");
 				item.clearGroups();
 				for(int gr = 0; gr < access_groups.length; gr++)
