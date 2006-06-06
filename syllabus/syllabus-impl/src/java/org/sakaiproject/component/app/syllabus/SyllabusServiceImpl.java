@@ -238,7 +238,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 				}
 			}
 
-			ref.set(SERVICE_NAME, subType, id, container, context);
+			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
 		}
@@ -306,7 +306,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
           + Entity.SEPARATOR + siteId + Entity.SEPARATOR
           + SiteService.MAIN_CONTAINER + ".\n");
       // start with an element with our very own (service) name
-      Element element = doc.createElement(SyllabusService.class.getName());
+      Element element = doc.createElement(APPLICATION_ID);
       ((Element) stack.peek()).appendChild(element);
       stack.push(element);
       if (siteId != null && siteId.trim().length() > 0)
