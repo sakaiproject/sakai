@@ -668,6 +668,10 @@ public class ResourcesAction
 		context.put("TYPE_FOLDER", TYPE_FOLDER);
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
 
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+
 		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
 		if(selectedItems == null)
 		{
@@ -754,7 +758,7 @@ public class ResourcesAction
 			}
 			catch(IdUnusedException ex)
 			{
-				Log.error("chef", this + "IdUnusedException: " + collectionId);
+				logger.warn(this + "IdUnusedException: " + collectionId);
 				try
 				{
 					ContentCollectionEdit coll = contentService.addCollection(collectionId);
@@ -763,30 +767,30 @@ public class ResourcesAction
 				catch(IdUsedException inner)
 				{
 					// how can this happen??
-					Log.error("chef", this + "IdUsedException: " + collectionId);
+					logger.warn(this + "IdUsedException: " + collectionId);
 					throw ex;
 				}
 				catch(IdInvalidException inner)
 				{
-					Log.error("chef", this + "IdInvalidException: " + collectionId);
+					logger.warn(this + "IdInvalidException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 				catch(InconsistentException inner)
 				{
-					Log.error("chef", this + "InconsistentException: " + collectionId);
+					logger.warn(this + "InconsistentException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 			}
 			catch(TypeException ex)
 			{
-				Log.error("chef", this + "TypeException.");
+				logger.warn(this + "TypeException.");
 				throw ex;				
 			}
 			catch(PermissionException ex)
 			{
-				Log.error("chef", this + "PermissionException.");
+				logger.warn(this + "PermissionException.");
 				throw ex;
 			}
 			
@@ -937,7 +941,7 @@ public class ResourcesAction
 		}
 		catch(TypeException e)
 		{
-			Log.error("chef", this + "TypeException.");
+			logger.warn(this + "TypeException.");
 			context.put ("collectionFlag", Boolean.FALSE.toString());
 		}
 		catch(PermissionException e)
@@ -958,7 +962,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			// Log.error("chef", this + e.toString());
+			// logger.warn(this + e.toString());
 		}
 
 		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
@@ -1670,7 +1674,7 @@ public class ResourcesAction
 			}
 			catch(IdUnusedException ex)
 			{
-				logger.error("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
+				logger.warn("ResourcesAction.buildSelectAttachment (static) : IdUnusedException: " + collectionId);
 				try
 				{
 					ContentCollectionEdit coll = contentService.addCollection(collectionId);
@@ -1679,30 +1683,30 @@ public class ResourcesAction
 				catch(IdUsedException inner)
 				{
 					// how can this happen??
-					logger.error("ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
+					logger.warn("ResourcesAction.buildSelectAttachment (static) : IdUsedException: " + collectionId);
 					throw ex;
 				}
 				catch(IdInvalidException inner)
 				{
-					logger.error("ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
+					logger.warn("ResourcesAction.buildSelectAttachment (static) : IdInvalidException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 				catch(InconsistentException inner)
 				{
-					logger.error("ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
+					logger.warn("ResourcesAction.buildSelectAttachment (static) : InconsistentException: " + collectionId);
 					// what now?
 					throw ex;
 				}
 			}
 			catch(TypeException ex)
 			{
-				logger.error("ResourcesAction.buildSelectAttachment (static) : TypeException.");
+				logger.warn("ResourcesAction.buildSelectAttachment (static) : TypeException.");
 				throw ex;				
 			}
 			catch(PermissionException ex)
 			{
-				logger.error("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
+				logger.warn("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
 				throw ex;
 			}
 		
@@ -1898,7 +1902,7 @@ public class ResourcesAction
 		}
 		catch(TypeException e)
 		{
-			// Log.error("chef", this + "TypeException.");
+			// logger.warn(this + "TypeException.");
 			context.put ("collectionFlag", Boolean.FALSE.toString());
 		}
 		catch(PermissionException e)
@@ -1919,7 +1923,7 @@ public class ResourcesAction
 		}
 		catch (IdUnusedException e)
 		{
-			// Log.error("chef", this + e.toString());
+			// logger.warn(this + e.toString());
 		}
 
 		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
@@ -3229,7 +3233,7 @@ public class ResourcesAction
 				}
 				catch(RuntimeException e)
 				{
-					logger.error("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
+					logger.warn("ResourcesAction.createStructuredArtifacts ***** Unknown Exception ***** " + e.getMessage());
 					alerts.add(rb.getString("failed"));
 				}
 
@@ -3830,7 +3834,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
 				alerts.add(rb.getString("failed"));
 				continue outerloop;
 			}
@@ -4093,7 +4097,7 @@ public class ResourcesAction
 				}
 				catch(RuntimeException e)
 				{
-					logger.error("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+					logger.warn("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 			}
@@ -4196,7 +4200,7 @@ public class ResourcesAction
 		}
 		catch(RuntimeException e)
 		{
-			logger.error("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
+			logger.warn("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
@@ -4498,7 +4502,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 		}
@@ -4590,7 +4594,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 		}
@@ -4763,7 +4767,7 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.createFiles ***** Unknown Exception ***** " + e.getMessage());
 				alerts.add(rb.getString("failed"));
 				continue outerloop;
 			}
@@ -5116,6 +5120,10 @@ public class ResourcesAction
 		{
 			addAlert(state," " + rb.getString("nullex") + " " + id + ". ");
 		}
+		
+		EditItem item = getEditItem(id, collectionId, data);
+		
+		
 
 		// is there no error?
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5221,7 +5229,7 @@ public class ResourcesAction
 				}// try - catch
 				catch(RuntimeException e)
 				{
-					logger.error("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
+					logger.warn("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 			}	// for
@@ -5386,7 +5394,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.error("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+							logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 
@@ -5416,7 +5424,7 @@ public class ResourcesAction
 				}	// try-catch
 				catch(RuntimeException e)
 				{
-					logger.error("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+					logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 					addAlert(state, rb.getString("failed"));
 				}
 
@@ -5510,7 +5518,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.error("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
+							logger.warn("ResourcesAction.doHandlepaste ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 
@@ -5663,7 +5671,7 @@ public class ResourcesAction
 						}	// try-catch
 						catch(RuntimeException e)
 						{
-							logger.error("ResourcesAction.doHandlepasteshortcut ***** Unknown Exception ***** " + e.getMessage());
+							logger.warn("ResourcesAction.doHandlepasteshortcut ***** Unknown Exception ***** " + e.getMessage());
 							addAlert(state, rb.getString("failed"));
 						}
 					}	// if-else
@@ -6107,7 +6115,7 @@ public class ResourcesAction
 		}
 		catch(RuntimeException e)
 		{
-			logger.error("ResourcesAction.doEdit ***** Unknown Exception ***** " + e.getMessage());
+			logger.warn("ResourcesAction.doEdit ***** Unknown Exception ***** " + e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
@@ -7795,7 +7803,7 @@ public class ResourcesAction
 				catch(InconsistentException e)
 				{
 					// TODO: Should this be reported to user??
-					logger.error("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
+					logger.warn("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 				}
 				
 				if(item.isFolder())
@@ -7963,8 +7971,8 @@ public class ResourcesAction
 			}
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.doSavechanges ***** Unknown Exception ***** " + e.getMessage());
-				logger.error("ResourcesAction.doSavechanges ***** Unknown Exception ***** ", e);
+				logger.warn("ResourcesAction.doSavechanges ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.doSavechanges ***** Unknown Exception ***** ", e);
 				alerts.add(rb.getString("failed"));
 			}
 		}	// if - else
@@ -10010,7 +10018,7 @@ public class ResourcesAction
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 
@@ -10133,7 +10141,7 @@ public class ResourcesAction
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.error("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
+				logger.warn("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
 
@@ -11296,6 +11304,52 @@ public class ResourcesAction
 			}
 			return rv;
 		}
+		
+		public String getEffectiveAccess()
+		{
+			String rv = this.m_access;
+			if(AccessMode.INHERITED.toString().equals(rv))
+			{
+				rv = this.m_inheritedAccess;
+			}
+			if(AccessMode.INHERITED.toString().equals(rv))
+			{
+				rv = AccessMode.SITE.toString();
+			}
+			return rv;
+		}
+		
+		public String getEffectiveGroups()
+		{
+			String rv = rb.getString("access.site1");
+			if(AccessMode.GROUPED.toString().equals(getEffectiveAccess()))
+			{
+				rv = rb.getString("access.group1") + " ";
+				Collection groups = getGroups();
+				if(groups == null || groups.isEmpty())
+				{
+					groups = getInheritedGroups();
+				}
+				if(groups == null || groups.isEmpty())
+				{
+					rv = rb.getString("access.site1");
+				}
+				else
+				{
+					Iterator it = groups.iterator();
+					while(it.hasNext())
+					{
+						Group g = (Group) it.next();
+						rv += g.getTitle();
+						if(it.hasNext())
+						{
+							rv += ", ";
+						}
+					}
+				}
+			}
+			return rv;
+		}
 
 		/**
 		 * Set the access mode for this item.
@@ -11404,11 +11458,11 @@ public class ResourcesAction
 			while(it.hasNext())
 			{
 				Object obj = it.next();
-				if(obj instanceof Group)
+				if(obj instanceof Group && ! hasGroup(((Group) obj).getReference()))
 				{
 					m_groups.add(obj);
 				}
-				else if(obj instanceof String)
+				else if(obj instanceof String && ! hasGroup((String) obj))
 				{
 					addGroup((String) obj);
 				}
@@ -11434,11 +11488,11 @@ public class ResourcesAction
 			while(it.hasNext())
 			{
 				Object obj = it.next();
-				if(obj instanceof Group)
+				if(obj instanceof Group && ! inheritsGroup(((Group) obj).getReference()))
 				{
 					m_inheritedGroups.add(obj);
 				}
-				else if(obj instanceof String)
+				else if(obj instanceof String && ! hasGroup((String) obj))
 				{
 					addInheritedGroup((String) obj);
 				}
@@ -11523,7 +11577,7 @@ public class ResourcesAction
 				Group group = (Group) it.next();
 				if(group.getId().equals(groupId))
 				{
-					if(! hasGroup(group.getReference()))
+					if(! inheritsGroup(group.getReference()))
 					{
 						m_inheritedGroups.add(group);
 					}

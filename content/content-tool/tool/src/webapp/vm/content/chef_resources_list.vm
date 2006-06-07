@@ -155,6 +155,9 @@
 				<th id="actions">
 					$tlang.getString("gen.actions")
 				</th>
+				<th id="access">
+					$tlang.getString("gen.access")
+				</th>
 				<th id="creator">
 					##<a href="#toolLinkParam("ResourcesAction" "doSort" "criteria=created%20by&collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('sh.sortcrea')"> 
 					<a href="#"
@@ -250,7 +253,7 @@
 							#end
 						</h3>	
 					</td>
-					<td headers="actions" colspan="4">
+					<td headers="actions">
 						#set($actionLinkString = " ")
 						######################  Add Action Links at Top Level  ##############
 						#if($root && ($root.canAddItem() || $root.canAddFolder()))
@@ -326,6 +329,15 @@
 						#end
 						######################  End of Add Items/Folders at Top Level  ##############
 					</td>
+					#*
+					<td headers="access" title="$root.effectiveGroups">
+						#if($root.effectiveAccess == $INHERITED_ACCESS || $root.effectiveAccess == $SITE_ACCESS)
+							$tlang.getString("access.site")
+						#elseif($root.effectiveAccess == $GROUP_ACCESS)
+							$tlang.getString("access.group")
+						#end
+					</td>
+					*#
 				</tr>	
 				#set($collectionMembers = $root.Members)
 				######################  No items message  ##############
@@ -597,7 +609,14 @@
 									$actionLinkString
 								</div>
 							</td>
-							######################  Item/folder modification date  ##############
+							######################  Item/folder properties  ##############
+							<td headers="access" title="$member.effectiveGroups">
+								#if($member.effectiveAccess == $INHERITED_ACCESS || $member.effectiveAccess == $SITE_ACCESS)
+									$tlang.getString("access.site")
+								#elseif($member.effectiveAccess == $GROUP_ACCESS)
+									$tlang.getString("access.group")
+								#end
+							</td>
 							<td headers="creator">
 								$member.createdBy
 							</td>
@@ -717,7 +736,7 @@
 									#end
 								</h3>	
 							</td>
-							<td headers="actions" colspan="4">
+							<td headers="actions">
 								#set($actionLinkString = " ")
 								######################  Add Action Links at Top Level  ##############
 								#if($root && ($root.canAddItem() || $root.canAddFolder()))
@@ -780,6 +799,15 @@
 								#end
 								######################  End of Add Items/Folders at Top Level  ##############
 							</td>
+							#*
+							<td headers="access" title="$root.effectiveGroups">
+								#if($root.effectiveAccess == $INHERITED_ACCESS || $root.effectiveAccess == $SITE_ACCESS)
+									$tlang.getString("access.site")
+								#elseif($root.effectiveAccess == $GROUP_ACCESS)
+									$tlang.getString("access.group")
+								#end
+							</td>
+							*#
 						</tr>	
 						#set($collectionMembers = $root.Members)
 						######################  No items message  ##############
@@ -1042,7 +1070,14 @@
 											$actionLinkString
 										</div>
 									</td>
-									######################  Item/folder modification date  ##############
+									######################  Item/folder properties  ##############
+									<td headers="access" title="$member.effectiveGroups">
+										#if($member.effectiveAccess == $INHERITED_ACCESS || $member.effectiveAccess == $SITE_ACCESS)
+											$tlang.getString("access.site")
+										#elseif($member.effectiveAccess == $GROUP_ACCESS)
+											$tlang.getString("access.group")
+										#end
+									</td>
 									<td headers="creator">
 										$member.createdBy
 									</td>
