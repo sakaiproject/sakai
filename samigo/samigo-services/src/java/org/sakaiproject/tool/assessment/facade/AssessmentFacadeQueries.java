@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -854,6 +855,7 @@ public class AssessmentFacadeQueries
           getHibernateTemplate().deleteAll(ip);
           retryCount = 0;
         }
+        else retryCount = 0;
       }
       catch (Exception e) {
         log.warn("problem deleting ip address: "+e.getMessage());
@@ -878,45 +880,35 @@ public class AssessmentFacadeQueries
     }
   }
 
-  public void saveOrUpdate(final AssessmentTemplateData template) {
-	    HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"from AssessmentMetaData a where a.assessment.assessmentBaseId = ?");
-	    		q.setLong(0, template.getAssessmentTemplateId().longValue());
-	    		return q.list();
-	    	};
-	    };
-	    List metadatas = getHibernateTemplate().executeFind(hcb);
-	  
-          getHibernateTemplate().deleteAll(metadatas);
-//	  List metadatas = getHibernateTemplate().find(
-//        "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?",
-//        new Object[] {template.getAssessmentTemplateId()}
-//        , new org.hibernate.type.Type[] {Hibernate.LONG});
-/*
-    log.debug("Rachel: metadata size = " + metadatas.size());
-    Iterator iter = metadatas.iterator();
-    while (iter.hasNext()) {
-      log.debug("Deleting metadata");
+  public void deleteAllMetaData(AssessmentBaseIfc t){
+
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().delete( (AssessmentMetaData) iter.next());
-        retryCount = 0;
+        List metadatas = getHibernateTemplate().find(
+          "from AssessmentMetaData a where a.assessment.assessmentBaseId = ?", t.getAssessmentBaseId());
+        if (metadatas.size() > 0){
+          AssessmentMetaDataIfc m = (AssessmentMetaDataIfc) metadatas.get(0);
+          AssessmentBaseIfc a = (AssessmentBaseIfc) m.getAssessment();
+          a.setAssessmentMetaDataSet(new HashSet());
+          getHibernateTemplate().deleteAll(metadatas);
+          retryCount = 0;
+        }
+        else retryCount = 0;
       }
       catch (Exception e) {
-        log.warn("problem delete assessment metadata: "+e.getMessage());
+        log.warn("problem deleting metadata: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-    }
-*/
+  }
+
+  public void saveOrUpdate(final AssessmentTemplateData template) {
+
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().merge(template);
-        //getHibernateTemplate().saveOrUpdate(template);
+        getHibernateTemplate().saveOrUpdate(template);
         retryCount = 0;
       }
       catch (Exception e) {

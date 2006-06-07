@@ -182,6 +182,7 @@ public class TemplateUpdateListener
       {
         aac = new AssessmentAccessControl();
         template.setAssessmentAccessControl(aac);
+        aac.setAssessmentBase(template);
       }
       aac.setItemNavigation(new Integer(templateBean.getItemAccessType()));
       aac.setAssessmentFormat(new Integer(templateBean.getDisplayChunking()));
@@ -205,6 +206,7 @@ public class TemplateUpdateListener
       if (model == null)
       {
         model = new EvaluationModel();
+        model.setAssessmentBase(template);
         template.setEvaluationModel(model);
       }
       model.setAssessmentBase(template);
@@ -218,6 +220,7 @@ public class TemplateUpdateListener
       if (feedback == null)
       {
         feedback = new AssessmentFeedback();
+        feedback.setAssessmentBase(template);
         template.setAssessmentFeedback(feedback);
       }
       feedback.setFeedbackDelivery(new Integer(templateBean.getFeedbackType()));
@@ -253,20 +256,6 @@ public class TemplateUpdateListener
       feedback.setShowStatistics
         (templateBean.getFeedbackComponent_Statistics());
 
-      HashSet set = new HashSet();
-      Iterator iter = templateBean.getValueMap().keySet().iterator();
-      while (iter.hasNext())
-      {
-        String label = (String) iter.next();
-        String value = (String) templateBean.getValueMap().get(label).toString();
-        //log.info("Label: " + label + ", Value: " + value);
-        AssessmentMetaData data =
-          new AssessmentMetaData(template, label, value);
-        set.add(data);
-      }
-      template.setAssessmentMetaDataSet(set);
-
-
       //log.info("templateId = " + templateIdString);
       if (templateIdString.equals("0")) // New template
       {
@@ -284,7 +273,27 @@ public class TemplateUpdateListener
       template.setLastModifiedBy(AgentFacade.getAgentString());
       template.setLastModifiedDate(new Date());
 
+      //** save template before dealing with meta data set
       delegate.save((AssessmentTemplateData)template);
+
+      delegate.deleteAllMetaData((AssessmentTemplateData)template);
+
+      System.out.println("**** after deletion of meta data");
+      HashSet set = new HashSet();
+      Iterator iter = templateBean.getValueMap().keySet().iterator();
+      while (iter.hasNext())
+      {
+        String label = (String) iter.next();
+        String value = (String) templateBean.getValueMap().get(label).toString();
+        //log.info("Label: " + label + ", Value: " + value);
+        AssessmentMetaData data =
+          new AssessmentMetaData(template, label, value);
+        set.add(data);
+      }
+      template.setAssessmentMetaDataSet(set);
+
+      delegate.save((AssessmentTemplateData)template);
+
     }
     catch (Exception ex)
     {

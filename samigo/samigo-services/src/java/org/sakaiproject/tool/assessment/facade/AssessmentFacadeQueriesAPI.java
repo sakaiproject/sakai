@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateDa
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 
 public interface AssessmentFacadeQueriesAPI
 {
@@ -160,5 +161,7 @@ public interface AssessmentFacadeQueriesAPI
   public List getAssessmentByTemplate(Long templateId);
 
   public List getDefaultMetaDataSet();
+
+  public void deleteAllMetaData(AssessmentBaseIfc assessment);
 
 }

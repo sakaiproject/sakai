@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -379,6 +380,11 @@ public void deleteAssessment(Id assessmentId)
   public List getDefaultMetaDataSet(){
       return PersistenceService.getInstance().getAssessmentFacadeQueries().
 	  getDefaultMetaDataSet();
+  }
+
+  public void deleteAllMetaData(AssessmentBaseIfc assessment) {
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+      deleteAllMetaData(assessment);
   }
 
 }
