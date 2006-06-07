@@ -771,36 +771,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put(VELOCITY_DISPLAY_OPTIONS, state.getDisplayOptions());
 		}
 
-		// // if we are in edit permissions...
-		// String helperMode = (String) sstate.getAttribute(PermissionsAction.STATE_MODE);
-		// if (helperMode != null)
-		// {
-		// String template = PermissionsAction.buildHelperContext(portlet, context, rundata, sstate);
-		// if (template == null)
-		// {
-		// //addAlert(sstate, "There is a problem setting Permissions at this time.");
-		// addAlert(sstate, rb.getString("java.alert.prbset"));
-		// }
-		// else
-		// {
-		// return template;
-		// }
-		// }
-
 		String template = (String) getContext(rundata).get("template");
-
-		// // String mode = (String) sstate.getAttribute(AttachmentAction.STATE_MODE);
-		// String mode = (String) sstate.getAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
-		// if (mode != null)
-		// {
-		// // if the mode is not done, defer to the AttachmentAction
-		// if (!mode.equals(ResourcesAction.MODE_ATTACHMENT_DONE))
-		// {
-		// template = ResourcesAction.buildHelperContext(portlet, context, rundata, sstate);
-		// // template = AttachmentAction.buildHelperContext(portlet, context, runData, sstate);
-		// return template;
-		// }
-		// }
 
 		// group realted variables
 		context.put("channelAccess", MessageHeader.MessageAccess.CHANNEL);
@@ -1546,11 +1517,19 @@ public class AnnouncementAction extends PagedResourceActionII
 						}
 					}
 				}
-				// group list which user can add message to
-				Collection groups = channel.getGroupsAllowAddMessage();
-				
-				// add to these any groups that the message already has
 				AnnouncementMessageEdit edit = state.getEdit();
+
+				// group list which user can remove message from
+				// TODO: this is almost right (see chef_announcements-revise.vm)... ideally, we would let the check groups that they can add to,
+				// and uncheck groups they can remove from... only matters if the user does not have both add and remove -ggolden
+				boolean own = edit == null ? true : edit.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId());
+				Collection groups = channel.getGroupsAllowRemoveMessage(own);
+				context.put("allowedRemoveGroups", groups);
+				
+				// group list which user can add message to
+				groups = channel.getGroupsAllowAddMessage();
+
+				// add to these any groups that the message already has
 				if (edit != null)
 				{
 					Collection otherGroups = edit.getHeader().getGroupObjects();
@@ -1569,7 +1548,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				{
 					String sort = (String) sstate.getAttribute(STATE_CURRENT_SORTED_BY);
 					boolean asc = sstate.getAttribute(STATE_CURRENT_SORT_ASC) != null ? ((Boolean) sstate
-							.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue() : true;;
+							.getAttribute(STATE_CURRENT_SORT_ASC)).booleanValue() : true;
 					if (sort == null || (!sort.equals(SORT_GROUPTITLE) && !sort.equals(SORT_GROUPDESCRIPTION)))
 					{
 						sort = SORT_GROUPTITLE;
@@ -1577,7 +1556,12 @@ public class AnnouncementAction extends PagedResourceActionII
 						state.setCurrentSortedBy(sort);
 						state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
 					}
-					context.put("groups", new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)));
+					Collection sortedGroups = new Vector();
+					for (Iterator i = new SortedIterator(groups.iterator(), new AnnouncementComparator(sort, asc)); i.hasNext();)
+					{
+						sortedGroups.add(i.next());
+					}
+					context.put("groups", sortedGroups);
 				}
 			}
 		}
@@ -2177,18 +2161,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						// any setting of this property indicates pubview
 						msg.getPropertiesEdit().addProperty(ResourceProperties.PROP_PUBVIEW, Boolean.TRUE.toString());
-						header.setAccess(MessageHeader.MessageAccess.CHANNEL);
-						for (Iterator s = header.getGroups().iterator(); s.hasNext();)
-						{
-							try
-							{
-								header.removeGroup(site.getGroup((String) s.next()));
-							}
-							catch (PermissionException e)
-							{
-
-							}
-						}
+						header.clearGroupAccess();
 					}
 					else
 					{
@@ -2199,68 +2172,36 @@ public class AnnouncementAction extends PagedResourceActionII
 					// announce to site?
 					if (announceTo.equals("site"))
 					{
-						header.setAccess(MessageHeader.MessageAccess.CHANNEL);
-						for (Iterator s = header.getGroups().iterator(); s.hasNext();)
-						{
-							try
-							{
-								header.removeGroup(site.getGroup((String) s.next()));
-							}
-							catch (PermissionException e)
-							{
-
-							}
-						}
+						header.clearGroupAccess();
 					}
 					else if (announceTo.equals("groups"))
 					{
+						// get the group ids selected
 						Collection groupChoice = state.getTempAnnounceToGroups();
-
-						// if group has been dropped, remove it from announcement header
-						for (Iterator oSIterator = header.getGroups().iterator(); oSIterator.hasNext();)
+						
+						// make a collection of Group objects
+						Collection groups = new Vector();
+						for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 						{
-							Reference oGRef = EntityManager.newReference((String) oSIterator.next());
-							boolean selected = false;
-							for (Iterator gIterator = groupChoice.iterator(); gIterator.hasNext() && !selected;)
-							{
-								if (oGRef.getId().equals((String) gIterator.next()))
-								{
-									selected = true;
-								}
-							}
-							if (!selected)
-							{
-								try
-								{
-									header.removeGroup(site.getGroup(oGRef.getId()));
-								}
-								catch (Exception ignore)
-								{
-									if (Log.getLogger("chef").isDebugEnabled())
-										Log.debug("chef", this + "doPost(): cannot remove group " + oGRef.getId());
-								}
-							}
+							String groupId = (String) iGroups.next();
+							groups.add(site.getGroup(groupId));
 						}
 
-						// add group to announcement header
-						if (groupChoice != null)
-						{
-							header.setAccess(MessageHeader.MessageAccess.GROUPED);
-							for (Iterator gIterator2 = groupChoice.iterator(); gIterator2.hasNext();)
-							{
-								String gString = (String) gIterator2.next();
-								try
-								{
-									header.addGroup(site.getGroup(gString));
-								}
-								catch (Exception eIgnore)
-								{
-									if (Log.getLogger("chef").isDebugEnabled())
-										Log.debug("chef", this + "doPost(): cannot add group " + gString);
-								}
-							}
-						}
+						// set access
+						header.setGroupAccess(groups);
 					}
+				}
+				catch (PermissionException e)
+				{
+					addAlert(sstate, rb.getString("java.alert.youpermi")// "You don't have permissions to create this announcement -"
+							+ subject);
+
+					state.setIsListVM(false);
+					state.setStatus("stayAtRevise");
+
+					// disable auto-updates while in view mode
+					disableObservers(sstate);
+					return;
 				}
 				catch (Exception ignore)
 				{
