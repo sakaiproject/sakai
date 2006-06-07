@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.context.FacesContext;
 
@@ -37,7 +37,7 @@ import org.sakaiproject.jsf.model.PhaseAware;
 public abstract class InitializableBean implements PhaseAware {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);
 
-	protected ResourceBundle messageBundle;
+	protected ResourceLoader messageBundle;
 	
 	private transient boolean notValidated;
 
@@ -51,8 +51,7 @@ public abstract class InitializableBean implements PhaseAware {
 	 * abstract.
 	 */
 	protected void init() {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        messageBundle =ResourceBundle.getBundle(bundleName);
+        messageBundle = new ResourceLoader("sections");
 	}
 
 	/**

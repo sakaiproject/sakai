@@ -20,7 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.section.jsf.backingbean;
 
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.context.FacesContext;
 
@@ -43,9 +43,7 @@ public class PreferencesBean {
 		rosterMaxDisplayedRows = 10;
 		
 		// Get the max name length for displaying names from the app's properties file
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName,
-        		FacesContext.getCurrentInstance().getViewRoot().getLocale());
+        ResourceLoader rb = new ResourceLoader("sections");
         maxNameLength = Integer.parseInt(rb.getString("max_name_length"));
 	}
 	

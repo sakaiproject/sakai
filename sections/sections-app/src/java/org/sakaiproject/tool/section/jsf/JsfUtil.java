@@ -27,7 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -38,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.backingbean.MessagingBean;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * A utility to help deal with common tasks in JSF.
@@ -168,7 +168,7 @@ public class JsfUtil {
         } else {
         	bundleName = context.getApplication().getMessageBundle();
         }
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName, getLocale());
+        ResourceLoader rb = new ResourceLoader(bundleName);
         return rb.getString(key);
 	}
 	

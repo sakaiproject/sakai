@@ -34,6 +34,7 @@ import org.sakaiproject.api.section.SectionManager;
 import org.sakaiproject.api.section.coursemanagement.Course;
 import org.sakaiproject.api.section.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Base class for all JSF backing beans relying on knowledge of the current
@@ -44,6 +45,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
  */
 public class CourseDependentBean extends InitializableBean implements Serializable {
 
+   private static ResourceLoader rb = new ResourceLoader();
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(CourseDependentBean.class);
 
@@ -108,7 +110,7 @@ public class CourseDependentBean extends InitializableBean implements Serializab
 	}
 
 	protected String getCategoryName(String categoryId) {
-		return getCourseBean().sectionManager.getCategoryName(categoryId, JsfUtil.getLocale());
+		return getCourseBean().sectionManager.getCategoryName(categoryId, rb.getLocale());
 	}
 	
 	protected List getSectionCategories() {
