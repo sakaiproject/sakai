@@ -111,7 +111,7 @@ public interface MessageHeader extends AttachmentContainer
 	/**
 	 * Access the groups, as Group objects, defined for this message.
 	 * 
-	 * @return A Collection (Gropu) of group objects defined for this message; empty if none are defined.
+	 * @return A Collection (Group) of group objects defined for this message; empty if none are defined.
 	 */
 	Collection getGroupObjects();
 

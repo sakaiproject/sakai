@@ -21,9 +21,10 @@
 
 package org.sakaiproject.message.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.entity.api.AttachmentContainerEdit;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 
@@ -61,30 +62,20 @@ public interface MessageHeaderEdit extends MessageHeader, AttachmentContainerEdi
 	void setDraft(boolean draft);
 
 	/**
-	 * Add a Group to the list of groups for this message.
+	 * Set these as the message's groups, replacing the access and groups already defined.
 	 * 
-	 * @param group
-	 *        The Group to add to those for this message.
+	 * @param Collection
+	 *        groups The colelction of Group objects to use for this message.
+	 * @throws PermissionException
+	 *         if the end user does not have permission to remove from the groups that would be removed or add to the groups that would be added.
+	 */
+	void setGroupAccess(Collection groups) throws PermissionException;
+
+	/**
+	 * Remove any grouping for this message; the access mode reverts to channel and any groups are removed.
+	 * 
 	 * @throws PermissionException
 	 *         if the end user does not have permission to do this.
 	 */
-	void addGroup(Group group) throws PermissionException;
-
-	/**
-	 * Remove this Group from the list of groups for this message.
-	 * 
-	 * @param group
-	 *        The Group to remove from those for this message.
-	 * @throws PermissionException
-	 *         if the end user does not have permission to do this.
-	 */
-	void removeGroup(Group group) throws PermissionException;
-
-	/**
-	 * Set the access mode for the message - how we compute who has access to the message.
-	 * 
-	 * @param access
-	 *        The MessageAccess access mode for the message.
-	 */
-	void setAccess(MessageAccess access);
+	void clearGroupAccess() throws PermissionException;
 }

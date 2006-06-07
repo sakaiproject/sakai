@@ -1917,6 +1917,169 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// TODO: we do nothing now - channels hang around after the tool is removed from the site or the site is deleted -ggolden
 	}
 
+	/**
+	 * See if the collection of group reference strings has at least one group that is in the collection of Group objects.
+	 * 
+	 * @param groupRefs
+	 *        The collection (String) of group references.
+	 * @param groups
+	 *        The collection (Group) of group objects.
+	 * @return true if there is interesection, false if not.
+	 */
+	protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
+	{
+		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
+		{
+			String findThisGroupRef = (String) iRefs.next();
+			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
+			{
+				String thisGroupRef = ((Group) iGroups.next()).getReference();
+				if (thisGroupRef.equals(findThisGroupRef))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	/**
+	 * See if the collection of group reference strings is contained in the collection of groups.
+	 * 
+	 * @param groupRefs
+	 *        The collection (String) of group references.
+	 * @param groups
+	 *        The collection (Group) of group objects.
+	 * @return true if there is containment, false if not.
+	 */
+	protected boolean isContainedGroupRefsToGroups(Collection groupRefs, Collection groups)
+	{
+		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
+		{
+			String findThisGroupRef = (String) iRefs.next();
+			if (!groupCollectionContainsRefString(groups, findThisGroupRef)) return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * See if the collection of group reference strings matches completely the collection of Group objects.
+	 * 
+	 * @param groupRefs
+	 *        The collection (String) of group references.
+	 * @param groups
+	 *        The collection (Group) of group objects.
+	 * @return true if there is a match, false if not.
+	 */
+	protected boolean isEqualGroupRefsToGroups(Collection groupRefs, Collection groups)
+	{
+		// if the colletions are the same size
+		if (groupRefs.size() != groups.size()) return false;
+
+		// and each ref is found
+		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
+		{
+			String findThisGroupRef = (String) iRefs.next();
+			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
+			{
+				String thisGroupRef = ((Group) iGroups.next()).getReference();
+				if (thisGroupRef.equals(findThisGroupRef))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Test a collection of Group object for the specified group reference
+	 * 
+	 * @param groups
+	 *        The collection (Group) of groups
+	 * @param groupRef
+	 *        The string group reference to find.
+	 * @return true if found, false if not.
+	 */
+	protected boolean groupCollectionContainsRefString(Collection groups, String groupRef)
+	{
+		for (Iterator i = groups.iterator(); i.hasNext();)
+		{
+			Group group = (Group) i.next();
+			if (group.getReference().equals(groupRef)) return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Test a collection of Group reference Strings for the specified Group
+	 * 
+	 * @param refs
+	 *        The collection (String) of group refs
+	 * @param group
+	 *        The Group to find.
+	 * @return true if found, false if not.
+	 */
+	protected boolean refCollectionContainsGroup(Collection refs, Group group)
+	{
+		String targetRef = group.getReference();
+		for (Iterator i = refs.iterator(); i.hasNext();)
+		{
+			String groupRef = (String) i.next();
+			if (groupRef.equals(targetRef)) return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Set the refs collection to the group reference strings from the groups collection (and nothing more)
+	 * 
+	 * @param refs
+	 *        The collection (String) of group references to modify.
+	 * @param groups
+	 *        The collection (Group) of group objects to use.
+	 */
+	protected void setGroupRefsFromGroups(Collection refs, Collection groups)
+	{
+		refs.clear();
+		for (Iterator i = groups.iterator(); i.hasNext();)
+		{
+			Group group = (Group) i.next();
+			refs.add(group.getReference());
+		}
+	}
+
+	/**
+	 * Fill in the two collections of Group reference strings - those added in newGroups that were not in oldGroupRefs, and those removed, i.e. in oldGroupRefs not in newGroups.
+	 */
+	protected void computeAddedRemovedGroupRefsFromNewGroupsOldRefs(Collection addedGroups, Collection removedGroups, Collection newGroups, Collection oldGroupRefs)
+	{
+		// added
+		for (Iterator i = newGroups.iterator(); i.hasNext();)
+		{
+			Group group = (Group) i.next();
+			if (!refCollectionContainsGroup(oldGroupRefs, group))
+			{
+				addedGroups.add(group.getReference());
+			}
+		}
+		
+		// removed
+		for (Iterator i = oldGroupRefs.iterator(); i.hasNext();)
+		{
+			String groupRef = (String) i.next();
+			if (!groupCollectionContainsRefString(newGroups, groupRef))
+			{
+				removedGroups.add(groupRef);
+			}
+		}
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * MessageChannel implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -2274,12 +2437,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		} // editMessage
 
 		/**
-		 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
-		 * 
-		 * @param user
-		 *        The UserEdit object to commit.
+		 * {@inheritDoc}
 		 */
-		public void commitMessage(MessageEdit edit) throws PermissionException
+		public void commitMessage(MessageEdit edit)
 		{
 			commitMessage(edit, NotificationService.NOTI_OPTIONAL);
 
@@ -2293,7 +2453,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 * @param priority
 		 *        The notification priority for this commit.
 		 */
-		public void commitMessage(MessageEdit edit, int priority) throws PermissionException
+		public void commitMessage(MessageEdit edit, int priority)
 		{
 			// check for closed edit
 			if (!edit.isActiveEdit())
@@ -2307,50 +2467,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					M_log.warn("commitEdit(): closed MessageEdit", e);
 				}
 				return;
-			}
-
-			// check permission - this checks if the change in message access is allowed.
-			boolean allowed = true;
-
-			// if channel now...
-			if (MessageHeader.MessageAccess.CHANNEL == edit.getHeader().getAccess())
-			{
-				// make sure the user can add channel messages
-				allowed = allowAddChannelMessage();
-			}
-
-			// if grouped now...
-			else
-			{
-				// the current (pre-edit) message's group definition (group ref strings)
-				Collection currentGroupRefs = findMessage(edit.getId()).getHeader().getGroups();
-				
-				// the Group objects the user has add permission
-				Collection allowedGroups = getGroupsAllowAddMessage();
-
-				// check all defined groups in the edit
-				for (Iterator i = edit.getHeader().getGroups().iterator(); i.hasNext();)
-				{
-					String groupRef = (String) i.next();
-					
-					// if this group has been added in this edit
-					if (!currentGroupRefs.contains(groupRef))
-					{
-						// make sure it's among those groups this user has add permissions for
-						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
-						{
-							allowed = false;
-							break;
-						}
-					}
-				}
-			}
-
-			if (!allowed)
-			{
-				cancelMessage(edit);
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(),
-						eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference());
 			}
 
 			// update the properties
@@ -2447,6 +2563,14 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		}
 
 		/**
+		 * @inheritDoc
+		 */
+		public Collection getGroupsAllowRemoveMessage(boolean own)
+		{
+			return getGroupsAllowFunction(own ? SECURE_REMOVE_OWN : SECURE_REMOVE_ANY);
+		}
+
+		/**
 		 * Add a new message to this channel. Must commitEdit() to make official, or cancelEdit() when done!
 		 * 
 		 * @return The newly added message.
@@ -2506,7 +2630,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// TODO: might be better done in merge(), but easier here -ggolden
 			if (MessageHeader.MessageAccess.GROUPED == msg.getHeader().getAccess())
 			{
-				msg.getHeaderEdit().setAccess(MessageHeader.MessageAccess.CHANNEL);
+				((BaseMessageHeaderEdit) msg.getHeaderEdit()).m_access = MessageHeader.MessageAccess.CHANNEL;
 				((BaseMessageHeaderEdit) msg.getHeaderEdit()).m_groups = new Vector();
 			}
 
@@ -2525,7 +2649,17 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public boolean allowRemoveMessage(Message m)
 		{
-			return allowEditMessage(m, SECURE_REMOVE_OWN, SECURE_REMOVE_ANY);
+			// this is true if we can remove it due to any of our group membership
+			boolean allowed = allowEditMessage(m, SECURE_REMOVE_OWN, SECURE_REMOVE_ANY);
+
+			// but we must also assure, that for grouped messages, we can remove it from ALL of the groups
+			if (allowed && (m.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED))
+			{
+				boolean own = (m.getHeader().getFrom() == null) ? true : m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId());
+				allowed = isContainedGroupRefsToGroups(m.getHeader().getGroups(), getGroupsAllowRemoveMessage(own));
+			}
+			
+			return allowed;
 
 		} // allowRemoveMessage
 
@@ -3542,7 +3676,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		/** The draft status for the message. */
 		protected boolean m_draft = false;
 
-		/** The Collection of groups (authorization group id strings). */
+		/** The Collection of groups (authorization group id strings, i.e. group refs). */
 		protected Collection m_groups = new Vector();
 
 		/** The message access. */
@@ -3790,9 +3924,99 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		/**
 		 * @inheritDoc
 		 */
-		public void setAccess(MessageAccess access)
+		public void setGroupAccess(Collection groups) throws PermissionException
 		{
-			m_access = access;
+			// convenience (and what else are we going to do?)
+			if ((groups == null) || (groups.size() == 0))
+			{
+				clearGroupAccess();
+				return;
+			}
+			
+			// is there any change?  If we are already grouped, and the group list is the same, ignore the call
+			if ((m_access == MessageAccess.GROUPED) && (isEqualGroupRefsToGroups(m_groups, groups))) return;
+			
+			// there should not be a case where there's no message or a message with no channel... -ggolden
+			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
+			{
+				M_log.warn("setGroupAccess() called with null message: " + m_message.toString() + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
+			}
+
+			// isolate any groups that would be removed or added
+			Collection addedGroups = new Vector();
+			Collection removedGroups = new Vector();
+			computeAddedRemovedGroupRefsFromNewGroupsOldRefs(addedGroups, removedGroups, groups, m_groups);
+
+			// verify that the user has permission to remove
+			if (removedGroups.size() > 0)
+			{
+				// is this the user's own?
+				boolean own = (getFrom() == null) ? true : getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId());
+
+				// the Group objects the user has remove permission
+				Collection allowedGroups = ((BaseMessageEdit) m_message).m_channel.getGroupsAllowRemoveMessage(own);
+
+				for (Iterator i = removedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!groupCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+					}
+				}
+			}
+			
+			// verify that the user has permission to add in those contexts
+			if (addedGroups.size() > 0)
+			{
+				// the Group objects the user has add permission
+				Collection allowedGroups = ((BaseMessageEdit) m_message).m_channel.getGroupsAllowAddMessage();
+
+				for (Iterator i = addedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!groupCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+					}
+				}
+			}
+			
+			// we are clear to perform this
+			m_access = MessageAccess.GROUPED;
+			setGroupRefsFromGroups(m_groups, groups);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void clearGroupAccess() throws PermissionException
+		{
+			// is there any change?  If we are already channel, ignore the call
+			if (m_access == MessageAccess.CHANNEL) return;
+
+			// there should not be a case where there's no message or a message with no channel... -ggolden
+			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
+			{
+				M_log.warn("clearGroupAccess() called with null message: " + m_message.toString() + " or channel: " + ((m_message == null) ? "" : ((BaseMessageEdit) m_message).m_channel.toString()));
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((m_message == null) ? "" : ((BaseMessageEdit) m_message).getReference()));
+			}
+
+			// verify that the user has permission to add in the channel context
+			boolean allowed = (m_message != null) && (((BaseMessageEdit) m_message).m_channel).allowAddChannelMessage();
+			if (!allowed)
+			{
+				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:channel", ((BaseMessageEdit) m_message).getReference());				
+			}
+
+			// we are clear to perform this
+			m_access = MessageAccess.CHANNEL;
+			m_groups.clear();
 		}
 
 		/**

@@ -151,10 +151,8 @@ public interface MessageChannel extends Entity
 	 * 
 	 * @param user
 	 *        The UserEdit object to commit.
-	 * @exception PermissionException
-	 *            If the user does not have permission to store this message.
 	 */
-	void commitMessage(MessageEdit edit) throws PermissionException;
+	void commitMessage(MessageEdit edit);
 
 	/**
 	 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call. If the message is in a form that the user has no permission to store, a PermissionException is thrown, and the
@@ -164,10 +162,8 @@ public interface MessageChannel extends Entity
 	 *        The UserEdit object to commit.
 	 * @param priority
 	 *        The notification priority for this commit.
-	 * @exception PermissionException
-	 *            If the user does not have permission to store this message.
 	 */
-	void commitMessage(MessageEdit edit, int priority) throws PermissionException;
+	void commitMessage(MessageEdit edit, int priority);
 
 	/**
 	 * Cancel the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
@@ -255,4 +251,13 @@ public interface MessageChannel extends Entity
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
 	 */
 	Collection getGroupsAllowGetMessage();
+
+	/**
+	 * Get the collection of Group defined for the context of this channel that the end user has remove message permissions in.
+	 * 
+	 * @param own
+	 *        true if the message is the user's own, false if it is someone else's.
+	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
+	 */
+	Collection getGroupsAllowRemoveMessage(boolean own);
 }
