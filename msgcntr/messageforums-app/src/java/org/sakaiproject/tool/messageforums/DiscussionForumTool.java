@@ -3224,10 +3224,10 @@ public class DiscussionForumTool
             selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
             selectedMessage.getMessage().setGradeComment(gradeComment);
 
-            setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-            selectedTopic.setTopic((DiscussionTopic) forumManager
-                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+//            setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+//                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+//            selectedTopic.setTopic((DiscussionTopic) forumManager
+//                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
             selectedMessage.getMessage().setTopic((DiscussionTopic) forumManager
                     .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
             forumManager.saveMessage(selectedMessage.getMessage());
@@ -3297,7 +3297,7 @@ public class DiscussionForumTool
       LOG.error("DiscussionForumTool - processDfGradeSubmit:" + e); 
       e.printStackTrace(); 
     } 
-     
+        
     gradeNotify = false; 
     selectedAssign = "Default_0"; 
     gradePoint = ""; 
