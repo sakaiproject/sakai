@@ -1192,7 +1192,7 @@
 			######################## ================ Content of Item ================ ########################
 			#if ($item.isFolder())
 				#if($!{item.isMissing("name")})
-					<p class="shorttext validFail">
+					<p class="shorttext validation">
 				#else
 					<p class="shorttext">
 				#end
@@ -1204,7 +1204,7 @@
 				</p>	
 			#elseif ($item.isUrl())
 				#if($!{item.isMissing("Url")})
-					<p class="shorttext validFail">
+					<p class="shorttext validation">
 				#else
 					<p class="shorttext">
 						<span class="reqStar">*</span>
@@ -1268,7 +1268,7 @@
 			#else
 				#if("$!{item.Filename}" == "")
 					#if($!{item.isMissing("fileName")})
-						<p class="shorttext validation">
+						<p class="shorttext validFail">
 					#else
 						<p class="shorttext">
 					#end
@@ -1293,7 +1293,7 @@
 			</p>
 			#if(! $item.isFolder())
 				#if($!{item.isMissing("name")})
-					<p class="shorttext validation">
+					<p class="shorttext validFail">
 				#else
 					<p class="shorttext">
 				#end
@@ -1341,21 +1341,12 @@
 								<input type="hidden" name="newcopyright$i" id="newcopyright$i" value="$!item.copyrightInfo" />
 							#end
 						</div>
-						<table border="0">
-							<tr>
-								<td style="width:180px;padding-left:1em;vertical-align:top">
-									<label for="copyrightAlert$i">
-										$tlang.getString("edit.calert")
-									</label>
-								</td>
-								<td style="vertical-align:top">
-									<input type="checkbox" name="copyrightAlert$i" id ="copyrightAlert$i" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
-									$tlang.getString("edit.display1")
-									<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
-									$tlang.getString("edit.display3")
-								</td>
-							</tr>
-						</table>
+						<div class="checkbox labelindnt">
+							<input type="checkbox" name="copyrightAlert$i" id ="copyrightAlert$i" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
+							<label for="copyrightAlert$i">$tlang.getString("edit.display1")</label>
+							<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
+							$tlang.getString("edit.display3")
+					</div>
 					#end
 				
 			#end
@@ -1371,6 +1362,7 @@
 						<label for="access_mode$i">
 							$tlang.getString("edit.access1")
 						</label>	
+					</p>
 						#if(!$preventPublicDisplay && $item.isPubviewset())
 							$tlang.getString("gen.setyes")
 						#else
@@ -1402,7 +1394,7 @@
 									<tr>
 										<td class="checkbox">
 											<input type="radio" name="access_mode$i" id="access_mode${i}_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='block';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='block';" />
-											<label for="access_mode${i}_group">$tlang.getString("edit.access4")</label>
+											<label for="access_mode${i}_grouped">$tlang.getString("edit.access4")</label>
 											<table id="groupTable$i" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
 												<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 												<tr>
@@ -1445,7 +1437,7 @@
 															<input type="checkbox" name="access_groups$i" id="access_groups$i_$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
 														</td>
 														<td headers="name" style="padding-bottom:0;" class="checkbox">
-															<label for="$group.Id">
+															<label for="access_groups$i_$group.Id">
 																$group.Title
 															</label>	
 														</td>
@@ -1466,7 +1458,6 @@
 								#end
 							</table>
 						#end
-					</p>
 				#end
 			#end
 			########## end access section ###########
