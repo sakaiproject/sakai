@@ -179,7 +179,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 				indexWriter = new IndexWriter(currentSegment, getAnalyzer(),
 						true);
 				indexWriter.setUseCompoundFile(true);
-				indexWriter.setInfoStream(System.out);
+				//indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
 				indexWriter.setMergeFactor(50);
 			}
@@ -189,7 +189,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 				indexWriter = new IndexWriter(currentSegment, getAnalyzer(),
 						false);
 				indexWriter.setUseCompoundFile(true);
-				indexWriter.setInfoStream(System.out);
+				//indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(50);
 				indexWriter.setMergeFactor(50);
 			}
@@ -199,7 +199,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 			File tempIndex = clusterFS.getTemporarySegment(true);
 			indexWriter = new IndexWriter(tempIndex, getAnalyzer(), true);
 			indexWriter.setUseCompoundFile(true);
-			indexWriter.setInfoStream(System.out);
+			//indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
 		}
@@ -294,7 +294,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 			log.debug("Created new segment " + currentSegment.getName());
 			indexWriter = new IndexWriter(currentSegment, getAnalyzer(), true);
 			indexWriter.setUseCompoundFile(true);
-			indexWriter.setInfoStream(System.out);
+			//indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
 		}
@@ -303,7 +303,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 			clusterFS.touchSegment(currentSegment);
 			indexWriter = new IndexWriter(currentSegment, getAnalyzer(), false);
 			indexWriter.setUseCompoundFile(true);
-			indexWriter.setInfoStream(System.out);
+			//indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
 		}
