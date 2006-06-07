@@ -2081,6 +2081,9 @@ public class ResourcesAction
 		context.put("homeCollectionId", homeCollectionId);
 		List cPath = getCollectionPath(state);
 		context.put ("collectionPath", cPath);
+		
+		EditItem item = getEditItem(id, collectionId, data);
+		context.put("item", item);
 
 		// for the resources of type URL or plain text, show the content also
 		try
