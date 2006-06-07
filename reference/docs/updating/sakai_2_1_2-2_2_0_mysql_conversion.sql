@@ -215,6 +215,7 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','content.new');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','content.read');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','content.revise');
 
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','annc.delete.any');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','asn.delete');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','asn.grade');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','asn.new');
