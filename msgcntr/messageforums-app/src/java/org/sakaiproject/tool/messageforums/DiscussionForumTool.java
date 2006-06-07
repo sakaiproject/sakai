@@ -3223,6 +3223,13 @@ public class DiscussionForumTool
             setGradeNoticeMessage();
             selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
             selectedMessage.getMessage().setGradeComment(gradeComment);
+
+            setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+            selectedTopic.setTopic((DiscussionTopic) forumManager
+                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+            selectedMessage.getMessage().setTopic((DiscussionTopic) forumManager
+                    .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
             forumManager.saveMessage(selectedMessage.getMessage());
              
             if(gradeNotify) 
