@@ -24,7 +24,10 @@ package org.sakaiproject.search.filter;
 import org.sakaiproject.search.api.SearchResult;
 
 /**
- * Provides a mechnism whereby a search item can be filtered from the list
+ * Provides a mechnism whereby a search item can be filtered from the list,
+ * This is used to post process the list,
+ * It should not be confused with the filters that pre-process the list during the search 
+ * operation.
  * 
  * @author ieb
  */

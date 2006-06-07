@@ -104,6 +104,8 @@ public interface SearchService
 	 */
 	public static final String FIELD_REFERENCE = "reference";
 
+	public static final String DATE_STAMP = "indexdate";
+
 	/**
 	 * Perform a search, return results in a list.
 	 * 
@@ -118,6 +120,22 @@ public interface SearchService
 	SearchList search(String searchTerms, List contexts, int searchStart,
 			int searchEnd);
 
+	/**
+	 * This is the same as standard search, but the caller can specify, by name, the 
+	 * index Filter and the index Sorter by name
+	 * The Sorter and the Filter will be consulted during the search, and hence should not
+	 * make massive demands on the framework, otherwise they will cripple the search 
+	 * performance
+	 * @param searchTerms A search string
+	 * @param contexts A list of contexts
+	 * @param start starting from
+	 * @param end ending at
+	 * @param filterName a lucene filter 
+	 * @param sorterName a lucene sorter
+	 * @return
+	 */
+	public SearchList search(String searchTerms, List contexts, int start,
+			int end, String filterName, String sorterName);
 	/**
 	 * Adds a function for the SearchService to respond to and route to the
 	 * index builder. EntityProducers that want their content to be searched,

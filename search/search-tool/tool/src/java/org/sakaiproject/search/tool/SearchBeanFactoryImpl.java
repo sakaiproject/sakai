@@ -113,4 +113,20 @@ public class SearchBeanFactoryImpl implements SearchBeanFactory
 		}
 	}
 
+	public SearchBean newSearchBean(HttpServletRequest request, String sortName, String filterName) throws PermissionException
+	{
+		try
+		{
+			SearchBeanImpl searchBean = new SearchBeanImpl(request, sortName, filterName,
+					searchService, siteService, toolManager);
+
+			return searchBean;
+		}
+		catch (IdUnusedException e)
+		{
+			throw new RuntimeException(
+					"You must access the Search through a woksite");
+		}
+	}
+
 }

@@ -24,8 +24,10 @@ package org.sakaiproject.search.component.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,9 +36,11 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.event.api.NotificationEdit;
@@ -93,6 +97,14 @@ public class SearchServiceImpl implements SearchService
 	private IndexStorage indexStorage = null;
 
 	private SearchItemFilter filter;
+
+	private Map luceneFilters = new HashMap();
+
+	private Map luceneSorters = new HashMap();
+
+	private String defaultFilter = null;
+
+	private String defaultSorter = null;
 
 	/**
 	 * Register a notification action to listen to events and modify the search
@@ -216,9 +228,15 @@ public class SearchServiceImpl implements SearchService
 
 	/**
 	 * {@inheritDoc}
+	 * @param indexFilter 
 	 */
 	public SearchList search(String searchTerms, List contexts, int start,
-			int end)
+			int end) {
+		return search (searchTerms, contexts, start, end, defaultFilter, defaultSorter );
+	}
+
+	public SearchList search(String searchTerms, List contexts, int start,
+			int end, String filterName, String sorterName)
 	{
 		try
 		{
@@ -240,7 +258,19 @@ public class SearchServiceImpl implements SearchService
 			IndexSearcher indexSearcher = getIndexSearcher(false);
 			if (indexSearcher != null)
 			{
-				Hits h = indexSearcher.search(query);
+				Hits h = null;
+				Filter indexFilter = (Filter)luceneFilters.get(filterName);
+				Sort indexSorter = (Sort) luceneSorters.get(sorterName);
+				log.debug("Using Filter "+filterName+":"+indexFilter+" and "+sorterName+":"+indexSorter);
+				if ( indexFilter != null && indexSorter != null ) {
+					h = indexSearcher.search(query,indexFilter,indexSorter);
+				} else if ( indexFilter != null ) {
+					h = indexSearcher.search(query,indexFilter);
+				} else if ( indexSorter != null ) {
+					h = indexSearcher.search(query,indexSorter);
+				} else {
+					h = indexSearcher.search(query);
+				}
 				log.debug("Got " + h.length() + " hits");
 
 				return new SearchListImpl(h, textQuery, start, end,
@@ -462,6 +492,70 @@ public class SearchServiceImpl implements SearchService
 	public void setFilter(SearchItemFilter filter)
 	{
 		this.filter = filter;
+	}
+
+	/**
+	 * @return Returns the defaultFilter.
+	 */
+	public String getDefaultFilter()
+	{
+		return defaultFilter;
+	}
+
+	/**
+	 * @param defaultFilter The defaultFilter to set.
+	 */
+	public void setDefaultFilter(String defaultFilter)
+	{
+		this.defaultFilter = defaultFilter;
+	}
+
+	/**
+	 * @return Returns the defaultSorter.
+	 */
+	public String getDefaultSorter()
+	{
+		return defaultSorter;
+	}
+
+	/**
+	 * @param defaultSorter The defaultSorter to set.
+	 */
+	public void setDefaultSorter(String defaultSorter)
+	{
+		this.defaultSorter = defaultSorter;
+	}
+
+	/**
+	 * @return Returns the luceneFilters.
+	 */
+	public Map getLuceneFilters()
+	{
+		return luceneFilters;
+	}
+
+	/**
+	 * @param luceneFilters The luceneFilters to set.
+	 */
+	public void setLuceneFilters(Map luceneFilters)
+	{
+		this.luceneFilters = luceneFilters;
+	}
+
+	/**
+	 * @return Returns the luceneSorters.
+	 */
+	public Map getLuceneSorters()
+	{
+		return luceneSorters;
+	}
+
+	/**
+	 * @param luceneSorters The luceneSorters to set.
+	 */
+	public void setLuceneSorters(Map luceneSorters)
+	{
+		this.luceneSorters = luceneSorters;
 	}
 
 }

@@ -321,6 +321,12 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											if (container == null)
 												container = "";
 											doc
+											.add(new Field(
+													SearchService.DATE_STAMP,
+													String.valueOf(System.currentTimeMillis()),
+													Field.Store.YES,
+													Field.Index.UN_TOKENIZED));
+											doc
 													.add(new Field(
 															SearchService.FIELD_CONTAINER,
 															container,

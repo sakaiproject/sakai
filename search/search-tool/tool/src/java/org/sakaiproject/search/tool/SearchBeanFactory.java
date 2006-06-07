@@ -49,6 +49,9 @@ public interface SearchBeanFactory
 	 */
 	SearchBean newSearchBean(HttpServletRequest request)
 			throws PermissionException;
+	
+	SearchBean newSearchBean(HttpServletRequest request, String sortName, String filterName)
+	throws PermissionException;
 
 	/**
 	 * Create a search admin bean based ont he request

@@ -30,6 +30,12 @@
     init-method="init" >
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
     <property name="filter"><ref bean="searchSecurityFilterImpl" /></property>
+    <property name="defaultSorter"><value>none</value></property>
+    <property name="luceneSorters">
+      <map>
+        <entry key="dateRelevanceSort"><ref bean="dateRelevanceSort"/></entry>
+      </map>
+    </property>
   </bean> 
     
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
@@ -203,6 +209,10 @@
     class="org.sakaiproject.search.filter.impl.SearchSecurityFilter" 
     init-method="init">
     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+  </bean>
+  
+  <bean id="dateRelevanceSort" 
+    class="org.sakaiproject.search.filter.impl.DateRelevanceSort" >
   </bean>
   
 </beans>

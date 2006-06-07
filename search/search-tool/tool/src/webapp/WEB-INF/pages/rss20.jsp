@@ -3,7 +3,7 @@
 	org.sakaiproject.search.tool.SearchBeanFactory searchBeanFactory = 
 	  (org.sakaiproject.search.tool.SearchBeanFactory)
 		request.getAttribute(org.sakaiproject.search.tool.SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR);
-	org.sakaiproject.search.tool.SearchBean searchBean = searchBeanFactory.newSearchBean(request);
+	org.sakaiproject.search.tool.SearchBean searchBean = searchBeanFactory.newSearchBean(request,"dateRelevanceSort","normal");
 	
 	String searchItemFormat = 
 	  "<item><title>{2}</title><link>{1}</link><description> " 
