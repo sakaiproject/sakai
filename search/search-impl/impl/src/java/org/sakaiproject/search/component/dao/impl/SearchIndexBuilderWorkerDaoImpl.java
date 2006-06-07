@@ -103,11 +103,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		eventTrackingService = (EventTrackingService) load(cm,
-				EventTrackingService.class.getName());
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
+				EventTrackingService.class.getName(),true);
+		entityManager = (EntityManager) load(cm, EntityManager.class.getName(),true);
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
-				SearchIndexBuilder.class.getName());
-		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName());
+				SearchIndexBuilder.class.getName(),true);
+		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),false);
 
 		enabled = "true".equals(ServerConfigurationService.getString(
 				"search.experimental", "true"));
@@ -131,7 +131,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			}
 			if (rdfSearchService == null)
 			{
-				log.info("No rdfSearchService has been defined, there will be no rdfIndexing performed, this is Ok for 2.2");
+				log.info("No RDFSearchService has been defined, RDF Indexing not enabled");
 			} else {
 				log.warn("Experimental RDF Search Service is enabled using implementation "+rdfSearchService);
 			}
@@ -143,12 +143,14 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		}
 	}
 
-	private Object load(ComponentManager cm, String name)
+	private Object load(ComponentManager cm, String name, boolean aserror)
 	{
 		Object o = cm.get(name);
 		if (o == null)
 		{
-			log.error("Cant find Spring component named " + name);
+			if ( aserror ) {
+				log.error("Cant find Spring component named " + name);
+			}
 		}
 		return o;
 	}

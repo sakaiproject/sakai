@@ -122,7 +122,7 @@
     init-method="init"
     >
     <property name="defaultIndexStorage"><ref bean="filesystemSearchStorageImpl" /></property>
-    <property name="indexStorageName"><value>filesystem</value></property>    
+    <property name="indexStorageName"><value>cluster</value></property>    
     <property name="recoverCorruptedIndex"><value>true</value></property>
     <property name="currentStores">
       <map>
