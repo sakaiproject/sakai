@@ -29,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -227,6 +228,11 @@ public class AssessmentService
   public void save(AssessmentTemplateData template) {
     PersistenceService.getInstance().getAssessmentFacadeQueries().
       saveOrUpdate(template);
+  }
+
+  public void deleteAllSecuredIP(AssessmentIfc assessment) {
+    PersistenceService.getInstance().getAssessmentFacadeQueries().
+      deleteAllSecuredIP(assessment);
   }
 
   public void saveAssessment(AssessmentFacade assessment) {

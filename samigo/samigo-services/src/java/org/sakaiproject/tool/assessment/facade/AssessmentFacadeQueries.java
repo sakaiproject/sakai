@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateQueryException;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -839,25 +840,35 @@ public class AssessmentFacadeQueries
     }
   }
 
-  public void saveOrUpdate(final AssessmentFacade assessment) {
-    // delete old IP before save
-    HibernateCallback hcb = new HibernateCallback(){
-      public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        Query q = session.createQuery(
-                  "from SecuredIPAddress s where s.assessment.assessmentBaseId = ?");
-                   q.setLong(0, assessment.getAssessmentId().longValue());
-        return q.list();
-      };
-    };
-    List ip = getHibernateTemplate().executeFind(hcb);
-    getHibernateTemplate().deleteAll(ip);
-	  
-    final AssessmentData data = (AssessmentData) assessment.getData();
-
+  public void deleteAllSecuredIP(AssessmentIfc assessment){
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().merge(data);
+        Long assessmentId = assessment.getAssessmentId();
+        List ip = getHibernateTemplate().find(
+          "from SecuredIPAddress s where s.assessment.assessmentBaseId=?",assessmentId);
+        if (ip.size() > 0){
+          SecuredIPAddress s = (SecuredIPAddress)ip.get(0);
+          AssessmentData a = (AssessmentData) s.getAssessment();
+          a.setSecuredIPAddressSet(new HashSet());
+          getHibernateTemplate().deleteAll(ip);
+          retryCount = 0;
+        }
+      }
+      catch (Exception e) {
+        log.warn("problem deleting ip address: "+e.getMessage());
+        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+      }
+    }
+  }
+
+
+  public void saveOrUpdate(AssessmentFacade assessment) {
+    AssessmentData data = (AssessmentData) assessment.getData();
+    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    while (retryCount > 0){
+      try {
+        getHibernateTemplate().saveOrUpdate(data);
         retryCount = 0;
       }
       catch (Exception e) {

@@ -30,6 +30,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 
 public interface AssessmentFacadeQueriesAPI
 {
@@ -119,6 +120,8 @@ public interface AssessmentFacadeQueriesAPI
       String orderBy);
 
   public int getQuestionSize(final Long assessmentId);
+
+  public void deleteAllSecuredIP(AssessmentIfc assessment);
 
   public void saveOrUpdate(AssessmentFacade assessment);
 

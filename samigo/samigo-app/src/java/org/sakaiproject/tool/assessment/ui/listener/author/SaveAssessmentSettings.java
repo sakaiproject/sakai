@@ -204,6 +204,10 @@ public class SaveAssessmentSettings
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.OBJECTIVES,assessmentSettings.getObjectives());
     assessment.updateAssessmentMetaData(AssessmentMetaDataIfc.RUBRICS, assessmentSettings.getRubrics());
 
+    // jj. save assessment first, then deal with ip
+    assessmentService.saveAssessment(assessment);
+    assessmentService.deleteAllSecuredIP(assessment);
+
     // k. set ipAddresses
     HashSet ipSet = new HashSet();
     String ipAddresses = assessmentSettings.getIpAddresses();
