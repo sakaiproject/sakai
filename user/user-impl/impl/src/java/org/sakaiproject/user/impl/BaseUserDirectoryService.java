@@ -913,17 +913,45 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (m_provider instanceof UsersShareEmailUDP)
 			{
 				Collection udpUsers = ((UsersShareEmailUDP) m_provider).findUsersByEmail(email, this);
-				if (udpUsers != null) users.addAll(udpUsers);
+				if (udpUsers != null)
+				{
+					for (Iterator i = udpUsers.iterator(); i.hasNext();)
+					{
+						BaseUserEdit u = (BaseUserEdit) i.next();
+
+						// find the user id mapped to this eid and get that record (internally or by provider)
+						try
+						{
+							// lookup and set the id for this user from the eid set by the provider
+							u.setId(getUserId(u.getEid()));
+							users.add((u));
+						}
+						catch (UserNotDefinedException e)
+						{
+							M_log.warn("findUserByEmail: user returnd by provider not recognized by provider: eid: " + u.getEid());
+						}
+					}
+				}
 			}
 
 			// check for one
 			else
 			{
 				// make a new edit to hold the provider's info
-				UserEdit edit = new BaseUserEdit((String) null);
+				BaseUserEdit edit = new BaseUserEdit((String) null);
 				if (m_provider.findUserByEmail(edit, email))
 				{
-					users.add((edit));
+					// find the user id mapped to this eid and get that record (internally or by provider)
+					try
+					{
+						// lookup and set the id for this user from the eid set by the provider
+						edit.setId(getUserId(edit.getEid()));
+						users.add((edit));
+					}
+					catch (UserNotDefinedException e)
+					{
+						M_log.warn("findUserByEmail: user returnd by provider not recognized by provider: eid: " + edit.getEid());
+					}
 				}
 			}
 		}
