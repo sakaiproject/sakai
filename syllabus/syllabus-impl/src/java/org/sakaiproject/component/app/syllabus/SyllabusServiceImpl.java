@@ -626,8 +626,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                             		{
                             			ContentResource cr = ContentHostingService.getResource((String)attachStringList.get(m));
                             			ResourceProperties rp = cr.getProperties();
+//                            			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
+//                            					(String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
                             			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
-                            					(String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                          					cr.getId(),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
                             			tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
                             			tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
                             			tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
