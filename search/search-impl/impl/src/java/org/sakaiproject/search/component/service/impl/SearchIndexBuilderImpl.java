@@ -130,9 +130,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 					sb.setSearchaction(action);
 					sb.setName(resourceName);
 					String siteId = ecp.getSiteId(resourceName);
-					if ( siteId == null ) {
+					if ( siteId == null || siteId.length() == 0 ) {
 						// default if null should neve happen
-						siteId = "";
+						siteId = "none";
 					}
 					sb.setContext(siteId);
 					sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
@@ -141,9 +141,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 				{
 					sb.setSearchaction(action);
 					String siteId = ecp.getSiteId(resourceName);
-					if ( siteId == null ) {
+					if ( siteId == null || siteId.length() == 0 ) {
 						// default if null, should never happen
-						siteId = "";
+						siteId = "none";
 					}
 					sb.setContext(siteId);
 					sb.setName(resourceName);
@@ -382,6 +382,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 		try
 		{
+			if ( currentSiteId == null || currentSiteId.length() == 0 ) {
+				currentSiteId = "none";
+			}
 			String siteMaster = MessageFormat.format(
 					SearchBuilderItem.SITE_MASTER_FORMAT,
 					new Object[] { currentSiteId });
@@ -411,6 +414,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 */
 	public void refreshIndex(String currentSiteId)
 	{
+		if ( currentSiteId == null || currentSiteId.length() == 0 ) {
+			currentSiteId = "none";
+		}
 		String siteMaster = MessageFormat.format(
 				SearchBuilderItem.SITE_MASTER_FORMAT,
 				new Object[] { currentSiteId });
@@ -419,6 +425,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			log.debug("Created NEW " + siteMaster);
 			sb = searchBuilderItemDao.create();
+			sb.setContext(currentSiteId);
+			sb.setName(siteMaster);
+			sb.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
 		}
 		if ((SearchBuilderItem.STATE_COMPLETED.equals(sb.getSearchstate()))
 				|| (!SearchBuilderItem.ACTION_REBUILD.equals(sb
