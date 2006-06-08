@@ -11,7 +11,7 @@
 		#else
 			#set($prevAction=true)
 		#end
-		<a href="#toolLinkParam("$action" "doView" "lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
+		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a>
 		#if ($withGrade && $!allowGradeSubmission)
 			#if ($prevAction)
 			 | 
