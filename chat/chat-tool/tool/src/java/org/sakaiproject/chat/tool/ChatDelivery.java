@@ -125,13 +125,18 @@ public class ChatDelivery extends BaseDelivery
 		{
 		}
 
-		String browserID = UsageSessionService.getSession().getBrowserId();
+		String browserId = UsageSessionService.getSession().getBrowserId();
 
 		String retval = null;
 
 		// if we don't know we can do the DOM based refresh, or we are missing channel or msg (could have been a message delete)
 		// trigger a panel refresh
-		if (browserID.equals(UsageSession.UNKNOWN) || channel == null || msg == null)
+		boolean browserSupportsDomRefresh = !browserId.equals(UsageSession.UNKNOWN);
+		
+		// TODO: temporary workaround - IE is not liking our DOM refresh, so don't use it there till we get it working -ggolden
+		if (browserId.equals(UsageSession.WIN_IE)) browserSupportsDomRefresh = false;
+
+		if (!browserSupportsDomRefresh || channel == null || msg == null)
 		{
 			retval = "try { " + m_elementId + ".location.replace(addAuto(" + m_elementId + ".location));} catch (error) {}";
 		}
