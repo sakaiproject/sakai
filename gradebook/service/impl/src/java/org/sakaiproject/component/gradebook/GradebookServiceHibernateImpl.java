@@ -534,6 +534,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
         }
 		final Set studentIds = studentUidsToScores.keySet();
+		if (studentIds.isEmpty()) {
+			return;
+		}
 		final Date now = new Date();
 		final String graderId = getUserUid();
 

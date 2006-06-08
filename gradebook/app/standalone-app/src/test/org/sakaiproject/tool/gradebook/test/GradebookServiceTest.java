@@ -216,6 +216,11 @@ public class GradebookServiceTest extends GradebookTestBase {
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));
         cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student2");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(4)));
+
+        // Do a bogus update of a null collection of scores, a la Assignments.
+        gradebookService.updateExternalAssessmentScores(gb.getUid(), EXT_ID_1, new HashMap());
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student2");
+        Assert.assertTrue(cgr.getPointsEarned().equals(new Double(4)));
     }
 
     public void testRemoveExternalAssignment() throws Exception {
