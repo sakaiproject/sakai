@@ -1942,8 +1942,9 @@ public class CharonPortal extends HttpServlet
 
 		String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
 		out.println("<div class=\"" + cssClass + "\">");
-		out.println("	<div id=\"siteNav\">");
-		out.println("		<div id=\"linkNav\">");
+		out.println("	<table id=\"siteNav\">");
+		out.println("	<tr>");
+		out.println("		<td id=\"linkNav\">");
 
 		// target for "jump to tabs" link and header
 
@@ -1990,12 +1991,12 @@ public class CharonPortal extends HttpServlet
 		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
 				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		out.println("				</ul>");
-		out.println("			</div>");
+		out.println("			</td>");
 
 		// more dropdown
 		if (moreSites.size() > 0)
 		{
-			out.println("			<div id=\"selectNav\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage")) + "</span>");
+			out.println("			<td id=\"selectNav\"><span class=\"skip\">" + Web.escapeHtml(rb.getString("sit.selectmessage")) + "</span>");
 			out.println("				<select ");
 			out.println("						onchange=\"if (this.options[this.selectedIndex].value != '')"
 					+ " { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }\">");
@@ -2011,7 +2012,7 @@ public class CharonPortal extends HttpServlet
 			}
 
 			out.println("				</select>");
-			out.println("			</div>");
+			out.println("			</td>");
 		}
 
 		if (addLogout)
@@ -2021,8 +2022,8 @@ public class CharonPortal extends HttpServlet
 			out.println("	<a href=\"" + logoutUrl + "\" target=\"_parent\">" + Web.escapeHtml(rb.getString("sit.log")) + "</a>");
 			out.println("</div>");
 		}
-
-		out.println("	</div>");
+		out.println("	</tr>");
+		out.println("	</table>");
 		out.println("<div class=\"divColor\" id=\"tabBottom\"></div></div>");
 		if (addLogout)
 		{
