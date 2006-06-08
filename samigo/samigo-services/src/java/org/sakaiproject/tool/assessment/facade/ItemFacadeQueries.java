@@ -25,7 +25,9 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
+import java.util.Iterator;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -41,6 +43,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -206,13 +212,16 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   public void deleteItem(Long itemId, String agent) {
-      ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
-      if (item != null) {
-        printItem(item);
-      }
+    ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
+    if (item != null) {
+      printItem(item);
+    }
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
+	SectionDataIfc section = item.getSection();
+        Set set = section.getItemSet();
+        set.remove(item);
         getHibernateTemplate().delete(item);
         retryCount = 0;
       }
@@ -229,15 +238,23 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 
   public void deleteItemContent(Long itemId, String agent) {
-      ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
-      if (item != null) {
-        printItem(item);
-      }
+    ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
+
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(item.getItemTextSet());
-        retryCount = 0;
+        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+          Set set = item.getItemTextSet();
+          Iterator iter = set.iterator();
+          while (iter.hasNext()){
+            ItemTextIfc text = (ItemTextIfc) iter.next();
+            text.setItem(null);
+	  }
+          item.setItemFeedbackSet(new HashSet());
+          getHibernateTemplate().deleteAll(set);
+          retryCount = 0;
+	}
+        else retryCount=0;
       }
       catch (Exception e) {
         log.warn("problem deleteItemTextSet: "+e.getMessage());
@@ -248,8 +265,18 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(item.getItemMetaDataSet());
-        retryCount = 0;
+        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+          Set set = item.getItemMetaDataSet();
+          Iterator iter = set.iterator();
+          while (iter.hasNext()){
+            ItemMetaDataIfc text = (ItemMetaDataIfc) iter.next();
+            text.setItem(null);
+	  }
+          item.setItemTextSet(new HashSet());
+          getHibernateTemplate().deleteAll(set);
+          retryCount = 0;
+	}
+        else retryCount=0;
       }
       catch (Exception e) {
         log.warn("problem deleteItemMetaDataSet: "+e.getMessage());
@@ -260,17 +287,24 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(item.getItemFeedbackSet());
-        retryCount = 0;
+        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+          Set set = item.getItemFeedbackSet();
+          Iterator iter = set.iterator();
+          while (iter.hasNext()){
+            ItemFeedbackIfc text = (ItemFeedbackIfc) iter.next();
+            text.setItem(null);
+	  }
+         item.setItemMetaDataSet(new HashSet());
+          getHibernateTemplate().deleteAll(set);
+          retryCount = 0;
+	}
+        else retryCount=0;
       }
       catch (Exception e) {
         log.warn("problem deleting ItemFeedbackSet: "+e.getMessage());
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-      if (item != null) {
-        printItem(item);
-      }
   }
 
   public void deleteItemMetaData(final Long itemId, final String label) {
