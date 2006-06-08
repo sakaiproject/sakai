@@ -245,12 +245,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       try {
         if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
           Set set = item.getItemTextSet();
-          Iterator iter = set.iterator();
-          while (iter.hasNext()){
-            ItemTextIfc text = (ItemTextIfc) iter.next();
-            text.setItem(null);
-	  }
-          item.setItemFeedbackSet(new HashSet());
+          item.setItemTextSet(new HashSet());
           getHibernateTemplate().deleteAll(set);
           retryCount = 0;
 	}
@@ -267,12 +262,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       try {
         if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
           Set set = item.getItemMetaDataSet();
-          Iterator iter = set.iterator();
-          while (iter.hasNext()){
-            ItemMetaDataIfc text = (ItemMetaDataIfc) iter.next();
-            text.setItem(null);
-	  }
-          item.setItemTextSet(new HashSet());
+          item.setItemMetaDataSet(new HashSet());
           getHibernateTemplate().deleteAll(set);
           retryCount = 0;
 	}
@@ -289,12 +279,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
       try {
         if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
           Set set = item.getItemFeedbackSet();
-          Iterator iter = set.iterator();
-          while (iter.hasNext()){
-            ItemFeedbackIfc text = (ItemFeedbackIfc) iter.next();
-            text.setItem(null);
-	  }
-         item.setItemMetaDataSet(new HashSet());
+          item.setItemFeedbackSet(new HashSet());
           getHibernateTemplate().deleteAll(set);
           retryCount = 0;
 	}
