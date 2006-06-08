@@ -199,16 +199,19 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #004D73;
 	padding: 0;
 	margin: 0;
 	float: left;
+	background: #004D73;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
-
+/*note - after tag 2.2 004 - this and children are no longer nested floated boxes due to fact of site nav remaining in iframe with attendant float drop problems*/
 #siteNav{
-	white-space: nowrap;
+	width:100%;
+}
+#siteNav td{
+	padding:0
 }
 
 * html body #siteNav{
@@ -218,16 +221,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
 	padding: 0;
-	float: left;
-	margin:.2em 0;
 }
 * html body  #linkNav{
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
-	padding: 0;
-	float: right;
 	padding: .2em;
+	text-align: right;
 }
 
 /*the <select> contextually defined*/
