@@ -3245,6 +3245,13 @@ public class DiscussionForumTool
               }
               else
             	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
+              //for old created messages with old id/eid??
+              if(sendTo == null)
+              {
+              	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
+              	if(sendTo == null)
+              		sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
+              }
               
               Set sendToSet = new HashSet(); 
               sendToSet.add(sendTo); 
