@@ -480,6 +480,8 @@ public class AssignmentAction extends PagedResourceActionII
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		String template = null;
+		
+		context.put("tlang", rb);
 
 		context.put("cheffeedbackhelper", this);
 
@@ -640,8 +642,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
-
 		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
 
 		User user = (User) state.getAttribute(STATE_USER);
@@ -702,8 +702,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
-
 		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
 
 		String aId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
@@ -736,7 +734,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_preview_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		User user = (User) state.getAttribute(STATE_USER);
 		String aReference = (String) state.getAttribute(PREVIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 
@@ -770,7 +767,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_grade_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		context.put("tlang", rb);
 		try
 		{
 			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
@@ -796,7 +792,6 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	protected String build_list_assignments_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		context.put("tlang", rb);
 		context.put("contextString", (String) state.getAttribute(STATE_CONTEXT_STRING));
 		context.put("user", (User) state.getAttribute(STATE_USER));
 		context.put("service", AssignmentService.getInstance());
@@ -878,8 +873,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_new_edit_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
-
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
 		if (assignmentId != null)
@@ -1066,7 +1059,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_preview_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		context.put("time", TimeService.newTime());
 
 		context.put("user", UserDirectoryService.getCurrentUser());
@@ -1169,7 +1161,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_delete_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		Vector assignments = new Vector();
 		Vector assignmentIds = (Vector) state.getAttribute(DELETE_ASSIGNMENT_IDS);
 		for (int i = 0; i < assignmentIds.size(); i++)
@@ -1210,7 +1201,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_grade_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		int gradeType = -1;
 
 		// assignment
@@ -1373,7 +1363,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_grade_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		context.put("user", state.getAttribute(STATE_USER));
 
 		try
@@ -1422,8 +1411,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// the user directory service
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
-
-		context.put("tlang", rb);
 		add2ndToolbarFields(data, context);
 
 		pagingInfoToContext(state, context);
@@ -1445,7 +1432,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		try
 		{
 			context.put("assignment", AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID)));
@@ -1480,7 +1466,6 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_students_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("tlang", rb);
 		Iterator assignments = AssignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
 		Vector assignmentsVector = new Vector();
 		while (assignments.hasNext())
@@ -1531,7 +1516,6 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	protected String build_instructor_report_submissions(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		context.put("tlang", rb);
 		context.put("submissions", prepPage(state));
 
 		context.put("sortedBy", (String) state.getAttribute(SORTED_SUBMISSION_BY));
