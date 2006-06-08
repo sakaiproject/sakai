@@ -105,8 +105,10 @@ public class RequestFilter implements Filter
 	public static final String CONFIG_UPLOAD_ENABLED = "upload.enabled";
 
 	/**
-	 * Config parameter to control the maximum allowed upload size (in bytes) from the browser. If defined on the filter, overrides the system property. Default is 1 MB (1048576 bytes). This is an aggregate limit on the sum of all files included in a
-	 * single request.
+	 * Config parameter to control the maximum allowed upload size (in MEGABYTES) from the browser.<br />
+	 * If defined on the filter, overrides the system property. Default is 1 (one megabyte).<br />
+	 * This is an aggregate limit on the sum of all files included in a single request.<br />
+	 * Also used as a per-request request parameter, encoded in the URL, to set the max for that particular request.
 	 */
 	public static final String CONFIG_UPLOAD_MAX = "upload.max";
 
@@ -631,7 +633,7 @@ public class RequestFilter implements Filter
 		// if the maximum allowed upload size is configured on the filter, it overrides the system property
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_MAX) != null)
 		{
-			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX)).longValue();
+			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX)).longValue() * 1024L * 1024L;
 		}
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_DIR) != null)
 		{
@@ -685,6 +687,23 @@ public class RequestFilter implements Filter
 		if (m_uploadMaxSize > 0) upload.setSizeMax(m_uploadMaxSize);
 		if (encoding != null && encoding.length() > 0) upload.setHeaderEncoding(encoding);
 
+		// check for request-scoped override to upload.max (value in megs)
+		String override = req.getParameter(CONFIG_UPLOAD_MAX);
+		if (override != null)
+		{
+			try
+			{
+				// get the max in bytes
+				long max = Long.parseLong(override) * 1024L * 1024L;
+				// set the upload max
+				upload.setSizeMax(max);
+			}
+			catch (NumberFormatException e)
+			{
+				M_log.warn(CONFIG_UPLOAD_MAX + " set to non-numeric: " + override);
+			}
+		}
+
 		try
 		{
 			// parse multipart encoded parameters
@@ -692,28 +711,28 @@ public class RequestFilter implements Filter
 			for (int i = 0; i < list.size(); i++)
 			{
 				FileItem item = (FileItem) list.get(i);
-				
+
 				if (item.isFormField())
 				{
 					String str = item.getString(encoding);
-					
+
 					Object obj = map.get(item.getFieldName());
-					if(obj == null)
+					if (obj == null)
 					{
 						map.put(item.getFieldName(), new String[] { str });
 					}
-					else if(obj instanceof String[])
+					else if (obj instanceof String[])
 					{
 						String[] old_vals = (String[]) obj;
 						String[] values = new String[old_vals.length + 1];
-						for(int i1 = 0; i1 < old_vals.length; i1++)
+						for (int i1 = 0; i1 < old_vals.length; i1++)
 						{
 							values[i1] = old_vals[i1];
 						}
 						values[values.length - 1] = str;
 						map.put(item.getFieldName(), values);
 					}
-					else if(obj instanceof String)
+					else if (obj instanceof String)
 					{
 						String[] values = new String[2];
 						values[0] = (String) obj;
@@ -730,13 +749,13 @@ public class RequestFilter implements Filter
 		}
 		catch (FileUploadBase.SizeLimitExceededException ex)
 		{
-			M_log.info("Upload size limit exceeded", ex);
+			M_log.info("Upload size limit exceeded");
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
 			req.setAttribute("upload.status", "size_limit_exceeded");
 			req.setAttribute("upload.exception", ex);
-			req.setAttribute("upload.limit", new Long((m_uploadMaxSize / 1024L) / 1024L));
+			req.setAttribute("upload.limit", new Long((upload.getSizeMax() / 1024L) / 1024L));
 		}
 		catch (FileUploadException ex)
 		{
