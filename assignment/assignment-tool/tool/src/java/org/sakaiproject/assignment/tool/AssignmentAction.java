@@ -4795,6 +4795,11 @@ public class AssignmentAction extends PagedResourceActionII
 				// hide the assignment instruction
 				doHide_submission_assignment_instruction(data);
 			}
+			else if (option.equals("show_instruction"))
+			{
+				// show the assignment instruction
+				doShow_submission_assignment_instruction(data);
+			}
 			else if (option.equals("sortbygroupdescription"))
 			{
 				// show the assignment instruction
