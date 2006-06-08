@@ -963,7 +963,7 @@ public class AssessmentFacadeQueries
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().saveOrUpdate(assessment);
+        getHibernateTemplate().saveOrUpdate(section);
         retryCount = 0;
       }
       catch (Exception e) {
