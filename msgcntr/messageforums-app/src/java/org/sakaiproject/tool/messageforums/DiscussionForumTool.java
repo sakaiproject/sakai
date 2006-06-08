@@ -3244,7 +3244,11 @@ public class DiscussionForumTool
             	  sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
               }
               else
-            	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
+              {
+              	//for new created messages - with new id/edi separation - stg
+              	//sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
+              	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
+              }
               //for old created messages with old id/eid??
               if(sendTo == null)
               {
