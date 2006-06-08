@@ -15,7 +15,7 @@
   		</h:commandLink>
   		
   		<f:verbatim></div></f:verbatim>
-  		<f:verbatim><div class="rightAlign"></f:verbatim>
+  		<f:verbatim><div></f:verbatim>
   			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgCompose}"  value="#{msgs.pvt_compose}">
 			</h:commandLink>
 			
