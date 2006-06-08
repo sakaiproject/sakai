@@ -27,12 +27,13 @@ include file for delivering file upload questions
 should be included in file importing DeliveryMessages
 --%>
 
-<h:outputText value="#{question.text} "  escape="false"/>
-<f:verbatim><br /></f:verbatim>
+<h:outputText value="#{question.text} <br/>"  escape="false"/>
+
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">
   <h:messages id="file_upload_error" layout="table" style="color:red"/>
-  <h:outputText value="#{msg.file}" />
+  <h:outputText escape="false" value="#{msg.upload_instruction} <br />" />
+  <h:outputText value="#{msg.file} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
   <!-- assessmentXXX/questionXXX/agentId -->
