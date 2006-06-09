@@ -106,6 +106,8 @@ public class SubmitToGradingActionListener implements ActionListener
       }
 
       AssessmentGradingData adata = submitToGradingService(publishedAssessment, delivery);
+      // set AssessmentGrading in delivery
+      delivery.setAssessmentGrading(adata);
 
       // set url & confirmation after saving the record for grade
       if (adata !=null && delivery.getForGrade())
