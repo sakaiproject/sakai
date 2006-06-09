@@ -10374,7 +10374,7 @@ public class SiteAction extends PagedResourceActionII
 			{
 				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i]);
 				//if there is some text, try to use it
-				noEmailInIdAccount.replaceAll("[ \t\r\n]","");
+				noEmailInIdAccount.replaceAll("[\t\r\n]","");
 				if(noEmailInIdAccount != null)
 				{
 					//automaticially add emailInIdAccount account
@@ -10649,7 +10649,7 @@ public class SiteAction extends PagedResourceActionII
 			String[] noEmailInIdAccountArray = noEmailInIdAccounts.replaceAll(",","\r\n").split("\r\n");
 			for (i = 0; i < noEmailInIdAccountArray.length; i++)
 			{
-				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i].replaceAll("[ \t\r\n]",""));
+				String noEmailInIdAccount = StringUtil.trimToNull(noEmailInIdAccountArray[i].replaceAll("[\t\r\n]",""));
 				if(noEmailInIdAccount != null)
 				{
 					// get role
