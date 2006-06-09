@@ -53,6 +53,7 @@
       </list>
     </property>
     <property name="propertyDao"><ref bean="rwikiPropertyDaoImpl" /></property>
+    <property name="performDataMigrations"><value>${auto.ddl}</value></property>
   </bean>
 
   <!-- propery prototype for the target schema version -->

@@ -50,14 +50,30 @@ public class DataMigrationSpecification implements DataMigrationController
 
 	private RWikiPropertyDao propertyDao;
 
+	private boolean performDataMigrations;
+
+	public boolean isPerformDataMigrations()
+	{
+		return performDataMigrations;
+	}
+
+	public void setPerformDataMigrations(boolean performDataMigrations)
+	{
+		this.performDataMigrations = performDataMigrations;
+	}
+
 	public void update() throws Exception
 	{
 		String targetVersionString = targetVersion.getValue();
 		RWikiProperty currentVersion = propertyDao.getProperty(targetVersion
 				.getName());
+
 		String currentVersionString = null;
+
 		if (currentVersion != null)
 			currentVersionString = currentVersion.getValue();
+
+		// Check whether we are at the current version
 		if (currentVersionString != null
 				&& currentVersionString.equals(targetVersionString))
 		{
@@ -65,36 +81,45 @@ public class DataMigrationSpecification implements DataMigrationController
 					+ targetVersionString);
 			return;
 		}
-		else
+
+		// We need to do migration
+		if (performDataMigrations)
 		{
 			boolean newdb = (currentVersionString == null);
 			for (Iterator i = migrationAgents.iterator(); i.hasNext();)
 			{
 				DataMigrationAgent a = (DataMigrationAgent) i.next();
 				currentVersionString = a.migrate(currentVersionString,
-						targetVersionString,newdb);
+						targetVersionString, newdb);
+			}
+			if (currentVersion == null)
+			{
+				currentVersion = propertyDao.createProperty();
+				currentVersion.setName(targetVersion.getName());
+			}
+
+			currentVersion.setValue(currentVersionString);
+			propertyDao.update(currentVersion);
+			if (currentVersionString != null
+					&& currentVersionString.equals(targetVersionString))
+			{
+				log.info("RWiki Data migrated to version "
+						+ currentVersionString + " sucessfuly");
+				// SUCCESS!!
+				return;
 			}
 		}
-		if (currentVersion == null)
-		{
-			currentVersion = propertyDao.createProperty();
-			currentVersion.setName(targetVersion.getName());
-		}
-		currentVersion.setValue(currentVersionString);
-		propertyDao.update(currentVersion);
-		if (currentVersionString != null
-				&& currentVersionString.equals(targetVersionString))
-		{
-			log.info("RWiki Data migrated to version " + currentVersionString
-					+ " sucessfuly");
-		}
-		else
-		{
-			log
-					.fatal("RWiki Data has NOT been migrated to the current version, you MUST investigate before using the RWiki Tool");
-			throw new RuntimeException(
-					"RWiki Data has NOT been migrated to the current version, you MUST investigate before using the RWiki Tool");
-		}
+		log
+				.fatal("RWiki Data has NOT been migrated to the current version, "
+						+ "you MUST investigate before using the RWiki Tool\n currentVersion: "
+						+ currentVersionString
+						+ " targetVersion: "
+						+ targetVersionString);
+		throw new RuntimeException(
+				"RWiki Data has NOT been migrated to the current version, "
+						+ "you MUST investigate before using the RWiki Tool\n currentVersion: "
+						+ currentVersionString + " targetVersion: "
+						+ targetVersionString);
 	}
 
 	/**
