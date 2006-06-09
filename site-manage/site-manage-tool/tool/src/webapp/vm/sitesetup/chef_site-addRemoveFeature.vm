@@ -100,14 +100,14 @@
 						#if ($toolId.indexOf("sakai.news") != -1)
 							## show url for News tool
 							#if ($toolRegistrationSelectedList.contains($toolId))
-								$newsUrls.get($toolId)
+								$tlang.getString("tool.news.desc") $newsUrls.get($toolId).
 							#else
 								$tool.getDescription()
 							#end
 						#elseif ($toolId.indexOf("sakai.iframe") != -1)
 							## show url for Web Content tool
 							#if ($toolRegistrationSelectedList.contains($toolId))
-								$wcUrls.get($toolId)
+								$tlang.getString("tool.webcontent.desc1") $wcUrls.get($toolId) $tlang.getString("tool.webcontent.desc2")
 							#else
 								$tool.getDescription()
 							#end
