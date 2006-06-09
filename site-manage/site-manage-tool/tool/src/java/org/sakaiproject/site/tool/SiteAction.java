@@ -9784,6 +9784,9 @@ public class SiteAction extends PagedResourceActionII
 						{
 							// display message
 							addAlert(state, "Invalid URL " + urlString + ". ");
+							
+							// remove the page because of invalid url
+							site.removePage(page);
 						}
 					}
 					else if (toolId.indexOf("sakai.iframe") != -1)
@@ -11483,7 +11486,9 @@ public class SiteAction extends PagedResourceActionII
 		state.removeAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST); // List of ToolRegistration toolId's
 		state.removeAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME);
 		state.removeAttribute(STATE_NEWS_TITLES);
+		state.removeAttribute(STATE_NEWS_URLS);
 		state.removeAttribute(STATE_WEB_CONTENT_TITLES);
+		state.removeAttribute(STATE_WEB_CONTENT_URLS);
 		state.removeAttribute(STATE_WORKSITE_SETUP_PAGE_LIST);
 	}
 	
@@ -11769,6 +11774,15 @@ public class SiteAction extends PagedResourceActionII
 					url = NEWS_DEFAULT_URL;
 				}
 				urls.put(id, url);
+				
+				try
+				{
+					URL u = new URL(url);
+				}
+				catch (MalformedURLException e)
+				{
+					addAlert(state, rb.getString("java.invurl")+" " + url + ". ");
+				}
 			}
 			else if (id.indexOf("sakai.iframe") != -1)
 			{
