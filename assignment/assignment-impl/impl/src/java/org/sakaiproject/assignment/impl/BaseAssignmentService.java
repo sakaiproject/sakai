@@ -2783,24 +2783,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					else
 					{
 						// no grade to show yet
-						if (assignmentType == 3)
-						{
-							// numeric cell type
-							// set value to be 0 if there is no grade yet
-							cell = row.createCell(cellNum++);
-							cell.setCellType(0);
-							style = wb.createCellStyle();
-							style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
-							cell.setCellStyle(style);
-						}
-						else
-						{
-							// String cell type
-							// set value to be "" if there is no grade yet
-							cell = row.createCell(cellNum++);
-							cell.setCellType(1);
-							cell.setCellValue("");
-						}
+						// String cell type
+						// set value to be "" if there is no grade yet
+						cell = row.createCell(cellNum++);
+						cell.setCellType(1);
+						cell.setCellValue("");
 					} // if
 				} // for
 			} // for
