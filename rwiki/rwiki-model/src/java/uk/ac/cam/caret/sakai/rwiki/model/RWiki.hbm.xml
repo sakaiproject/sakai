@@ -52,7 +52,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true"/>
-		<property name="content" not-null="false" type="text" />		
+		<property name="content" not-null="false" type="text" length="16777215"/>		
 	</class>
 	<!--
 	Version 2 schema 
@@ -65,7 +65,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true"/>
-		<property name="content" not-null="false" type="text" />		
+		<property name="content" not-null="false" type="text" length="16777215"/>		
 	</class>
 	
 	<!-- 
