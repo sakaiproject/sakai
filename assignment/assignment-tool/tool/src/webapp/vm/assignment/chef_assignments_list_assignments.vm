@@ -328,8 +328,8 @@
 										#else
 											#if($!allowSubmit)
 												#if ($!submission)
-													#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) ||($!submission.submitted && !$submission.GradeReleased) || !$!submission.submitted)
-														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)grade has not been released yet for submission;(3)submission has not been posted yet.
+													#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submission.submitted)
+														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 													#else
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
