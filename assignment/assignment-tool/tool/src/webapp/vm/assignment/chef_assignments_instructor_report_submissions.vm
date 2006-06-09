@@ -4,7 +4,7 @@
 		#if ($allowAddAssignment)
 			<a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a> |
 		#end
-		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a> | <span style="margin:.5em">$!tlang.getString('lisofass1')</span>
+		<a href="#toolLinkParam("$action" "doView" "view=lisofass1")" title="$!tlang.getString('lisofass1')">$!tlang.getString('lisofass1')</a> | <span style="margin:.5em">$!tlang.getString('gen.grarep')</span>
 		#if ($allowAddAssignment)
 			| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString('gen.stuvie')">$!tlang.getString('gen.stuvie')</a>		
 		#end
