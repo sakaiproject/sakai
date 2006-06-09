@@ -115,6 +115,9 @@ public class RequestFilter implements Filter
 	/** System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This is an aggregate limit on the sum of all files included in a single request. */
 	public static final String SYSTEM_UPLOAD_MAX = "sakai.content.upload.max";
 
+	/** System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request filter, or per-request. */
+	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
+
 	/** Config parameter (in bytes) to control the threshold at which to store uploaded files on-disk (temporarily) instead of in-memory. Default is 1024 bytes. */
 	public static final String CONFIG_UPLOAD_THRESHOLD = "upload.threshold";
 
@@ -179,6 +182,8 @@ public class RequestFilter implements Filter
 	protected boolean m_uploadEnabled = true;
 
 	protected long m_uploadMaxSize = 1L * 1024L * 1024L;
+
+	protected long m_uploadCeiling = 1L * 1024L * 1024L;
 
 	protected int m_uploadThreshold = 1024;
 
@@ -625,16 +630,26 @@ public class RequestFilter implements Filter
 		{
 			m_uploadEnabled = Boolean.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_ENABLED)).booleanValue();
 		}
-		// first try to get the maximum allowed upload size from the system property
+
+		// get the maximum allowed upload size from the system property - use if not overriden, and also use as the ceiling if that is not defined.
 		if (System.getProperty(SYSTEM_UPLOAD_MAX) != null)
 		{
 			m_uploadMaxSize = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_MAX)).longValue() * 1024L * 1024L;
+			m_uploadCeiling = m_uploadMaxSize;
 		}
+
 		// if the maximum allowed upload size is configured on the filter, it overrides the system property
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_MAX) != null)
 		{
 			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX)).longValue() * 1024L * 1024L;
 		}
+
+		// get the upload max ceiling that limits any other upload max, if defined
+		if (System.getProperty(SYSTEM_UPLOAD_CEILING) != null)
+		{
+			m_uploadCeiling = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_CEILING)).longValue() * 1024L * 1024L;
+		}
+
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_DIR) != null)
 		{
 			m_uploadTempDir = filterConfig.getInitParameter(CONFIG_UPLOAD_DIR);
@@ -704,6 +719,14 @@ public class RequestFilter implements Filter
 			}
 		}
 
+		// limit to the ceiling
+		if (upload.getSizeMax() > m_uploadCeiling)
+		{
+			M_log.warn("Upload size exceeds ceiling: " + ((upload.getSizeMax() / 1024L) / 1024L) + " > " + ((m_uploadCeiling / 1024L) / 1024L) + " megs");
+
+			upload.setSizeMax(m_uploadCeiling);
+		}
+
 		try
 		{
 			// parse multipart encoded parameters
@@ -749,7 +772,7 @@ public class RequestFilter implements Filter
 		}
 		catch (FileUploadBase.SizeLimitExceededException ex)
 		{
-			M_log.info("Upload size limit exceeded");
+			M_log.info("Upload size limit exceeded: " + ((upload.getSizeMax() / 1024L) / 1024L));
 
 			// DON'T throw an exception, instead note the exception
 			// so that the tool down-the-line can handle the problem
