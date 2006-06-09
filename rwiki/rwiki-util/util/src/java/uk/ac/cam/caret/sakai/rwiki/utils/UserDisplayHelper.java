@@ -45,6 +45,6 @@ public class UserDisplayHelper
 		{
 			return defaultName + " (" + XmlEscaper.xmlEscape(name) + ")";
 		}
-		return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + name + ")");
+		return XmlEscaper.xmlEscape(user.getDisplayName() + " (" + user.getEid() + ")");
 	}
 }
