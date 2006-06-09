@@ -1707,7 +1707,12 @@ public class AssignmentAction extends PagedResourceActionII
 								Double grade = StringUtil.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,aSubmission.getGrade())) : null;
 								m.put(submitterId, grade);
 							}
-							g.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
+							
+							// need to update only when there is at least one submission
+							if (m.size()>0)
+							{
+								g.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
+							}
 						}
 						else
 						{
