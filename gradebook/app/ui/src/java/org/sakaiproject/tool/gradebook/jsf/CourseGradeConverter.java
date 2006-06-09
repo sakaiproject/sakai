@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.ConverterException;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.ui.GradebookBean;
 
@@ -41,7 +42,7 @@ public class CourseGradeConverter implements Converter, Serializable {
 	public Object getAsObject(FacesContext context, UIComponent component, String value)
 		throws ConverterException {
 		String standardizedGrade = null;
-		if (value != null) {
+		if (StringUtils.trimToNull(value) != null) {
 			// Get the current gradebook.
 			GradebookBean gbb = (GradebookBean)FacesUtil.resolveVariable("gradebookBean");
 
