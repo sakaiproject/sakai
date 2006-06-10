@@ -387,6 +387,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 		}
 	}
+	
+	/** Dependency: allowGroupResources setting */
+	protected boolean m_allowGroupResources = true;
+
+	/**
+	 * Dependency: allowGroupResources
+	 * 
+	 * @param allowGroupResources
+	 *        the setting
+	 */
+	public void setAllowGroupResources(boolean allowGroupResources)
+	{
+		m_allowGroupResources = allowGroupResources;
+	}
+	/**
+	 * Get
+	 * 
+	 * @return allowGroupResources
+	 */
+	public boolean getAllowGroupResources()
+	{
+		return m_allowGroupResources;
+	}
+	
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -6772,57 +6796,58 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Collection rv = new Vector();
 		
 		Collection groups = new Vector();
-		
-		Reference ref = m_entityManager.newReference(refString);
-		ContentCollection container;
-		try
+		if(this.m_allowGroupResources)
 		{
-			container = findCollection(ref.getId());
-			if(AccessMode.INHERITED == container.getAccess())
+			Reference ref = m_entityManager.newReference(refString);
+			ContentCollection container;
+			try
 			{
-				groups.addAll(container.getInheritedGroupObjects());
-			}
-			else
-			{
-				groups.addAll(container.getGroupObjects());
-			}
-		}
-		catch (TypeException e1)
-		{
-			// ignore
-		}
-		
-		try
-		{
-			Site site = m_siteService.getSite(ref.getContext());
-			if(groups.isEmpty())
-			{
-				// get the channel's site's groups
-				groups.addAll(site.getGroups());
-			}
-
-			// if the user has permission to create resources in the root-level of the site, return all groups
-			if (SecurityService.unlock(ALL_GROUP_ACCESS, site.getReference()))
-			{
-				rv.addAll(groups);
-			}
-			// otherwise, check the groups for function
-			else
-			{
-				for (Iterator i = groups.iterator(); i.hasNext();)
+				container = findCollection(ref.getId());
+				if(AccessMode.INHERITED == container.getAccess())
 				{
-					Group group = (Group) i.next();
-					if(SecurityService.unlock(function, group.getReference()))
+					groups.addAll(container.getInheritedGroupObjects());
+				}
+				else
+				{
+					groups.addAll(container.getGroupObjects());
+				}
+			}
+			catch (TypeException e1)
+			{
+				// ignore
+			}
+			
+			try
+			{
+				Site site = m_siteService.getSite(ref.getContext());
+				if(groups.isEmpty())
+				{
+					// get the channel's site's groups
+					groups.addAll(site.getGroups());
+				}
+	
+				// if the user has permission to create resources in the root-level of the site, return all groups
+				if (SecurityService.unlock(ALL_GROUP_ACCESS, site.getReference()))
+				{
+					rv.addAll(groups);
+				}
+				// otherwise, check the groups for function
+				else
+				{
+					for (Iterator i = groups.iterator(); i.hasNext();)
 					{
-						rv.add(group);
+						Group group = (Group) i.next();
+						if(SecurityService.unlock(function, group.getReference()))
+						{
+							rv.add(group);
+						}
 					}
 				}
 			}
+			catch (IdUnusedException e)
+			{
+			}
 		}
-		catch (IdUnusedException e)
-		{
-		}
-
 		return rv;
 	}
 
