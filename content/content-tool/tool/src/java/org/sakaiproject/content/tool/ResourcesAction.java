@@ -8162,6 +8162,7 @@ public class ResourcesAction
 				if (cedit != null)
 				{
 					ContentHostingService.commitCollection(cedit);
+					
 				}
 				else
 				{
@@ -8189,6 +8190,19 @@ public class ResourcesAction
 						expandedCollections.put(containerId, container);
 					}
 					catch (Throwable ignore){}
+				}
+				if(item.isFolder())
+				{
+					old = expandedCollections.remove(item.getId());
+					if (old != null)
+					{
+						try
+						{
+							ContentCollection folder = ContentHostingService.getCollection(item.getId());
+							expandedCollections.put(item.getId(), folder);
+						}
+						catch (Throwable ignore){}
+					}
 				}
 			}
 			catch (TypeException e)
