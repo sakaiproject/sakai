@@ -335,6 +335,8 @@
 							$tlang.getString("access.site")
 						#elseif($root.effectiveAccess == $GROUP_ACCESS)
 							$tlang.getString("access.group")
+						#elseif($root.effectiveAccess == $PUBLIC_ACCESS)
+							$tlang.getString("access.public")
 						#end
 					</td>
 					*#
@@ -611,10 +613,12 @@
 							</td>
 							######################  Item/folder properties  ##############
 							<td headers="access" title="$member.effectiveGroups">
-								#if($member.effectiveAccess == $INHERITED_ACCESS || $member.effectiveAccess == $SITE_ACCESS)
+								#if("$member.effectiveAccess" == "$INHERITED_ACCESS" || "$member.effectiveAccess" == "$SITE_ACCESS")
 									$tlang.getString("access.site")
-								#elseif($member.effectiveAccess == $GROUP_ACCESS)
+								#elseif("$member.effectiveAccess" == "$GROUP_ACCESS")
 									$tlang.getString("access.group")
+								#elseif("$member.effectiveAccess" == "$PUBLIC_ACCESS")
+									$tlang.getString("access.public")
 								#end
 							</td>
 							<td headers="creator">
@@ -801,10 +805,12 @@
 							</td>
 							#*
 							<td headers="access" title="$root.effectiveGroups">
-								#if($root.effectiveAccess == $INHERITED_ACCESS || $root.effectiveAccess == $SITE_ACCESS)
+								#if("$root.effectiveAccess" == "$INHERITED_ACCESS" || "$root.effectiveAccess" == "$SITE_ACCESS")
 									$tlang.getString("access.site")
-								#elseif($root.effectiveAccess == $GROUP_ACCESS)
+								#elseif("$root.effectiveAccess" == "$GROUP_ACCESS")
 									$tlang.getString("access.group")
+								#elseif("$root.effectiveAccess" == "$PUBLIC_ACCESS")
+									$tlang.getString("access.public")
 								#end
 							</td>
 							*#
@@ -1072,10 +1078,12 @@
 									</td>
 									######################  Item/folder properties  ##############
 									<td headers="access" title="$member.effectiveGroups">
-										#if($member.effectiveAccess == $INHERITED_ACCESS || $member.effectiveAccess == $SITE_ACCESS)
+										#if("$member.effectiveAccess" == "$INHERITED_ACCESS" || "$member.effectiveAccess" == "$SITE_ACCESS")
 											$tlang.getString("access.site")
-										#elseif($member.effectiveAccess == $GROUP_ACCESS)
+										#elseif("$member.effectiveAccess" == "$GROUP_ACCESS")
 											$tlang.getString("access.group")
+										#elseif("$member.effectiveAccess" == "$PUBLIC_ACCESS")
+											$tlang.getString("access.public")
 										#end
 									</td>
 									<td headers="creator">

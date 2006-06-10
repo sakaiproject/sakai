@@ -1375,7 +1375,7 @@
 					<label for="access_mode">
 						$tlang.getString("edit.access1")
 					</label>	
-					#if(!$preventPublicDisplay && $item.isPubviewset())
+					#if(!$preventPublicDisplay && $item.isPubviewInherited())
 						$tlang.getString("gen.setyes")
 					#else
 						<table border="0">
@@ -1415,27 +1415,9 @@
 												</th>
 										 		<th id="groupname">
 											 		$tlang.getString("edit.group1")
-													##if(!$sortedBy.equals("group_title"))
-													##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1")</a>
-													##else
-														##if ($sortedAsc.equals("true"))
-														##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group title ascending" /></a>
-														##else
-														##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.newAssignmentForm.submit();return false;" title ="Sort by group title">$tlang.getString("edit.group1") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group title descending"/></a>
-														##end
-													##end
 												</th>
 												<th id ="groupdescription">
 													$tlang.getString("edit.group2")
-													##if (!$sortedBy.equals("group_description"))
-													##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2")</a>
-													##else
-														##if ($sortedAsc.equals("true"))
-														##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="Sort by group description ascending" /></a>
-														##else
-														##	<a href="#" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.newAssignmentForm.submit();return false;" title ="Sort by group description">$tlang.getString("edit.group2") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="Sort by group description descending"/></a>
-														##end
-													##end
 												</th>
 											</tr>
 											#foreach ($group in $theGroupsInThisSite)

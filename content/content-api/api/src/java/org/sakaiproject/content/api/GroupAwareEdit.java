@@ -50,4 +50,18 @@ public interface GroupAwareEdit extends GroupAwareEntity, Edit
 	 */
 	public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException;
 
+	/**
+	 * 
+	 * @throws InconsistentException
+	 * @throws PermissionException
+	 */
+	public void setPublicAccess() throws InconsistentException, PermissionException;
+	
+	/**
+	 * 
+	 * @throws InconsistentException
+	 * @throws PermissionException
+	 */
+	public void clearPublicAccess() throws InconsistentException, PermissionException;
+
 }

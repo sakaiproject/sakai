@@ -6828,8 +6828,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public abstract class BasicGroupAwareEdit implements GroupAwareEdit
 	{
+		/** Store the resource id */
+		protected String m_id = null;
+
+		/** The properties. */
+		protected ResourcePropertiesEdit m_properties = null;
+
+		/** The event code for this edit. */
+		protected String m_event = null;
+
+		/** Active flag. */
+		protected boolean m_active = false;
+
+		/** When true, the collection has been removed. */
+		protected boolean m_isRemoved = false;
+
 		/** The access mode for this entity (e.g., "group" vs "site") */ 
 		protected AccessMode m_access = AccessMode.SITE;
+
+		/** The date/time after which the entity should no longer be generally available */
+		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
+
+		/** The date/time before which the entity should not be generally available */
+		protected Time m_releaseDate = TimeService.newTime(0);
 
 		/** The Collection of group-ids for groups with access to this entity. */
 		protected Collection m_groups = new Vector();
@@ -6856,6 +6877,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			this.m_groups.clear();
 			
 		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public void clearPublicAccess() throws InconsistentException, PermissionException 
+		{
+			if(this.m_access != AccessMode.PUBLIC)
+			{
+				throw new InconsistentException(this.getReference());
+			}
+			
+			setPubView(this.m_id, false);
+			this.m_access = AccessMode.INHERITED;
+			this.m_groups.clear();
+			
+		}
+		
+		public void setPublicAccess() throws PermissionException
+		{
+			setPubView(this.m_id, true);
+			this.m_access = AccessMode.PUBLIC;
+			this.m_groups.clear();
+		}
 
 		/**
 		 * @inheritDoc
@@ -6863,6 +6907,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void setGroupAccess(Collection groups) throws InconsistentException, PermissionException 
 		{
 			if (groups == null || groups.isEmpty())
+			{
+				throw new InconsistentException(this.getReference());
+			}
+			
+			if(isInheritingPubView(this.m_id) || isPubView(this.m_id))
 			{
 				throw new InconsistentException(this.getReference());
 			}
@@ -7046,27 +7095,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public class BaseCollectionEdit extends BasicGroupAwareEdit implements ContentCollectionEdit, SessionBindingListener
 	{
-		/** Store the resource id */
-		protected String m_id = null;
-
-		/** The properties. */
-		protected ResourcePropertiesEdit m_properties = null;
-
-		/** The event code for this edit. */
-		protected String m_event = null;
-
-		/** Active flag. */
-		protected boolean m_active = false;
-
-		/** When true, the collection has been removed. */
-		protected boolean m_isRemoved = false;
-
-		/** The date/time after which the entity should no longer be generally available */
-		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
-
-		/** The date/time before which the entity should not be generally available */
-		protected Time m_releaseDate = TimeService.newTime(0);
-		
 		/**
 		 * Construct with an id.
 		 * 
@@ -7158,6 +7186,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				access = AccessMode.fromString(access_mode);
 			}
+			
 			m_access = access;
 			
 			// extract release date
@@ -7664,9 +7693,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public class BaseResourceEdit extends BasicGroupAwareEdit implements ContentResourceEdit, SessionBindingListener
 	{
-		/** The resource id. */
-		protected String m_id = null;
-
 		/** The content type. */
 		protected String m_contentType = null;
 
@@ -7676,29 +7702,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		/** The content length of the body, consult only if the body is missing (null) */
 		protected int m_contentLength = 0;
 
-		/** The properties. */
-		protected ResourcePropertiesEdit m_properties = null;
-
-		/** The event code for this edit. */
-		protected String m_event = null;
-
-		/** Active flag. */
-		protected boolean m_active = false;
-
-		/** When true, the collection has been removed. */
-		protected boolean m_isRemoved = false;
-
 		/** When true, someone changed the body content with setContent() */
 		protected boolean m_bodyUpdated = false;
 
 		/** The file system path, post root, for file system stored body binary. */
 		protected String m_filePath = null;
-
-		/** The date/time after which the entity should no longer be generally available */
-		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
-
-		/** The date/time before which the entity should not be generally available */
-		protected Time m_releaseDate = TimeService.newTime(0);
 
 		/**
 		 * Construct.
