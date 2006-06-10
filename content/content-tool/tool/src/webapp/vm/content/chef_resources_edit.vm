@@ -1316,146 +1316,135 @@
 		#if ($item.isFileUpload() || $item.isHtml() || $item.isPlaintext()) 
 			##getRightsAssignment($item.rights)
 			
-					#if ($!copyrightTypes)
+			#if ($!copyrightTypes)
+				<p class="shorttext">
+					<span class="reqStar">*</span>
+					<label for="copyright">
+						$tlang.getString("edit.cstatus")
+					</label>	
+					<select name="copyright" id ="copyright" onchange="javascript:updateCopyright(this);">
+						#foreach ($copyright in $copyrightTypes)
+							<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
+						#end
+					</select>
+					#if ($!fairuseurl)
+						(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
+					#end
+				</p>
+				<div id="copyright_status">
+					#if($item.copyrightStatus == $USE_THIS_COPYRIGHT)
 						<p class="shorttext">
 							<span class="reqStar">*</span>
-							<label for="copyright">
-								$tlang.getString("edit.cstatus")
+							<label for="newcopyright">
+								$tlang.getString("edit.cinfo")
 							</label>	
-							<select name="copyright" id ="copyright" onchange="javascript:updateCopyright(this);">
-								#foreach ($copyright in $copyrightTypes)
-									<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
-								#end
-							</select>
-							#if ($!fairuseurl)
-								(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('gen.newwin')]"><span class="skip"> [$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.fairuse")</a>)
-							#end
-						</p>
-						<div id="copyright_status">
-							#if($item.copyrightStatus == $USE_THIS_COPYRIGHT)
-								<p class="shorttext">
-									<span class="reqStar">*</span>
-									<label for="newcopyright">
-										$tlang.getString("edit.cinfo")
-									</label>	
-									<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
-								</p>	
-							#else
-								<input type="hidden" name="newcopyright" id="newcopyright" value="$!item.copyrightInfo" />
-							#end
-						</div>
-						<table border="0">
-							<tr>
-								<td style="width:180px;padding-left:1em;vertical-align:top">
-									<label for="copyrightAlert">
-										$tlang.getString("edit.calert")
-									</label>
-								</td>
-								<td style="vertical-align:top">
-									<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
-									$tlang.getString("edit.display1")
-									<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
-									$tlang.getString("edit.display3")
-								</td>
-							</tr>
-						</table>
+							<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
+						</p>	
+					#else
+						<input type="hidden" name="newcopyright" id="newcopyright" value="$!item.copyrightInfo" />
 					#end
-			
+				</div>
+				<table border="0">
+					<tr>
+						<td style="width:180px;padding-left:1em;vertical-align:top">
+							<label for="copyrightAlert">
+								$tlang.getString("edit.calert")
+							</label>
+						</td>
+						<td style="vertical-align:top">
+							<input type="checkbox" name="copyrightAlert" id ="copyrightAlert" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
+							$tlang.getString("edit.display1")
+							<a href="#" onclick="javascript:openSampleCopyrightWindow();" onkeypress="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('gen.newwin')]"><span class="skip">[$tlang.getString('gen.newwin')]</span>$tlang.getString("edit.display2")</a>
+							$tlang.getString("edit.display3")
+						</td>
+					</tr>
+				</table>
+			#end
 		#end
-	
 		######### begin access section ##########
 		## Should initial access to this resource or collection be determined
 		## for "site" (standard sakai permissions), "grouped" or "public"?
 		## do not show any access options if in dropbox
 		#if(!$dropboxMode)
+			#set ($listDisplay="none")
 			## show access options only if public view is allowed or there are groups in the site
-			#if(!$preventPublicDisplay || $siteHasGroups)
-				<p class="shorttext">
-					<span class="reqStar">*</span>
-					<label for="access_mode">
-						$tlang.getString("edit.access1")
-					</label>	
-					#if(!$preventPublicDisplay && $item.isPubviewInherited())
-						$tlang.getString("gen.setyes")
-					#else
-						<table border="0">
-							#if("$!item.inheritedAccess" == "$GROUP_ACCESS")
-							#else
-								#if(!$preventPublicDisplay)
-									<tr>
-										<td class="checkbox">
-											<input type="radio" name="access_mode" id="access_mode_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
-											<label for="access_mode_public">$tlang.getString("edit.access2")</label>
-										</td>
-									</tr>
+			#if($item.isPubviewInherited())
+				<h4>$tlang.getString("access.title2")</h4>
+			#elseif($item.isSingleGroupInherited())
+				<h4>$item.singleGroupTitle</h4>
+			#elseif($item.isSiteOnly())
+				<h4>$tlang.getString("access.title3")</h4>
+			elseif(!$item.isSitePossible())
+				<h4>$tlang.getString("access.title5")</h4>
+				#set ($listDisplay="block")
+			#else
+				<h4>$tlang.getString("access.title1")</h4>
+				<div  class="labelindnt">
+					#if($item.isPubviewPossible())
+						<p class="checkbox">
+											<input type="radio" name="access_mode" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
+											<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
+						</p>
 								#end
-								<tr>
-									<td class="checkbox">
-										<input type="radio" name="access_mode" id="access_mode_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
-										<label for="access_mode_$SITE_ACCESS">$tlang.getString("edit.access3")</label>
-									</td>
-								</tr>
-							#end
-							<!-- "$!item.access" == "$GROUP_ACCESS" -->
-							#if($siteHasGroups)
-								#if("$!item.access" == "$GROUP_ACCESS")
-									#set ($listDisplay="block")
-								#else
-									#set ($listDisplay="none")
-								#end
-								<tr>
-									<td class="checkbox">
-										<input type="radio" name="access_mode" id="access_mode_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';" onkeypress="javascript:document.getElementById('groupTable').style.display='block';" />
-										<label for="access_mode_$GROUP_ACCESS">$tlang.getString("edit.access4")</label>
-										<table id="groupTable" style="margin-left:3em;width:80%;display:$listDisplay" class="listHier lines" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
-											<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
-											<tr>
-												<th id="selectAllGroups" style="width:2em;padding-left:.4em">
-													<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')" onkeypress="javascript:toggleSelectAll(this, 'access_groups')" />
-												</th>
-										 		<th id="groupname">
-											 		$tlang.getString("edit.group1")
-												</th>
-												<th id ="groupdescription">
-													$tlang.getString("edit.group2")
-												</th>
-											</tr>
-											#foreach ($group in $theGroupsInThisSite)
-												<tr>
-													<td headers="selected" style="padding-bottom:0;" style="width:2em">
-														#set($selected=false)
-														#if($item.hasGroup("$!group.reference"))
-															#set($selected=true)
-														#end
-														<input type="checkbox" name="access_groups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
-													</td>
-													<td headers="name" style="padding-bottom:0;" class="checkbox">
-														<label for="$group.Id">
-															$group.Title
-														</label>	
-													</td>
-													<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-														#set($description = "")
-														#if($group.Description)
-															#set($description = $group.Description)
-														#end
-														$!description
-													</td>
-												</tr>
-											#end
-										</table>
-									</td>
-								</tr>
-							#else
-								<span id="groupTable" style="display:none;"></span> 
-							#end
-						</table>
+					<p class="checkbox">
+										<input type="radio" name="access_mode" id="access_mode${i}_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" onkeypress="javascript:document.getElementById('groupTable').style.display='none';" />
+										<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
+					</p>
+					
+					#if($item.isGroupPossible())
+						#if("$!item.access" == "$GROUP_ACCESS")
+							#set ($listDisplay="block")
+						#else
+							#set ($listDisplay="none")
+						#end
+						<p class="checkbox">
+							<input type="radio" name="access_mode" id="access_mode${i}_$GROUP_ACCESS" value="$GROUP_ACCESS" #if("$!item.access" == "$GROUP_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';" onkeypress="javascript:document.getElementById('groupTable').style.display='block';" />
+							<label for="access_mode${i}_grouped">$tlang.getString("edit.access4")</label>
+						</p>
 					#end
-				</p>
+				</div>
 			#end
+			<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
+				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
+				<tr>
+					<th id="selectAllGroups" style="width:2em;padding-left:.4em">
+						<input type="checkbox" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')" onkeypress="javascript:toggleSelectAll(this, 'access_groups')" />
+					</th>
+					<th id="groupname">
+						$tlang.getString("edit.group1")
+					</th>
+					<th id ="groupdescription">
+						$tlang.getString("edit.group2")
+					</th>
+				</tr>
+				#set($theGroups = $item.possibleGroups)
+				#foreach ($group in $!{theGroups})
+					<tr>
+						<td headers="selected" style="padding-bottom:0;" style="width:2em">
+							#set($selected=false)
+							#if($item.hasGroup("$!group.reference"))
+								#set($selected=true)
+							#end
+							<input type="checkbox" name="access_groups" id="access_groups_$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+						</td>
+						<td headers="name" style="padding-bottom:0;" class="checkbox">
+							<label for="access_groups_$group.Id">
+								$group.Title
+							</label>	
+						</td>
+						<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							#set($description = "")
+							#if($group.Description)
+								#set($description = $group.Description)
+							#end
+							$!description
+						</td>
+					</tr>
+				#end
+			</table>
 		#end
 		########## end access section ###########
-
+	
 		#if($item.canSetQuota())
 			<p class="shorttext">
 				<label for="hasQuota">

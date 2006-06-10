@@ -1355,6 +1355,7 @@
 			## for "site" (standard sakai permissions), "grouped" or "public"?
 			## do not show any access options if in dropbox
 			#if(!$dropboxMode)
+				#set ($listDisplay="none")
 				## show access options only if public view is allowed or there are groups in the site
 				#if($item.isPubviewInherited())
 					<h4>$tlang.getString("access.title2")</h4>
@@ -1367,7 +1368,7 @@
 					#set ($listDisplay="block")
 						#else
 					<h4>$tlang.getString("access.title1")</h4>
-					<div  class="labelindt">
+					<div  class="labelindnt">
 						#if($item.isPubviewPossible())
 							<p class="checkbox">
 												<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
@@ -1392,7 +1393,7 @@
 						#end
 					</div>
 				#end
-				<table id="groupTable$i" style="width:80%;display:$listDisplay" class="listHier lines labelindt" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
+				<table id="groupTable$i" style="width:80%;display:$listDisplay" class="listHier lines labelindnt" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
 					<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 					<tr>
 						<th id="selectAllGroups" style="width:2em;padding-left:.4em">
