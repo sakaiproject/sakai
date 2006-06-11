@@ -293,6 +293,8 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   public void deleteItemMetaData(final Long itemId, final String label) {
+// delete metadata by label
+    ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
     final String query = "from ItemMetaData imd where imd.item.itemId=? and imd.label= ?";
     
     final HibernateCallback hcb = new HibernateCallback(){
@@ -305,14 +307,23 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
     };
     List itemmetadatalist = getHibernateTemplate().executeFind(hcb);
 
-//    List itemmetadatalist = getHibernateTemplate().find(query,
-//        new Object[] { itemId, label },
-//        new org.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
-        getHibernateTemplate().deleteAll(itemmetadatalist);
-        retryCount = 0;
+        if (item!=null){ // need to dissociate with item before deleting in Hibernate 3
+	  Iterator iter = itemmetadatalist.iterator();
+	  while (iter.hasNext()){
+	    ItemMetaDataIfc meta= (ItemMetaDataIfc) iter.next();
+            meta.setItem(null);
+	  }
+          
+          Set set = item.getItemMetaDataSet();
+          set.removeAll(itemmetadatalist);
+          item.setItemMetaDataSet(set);
+          getHibernateTemplate().deleteAll(itemmetadatalist);
+          retryCount = 0;
+	}
+        else retryCount=0;
       }
       catch (Exception e) {
         log.warn("problem delete itemmetadatalist: "+e.getMessage());

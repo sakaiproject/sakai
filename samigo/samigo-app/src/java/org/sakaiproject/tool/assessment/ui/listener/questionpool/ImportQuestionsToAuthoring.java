@@ -145,9 +145,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
           delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
 
-          //itemfacade.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
-          //delegate.saveItem(itemfacade);
-
           delegate.addItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID,section.getSectionId().toString(),  AgentFacade.getAgentString());
 
         }
