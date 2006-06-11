@@ -190,6 +190,14 @@ public class ContentHostingService
 		return service.getAllResources(param0);
 	}
 
+	public static java.util.List getAllEntities(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.getAllEntities(param0);
+	}
+
 	public static boolean allowUpdateCollection(java.lang.String param0)
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
