@@ -2303,7 +2303,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			edit.setType(type);
 			edit.setLocation(location);
 			edit.setAccess(access);
-			for (Iterator gIterator = (Iterator)groups; gIterator.hasNext();)
+			for (Iterator gIterator = (Iterator)groups.iterator(); gIterator.hasNext();)
 			{
 				edit.addGroup((Group)(gIterator.next()));
 			}
