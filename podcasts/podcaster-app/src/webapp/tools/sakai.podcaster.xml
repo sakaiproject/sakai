@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool
+			id="sakai.podcaster"
+			title="Podcaster"
+			description="First attempt at implementing a podcaster.">
+			
+		<category name="course" />
+		<category name="project" />
+
+		<configuration name="help.id" value="arch" /> 
+	</tool>	
+</registration>
