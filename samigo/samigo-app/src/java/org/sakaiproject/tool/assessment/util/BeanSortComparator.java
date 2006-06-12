@@ -124,11 +124,11 @@ public class BeanSortComparator
     catch(Throwable t)
     {
       log.debug("Caught error in BeanUtils.describe(): " + t.getMessage());
-      //t.printStackTrace();
-      /* 
+      t.printStackTrace();
+       
       throw new java.lang.UnsupportedOperationException(
         "Invalid describeBean. Objects may not be Java Beans.  " + t);
-      */
+      
     }
 
     return m;
