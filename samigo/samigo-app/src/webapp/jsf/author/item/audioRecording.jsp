@@ -65,10 +65,10 @@
     <h:outputLabel value="#{msg.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
 <f:validateDoubleRange/>
-</h:inputText>
-    <h:message for="answerptr" styleClass="validate"/><br/>
+</h:inputText><br/>
+    <h:message for="answerptr" styleClass="validate"/>
   </div>
-
+<br/>
   <!-- 2 TEXT -->
 
 <span id="num2" class="number"></span>
@@ -85,19 +85,19 @@
 
   <!-- 3 TIME allowed -->
   <span id="num3" class="number"></span>
-   <div class="longtext"><h:outputLabel value="#{msg.time_allowed_seconds}" />
-  <h:outputText value="#{msg.time_allowed_seconds_indic}" />
+   <div class="longtext">
+  <h:outputLabel for="timeallowed" value="#{msg.time_allowed_seconds}:  #{msg.time_allowed_seconds_indic} " />
   <h:inputText id="timeallowed" value="#{itemauthor.currentItem.timeAllowed}" required="true">
 <f:validateDoubleRange/>
 </h:inputText>
- <h:message for="timeallowed" styleClass="validate"/><br/>
+ <h:message for="timeallowed" styleClass="validate"/>
   </div>
+<br/>
   <!-- 4 attempts -->
    <span id="num4" class="number"></span>
   <div class="longtext">
 
-  <h:outputLabel value="#{msg.number_of_attempts}" />
-  <h:outputText value="#{msg.number_of_attempts_indic}" />
+  <h:outputLabel for="noattempts" value="#{msg.number_of_attempts} : #{msg.number_of_attempts_indic}" />
   <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
   <f:selectItem itemLabel="#{msg.select}" itemValue=""/>
   <f:selectItem itemLabel="#{msg.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
@@ -112,7 +112,7 @@
   <f:selectItem itemLabel="9" itemValue="9"/>
   <f:selectItem itemLabel="10" itemValue="10"/>
   </h:selectOneMenu>
-</div><br/>
+</div>
  <h:message for="noattempts" styleClass="validate"/><br/>
 
   <!-- 5 PART -->
@@ -171,11 +171,11 @@
 </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_save}" action="editAssessment" styleClass="active">
+  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_save}" action="editPool" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
