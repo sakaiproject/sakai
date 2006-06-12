@@ -3258,7 +3258,7 @@ public class ResourcesAction
 							{
 								// edit.clearGroupAccess();
 							}
-							ContentHostingService.commitResource(edit);
+							ContentHostingService.commitResource(edit, item.getNotification());
 						}
 						catch (IdUnusedException e)
 						{
@@ -3920,7 +3920,7 @@ public class ResourcesAction
 					{
 						// edit.clearGroupAccess();
 					}
-					ContentHostingService.commitResource(edit);
+					ContentHostingService.commitResource(edit, item.getNotification());
 				}
 				catch (IdUnusedException e)
 				{
@@ -4900,7 +4900,7 @@ public class ResourcesAction
 					{
 						// edit.clearGroupAccess();
 					}
-					ContentHostingService.commitResource(edit);
+					ContentHostingService.commitResource(edit, item.getNotification());
 				}
 				catch (IdUnusedException e)
 				{
