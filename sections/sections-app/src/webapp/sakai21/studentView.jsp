@@ -16,6 +16,8 @@
             <h:outputText value="#{studentViewBean.instructions}"/>
         </x:div>
 
+        <%@include file="/inc/globalMessages.jspf"%>
+
         <h:panelGrid styleClass="sectionContainerNav" columns="2" columnClasses="sectionLeftNav,sectionRightNav">
             <x:div>
                 <h:outputText

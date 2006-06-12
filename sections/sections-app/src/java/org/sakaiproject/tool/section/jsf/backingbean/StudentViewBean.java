@@ -239,6 +239,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void processJoinSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
+		//is this section still joinable?
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		//check that there are still places available
+		int max = section.getMaxEnrollments().intValue();
+		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
+		if (enroled >= max) {
+			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+			return;
+		}
 		try {
 			getSectionManager().joinSection(sectionUuid);
 		} catch (RoleConfigurationException rce) {
@@ -249,6 +259,16 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 	public void processSwitchSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
+		//is this section still joinable?
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		//check that there are still places available
+		int max = section.getMaxEnrollments().intValue();
+		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
+		if (enroled >= max) {
+			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
+			return;
+		}
 		try {
 			getSectionManager().switchSection(sectionUuid);
 		} catch (RoleConfigurationException rce) {
