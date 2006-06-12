@@ -434,6 +434,9 @@ public class SectionManagerImpl implements SectionManager {
     	// We can not use dropEnrollmentFromCategory because security checks won't
     	// allow a student to update the authZ groups directly.
 		List categorySections = getSectionsInCategory(newSection.getCourse().getSiteContext(), newSection.getCategory());
+		
+		boolean errorDroppingSection = false;
+		
 		for(Iterator iter = categorySections.iterator(); iter.hasNext();) {
 			CourseSection section = (CourseSection)iter.next();
 			// Skip the current section
@@ -443,18 +446,23 @@ public class SectionManagerImpl implements SectionManager {
 			try {
 				authzGroupService.unjoinGroup(section.getUuid());
 			} catch (GroupNotDefinedException e) {
+				errorDroppingSection = true;
 				log.error("There is not authzGroup with id " + section.getUuid());
 			} catch (AuthzPermissionException e) {
+				errorDroppingSection = true;
 				String userUid = sessionManager.getCurrentSessionUserId();
 				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + section.getUuid());
 			}
 		}
 
-    	// Join the new section
-    	joinSection(newSectionUuid);
-    	
-    	// Post the event
-		postEvent("section.student.switch", newSectionUuid);
+		// Only allow the user to join the new section if there were no errors dropping section(s)
+		if(!errorDroppingSection) {
+	    	// Join the new section
+	    	joinSection(newSectionUuid);
+	    	
+	    	// Post the event
+			postEvent("section.student.switch", newSectionUuid);
+		}
 
     }
 

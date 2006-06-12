@@ -242,7 +242,10 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		//check that there are still places available
-		int max = section.getMaxEnrollments().intValue();
+		int max = Integer.MAX_VALUE;
+		if(section.getMaxEnrollments() != null) {
+			max = section.getMaxEnrollments().intValue();
+		}
 		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
 		if (enroled >= max) {
 			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
@@ -262,7 +265,10 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		//check that there are still places available
-		int max = section.getMaxEnrollments().intValue();
+		int max = Integer.MAX_VALUE;
+		if(section.getMaxEnrollments() != null) {
+			max = section.getMaxEnrollments().intValue();
+		}
 		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
 		if (enroled >= max) {
 			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
