@@ -127,6 +127,12 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 							}
 						}
 						int comparison = object1.compareTo(object2);
+						
+						// If the two objects are equal, then try again using the title.
+						// This recursive call is safe to do only because two titles can not be equal.
+						if(comparison == 0) {
+							comparison = getFieldComparator("title", sortAscending).compare(o1, o2);
+						}
 						return sortAscending ? comparison : (-1 * comparison);
 					}
 					// These are in different categories, so sort them by category name

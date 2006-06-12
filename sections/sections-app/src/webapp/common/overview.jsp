@@ -64,7 +64,7 @@
         </h:column>
         <h:column>
             <f:facet name="header">
-                <x:commandSortHeader columnName="time" immediate="false" arrow="true">
+                <x:commandSortHeader columnName="meetingTimes" immediate="false" arrow="true">
                 <h:outputText value="#{msgs.overview_table_header_day_time}" />
                 </x:commandSortHeader>
             </f:facet>
