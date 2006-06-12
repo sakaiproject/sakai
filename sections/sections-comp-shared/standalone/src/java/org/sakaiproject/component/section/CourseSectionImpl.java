@@ -32,7 +32,7 @@ import org.sakaiproject.api.section.coursemanagement.CourseSection;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
-public class CourseSectionImpl extends LearningContextImpl implements CourseSection, Serializable {
+public class CourseSectionImpl extends LearningContextImpl implements CourseSection, Comparable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -157,4 +157,35 @@ public class CourseSectionImpl extends LearningContextImpl implements CourseSect
 	public void setWednesday(boolean wednesday) {
 		this.wednesday = wednesday;
 	}
+	
+	/**
+	 * Compares CourseSectionImpls based on their category ID and title.  Sections
+	 * without a category are sorted last.
+	 */
+	public int compareTo(Object o) {
+		if(o == this) {
+			return 0;
+		}
+		if(o instanceof CourseSectionImpl) {
+			CourseSectionImpl other = (CourseSectionImpl)o;
+			if(this.category != null && other.category == null) {
+				return -1;
+			} else if(this.category == null && other.category != null) {
+				return 1;
+			}
+			if(this.category == null && other.category == null) {
+				return this.title.compareTo(other.title);
+			}
+			int categoryComparison = this.category.compareTo(other.category);
+			if(categoryComparison == 0) {
+				return this.title.compareTo(other.title);
+			} else {
+				return categoryComparison;
+			}
+		} else {
+			throw new ClassCastException("Can not compare CourseSectionImpl to " + o.getClass());
+		}
+		
+	}
+
 }

@@ -89,6 +89,7 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 		
 		// Build the list of available sections
 		List sectionsInCategory = getSectionManager().getSectionsInCategory(getSiteContext(), currentSection.getCategory());
+		Collections.sort(sectionsInCategory);
 		availableSectionItems = new ArrayList();
 		availableSectionItems.add(new SelectItem("", JsfUtil.getLocalizedMessage("edit_student_unassigned")));
 		for(Iterator iter = sectionsInCategory.iterator(); iter.hasNext();) {
