@@ -101,15 +101,17 @@
           <f:param name="templateSortType" value="templateName"/>
           <f:param name="templateAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-          <h:outputText value="#{msg.index_templates_title} " rendered="#{templateIndex.templateOrderBy!='templateName'}" />
+          <h:outputText value="#{msg.index_templates_title} "/>
         </h:commandLink>
-          <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='templateName'}" />
-          <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='templateName' && templateIndex.templateAscending }">
+ <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='templateName' && templateIndex.templateAscending }">
+          <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" />
+         
            <f:param name="templateAscending" value="false" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
              <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortTitle}" immediate="true"  action="template"  rendered="#{templateIndex.templateOrderBy=='templateName'&& !templateIndex.templateAscending }">
+ <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" />
            <f:param name="templateAscending" value="true" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
            <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!templateIndex.templateAscending}" url="/images/sortdescending.gif"/>
@@ -156,16 +158,18 @@
           <f:param name="templateSortType" value="lastModified"/>
           <f:param name="templateAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-          <h:outputText value="#{msg.index_templates_modified} " rendered="#{templateIndex.templateOrderBy!='lastModified'}" />
+          <h:outputText value="#{msg.index_templates_modified} " />
         </h:commandLink>
-        <h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort" rendered="#{templateIndex.templateOrderBy=='lastModified'}" />
-        <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified' && templateIndex.templateAscending }">
+<h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified' && templateIndex.templateAscending }">
+        <h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort"  />
+        
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="false"/>
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
            <h:graphicImage alt="#{msg.alt_sortLastModifiedDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
         </h:commandLink>
           <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified'&& !templateIndex.templateAscending }">
+<h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort"  />
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="true" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />

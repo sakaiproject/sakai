@@ -114,18 +114,21 @@
       <f:facet name="header">
           <h:panelGroup>
         <h:commandLink title="#{msg.t_sortTitle}" id="sortCoreByTitleAction" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy!='title'}">
-          <h:outputText value="#{msg.assessment_title} " rendered="#{author.coreAssessmentOrderBy!='title'}" />
+  <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort"/>
           <f:param name="coreSortType" value="title"/>
           <f:param name="coreAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
         </h:commandLink>
-          <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" rendered="#{author.coreAssessmentOrderBy=='title'}" />
-          <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='title' && author.coreAscending }">
+
+         <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='title' && author.coreAscending }">
+          <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort"/>
+          
            <f:param name="coreAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{author.coreAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='title'&& !author.coreAscending }">
+  <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort"/>
            <f:param name="coreAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!author.coreAscending}" url="/images/sortdescending.gif"/>
@@ -135,7 +138,7 @@
       <!-- action=editAssessment if pass authz -->
       <h:commandLink title="#{msg.t_editAssessment}" id="editAssessment" immediate="true" action="#{author.getOutcome}"
         rendered="#{authorization.editAnyAssessment or authorization.editOwnAssessment}" >
-        <h:outputText id="assessmentTitle" value="#{coreAssessment.title}" />
+        <h:outputText id="assessmentTitle" value="#{coreAssessment.title}" styleClass="currentSort" />
         <f:param name="assessmentId" value="#{coreAssessment.assessmentBaseId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
       </h:commandLink>
@@ -180,18 +183,20 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortLastModified}" id="sortCoreByLastModifiedDateActionA" immediate="true" action="sort"  rendered="#{author.coreAssessmentOrderBy!='lastModifiedDate'}">
-          <h:outputText value="#{msg.header_last_modified_date} " rendered="#{author.coreAssessmentOrderBy!='lastModifiedDate'}" />
+          <h:outputText value="#{msg.header_last_modified_date}" styleClass="currentSort"/>
           <f:param name="coreSortType" value="lastModifiedDate"/>
           <f:param name="coreAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
         </h:commandLink>
-       <h:outputText  value="#{msg.header_last_modified_date} " styleClass="currentSort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate'}" />
-          <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate' && author.coreAscending }">
+ <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate' && author.coreAscending }">
+       <h:outputText  value="#{msg.header_last_modified_date} " styleClass="currentSort" />
+         
            <f:param name="coreAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortLastModifiedDescending}" rendered="#{author.coreAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink  title="#{msg.t_sortLastModified}" immediate="true" action="sort" rendered="#{author.coreAssessmentOrderBy=='lastModifiedDate'&& !author.coreAscending }">
+              <h:outputText  value="#{msg.header_last_modified_date} " styleClass="currentSort" />
            <f:param name="coreAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortCoreAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortLastModifiedAscending}" rendered="#{!author.coreAscending}" url="/images/sortdescending.gif"/>
@@ -231,18 +236,21 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortTitle}" id="sortPubByTitleAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='title'}">
-          <h:outputText value="#{msg.assessment_title} "  rendered="#{author.publishedAssessmentOrderBy!='title'}"/>
+          <h:outputText value="#{msg.assessment_title} " styleClass="currentSort" />
           <f:param name="pubSortType" value="title"/>
           <f:param name="publishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
         </h:commandLink>
-         <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" rendered="#{author.publishedAssessmentOrderBy=='title'}" />
-          <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title' && author.publishedAscending }">
+
+ <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title' && author.publishedAscending }">
+         <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" />
+         
            <f:param name="publishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='title'&& !author.publishedAscending }">
+           <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" />
            <f:param name="publishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
@@ -287,18 +295,22 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortReleaseTo}" id="sortPubByreleaseToAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='releaseTo'}">
-          <h:outputText value="#{msg.assessment_release} " rendered="#{author.publishedAssessmentOrderBy!='releaseTo'}"/>
+          <h:outputText value="#{msg.assessment_release} " styleClass="currentSort" />
           <f:param name="pubSortType" value="releaseTo"/>
           <f:param name="publishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
         </h:commandLink>
-        <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo'}" />
-        <h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo' && author.publishedAscending }">
+
+<h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo' && author.publishedAscending }">
+
+        <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" />
+        
            <f:param name="publishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortReleaseToDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='releaseTo'&& !author.publishedAscending }">
+  <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" />
            <f:param name="publishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortReleaseToAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
@@ -313,18 +325,21 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortReleaseDate}" id="sortPubByStartDateAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='startDate'}" >
-          <h:outputText value="#{msg.assessment_date} " />
+          <h:outputText value="#{msg.assessment_date} " styleClass="currentSort" />
           <f:param name="pubSortType" value="startDate"/>
           <f:param name="publishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
         </h:commandLink>
-        <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" rendered="#{author.publishedAssessmentOrderBy=='startDate'}" />
-          <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='startDate' && author.publishedAscending }">
+
+ <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='startDate' && author.publishedAscending }">
+        <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" />
+         
            <f:param name="publishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortReleaseDateDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='startDate'&& !author.publishedAscending }">
+            <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" />
            <f:param name="publishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortReleaseDateAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
@@ -339,18 +354,20 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortDueDate}" id="sortPubByDueDateAction" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy!='dueDate'}">
-          <h:outputText value="#{msg.assessment_due} " rendered="#{author.publishedAssessmentOrderBy!='dueDate'}" />
+          <h:outputText value="#{msg.assessment_due} " styleClass="currentSort" />
           <f:param name="pubSortType" value="dueDate"/>
           <f:param name="publishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
         </h:commandLink>
-         <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort" rendered="#{author.publishedAssessmentOrderBy=='dueDate'}" />
-          <h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='dueDate' && author.publishedAscending }">
+ <h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='dueDate' && author.publishedAscending }">
+         <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort"  />
+         
            <f:param name="publishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortDueDateDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.publishedAssessmentOrderBy=='dueDate'&& !author.publishedAscending }">
+            <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort"  />
            <f:param name="publishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortPublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortDueDateAscending}" rendered="#{!author.publishedAscending}" url="/images/sortdescending.gif"/>
@@ -385,18 +402,20 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortTitle}" id="sortInactiveByTitleAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='title'}" >
-          <h:outputText value="#{msg.assessment_title} " rendered="#{author.inactivePublishedAssessmentOrderBy!='title'}"/>
+          <h:outputText value="#{msg.assessment_title} " styleClass="currentSort" />
           <f:param name="inactiveSortType" value="title"/>
           <f:param name="inactivePublishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
         </h:commandLink>
-          <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title'}" />
-          <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title' && author.inactivePublishedAscending }">
+<h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title' && author.inactivePublishedAscending }">
+          <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" />
+          
            <f:param name="inactivePublishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='title'&& !author.inactivePublishedAscending }">
+            <h:outputText  value="#{msg.assessment_title} " styleClass="currentSort" />
            <f:param name="inactivePublishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
@@ -437,18 +456,21 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortReleaseTo}" id="sortInactivePubByreleaseToAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='releaseTo'}"  >
-          <h:outputText value="#{msg.assessment_release} " rendered="#{author.inactivePublishedAssessmentOrderBy!='releaseTo'}" />
+          <h:outputText value="#{msg.assessment_release} " styleClass="currentSort"/>
           <f:param name="inactiveSortType" value="releaseTo"/>
           <f:param name="inactivePublishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
         </h:commandLink>
-        <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo'}" />
-          <h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo' && author.inactivePublishedAscending }">
+
+<h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo' && author.inactivePublishedAscending }">
+        <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" />
+          
            <f:param name="inactivePublishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortReleaseToDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortReleaseTo}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='releaseTo' && !author.inactivePublishedAscending }">
+            <h:outputText  value="#{msg.assessment_release} " styleClass="currentSort" />
            <f:param name="inactivePublishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortReleaseToAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
@@ -463,18 +485,20 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortReleaseDate}" id="sortInactivePubByStartDateAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='startDate'}">
-          <h:outputText value="#{msg.assessment_date} " rendered="#{author.inactivePublishedAssessmentOrderBy!='startDate'}"/>
+          <h:outputText value="#{msg.assessment_date} " styleClass="currentSort"/>
           <f:param name="inactiveSortType" value="startDate"/>
           <f:param name="inactivePublishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
         </h:commandLink>
-        <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate'}" />
-          <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate' && author.inactivePublishedAscending }">
+ <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate' && author.inactivePublishedAscending }">
+        <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" />
+         
            <f:param name="inactivePublishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortReleaseDateDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortReleaseDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='startDate' && !author.inactivePublishedAscending }">
+              <h:outputText  value="#{msg.assessment_date} " styleClass="currentSort" />
            <f:param name="inactivePublishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortReleaseDateAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
@@ -489,18 +513,20 @@ onkeypress=
       <f:facet name="header">
        <h:panelGroup>
         <h:commandLink title="#{msg.t_sortDueDate}" id="sortInactiveByDueDateAction" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy!='dueDate'}">
-          <h:outputText value="#{msg.assessment_due} " rendered="#{author.inactivePublishedAssessmentOrderBy!='dueDate'}"/>
+          <h:outputText value="#{msg.assessment_due} " styleClass="currentSort"/>
           <f:param name="inactiveSortType" value="dueDate"/>
           <f:param name="inactivePublishedAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
         </h:commandLink>
-        <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate'}" />
-          <h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate' && author.inactivePublishedAscending }">
+<h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate' && author.inactivePublishedAscending }">
+        <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort"/>
+          
            <f:param name="inactivePublishedAscending" value="false" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
              <h:graphicImage alt="#{msg.alt_sortDueDateDescending}" rendered="#{author.inactivePublishedAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
           <h:commandLink title="#{msg.t_sortDueDate}" immediate="true" action="sort" rendered="#{author.inactivePublishedAssessmentOrderBy=='dueDate'&& !author.inactivePublishedAscending }">
+           <h:outputText  value="#{msg.assessment_due} " styleClass="currentSort"/>
            <f:param name="inactivePublishedAscending" value="true" />
            <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.SortInactivePublishedAssessmentListener" />
            <h:graphicImage alt="#{msg.alt_sortDueDateAscending}" rendered="#{!author.inactivePublishedAscending}" url="/images/sortdescending.gif"/>
