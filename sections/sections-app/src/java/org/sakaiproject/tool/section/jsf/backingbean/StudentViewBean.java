@@ -242,12 +242,12 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		//check that there are still places available
-		int max = Integer.MAX_VALUE;
+		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
-			max = section.getMaxEnrollments().intValue();
+			maxEnrollments = section.getMaxEnrollments().intValue();
 		}
-		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
-		if (enroled >= max) {
+		int numEnrolled = getSectionManager().getTotalEnrollments(section.getUuid());
+		if (numEnrolled >= maxEnrollments) {
 			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
 			return;
@@ -265,12 +265,12 @@ public class StudentViewBean extends CourseDependentBean implements Serializable
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		//check that there are still places available
-		int max = Integer.MAX_VALUE;
+		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
-			max = section.getMaxEnrollments().intValue();
+			maxEnrollments = section.getMaxEnrollments().intValue();
 		}
-		int enroled = getSectionManager().getTotalEnrollments(section.getUuid());
-		if (enroled >= max) {
+		int numEnrolled = getSectionManager().getTotalEnrollments(section.getUuid());
+		if (numEnrolled >= maxEnrollments) {
 			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
 			return;
