@@ -3,7 +3,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../master/project.xml</extend>
-	<name>sakai-podcaster</name>
+	<name>sakai-podcasts</name>
 	<groupId>sakaiproject</groupId>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>

@@ -2,9 +2,9 @@
 
 <registration>
 	<tool
-			id="sakai.podcaster"
-			title="Podcaster"
-			description="First attempt at implementing a podcaster.">
+			id="sakai.podcasts"
+			title="Podcasts"
+			description="Will manage podcasts.">
 			
 		<category name="course" />
 		<category name="project" />

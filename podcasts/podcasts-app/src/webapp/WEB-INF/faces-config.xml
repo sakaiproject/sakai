@@ -20,25 +20,25 @@
   <managed-bean>
     <description>check for Resources and possibly podcasts</description>
     <managed-bean-name>podHomeBean</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcaster.podHomeBean</managed-bean-class>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podHomeBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <description>Info for Add podcast page</description>
     <managed-bean-name>podcastBean</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcaster.addPodcastBean</managed-bean-class>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.addPodcastBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <description>Bean to hold current/changed permissions</description>
     <managed-bean-name>podPerms</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcaster.podPermBean</managed-bean-class>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podPermBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
     <description>Bean to hold display option (Public / Site)</description>
     <managed-bean-name>podOptions</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcaster.podOptionsBean</managed-bean-class>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
@@ -48,23 +48,23 @@
 	<navigation-rule>
 	    <navigation-case>  <!-- GOTO addPodcast -->
 	        <from-outcome>addPodcast</from-outcome>
-	        <to-view-id>/podcaster/addPodcast.jsp</to-view-id>
+	        <to-view-id>/podcasts/addPodcast.jsp</to-view-id>
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podPermissions -->
 	        <from-outcome>podcastPermissions</from-outcome>
-	        <to-view-id>/podcaster/podPermissions.jsp</to-view-id>
+	        <to-view-id>/podcasts/podPermissions.jsp</to-view-id>
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podOptions -->
 	        <from-outcome>podcastOptions</from-outcome>
-	        <to-view-id>/podcaster/podOptions.jsp</to-view-id>
+	        <to-view-id>/podcasts/podOptions.jsp</to-view-id>
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podMain (Podcast Home) -->
 	      <from-outcome>cancel</from-outcome>
-	      <to-view-id>/podcaster/podMain.jsp</to-view-id>
+	      <to-view-id>/podcasts/podMain.jsp</to-view-id>
 	    </navigation-case>
 	    <navigation-case>
 	      <from-outcome>podcastRevise</from-outcome>
-	      <to-view-id>/podcaster/revisePodcast.jsp</to-view-id>
+	      <to-view-id>/podcasts/revisePodcast.jsp</to-view-id>
 	    </navigation-case>
 	</navigation-rule>
 

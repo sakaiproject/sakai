@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/jsf-sun-tool.xml</extend>
-	<name>sakai-podcaster</name>
+	<name>sakai-podcasts</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-podcaster</id>
+	<id>sakai-podcasts</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>

@@ -3,6 +3,30 @@
 
 //-----------------------------------------------------------------------
 // called by showPopupHere to determine the absolute position of the element
+//   modified to get span, not div
+//
+// el - The element whose position needs to be determined
+//
+// r - The top,left coordinates of this element which is returned
+//-----------------------------------------------------------------------
+function getAbsolutePosSpan(el) {
+  var SL = 0, ST = 0;
+  var is_div = /^span$/i.test(el.tagName);
+  if (is_div && el.scrollLeft)
+    SL = el.scrollLeft;
+    if (is_div && el.scrollTop)
+      ST = el.scrollTop;
+    var r = { x: el.offsetLeft - SL, y: el.offsetTop - ST };
+    if (el.offsetParent) {
+      var tmp = getAbsolutePos(el.offsetParent);
+      r.x += tmp.x;
+      r.y += tmp.y;
+    }
+    return r;
+}
+
+//-----------------------------------------------------------------------
+// called by showPopupHere to determine the absolute position of the element
 //
 // el - The element whose position needs to be determined
 //
@@ -42,11 +66,11 @@ function showPopupHere(el,divid) {
   }
 		
   if ( targetdiv != null ) {
-    var pos = getAbsolutePos(el);
+    var pos = getAbsolutePosSpan(el);
     var width =  el.offsetWidth;
     var height =  el.offsetHeight;
 
-    // Need to adjust position given
+/*    // Need to adjust position given
     if (document.all) { // For IE
        if (pos.y >= 110) {
          //  if top is more than 110 px
@@ -64,9 +88,9 @@ function showPopupHere(el,divid) {
     }
     else {
        // For non-IE
-       //    just adjust the height by offsetHeight of element
+       //    just adjust the height by offsetHeight of element */
        pos.y += height;
-    }
+//    }
     
     targetdiv.style.top = pos.y+"px ";
     targetdiv.style.left = pos.x+"px ";
