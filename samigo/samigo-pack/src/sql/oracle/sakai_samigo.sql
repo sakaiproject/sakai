@@ -359,7 +359,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Formative Assessment' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
@@ -582,7 +582,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Quiz' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
@@ -806,7 +806,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Problem Set' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
@@ -1031,7 +1031,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Survey' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
@@ -1254,7 +1254,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Test' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
@@ -1478,7 +1478,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
     VALUES (sam_assessmentBase_id_s.nextVal,1 ,0 ,'Timed Test' , 'System Defined Assessment Type', '', NULL
-    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2006-06-01 12:00:00' ,'admin' ,'2006-06-01 12:00:00'  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE)
 ;     
 
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
