@@ -20,8 +20,8 @@
    <goal name="schemaexport">
      <ant:path id="schemaexport.classpath">
        <ant:path refid="maven.dependency.classpath" />
-       <ant:pathelement location="${basedir}/component/target/classes" />
-       <ant:pathelement location="${basedir}/api/target/classes" />
+       <ant:pathelement location="${basedir}/samigo-hibernate/target/classes" />
+       <ant:pathelement location="${basedir}/samigo-api/target/classes" />
        <ant:pathelement location="../../tomcat/shared/lib/hibernate-3.1.3.jar" />
        <ant:pathelement location="../../tomcat/shared/lib/commons-logging-1.0.4.jar" />
        <ant:pathelement location="../../tomcat/shared/lib/commons-collections-3.1.jar" />
@@ -36,7 +36,7 @@
      <ant:schemaexport properties="${basedir}/hibernate.properties"
          delimiter=";" text="yes" output="schema-export.sql">
        <ant:fileset
-           dir="${basedir}/component/src/java/org/sakaiproject/tool/assessment/data/dao">
+           dir="${basedir}/samigo-hibernate/src/java/org/sakaiproject/tool/assessment/data/dao">
          <ant:include name="**/*.hbm.xml"/>
        </ant:fileset>
      </ant:schemaexport>
