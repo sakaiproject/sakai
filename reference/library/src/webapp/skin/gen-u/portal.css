@@ -71,9 +71,16 @@ body{
 
 .sitenav-max{
 	/*user logged in */
-	height: 117px;
+	height: 7.5em;
+	max-height:140px;
+	min-height:100px;
 	width: 100%;
 }
+
+* html .sitenav-max{
+	/*user logged in - iframe height tweak for IE*/
+	height: 8em;
+	}
 
 .sitenav-min{
 	/*no logos or banners*/
