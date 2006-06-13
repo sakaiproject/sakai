@@ -37,6 +37,7 @@ public class TypeD implements TypeIfc{
   // these are section type available in this site,
   public static Long DEFAULT_SECTION = new Long(21);
   // these are assessment template type available in this site,
+  public static Long TEMPLATE_SYSTEM_DEFINED = new Long(142);
   public static Long TEMPLATE_QUIZ = new Long(41);
   public static Long TEMPLATE_HOMEWORK = new Long(42);
   public static Long TEMPLATE_MIDTERM = new Long(43);

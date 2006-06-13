@@ -52,6 +52,10 @@ public class AssessmentTemplateData
     super(assessmentTemplateId,title,lastModifiedDate);
   }
 
+  public AssessmentTemplateData(Long assessmentTemplateId, String title, Date lastModifiedDate, Long typeId){
+    super(assessmentTemplateId,title,lastModifiedDate,typeId);
+  }
+
   public AssessmentTemplateData(Long parentId,
                   String title, String description, String comments,
                   Long typeId,

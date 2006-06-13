@@ -888,4 +888,16 @@ public class TemplateBean implements Serializable
       return new Boolean(mydefault);
     return mytest;
   }
+
+  private String typeId;
+  public void setTypeId(String typeId)
+  {
+    this.typeId = typeId;
+  }
+
+  public String getTypeId()
+  {
+    return typeId;
+  }
+
 }

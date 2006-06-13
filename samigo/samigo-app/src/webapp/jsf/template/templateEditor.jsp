@@ -621,7 +621,7 @@
   <h:inputHidden id="createdDate" value="#{template.createdDate}"/>
 
   <p class="act">
-  <h:panelGroup rendered="#{template.idString ne '1' || person.isAdmin}">
+  <h:panelGroup rendered="#{(template.idString ne '1' && template.typeId ne '142') || person.isAdmin}">
     <h:commandButton accesskey="#{msg.a_save}" type="submit" id="Submit" value="#{msg.save}"
       action="#{templateIndex.getOutcome}" styleClass="active">
       <f:actionListener
@@ -631,7 +631,7 @@
     <h:commandButton accesskey="#{msg.a_cancel}" type="submit" id="Cancel" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>
-  <h:panelGroup rendered="#{template.idString eq '1' && !person.isAdmin}">
+  <h:panelGroup rendered="#{template.typeId eq '142' && !person.isAdmin}">
     <h:commandButton accesskey="#{msg.a_cancel}" type="submit" id="Exit" value="#{msg.cancel}"
       action="template"/>
   </h:panelGroup>

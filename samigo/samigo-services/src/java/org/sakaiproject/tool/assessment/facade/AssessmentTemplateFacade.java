@@ -84,12 +84,13 @@ public class AssessmentTemplateFacade
    * @param title
    * @param lastModifiedDate
    */
-  public AssessmentTemplateFacade(Long id, String title, Date lastModifiedDate) {
+  public AssessmentTemplateFacade(Long id, String title, Date lastModifiedDate, Long typeId) {
     // in the case of template assessmentBaseId is the assessmentTemplateId
     this.assessmentTemplateId = id;
     super.setAssessmentBaseId(id);
     super.setTitle(title);
     super.setLastModifiedDate(lastModifiedDate);
+    super.setTypeId(typeId);
   }
 
   public AssessmentTemplateFacade(AssessmentTemplateIfc data) {

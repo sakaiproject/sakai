@@ -180,6 +180,7 @@ public class TemplateLoadListener
        templateBean.setCreatedBy(template.getCreatedBy());
        templateBean.setLastModified(template.getLastModifiedDate().toString());
        templateBean.setLastModifiedBy(template.getLastModifiedBy().toString());
+       templateBean.setTypeId(template.getTypeId().toString());
 
        templateBean.setValueMap(template.getAssessmentMetaDataMap
          (template.getAssessmentMetaDataSet()));

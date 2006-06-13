@@ -310,13 +310,15 @@ public class AssessmentFacadeQueries
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getAllAssessmentTemplates() {
     final String agent = AgentFacade.getAgentString();
-    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"+
                    " from AssessmentTemplateData a where a.assessmentBaseId=1 or"+
-                   " a.createdBy=? order by a.title";
+                   " a.createdBy=? or a.typeId=? order by a.title";
     HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
     		q.setString(0, agent);
+                q.setLong(1,typeId.longValue());
     		return q.list();
     	};
     };
@@ -336,13 +338,15 @@ public class AssessmentFacadeQueries
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getAllActiveAssessmentTemplates() {
     final String agent = AgentFacade.getAgentString();
-    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
-  " a.createdBy=?) order by a.title";
+                   " a.createdBy=? or a.typeId=?) order by a.title";
     HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
     		q.setString(0, agent);
+                q.setLong(1, typeId.longValue());
     		return q.list();
     	};
     };
@@ -371,13 +375,15 @@ public class AssessmentFacadeQueries
    */
   public ArrayList getTitleOfAllActiveAssessmentTemplates() {
     final String agent = AgentFacade.getAgentString();
+    final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
     final String query ="select new AssessmentTemplateData(a.assessmentBaseId, a.title) "+
                   " from AssessmentTemplateData a where a.status=1 and "+
-                  " (a.assessmentBaseId=1 or a.createdBy=?) order by a.title";
+                  " (a.assessmentBaseId=1 or a.createdBy=? or typeId=?) order by a.title";
     HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
     		q.setString(0, agent);
+    		q.setLong(1, typeId.longValue());
     		return q.list();
     	};
     };
@@ -1137,14 +1143,16 @@ public class AssessmentFacadeQueries
   // sakai2.0 we want to scope it by creator, users can only see their templates plus the "Default Template"
   public ArrayList getBasicInfoOfAllActiveAssessmentTemplates(String orderBy) {
     final String agent = AgentFacade.getAgentString();
-    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
+    final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
+    final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"+
                    " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"+
-  " a.createdBy=?) order by a."+orderBy;
+                   " a.createdBy=? or typeId=?) order by a."+orderBy;
 
     HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
     		q.setString(0, agent);
+    		q.setLong(1, typeId.longValue());
     		return q.list();
     	};
     };
@@ -1157,7 +1165,7 @@ public class AssessmentFacadeQueries
     for (int i = 0; i < list.size(); i++) {
       AssessmentTemplateData a = (AssessmentTemplateData) list.get(i);
       AssessmentTemplateFacade f = new AssessmentTemplateFacade(a.
-          getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate());
+          getAssessmentBaseId(), a.getTitle(), a.getLastModifiedDate(), a.getTypeId());
       assessmentList.add(f);
     }
     return assessmentList;

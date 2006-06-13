@@ -91,6 +91,13 @@ public class AssessmentBaseData
     this.lastModifiedDate = lastModifiedDate;
   }
 
+  public AssessmentBaseData(Long assessmentBaseId, String title,Date lastModifiedDate, Long typeId){
+    this.assessmentBaseId = assessmentBaseId;
+    this.title = title;
+    this.lastModifiedDate = lastModifiedDate;
+    this.typeId = typeId;
+  }
+
   public AssessmentBaseData(Boolean isTemplate, Long parentId,
                   String title, String description, String comments,
                   Long typeId,

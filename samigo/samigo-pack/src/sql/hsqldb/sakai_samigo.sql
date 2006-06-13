@@ -169,6 +169,12 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
     VALUES (101 , 'stanford.edu' ,'assessment.published' ,'A Published Assessment' ,
     'A Published Assessment',1 ,1 , SYSDATE ,1 ,SYSDATE);
 
+INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
+    "DESCRIPTION" ,
+    "STATUS" ,"CREATEDBY" ,"CREATEDDATE" ,"LASTMODIFIEDBY" ,
+    "LASTMODIFIEDDATE" )
+    VALUES (142 , 'stanford.edu' ,'assessment.template.system' ,'System Defined' ,NULL ,1 ,1 ,
+    SYSDATE ,1 ,SYSDATE);
 
 INSERT INTO SAM_ASSESSMENTBASE_T ("ID" ,"ISTEMPLATE" ,
     "PARENTID" ,"TITLE" ,"DESCRIPTION" ,"COMMENTS" ,
@@ -177,7 +183,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T ("ID" ,"ISTEMPLATE" ,
     "CREATEDBY" ,"CREATEDDATE" ,"LASTMODIFIEDBY" ,
     "LASTMODIFIEDDATE" )
     VALUES (1,1 ,0 ,'Default Template' ,'' ,'comments' , NULL
-    ,'42' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
+    ,'142' ,1 ,1 ,1 ,1 ,'admin' ,SYSDATE ,'admin' ,SYSDATE  )
 ;
 INSERT INTO SAM_ASSESSEVALUATION_T ("ASSESSMENTID" ,
     "EVALUATIONCOMPONENTS" ,"SCORINGTYPE" ,"NUMERICMODELID" ,

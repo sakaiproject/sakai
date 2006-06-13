@@ -93,6 +93,7 @@ public class TemplateListener extends TemplateBaseListener
          bean.setTemplateName(facade.getTitle());
          bean.setIdString(facade.getAssessmentBaseId().toString());
          bean.setLastModified(facade.getLastModifiedDate().toString());
+         bean.setTypeId(facade.getTypeId().toString());
          templates.add(bean);
         }
       } catch (Exception e) {
