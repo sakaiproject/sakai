@@ -749,7 +749,6 @@ you loose the native buttonishness affordance of the os/browser */
 	padding: 0;
 	width: 50%;
 	vertical-align: top;
-/*	border-left: 1px solid orange;*/
 	padding-left:.2em
 }
 
@@ -757,10 +756,11 @@ tr.selectedFound td{
 
 }
 
-
+/*photo displayed in the roster and profile tools
+if you know all your images are going to the same specific size, set the size here
+if you do not know what size they will be or there will be different sizes, omit any measurement */
 .rosterImage{
 	border:1px solid #bbb;
-	height: 75px;
 	width:75px
 }
 
