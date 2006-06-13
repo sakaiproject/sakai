@@ -59,6 +59,7 @@ import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Edit;
@@ -1225,8 +1226,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						tempRef = (Reference) tempVector.get(z);
 						if (tempRef != null)
 						{
-							newRef = m_entityManager.newReference(tempRef);
-							retVal.addAttachment(newRef);
+							String tempRefId = tempRef.getId();
+							String tempRefCollectionId = ContentHostingService.getContainingCollectionId(tempRefId);
+							try
+							{
+								// get the original attachment display name
+								ResourceProperties p = ContentHostingService.getProperties(tempRefId);
+								String displayName = p.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+								// add another attachment instance
+								String newItemId = ContentHostingService.copyIntoFolder(tempRefId, tempRefCollectionId);
+								ContentResourceEdit copy = ContentHostingService.editResource(newItemId);
+								// with the same display name
+								ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
+								pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+								ContentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+								newRef = m_entityManager.newReference(copy.getReference());
+								retVal.addAttachment(newRef);
+							}
+							catch (Exception e)
+							{
+								if (M_log.isDebugEnabled())
+									M_log.debug("ASSIGNMENT : BASE SERVICE : LEAVING ADD DUPLICATE CONTENT : " + e.toString());
+							}	
 						}
 					}
 				}
