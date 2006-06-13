@@ -123,6 +123,15 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		sstate.removeAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
 		sstate.removeAttribute(ResourcesAction.STATE_ATTACHMENTS);
 		sstate.removeAttribute(ResourcesAction.STATE_HELPER_CANCELED_BY_USER);
+      
+      sstate.removeAttribute(ResourcesAction.STATE_ATTACH_FILTER);
+      sstate.removeAttribute(ResourcesAction.STATE_ATTACH_CARDINALITY);
+      
+      ToolSession toolSession = SessionManager.getCurrentToolSession();
+      if (toolSession != null) {
+         toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
+         toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER);
+      }
 	}
 
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
