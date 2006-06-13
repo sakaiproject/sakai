@@ -140,7 +140,7 @@
       <!--h:panelGroup-->
       <h:panelGroup rendered="#{authorization.deleteOwnTemplate}">
         <h:commandLink title="#{msg.t_removeTemplate}" id="deletelink" action="confirmDeleteTemplate" immediate="true"
-            rendered="#{templateListItem.idString ne '1' && templateListItem.typeId ne '142'}">
+            rendered="#{templateListItem.typeId ne '142' || (person.isAdmin && (templateListItem.typeId eq '142' && templateListItem.idString ne '1'))}">
           <h:outputText value="#{msg.index_button_remove}" styleClass="itemAction"/>
             <f:param name="templateId" value="#{templateListItem.idString}"/>
             <f:actionListener
