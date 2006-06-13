@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.ui.bean.shared;
 
 import java.io.Serializable;
 
+//import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -75,10 +77,8 @@ public class PersonBean implements Serializable
 
   public boolean getIsAdmin()
   {
-    if (("admin").equals(getAgentString()))
-      return true;
-    else
-      return false;
+    String context = "!admin";
+    return SecurityService.unlock("site.upd", "/site/"+context);
   }
 
 }
