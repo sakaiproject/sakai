@@ -182,7 +182,7 @@ INSERT INTO SAM_ASSESSMENTBASE_T (ID ,ISTEMPLATE ,
     TESTEENOTIFICATION , MULTIPARTALLOWED, STATUS,
     CREATEDBY, CREATEDDATE, LASTMODIFIEDBY,
     LASTMODIFIEDDATE )
-    VALUES (1,1 ,0 ,'Default Template' ,'' ,'comments' , NULL
+    VALUES (1,1 ,0 ,'Default Assessment Type' ,'System Defined Assessment Type' ,'comments' , NULL
     ,'142' ,1 ,1 ,1 ,1 ,'admin' ,'2005-01-01 12:00:00' ,'admin' ,'2005-01-01 12:00:00'  )
 ;
 INSERT INTO SAM_ASSESSEVALUATION_T (ASSESSMENTID,
