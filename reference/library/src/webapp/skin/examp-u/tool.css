@@ -110,12 +110,14 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 	border-bottom: none;
 }
 
-/*links for the generic toolbar*/
-.navIntraTool a,.navIntraTool a:link{
+/*links for the generic toolbar  - inline-block is there to make IE behave
+see: http://www.quirksmode.org/bugreports/archives/2005/07/
+Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
+.navIntraTool a, .navIntraTool a:link{
 	margin: 0 .5em;
 	text-decoration: underline;
 	white-space: nowrap;
-
+	display:inline-block
 }
 
 .navIntraTool a:visited{
