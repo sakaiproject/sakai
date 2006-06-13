@@ -118,7 +118,7 @@ public abstract class ItemHelperBase
    * @return
    */
 
-  public Item readTypeXMLItem(TypeIfc type)
+  public Item readTypeXMLItem(Long type)
   {
     AuthoringXml ax = getAuthoringXml();
     InputStream is;
@@ -206,7 +206,7 @@ public abstract class ItemHelperBase
    * @param type
    * @return
    */
-  private String getTemplateFromType(TypeIfc type)
+  private String getTemplateFromType(Long type)
   {
     String template = "";
     AuthoringXml ax = getAuthoringXml();
@@ -214,7 +214,7 @@ public abstract class ItemHelperBase
 
     if (type != null)
     {
-      typeId = type.getTypeId().longValue();
+      typeId = type.longValue();
     }
 
     if (ITEM_AUDIO == typeId)

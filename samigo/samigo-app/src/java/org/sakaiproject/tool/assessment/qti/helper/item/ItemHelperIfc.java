@@ -64,12 +64,12 @@ public interface ItemHelperIfc
   };
 
   /**
-   * Get Item Xml for a given item type as a TypeIfc.
-   * @param type item type as a TypeIfc
+   * Get Item Xml for a given item type as a Long .
+   * @param type item type as a Long  
    * @return
    */
 
-  public Item readTypeXMLItem(TypeIfc type);
+  public Item readTypeXMLItem(Long type);
 
   /**
    * Get Item Xml for a given survey item scale name.

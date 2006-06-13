@@ -324,9 +324,10 @@ public class AuthoringHelper
       ItemHelperIfc itemHelper =
         factory.getItemHelperInstance(this.qtiVersion);
       ItemDataIfc item = itemService.getItem(itemId);
-      TypeIfc type = item.getType();
+      //TypeIfc type = item.getType();
+      Long type = item.getTypeId();
 
-      if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type))
+      if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type))
 
       {
         String scale = item.getItemMetaDataByLabel(ItemMetaData.SCALENAME);

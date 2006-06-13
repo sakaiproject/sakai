@@ -286,9 +286,10 @@ public class Section extends ASIBaseClass
       for (int i = 0; i < items.size(); i++)
       {
         ItemDataIfc item = (ItemDataIfc) items.get(i);
-        TypeIfc type = item.getType();
+        //TypeIfc type = item.getType();
+        Long type = item.getTypeId();
         Item itemXml;
-        if ( (type.MULTIPLE_CHOICE_SURVEY).equals(type.getTypeId()))
+        if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type))
         {
 	  // deprecated, keep it for backward compatibility
           String scale = item.getItemMetaDataByLabel(ItemMetaDataIfc.SCALENAME);   
