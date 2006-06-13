@@ -136,7 +136,7 @@
 						#if ($SiteColumnFlag > 0) ## (there are anns from other sites so show what site they are from)
 							<th id ="Site">
 								#if (!$currentSortedBy.equals("channel"))
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>1
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchannel')">$tlang.getString('gen.site')</a>
 								#else
 									#if ($currentSortAsc.equals("true"))
 										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" onkeypress="location='#toolLink("AnnouncementAction" "doSortbychannel")';return false;" title ="$tlang.getString('gen.sortchanasc')">$tlang.getString('gen.site') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortchanasc')" /></a>
