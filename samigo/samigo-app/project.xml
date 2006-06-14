@@ -624,6 +624,12 @@
         <war.bundle>true</war.bundle>
       </properties>
     </dependency>
+    <!-- Needed to build under Java 1.5 -->
+    <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.6.0</version>
+    </dependency>
     <!-- ask Lydia -->
     <dependency>
       <groupId>axis</groupId>
