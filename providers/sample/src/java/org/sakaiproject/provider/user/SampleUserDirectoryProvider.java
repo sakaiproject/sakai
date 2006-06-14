@@ -28,6 +28,8 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.user.api.DisplayAdvisorUDP;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
@@ -38,7 +40,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  * SampleUserDirectoryProvider is a samaple UserDirectoryProvider.
  * </p>
  */
-public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP
+public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP, DisplayAdvisorUDP
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SampleUserDirectoryProvider.class);
@@ -291,5 +293,23 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	public boolean createUserRecord(String id)
 	{
 		return false;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDisplayId(User user)
+	{
+		// just a sample of what fun you can have here!
+		return "*" + user.getEid() + "*";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getDisplayName(User user)
+	{
+		// punt
+		return null;
 	}
 }
