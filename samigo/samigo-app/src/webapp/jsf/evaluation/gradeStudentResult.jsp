@@ -65,7 +65,8 @@ $Id$
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h3>
-    <h:outputText value="#{studentScores.studentName} "/>
+    <h:outputText value="#{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
+    <h:outputText value="#{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
   </h3>
   <p class="navViewAction">
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
