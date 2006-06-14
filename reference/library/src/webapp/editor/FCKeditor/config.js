@@ -34,6 +34,8 @@ FCKConfig.PluginsPath = FCKConfig.BasePath + 'plugins/' ;
 
 // FCKConfig.Plugins.Add( 'placeholder', 'en,it' ) ;
 
+FCKConfig.Plugins.Add( 'attachments', 'en' ) ;
+
 FCKConfig.AutoDetectLanguage	= true ;
 FCKConfig.DefaultLanguage		= 'en' ;
 FCKConfig.ContentLangDirection	= 'ltr' ;
@@ -63,6 +65,21 @@ FCKConfig.ToolbarSets["Default"] = [
         ['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
         ['FontFormat','FontName','FontSize'],
         ['About']
+] ;
+
+FCKConfig.ToolbarSets["Attachments"] = [
+        ['Source','DocProps','-','Templates'],
+        ['Cut','Copy','Paste','PasteText','PasteWord','-','SelectAll','RemoveFormat','-','SpellCheck'],
+        ['Undo','Redo','-','Find','Replace'],
+        ['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
+        ['OrderedList','UnorderedList','-','Outdent','Indent'],
+        ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
+        ['Link','Unlink','Anchor'],
+        ['TextColor','BGColor'],
+        ['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
+        ['FontFormat','FontName','FontSize'],['About'],
+        '/',
+        ['SelectAttachmentsCombo','SelectAttachmentsButton']
 ] ;
 
 FCKConfig.ToolbarSets["Basic"] = [
