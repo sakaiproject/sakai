@@ -25,10 +25,31 @@
 			<version>1.0.4</version>
 		</dependency>
 		<dependency>
+		    <groupId>sakaiproject</groupId>
+		    <artifactId>sakai-content-api</artifactId>
+		    <version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-util</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>		
+<!--	    <dependency>
+	        <groupId>sakaiproject</groupId>
+	        <artifactId>sakai-podcasts-api</artifactId>
+	        <version>${sakai.verson}</version>
+	    </dependency>  -->
+		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-user-api</artifactId>

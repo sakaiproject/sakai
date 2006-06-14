@@ -19,12 +19,14 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.api.app.podcaster;
+package org.sakaiproject.api.app.podcasts;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 
 import java.util.List;
+
+import java.sql.Time;
 
 public interface PodcastService extends EntityProducer
 {
@@ -36,5 +38,15 @@ public interface PodcastService extends EntityProducer
 	public static final String COLLECTION_PODCASTS_DESCRIPTION = "Common Folder for All Site Podcasts";
 		
 	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
+
+	public void addPodcast(String title, Time displayDate, String description, byte[] body);
 	
+	public List getPodcasts();
+	
+	public void removePodcast(String resourceId);
+	
+	public String getSiteId();
+	
+	public boolean getPodcastCollection ();
+
 }

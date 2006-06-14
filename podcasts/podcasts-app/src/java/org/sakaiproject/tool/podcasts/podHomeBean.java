@@ -20,10 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.tool.podcasts;
 
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.content.cover.ContentHostingService;
+
+// import org.sakaiproject.api.app.podcasts.PodcastService;
 
 import java.util.List;
 import java.util.Iterator;
@@ -32,12 +38,16 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 public class podHomeBean {
-	boolean resourceToolExists;
-	boolean podcastFolderExists;
-	boolean podcastErrMsgExists;
+	private final String URLstart = "http://";
+	private boolean resourceToolExists;
+	private boolean podcastFolderExists;
+	private boolean podcastResourceCheckFirstTry;
 
+	private String URL;
+	
 	public podHomeBean() {
 		resourceToolExists=false;
+		podcastResourceCheckFirstTry=true;
 	}
 
 	/**
@@ -49,35 +59,37 @@ public class podHomeBean {
      *         false if does not exist so just error message displays
      */
 	public boolean getResourceToolExists() {
-		resourceToolExists=false;
+		if (podcastResourceCheckFirstTry) {
+			podcastResourceCheckFirstTry=false;
 
-		try
-	    {
-	        Site thisSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	        List pageList = thisSite.getPages();
-	        Iterator iterator = pageList.iterator();
+			try
+			{
+				Site thisSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				List pageList = thisSite.getPages();
+				Iterator iterator = pageList.iterator();
 
-	        while(iterator.hasNext())
-	        {
-	            SitePage pgelement = (SitePage) iterator.next();
+				while(iterator.hasNext())
+				{
+					SitePage pgelement = (SitePage) iterator.next();
 
-	            if (pgelement.getTitle().equals("Resources"))
-	            {
-	                resourceToolExists = true;
-	                break;
-	            }
-	        }
-	    }
-	    catch(Exception e)
-	    {
-		    return resourceToolExists;
-	    }
+					if (pgelement.getTitle().equals("Resources"))
+					{
+						resourceToolExists = true;
+						break;
+					}
+				}
+			}
+			catch(Exception e)
+			{
+				return resourceToolExists;
+			}
 	    
-	    if(!resourceToolExists)
-	    {
-	    	  setErrorMessage("To use the Podcasts tool, you must first add the Resources tool.");
-	    }
-	    
+			if(!resourceToolExists)
+			{
+				setErrorMessage("To use the Podcasts tool, you must first add the Resources tool.");
+			}
+		}
+		
 	    return resourceToolExists;
 	}
 
@@ -87,22 +99,10 @@ public class podHomeBean {
 	
 	  private void setErrorMessage(String errorMsg)
 	  {
-		  if (!podcastErrMsgExists)
-		  {
-			  FacesContext.getCurrentInstance().addMessage(null,
-			      new FacesMessage("Alert: " + errorMsg));
-	    		  podcastErrMsgExists=true;
-		  }
+		  FacesContext.getCurrentInstance().addMessage(null,
+		      new FacesMessage("Alert: " + errorMsg));
 	  }
 	  
-	  public boolean getPodcastErrMsgExists() {
-		  return podcastErrMsgExists;
-	  }
-	  
-	  public void setPodcastErrMsgExists( boolean podcastErrMsgExists) {
-		  this.podcastErrMsgExists = podcastErrMsgExists;
-	  }
-
 	  public boolean getPodcastFolderExists() {
 		  podcastFolderExists=false;
 		  
@@ -117,11 +117,24 @@ public class podHomeBean {
 			  //                       if they do, construct the list, sort by date,
 			  //                       and return them 
 			  //       else return true
-			  return true; // podcastFolderExists;
+			  return false; // podcastFolderExists;
 		  }
 	  }
 	  
 	  public void setPodcastFolderExists(boolean podcastFolderExists) {
 		  this.podcastFolderExists = podcastFolderExists;
+	  }
+	  
+	  public String getURL() {
+			String siteCollection = ContentHostingService.getSiteCollection( ToolManager.getCurrentPlacement().getContext() );
+//			String podcastCollection = siteCollection + podcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
+			String podcastCollection = siteCollection + "podcasts" + Entity.SEPARATOR;
+
+//		  URL = URLstart +  Entity.SEPARATOR + ToolManager.getCurrentPlacement().getContext();
+		  return podcastCollection;
+	  }
+	  
+	  public void setURL(String URL) {
+		  this.URL = URL;
 	  }
 }

@@ -65,5 +65,13 @@ public class podOptionsBean {
   public SelectItem [] getDisplayItems () {
 	  return displayItems;
   }
+  
+  public String processOptionChange() {
+	  return "cancel";
+  }
+  
+  public String processOptionCancel() {
+	  return "cancel";
+  }
 
 }

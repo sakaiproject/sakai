@@ -3,7 +3,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
-<f:loadBundle basename="org.sakaiproject.tool.podcaster.bundle.Messages" var="msgs"/>
+<f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
 <f:view>
   <sakai:view>
@@ -56,13 +56,12 @@
     </table>
     <br />
 
-    <div class="act">
-      <h:commandButton type="submit" value="#{msgs.podcast_change_submit}" styleClass="active"/>
-      <h:form>
-        <h:commandButton type="submit" value="#{msgs.podcast_cancel}" styleClass="reqPrompt" 
-             action="cancel" />
-      </h:form>
-    </div>
+    <sakai:button_bar>
+      <sakai:button_bar_item action="#{podPerms.processPermChange}" value="#{msgs.podcast_change_submit}" 
+          accesskey="s" title="Save Podcast Permissions" styleClass="active" />
+      <sakai:button_bar_item action="#{podPerms.processPermCancel}" value="#{msgs.podcast_cancel}"
+          accesskey="c" title="Cancel Podcast Permission Change" />
+    </sakai:button_bar>
   </h:form>
  </sakai:view>
 </f:view>

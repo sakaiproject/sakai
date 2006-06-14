@@ -151,7 +151,27 @@ public class addPodcastBean {
             System.out.println("Houston, we have a problem.");
         }
     }
-/**
+	
+	/**
+	 * This attempts to add a podcast
+	 */
+	public String processAdd() {
+		return "cancel";
+	}
+	
+	public String processCancelAdd() {
+		return "cancel";
+	}
+	
+	public String processRevisePodcast() {
+		return "cancel";
+	}
+	
+	public String processCancelRevise() {
+		return "cancel";
+	}
+
+	/**
 	public void addPodcast(String title, Time displayDate, String description, byte[] body) {
 		//get the site's collection
 		String siteCollection = ContentHostingService.getSiteCollection(getSiteId());

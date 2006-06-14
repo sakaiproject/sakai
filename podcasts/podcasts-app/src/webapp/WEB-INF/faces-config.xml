@@ -7,7 +7,7 @@
 
 <!-- add to allow internalization of the content messages -->
   <application>
-    <message-bundle>org.sakaiproject.tool.podcaster.bundle.Messages</message-bundle>
+    <message-bundle>org.sakaiproject.tool.podcasts.bundle.Messages</message-bundle>
     <locale-config>
       <default-locale>en</default-locale>
       <supported-locale>de</supported-locale>
@@ -42,10 +42,21 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
+<!--	 Need to look at how to do this, work with an interface/implementation in JSF
+    <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	</managed-property>   -->
+
 	<!-- navigation
 			FROM what page TO what page
 			IUPUI: path needs to be /projname/xx.jsp -->
 	<navigation-rule>
+	    <navigation-case>  <!-- GOTO podMain (Podcast Home) -->
+	      <from-outcome>cancel</from-outcome>
+	      <to-view-id>/podcasts/podMain.jsp</to-view-id>
+	    </navigation-case>
 	    <navigation-case>  <!-- GOTO addPodcast -->
 	        <from-outcome>addPodcast</from-outcome>
 	        <to-view-id>/podcasts/addPodcast.jsp</to-view-id>
@@ -58,11 +69,7 @@
 	        <from-outcome>podcastOptions</from-outcome>
 	        <to-view-id>/podcasts/podOptions.jsp</to-view-id>
 	    </navigation-case>
-	    <navigation-case>  <!-- GOTO podMain (Podcast Home) -->
-	      <from-outcome>cancel</from-outcome>
-	      <to-view-id>/podcasts/podMain.jsp</to-view-id>
-	    </navigation-case>
-	    <navigation-case>
+	    <navigation-case>  <!-- GOTO podRevise -->
 	      <from-outcome>podcastRevise</from-outcome>
 	      <to-view-id>/podcasts/revisePodcast.jsp</to-view-id>
 	    </navigation-case>

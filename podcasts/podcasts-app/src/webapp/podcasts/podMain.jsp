@@ -3,7 +3,7 @@
   <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
   <% response.setContentType("text/html; charset=UTF-8"); %>
 
-<f:loadBundle basename="org.sakaiproject.tool.podcaster.bundle.Messages" var="msgs"/>
+<f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
   <f:view>
     <sakai:view>
@@ -11,21 +11,14 @@
 
         <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
     <h:form>
-      <div class="navIntraTool">
-          <h:commandLink  action="addPodcast">
-            <h:outputText value="#{msgs.podcast_add}" rendered="#{podHomeBean.resourceToolExists}" />
-          </h:commandLink>
-          <h:commandLink action="podcastOptions">
-            <h:outputText value="#{msgs.podcast_options}" rendered="#{podHomeBean.resourceToolExists}" />
-          </h:commandLink>
-          <h:commandLink action="podcastPermissions">
-            <h:outputText value="#{msgs.podcast_permissions}" rendered="#{podHomeBean.resourceToolExists}" />
-          </h:commandLink>
+      <sakai:tool_bar>
+          <sakai:tool_bar_item action="addPodcast" value="#{msgs.podcast_add}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.podcast_options}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.podcast_permissions}" rendered="#{podHomeBean.resourceToolExists}" />
+
           <!-- **** JUST FOR TESTING REVISE, TAKE OUT BEFORE COMMITTING *** -->
-          <h:commandLink action="podcastRevise">
-            <h:outputText value="Revise" />
-          </h:commandLink>
-      </div>
+          <sakai:tool_bar_item action="podcastRevise" value="Revise" />
+      </sakai:tool_bar>
 
  	  <div>
 		  <h:messages styleClass="alertMessage" id="errorMessages"/> 
@@ -40,7 +33,7 @@
 
  	     </div>
  	     <br />
- 	     <b class="indnt1">http://url to be determined</b>
+ 	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	  </div>
 
       <!-- if there are no podcasts, display this -->
@@ -49,7 +42,8 @@
          <h:outputText  styleClass="instruction" value="#{msgs.podcast_no_podcasts}" rendered="! #{podHomeBean.podcastFolderExists}" />
       </div>
  
-	<!-- TODO: if there are podcasts, display their information here -->
+	<!-- TODO: if there are podcasts, display their information here 
+	     or possibly return this part from previous tag -->
       <div class="">
         <h:outputText value="" />
       </div>

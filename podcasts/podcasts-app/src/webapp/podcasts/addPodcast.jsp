@@ -3,7 +3,7 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
-<f:loadBundle basename="org.sakaiproject.tool.podcaster.bundle.Messages" var="msgs"/>
+<f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
 
 <f:view>
   <sakai:view>
@@ -31,9 +31,9 @@
       <span class="reqStarInline">*</span>
  	  <h:outputText value="#{msgs.podcast_file_prompt}" styleClass="reqPrompt" />
  	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podcastBean.processFileUpload}" 
- 	     styleClass="indnt1" size="35" />
+ 	     styleClass="indnt1" size="35" required="true" />
 
-      <h:message for="podfile" styleClass="alertmessage"/>
+      <h:message for="podfile" styleClass="alertMessage"/>
     </div>
     <br />
 
@@ -43,16 +43,16 @@
 
       <sakai:input_date id="poddate" value="#{podcastBean.date}" showDate="true" rendered="true" />
 
-      <h:message for="poddate" styleClass="alertmessage" />
+      <h:message for="poddate" styleClass="alertMessage" />
     </div>
     <br />
      
     <div class="indnt1">  <!-- Title -->
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.podcast_title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" />
+ 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" required="true" />
 
-      <h:message for="podtitle" styleClass="alertmessage" />
+      <h:message for="podtitle" styleClass="alertMessage" />
     </div>
     <br />
 
@@ -72,11 +72,12 @@
     </div>
     <br />
 
-    <div class="act">  <!-- Add and Cancel buttons -->
-      <h:commandButton type="submit" value="#{msgs.podcast_add}" styleClass="active" />
-      <h:commandButton type="submit" value="#{msgs.podcast_cancel}" action="cancel" 
-             immediate="true" styleClass="reqPrompt" />
-    </div>
+    <sakai:button_bar>
+        <sakai:button_bar_item action="#{podcastBean.processAdd}" value="#{msgs.podcast_add}"
+            accesskey="a" title="Add a Podcast" styleClass="active" />
+        <sakai:button_bar_item action="#{podcastBean.processCancelAdd}" value="#{msgs.podcast_cancel}" 
+            accesskey="c" title="Cancel a Podcast" />
+    </sakai:button_bar>
   </h:form>
  </sakai:view>
 </f:view>

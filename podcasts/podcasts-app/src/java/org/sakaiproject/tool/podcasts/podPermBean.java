@@ -118,5 +118,13 @@ public class podPermBean {
 	public void setaDelete (boolean newPerm) {
 	  accessPerms[3] = newPerm;
 	}
+	
+	public String processPermChange() {
+		return "cancel";
+	}
+	
+	public String processPermCancel() {
+		return "cancel";
+	}
 
 }
