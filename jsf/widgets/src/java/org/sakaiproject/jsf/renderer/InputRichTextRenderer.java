@@ -23,25 +23,24 @@
 
 package org.sakaiproject.jsf.renderer;
 
-import java.io.IOException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.jsf.model.InitObjectContainer;
+import org.sakaiproject.jsf.util.ConfigurationResource;
+import org.sakaiproject.jsf.util.RendererUtil;
+import org.sakaiproject.tool.cover.ToolManager;
+
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.ValueHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
-import javax.faces.render.Renderer;
 import javax.faces.model.SelectItem;
-
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.jsf.util.ConfigurationResource;
-import org.sakaiproject.jsf.util.RendererUtil;
-import org.sakaiproject.jsf.model.InitObjectContainer;
-
-
-import java.util.*;
+import javax.faces.render.Renderer;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * <p>Formerly RichTextEditArea.java</p>
@@ -86,8 +85,10 @@ public class InputRichTextRenderer extends Renderer
   private static final int DEFAULT_COLUMNS;
   private static final int DEFAULT_ROWS;
   private static final String INSERT_IMAGE_LOC;
-  private static final MessageFormat LIST_ITEM_FORMAT =
-    new MessageFormat(",\"{0}\" : \"<a href=''{1}''>{0}</a>\"");
+   private static final MessageFormat LIST_ITEM_FORMAT_HTML =
+     new MessageFormat("\"{0}\" : \"<a href=''{1}''>{0}</a>\"");
+   private static final MessageFormat LIST_ITEM_FORMAT_FCK =
+     new MessageFormat("[\"{0}\", \"{1}\"]");
 
 
   // we have static resources for our script path and built-in toolbars etc.
@@ -234,6 +235,18 @@ public class InputRichTextRenderer extends Renderer
 
        writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
        writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+
+       String attachmentVar = "attachment" + ("" + Math.random()).substring(2);
+
+       boolean hasAttachments = false;
+
+       Object attchedFiles = RendererUtil.getAttribute(context,  component, "attachedFiles");
+       if (attchedFiles != null && getSize(attchedFiles) > 0) {
+          writeFilesArray(writer, attachmentVar, attchedFiles, LIST_ITEM_FORMAT_FCK, false);
+          writer.write("\n");
+          hasAttachments = true;
+       }
+
        writer.write("function chef_setupformattedtextarea(textarea_id){\n");
        writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
        writer.write("oFCKeditor.BasePath = \"/library/editor/FCKeditor/\";\n");
@@ -273,7 +286,13 @@ public class InputRichTextRenderer extends Renderer
          writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
        }
 
-       writer.write("oFCKeditor.ReplaceTextarea() ;}\n");
+       if (hasAttachments) {
+          writer.write("\n\n\toFCKeditor.Config['AttachmentsVariable'] = \"" + attachmentVar  + "\";");
+          writer.write("\n\n\toFCKeditor.ToolbarSet = \"Attachments\";");
+       }
+
+       writer.write("oFCKeditor.ReplaceTextarea();\n");
+       writer.write("} \n");
        writer.write("</script>\n");
        writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('"+clientId+"_inputRichText');</script>");
        writer.write("</td></tr></table>\n");
@@ -446,22 +465,13 @@ public class InputRichTextRenderer extends Renderer
       registerWithParent(component, configVar, clientId);
    }
 
-   protected void writeAttachedFiles(FacesContext context, UIComponent component, String configVar, ResponseWriter writer, String toolbar) throws IOException {
+   protected void writeAttachedFiles(FacesContext context, UIComponent component,
+                                     String configVar, ResponseWriter writer, String toolbar) throws IOException {
       Object attchedFiles = RendererUtil.getAttribute(context,  component, "attachedFiles");
       if (attchedFiles != null && getSize(attchedFiles) > 0) {
          String arrayVar = configVar + "_Resources";
 
-         writer.write("  var " + arrayVar + "= {\n");
-         writer.write("\"select a file url to insert\" : \"\"\n");
-
-         if (attchedFiles instanceof Map) {
-            writer.write(outputFiles((Map)attchedFiles));
-         }
-         else {
-            writer.write(outputFiles((List)attchedFiles));
-         }
-
-         writer.write("};\n");
+         writeFilesArray(writer, arrayVar, attchedFiles, LIST_ITEM_FORMAT_HTML, true);
 
          writer.write(  "sakaiRegisterResourceList(");
          writer.write(configVar + ",'" + INSERT_IMAGE_LOC + "'," + arrayVar);
@@ -469,6 +479,37 @@ public class InputRichTextRenderer extends Renderer
 
          writer.write("  " + configVar + ".toolbar = " + addToolbar(toolbar) + ";\n");
       }
+   }
+
+   protected void writeFilesArray(ResponseWriter writer, String arrayVar,
+                                  Object attchedFiles, MessageFormat format,
+                                  boolean includeLabel) throws IOException {
+      StringWriter buffer = new StringWriter();
+
+      char startChar = '[';
+      char endChar = ']';
+
+      if (format == LIST_ITEM_FORMAT_HTML) {
+         startChar = '{';
+         endChar = '}';
+      }
+
+      buffer.write("  var " + arrayVar + " = "+startChar+"\n");
+
+      if (includeLabel) {
+         buffer.write("\"select a file url to insert\" : \"\"");
+      }
+
+      if (attchedFiles instanceof Map) {
+         buffer.write(outputFiles((Map)attchedFiles, format, !includeLabel));
+      }
+      else {
+         buffer.write(outputFiles((List)attchedFiles, format, !includeLabel));
+      }
+
+      buffer.write(endChar + ";\n");
+      String result = buffer.toString();
+      writer.write(result);
    }
 
    protected void registerWithParent(UIComponent component, String configVar, String clientId) {
@@ -489,19 +530,24 @@ public class InputRichTextRenderer extends Renderer
       }
    }
 
-   protected String outputFiles(Map map) {
+   protected String outputFiles(Map map, MessageFormat format, boolean first) {
       StringBuffer sb = new StringBuffer();
 
       for (Iterator i=map.entrySet().iterator();i.hasNext();) {
          Map.Entry entry = (Map.Entry)i.next();
-
-         LIST_ITEM_FORMAT.format(new Object[]{entry.getValue(), entry.getKey()}, sb, null);
+         if (!first) {
+            sb.append(',');
+         }
+         else {
+            first = false;
+         }
+         format.format(new Object[]{entry.getValue(), entry.getKey()}, sb, null);
       }
 
       return sb.toString();
    }
 
-   protected String outputFiles(List list) {
+   protected String outputFiles(List list, MessageFormat format, boolean first) {
       StringBuffer sb = new StringBuffer();
 
       for (Iterator i=list.iterator();i.hasNext();) {
@@ -520,7 +566,13 @@ public class InputRichTextRenderer extends Renderer
             label = value.toString();
          }
 
-         LIST_ITEM_FORMAT.format(new Object[]{label, url}, sb, null);
+         if (!first) {
+            sb.append(',');
+         }
+         else {
+            first = false;
+         }
+         format.format(new Object[]{label, url}, sb, null);
       }
 
       return sb.toString();
