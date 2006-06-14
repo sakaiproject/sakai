@@ -503,8 +503,9 @@ public interface ContentHostingService extends EntityProducer
 
 
 	/**
-	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified resource name within this
-	 * collection.
+	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed 
+	 * into a newly created collecion in the attachment collection, with an auto-generated id, and given the specified 
+	 * resource name within this collection.
 	 * 
 	 * @param name
 	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
@@ -533,8 +534,9 @@ public interface ContentHostingService extends EntityProducer
 			ServerOverloadException;
 
 	/**
-	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed into a newly created collection in the site collection within the attachment collection. The new collection will have an auto-generated id,
-	 * and it will be given the specified resource name within the site collection.
+	 * Create a new resource as an attachment to some other resource in the system. The new resource will be placed 
+	 * into a newly created collection in the site collection within the attachment collection. The new collection 
+	 * will have an auto-generated id, and it will be given the specified resource name within the site collection.
 	 * 
 	 * @param name
 	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
@@ -567,8 +569,9 @@ public interface ContentHostingService extends EntityProducer
 			OverQuotaException, ServerOverloadException;
 
 	/**
-	 * Create a new resource as an attachment to some other resource in the system, locked for update. Must commitResource() to make official, or cancelResource() when done! The new resource will be placed into a newly created collecion in the attachment
-	 * collection, with an auto-generated id, and given the specified resource name within this collection.
+	 * Create a new resource as an attachment to some other resource in the system, locked for update. Must commitResource() 
+	 * to make official, or cancelResource() when done! The new resource will be placed into a newly created collecion in the 
+	 * attachment collection, with an auto-generated id, and given the specified resource name within this collection.
 	 * 
 	 * @param name
 	 *        The name of the new resource, i.e. a partial id relative to the collection where it will live.
@@ -586,7 +589,7 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public ContentResourceEdit addAttachmentResource(String name) throws IdInvalidException, InconsistentException,
 			IdUsedException, PermissionException, ServerOverloadException;
-
+	
 	/**
 	 * check permissions for updateResource().
 	 * 

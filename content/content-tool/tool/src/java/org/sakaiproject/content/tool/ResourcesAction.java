@@ -9965,22 +9965,27 @@ public class ResourcesAction
 					}
 					else
 					{
+						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
+						if(access_mode == null)
+						{
+							access_mode = AccessMode.SITE;
+						}
+						else if(access_mode == AccessMode.GROUPED)
+						{
+							if(! ContentHostingService.allowGetResource(resource.getId()))
+							{
+								continue;
+							}
+						}
+						
 						String itemType = ((ContentResource)resource).getContentType();
 						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 
+						newItem.setAccess(access_mode.toString());
+
 						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
 						newItem.setRights(rightsObj2);
-						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
-						if(access_mode == null)
-						{
-							newItem.setAccess(AccessMode.SITE.toString());
-						}
-						else
-						{
-							newItem.setAccess(access_mode.toString());
-						}
-						
 						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
 						if(groups == null)
 						{

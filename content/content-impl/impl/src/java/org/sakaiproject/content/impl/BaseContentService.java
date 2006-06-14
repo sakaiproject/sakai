@@ -4665,12 +4665,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
+		
+		Collection rv = (Collection) ThreadLocalManager.get("getEntityAuthzGroups@" + ref.getReference());
+		if(rv != null)
+		{
+			return rv;
+		}
 
 		// use the resources realm, all container (folder) realms
 
-		Collection rv = new Vector();
-		
-		
+		rv = new Vector();
+				
 		try
 		{
 			// try the resource, all the folders above it (don't include /)
@@ -4679,20 +4684,21 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (paths.length > 1)
 			{
 				String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
-				rv.add(root);
+				//rv.add(root);
 
-				for (int next = 2; next < paths.length; next++)
+				for (int next = 2; next < paths.length - 1; next++)
 				{
-					root = root + paths[next];
-					if (next < paths.length - 1)
-					{
-						root = root + Entity.SEPARATOR;
-					}
-					else if(container)
-					{
-						// don't include the container itself
-						break;
-					}
+//					root = root + paths[next];
+//					if (next < paths.length - 1)
+//					{
+//						root = root + Entity.SEPARATOR;
+//					}
+//					else if(container)
+//					{
+//						// don't include the container itself
+//						break;
+//					}
+					root = root + paths[next] + Entity.SEPARATOR;
 					rv.add(root);
 				}
 			}
@@ -4707,11 +4713,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 			ContentEntity entity = null;
-			try 
+			if(ref.getId().endsWith(Entity.SEPARATOR)) 
 			{
 				entity = findCollection(ref.getId());
 			} 
-			catch (TypeException e1) 
+			else 
 			{
 				entity = findResource(ref.getId());
 			}
@@ -4759,6 +4765,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (Throwable e)
 		{
 		}
+
+		ThreadLocalManager.set("getEntityAuthzGroups@" + ref.getReference(), rv);
 
 		return rv;
 	}
