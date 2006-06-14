@@ -123,7 +123,10 @@ $Id$
      <h:panelGroup rendered="#{questionScores.typeId == '5'}">
          <h:outputText value="#{msg.q_short_ess}"/>
      </h:panelGroup>
-     <h:panelGroup rendered="#{questionScores.typeId == '1' || questionScores.typeId == '3'}">
+     <h:panelGroup rendered="#{questionScores.typeId == '3'}">
+         <h:outputText value="#{msg.q_mult_surv}"/>
+     </h:panelGroup>
+     <h:panelGroup rendered="#{questionScores.typeId == '1'}">
     <h:outputText value="#{msg.q_mult_sing}"/>
       </h:panelGroup>
 

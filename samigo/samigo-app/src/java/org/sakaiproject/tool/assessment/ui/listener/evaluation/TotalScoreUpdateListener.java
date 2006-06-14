@@ -79,9 +79,9 @@ public class TotalScoreUpdateListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("Total Score Update LISTENER.");
+    log.debug("Total Score Update LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
-    log.info("Calling saveTotalScores.");
+    log.debug("Calling saveTotalScores.");
     if (!saveTotalScores(bean))
     {
         throw new RuntimeException("failed to call saveTotalScores.");
@@ -165,7 +165,7 @@ public class TotalScoreUpdateListener
       GradingService delegate = new GradingService();
 
       delegate.saveTotalScores(grading, bean.getPublishedAssessment());
-      log.info("Saved total scores.");
+      log.debug("Saved total scores.");
       } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
        String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");

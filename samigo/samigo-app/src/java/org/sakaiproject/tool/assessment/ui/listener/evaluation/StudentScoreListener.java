@@ -66,13 +66,13 @@ public class StudentScoreListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("StudentScore LISTENER.");
+    log.debug("StudentScore LISTENER.");
     StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedIdd");
 
-    log.info("Calling studentScores.");
+    log.debug("Calling studentScores.");
     if (!studentScores(publishedId, bean, false))
     {
       throw new RuntimeException("failed to call studentScores.");

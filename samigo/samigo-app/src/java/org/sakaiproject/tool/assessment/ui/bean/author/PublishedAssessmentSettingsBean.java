@@ -804,7 +804,6 @@ public class PublishedAssessmentSettingsBean
     }
 
     try {
-      log.warn("DATETIME=:" + date + ":");
       //dateString = displayFormat.format(date);
       TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, date);
@@ -830,7 +829,6 @@ public class PublishedAssessmentSettingsBean
     }
 
     try {
-      log.warn("DATETIME=:" + dateString + ":");
       //date = (Date) displayFormat.parse(dateString);
       TimeUtil tu = new TimeUtil();
       date = tu.getServerDateTime(displayFormat, dateString);
