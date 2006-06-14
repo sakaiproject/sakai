@@ -27,7 +27,7 @@
 					<td>
 					</td>
 					<td>
-						<h5><span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserEid)</span></h5>
+						<h5><span title="$tlang.getString("presence.session.name")">$validator.escapeHtml($entry.UserDisplayId)</span></h5>
 					</td>
 					<td>
 						<span title="$tlang.getString("presence.session.session")">$validator.escapeHtml($entry.Id)</span>
