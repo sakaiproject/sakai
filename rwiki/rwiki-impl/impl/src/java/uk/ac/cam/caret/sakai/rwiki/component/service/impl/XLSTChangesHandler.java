@@ -102,26 +102,26 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			{
 				AttributesImpl propA = new AttributesImpl();
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO,
-						SchemaNames.ATTR_REQUEST_PATH_INFO, "sting", request
+						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request
 								.getPathInfo());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER,
-						SchemaNames.ATTR_REQUEST_USER, "sting", request
+						SchemaNames.ATTR_REQUEST_USER, "string", request
 								.getRemoteUser());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL,
-						SchemaNames.ATTR_REQUEST_PROTOCOL, "sting", request
+						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request
 								.getProtocol());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME,
-						SchemaNames.ATTR_REQUEST_SERVER_NAME, "sting", request
+						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request
 								.getServerName());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT,
-						SchemaNames.ATTR_REQUEST_SERVER_PORT, "sting", String
+						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String
 								.valueOf(request.getServerPort()));
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL,
-						SchemaNames.ATTR_REQUEST_REQUEST_URL, "sting", String
+						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String
 								.valueOf(request.getRequestURL()));
 
 				propA.addAttribute("", SchemaNames.ATTR_SERVER_URL,
-						SchemaNames.ATTR_SERVER_URL, "sting",
+						SchemaNames.ATTR_SERVER_URL, "string",
 						ServerConfigurationService.getServerUrl());
 
 				ch.startElement(SchemaNames.NS_CONTAINER,
