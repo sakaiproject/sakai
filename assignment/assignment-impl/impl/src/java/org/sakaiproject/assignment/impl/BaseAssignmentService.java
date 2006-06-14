@@ -2729,7 +2729,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				member = (User) it.next();
 
 				// show user's enterprise id
-				row.createCell(cellNum++).setCellValue(member.getEid());
+				row.createCell(cellNum++).setCellValue(member.getDisplayId());
 
 				// show user's name
 				row.createCell(cellNum++).setCellValue(member.getSortName());
