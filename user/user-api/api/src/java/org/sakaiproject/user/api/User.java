@@ -31,8 +31,6 @@ import org.sakaiproject.time.api.Time;
  */
 public interface User extends Entity, Comparable
 {
-	// TODO: move these to Resource
-
 	/**
 	 * @return the user who created this.
 	 */
@@ -52,8 +50,6 @@ public interface User extends Entity, Comparable
 	 * @return the time last modified.
 	 */
 	Time getModifiedTime();
-
-	// TODO:
 
 	/**
 	 * Access the email address.
@@ -114,4 +110,12 @@ public interface User extends Entity, Comparable
 	 * @return The user's enterprise id.
 	 */
 	String getEid();
+
+	/**
+	 * Access a string portraying the user's enterprise identity, for display purposes.<br />
+	 * Use this, not getEid(), when displaying the user's id, probably along with the user's sort or display name, for disambiguating purposes.
+	 * 
+	 * @return The user's display id string.
+	 */
+	String getDisplayId();
 }

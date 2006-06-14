@@ -64,7 +64,7 @@ CREATE INDEX IE_SAKAI_USER_EMAIL ON SAKAI_USER
 CREATE TABLE SAKAI_USER_ID_MAP
 (
        USER_ID             VARCHAR (99) NOT NULL,
-       EID                 VARCHAR (99) NOT NULL
+       EID                 VARCHAR (255) NOT NULL
 );
 
 

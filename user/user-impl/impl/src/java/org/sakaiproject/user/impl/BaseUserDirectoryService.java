@@ -55,6 +55,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -1916,17 +1917,59 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public String getDisplayName()
 		{
-			StringBuffer buf = new StringBuffer(128);
-			if (m_firstName != null) buf.append(m_firstName);
-			if (m_lastName != null)
+			String rv = null;
+
+			// let the provider handle it, if we have that sort of provider, and it wants to handle this
+			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
 			{
-				buf.append(" ");
-				buf.append(m_lastName);
+				rv = ((DisplayAdvisorUDP) m_provider).getDisplayName(this);
+			}
+			
+			if (rv == null)
+			{
+				// or do it this way
+				StringBuffer buf = new StringBuffer(128);
+				if (m_firstName != null) buf.append(m_firstName);
+				if (m_lastName != null)
+				{
+					buf.append(" ");
+					buf.append(m_lastName);
+				}
+	
+				if (buf.length() == 0)
+				{
+					rv = getEid();
+				}
+				
+				else
+				{
+					rv = buf.toString();
+				}
 			}
 
-			if (buf.length() == 0) return getEid();
+			return rv;
+		}
 
-			return buf.toString();
+		/**
+		 * @inheritDoc
+		 */
+		public String getDisplayId()
+		{
+			String rv = null;
+
+			// let the provider handle it, if we have that sort of provider, and it wants to handle this
+			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
+			{
+				rv = ((DisplayAdvisorUDP) m_provider).getDisplayId(this);
+			}
+
+			// use eid if not
+			if (rv == null)
+			{
+				rv = getEid();
+			}
+
+			return rv;
 		}
 
 		/**
