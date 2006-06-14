@@ -48,10 +48,16 @@ public interface Calendar
 	public String getContext();
 
 	/**
-	* check permissions for getEvents() and getEvent().
+	* check permissions for getEvents() and getEvent() on a SITE / calendar level.
 	* @return true if the user is allowed to get events from the calendar, false if not.
 	*/
 	public boolean allowGetEvents();
+	
+	/**
+	* check permissions for getEvent() for a particular event.
+	* @return true if the user is allowed to get the event from the calendar, false if not.
+	*/
+	public boolean allowGetEvent(String eventId);
 
 	/**
 	* Return a List of all or filtered events in the calendar.
@@ -85,6 +91,13 @@ public interface Calendar
 	* @return true if the user is allowed to addEvent(...), false if not.
 	*/
 	public boolean allowAddEvent();
+
+	/**
+	 * Check if the user has permission to add a calendar-wide (not grouped) message.
+	 * 
+	 * @return true if the user has permission to add a calendar-wide (not grouped) message.
+	 */
+	boolean allowAddCalendarEvent();
 
 	/**
 	* Add a new event to this calendar.
@@ -193,15 +206,17 @@ public interface Calendar
 	* @param intention The recurring event modification intention,
 	* based on values in the GenericCalendarService "MOD_*",
 	* used if the event is part of a recurring event sequence to determine how much of the sequence is removed.
+	* @throws PermissionException if the end user does not have permission to remove.
 	*/
-	public void removeEvent(CalendarEventEdit edit, int intention);
+	public void removeEvent(CalendarEventEdit edit, int intention) throws PermissionException;
 
 	/**
 	* Remove an event from the calendar, one locked for edit.
 	* Note: if the event is a recurring event, the entire sequence is removed by this commit (MOD_ALL).
 	* @param edit The event from this calendar to remove.
+	* @throws PermissionException if the end user does not have permission to remove.
 	*/
-	public void removeEvent(CalendarEventEdit edit);
+	public void removeEvent(CalendarEventEdit edit) throws PermissionException;
 	
 	/**
 	 * Get the collection of Groups defined for the context of this calendar that the end user has add event permissions in.
@@ -216,6 +231,13 @@ public interface Calendar
 	 * @return The Collection (Group) of groups defined for the context of this calendar that the end user has get event permissions in, empty if none.
 	 */
 	Collection getGroupsAllowGetEvent();
+
+	/**
+	 * Get the collection of Group defined for the context of this channel that the end user has remove message permissions in.
+	 * 
+	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has get message permissions in, empty if none.
+	 */
+	Collection getGroupsAllowRemoveEvent();
 
 }	// Calendar
 

@@ -21,11 +21,12 @@
 
 package org.sakaiproject.calendar.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.entity.api.AttachmentContainerEdit;
 import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.time.api.TimeRange;
 
 /**
 * <p>CalendarEventEdit is an editable CalendarEvent</p>
@@ -83,32 +84,22 @@ public interface CalendarEventEdit
 	public void setRecurrenceRule(RecurrenceRule rule);
 	
 	/**
-	 * Add a Group to the list of groups for this event.
+	 * Set these as the event's groups, replacing the access and groups already defined.
 	 * 
-	 * @param group
-	 *        The Group to add to those for this event.
+	 * @param Collection
+	 *        groups The colelction of Group objects to use for this event.
+	 * @throws PermissionException
+	 *         if the end user does not have permission to remove from the groups that would be removed or add to the groups that would be added.
+	 */
+	void setGroupAccess(Collection groups) throws PermissionException;
+
+	/**
+	 * Remove any grouping for this event; the access mode reverts to site and any groups are removed.
+	 * 
 	 * @throws PermissionException
 	 *         if the end user does not have permission to do this.
 	 */
-	void addGroup(Group group) throws PermissionException;
-
-	/**
-	 * Remove this Group from the list of groups for this event.
-	 * 
-	 * @param group
-	 *        The Group to remove from those for this event.
-	 * @throws PermissionException
-	 *         if the end user does not have permission to do this.
-	 */
-	void removeGroup(Group group) throws PermissionException;
-
-	/**
-	 * Set the access mode for the event - how we compute who has access to the event.
-	 * 
-	 * @param access
-	 *        The EventAccess access mode for the event.
-	 */
-	void setAccess(EventAccess access);
+	void clearGroupAccess() throws PermissionException;
 
 }	// CalendarEventEdit
 

@@ -110,10 +110,6 @@ public interface CalendarService
 	/** Security function giving the user permission to all groups, if granted to at the calendar or calendar level. */
 	public static final String SECURE_ALL_GROUPS = "calendar.all.groups";
 
-	/** The Reference type for a calendar where site groups are to be considered in security computation. */
-	public static final String REF_TYPE_CALENDAR_GROUPS = "calendar-groups";
-
-
 	/**
 	* Return a List of all the defined calendars.
 	* @return a List of Calendar objects (may be empty)

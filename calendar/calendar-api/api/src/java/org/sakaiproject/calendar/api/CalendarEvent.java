@@ -127,12 +127,19 @@ public interface CalendarEvent
 	}
 	
 	/**
-	 * Access the groups defined for this .
+	 * Access the groups defined for this event.
 	 * 
 	 * @return A Collection (String) of group refs (authorization group ids) defined for this event; empty if none are defined.
 	 */
 	Collection getGroups();
 	
+	/**
+	 * Access the groups defined for this event, as Group objects.
+	 * 
+	 * @return A Collection (Group) of group objects defined for this event; empty if none are defined.
+	 */
+	Collection getGroupObjects();
+
 	/**
 	 * Access the groups defined for this .
 	 * 

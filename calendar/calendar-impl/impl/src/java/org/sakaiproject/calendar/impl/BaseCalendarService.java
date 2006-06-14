@@ -64,11 +64,11 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
@@ -113,6 +113,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
@@ -1285,33 +1286,72 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		Collection rv = new Vector();
 
+		// for events:
+		// if access set to SITE (or PUBLIC), use the event, calendar and site authzGroups.
+		// if access set to GROUPED, use the event, and the groups, but not the calendar or site authzGroups.
+		// if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if SITE
+
+		// for Calendars: use the calendar and site authzGroups.
+
 		try
 		{
-			String calendarId = null;
-
-			// if an event try this realm
+			// for event
 			if (REF_TYPE_EVENT.equals(ref.getSubType()))
 			{
-				// an event
+				// event
 				rv.add(ref.getReference());
-				calendarId = ref.getContainer();
+				
+				boolean grouped = false;
+				Collection groups = null;
+
+				// check SECURE_ALL_GROUPS - if not, check if the event has groups or not
+				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
+				if (!AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))
+				{
+					// get the calendar to get the message to get group information
+					String calendarRef = calendarReference(ref.getContext(), ref.getContainer());
+					Calendar c = findCalendar(calendarRef);
+					if (c != null)
+					{
+						CalendarEvent e = ((BaseCalendarEdit) c).findEvent(ref.getId());
+						if (e != null)
+						{
+							grouped = EventAccess.GROUPED == e.getAccess();
+							groups = e.getGroups();
+						}
+					}
+				}
+
+				if (grouped)
+				{
+					// groups
+					rv.addAll(groups);
+				}
+
+				// not grouped
+				else
+				{
+					// calendar
+					rv.add(calendarReference(ref.getContext(), ref.getContainer()));
+
+					// site
+					ref.addSiteContextAuthzGroup(rv);
+				}
 			}
 
-			// otherwise a calendar, get the id
+			// for calendar
 			else
 			{
-				calendarId = ref.getId();
+				// calendar
+				rv.add(calendarReference(ref.getContext(), ref.getId()));
+
+				// site
+				ref.addSiteContextAuthzGroup(rv);
 			}
-
-			// try the calendar's realm
-			rv.add(calendarReference(ref.getContext(), calendarId));
-
-			// site
-			ref.addSiteContextAuthzGroup(rv);
 		}
 		catch (Throwable e)
 		{
-			M_log.warn(".getEntityAuthzGroups(): " + e);
+			M_log.warn("getEntityAuthzGroups(): " + e);
 		}
 
 		return rv;
@@ -1652,7 +1692,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					try
 					{
 						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
-								oEvent.getType(), oEvent.getLocation(), oEvent.getAccess(), oEvent.getGroups(), oEvent.getAttachments());
+								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
 
 						try
 						{
@@ -1661,22 +1701,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							ResourcePropertiesEdit p = eEdit.getPropertiesEdit();
 							p.clear();
 							p.addAll(oEvent.getProperties());
-							
-							EventAccess ea = oEvent.getAccess();
-							eEdit.setAccess(ea);
-							if (ea.toString().equals(CalendarEvent.EventAccess.GROUPED.toString()))
-							{
-								Collection groups = oEvent.getGroups();
-								for(Iterator gIterator2=groups.iterator(); gIterator2.hasNext(); )
-								{
-									String gString = (String) gIterator2.next();
-									try
-									{
-										eEdit.addGroup((Group)(gIterator2.next()));
-									}
-									catch (Exception eIgnore){}
-								}
-							}
+
 							// attachment
 							List oAttachments = eEdit.getAttachments();
 							List nAttachments = m_entityManager.newReferenceList();
@@ -2079,6 +2104,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // allowGetEvents
 
 		/**
+		 * {@inheritDoc}
+		 */
+		public boolean allowGetEvent(String eventId)
+		{
+			return unlockCheck(EVENT_READ_CALENDAR, eventReference(m_context, m_id, eventId));
+		}
+
+		/**
 		 * Return a List of all or filtered events in the calendar. The order in which the events will be found in the iteration is by event start date.
 		 * 
 		 * @param range
@@ -2201,10 +2234,31 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				events = filtered;
 			}
 
-			// sort - natural order is date ascending
-			Collections.sort(events);
+			// remove any events that are grouped, and that the current user does not have permission to see
+			Collection groupsAllowed = getGroupsAllowGetEvent();
+			List allowedEvents = new Vector();
+			for (Iterator i = events.iterator(); i.hasNext();)
+			{
+				CalendarEvent event = (CalendarEvent) i.next();
+				if (event.getAccess() == EventAccess.SITE)
+				{
+					allowedEvents.add(event);
+				}
+				
+				else
+				{
+					// if the user's Groups overlap the event's group refs it's grouped to, keep it
+					if (EntityCollections.isIntersectionEntityRefsToEntities(event.getGroups(), groupsAllowed))
+					{
+						allowedEvents.add(event);
+					}
+				}
+			}
 
-			return events;
+			// sort - natural order is date ascending
+			Collections.sort(allowedEvents);
+
+			return allowedEvents;
 
 		} // getEvents
 
@@ -2246,8 +2300,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public CalendarEvent getEvent(String eventId) throws IdUnusedException, PermissionException
 		{
-			// check security on the calendar (throws if not permitted)
-			unlock(EVENT_READ_CALENDAR, getReference());
+			// check security on the event (throws if not permitted)
+			unlock(EVENT_READ_CALENDAR, eventReference(m_context, m_id, eventId));
 
 			CalendarEvent e = findEvent(eventId);
 
@@ -2267,9 +2321,25 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowAddEvent()
 		{
-			return unlockCheck(EVENT_ADD_CALENDAR, getReference());
+			// checking allow at the channel (site) level
+			if (allowAddCalendarEvent()) return true;
+
+			// if not, see if the user has any groups to which adds are allowed
+			return (!getGroupsAllowAddEvent().isEmpty());
 
 		} // allowAddEvent
+
+		/**
+		 * @inheritDoc
+		 */
+		public boolean allowAddCalendarEvent()
+		{
+			// check for events that will be calendar (site) -wide:
+			// base the check for SECURE_ADD on the site and the calendar only (not the groups).
+
+			// check security on the calendar (throws if not permitted)
+			return unlockCheck(EVENT_ADD_CALENDAR, getReference());
+		}
 
 		/**
 		 * Add a new event to this calendar.
@@ -2293,8 +2363,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		public CalendarEvent addEvent(TimeRange range, String displayName, String description, String type, String location, EventAccess access, Collection groups,
 				List attachments) throws PermissionException
 		{
+			// securtiy check (any sort (group, site) of add)
+			if (!allowAddEvent())
+			{
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+			}
+
 			// make one
-			CalendarEventEdit edit = addEvent();
+			// allocate a new unique event id
+			String id = getUniqueId();
+
+			// get a new event in the info store
+			CalendarEventEdit edit = m_storage.putEvent(this, id);
+
+			((BaseCalendarEventEdit) edit).setEvent(EVENT_ADD_CALENDAR);
 
 			// set it up
 			edit.setRange(range);
@@ -2302,11 +2384,37 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			edit.setDescription(description);
 			edit.setType(type);
 			edit.setLocation(location);
-			edit.setAccess(access);
-			for (Iterator gIterator = (Iterator)groups.iterator(); gIterator.hasNext();)
+			
+			// for site...
+			if (access == EventAccess.SITE)
 			{
-				edit.addGroup((Group)(gIterator.next()));
+				// if not allowd to SITE, will throw permission exception
+				try
+				{
+					edit.clearGroupAccess();
+				}
+				catch (PermissionException e)
+				{
+					cancelEvent(edit);
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				}
 			}
+			
+			// for grouped...
+			else
+			{
+				// if not allowed to GROUP, will throw permission exception
+				try
+				{
+					edit.setGroupAccess(groups);
+				}
+				catch (PermissionException e)
+				{
+					cancelEvent(edit);
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), getReference());
+				}
+			}
+
 			edit.replaceAttachments(attachments);
 
 			// commit it
@@ -2422,8 +2530,16 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 */
 		public boolean allowRemoveEvent(CalendarEvent event)
 		{
-			// check security
-			return unlockCheck(EVENT_MODIFY_CALENDAR, getReference());
+			// this is true if we can remove it due to any of our group membership
+			boolean allowed = unlockCheck(EVENT_REMOVE_CALENDAR, event.getReference());
+
+			// but we must also assure, that for grouped events, we can remove it from ALL of the groups
+			if (allowed && (event.getAccess() == EventAccess.GROUPED))
+			{
+				allowed = EntityCollections.isContainedEntityRefsToEntities(event.getGroups(), getGroupsAllowRemoveEvent());
+			}
+
+			return allowed;
 
 		} // allowRemoveEvent
 
@@ -2433,7 +2549,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * @param event
 		 *        The event from this calendar to remove.
 		 */
-		public void removeEvent(CalendarEventEdit edit)
+		public void removeEvent(CalendarEventEdit edit) throws PermissionException
 		{
 			removeEvent(edit, MOD_ALL);
 
@@ -2447,7 +2563,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		 * @param intention
 		 *        The recurring event modification intention, based on values in the CalendarService "MOD_*", used if the event is part of a recurring event sequence to determine how much of the sequence is removed.
 		 */
-		public void removeEvent(CalendarEventEdit edit, int intention)
+		public void removeEvent(CalendarEventEdit edit, int intention) throws PermissionException
 		{
 			// check for closed edit
 			if (!edit.isActiveEdit())
@@ -2461,6 +2577,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					M_log.warn("removeEvent(): closed EventEdit", e);
 				}
 				return;
+			}
+
+			// securityCheck
+			if (!allowRemoveEvent(edit))
+			{
+				cancelEvent(edit);
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), EVENT_REMOVE_CALENDAR, edit.getReference());
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
@@ -2552,7 +2675,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (e == null) return false;
 
 			// check security (throws if not permitted)
-			return unlockCheck(EVENT_MODIFY_CALENDAR, getReference());
+			return unlockCheck(EVENT_MODIFY_CALENDAR, eventReference(m_context, m_id, eventId));
 
 		} // allowEditCalendarEvent
 
@@ -2593,7 +2716,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (e == null) throw new IdUnusedException(eventId);
 
 			// check security (throws if not permitted)
-			unlock(EVENT_MODIFY_CALENDAR, getReference());
+			unlock(EVENT_MODIFY_CALENDAR, e.getReference());
 
 			// ignore the cache - get the CalendarEvent with a lock from the info store
 			CalendarEventEdit edit = m_storage.editEvent(this, eventId);
@@ -3035,22 +3158,30 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		} // closeEdit
 		
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.Calendar#getGroupsAllowAddEvent()
+		/**
+		 * {@inheritDoc}
 		 */
 		public Collection getGroupsAllowAddEvent() 
 		{
-			return getGroupsAllowFunction(SECURE_ADD);
+			return getGroupsAllowFunction(EVENT_ADD_CALENDAR);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.Calendar#getGroupsAllowGetEvent()
+		/**
+		 * {@inheritDoc}
 		 */
 		public Collection getGroupsAllowGetEvent() 
 		{
-			return getGroupsAllowFunction(SECURE_READ);
+			return getGroupsAllowFunction(EVENT_READ_CALENDAR);
 		}
 		
+		/**
+		 * {@inheritDoc}
+		 */
+		public Collection getGroupsAllowRemoveEvent() 
+		{
+			return getGroupsAllowFunction(EVENT_REMOVE_CALENDAR);
+		}
+
 		/**
 		 * Get the groups of this channel's contex-site that the end user has permission to "function" in.
 		 * @param function The function to check
@@ -3064,9 +3195,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				// get the channel's site's groups
 				Site site = SiteService.getSite(m_context);
 				Collection groups = site.getGroups();
-				
-				// if the user has schedule.allgrp for the channel (channel, site), and the function for the channel (channel,site), select all site groups
-				if (unlockCheck(SECURE_ALL_GROUPS, getReference()))
+
+				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the calendar (calendar,site), select all site groups
+				if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(m_context))
+						&& unlockCheck(function, getReference()))
 				{
 					return groups;
 				}
@@ -3082,8 +3214,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				}
 			
 				// ask the authzGroup service to filter them down based on function
-				groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(), eventId(function), groupRefs);
-				
+				groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(), function, groupRefs);
+
 				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
 				for (Iterator i = groups.iterator(); i.hasNext();)
 				{
@@ -3226,12 +3358,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			m_properties = ((BaseCalendarEventEdit) other).m_properties;
 			
 			m_access = ((BaseCalendarEventEdit) other).m_access;
+			
+			// point at the groups
 			m_groups = ((BaseCalendarEventEdit) other).m_groups;
 
 			// point at the attachments
 			m_attachments = ((BaseCalendarEventEdit) other).m_attachments;
 
-			// copy the rules
+			// point at the rules
 			m_singleRule = ((BaseCalendarEventEdit) other).m_singleRule;
 			m_exclusionRule = ((BaseCalendarEventEdit) other).m_exclusionRule;
 
@@ -3403,6 +3537,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			m_properties.addAll(other.getProperties());
 			
 			m_access = other.getAccess();
+			m_groups = new Vector();
 			m_groups.addAll(other.getGroups());
 
 			// copy the attachments
@@ -3432,6 +3567,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			m_properties.addAll(other.getProperties());
 			
 			m_access = other.getAccess();
+			m_groups = new Vector();
 			m_groups.addAll(other.getGroups());
 			
 			// copy the attachments
@@ -4045,70 +4181,125 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		} // clearAttachments
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#addGroup(org.sakaiproject.service.legacy.site.Group)
+		/**
+		 * {@inheritDoc}
 		 */
-		public void addGroup(Group group) throws PermissionException 
+		public EventAccess getAccess()
 		{
-			if (group == null) throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
-
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
-			if (!unlockCheck(SECURE_ADD, group.getReference()))
-			{
-				if (!unlockCheck(SECURE_ALL_GROUPS,((BaseCalendarEdit) m_calendar).getReference()))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group.getReference());					
-				}
-			}
-
-			if (!m_groups.contains(group.getReference())) m_groups.add(group.getReference());
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#removeGroup(org.sakaiproject.service.legacy.site.Group)
-		 */
-		public void removeGroup(Group group) throws PermissionException 
-		{
-			if (group == null) throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
-
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
-			if (!unlockCheck(SECURE_ADD, group.getReference()))
-			{
-				if (!unlockCheck(SECURE_ALL_GROUPS, ((BaseCalendarEdit) m_calendar).getReference()))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD),  group.getReference());					
-				}
-			}
-
-			if (m_groups.contains(group.getReference())) m_groups.remove(group.getReference());
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.CalendarEventEdit#setAccess(org.sakaiproject.service.legacy.calendar.CalendarEvent.EventAccess)
-		 */
-		public void setAccess(EventAccess access) 
-		{
-			m_access = access;
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.CalendarEvent#getAccess()
-		 */
-		public EventAccess getAccess() {
 			return m_access;
 		}
 		
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.service.legacy.calendar.CalendarEvent#getGroups()
+		/**
+		 * {@inheritDoc}
 		 */
 		public Collection getGroups() 
 		{
 			return new Vector(m_groups);
 		}
-		
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public Collection getGroupObjects()
+		{
+			Vector rv = new Vector();
+			if (m_groups != null)
+			{
+				for (Iterator i = m_groups.iterator(); i.hasNext();)
+				{
+					String groupId = (String) i.next();
+					Group group = SiteService.findGroup(groupId);
+					if (group != null)
+					{
+						rv.add(group);
+					}
+				}
+			}
+
+			return rv;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void setGroupAccess(Collection groups) throws PermissionException
+		{
+			// convenience (and what else are we going to do?)
+			if ((groups == null) || (groups.size() == 0))
+			{
+				clearGroupAccess();
+				return;
+			}
+			
+			// is there any change?  If we are already grouped, and the group list is the same, ignore the call
+			if ((m_access == EventAccess.GROUPED) && (EntityCollections.isEqualEntityRefsToEntities(m_groups, groups))) return;
+
+			// isolate any groups that would be removed or added
+			Collection addedGroups = new Vector();
+			Collection removedGroups = new Vector();
+			EntityCollections.computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(addedGroups, removedGroups, groups, m_groups);
+
+			// verify that the user has permission to remove
+			if (removedGroups.size() > 0)
+			{
+				// the Group objects the user has remove permission
+				Collection allowedGroups = m_calendar.getGroupsAllowRemoveEvent();
+
+				for (Iterator i = removedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+					}
+				}
+			}
+			
+			// verify that the user has permission to add in those contexts
+			if (addedGroups.size() > 0)
+			{
+				// the Group objects the user has add permission
+				Collection allowedGroups = m_calendar.getGroupsAllowAddEvent();
+
+				for (Iterator i = addedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+					}
+				}
+			}
+			
+			// we are clear to perform this
+			m_access = EventAccess.GROUPED;
+			EntityCollections.setEntityRefsFromEntities(m_groups, groups);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void clearGroupAccess() throws PermissionException
+		{
+			// is there any change?  If we are already channel, ignore the call
+			if (m_access == EventAccess.SITE) return;
+
+			// verify that the user has permission to add in the calendar context
+			boolean allowed = m_calendar.allowAddCalendarEvent();
+			if (!allowed)
+			{
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:channel", getReference());				
+			}
+
+			// we are clear to perform this
+			m_access = EventAccess.SITE;
+			m_groups.clear();
+		}
+
 		/******************************************************************************************************************************************************************************************************************************************************
 		 * SessionBindingListener implementation
 		 *****************************************************************************************************************************************************************************************************************************************************/
@@ -4142,6 +4333,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		public String getGroupRangeForDisplay(Calendar cal) 
 		{
+			// TODO: check this - if used for the UI list, it needs the user's groups and the event's groups... -ggolden
 			if (m_access.equals(CalendarEvent.EventAccess.SITE))
 			{
 				return "";
