@@ -284,28 +284,28 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			RWikiHistoryObject rwco = (RWikiHistoryObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
-					"sting", rwco.getId());
+					"string", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "sting", rwco.getName());
+					SchemaNames.ATTR_NAME, "string", rwco.getName());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
-					SchemaNames.ATTR_LOCAL_NAME, "sting", NameHelper
+					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
 							.localizeName(rwo.getName(), rwo.getRealm()));
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_OWNER, "sting", rwco.getOwner());
+					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_REALM, "sting", rwco.getRealm());
+					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
 			propA.addAttribute("", SchemaNames.ATTR_REFERENCED,
-					SchemaNames.ATTR_REFERENCED, "sting", rwco.getReferenced());
+					SchemaNames.ATTR_REFERENCED, "string", rwco.getReferenced());
 			propA.addAttribute("", SchemaNames.ATTR_SHA1,
-					SchemaNames.ATTR_SHA1, "sting", rwco.getSha1());
+					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
 			propA.addAttribute("", SchemaNames.ATTR_USER,
-					SchemaNames.ATTR_USER, "sting", rwco.getUser());
+					SchemaNames.ATTR_USER, "string", rwco.getUser());
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
-					SchemaNames.ATTR_REVISION, "sting", String.valueOf(rwco
+					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
 			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
-					SchemaNames.ATTR_LAST_CHANGE, "sting", sd.format(rwco
+					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
 							.getVersion()));
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
@@ -337,28 +337,28 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			RWikiCurrentObject rwco = (RWikiCurrentObject) i.next();
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
-					"sting", rwco.getId());
+					"string", rwco.getId());
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "sting", rwco.getName());
+					SchemaNames.ATTR_NAME, "string", rwco.getName());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
-					SchemaNames.ATTR_LOCAL_NAME, "sting", NameHelper
+					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
 							.localizeName(rwco.getName(), rwco.getRealm()));
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
-					SchemaNames.ATTR_OWNER, "sting", rwco.getOwner());
+					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_REALM,
-					SchemaNames.ATTR_REALM, "sting", rwco.getRealm());
+					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
 			propA.addAttribute("", SchemaNames.ATTR_REFERENCED,
-					SchemaNames.ATTR_REFERENCED, "sting", rwco.getReferenced());
+					SchemaNames.ATTR_REFERENCED, "string", rwco.getReferenced());
 			propA.addAttribute("", SchemaNames.ATTR_SHA1,
-					SchemaNames.ATTR_SHA1, "sting", rwco.getSha1());
+					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
 			propA.addAttribute("", SchemaNames.ATTR_USER,
-					SchemaNames.ATTR_USER, "sting", rwco.getUser());
+					SchemaNames.ATTR_USER, "string", rwco.getUser());
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
-					SchemaNames.ATTR_REVISION, "sting", String.valueOf(rwco
+					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
 			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 			propA.addAttribute("", SchemaNames.ATTR_LAST_CHANGE,
-					SchemaNames.ATTR_LAST_CHANGE, "sting", sd.format(rwco
+					SchemaNames.ATTR_LAST_CHANGE, "string", sd.format(rwco
 							.getVersion()));
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);
