@@ -12570,6 +12570,23 @@ public class SiteAction extends PagedResourceActionII
 			}
 		}
 
+		/**
+		 * Access the user display id, if we can find it - fall back to the id if not.
+		 * @return The user display id.
+		 */
+		public String getDisplayId()
+		{
+			try
+			{
+				User user = UserDirectoryService.getUser(uniqname);
+				return user.getDisplayId();
+			}
+			catch (UserNotDefinedException e)
+			{
+				return uniqname;
+			}
+		}
+
 	} // Participant
 	
 	/**

@@ -64,7 +64,7 @@
 						</h4>	
 					</td>
 					<td headers="role">
-						$participant.getEid()
+						$participant.getDisplayId()
 					</td>
 					<td>
 						#if ($same_role)
