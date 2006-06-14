@@ -88,6 +88,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.Validator;
@@ -1447,7 +1448,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		// if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if CHANNEL
 
 		// for Channels, use the channel and site authzGroups.
-		// for Channels-groups, use the channel, site, and also any site group in the context
 		try
 		{
 			// for message
@@ -1915,169 +1915,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	protected void disableMessageChannel(String siteId)
 	{
 		// TODO: we do nothing now - channels hang around after the tool is removed from the site or the site is deleted -ggolden
-	}
-
-	/**
-	 * See if the collection of group reference strings has at least one group that is in the collection of Group objects.
-	 * 
-	 * @param groupRefs
-	 *        The collection (String) of group references.
-	 * @param groups
-	 *        The collection (Group) of group objects.
-	 * @return true if there is interesection, false if not.
-	 */
-	protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
-	{
-		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisGroupRef = (String) iRefs.next();
-			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
-			{
-				String thisGroupRef = ((Group) iGroups.next()).getReference();
-				if (thisGroupRef.equals(findThisGroupRef))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-	
-	/**
-	 * See if the collection of group reference strings is contained in the collection of groups.
-	 * 
-	 * @param groupRefs
-	 *        The collection (String) of group references.
-	 * @param groups
-	 *        The collection (Group) of group objects.
-	 * @return true if there is containment, false if not.
-	 */
-	protected boolean isContainedGroupRefsToGroups(Collection groupRefs, Collection groups)
-	{
-		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisGroupRef = (String) iRefs.next();
-			if (!groupCollectionContainsRefString(groups, findThisGroupRef)) return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * See if the collection of group reference strings matches completely the collection of Group objects.
-	 * 
-	 * @param groupRefs
-	 *        The collection (String) of group references.
-	 * @param groups
-	 *        The collection (Group) of group objects.
-	 * @return true if there is a match, false if not.
-	 */
-	protected boolean isEqualGroupRefsToGroups(Collection groupRefs, Collection groups)
-	{
-		// if the colletions are the same size
-		if (groupRefs.size() != groups.size()) return false;
-
-		// and each ref is found
-		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
-		{
-			String findThisGroupRef = (String) iRefs.next();
-			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
-			{
-				String thisGroupRef = ((Group) iGroups.next()).getReference();
-				if (thisGroupRef.equals(findThisGroupRef))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Test a collection of Group object for the specified group reference
-	 * 
-	 * @param groups
-	 *        The collection (Group) of groups
-	 * @param groupRef
-	 *        The string group reference to find.
-	 * @return true if found, false if not.
-	 */
-	protected boolean groupCollectionContainsRefString(Collection groups, String groupRef)
-	{
-		for (Iterator i = groups.iterator(); i.hasNext();)
-		{
-			Group group = (Group) i.next();
-			if (group.getReference().equals(groupRef)) return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Test a collection of Group reference Strings for the specified Group
-	 * 
-	 * @param refs
-	 *        The collection (String) of group refs
-	 * @param group
-	 *        The Group to find.
-	 * @return true if found, false if not.
-	 */
-	protected boolean refCollectionContainsGroup(Collection refs, Group group)
-	{
-		String targetRef = group.getReference();
-		for (Iterator i = refs.iterator(); i.hasNext();)
-		{
-			String groupRef = (String) i.next();
-			if (groupRef.equals(targetRef)) return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Set the refs collection to the group reference strings from the groups collection (and nothing more)
-	 * 
-	 * @param refs
-	 *        The collection (String) of group references to modify.
-	 * @param groups
-	 *        The collection (Group) of group objects to use.
-	 */
-	protected void setGroupRefsFromGroups(Collection refs, Collection groups)
-	{
-		refs.clear();
-		for (Iterator i = groups.iterator(); i.hasNext();)
-		{
-			Group group = (Group) i.next();
-			refs.add(group.getReference());
-		}
-	}
-
-	/**
-	 * Fill in the two collections of Group reference strings - those added in newGroups that were not in oldGroupRefs, and those removed, i.e. in oldGroupRefs not in newGroups.
-	 */
-	protected void computeAddedRemovedGroupRefsFromNewGroupsOldRefs(Collection addedGroups, Collection removedGroups, Collection newGroups, Collection oldGroupRefs)
-	{
-		// added
-		for (Iterator i = newGroups.iterator(); i.hasNext();)
-		{
-			Group group = (Group) i.next();
-			if (!refCollectionContainsGroup(oldGroupRefs, group))
-			{
-				addedGroups.add(group.getReference());
-			}
-		}
-		
-		// removed
-		for (Iterator i = oldGroupRefs.iterator(); i.hasNext();)
-		{
-			String groupRef = (String) i.next();
-			if (!groupCollectionContainsRefString(newGroups, groupRef))
-			{
-				removedGroups.add(groupRef);
-			}
-		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -2656,7 +2493,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			if (allowed && (m.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED))
 			{
 				boolean own = (m.getHeader().getFrom() == null) ? true : m.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId());
-				allowed = isContainedGroupRefsToGroups(m.getHeader().getGroups(), getGroupsAllowRemoveMessage(own));
+				allowed = EntityCollections.isContainedEntityRefsToEntities(m.getHeader().getGroups(), getGroupsAllowRemoveMessage(own));
 			}
 			
 			return allowed;
@@ -3180,7 +3017,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				}
 
 				// ask the authzGroup service to filter them down based on function
-				groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_userDirectoryService.getCurrentUser().getId(),
+				groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_sessionManager.getCurrentSessionUserId(),
 						eventId(function), groupRefs);
 
 				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
@@ -3934,7 +3771,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			}
 			
 			// is there any change?  If we are already grouped, and the group list is the same, ignore the call
-			if ((m_access == MessageAccess.GROUPED) && (isEqualGroupRefsToGroups(m_groups, groups))) return;
+			if ((m_access == MessageAccess.GROUPED) && (EntityCollections.isEqualEntityRefsToEntities(m_groups, groups))) return;
 			
 			// there should not be a case where there's no message or a message with no channel... -ggolden
 			if ((m_message == null) || ((BaseMessageEdit) m_message).m_channel == null)
@@ -3946,7 +3783,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// isolate any groups that would be removed or added
 			Collection addedGroups = new Vector();
 			Collection removedGroups = new Vector();
-			computeAddedRemovedGroupRefsFromNewGroupsOldRefs(addedGroups, removedGroups, groups, m_groups);
+			EntityCollections.computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(addedGroups, removedGroups, groups, m_groups);
 
 			// verify that the user has permission to remove
 			if (removedGroups.size() > 0)
@@ -3962,7 +3799,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					String ref = (String) i.next();
 
 					// is ref a group the user can remove from?
-					if (!groupCollectionContainsRefString(allowedGroups, ref))
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
 					{
 						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
 					}
@@ -3980,7 +3817,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 					String ref = (String) i.next();
 
 					// is ref a group the user can remove from?
-					if (!groupCollectionContainsRefString(allowedGroups, ref))
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
 					{
 						throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), "access:group:add", ref);
 					}
@@ -3989,7 +3826,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			
 			// we are clear to perform this
 			m_access = MessageAccess.GROUPED;
-			setGroupRefsFromGroups(m_groups, groups);
+			EntityCollections.setEntityRefsFromEntities(m_groups, groups);
 		}
 
 		/**
