@@ -45,6 +45,13 @@ public interface Member extends Comparable, Serializable
 	String getUserEid();
 
 	/**
+	 * Access the user display id, if we can find it - fall back to the user id if not.
+	 * 
+	 * @return The user display id of the member.
+	 */
+	String getUserDisplayId();
+
+	/**
 	 * Access the member's Role.
 	 * 
 	 * @return The member's Role.

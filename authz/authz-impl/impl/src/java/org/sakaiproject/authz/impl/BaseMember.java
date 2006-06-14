@@ -23,6 +23,7 @@ package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -76,6 +77,22 @@ public class BaseMember implements Member
 		try
 		{
 			return UserDirectoryService.getUserEid(userId);
+		}
+		catch (UserNotDefinedException e)
+		{
+			return userId;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public String getUserDisplayId()
+	{
+		try
+		{
+			User user = UserDirectoryService.getUser(userId);
+			return user.getDisplayId();
 		}
 		catch (UserNotDefinedException e)
 		{
