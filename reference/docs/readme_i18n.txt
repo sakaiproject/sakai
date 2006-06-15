@@ -7,20 +7,20 @@ localized and internationalized. Translations are underway in many
 languages, as follows:
 
 1) Chinese (China)
-   Status: (Legacy tools) Completed for Sakai 2.0.1
-   Translated by: Tianhua Ding, Kun Lv
+   Status: completed for 2.2 (partially done in 2.1)
+   Translated by: Tianhua Ding, Kun Lv (and others)
    Contact: Beth Kirschner    beth.kirschner@umich.edu
    Local ID: zh_CN
    
 2) Korean
-   Status:(Legacy tools)  Completed for Sakai 2.0.1
+   Status: Completed for Sakai 2.0.1 (Legacy tools only)
    Translated by: Il-hwan Kim
    Contact: Beth Kirschner    beth.kirschner@umich.edu
    Local ID: ko_KR
    
 3) Japanese
-   Status: partially available (complete translaton to be released in 2.2)
-   Translated by: Tatsuki Sugura
+   Status: completed for 2.2 (partially done in 2.1)
+   Translated by: Tatsuki Sugura (and others)
    Contact: Shoji Kajita   kajita@nagoya-u.jp
    Local ID: ja_JP
    
@@ -61,7 +61,7 @@ languages, as follows:
    Local ID: sk_SK
     
 10) Catalan
-    Status: ??
+    Status: Partially completed for 2.2
     Translated by: n/a
     Contact: Alex Ballesté   alex@asic.udl.es
     Local ID: ca_ES
@@ -79,7 +79,7 @@ languages, as follows:
     Local ID: fr_CA
 	 
 13) Spanish (Spain)
-    Status: released in 2.1.2 (mostly completed)
+    Status: completed for 2.2 (partially done in 2.1.2)
     Translated by: David Roldán Martínez, Diego del Blanco, Raúl Mengod
     Contact: Federico Jesœs Carvajal Rodrigo (fcarvajal@abierta.upv.es)
     Local ID: es_ES
@@ -116,13 +116,14 @@ languages, as follows:
     Local ID: de_AT
 
 18) Swedish
-    Status: ??
+    Status: in progress
     Translated by: n/a
     Contact: Magnus Tagesson (magnus.tagesson@it.su.se)
     Local ID: sv_SE
                 
-The default language locale must be defined at boot time, by
-setting the tomcat JAVA_OPTS property as follows:
+The default language locale must be defined at boot time (though this 
+can be over-ridden by user preferences), by setting the tomcat 
+JAVA_OPTS property as follows:
 
 -- catalina.sh -----------------------------------------------
 ## Define default language locale: Japanese / Japan
