@@ -11,7 +11,6 @@
 	<goal name="pack-demo"  description="package the sakai demo">
 
 		<attainGoal name="sakai:clean" />
-		<attainGoal name="sakai:build" />
 
 		<!-- clear the deploy area -->
 		<delete dir="${basedir}/target/demo/"/>
@@ -27,7 +26,10 @@
 					overwrite="true" />
 
 		<!-- deploy sakai to this area -->
-		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.17/" />
+		<j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.17/" scope="parent" />
+
+		<attainGoal name="sakai:build" />
+
 		<attainGoal name="sakai:deploy" />
 
 		<!-- add in demo stuff -->
