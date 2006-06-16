@@ -56,6 +56,7 @@
 	    <navigation-case>  <!-- GOTO podMain (Podcast Home) -->
 	      <from-outcome>cancel</from-outcome>
 	      <to-view-id>/podcasts/podMain.jsp</to-view-id>
+	      <redirect />
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO addPodcast -->
 	        <from-outcome>addPodcast</from-outcome>

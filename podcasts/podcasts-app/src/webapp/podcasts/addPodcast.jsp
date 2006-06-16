@@ -31,7 +31,7 @@
       <span class="reqStarInline">*</span>
  	  <h:outputText value="#{msgs.podcast_file_prompt}" styleClass="reqPrompt" />
  	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podcastBean.processFileUpload}" 
- 	     styleClass="indnt1" size="35" required="true" />
+ 	     styleClass="indnt1" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage"/>
     </div>
@@ -50,7 +50,7 @@
     <div class="indnt1">  <!-- Title -->
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.podcast_title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" required="true" />
+ 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" />
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>

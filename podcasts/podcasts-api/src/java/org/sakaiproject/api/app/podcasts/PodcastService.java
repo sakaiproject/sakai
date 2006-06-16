@@ -21,14 +21,12 @@
 
 package org.sakaiproject.api.app.podcasts;
 
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityProducer;
-
+import java.sql.Time;
 import java.util.List;
 
-import java.sql.Time;
+// import org.sakaiproject.entity.api.EntityProducer;
 
-public interface PodcastService extends EntityProducer
+public interface PodcastService // extends EntityProducer
 {
   /** This string can be used to find the service in the service manager. */
 	public static final String COLLECTION_PODCASTS = "podcasts";

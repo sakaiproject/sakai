@@ -22,17 +22,12 @@
 package org.sakaiproject.tool.podcasts;
 
 import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Calendar;
 import java.util.Date;
 
 import javax.faces.component.UIComponent;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.PhaseId;
 import javax.faces.event.ValueChangeEvent;
-
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.fileupload.FileItem;
@@ -130,9 +125,9 @@ public class addPodcastBean {
         {
             FileItem item = (FileItem) event.getNewValue();
 	        String fieldName = item.getFieldName();
-	        String fileName = item.getName();
+	        filename = item.getName();
 	        long fileSize = item.getSize();
-	        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + fileName + " length: " + fileSize);
+	        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + filename + " length: " + fileSize);
 
 	        // Read the file as a stream (may be more memory-efficient)
 	        InputStream fileAsStream = item.getInputStream();
@@ -156,7 +151,7 @@ public class addPodcastBean {
 	 * This attempts to add a podcast
 	 */
 	public String processAdd() {
-		return "cancel";
+		return "main";
 	}
 	
 	public String processCancelAdd() {

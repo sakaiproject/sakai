@@ -36,14 +36,9 @@
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-util</artifactId>
+			<artifactId>sakai-podcasts-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>		
-<!--	    <dependency>
-	        <groupId>sakaiproject</groupId>
-	        <artifactId>sakai-podcasts-api</artifactId>
-	        <version>${sakai.verson}</version>
-	    </dependency>  -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>

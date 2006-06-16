@@ -20,25 +20,23 @@
  **********************************************************************************/
 package org.sakaiproject.tool.podcasts;
 
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.content.cover.ContentHostingService;
-
-// import org.sakaiproject.api.app.podcasts.PodcastService;
-
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
+
 public class podHomeBean {
 	private final String URLstart = "http://";
+
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
 	private boolean podcastResourceCheckFirstTry;
@@ -53,7 +51,7 @@ public class podHomeBean {
 	/**
      *   Determines if Resource tool part of the site. Needed to store podcasts.
      *   Since multiple ui items need to be removed, set boolean variable so 
-     *   only need to check actual resource if 
+     *   only need to check actual resource once 
      *  
      * @return true if Resource tool exists so entire page can display
      *         false if does not exist so just error message displays
@@ -117,6 +115,7 @@ public class podHomeBean {
 			  //                       if they do, construct the list, sort by date,
 			  //                       and return them 
 			  //       else return true
+			  
 			  return false; // podcastFolderExists;
 		  }
 	  }
@@ -126,12 +125,11 @@ public class podHomeBean {
 	  }
 	  
 	  public String getURL() {
-			String siteCollection = ContentHostingService.getSiteCollection( ToolManager.getCurrentPlacement().getContext() );
-//			String podcastCollection = siteCollection + podcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
-			String podcastCollection = siteCollection + "podcasts" + Entity.SEPARATOR;
+//			String siteCollection = ContentHostingService.getSiteCollection( ToolManager.getCurrentPlacement().getContext() );
+//			String podcastCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
 
-//		  URL = URLstart +  Entity.SEPARATOR + ToolManager.getCurrentPlacement().getContext();
-		  return podcastCollection;
+		  URL = URLstart +  ContentHostingService.getUrl(PodcastService.COLLECTION_PODCASTS);
+		  return URL;
 	  }
 	  
 	  public void setURL(String URL) {

@@ -21,19 +21,7 @@
 
 package org.sakaiproject.tool.podcasts;
 
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.faces.component.UIComponent;
-import javax.faces.event.AbortProcessingException;
-import javax.faces.event.PhaseId;
-import javax.faces.event.ValueChangeEvent;
-
 import javax.faces.model.SelectItem;
-
-import org.apache.commons.fileupload.FileItem;
 
 public class podOptionsBean {
   private int podOption;
