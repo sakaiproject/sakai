@@ -212,4 +212,14 @@ public class ItemGradingData
   public void setLastDuration(String lastDuration) {
     this.lastDuration = lastDuration;
   }
+
+  private ArrayList mediaArray;
+  public ArrayList getMediaArray(){
+    return mediaArray;
+  }
+
+  public void setMediaArray(ArrayList mediaArray){
+    this.mediaArray = mediaArray;
+  }
+
 }

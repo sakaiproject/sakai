@@ -420,6 +420,7 @@ public class QuestionScoreListener
 //      authoringHelper.getRemoteUserID() needs servlet stuff
 //      authoringHelper.getRemoteUserName() needs servlet stuff
 
+/* i don't think we use these - daisyf
       String userId = "";
       String userName = "";
       RecordingData recordingData =
@@ -427,6 +428,7 @@ public class QuestionScoreListener
         courseContext, "0", "30");
       // set this value in the requestMap for sound recorder
       bean.setRecordingData(recordingData);
+*/
 
       /* Dump the grading and agent information into AgentResults */
       //ArrayList agents = new ArrayList();
@@ -469,6 +471,11 @@ public class QuestionScoreListener
           if (bean.getTypeId().equals("8"))
             answerText = gdataAnswer.getSequence() + ":" +
               answerText;
+
+          // file upload or recording
+          if (bean.getTypeId().equals("6") || bean.getTypeId().equals("7")){
+            gdata.setMediaArray(delegate.getMediaArray(gdata.getItemGradingId().toString()));
+	  }
 
           if (answerText == null)
             answerText = "N/A";
