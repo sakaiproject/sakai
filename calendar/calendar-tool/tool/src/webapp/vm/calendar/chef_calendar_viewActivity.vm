@@ -51,35 +51,7 @@
 						#if ($startTime == $endTime)
 							$startTime
 						#else
-							#if ($endTime.endsWith("am"))
-							#set ($endTimeType = "am")
-							#else
-							#set ($endTimeType = "pm")
-							#end
-							#set ($endMin = $event.getRange().lastTime().breakdownLocal().Min)
-							#set ($endHour = $event.getRange().lastTime().breakdownLocal().Hour)
-							#set( $foo = $endMin % 10 )
-							#if (($foo == 4) || ($foo == 9))
-									#set ($endMin = $endMin + 1)
-									#if ($endMin == 60)
-											#set ($endMin = "00")
-											#set ($endHour = $endHour + 1)
-											#if (($endHour == 12)||($endHour == 24))
-													 #if ($endTime.endsWith("am"))
-															#set ($endTimeType = "pm")
-													#else
-															#set ($endTimeType = "am")
-													#end
-											#end
-									#end
-							#end
-							#if ($endHour > 12)
-									#set ($endHour = $endHour - 12)
-							#end
-							#if ($endHour == 0)
-								#set ($endHour = 12)
-							#end
-							$startTime - $endHour:#if(($endMin == 0)||($endMin == 5))0$endMin#else$endMin#end $endTimeType
+							$startTime - $endTime
 						#end
 						$timezone
 					</td>
