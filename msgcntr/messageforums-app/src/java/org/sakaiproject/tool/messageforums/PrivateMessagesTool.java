@@ -881,6 +881,11 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgCancel()");
     return "main";     
   }
+  
+  public String processPvtMsgDetailCancel()
+  {
+  	return "pvtMsg";
+  }
 
   /**
    * called when subject of List of messages to Topic clicked for detail
