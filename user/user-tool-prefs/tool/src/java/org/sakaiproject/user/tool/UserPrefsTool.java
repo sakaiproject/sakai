@@ -1440,7 +1440,8 @@ public class UserPrefsTool
 		ResourcePropertiesEdit props = m_edit.getPropertiesEdit(TimeService.APPLICATION_ID);
 		props.addProperty(TimeService.TIMEZONE_KEY, m_timeZone.getID());
 		m_preferencesService.commit(m_edit);
-		TimeService.clearLocalTimeZone(getUserId());
+      
+		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
 
 		tzUpdated = true; // set for display of text massage
 		return "timezone";
@@ -1474,7 +1475,9 @@ public class UserPrefsTool
 		props.addProperty(ResourceLoader.LOCALE_KEY, m_locale.toString());
 		m_preferencesService.commit(m_edit);
 
-		tzUpdated = true; // set for display of text massage
+		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
+      
+		locUpdated = true; // set for display of text massage
 		return "locale";
 	}
 
