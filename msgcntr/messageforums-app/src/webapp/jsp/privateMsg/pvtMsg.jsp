@@ -13,12 +13,12 @@
 			
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
 			
-        <table ><tr>
+        <table width="100%"><tr width="100%">
         <td align="left" width="75%">        	
         	  <h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
   					<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}"/> /
  						<h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
-        	</td><td nowrap align="right" >
+        	</td><td nowrap align="right" width="25%">
 				  <h:outputText   value="Previous Folder"  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
 				  &nbsp;&nbsp;
 	    		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="Previous Folder"  rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}">
