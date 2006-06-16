@@ -4734,7 +4734,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				inherited = true;
 				access = entity.getInheritedAccess();
 			}
-			if(isDropbox || AccessMode.SITE.equals(access) || AccessMode.INHERITED.equals(access))
+			if(isDropbox || AccessMode.SITE == access || AccessMode.INHERITED == access || AccessMode.PUBLIC == access)
 			{
 				// site
 				ref.addSiteContextAuthzGroup(rv);
@@ -6302,8 +6302,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Iterator siteIt = othersites.keySet().iterator();
 		while (siteIt.hasNext())
 		{
-			String displayName = (String) siteIt.next();
-			String collId = (String) othersites.get(displayName);
+			String collId = (String) siteIt.next();
+			String displayName = (String) othersites.get(collId);
 			List artifacts = getFlatResources(collId);
 			globalList.addAll(filterArtifacts(artifacts, type, primaryMimeType, subMimeType));
 		}
