@@ -149,7 +149,7 @@
               <td align="left">
  							  <h:selectOneListbox size="1" id="viewlist" value="#{PrivateMessagesTool.selectedLabel}">
             		  <f:selectItem itemLabel="Normal" itemValue="Normal"/>
-            		  <f:selectItem itemLabel="Low Priority" itemValue="Low Priority"/>
+            		  <f:selectItem itemLabel="Low" itemValue="Low Priority"/>
             		  <f:selectItem itemLabel="High Priority" itemValue="High Priority"/>
           			</h:selectOneListbox>  
               </td>                           
