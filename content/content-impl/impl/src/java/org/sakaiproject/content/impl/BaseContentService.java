@@ -1290,7 +1290,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // getCollection
 	
 	/**
-	 * Access a List of ContentEntity (resources and collections) objects in this path (and below) to which the current user has access.
+	 * Access a List of ContentEntity objects (resources and collections) in this path (and below) if the current user has access to the collection.
 	 * 
 	 * @param id
 	 *        A collection id.
@@ -1306,7 +1306,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			ContentCollection collection = getCollection(id);
 			if (collection != null)
 			{
-				getAllResources(collection, rv, true);
+				getAllEntities(collection, rv, true);
 			}
 		}
 		catch (TypeException e)
@@ -1324,7 +1324,47 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		return rv;
 
-	} // getAllResources
+	} // getAllEntities
+
+	/**
+	 * Access a List of all the ContentResource objects in this collection (and below).
+	 * 
+	 * @param collection
+	 *        The collection.
+	 * @param rv
+	 *        The list in which to accumulate resource objects.
+	 * @param includeCollections TODO
+	 */
+	protected void getAllEntities(ContentCollection collection, List rv, boolean includeCollections)
+	{
+		if(includeCollections)
+		{
+			rv.add(collection);
+		}
+		
+		List members = collection.getMemberResources();
+
+		// process members
+		for (Iterator iMbrs = members.iterator(); iMbrs.hasNext();)
+		{
+			ContentEntity next = (ContentEntity) iMbrs.next();
+
+			// if resource, add it if permitted
+
+			if (next instanceof ContentResource)
+			{
+				rv.add(next);
+			}
+	
+			// if collection, again
+			else
+			{
+				getAllEntities((ContentCollection) next, rv, includeCollections);
+			}
+		}
+
+	} // getAllEntities
+	
 
 	/**
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
@@ -1340,19 +1380,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// get the collection members
 		try
 		{
-			ContentCollection collection = getCollection(id);
+			ContentCollection collection = findCollection(id);
 			if (collection != null)
 			{
 				getAllResources(collection, rv, false);
 			}
 		}
 		catch (TypeException e)
-		{
-		}
-		catch (IdUnusedException e)
-		{
-		}
-		catch (PermissionException e)
 		{
 		}
 
@@ -1373,7 +1407,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		if(includeCollections)
 		{
-			rv.add(collection);
+			if (unlockCheck(EVENT_RESOURCE_READ, collection.getId()))
+			{
+				rv.add(collection);
+			}
 		}
 		
 		List members = collection.getMemberResources();
@@ -1381,27 +1418,27 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// process members
 		for (Iterator iMbrs = members.iterator(); iMbrs.hasNext();)
 		{
-			Object next = iMbrs.next();
+			ContentEntity next = (ContentEntity) iMbrs.next();
 
 			// if resource, add it if permitted
 
-			if (unlockCheck(EVENT_RESOURCE_READ, ((ContentEntity) next).getId()))
-			{
 			if (next instanceof ContentResource)
 			{
+				if (unlockCheck(EVENT_RESOURCE_READ, next.getId()))
+				{
 					rv.add(next);
 				}
+			}
 	
 			// if collection, again
 			else
 			{
-					getAllResources((ContentCollection) next, rv, includeCollections);
-				}
+				getAllResources((ContentCollection) next, rv, includeCollections);
 			}
 		}
 
 	} // getAllResources
-
+	
 	/**
 	 * Access the collection with this local resource id. Internal find does the guts of finding without security or event tracking. The collection internal members and properties are accessible from the returned Colelction object.
 	 * 
