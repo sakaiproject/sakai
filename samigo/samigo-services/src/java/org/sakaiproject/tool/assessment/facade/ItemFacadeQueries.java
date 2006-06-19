@@ -213,15 +213,21 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
   public void deleteItem(Long itemId, String agent) {
     ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
+/*
+    // for debugging
     if (item != null) {
       printItem(item);
     }
+*/
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
       try {
 	SectionDataIfc section = item.getSection();
-        Set set = section.getItemSet();
-        set.remove(item);
+        // section might be null if you are deleting an item created inside a pool, that's not linked to any assessment. 
+        if (section !=null) {
+          Set set = section.getItemSet();
+          set.remove(item);
+        }
         getHibernateTemplate().delete(item);
         retryCount = 0;
       }
@@ -230,9 +236,11 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
+/*
       if (item != null) {
         printItem(item);
       }
+*/
   }
 
 
