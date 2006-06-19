@@ -56,7 +56,7 @@
    <h:outputLabel  styleClass="form_label" value="#{msg.choose_file}"/>
     <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>
-    <corejsf:upload target="jsf/upload_tmp/qti_imports"
+    <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
       valueChangeListener="#{xmlImport.importFromQti}"/>
    </div>
     <br/>
