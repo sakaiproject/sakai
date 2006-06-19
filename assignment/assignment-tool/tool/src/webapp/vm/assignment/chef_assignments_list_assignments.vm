@@ -1,6 +1,6 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - list view
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript" language="JavaScript">d
   focus_path = ["search"];
 </script>
 <div class="portletBody">
@@ -85,7 +85,6 @@
 				<div class="instruction">$tlang.getString("stulistassig.selanass")</div>
 			</div>
 		#end
-		#if ($!allowRead)
 		<div class="listNav">
 			<div  class="instruction">
 				$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
@@ -141,7 +140,6 @@
 			#end
 		</div>
 	</div>
-	#end	
 		<form name="listAssignmentsForm" action="#toolForm("$action")" method="post">
 			<input type="hidden" name="source" value="0" />			
 			<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("gen.ass.lis.sum")">
@@ -252,7 +250,7 @@
 							</a>
 						</th>
 					#end
-					#if ($!allowRemove && $!view.equals('lisofass1'))
+					#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 						<th id="remove" class="screenOnly"> 
 							$tlang.getString("gen.remove.q")
 						</th>
@@ -260,11 +258,20 @@
 				</tr>
 				#set ($assignmentCount = 0)
 				#foreach ($assignment in $assignments)
-					#set($submission=false)
-					#set($submission=$service.getSubmission($assignment.Reference, $user))
 					#set ($assignmentReference = $assignment.Reference)
+					#set($assignmentProperties=$!assignment.getProperties())
+					## all allow function results
+					#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignmentReference))
+					#if (!($!allowAddAssignment && $!view.equals('lisofass1')))
+						## get submission instance only if 1) not an intructor type user or 2) is an instructor type user but in student view
+						#set($submission=false)
+						#set($submission=$service.getSubmission($assignment.Reference, $user))
+						#set($submissionReturned=$!submission.returned)
+						#set($submissionSubmitted=$!submission.submitted)
+						#set($submissionProperties=$!submission.getProperties())
+					#end
 					#set ($assignmentCount = $assignmentCount + 1)
-					#if (($assignment.draft && $service.allowUpdateAssignment($assignmentReference)) || (!$assignment.draft && $service.allowGetAssignment($assignmentReference)))
+					#if ((!$assignment.draft) || ($assignment.draft && $!allowUpdateAssignment))
 						<tr> 
 							<td headers="attachments" class="attach">
 								#set ($attachments = $assignment.getContent().getAttachments())
@@ -288,12 +295,12 @@
 									#if ($!allowAddAssignment && $!view.equals('lisofass1'))
 										<h4>
 											## normal instructor view
-											#if ($assignment.draft && $!service.allowUpdateAssignment($assignmentReference) )
+											#if ($assignment.draft && $!allowUpdateAssignment )
 												<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
 													<span class="highlight">$tlang.getString("gen.dra2") </span>
 														$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
 												</a>
-											#elseif ($!service.allowGetAssignment($assignmentReference))
+											#else
 												<a href="#toolLinkParam("$action" "doView_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">
 													$validator.limit($validator.escapeHtml($!assignment.getTitle()), 40)
 												</a>
@@ -301,7 +308,7 @@
 										</h4>
 										<div class="itemAction">
 											#set($prevAction=false)
-											#if ($service.allowUpdateAssignment($assignmentReference))#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
+											#if ($!allowUpdateAssignment)#set($prevAction=true)<a href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("revise")</a>#end
 											#if ($allowAddAssignment)#if($prevAction) | #else#set($prevAction=true)#end<a href="#toolLinkParam("$action" "doDuplicate_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">$!tlang.getString("dupli")</a>#end
 											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end<a href="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end
 										</div>
@@ -309,7 +316,7 @@
 										#if ($!allowAddAssignment)
 											#if ($!submission)
 												
-												#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submission.submitted)
+												#if (($!submissionReturned && $!submissionProperties.getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submissionSubmitted)
 													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 												#else
 													<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
@@ -328,7 +335,7 @@
 										#else
 											#if($!allowSubmit)
 												#if ($!submission)
-													#if (($!submission.returned && $submission.getProperties().getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true")) || !$!submission.submitted)
+													#if (($!submissionReturned && $!submissionProperties.getProperty("grade_submission_allow_resubmit").equalsIgnoreCase("true"))|| !$!submissionSubmitted)
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
 													#else
@@ -343,7 +350,7 @@
 											#end
 										#end
 										#set ($deleted = false)
-										#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+										#set ($deleted = $assignmentProperties.getProperty($assignmentProperties.getNamePropAssignmentDeleted()))
 										#if ($!deleted.equalsIgnoreCase("true"))
 											<span class="highlight">$tlang.getString("stulistassig.asshasbee1")</span>
 										#end
@@ -387,8 +394,8 @@
 									#end
 								#else
 									#if ($!submission)
-										  #if ($submission.getSubmitted())
-											#if ($submission.returned)
+										  #if ($submissionSubmitted)
+											#if ($submissionReturned)
 												#if ($submission.TimeReturned.after($submission.TimeSubmitted))
 													$tlang.getString("gen.returned")
 												#else
@@ -474,7 +481,7 @@
 									#end
 								</td>
 							#end
-							#if ($!allowRemove && $!view.equals('lisofass1'))
+							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
 									<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
 									<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove")</label> 
@@ -484,7 +491,7 @@
 					#end
 				#end
 			</table>
-			#if ($!allowRemove && $!view.equals('lisofass1'))
+			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
 					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("update")" accesskey="s" />
 				</p>

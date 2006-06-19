@@ -92,13 +92,11 @@ import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -374,15 +372,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
-		if (!SecurityService.unlock(lock1, resource))
-		{
-			if (!SecurityService.unlock(lock2, resource))
-			{
-				return false;
-			}
-		}
+		// check the first lock
+		if (SecurityService.unlock(lock1, resource)) return true;
 
-		return true;
+		// if the second is different, check that
+		if ((lock1 != lock2) && (SecurityService.unlock(lock2, resource))) return true;
+
+		return false;
 
 	} // unlockCheck2
 
@@ -763,6 +759,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENT : REF : " + assignmentReference);
 
+		// check security on the assignment
+		unlockCheck(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+		
+		Assignment assignment = findAssignment(assignmentReference);
+		
+		if (assignment == null) throw new IdUnusedException(assignmentReference);
+
+		// track event
+		// EventTrackingService.post(EventTrackingService.newEvent(EVENT_ACCESS_ASSIGNMENT, assignment.getReference(), false));
+
+		return assignment;
+
+	}// getAssignment
+	
+	protected Assignment findAssignment(String assignmentReference)
+	{
 		Assignment assignment = null;
 
 		String assignmentId = assignmentId(assignmentReference);
@@ -782,32 +794,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		else
 		{
-			// // if we have done this already in this thread, use that
-			// assignment = (Assignment) CurrentService.getInThread(assignmentId+".assignment.assignment");
-			// if (assignment == null)
-			// {
 			assignment = m_assignmentStorage.get(assignmentId);
-			//				
-			// // "cache" the assignment in the current service in case they are needed again in this thread...
-			// if (assignment != null)
-			// {
-			// CurrentService.setInThread(assignmentId+".assignment.assignment", assignment);
-			// }
-			// }
 		}
-
-		if (assignment == null) throw new IdUnusedException(assignmentId);
-
-		unlock(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
-
-		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GOT ASSIGNMENT : ID : " + assignment.getId());
-
-		// track event
-		// EventTrackingService.post(EventTrackingService.newEvent(EVENT_ACCESS_ASSIGNMENT, assignment.getReference(), false));
-
+		
 		return assignment;
-
-	}// getAssignment
+	}
 
 	/**
 	 * Access all assignment objects - known to us (not from external providers).
@@ -880,11 +871,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		List rv = new Vector();
-		Collection allowedGroups = getGroupsAllowGetAssignment(context);
-		Assignment tempAssignment = null;
+		
+		// check for the allowed groups of the current end use if we need it, and only once
+		Collection allowedGroups = null;
+		
 		for (int x = 0; x < assignments.size(); x++)
 		{
-			tempAssignment = (Assignment) assignments.get(x);
+			Assignment tempAssignment = (Assignment) assignments.get(x);
 			if (tempAssignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
 			{
 				// if grouped, check that the end user has get access to any of this assignment's groups; reject if not
@@ -892,17 +885,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// check the assignment's groups to the allowed (get) groups for the current user
 				Collection asgGroups = tempAssignment.getGroups();
 
-				// add if there is intersection
-				if (isIntersectionGroupRefsToGroups(asgGroups, allowedGroups))
+				// we need the allowed groups, so get it if we have not done so yet
+				if (allowedGroups == null)
 				{
-					rv.add(tempAssignment);
+					allowedGroups = getGroupsAllowGetAssignment(context);
 				}
+				
+				// reject if there is no intersection
+				if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
 			}
-			else
-			{
-				// for site assignment, add it
-				rv.add(tempAssignment);
-			}
+			
+			/// if not reject, add it
+			rv.add(tempAssignment);
 		}
 
 		return rv;
@@ -919,7 +913,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @return true if there is interesection, false if not.
 	 */
 	protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
-	{
+	{	
 		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
 		{
 			String findThisGroupRef = (String) iRefs.next();
@@ -1081,14 +1075,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(assignment.getReference()));
+				AuthzGroupService.removeAuthzGroup(assignment.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
 				M_log.warn("removeAssignment: removing realm for : " + assignment.getReference() + " : " + e);
-			}
-			catch (GroupNotDefinedException ignore)
-			{
 			}
 		}
 
@@ -1275,6 +1266,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET CONTENT : ID : " + contentReference);
 
+		// check security on the assignment content
+		unlockCheck(SECURE_ACCESS_ASSIGNMENT_CONTENT, contentReference);
+		
 		AssignmentContent content = null;
 
 		// if we have it in the cache, use it
@@ -1309,8 +1303,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// }
 		}
 
-		// check security
-		unlock(SECURE_ACCESS_ASSIGNMENT_CONTENT, contentReference);
 		if (content == null) throw new IdUnusedException(contentId);
 
 		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GOT ASSIGNMENT CONTENT : ID : " + content.getId());
@@ -2008,6 +2000,54 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public List getListAssignmentsForContext(String context)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENTS FOR CONTEXT : CONTEXT : " + context);
+		Assignment tempAssignment = null;
+		Vector retVal = new Vector();
+		List allAssignments = new Vector();
+
+		if (context != null)
+		{
+			allAssignments = getAssignments(context);
+			for (int x = 0; x < allAssignments.size(); x++)
+			{
+				tempAssignment = (Assignment) allAssignments.get(x);
+				// M_log.info("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENTS FOR CONTEXT : GOT AN ASSIGNMENT : " + tempAssignment.getTitle());
+				// M_log.info("ASSIGNMENT : BASE SERVICE : GET ASSIGNMENTS FOR CONTEXT : ASSIGNMENT'S CONTEXT : " + tempAssignment.getContext());
+
+				if ((context.equals(tempAssignment.getContext()))
+						|| (context.equals(getGroupNameFromContext(tempAssignment.getContext()))))
+				{
+					String deleted = tempAssignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+					if (deleted == null || deleted.equals(""))
+					{
+						// not deleted, show it
+						if (tempAssignment.getDraft())
+						{
+							// for draft assignment, only admin users or the creator can see it
+							if (SecurityService.isSuperUser()
+									|| tempAssignment.getCreator().equals(UserDirectoryService.getCurrentUser().getId()))
+							{
+								retVal.add(tempAssignment);
+							}
+						}
+						else
+						{
+							retVal.add(tempAssignment);
+						}
+					}
+				}
+			}
+		}
+
+		return retVal;
+
+	}
+	
+	/**
 	 * Access a User's AssignmentSubmission to a particular Assignment.
 	 * 
 	 * @param assignmentReference
@@ -2101,17 +2141,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Iterator getSubmissions(Assignment assignment)
 	{
-		AssignmentSubmission submission = null;
-		Vector retVal = new Vector();
+		List retVal = new Vector();
 
 		if (assignment != null)
 		{
-			List allSubmissions = getSubmissions(assignment.getId());
-			for (int x = 0; x < allSubmissions.size(); x++)
-			{
-				submission = (AssignmentSubmission) allSubmissions.get(x);
-				if (assignment.getId().equals(submission.getAssignmentId())) retVal.add(submission);
-			}
+			retVal = getSubmissions(assignment.getId());
 		}
 
 		if (retVal.isEmpty())
@@ -2134,6 +2168,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public AssignmentSubmission getSubmission(String submissionReference) throws IdUnusedException, PermissionException
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GET SUBMISSION : REF : " + submissionReference);
+		
+		// check permission
+		unlock2(SECURE_ACCESS_ASSIGNMENT_SUBMISSION, SECURE_ACCESS_ASSIGNMENT, submissionReference);
 
 		AssignmentSubmission submission = null;
 
@@ -2170,10 +2207,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		if (submission == null) throw new IdUnusedException(submissionId);
-
-		unlock2(SECURE_ACCESS_ASSIGNMENT_SUBMISSION, SECURE_ACCESS_ASSIGNMENT, submissionReference);
-
-		if (M_log.isDebugEnabled()) M_log.debug("ASSIGNMENT : BASE SERVICE : GOT SUBMISSION : ID : " + submission.getId());
 
 		// track event
 		// EventTrackingService.post(EventTrackingService.newEvent(EVENT_ACCESS_ASSIGNMENT_SUBMISSION, submission.getReference(), false));
@@ -2258,16 +2291,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// if the user can SECURE_ADD_ASSIGNMENT anywhere in that mix, they can add an assignment
 		// this stack is not the normal azg set for site, so use a special refernce to get this behavior
 
-		String specialReference = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + REF_TYPE_SITE_GROUPS
-				+ Entity.SEPARATOR + context;
-
 		if (M_log.isDebugEnabled())
 		{
 			M_log.debug("Entering allow add Assignment with resource string : " + resourceString);
-			M_log.debug("                                    context string : " + context);
 		}
 
-		return unlockCheck(SECURE_ADD_ASSIGNMENT, resourceString);
+		// checking allow at the site level
+		if (unlockCheck(SECURE_ADD_ASSIGNMENT, resourceString)) return true;
+
+		// if not, see if the user has any groups to which adds are allowed
+		return (!getGroupsAllowAddAssignment(context).isEmpty());
 	}
 
 	/**
@@ -2276,13 +2309,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public boolean allowAddSiteAssignment(String context)
 	{
 		// check for assignments that will be site-wide:
-		// base the check for SECURE_ADD_ASSIGNMENT on the site only (not the groups).
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context;
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context  + Entity.SEPARATOR;
 
 		if (M_log.isDebugEnabled())
 		{
 			M_log.debug("Entering allow add Assignment with resource string : " + resourceString);
-			M_log.debug("                                    context string : " + context);
 		}
 
 		// check security on the channel (throws if not permitted)
@@ -2297,26 +2328,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context);
 	}
 
-	/**
-	 * Check permissions for accessing an Assignment.
-	 * 
-	 * @param assignmentReference -
-	 *        The Assignment's reference.
-	 * @return True if the current User is allowed to access the Assignment, false if not.
+	/** 
+	 * @inherit
 	 */
-	public boolean allowGetAssignment(String assignmentReference)
+	public boolean allowGetAssignment(String context)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("Entering allow get Assignment with reference string : " + assignmentReference);
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
 
-		return unlockCheck(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("Entering allow get Assignment with resource string : " + resourceString);
+		}
+
+		return unlockCheck(SECURE_ACCESS_ASSIGNMENT, resourceString);
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public Collection getGroupsAllowGetAssignment(String assignmentReference)
+	public Collection getGroupsAllowGetAssignment(String context)
 	{
-		return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+		return getGroupsAllowFunction(SECURE_ACCESS_ASSIGNMENT, context);
 	}
 
 	/**
@@ -2334,26 +2366,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public Collection getGroupsAllowUpdateAssignment(String assignmentReference)
-	{
-		return getGroupsAllowFunction(SECURE_UPDATE_ASSIGNMENT, assignmentReference);
-	}
-
-	/**
 	 * Check permissions for removing an Assignment.
 	 * 
-	 * @param assignmentReference -
-	 *        The Assignment's reference.
 	 * @return True if the current User is allowed to remove the Assignment, false if not.
 	 */
-	public boolean allowRemoveAssignment(String assignmentReference)
+	public boolean allowRemoveAssignment(String context)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("Entering allow remove Assignment with resource string : " + assignmentReference);
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+
+		if (M_log.isDebugEnabled()) M_log.debug("Entering allow remove Assignment " + resourceString);
 
 		// check security (throws if not permitted)
-		return unlockCheck(SECURE_REMOVE_ASSIGNMENT, assignmentReference);
+		return unlockCheck(SECURE_REMOVE_ASSIGNMENT, resourceString);
 	}
 
 	/**
@@ -2370,29 +2394,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param function
 	 *        The function to check
 	 */
-	protected Collection getGroupsAllowFunction(String function, String reference)
+	protected Collection getGroupsAllowFunction(String function, String context)
 	{
 		Collection rv = new Vector();
-
-		String siteId = "";
-		ToolSession ts = SessionManager.getCurrentToolSession();
-		if (ts != null)
-		{
-			ToolConfiguration tool = SiteService.findTool(ts.getPlacementId());
-			if (tool != null)
-			{
-				siteId = tool.getSiteId();
-			}
-		}
-
+		
 		try
 		{
-			// get the channel's site's groups
-			Site site = SiteService.getSite(siteId);
+			// get the site groups
+			Site site = SiteService.getSite(context);
 			Collection groups = site.getGroups();
 
-			// if the user has "all group" permission for the site, and the function for the site, select all site groups
-			if (unlockCheck(SECURE_ALL_GROUPS, assignmentReference(siteId, "")))
+			// if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
+			if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context)))
 			{
 				return groups;
 			}
@@ -2408,8 +2421,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(UserDirectoryService.getCurrentUser().getId(), function,
-					groupRefs);
+			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(),
+					function, groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
 			for (Iterator i = groups.iterator(); i.hasNext();)
@@ -2426,6 +2439,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		return rv;
+		
 	}
 
 	/** ***********************************************check permissions for AssignmentContent object ******************************************* */
@@ -2436,12 +2450,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *        The AssignmentContent reference.
 	 * @return True if the current User is allowed to access the AssignmentContent, false if not.
 	 */
-	public boolean allowGetAssignmentContent(String contentReference)
+	public boolean allowGetAssignmentContent(String context)
 	{
-		if (M_log.isDebugEnabled()) M_log.debug("Entering allow get AssignmentContent with resource string : " + contentReference);
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "c" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("Entering allow get AssignmentContent with resource string : " + resourceString);
+		}
 
 		// check security (throws if not permitted)
-		return unlockCheck(SECURE_ACCESS_ASSIGNMENT_CONTENT, contentReference);
+		return unlockCheck(SECURE_ACCESS_ASSIGNMENT_CONTENT, resourceString);
 	}
 
 	/**
@@ -3257,26 +3276,69 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Collection getEntityAuthzGroups(Reference ref)
 	{
-		// double check that it's mine
-		if (APPLICATION_ID != ref.getType()) return null;
-
 		Collection rv = new Vector();
+
+		// for AssignmentService assignments:
+		// if access set to SITE, use the assignment and site authzGroups.
+		// if access set to GROUPED, use the assignment, and the groups, but not the site authzGroups.
+		// if the user has SECURE_ALL_GROUPS in the context, ignore GROUPED access and treat as if SITE
 
 		try
 		{
-			// site
-			ref.addSiteContextAuthzGroup(rv);
+			// for assignment
+			if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
+			{
+				// assignment
+				rv.add(ref.getReference());
+				
+				boolean grouped = false;
+				Collection groups = null;
 
-			// specific
-			rv.add(ref.getReference());
+				// check SECURE_ALL_GROUPS - if not, check if the assignment has groups or not
+				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
+				if (!AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))
+				{
+					// get the channel to get the message to get group information
+					// TODO: check for efficiency, cache and thread local caching usage -ggolden
+					if (ref.getId() != null)
+					{
+						Assignment a = findAssignment(ref.getReference());
+						if (a != null)
+						{
+							grouped = Assignment.AssignmentAccess.GROUPED == a.getAccess();
+							groups = a.getGroups();
+						}
+					}
+				}
 
-			// mid way - for submission, the assignment reference %%% id is in continer 2
+				if (grouped)
+				{
+					// groups
+					rv.addAll(groups);
+				}
+
+				// not grouped
+				else
+				{
+					// site
+					ref.addSiteContextAuthzGroup(rv);
+				}
+			}
+			else
+			{
+				rv.add(ref.getReference());
+				
+				// for content and submission, use site security setting
+				ref.addSiteContextAuthzGroup(rv);
+			}
 		}
 		catch (Throwable e)
 		{
+			M_log.warn("getEntityAuthzGroups(): " + e);
 		}
 
 		return rv;
+		
 	}
 
 	/**

@@ -571,6 +571,15 @@ public interface AssignmentService extends EntityProducer
 	 * @return Iterator over all the Assignments associated with a group.
 	 */
 	public Iterator getAssignmentsForContext(String context);
+	
+	/**
+	 * Access all the Assignemnts that are not deleted and self-drafted ones
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return List All the Assignments will be listed
+	 */
+	public List getListAssignmentsForContext(String context);
 
 	/**
 	 * Access a User's AssignmentSubmission to a particular Assignment.
