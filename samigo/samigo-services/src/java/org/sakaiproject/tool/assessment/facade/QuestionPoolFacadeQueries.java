@@ -252,7 +252,7 @@ public class QuestionPoolFacadeQueries
   public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
                                                final String orderBy) {
 	    
-	  // comment out before check in
+	  // Fixed for bug 3559
 	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: orderBy=" + orderBy);  
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -882,7 +882,7 @@ public class QuestionPoolFacadeQueries
     boolean isUnique = true;
     if(list.size()>0) {
      // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
-     // are looking
+     // are looking (SAK-3110)
     	for (int i=0; i<list.size();i++){  
     		QuestionPoolData q = (QuestionPoolData) list.get(i);
     		if ((title).equals(q.getTitle().trim())){
