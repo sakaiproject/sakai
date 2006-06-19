@@ -121,7 +121,28 @@ public String addNewUser( String sessionid, String userid, String firstname, Str
 	try {
 
 		User addeduser = null;
-		addeduser = UserDirectoryService.addUser(userid, firstname, lastname, email, password, type, null);
+		addeduser = UserDirectoryService.addUser(null, userid, firstname, lastname, email, password, type, null);
+	
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+public String addNewUser( String sessionid, String id ,String eid, String firstname, String lastname, String email, String type, String password) throws AxisFault
+{
+	Session session = establishSession(sessionid);
+	
+	if (!SecurityService.isSuperUser())
+	{
+		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+        throw new AxisFault("NonSuperUser trying to add accounts: " + session.getUserId());
+	}
+	try {
+
+		User addeduser = null;
+		addeduser = UserDirectoryService.addUser(id, eid, firstname, lastname, email, password, type, null);
 	
 	}
 	catch (Exception e) {  
