@@ -5389,7 +5389,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 			// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
-			if (m_siteAlias && checkForAlias && (context != null))
+			if (m_siteAlias && checkForAlias && (context != null) && (context.length() > 0))
 			{
 				if (!m_siteService.siteExists(context))
 				{
