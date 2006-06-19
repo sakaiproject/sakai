@@ -45,15 +45,15 @@
                 <xsl:for-each select="/entity-service/entity/changes/change">
                     <item>
                         <title>
-                            <xsl:value-of select="@local-name"/>
+                            <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
                         </title>
                         <link>
                             <xsl:value-of
-                                select="concat($baseurl,'/access/wiki',@name,',',@revision,'.html')"
+                                select="concat($baseurl,'/access/wiki',@name,'.html')"
                             />
                         </link>
                         <description>
-                            <xsl:value-of select="content/contentdigest"/>
+                            <xsl:copy-of select="content/rendered-cdata/node()"/>
                         </description>
                     </item>
                 </xsl:for-each>

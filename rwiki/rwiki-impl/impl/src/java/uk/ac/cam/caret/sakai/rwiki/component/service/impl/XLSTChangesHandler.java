@@ -54,7 +54,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.SchemaNames;
  */
 public class XLSTChangesHandler extends XSLTEntityHandler
 {
-	private RWikiObjectService rwikObjectService = null;
+	private RWikiObjectService rwikiObjectService = null;
 
 	/**
 	 * {@inheritDoc}
@@ -168,6 +168,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			if (entity instanceof RWikiEntity)
 			{
 				RWikiEntity rwe = (RWikiEntity) entity;
+				
+				
+				
 				if (!rwe.isContainer())
 				{
 					RWikiObject rwo = rwe.getRWikiObject();
@@ -177,8 +180,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					addElement(ch, SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_XMLPROPERTY,
 							SchemaNames.EL_NSXMLPROPERTY, propA,
-							NameHelper.localizeName(rwo.getName(), rwo
-									.getRealm()));
+							NameHelper.localizeName(rwo.getName(), rwo.getRealm()));
 				}
 				else
 				{
@@ -277,7 +279,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 	{
 		if (!isAvailable()) return;
 
-		List changes = rwikObjectService.findRWikiHistoryObjectsInReverse(rwo);
+		List changes = rwikiObjectService.findRWikiHistoryObjectsInReverse(rwo);
 		if (changes == null) return;
 		for (Iterator i = changes.iterator(); i.hasNext();)
 		{
@@ -285,8 +287,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
 					"string", rwco.getId());
+			// FIXME why do we know about "," here?! 
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", rwco.getName());
+					SchemaNames.ATTR_NAME, "string", rwco.getName() + "," + rwco.getRevision());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
 					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
 							.localizeName(rwo.getName(), rwo.getRealm()));
@@ -328,7 +331,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 
 		Decoded d = decode(rwe.getReference() + getMinorType());
 		String basepath = d.getContext() + d.getContainer();
-		List changes = rwikObjectService.findAllChangedSince(g.getTime(),
+		List changes = rwikiObjectService.findAllChangedSince(g.getTime(),
 				basepath);
 		int nchanges = 0;
 		for (Iterator i = changes.iterator(); i.hasNext() && nchanges < 20;)
@@ -370,20 +373,20 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 	}
 
 	/**
-	 * @return Returns the rwikObjectService.
+	 * @return Returns the rwikiObjectService.
 	 */
-	public RWikiObjectService getRwikObjectService()
+	public RWikiObjectService getRwikiObjectService()
 	{
-		return rwikObjectService;
+		return rwikiObjectService;
 	}
 
 	/**
-	 * @param rwikObjectService
-	 *        The rwikObjectService to set.
+	 * @param rwikiObjectService
+	 *        The rwikiObjectService to set.
 	 */
-	public void setRwikObjectService(RWikiObjectService rwikObjectService)
+	public void setRwikiObjectService(RWikiObjectService rwikiObjectService)
 	{
-		this.rwikObjectService = rwikObjectService;
+		this.rwikiObjectService = rwikiObjectService;
 	}
 
 }

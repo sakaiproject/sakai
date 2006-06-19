@@ -33,7 +33,7 @@
                     <xsl:value-of select="/entity-service/entity/properties/property[@name='_title']"/>
                 </title>
                 <description>
-                    <xsl:value-of select="/entity-service/entity/properties/property[@name='_description']"
+                    <xsl:copy-of select="/entity-service/entity/properties/property[@name='_description']"
                     />
                 </description>
                 <link>
@@ -45,25 +45,25 @@
                 <items>
                     <rdf:Seq>
                         <xsl:for-each select="/entity-service/entity/changes/change">
-                            <rdf:li rdf:resource="{concat($baseurl,'/access/wiki',@name,',',@revision,'.html')}"/>
+                            <rdf:li rdf:resource="{concat($baseurl,'/access/wiki',@name,'.html')}"/>
                         </xsl:for-each>
                     </rdf:Seq>
                 </items>
             </channel>
             <xsl:for-each select="/entity-service/entity/changes/change">
-                <item rdf:about="{concat($baseurl,'/access/wiki',@name,',',@revision,'.html')}">
+                <item rdf:about="{concat($baseurl,'/access/wiki',@name,'.html')}">
                     <dc:format>text/html</dc:format>
                     <dc:source>
                         <xsl:value-of select="$baseurl"/>
                     </dc:source>
                     <title>
-                        <xsl:value-of select="@local-name"/>
+                        <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
                     </title>
                     <link>
-                        <xsl:value-of select="concat($baseurl,'/access/wiki',@name,',',@revision,'.html')"/>
+                        <xsl:value-of select="concat($baseurl,'/access/wiki',@name,'.html')"/>
                     </link>
                     <description>
-                        <xsl:value-of select="content/contentdigest"/>
+                        <xsl:value-of select="content/rendered-cdata/node()"/>
                     </description>
                 </item>
             </xsl:for-each>

@@ -239,22 +239,22 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			{
 				AttributesImpl propA = new AttributesImpl();
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PATH_INFO,
-						SchemaNames.ATTR_REQUEST_PATH_INFO, "sting", request
+						SchemaNames.ATTR_REQUEST_PATH_INFO, "string", request
 								.getPathInfo());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_USER,
-						SchemaNames.ATTR_REQUEST_USER, "sting", request
+						SchemaNames.ATTR_REQUEST_USER, "string", request
 								.getRemoteUser());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_PROTOCOL,
-						SchemaNames.ATTR_REQUEST_PROTOCOL, "sting", request
+						SchemaNames.ATTR_REQUEST_PROTOCOL, "string", request
 								.getProtocol());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_NAME,
-						SchemaNames.ATTR_REQUEST_SERVER_NAME, "sting", request
+						SchemaNames.ATTR_REQUEST_SERVER_NAME, "string", request
 								.getServerName());
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_SERVER_PORT,
-						SchemaNames.ATTR_REQUEST_SERVER_PORT, "sting", String
+						SchemaNames.ATTR_REQUEST_SERVER_PORT, "string", String
 								.valueOf(request.getServerPort()));
 				propA.addAttribute("", SchemaNames.ATTR_REQUEST_REQUEST_URL,
-						SchemaNames.ATTR_REQUEST_REQUEST_URL, "sting", String
+						SchemaNames.ATTR_REQUEST_REQUEST_URL, "string", String
 								.valueOf(request.getRequestURL()));
 
 				ch.startElement(SchemaNames.NS_CONTAINER,
@@ -419,6 +419,86 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			throws SAXException, IOException
 	{
 
+		String renderedPage;
+		try {
+			renderedPage = render(rwo);
+		} catch (Exception e) {
+			renderedPage = "Exception occured during rendering " + rwo.getName() + "\n Exception: " + e.getClass() + " Message:\n" + e.getMessage();
+			log.info(renderedPage, e);
+		}
+		String contentDigest = DigestHtml.digest(renderedPage);
+		if (contentDigest.length() > 500)
+		{
+			contentDigest = contentDigest.substring(0, 500);
+		}
+		if (renderedPage == null || renderedPage.trim().length() == 0)
+		{
+			renderedPage = "no content on page";
+		}
+		if (contentDigest == null || contentDigest.trim().length() == 0)
+		{
+			contentDigest = "no content on page";
+		}
+		
+		
+		
+		String cdataEscapedRendered = renderedPage.replaceAll("]]>","]]>]]&gt;<![CDATA[");
+		
+		renderedPage = "<content><rendered>" + renderedPage
+				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered  + "]]></rendered-cdata><contentdigest>" + contentDigest
+				+ "</contentdigest></content>";
+		
+		try {
+			parseToSAX(renderedPage, ch);			
+		} catch (SAXException ex) {
+			SimpleCoverage.cover("Failed to parse renderedPage from " + rwo.getName());
+			Attributes dummyAttributes = new AttributesImpl();
+			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
+					SchemaNames.EL_NSERROR, dummyAttributes);
+			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
+					SchemaNames.EL_NSERRORDESC, dummyAttributes);
+			String s = "The Rendered Content did not parse correctly "
+					+ ex.getMessage();
+			ch.characters(s.toCharArray(), 0, s.length());
+			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
+					SchemaNames.EL_NSERRORDESC);
+			ch.startElement(SchemaNames.NS_CONTAINER,
+					SchemaNames.EL_RAWCONTENT, SchemaNames.EL_NSRAWCONTENT,
+					dummyAttributes);
+			ch.characters(renderedPage.toCharArray(), 0, renderedPage.length());
+			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RAWCONTENT,
+					SchemaNames.EL_NSRAWCONTENT);
+			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
+					SchemaNames.EL_NSERROR);
+
+		}
+
+
+//			SimpleCoverage.cover("Failed to parse ::\n" + renderedPage
+//					+ "\n:: from ::\n" + rwo.getContent());
+//			Attributes dummyAttributes = new AttributesImpl();
+//			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
+//					SchemaNames.EL_NSERROR, dummyAttributes);
+//			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
+//					SchemaNames.EL_NSERRORDESC, dummyAttributes);
+//			String s = "The Rendered Content did not parse correctly "
+//					+ ex.getMessage();
+//			ch.characters(s.toCharArray(), 0, s.length());
+//			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
+//					SchemaNames.EL_NSERRORDESC);
+//			ch.startElement(SchemaNames.NS_CONTAINER,
+//					SchemaNames.EL_RAWCONTENT, SchemaNames.EL_NSRAWCONTENT,
+//					dummyAttributes);
+//			ch.characters(renderedPage.toCharArray(), 0, renderedPage.length());
+//			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RAWCONTENT,
+//					SchemaNames.EL_NSRAWCONTENT);
+//			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
+//					SchemaNames.EL_NSERROR);
+
+
+	}
+
+	public void parseToSAX(final String toRender, final ContentHandler ch) throws IOException, SAXException {
 		/**
 		 * create a proxy for the stream, filtering out the start element and
 		 * end element events
@@ -487,7 +567,24 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			}
 
 		};
-
+		InputSource ins = new InputSource(new StringReader(toRender));
+		XMLReader xmlReader;
+		try
+		{
+			xmlReader = XMLReaderFactory
+					.createXMLReader("org.apache.xerces.parsers.SAXParser");
+		}
+		catch (SAXException e)
+		{
+			log.error("SAXException when creating XMLReader", e);
+			//rethrow!!
+			throw e;
+		}
+		xmlReader.setContentHandler(proxy);
+		xmlReader.parse(ins);		
+	}
+	
+	public String render(RWikiObject rwo) {
 		String localSpace = NameHelper.localizeSpace(rwo.getName(), rwo
 				.getRealm());
 		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(
@@ -497,68 +594,18 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		plr.setStandardURLFormat(standardLinkFormat);
 		plr.setUrlFormat(hrefTagFormat);
 
-		String renderedPage = null;
 		if (renderService == null)
 		{
 			// only for testing
-			renderedPage = rwo.getContent();
+			return rwo.getContent();
 		}
 		else
 		{
-			renderedPage = renderService.renderPage(rwo, localSpace, plr);
-		}
-		String contentDigest = DigestHtml.digest(renderedPage);
-		if (contentDigest.length() > 500)
-		{
-			contentDigest = contentDigest.substring(0, 500);
-		}
-		if (renderedPage == null || renderedPage.trim().length() == 0)
-		{
-			renderedPage = "no content on page";
-		}
-		if (contentDigest == null || contentDigest.trim().length() == 0)
-		{
-			contentDigest = "no content on page";
-		}
-
-		renderedPage = "<content><rendered>" + renderedPage
-				+ "</rendered><contentdigest>" + contentDigest
-				+ "</contentdigest></content>";
-		InputSource ins = new InputSource(new StringReader(renderedPage));
-		XMLReader xmlReader = XMLReaderFactory
-				.createXMLReader("org.apache.xerces.parsers.SAXParser");
-		xmlReader.setContentHandler(proxy);
-		try
-		{
-			xmlReader.parse(ins);
-		}
-		catch (Throwable ex)
-		{
-
-			SimpleCoverage.cover("Failed to parse ::\n" + renderedPage
-					+ "\n:: from ::\n" + rwo.getContent());
-			Attributes dummyAttributes = new AttributesImpl();
-			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
-					SchemaNames.EL_NSERROR, dummyAttributes);
-			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
-					SchemaNames.EL_NSERRORDESC, dummyAttributes);
-			String s = "The Rendered Content did not parse correctly "
-					+ ex.getMessage();
-			ch.characters(s.toCharArray(), 0, s.length());
-			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERRORDESC,
-					SchemaNames.EL_NSERRORDESC);
-			ch.startElement(SchemaNames.NS_CONTAINER,
-					SchemaNames.EL_RAWCONTENT, SchemaNames.EL_NSRAWCONTENT,
-					dummyAttributes);
-			ch.characters(renderedPage.toCharArray(), 0, renderedPage.length());
-			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RAWCONTENT,
-					SchemaNames.EL_NSRAWCONTENT);
-			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ERROR,
-					SchemaNames.EL_NSERROR);
+			return renderService.renderPage(rwo, localSpace, plr);
 		}
 
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
