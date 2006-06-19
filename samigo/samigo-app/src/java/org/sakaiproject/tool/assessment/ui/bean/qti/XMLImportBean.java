@@ -28,6 +28,7 @@ import java.util.ResourceBundle;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import java.io.File;
 
 import org.w3c.dom.Document;
 
@@ -171,6 +172,17 @@ public class XMLImportBean implements Serializable
                      AssessmentFacadeQueries.TITLE,true);
     //
     authorBean.setAssessments(list);
+
+    // remove uploaded file
+    try{
+      //System.out.println("****filename="+fileName);
+      File upload = new File(fileName);
+      upload.delete();
+    }
+    catch(Exception e){
+      System.out.println(e.getMessage());
+    }
+
   }
 
   /**
