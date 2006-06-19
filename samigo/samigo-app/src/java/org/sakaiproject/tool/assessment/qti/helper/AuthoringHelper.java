@@ -528,6 +528,7 @@ public class AuthoringHelper
         section.setStatus(new Integer(1));
         section.setSequence(new Integer(sec + 1));
 
+
         List itemList = exHelper.getItemXmlList(sectionXml);
         for (int itm = 0; itm < itemList.size(); itm++) // for each item
         {
@@ -547,6 +548,9 @@ public class AuthoringHelper
           item.setSequence(new Integer(itm + 1));
           // add item to section
           item.setSection(section); // one to many
+// update metadata with PARTID
+	  item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+
           section.addItem(item); // many to one
           itemService.saveItem(item);
         } // ... end for each item
