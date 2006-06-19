@@ -920,7 +920,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					sbi.setName(resourceName);
 					sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 					sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-					sbi.setContext(ecp.getSiteId(resourceName));
+					String context = ecp.getSiteId(resourceName);
+					if ( context == null || context.length() == 0 ) {
+						context = "none";
+					}
+					sbi.setContext(context);
 					session.saveOrUpdate(sbi);
 				}
 			}
