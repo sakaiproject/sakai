@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
+import java.util.Collections;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -249,11 +251,14 @@ public class QuestionPoolFacadeQueries
 
   public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
                                                final String orderBy) {
+	    
+	  // comment out before check in
+	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: orderBy=" + orderBy);  
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
-                        orderBy);
+	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");	    		
 	    		q.setLong(0, questionPoolId.longValue());
+	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getQueryString() = " + q.getQueryString());
 	    		return q.list();
 	    	};
 	    };
@@ -265,24 +270,57 @@ public class QuestionPoolFacadeQueries
 //                                            new org.hibernate.type.Type[] {Hibernate.
 //                                            LONG});
 
-    ArrayList itemList = new ArrayList();
 
+	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: size = " + list.size());
+    HashMap hp = new HashMap();
+    Vector origValueV;
     for (int i = 0; i < list.size(); i++) {
-       ItemData itemdata = (ItemData) list.get(i);
-       ItemFacade f = new ItemFacade(itemdata);
-       itemList.add(f);
+    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: i = " + i);
+        ItemData itemData = (ItemData) list.get(i);
+        log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getItemId = " + itemData.getItemId());
+    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getText = " + itemData.getText());
+        //hp.put(itemData.getText(), new Integer(i));
+    	
+    	origValueV = (Vector) hp.get(itemData.getText());
+    	if (origValueV == null) {
+        	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: origValueV is null ");
+        	origValueV = new Vector();
+    	}
+    	origValueV.add(new Integer(i));
+    	hp.put(itemData.getText(), origValueV);
+    }
+    
+    Vector v = new Vector(hp.keySet());
+    Collections.sort(v);
+    ArrayList itemList = new ArrayList();
+    
+    Iterator it = v.iterator();
+    Vector orderdValueV;
+    while (it.hasNext()) {
+       String key =  (String)it.next();
+       log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (key) = " + key);
+       orderdValueV = (Vector) hp.get(key);
+       Iterator iter = orderdValueV.iterator();
+       while (iter.hasNext()) {
+    	   Integer value =  (Integer)iter.next();
+    	   log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (value) = " + value);
+    	   ItemData itemdata = (ItemData) list.get(value.intValue());
+    	   ItemFacade f = new ItemFacade(itemdata);
+    	   itemList.add(f);
+       }
     }
     return itemList;
-
   }
 
   public List getAllItemFacadesOrderByItemType(final Long questionPoolId,
                                                final String orderBy) {
+	  log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: orderBy=" + orderBy);
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
                         orderBy);
 	    		q.setLong(0, questionPoolId.longValue());
+	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
 	    		return q.list();
 	    	};
 	    };
@@ -294,7 +332,7 @@ public class QuestionPoolFacadeQueries
 //                                            ,
 //                                            new org.hibernate.type.Type[] {Hibernate.
 //                                            LONG});
-
+	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: size = " + list.size());
     ArrayList itemList = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
@@ -330,9 +368,11 @@ public class QuestionPoolFacadeQueries
   }
 
   private void populateQuestionPoolItemDatas(QuestionPoolData qpp) {
+	log.debug("QuestionPoolFacadeQueries: populateQuestionPoolItemDatas start");  
     try {
       Set questionPoolItems = qpp.getQuestionPoolItems();
       if (questionPoolItems != null) {
+    	  
         // let's get all the items for the specified pool in one shot
         HashMap h = new HashMap();
         List itemList = getAllItems(qpp.getQuestionPoolId());
@@ -822,7 +862,7 @@ public class QuestionPoolFacadeQueries
   }
 
 
-public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId, final String agentId) {
+  public boolean poolIsUnique(final Long questionPoolId, final String title, final Long parentPoolId, final String agentId) {
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=? and a.ownerId = ? ");
@@ -839,12 +879,20 @@ public boolean poolIsUnique(final Long questionPoolId, final String title, final
 //        "select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId!= ? and a.title=? and a.parentPoolId=?",
 //        new Object[] {questionPoolId,title,parentPoolId}
 //       , new org.hibernate.type.Type[] {Hibernate.LONG,Hibernate.STRING, Hibernate.LONG});
- if(list.size()>0)
-     return false;
- else return true;
- 
-
-}
+    boolean isUnique = true;
+    if(list.size()>0) {
+     // query in mysql & hsqldb are not case sensitive, check that title found is indeed what we
+     // are looking
+    	for (int i=0; i<list.size();i++){  
+    		QuestionPoolData q = (QuestionPoolData) list.get(i);
+    		if ((title).equals(q.getTitle().trim())){
+    			isUnique = false;
+    			break;
+    		}
+    	}
+    }
+    return isUnique;
+  }
 
 
   /**
