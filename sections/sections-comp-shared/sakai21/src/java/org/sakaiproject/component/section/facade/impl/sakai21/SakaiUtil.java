@@ -60,7 +60,7 @@ public class SakaiUtil {
 	 * @return
 	 */
 	public static final User convertUser(final org.sakaiproject.user.api.User sakaiUser) {
-		UserImpl user = new UserImpl(sakaiUser.getId(), sakaiUser.getDisplayName(),
+		UserImpl user = new UserImpl(sakaiUser.getDisplayId(), sakaiUser.getDisplayName(),
 				sakaiUser.getSortName(), sakaiUser.getId());
 		return user;
 	}
