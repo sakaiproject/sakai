@@ -434,6 +434,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public Long saveMedia(byte[] media, String mimeType){
+    System.out.println("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){ 
@@ -446,10 +447,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
+    System.out.println("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
     return mediaData.getMediaId();
   }
 
   public Long saveMedia(MediaData mediaData){
+    System.out.println("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -461,6 +464,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
+    System.out.println("****"+mediaData.getFilename()+" saved media."+(new Date()));
     return mediaData.getMediaId();
   }
 
