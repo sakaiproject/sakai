@@ -1,24 +1,23 @@
-/* Utopia layout stuff */
-	
+
 	body {
 		text-align:center;
 		}
 	
 	#frame {
-		width:740px;
+		width:990px;
 		margin-right:auto;
 		margin-left:auto;
 		margin-top:10px;
-		padding:0px;
+		margin-bottom:20px;
+		padding:10;
 		background-color:#fff;
 		text-align:left;
 		border-style:solid;
 		border-width:1px;
 		border-color:#999;
-		}
-		
+		}	
 	
-	#contentheader {
+	.navheader {
 		background:#fff
 		}
 		
@@ -30,25 +29,28 @@
 		background:#b0bbcc;
 		}
 		
-	#contentleft {
-		width:210px;
-		float:left;
-		margin-right: 30px;
-		background:#e0e5f0;
-		/* border-style:solid; */
-		border-width:1px;
-		border-color:#fcc;
-		}
-		
 	
-		
-	.pad {
+
+	.sect1 {
 			padding-left: 10px;
 			padding-right: 10px;
 			line-height: 1.4;
 			}
+	
+	.toc {
+			padding-left: 10px;
+			padding-right: 10px;
+			line-height: 1.4;
+			width:210px;
+		    float:left;
+		    margin-right: 30px;
+		    background:#e0e5f0;
+		    /* border-style:solid; */
+		    border-width:1px;
+		    border-color:#fcc;
+			}
 			
-		.pad2 {
+	.pad2 {
 			float: left;
 			padding-top: 10px;
 			padding-left: 10px;
@@ -56,11 +58,12 @@
 			line-height: 1.4;
 			}
 			
-	#contentcenter {
+	.article {
+		float: left;
+		width: 100%;
 		padding-left:0px;
 		padding-right:5px;
 		top:100;
-		float:left; 
 		background:#fff;
 		/* border-style:solid; */
 		border-width:1px;
