@@ -4721,7 +4721,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (paths.length > 1)
 			{
 				String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
-				//rv.add(root);
+				rv.add(root);
 
 				for (int next = 2; next < paths.length - 1; next++)
 				{
