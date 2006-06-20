@@ -60,8 +60,8 @@
 <h:form id="submittedForm">
 <h:messages styleClass="validation" />
 
-    <h:outputText value="#{msg.submission_confirmation_message_1}" /> <br />
-    <h:outputText escape="false" value="#{delivery.submissionMessage}" />
+    <h:outputText value="#{msg.submission_confirmation_message_1}" /> 
+    <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
   <h:panelGrid columns="2">
