@@ -35,16 +35,16 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 
 public class podHomeBean {
-	private final String URLstart = "http://";
-
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
 	private boolean podcastResourceCheckFirstTry;
+	private PodcastService podcastService;
 
 	private String URL;
 	
 	public podHomeBean() {
 		resourceToolExists=false;
+		podcastFolderExists = true;
 		podcastResourceCheckFirstTry=true;
 	}
 
@@ -102,11 +102,12 @@ public class podHomeBean {
 	  }
 	  
 	  public boolean getPodcastFolderExists() {
-		  podcastFolderExists=false;
+		  podcastFolderExists=true;
 		  
 		  if (!resourceToolExists) {
-			  // Resource tool does not exist, ergo Podcast folder must not 
-			  return podcastFolderExists;
+			  // Resource tool does not exist, ergo Podcast folder must not
+			  return true;
+//			  return podcastFolderExists;
 		  }
 		  else {
 			  // we know resources tool exists, but need to know if podcast folder does
@@ -115,9 +116,10 @@ public class podHomeBean {
 			  //                       if they do, construct the list, sort by date,
 			  //                       and return them 
 			  //       else return true
-			  
-			  return false; // podcastFolderExists;
+			  podcastFolderExists = podcastService.getPodcastCollection();
 		  }
+		  
+		  return podcastFolderExists;
 	  }
 	  
 	  public void setPodcastFolderExists(boolean podcastFolderExists) {
@@ -125,14 +127,19 @@ public class podHomeBean {
 	  }
 	  
 	  public String getURL() {
-//			String siteCollection = ContentHostingService.getSiteCollection( ToolManager.getCurrentPlacement().getContext() );
-//			String podcastCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
-
-		  URL = URLstart +  ContentHostingService.getUrl(PodcastService.COLLECTION_PODCASTS);
+		  URL = ContentHostingService.getUrl(Entity.SEPARATOR + PodcastService.COLLECTION_PODCASTS_FEED  );
 		  return URL;
 	  }
 	  
 	  public void setURL(String URL) {
 		  this.URL = URL;
 	  }
+
+	public PodcastService getPodcastService() {
+		return podcastService;
+	}
+
+	public void setPodcastService(PodcastService podcastService) {
+		this.podcastService = podcastService;
+	}
 }

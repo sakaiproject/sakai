@@ -22,6 +22,12 @@
     <managed-bean-name>podHomeBean</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.podcasts.podHomeBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
+<!--	 Need to look at how to do this, work with an interface/implementation in JSF -->
+    <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	</managed-property>   
   </managed-bean>
   <managed-bean>
     <description>Info for Add podcast page</description>
@@ -41,13 +47,6 @@
     <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
-
-<!--	 Need to look at how to do this, work with an interface/implementation in JSF
-    <managed-property>
-		<description>podcastService</description>
-		<property-name>podcastService</property-name>
-		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
-	</managed-property>   -->
 
 	<!-- navigation
 			FROM what page TO what page

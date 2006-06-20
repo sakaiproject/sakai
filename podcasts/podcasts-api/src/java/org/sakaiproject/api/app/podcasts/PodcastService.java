@@ -23,6 +23,8 @@ package org.sakaiproject.api.app.podcasts;
 
 import java.sql.Time;
 import java.util.List;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.tool.api.ToolManager;
 
 // import org.sakaiproject.entity.api.EntityProducer;
 
@@ -30,6 +32,8 @@ public interface PodcastService // extends EntityProducer
 {
   /** This string can be used to find the service in the service manager. */
 	public static final String COLLECTION_PODCASTS = "podcasts";
+	
+	public static final String COLLECTION_PODCASTS_FEED = "podcastsFeed";
 	
 	public static final String COLLECTION_PODCASTS_TITLE = "Podcasts";
 	
@@ -46,5 +50,9 @@ public interface PodcastService // extends EntityProducer
 	public String getSiteId();
 	
 	public boolean getPodcastCollection ();
+	
+	public void setContentHostingService(ContentHostingService chs);
+	
+	public void setToolManager(ToolManager tm);
 
 }

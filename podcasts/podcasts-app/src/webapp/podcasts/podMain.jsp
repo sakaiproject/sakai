@@ -36,6 +36,8 @@
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	  </div>
 
+      <!--  added during test if podcast folder exists -->
+      <h:outputText value="The podcast folder does not exist." styleClass="alertMessage" rendered="! #{podHomeBean.podcastFolderExists}" />
       <!-- if there are no podcasts, display this -->
        	  
       <div class="indnt1" style="position:relative; top:20px;">
