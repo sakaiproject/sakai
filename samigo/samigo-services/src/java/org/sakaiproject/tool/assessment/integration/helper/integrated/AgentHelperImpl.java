@@ -86,7 +86,6 @@ public class AgentHelperImpl implements AgentHelper
    * @return the agent string.
    */
   public String getAgentString(String agentString){
-//log.info("getAgentString(string) = " + agentString);
     String agentS="";
     // this is anonymous user sign 'cos sakai doesn't know about them-daisyf
     try
@@ -100,9 +99,8 @@ public class AgentHelperImpl implements AgentHelper
       }
       else
       {
-//log.info("userdisplayid = " + user.getDisplayId());
-//log.info("userdisplay name = " + user.getDisplayName());
-        agentS = user.getDisplayId();
+log.debug("userdisplayid = " + user.getEid());
+        agentS = user.getEid();
       }
     }
     catch (Exception ex)
