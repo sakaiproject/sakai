@@ -186,18 +186,17 @@
     </sect1>
     <sect1 xml:id="install-env">
         <title>Set up Environment</title>
-        <para>Text</para>
         <sect2>
             <title>Verify Java Installation</title>
             <para>Check to see if you have Java (version 1.4.2 or higher) installed on your system
                 by running the following command (sample output from a *nix system):</para>
-            <screen>$ java -version
-                java version "1.5.0_06"
-                Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
-                Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
+            <screen>
+$ java -version
+java version "1.5.0_06"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
+Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             <para>If you're going to be building the source (i.e. if you chose the source install)
-                then you'll want to make sure that you have also installed the full Java software
-                development kit, and not just the JRE.</para>
+                then you'll want to make sure that you have also installed the full J2SE, and not just the JRE.</para>
             <note>
                 <title>JRE vs. JDK vs. J2SE vs. J2EE</title>
                 <para>If you're unfamiliar with the Java world, you may find the acronyms for
@@ -308,7 +307,8 @@
                     <command>URIEncoding="UTF-8"</command> to the &lt;connector&gt; element.
                 For example:</para>
             <screen>&lt;Connector port="8080" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
-                enableLookups="false" redirectPort="8443" acceptCount="100" debug="0" connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</screen>
+enableLookups="false" redirectPort="8443" acceptCount="100" debug="0" 
+connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</screen>
             <para>If you want to run Tomcat on different ports than the defaults, this would also be
                 a good time to make those changes in the server.xml file. See <link
                     xl:href="http://tomcat.apache.org/tomcat-5.5-doc/config/http.html">Tomcat
@@ -320,15 +320,14 @@
                 automatically to the Sakai application, you'll want to insert an index.html file
                 into webapps/ROOT that prompts this re-direction. It should look something like: </para>
             <screen>
-            &lt;html&gt;
-                &lt;head&gt;
-                    &lt;meta http-equiv="refresh" content="0;url=/portal"&gt;
-                &lt;/head&gt;
-                &lt;body&gt;
-                    redirecting to /portal ...
-                &lt;/body&gt;
-            &lt;/html&gt;
-            </screen>
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;meta http-equiv="refresh" content="0;url=/portal"&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        redirecting to /portal ...
+    &lt;/body&gt;
+&lt;/html&gt;</screen>
             <para>If you don't make this change you (and your users) will need to append '/portal'
                 to the URL entered to access Sakai each time. If you intend to connect Tomcat with
                 Apache, you can handle this issue as a matter of Apache configuration, which is
@@ -399,8 +398,9 @@
                 which will define some basic parameters for your Sakai build. Simply create a new
                 text file with the filename build.properties in your home directory, and paste in
                 the following contents:</para>
-            <screen>maven.repo.remote=http://source.sakaiproject.org/maven/
-                maven.tomcat.home=/usr/local/tomcat/</screen>
+            <screen>
+maven.repo.remote=http://source.sakaiproject.org/maven/
+maven.tomcat.home=/usr/local/tomcat/</screen>
             <note>
                 <title>build.properties syntax</title>
                 <para>Maven is very sensitive to the syntax of the build.properties file. Be sure
@@ -534,17 +534,16 @@
             <para>To enable Sakai to receive mail there are a few settings needed in the
                 sakai.properties file:</para>
             <screen>
-            # dns addresses used for incoming email	
-            smtp.dns.1 = 255.255.255.1	
-            smtp.dns.2 = 255.255.255.2
+# dns addresses used for incoming email	
+smtp.dns.1 = 255.255.255.1	
+smtp.dns.2 = 255.255.255.2
                         
-            # SMTP port on which our SMTP server runs. Default is 25.
-            #Recommend running on 8025, and using a standard mailer on 25 to forward mail to Sakai.
-            smtp.port = 25
+# SMTP port on which our SMTP server runs. Default is 25.
+#Recommend running on 8025, and using a standard mailer on 25 to forward mail to Sakai.
+smtp.port = 25
                         
-            # flag to enable or disable our SMTP server for incoming email (true | false)
-            smtp.enabled = true
-            </screen>
+# flag to enable or disable our SMTP server for incoming email (true | false)
+smtp.enabled = true</screen>
             <para>To disable the SMTP server for incoming email, use this line in sakai.properties:</para>
             <screen>smtp.enabled=false</screen>
             <para>Sakai's SMTP server is 'James,' and to run with the above configuration which runs
@@ -585,16 +584,18 @@
                 set of such options as the preferred ones for every case. We can, however, start
                 with a bare minimum which will at least avoid "Out of Memory" errors, and be
                 suitable for developer installs of the software:</para>
-            <screen>JAVA_OPTS="-server -Xms512m -Xmx768m -XX:NewSize=192m -XX:MaxNewSize=384m 
-                -XX:PermSize=96m -XX:MaxPermSize=160m"</screen>
+            <screen>
+JAVA_OPTS="-server -Xms512m -Xmx768m -XX:NewSize=192m -XX:MaxNewSize=384m 
+-XX:PermSize=96m -XX:MaxPermSize=160m"</screen>
             <para>This is an adequate - if minimal - starting point: it selects server mode, sets an
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
                 testing and development, but will hardly be adequate for serving large numbers of
                 concurrent users. A more suitable production environment on a 32-bit machine might
                 use a set of options like:</para>
-            <screen>JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m 
-                            -XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails"</screen>
+            <screen>
+JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m 
+-XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails"</screen>
             <para>This is better: a larger heap size is set for smoother performance, we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
                 are set to be the same values, and garbage collection messages are turned on.
@@ -751,62 +752,59 @@
                 Note in particular that the database needs to be configured for the UTF-8 character
                 set.</para>
             <screen>
-                C:\sakai\reference\sql\legacy\mysql\>
-                mysql -u root -p
-                Enter password: ******
-                Welcome to the MySQL monitor. Commands end with ; or \g.
+C:\sakai\reference\sql\legacy\mysql\>
+mysql -u root -p
+Enter password: ******
+Welcome to the MySQL monitor. Commands end with ; or \g.
                 
-                Your MySQL connection id is 51 to server version: 4.1.5-gamma-nt
+Your MySQL connection id is 51 to server version: 4.1.5-gamma-nt
                 
-                Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
                 
-                mysql> create database sakai default character set utf8;
-                Query OK, 1 row affected (0.00 sec)
+mysql> create database sakai default character set utf8;
+Query OK, 1 row affected (0.00 sec)
                 
-                mysql> grant all on sakai.* to sakaiuser@'localhost' identified by 'sakaipassword';
-                Query OK, 0 rows affected (0.00 sec
+mysql> grant all on sakai.* to sakaiuser@'localhost' identified by 'sakaipassword';
+Query OK, 0 rows affected (0.00 sec
                 
-                mysql> grant all on sakai.* to sakaiuser@'127.0.0.1' identified by 'sakaipassword';
-                Query OK, 0 rows affected (0.00 sec)
+mysql> grant all on sakai.* to sakaiuser@'127.0.0.1' identified by 'sakaipassword';
+Query OK, 0 rows affected (0.00 sec)
                 
-                mysql> quit
-            </screen>
+mysql> quit</screen>
         </sect2>
         <sect2>
             <title>Database Properties</title>
             <para>There are settings in sakai.properties that also define the database technology
-                and connection information. Appropriate <filename>sakai.properties</filename> settings for Oracle and
-                MySQL, respectively, are listed below (although some pieces will of course need to
-                be altered appropriately for your installation):</para>
+                and connection information. Appropriate <filename>sakai.properties</filename>
+                settings for Oracle and MySQL, respectively, are listed below (although some pieces
+                will of course need to be altered appropriately for your installation):</para>
             <variablelist>
                 <varlistentry>
                     <term>MySQL</term>
                     <listitem>
                         <screen>
-                            hibernate.dialect=org.hibernate.dialect.MySQLDialect
-                            vendor@org.sakaiproject.db.api.SqlService=mysql
-                            driverClassName@javax.sql.BaseDataSource=com.mysql.jdbc.Driver
-                            url@javax.sql.BaseDataSource=jdbc:mysql://SERVER:3306/DB?useUnicode=true&amp;characterEncoding=UTF-8
-                            username@javax.sql.BaseDataSource=USER
-                            password@javax.sql.BaseDataSource=PASSWORD
-                            validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
-                            defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMMITTED</screen>
+hibernate.dialect=org.hibernate.dialect.MySQLDialect
+vendor@org.sakaiproject.db.api.SqlService=mysql
+driverClassName@javax.sql.BaseDataSource=com.mysql.jdbc.Driver
+url@javax.sql.BaseDataSource=jdbc:mysql://SERVER:3306/DB?useUnicode=true&amp;characterEncoding=UTF-8
+username@javax.sql.BaseDataSource=USER
+password@javax.sql.BaseDataSource=PASSWORD
+validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
+defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMMITTED</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Oracle</term>
                     <listitem>
                         <screen>
-                            hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
-                            vendor@org.sakaiproject.db.api.SqlService=oracle
-                            driverClassName@javax.sql.BaseDataSource=oracle.jdbc.driver.OracleDriver
-                            url@javax.sql.BaseDataSource=jdbc:oracle:thin:@SERVER:1521:DB
-                            username@javax.sql.BaseDataSource=USER
-                            password@javax.sql.BaseDataSource=PASSWORD                            
-                            validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
-                            defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COM
-                            MITTED
-                        </screen>
+hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
+vendor@org.sakaiproject.db.api.SqlService=oracle
+driverClassName@javax.sql.BaseDataSource=oracle.jdbc.driver.OracleDriver
+url@javax.sql.BaseDataSource=jdbc:oracle:thin:@SERVER:1521:DB
+username@javax.sql.BaseDataSource=USER
+password@javax.sql.BaseDataSource=PASSWORD                            
+validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
+defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMMITTED</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
@@ -814,12 +812,13 @@
                 <title>Oracle Performance</title>
                 <para>Oracle may have performance problems with some of the SQL settings that work
                     for HSQL and MySQL. Sakai installations using Oracle should strongly consider
-                    the following settings in <filename>sakai.properties</filename> to avoid these problems:</para>
+                    the following settings in <filename>sakai.properties</filename> to avoid these
+                    problems:</para>
                 <screen>
-                # For improved Oracle performance (from the University of Michigan)
-                validationQuery@javax.sql.BaseDataSource=
-                defaultTransactionIsolationString@javax.sql.BaseDataSource=
-                testOnBorrow@javax.sql.BaseDataSource=false</screen>
+# For improved Oracle performance (from the University of Michigan)
+validationQuery@javax.sql.BaseDataSource=
+defaultTransactionIsolationString@javax.sql.BaseDataSource=
+testOnBorrow@javax.sql.BaseDataSource=false</screen>
                 <para>Oracle should be set to the proper settings for the first two items (above)
                     automatically; setting them with each use may affect performace. In addition,
                     validating the connection on each transaction caused problems in at least one
@@ -857,40 +856,39 @@
                     sample Oracle SQLplus output to better illustrate (SYS_C0064435 is the example
                     constraint; replace it with yours): </para>
                 <screen>
-                SQL> alter table SAM_MEDIA_T modify MEDIA BLOB;
+SQL> alter table SAM_MEDIA_T modify MEDIA BLOB;
                     
-                Table altered.
+Table altered.
                     
-                SQL> select constraint_name from user_constraints where table_name='SAM_MEDIA_T' 
-                and CONSTRAINT_TYPE='P';
+SQL> select constraint_name from user_constraints where table_name='SAM_MEDIA_T' 
+and CONSTRAINT_TYPE='P';
                     
-                CONSTRAINT_NAME
-                ------------------------------
-                SYS_C0064435
+CONSTRAINT_NAME
+------------------------------
+SYS_C0064435
                     
-                SQL> alter table sam_media_t drop constraint SYS_C0064435;
+SQL> alter table sam_media_t drop constraint SYS_C0064435;
                     
-                Table altered.
+Table altered.
                     
-                SQL> alter table SAM_MEDIA_T add constraint SYS_C0064435 primary key (MEDIAID);
+SQL> alter table SAM_MEDIA_T add constraint SYS_C0064435 primary key (MEDIAID);
                     
-                Table altered.
+Table altered.
                     
-                SQL> desc SAM_MEDIA_T;
+SQL> desc SAM_MEDIA_T;
                     
-                [table with BLOB type]
+[table with BLOB type]
                     
-                SQL> select constraint_name from user_constraints where table_name='SAM_MEDIA_T' 
-                and CONSTRAINT_TYPE='P';
+SQL> select constraint_name from user_constraints where table_name='SAM_MEDIA_T' 
+and CONSTRAINT_TYPE='P';
                     
-                CONSTRAINT_NAME
-                ------------------------------
-                SYS_C0064435
+CONSTRAINT_NAME
+------------------------------
+SYS_C0064435
                     
-                SQL> commit;
+SQL> commit;
                     
-                Commit complete.
-                </screen>
+Commit complete.</screen>
             </note>
         </sect2>
     </sect1>
