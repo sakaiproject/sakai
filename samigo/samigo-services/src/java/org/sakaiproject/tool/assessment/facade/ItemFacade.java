@@ -937,7 +937,7 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    */
   public String getTextHtmlStrippedAll() throws DataFacadeException
   {
-    String regex = "\\<.*?\\>";
+    String regex = "\\<.*?\\>|\\n|\\r\\n";
     return getText().replaceAll(regex,"");
   }
   
