@@ -118,7 +118,7 @@ public class BaseEntityProducer implements EntityProducer {
 		return null;
 	}
 
-	public Collection getEntityAuthzGroups(Reference ref) {
+	public Collection getEntityAuthzGroups(Reference ref, String userId) {
 		return null;
 	}
 
