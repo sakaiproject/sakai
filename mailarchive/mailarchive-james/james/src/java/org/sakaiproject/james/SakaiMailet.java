@@ -49,7 +49,6 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.sakaiproject.alias.cover.AliasService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -376,33 +375,6 @@ public class SakaiMailet extends GenericMailet
 			// clear out any current current bindings
 			ThreadLocalManager.clear();
 		}
-	}
-
-	// Note: This is an alternate way to validate the email, one that does not rely on the findByEmail, but does call into memory all the users of the site... -ggolden
-	/**
-	 * Check if the fromAddr email address belongs to any user who has permission to add to the channel.
-	 * 
-	 * @param fromAddr
-	 *        The email address to check.
-	 * @param channel
-	 *        The mail archive channel.
-	 * @return True if the email address is from a user who is authorized to add mail, false if not.
-	 */
-	protected boolean fromValidUserALTERNATE(String fromAddr, MailArchiveChannel channel)
-	{
-		if ((fromAddr == null) || (fromAddr.length() == 0)) return false;
-
-		// get all users permitted to send mail to the channel
-		List users = SecurityService.unlockUsers(MailArchiveService.SECURE_MAIL_READ, channel.getReference());
-
-		// scan the list for the email address
-		for (Iterator i = users.iterator(); i.hasNext();)
-		{
-			User user = (User) i.next();
-			if (fromAddr.equalsIgnoreCase(user.getEmail())) return true;
-		}
-
-		return false;
 	}
 
 	/**
