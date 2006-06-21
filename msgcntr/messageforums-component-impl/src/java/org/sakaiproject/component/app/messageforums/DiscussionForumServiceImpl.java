@@ -84,7 +84,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService
 		return null;
 	}
 
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// TODO Auto-generated method stub
 		return null;
