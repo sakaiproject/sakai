@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -250,5 +251,35 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		// use the message's subject
 		return "[ " + title + " - " + rb.getString("Announcement") + " ]   " + hdr.getSubject();
+	}
+
+	/**
+	 * Add to the user list any other users who should be notified about this ref's change.
+	 * 
+	 * @param users
+	 *        The user list, already populated based on site visit and resource ability.
+	 * @param ref
+	 *        The entity reference.
+	 */
+	protected void addSpecialRecipients(List users, Reference ref)
+	{
+		// include any users who have AnnouncementService.SECURE_ALL_GROUPS and getResourceAbility() in the context
+		String contextRef = SiteService.siteReference(ref.getContext());
+
+		// get the list of users who have SECURE_ALL_GROUPS
+		List allGroupUsers = SecurityService.unlockUsers(AnnouncementService.SECURE_ANNC_ALL_GROUPS, contextRef);
+		
+		// filter down by the permission
+		if (getResourceAbility() != null)
+		{
+			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+			allGroupUsers.retainAll(allGroupUsers2);
+		}
+		
+		// remove any in the list already
+		allGroupUsers.removeAll(users);
+
+		// combine
+		users.addAll(allGroupUsers);
 	}
 }
