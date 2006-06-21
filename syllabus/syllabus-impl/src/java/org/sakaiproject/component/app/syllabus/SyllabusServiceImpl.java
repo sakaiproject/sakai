@@ -273,7 +273,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		return null;
 	}
