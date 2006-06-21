@@ -3204,7 +3204,8 @@ public class ResourcesAction
 																					MIME_TYPE_STRUCTOBJ,
 																					item.getContent(),
 																					resourceProperties,
-																					NotificationService.NOTI_NONE);
+																					item.getGroups(),
+																					item.getNotification());
 
 
 						Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
@@ -3213,67 +3214,13 @@ public class ResourcesAction
 							preventPublicDisplay = Boolean.FALSE;
 							state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 						}
-						
-						try
+						if(! preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
 						{
-							Collection groupRefs = new Vector();
-							Iterator it = item.getGroups().iterator();
-							while(it.hasNext())
-							{
-								Group group = (Group) it.next();
-								groupRefs.add(group.getReference());
-							}
-							// TODO: must be atomic with constructor
 							ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-							// TODO: what if parent has groups and user tries to set no groups??  
-							// Should tool prevent that without needing exception??
-							
-							if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
-							{
-								try
-								{
-									edit.setPublicAccess();
-								}
-								catch(InconsistentException e)
-								{
-									alerts.add(rb.getString("access.nopub"));
-								}
-								catch(PermissionException e)
-								{
-									alerts.add(rb.getString("access.nopub"));
-								}
-							}
-							else if(!groupRefs.isEmpty())
-							{
-								try
-								{
-									edit.setGroupAccess(groupRefs);
-								}
-								catch(InconsistentException e)
-								{
-									alerts.add(rb.getString("add.nogroups"));
-								}
-							}
-							else
-							{
-								// edit.clearGroupAccess();
-							}
-							ContentHostingService.commitResource(edit, item.getNotification());
+							edit.setPublicAccess();
+							ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 						}
-						catch (IdUnusedException e)
-						{
-							
-						}
-						catch (TypeException e)
-						{
-							
-						}
-						catch (InUseException e)
-						{
-							
-						}
-
-
+						
 						String mode = (String) state.getAttribute(STATE_MODE);
 						if(MODE_HELPER.equals(mode))
 						{
@@ -3344,6 +3291,21 @@ public class ResourcesAction
 					{
 						alerts.add(rb.getString("failed"));
 						continue outerloop;
+					} 
+					catch (IdUnusedException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (TypeException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (InUseException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 				catch(RuntimeException e)
@@ -3865,7 +3827,9 @@ public class ResourcesAction
 																			MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
 																			item.getMimeType(),
 																			item.getContent(),
-																			resourceProperties, item.getNotification());
+																			resourceProperties,
+																			item.getGroups(),
+																			item.getNotification());
 
 				item.setAdded(true);
 
@@ -3876,63 +3840,26 @@ public class ResourcesAction
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
 				
-				try
+				if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
 				{
-					Collection groupRefs = new Vector();
-					Iterator it = item.getGroups().iterator();
-					while(it.hasNext())
+					try
 					{
-						Group group = (Group) it.next();
-						groupRefs.add(group.getReference());
+						ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+						edit.setPublicAccess();
+						ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 					}
-					// TODO: must be atomic with constructor
-					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-					// TODO: what if parent has groups and user tries to set no groups??  
-					// Should tool prevent that without needing exception??
-					
-					if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
+					catch (IdUnusedException e)
 					{
-						try
-						{
-							edit.setPublicAccess();
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
-						catch(PermissionException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
+						
 					}
-					else if(!groupRefs.isEmpty())
+					catch (TypeException e)
 					{
-						try
-						{
-							edit.setGroupAccess(groupRefs);
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("add.nogroups"));
-						}
+						
 					}
-					else
+					catch (InUseException e)
 					{
-						// edit.clearGroupAccess();
+						
 					}
-					ContentHostingService.commitResource(edit, item.getNotification());
-				}
-				catch (IdUnusedException e)
-				{
-					
-				}
-				catch (TypeException e)
-				{
-					
-				}
-				catch (InUseException e)
-				{
-					
 				}
 
 				String mode = (String) state.getAttribute(STATE_MODE);
@@ -4845,7 +4772,9 @@ public class ResourcesAction
 																			MAXIMUM_ATTEMPTS_FOR_UNIQUENESS,
 																			item.getMimeType(),
 																			newUrl,
-																			resourceProperties, item.getNotification());
+																			resourceProperties, 
+																			item.getGroups(),
+																			item.getNotification());
 
 				item.setAdded(true);
 
@@ -4856,63 +4785,37 @@ public class ResourcesAction
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
 				
-				try
+				if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
 				{
-					Collection groupRefs = new Vector();
-					Iterator it = item.getGroups().iterator();
-					while(it.hasNext())
+					try
 					{
-						Group group = (Group) it.next();
-						groupRefs.add(group.getReference());
+						ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
+						edit.setPublicAccess();
+						ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 					}
-					// TODO: must be atomic with constructor
-					ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-					// TODO: what if parent has groups and user tries to set no groups??  
-					// Should tool prevent that without needing exception??
-					
-					if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
+					catch(InconsistentException e)
 					{
-						try
-						{
-							edit.setPublicAccess();
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
-						catch(PermissionException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
+						alerts.add(rb.getString("access.nopub"));
 					}
-					else if(!groupRefs.isEmpty())
+					catch(PermissionException e)
 					{
-						try
-						{
-							edit.setGroupAccess(groupRefs);
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("add.nogroups"));
-						}
-					}
-					else
+						alerts.add(rb.getString("access.nopub"));
+					} 
+					catch (IdUnusedException e) 
 					{
-						// edit.clearGroupAccess();
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (TypeException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					catch (InUseException e) 
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					ContentHostingService.commitResource(edit, item.getNotification());
-				}
-				catch (IdUnusedException e)
-				{
-					
-				}
-				catch (TypeException e)
-				{
-					
-				}
-				catch (InUseException e)
-				{
-					
 				}
 
 				String mode = (String) state.getAttribute(STATE_MODE);
@@ -5567,7 +5470,7 @@ public class ResourcesAction
 						try
 						{
 							// paste the cutted resource to the new collection - no notification
-							ContentResource newResource = ContentHostingService.addResource (id, resource.getContentType (), resource.getContent (), resourceProperties, NotificationService.NOTI_NONE);
+							ContentResource newResource = ContentHostingService.addResource (id, resource.getContentType (), resource.getContent (), resourceProperties, resource.getGroups(), NotificationService.NOTI_NONE);
 							String uuid = ContentHostingService.getUuid(resource.getId());
 							ContentHostingService.setUuid(id, uuid);
 						}
@@ -5703,7 +5606,7 @@ public class ResourcesAction
 						try
 						{
 							// paste the copied resource to the new collection
-							ContentResource newResource = ContentHostingService.addResource (id, resource.getContentType (), resource.getContent (), resourceProperties, NotificationService.NOTI_NONE);
+							ContentResource newResource = ContentHostingService.addResource (id, resource.getContentType (), resource.getContent (), resourceProperties, resource.getGroups(), NotificationService.NOTI_NONE);
 						}
 						catch (InconsistentException e)
 						{
@@ -5864,7 +5767,7 @@ public class ResourcesAction
 						try
 						{
 							ContentResource referedResource= ContentHostingService.getResource (currentPasteItem);
-							ContentResource newResource = ContentHostingService.addResource (id, ResourceProperties.TYPE_URL, referedResource.getUrl().getBytes (), resourceProperties, NotificationService.NOTI_NONE);
+							ContentResource newResource = ContentHostingService.addResource (id, ResourceProperties.TYPE_URL, referedResource.getUrl().getBytes (), resourceProperties, referedResource.getGroups(), NotificationService.NOTI_NONE);
 						}
 						catch (InconsistentException e)
 						{
