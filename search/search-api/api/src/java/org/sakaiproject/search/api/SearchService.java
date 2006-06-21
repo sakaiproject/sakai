@@ -75,11 +75,6 @@ public interface SearchService
 	public static final String FIELD_CONTEXT = "context";
 
 	/**
-	 * Search Field The realm of the entity
-	 */
-	public static final String FIELD_REALM = "realm";
-
-	/**
 	 * Search Field The tool subtype of the entity
 	 */
 	public static final String FIELD_SUBTYPE = "subtype";

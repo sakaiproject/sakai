@@ -354,19 +354,6 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 															ref.getReference(),
 															Field.Store.YES,
 															Field.Index.UN_TOKENIZED));
-											Collection c = ref.getRealms();
-											for (Iterator ic = c.iterator(); ic
-													.hasNext();)
-											{
-												String realm = (String) ic
-														.next();
-												doc
-														.add(new Field(
-																SearchService.FIELD_REALM,
-																realm,
-																Field.Store.YES,
-																Field.Index.UN_TOKENIZED));
-											}
 
 											doc
 													.add(new Field(
