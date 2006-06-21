@@ -30,7 +30,7 @@
     <div class="indnt1">  <!-- Choose a file -->
       <span class="reqStarInline">*</span>
  	  <h:outputText value="#{msgs.podcast_file_prompt}" styleClass="reqPrompt" />
- 	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podcastBean.processFileUpload}" 
+ 	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podAddBean.processFileUpload}"
  	     styleClass="indnt1" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage"/>
@@ -41,7 +41,7 @@
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.podcast_date_prompt}" styleClass="reqPrompt" />
 
-      <sakai:input_date id="poddate" value="#{podcastBean.date}" showDate="true" rendered="true" />
+      <sakai:input_date id="poddate" value="#{podAddBean.date}" showDate="true" rendered="true" />
 
       <h:message for="poddate" styleClass="alertMessage" />
     </div>
@@ -50,7 +50,7 @@
     <div class="indnt1">  <!-- Title -->
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.podcast_title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" />
+ 	  <h:inputText id="podtitle" value="#{podAddBean.title}" styleClass="indnt3" size="35" />
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
@@ -59,23 +59,23 @@
     <div class="indnt1"> <!-- Description -->
       <h:outputText value="#{msgs.podcast_add_description_prompt}" styleClass="reqPrompt" />
       <br />
-      <h:inputTextarea value="#{podcastBean.description}" rows="6" cols="80" />
+      <h:inputTextarea value="#{podAddBean.description}" rows="6" cols="80" />
     </div>
     <br />
 
     <div class="indnt1"> <!-- Email Notification -->
       <h:outputText value="#{msgs.podcast_add_email_prompt}" />
-      <h:selectOneMenu value="#{podcastBean.email}">
-          <f:selectItems value="#{podcastBean.emailItems}" />
+      <h:selectOneMenu value="#{podAddBean.email}">
+          <f:selectItems value="#{podAddBean.emailItems}" />
       </h:selectOneMenu>
       
     </div>
     <br />
 
     <sakai:button_bar>
-        <sakai:button_bar_item action="#{podcastBean.processAdd}" value="#{msgs.podcast_add}"
+        <sakai:button_bar_item action="#{podAddBean.processAdd}" value="#{msgs.podcast_add}"
             accesskey="a" title="Add a Podcast" styleClass="active" />
-        <sakai:button_bar_item action="#{podcastBean.processCancelAdd}" value="#{msgs.podcast_cancel}" 
+        <sakai:button_bar_item action="#{podAddBean.processCancelAdd}" value="#{msgs.podcast_cancel}" 
             accesskey="c" title="Cancel a Podcast" />
     </sakai:button_bar>
   </h:form>

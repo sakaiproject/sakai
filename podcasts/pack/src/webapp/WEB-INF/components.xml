@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.sakaiproject.api.app.podcasts.PodcastService"
+		class="org.sakaiproject.component.app.podcasts.PodcastServiceImpl">
+		<!-- these properties are defined to be injected into the bean -->
+		
+		<!-- needed to get information about the site -->
+		<property name="contentHostingService">
+ 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
+		</property>
+
+		<!-- needed to help get site information -->
+		<property name="toolManager">
+ 			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
+		</property>
+		
+	</bean>
+
+</beans>

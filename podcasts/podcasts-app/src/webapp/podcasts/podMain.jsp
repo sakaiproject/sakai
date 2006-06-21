@@ -15,9 +15,6 @@
           <sakai:tool_bar_item action="addPodcast" value="#{msgs.podcast_add}" rendered="#{podHomeBean.resourceToolExists}" />
           <sakai:tool_bar_item action="podcastOptions" value="#{msgs.podcast_options}" rendered="#{podHomeBean.resourceToolExists}" />
           <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.podcast_permissions}" rendered="#{podHomeBean.resourceToolExists}" />
-
-          <!-- **** JUST FOR TESTING REVISE, TAKE OUT BEFORE COMMITTING *** -->
-          <sakai:tool_bar_item action="podcastRevise" value="Revise" />
       </sakai:tool_bar>
 
  	  <div>
@@ -36,19 +33,24 @@
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	  </div>
 
-      <!--  added during test if podcast folder exists -->
-      <h:outputText value="The podcast folder does not exist." styleClass="alertMessage" rendered="! #{podHomeBean.podcastFolderExists}" />
-      <!-- if there are no podcasts, display this -->
-       	  
       <div class="indnt1" style="position:relative; top:20px;">
-         <h:outputText  styleClass="instruction" value="#{msgs.podcast_no_podcasts}" rendered="! #{podHomeBean.podcastFolderExists}" />
+         <h:outputText  styleClass="instruction" value="#{msgs.podcast_no_podcasts}" rendered="#{podHomeBean.podcastFolderExists}" />
       </div>
  
-	<!-- TODO: if there are podcasts, display their information here 
-	     or possibly return this part from previous tag -->
-      <div class="">
-        <h:outputText value="" />
-      </div>
+	  <!-- TODO: if there are podcasts, display their information here 
+	     or possibly return this part from previous tag
+      <sakai:flat_list value="#{podHomeBean.contents}" var="eachPodcast" >
+        <h:column>
+          <h:outputText value="#{eachPodcast.displayDate}" rendered="#{podHomeBean.podcastFolderExists}"/>
+          <h:outputText value="#{eachPodcast.title}" rendered="#{podHomeBean.podcastFolderExists}"/>
+          <h:outputText value="#{eachPodcast.description}" rendered="#{podHomeBean.podcastFolderExists}"/>
+          <sakai:tool_bar_item action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" rendered="#{podHomeBean.podcastFolderExists}" />
+          (<h:outputText value="#{eachPodcast.size}" rendered="#{podHomeBean.podcastFolderExists}"/>
+           <h:outputText value="#{eachPodcast.type}" rendered="#{podHomeBean.podcastFolderExists}"/>) |
+          <sakai:tool_bar_item action="revise" value="#{msgs.podcast_Revise}" rendered="#{podHomeBean.podcastFolderExists}"/> |
+          <sakai:tool_bar_item action="delete" value="#{msgs.podcast_Delete}" rendered="#{podHomeBean.podcastFolderExists}"/>
+        </h:column>
+      </sakai:flat_list>  -->
     </h:form>
   </sakai:view>
   

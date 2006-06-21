@@ -21,7 +21,8 @@
 
 package org.sakaiproject.tool.podcasts;
 
-import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.util.Date;
 
 import javax.faces.component.UIComponent;
@@ -31,6 +32,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.fileupload.FileItem;
+import org.sakaiproject.api.app.podcasts.PodcastService;
 
 public class addPodcastBean {
 	private String filename;
@@ -38,6 +40,10 @@ public class addPodcastBean {
 	private String title;
 	private String description;
 	private String email;
+	private long fileSize;
+    BufferedInputStream fileAsStream;
+
+	private PodcastService podcastService;
 
 	private SelectItem [] emailItems = {
 		new SelectItem("none", "None - No notification"),
@@ -109,7 +115,8 @@ public class addPodcastBean {
             throws AbortProcessingException
     {
 	   UIComponent component = event.getComponent();
-        Object newValue = event.getNewValue();
+
+	    Object newValue = event.getNewValue();
         Object oldValue = event.getOldValue();
         PhaseId phaseId = event.getPhaseId();
         Object source = event.getSource();
@@ -126,24 +133,24 @@ public class addPodcastBean {
             FileItem item = (FileItem) event.getNewValue();
 	        String fieldName = item.getFieldName();
 	        filename = item.getName();
-	        long fileSize = item.getSize();
+	        // TODO: 1. save this as a property?
+	        //       2. also save the type of file?
+	        fileSize = item.getSize();
 	        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + filename + " length: " + fileSize);
 
 	        // Read the file as a stream (may be more memory-efficient)
-	        InputStream fileAsStream = item.getInputStream();
+	        fileAsStream = new BufferedInputStream(item.getInputStream());
 
 	        // Read the contents as a byte array
-	        byte[] fileContents = item.get();
-
-	        // now process the file.  Do application-specific processing
-	        // such as parsing the file, storing it in the database,
-	        // or whatever needs to happen with the uploaded file.
+	        // Just need to upload in preparation for depositing into Resources
+	        //fileContents = item.get();
 
         }
         catch (Exception ex)
         {
             // handle exception
             System.out.println("Houston, we have a problem.");
+            ex.printStackTrace();
         }
     }
 	
@@ -151,10 +158,28 @@ public class addPodcastBean {
 	 * This attempts to add a podcast
 	 */
 	public String processAdd() {
-		return "main";
+		byte[] fileContents = new byte[(int) fileSize];
+		
+		try {
+			fileAsStream.read(fileContents);
+		}
+		catch (IOException ioe) {
+			System.out.println("What happened to the fileStream?");
+		}
+		
+		podcastService.addPodcast(title, date, description, fileContents);
+
+		date = null;
+		title="";
+		description="";
+		return "cancel";
 	}
 	
 	public String processCancelAdd() {
+		date = null;
+		title="";
+		description="";
+		fileAsStream = null;
 		return "cancel";
 	}
 	
@@ -166,96 +191,8 @@ public class addPodcastBean {
 		return "cancel";
 	}
 
-	/**
-	public void addPodcast(String title, Time displayDate, String description, byte[] body) {
-		//get the site's collection
-		String siteCollection = ContentHostingService.getSiteCollection(getSiteId());
-		String podcastCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
-		ContentCollectionEdit collectionEdit = null;
-		
-		try {
-			collectionEdit = ContentHostingService.editCollection(podcastsCollection);
-		}
-		catch (IdUnusedException un) {
-			// make it
-			try {
-				ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
-				
-				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, COLLECTION_PODCASTS_TITLE);
-				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, COLLECTION_PODCASTS_DESCRIPTION);
-				
-				ContentCollection collection = ContentHostingService.addCollection(podcastsCollection, resourceProperties);
-				ContentHostingService.setPubView(collection.getId(), true);
-				
-				ContentCollectionEdit edit = ContentHostingService.editCollection(collection.getId());
-				ContentHostingService.commitCollection(edit);
-			}
-			catch (IdUnusedException e) {
-				// TODO: handle if necessary
-			}
-			catch (TypeException e) {
-				
-			}
-			catch (InUseException e) {
-				
-			}
-			catch (PermissionException e) {
-				
-			}
-			catch (IdInvalidException e) {
-				
-			}
-			catch (InconsistentException e) {
-				
-			}
-			catch (IdUsedException e) {
-				
-			}
-		}
-		catch (TypeException e) {
-			LOG.warn("enableResources: " + e);
-		}
-		catch (PermissionException e) {
-			LOG.warn("enableResources: " + e);
-		}
-		catch (InUseException e) {
-			
-		}
-		
-		try {
-			ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
-			String resourceCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
-			
-			//TODO: may need additional properties here
-			//  possibly add notification level?
-			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
-			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
-			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-			resourceProperties.addProperty(ResourceProperties.PROP_CREATION_DATE, displayDate.toString());
-			
-			ContentHostingService.addResource(Validator.escapeResourceName(title), resourceCollection, 0,
-					ResourceProperties.FILE_TYPE, body, resourceProperties, NotificationService.NOTI_NONE);
-		}
-		catch (OverQuotaException e) {
-			
-		}
-		catch (IdInvalidException e) {
-			
-		}
-		catch (ServerOverloadException e) {
-			
-		}
-		catch (InconsistentException e) {
-			
-		}
-		catch (IdLengthException e) {
-			
-		}
-		catch (PermissionException e) {
-			
-		}
-		catch (IdUniquenessException e) {
-			
-		}
-	} 	**/
+	public void setPodcastService(PodcastService podcastService) {
+		this.podcastService = podcastService;
+	}
+    
 }

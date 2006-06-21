@@ -21,8 +21,9 @@
 
 package org.sakaiproject.api.app.podcasts;
 
-import java.sql.Time;
+import java.util.Date;
 import java.util.List;
+
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -41,7 +42,7 @@ public interface PodcastService // extends EntityProducer
 		
 	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
 
-	public void addPodcast(String title, Time displayDate, String description, byte[] body);
+	public void addPodcast(String title, Date displayDate, String description, byte[] body);
 	
 	public List getPodcasts();
 	
@@ -49,7 +50,7 @@ public interface PodcastService // extends EntityProducer
 	
 	public String getSiteId();
 	
-	public boolean getPodcastCollection ();
+	public boolean checkPodcastFolder ();
 	
 	public void setContentHostingService(ContentHostingService chs);
 	

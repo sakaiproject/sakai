@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.podcasts;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,18 +29,68 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 
+
 public class podHomeBean {
+	
+	public class DecoratedPodcastBean {
+		private String filename;
+		private Date displayDate;
+		private String title;
+		private String decsription;
+		private int size;
+		private String type;
+		public String getDecsription() {
+			return decsription;
+		}
+		public void setDecsription(String decsription) {
+			this.decsription = decsription;
+		}
+		public Date getDisplayDate() {
+			return displayDate;
+		}
+		public void setDisplayDate(Date displayDate) {
+			this.displayDate = displayDate;
+		}
+		public String getFilename() {
+			return filename;
+		}
+		public void setFilename(String filename) {
+			this.filename = filename;
+		}
+		public int getSize() {
+			return size;
+		}
+		public void setSize(int size) {
+			this.size = size;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}
+		
+		
+	}
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
 	private boolean podcastResourceCheckFirstTry;
 	private PodcastService podcastService;
+	private List contents;
+	
 
 	private String URL;
 	
@@ -102,21 +154,16 @@ public class podHomeBean {
 	  }
 	  
 	  public boolean getPodcastFolderExists() {
-		  podcastFolderExists=true;
+		  podcastFolderExists=false;
 		  
-		  if (!resourceToolExists) {
-			  // Resource tool does not exist, ergo Podcast folder must not
-			  return true;
-//			  return podcastFolderExists;
-		  }
-		  else {
+		  if (resourceToolExists) {
 			  // we know resources tool exists, but need to know if podcast folder does
 			  // TODO: check to Resource tool to see if Podcasts folder exists
 			  //       if it does, check if any podcasts exist.
 			  //                       if they do, construct the list, sort by date,
 			  //                       and return them 
 			  //       else return true
-			  podcastFolderExists = podcastService.getPodcastCollection();
+			  podcastFolderExists = podcastService.checkPodcastFolder();
 		  }
 		  
 		  return podcastFolderExists;
@@ -127,7 +174,8 @@ public class podHomeBean {
 	  }
 	  
 	  public String getURL() {
-		  URL = ContentHostingService.getUrl(Entity.SEPARATOR + PodcastService.COLLECTION_PODCASTS_FEED  );
+		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" 
+		         + podcastService.getSiteId();
 		  return URL;
 	  }
 	  
@@ -141,5 +189,29 @@ public class podHomeBean {
 
 	public void setPodcastService(PodcastService podcastService) {
 		this.podcastService = podcastService;
+	}
+
+	public ArrayList getContents() {
+		List tempPodcasts = podcastService.getPodcasts();
+
+		// create local List of DecoratedBeans
+		ArrayList decoratedPodcasts = new ArrayList();
+
+		Iterator podcastIter = tempPodcasts.iterator();
+		
+		// for each bean
+		while (podcastIter.hasNext() ) {
+			
+		}
+		//   ContentHostingService.getReqProps(name?)
+		//   create new DecoratedBean
+		//   fill up
+		//   add to List
+		// when done:
+		return decoratedPodcasts; //new decorated list 
+	}
+
+	public void setContents(List contents) {
+		this.contents = contents;
 	}
 }
