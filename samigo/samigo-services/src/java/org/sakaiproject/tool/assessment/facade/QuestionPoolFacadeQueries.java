@@ -249,68 +249,60 @@ public class QuestionPoolFacadeQueries
 
   }
 
-  public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
+  	public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
                                                final String orderBy) {
 	    
-	  // Fixed for bug 3559
+	  	// Fixed for bug 3559
 	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: orderBy=" + orderBy);  
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");	    		
-	    		q.setLong(0, questionPoolId.longValue());
-	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getQueryString() = " + q.getQueryString());
-	    		return q.list();
-	    	};
-	    };
-	    List list = getHibernateTemplate().executeFind(hcb);
+	    List list = getAllItems(questionPoolId);
 
-//    List list = getHibernateTemplate().find("select ab from ItemData as ab, QuestionPoolItemData as qpi  WHERE ab.itemId=qpi.itemId and qpi.questionPoolId = ? order by ab." +
-//                                            orderBy,
-//                                            new Object[] {questionPoolId},
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG});
-
-
-	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: size = " + list.size());
-    HashMap hp = new HashMap();
-    Vector origValueV;
-    for (int i = 0; i < list.size(); i++) {
-    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: i = " + i);
-        ItemData itemData = (ItemData) list.get(i);
-        log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getItemId = " + itemData.getItemId());
-    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getText = " + itemData.getText());
-        //hp.put(itemData.getText(), new Integer(i));
-    	
-    	origValueV = (Vector) hp.get(itemData.getText());
-    	if (origValueV == null) {
-        	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: origValueV is null ");
-        	origValueV = new Vector();
-    	}
-    	origValueV.add(new Integer(i));
-    	hp.put(itemData.getText(), origValueV);
-    }
+	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: size = " + list.size());
+	    HashMap hp = new HashMap();
+	    Vector origValueV;
+	    ItemData itemData;
+	    ItemFacade itemFacade;
+	    Vector facadeVector = new Vector();
+	    String text;
+	    for (int i = 0; i < list.size(); i++) {
+	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: i = " + i);
+	    	itemData = (ItemData) list.get(i);
+	    	itemFacade = new ItemFacade(itemData);
+	    	facadeVector.add(itemFacade);
+	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getItemId = " + itemData.getItemId());
+	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getText = " + itemData.getText());
+	    	text = itemFacade.getTextHtmlStrippedAll();
+	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getTextHtmlStrippedAll = '" + text + "'");
+	    	
+	    	origValueV = (Vector) hp.get(text);
+	    	if (origValueV == null) {
+	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: origValueV is null ");
+	    		origValueV = new Vector();
+	    	}
+	    	origValueV.add(new Integer(i));
+	    	hp.put(text, origValueV);
+	    }
     
-    Vector v = new Vector(hp.keySet());
-    Collections.sort(v);
-    ArrayList itemList = new ArrayList();
+	    Vector v = new Vector(hp.keySet());
+	    Collections.sort(v, String.CASE_INSENSITIVE_ORDER);
+	    ArrayList itemList = new ArrayList();
     
-    Iterator it = v.iterator();
-    Vector orderdValueV;
-    while (it.hasNext()) {
-       String key =  (String)it.next();
-       log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (key) = " + key);
-       orderdValueV = (Vector) hp.get(key);
-       Iterator iter = orderdValueV.iterator();
-       while (iter.hasNext()) {
-    	   Integer value =  (Integer)iter.next();
-    	   log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (value) = " + value);
-    	   ItemData itemdata = (ItemData) list.get(value.intValue());
-    	   ItemFacade f = new ItemFacade(itemdata);
-    	   itemList.add(f);
-       }
-    }
-    return itemList;
-  }
+	    Iterator it = v.iterator();
+	    Vector orderdValueV;
+	    Integer value;
+	    while (it.hasNext()) {
+	    	String key =  (String)it.next();
+	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (key) = '" + key + "'");
+	    	orderdValueV = (Vector) hp.get(key);
+	    	Iterator iter = orderdValueV.iterator();
+	    	while (iter.hasNext()) {
+	    		value =  (Integer)iter.next();
+	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (value) = " + value);
+	    		itemFacade = (ItemFacade) facadeVector.get(value.intValue());
+	    		itemList.add(itemFacade);
+	    	}
+	    }
+	    return itemList;
+  	}
 
   public List getAllItemFacadesOrderByItemType(final Long questionPoolId,
                                                final String orderBy) {
