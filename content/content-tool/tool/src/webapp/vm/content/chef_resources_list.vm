@@ -329,6 +329,8 @@
 						#end
 						######################  End of Add Items/Folders at Top Level  ##############
 					</td>
+					<td colspan="4">
+					</td>
 					#*
 					<td headers="access" title="$root.effectiveGroups">
 						#if($root.effectiveAccess == $INHERITED_ACCESS || $root.effectiveAccess == $SITE_ACCESS)
@@ -612,12 +614,13 @@
 								</div>
 							</td>
 							######################  Item/folder properties  ##############
+							#set($effectiveAccess = $member.effectiveAccess)
 							<td headers="access" title="$member.effectiveGroups">
-								#if("$member.effectiveAccess" == "$INHERITED_ACCESS" || "$member.effectiveAccess" == "$SITE_ACCESS")
+								#if("$effectiveAccess" == "$INHERITED_ACCESS" || "$effectiveAccess" == "$SITE_ACCESS")
 									$tlang.getString("access.site")
-								#elseif("$member.effectiveAccess" == "$GROUP_ACCESS")
+								#elseif("$effectiveAccess" == "$GROUP_ACCESS")
 									$tlang.getString("access.group")
-								#elseif("$member.effectiveAccess" == "$PUBLIC_ACCESS")
+								#elseif("$effectiveAccess" == "$PUBLIC_ACCESS")
 									$tlang.getString("access.public")
 								#end
 							</td>
@@ -802,6 +805,8 @@
 									</div>
 								#end
 								######################  End of Add Items/Folders at Top Level  ##############
+							</td>
+							<td colspan="4">
 							</td>
 							#*
 							<td headers="access" title="$root.effectiveGroups">
@@ -1077,12 +1082,13 @@
 										</div>
 									</td>
 									######################  Item/folder properties  ##############
+									#set($effectiveAccess = $member.effectiveAccess)
 									<td headers="access" title="$member.effectiveGroups">
-										#if("$member.effectiveAccess" == "$INHERITED_ACCESS" || "$member.effectiveAccess" == "$SITE_ACCESS")
+										#if("$effectiveAccess" == "$INHERITED_ACCESS" || "$effectiveAccess" == "$SITE_ACCESS")
 											$tlang.getString("access.site")
-										#elseif("$member.effectiveAccess" == "$GROUP_ACCESS")
+										#elseif("$effectiveAccess" == "$GROUP_ACCESS")
 											$tlang.getString("access.group")
-										#elseif("$member.effectiveAccess" == "$PUBLIC_ACCESS")
+										#elseif("$effectiveAccess" == "$PUBLIC_ACCESS")
 											$tlang.getString("access.public")
 										#end
 									</td>

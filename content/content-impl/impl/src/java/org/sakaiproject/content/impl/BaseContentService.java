@@ -6914,7 +6914,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected boolean m_isRemoved = false;
 
 		/** The access mode for this entity (e.g., "group" vs "site") */ 
-		protected AccessMode m_access = AccessMode.SITE;
+		protected AccessMode m_access = AccessMode.INHERITED;
 
 		/** The date/time after which the entity should no longer be generally available */
 		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);

@@ -3204,7 +3204,7 @@ public class ResourcesAction
 																					MIME_TYPE_STRUCTOBJ,
 																					item.getContent(),
 																					resourceProperties,
-																					item.getNotification());
+																					NotificationService.NOTI_NONE);
 
 
 						Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
@@ -7560,7 +7560,11 @@ public class ResourcesAction
 		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
 			String access_mode = params.getString("access_mode" + index);
-			if(access_mode != null)
+			if(access_mode == null)
+			{
+				item.setAccess(AccessMode.INHERITED.toString());
+			}
+			else
 			{
 				item.setAccess(access_mode);
 				if(AccessMode.GROUPED.toString().equals(access_mode))
@@ -11860,7 +11864,9 @@ public class ResourcesAction
 			while( it.hasNext() && !found )
 			{
 				Group group = (Group) it.next();
-				if(group.getId().equals(groupId))
+				String gid = group.getId();
+				String gref = group.getReference();
+				if(gid.equals(groupId) || gref.equals(groupId))
 				{
 					if(! inheritsGroup(group.getReference()))
 					{
@@ -12444,8 +12450,11 @@ public class ResourcesAction
 		 */
 		public boolean isSingleGroupInherited()
 		{
-			Collection groups = getInheritedGroups();
-			return (groups != null && groups.size() == 1);
+			//Collection groups = getInheritedGroups();
+			return AccessMode.INHERITED.toString().equals(this.m_access) 
+					&& AccessMode.GROUPED.toString().equals(this.m_inheritedAccess) 
+					&& this.m_inheritedGroups != null 
+					&& this.m_inheritedGroups.size() == 1;
 		}
 		
 		public String getSingleGroupTitle()
