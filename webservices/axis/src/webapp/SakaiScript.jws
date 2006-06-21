@@ -109,7 +109,7 @@ public String checkSession(String id) {
 	}
 }
 
-public String addNewUser( String sessionid, String userid, String firstname, String lastname, String email, String type, String password) throws AxisFault
+public String addNewUser( String sessionid, String eid, String firstname, String lastname, String email, String type, String password) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
@@ -121,7 +121,7 @@ public String addNewUser( String sessionid, String userid, String firstname, Str
 	try {
 
 		User addeduser = null;
-		addeduser = UserDirectoryService.addUser(null, userid, firstname, lastname, email, password, type, null);
+		addeduser = UserDirectoryService.addUser(null, eid, firstname, lastname, email, password, type, null);
 	
 	}
 	catch (Exception e) {  
@@ -151,13 +151,14 @@ public String addNewUser( String sessionid, String id ,String eid, String firstn
 	return "success";
 }
 
-public String removeUser( String sessionid, String userid) throws AxisFault
+public String removeUser( String sessionid, String eid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		UserDirectoryService.removeUser(userEdit);
 	
@@ -168,13 +169,14 @@ public String removeUser( String sessionid, String userid) throws AxisFault
 	return "success";
 }
 
-public String changeUserInfo( String sessionid, String userid, String firstname, String lastname, String email, String type, String password) throws AxisFault
+public String changeUserInfo( String sessionid, String eid, String firstname, String lastname, String email, String type, String password) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		userEdit.setFirstName(firstname);
 		userEdit.setLastName(lastname);
@@ -190,13 +192,14 @@ public String changeUserInfo( String sessionid, String userid, String firstname,
 	return "success";
 }
 
-public String changeUserName( String sessionid, String userid, String firstname, String lastname) throws AxisFault
+public String changeUserName( String sessionid, String eid, String firstname, String lastname) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		userEdit.setFirstName(firstname);
 		userEdit.setLastName(lastname);
@@ -209,13 +212,14 @@ public String changeUserName( String sessionid, String userid, String firstname,
 	return "success";
 }
 
-public String changeUserEmail( String sessionid, String userid, String email) throws AxisFault
+public String changeUserEmail( String sessionid, String eid, String email) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		userEdit.setEmail(email);
 		UserDirectoryService.commitEdit(userEdit);
@@ -227,13 +231,13 @@ public String changeUserEmail( String sessionid, String userid, String email) th
 	return "success";
 }
 
-public String changeUserType( String sessionid, String userid, String type) throws AxisFault
+public String changeUserType( String sessionid, String eid, String type) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
-
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		userEdit.setType(type);
 		UserDirectoryService.commitEdit(userEdit);
@@ -245,13 +249,14 @@ public String changeUserType( String sessionid, String userid, String type) thro
 	return "success";
 }
 
-public String changeUserPassword( String sessionid, String userid, String password) throws AxisFault
+public String changeUserPassword( String sessionid, String eid, String password) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		UserEdit userEdit = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		userEdit = UserDirectoryService.editUser(userid);
 		userEdit.setPassword(password);
 		UserDirectoryService.commitEdit(userEdit);
@@ -429,13 +434,14 @@ public String setRoleDescription( String sessionid, String authzgroupid, String 
 }
 
 //addUserToRealmWithRole
-public String addMemberToAuthzGroupWithRole( String sessionid, String userid, String authzgroupid, String roleid) throws AxisFault
+public String addMemberToAuthzGroupWithRole( String sessionid, String eid, String authzgroupid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		authzgroup.addMember(userid,roleid,true,false);
 		AuthzGroupService.save(authzgroup);
 	
@@ -447,13 +453,14 @@ public String addMemberToAuthzGroupWithRole( String sessionid, String userid, St
 }
 
 //removeUserFromRealm
-public String removeMemberFromAuthzGroup( String sessionid, String userid, String authzgroupid) throws AxisFault
+public String removeMemberFromAuthzGroup( String sessionid, String eid, String authzgroupid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 
 		AuthzGroup authzgroup = AuthzGroupService.getAuthzGroup(authzgroupid);
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		authzgroup.removeMember(userid);
 		AuthzGroupService.save(authzgroup);
 	
@@ -500,12 +507,13 @@ public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgro
 	return "success";
 }
 
-public String addMemberToSiteWithRole(String sessionid, String siteid, String userid, String roleid) throws AxisFault
+public String addMemberToSiteWithRole(String sessionid, String siteid, String eid, String roleid) throws AxisFault
 {
 	Session session = establishSession(sessionid);
 	
 	try {
 		Site site = SiteService.getSite(siteid);
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		site.addMember(userid,roleid,true,false);
 		SiteService.save(site);
 	}
@@ -706,12 +714,13 @@ public String addConfigPropertyToTool( String sessionid, String siteid, String p
 }
 
 //checkForUser(): a call to check for an existing user
-public boolean checkForUser(String sessionid, String userid) throws AxisFault
+public boolean checkForUser(String sessionid, String eid) throws AxisFault
 {
 	Session s = establishSession(sessionid);
 	
 	try {
-		User u = null; 
+		User u = null;
+		String userid = UserDirectoryService.getUserByEid(eid).getId();
 		u = UserDirectoryService.getUser(userid);
 		if (u != null)
 			return true;
@@ -744,7 +753,7 @@ public boolean checkForSite(String sessionid, String siteid) throws AxisFault
 }
 
 //checkForUserInRealmWithRole
-public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String userid, String authzgroupid, String role) throws AxisFault
+public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, String authzgroupid, String role) throws AxisFault
 {
 	Session s = establishSession(sessionid);
 	
@@ -754,6 +763,7 @@ public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String useri
 		if (authzgroup == null)
 			return false;
 		else {
+			String userid = UserDirectoryService.getUserByEid(eid).getId();
 			return authzgroup.hasRole(userid, role);
 		}
 	}
