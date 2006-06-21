@@ -1673,7 +1673,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
@@ -1693,7 +1693,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 			// }
 
 			// add the current user's realm
-			ref.addUserAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
+			ref.addUserAuthzGroup(rv, userId);
 
 			// site helper
 			rv.add("!site.helper");
