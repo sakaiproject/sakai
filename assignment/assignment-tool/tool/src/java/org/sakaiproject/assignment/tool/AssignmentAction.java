@@ -83,6 +83,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
@@ -1530,6 +1531,23 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // isGradebookDefined()
 
+   /**
+    ** Retrieve tool title from Tool configuration file or use default
+    ** (This should return i18n version of tool title if available)
+    **/
+   private String getToolTitle()
+   {
+      Tool tool = ToolManager.getTool("sakai.assignment.grades");
+      String toolTitle = null;
+
+      if (tool == null)
+        toolTitle = "Assignments";
+      else
+        toolTitle = tool.getTitle();
+      
+      return toolTitle;
+   }
+                
 	/**
 	 * integration with gradebook
 	 * 
@@ -1569,7 +1587,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// add assignment to gradebook
 						g.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title,
-								newAssignment_maxPoints / 10, new Date(newAssignment_dueTime.getTime()), "Assignment");
+								newAssignment_maxPoints / 10, new Date(newAssignment_dueTime.getTime()), getToolTitle());
 					}
 					catch (AssignmentHasIllegalPointsException e)
 					{
