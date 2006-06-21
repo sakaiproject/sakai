@@ -229,6 +229,9 @@ public class ItemHelper12Impl extends ItemHelperBase
     }
     try
     {
+// put CDATA around answers 
+      log.debug("putting CDATA around : " + value);
+      value =  "<![CDATA[" + value + "]]>";
       itemXml.update(xpath + "/response_label[" + responseNo +
                      "]/material/mattext",
                      value);
