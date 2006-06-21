@@ -58,6 +58,7 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
@@ -82,6 +83,11 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
+	/** The session cache variable for current user's preferences */
+	protected String ATTR_PREFERENCE = "attr_preference";
+	
+	/** The session cache variable for indicating whether the current user's preference was null when last looked */
+	protected String ATTR_PREFERENCE_IS_NULL = "attr_preference_is_null";
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -320,6 +326,16 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 
 		// complete the edit
 		m_storage.commit(edit);
+		
+		SessionManager sManager = sessionManager();
+		Session s = sManager.getCurrentSession();
+		
+		// update the session cache if the preference is for current session user
+		if (sManager.getCurrentSessionUserId().equals(edit.getId()))
+		{
+			s.setAttribute(ATTR_PREFERENCE, new BasePreferences((BasePreferences) edit));
+			s.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
+		}
 
 		// track it
 		eventTrackingService()
@@ -401,7 +417,46 @@ public abstract class BasePreferencesService implements PreferencesService, Stor
 	 */
 	protected BasePreferences findPreferences(String id)
 	{
-		BasePreferences prefs = (BasePreferences) m_storage.get(id);
+		BasePreferences prefs = null;
+		
+		if (id != null)
+		{
+			Session session = sessionManager().getCurrentSession();
+			
+			if (id.equals(sessionManager().getCurrentSessionUserId()))
+			{
+				// if the preference is for current user
+				if (session.getAttribute(ATTR_PREFERENCE_IS_NULL)!=null)
+				{
+					if (!((Boolean) session.getAttribute(ATTR_PREFERENCE_IS_NULL)).booleanValue())
+					{
+						// if the cache indicate the preference is not null, get the preferences from cache
+						prefs = new BasePreferences((BasePreferences) session.getAttribute(ATTR_PREFERENCE));
+					}
+				}
+				else
+				{
+					//otherwise, get preferences from storage and update session cache
+					prefs = (BasePreferences) m_storage.get(id);
+					if (prefs != null)
+					{
+						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.FALSE);
+						session.setAttribute(ATTR_PREFERENCE, new BasePreferences(prefs));
+					}
+					else
+					{
+						session.setAttribute(ATTR_PREFERENCE_IS_NULL, Boolean.TRUE);
+						session.removeAttribute(ATTR_PREFERENCE);
+					}
+				}
+			}
+			else
+			{
+				// uf the preference is not for current user, ignore cache completely
+				prefs = (BasePreferences) m_storage.get(id);
+			}
+		}
+		
 		return prefs;
 	}
 
