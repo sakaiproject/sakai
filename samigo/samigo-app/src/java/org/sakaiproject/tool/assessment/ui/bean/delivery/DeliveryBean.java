@@ -1627,7 +1627,7 @@ public class DeliveryBean
    */
   public String addMediaToItemGrading(String mediaLocation)
     {
-    System.out.println("****"+mediaLocation+" "+(new Date());
+    System.out.println("****"+mediaLocation+" "+(new Date()));
     GradingService gradingService = new GradingService();
     PublishedAssessmentService publishedService = new
       PublishedAssessmentService();

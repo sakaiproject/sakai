@@ -235,9 +235,9 @@ public class SubmitToGradingActionListener implements ActionListener
       Iterator iter2 = part.getItemContents().iterator();
       while (iter2.hasNext()){ // go through each item from form
         ItemContentsBean item = (ItemContentsBean) iter2.next();
-        System.out.println("****** before prepareItemGradingPerItem");
+        log.debug("****** before prepareItemGradingPerItem");
         prepareItemGradingPerItem(delivery, item, adds, removes);
-        System.out.println("****** after prepareItemGradingPerItem");
+        log.debug("****** after prepareItemGradingPerItem");
       }
     }
     AssessmentGradingData adata = persistAssessmentGrading(delivery, itemGradingHash, 
@@ -258,7 +258,7 @@ public class SubmitToGradingActionListener implements ActionListener
     }
 
     GradingService service = new GradingService();
-    System.out.println("**adata="+adata);
+    log.debug("**adata="+adata);
     if (adata == null) { // <--- this shouldn't happened 'cos it should have been created by BeginDelivery
       adata = makeNewAssessmentGrading(publishedAssessment, delivery, itemGradingHash);
       delivery.setAssessmentGrading(adata);
@@ -271,15 +271,15 @@ public class SubmitToGradingActionListener implements ActionListener
       HashMap fibMap = getFIBMap(publishedAssessment);
       HashMap mcmrMap = getMCMRMap(publishedAssessment);
       Set itemGradingSet = adata.getItemGradingSet();
-    System.out.println("*** 2a. before removal & addition "+(new Date()));
+      log.debug("*** 2a. before removal & addition "+(new Date()));
       if (itemGradingSet!=null){
-    System.out.println("*** 2aa. removing old itemGrading "+(new Date()));
+        log.debug("*** 2aa. removing old itemGrading "+(new Date()));
         itemGradingSet.removeAll(removes);
         service.deleteAll(removes);
         // refresh itemGradingSet & assessmentGrading after removal 
-    System.out.println("*** 2ab. reload itemGradingSet "+(new Date()));
+        log.debug("*** 2ab. reload itemGradingSet "+(new Date()));
         itemGradingSet = service.getItemGradingSet(adata.getAssessmentGradingId().toString());
-    System.out.println("*** 2ac. load assessmentGarding "+(new Date()));
+        log.debug("*** 2ac. load assessmentGarding "+(new Date()));
         adata = service.load(adata.getAssessmentGradingId().toString());
 
         Iterator iter = adds.iterator();
@@ -288,7 +288,7 @@ public class SubmitToGradingActionListener implements ActionListener
 	}
         // make update to old item and insert new item
         // and we will only update item that has been changed
-    System.out.println("*** 2ad. set assessmentGrading with new/updated itemGrading "+(new Date()));
+        log.debug("*** 2ad. set assessmentGrading with new/updated itemGrading "+(new Date()));
         HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap, mcmrMap);
         adata.setItemGradingSet(updateItemGradingSet);
       }
@@ -296,10 +296,10 @@ public class SubmitToGradingActionListener implements ActionListener
 
     adata.setIsLate(isLate(publishedAssessment));
     adata.setForGrade(new Boolean(delivery.getForGrade()));
-    System.out.println("*** 2b. before storingGrades, did all the removes and adds "+(new Date()));
+    log.debug("*** 2b. before storingGrades, did all the removes and adds "+(new Date()));
     service.saveOrUpdateAssessmentGrading(adata); 
 
-    System.out.println("*** 3. before storingGrades, did all the removes and adds "+(new Date()));
+    log.debug("*** 3. before storingGrades, did all the removes and adds "+(new Date()));
     // 3. let's build three HashMap with (publishedItemId, publishedItem), 
     // (publishedItemTextId, publishedItem), (publishedAnswerId, publishedItem) to help with
     // storing grades
@@ -308,7 +308,7 @@ public class SubmitToGradingActionListener implements ActionListener
     HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
     service.storeGrades(adata, publishedAssessment, publishedItemHash, 
                         publishedItemTextHash, publishedAnswerHash);
-    System.out.println("*** 4. after storingGrades, did all the removes and adds "+(new Date()));
+    log.debug("*** 4. after storingGrades, did all the removes and adds "+(new Date()));
     return adata;
   }
 
@@ -361,11 +361,11 @@ public class SubmitToGradingActionListener implements ActionListener
           oldItem.setAutoScore(newItem.getAutoScore());
           oldItem.setOverrideScore(newItem.getOverrideScore());
           updateItemGradingSet.add(oldItem);
-          //System.out.println("**** SubmitToGrading: need update "+oldItem.getItemGradingId());
+          //log.debug("**** SubmitToGrading: need update "+oldItem.getItemGradingId());
 	}
       }
       else {  // itemGrading from new set doesn't exist, add to set in this case
-        //System.out.println("**** SubmitToGrading: need add new item");
+        //log.debug("**** SubmitToGrading: need add new item");
         updateItemGradingSet.add(newItem);
       }
     }
@@ -502,10 +502,10 @@ public class SubmitToGradingActionListener implements ActionListener
             String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
             Long questionId = item.getItemData().getItemId();
             String mediaLocation = repositoryPath+ContextUtil.lookupParam("mediaLocation_"+questionId.toString());           
-            //System.out.println("**** mediaLocation="+mediaLocation);
+            //log.debug("**** mediaLocation="+mediaLocation);
             try{
               File file = new File(mediaLocation); 
-              //System.out.println("**** file exists="+file.exists());
+              //log.debug("**** file exists="+file.exists());
               if (file.exists())
                 delivery.addMediaToItemGrading(mediaLocation);
 	    }
