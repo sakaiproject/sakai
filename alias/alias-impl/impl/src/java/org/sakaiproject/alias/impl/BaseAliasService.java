@@ -901,7 +901,7 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// for alias access %%% ? what realm? -ggolden
 		return null;
