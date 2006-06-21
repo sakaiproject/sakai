@@ -99,15 +99,15 @@ public class AgentHelperImpl implements AgentHelper
       }
       else
       {
-log.debug("userdisplayid = " + user.getEid());
-        agentS = user.getEid();
+// log.debug("userid = " + user.getEid());
+        agentS = user.getId();
       }
     }
     catch (Exception ex)
     {
       log.warn(ex);
     }
-    log.debug("** getAgentString() ="+agentS);
+    // log.debug("** getAgentString() ="+agentS);
     return agentS;
   }
 
