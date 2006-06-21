@@ -115,9 +115,10 @@ public interface EntityHandler
 	 * Gets the AuthZGroups associated with this entity
 	 * 
 	 * @param entity
+	 * @param userId
 	 * @return
 	 */
-	Collection getAuthzGroups(Reference entity);
+	Collection getAuthzGroups(Reference entity, String userId);
 
 	/**
 	 * Generate a HTML link for the entity handler

@@ -551,7 +551,7 @@ public class ComponentIntegrationTest extends TestCase
 				ha.handleAccess(req, res, ref, copy);
 				logger.info("URL " + testURL + "Got response of "
 						+ res.getContentAsString());
-				Collection authZGroups = service.getEntityAuthzGroups(ref);
+				Collection authZGroups = service.getEntityAuthzGroups(ref, null);
 				logger.info("Reference  " + ref.getReference());
 				for (Iterator ic = authZGroups.iterator(); ic.hasNext();)
 				{
@@ -645,7 +645,7 @@ public class ComponentIntegrationTest extends TestCase
 		Entity e = rwikiObjectservice.getEntity(r);
 		assertNotNull("Entity is Null should not be", e);
 		logger.info(" Got Entity from getEntity " + e);
-		Collection c = rwikiObjectservice.getEntityAuthzGroups(r);
+		Collection c = rwikiObjectservice.getEntityAuthzGroups(r, null);
 		assertNotNull("AuthZGroups  should not be null  ", c);
 		logger.info("getAuthZGroups gave " + c);
 		String description = rwikiObjectservice.getEntityDescription(r);

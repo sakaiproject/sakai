@@ -609,7 +609,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getAuthzGroups(Reference ref)
+	public Collection getAuthzGroups(Reference ref, String userId)
 	{
 		// use the resources realm, all container (folder) realms
 

@@ -1245,11 +1245,11 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		checkReference(ref);
 		EntityHandler eh = findEntityHandler(ref);
-		return eh.getAuthzGroups(ref);
+		return eh.getAuthzGroups(ref, userId);
 	}
 
 	/**

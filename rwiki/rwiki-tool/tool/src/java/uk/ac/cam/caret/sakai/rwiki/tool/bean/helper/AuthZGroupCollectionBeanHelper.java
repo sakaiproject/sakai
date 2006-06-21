@@ -52,7 +52,8 @@ public class AuthZGroupCollectionBeanHelper
 		Entity entity = objectService.getEntity(currentRWikiObject);
 
 		Collection groupRefs = objectService.getEntityAuthzGroups(EntityManager
-				.newReference(entity.getReference()));
+				.newReference(entity.getReference()), null);
+		// TODO - we might want to deal with this null userId parameter -ggolden
 
 		List groups = new ArrayList(groupRefs.size());
 
