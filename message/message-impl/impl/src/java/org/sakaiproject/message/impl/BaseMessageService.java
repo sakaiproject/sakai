@@ -1436,7 +1436,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
 
@@ -1461,7 +1461,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 				// check SECURE_ALL_GROUPS - if not, check if the message has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if (!m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))
+				if ((userId == null) || (!m_authzGroupService.isAllowed(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext()))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
