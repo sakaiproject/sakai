@@ -972,36 +972,45 @@ public class ItemBean
         ArrayList list = getMultipleChoiceAnswers(); // get existing list
         if (list!=null) {
                 // add additional answer bean
-                int currentsize = list.size();
-                int newlength = currentsize+ new Integer(newvalue).intValue();
-                for (int i=currentsize; i<newlength; i++){
-                        AnswerBean answerbean = new AnswerBean();
-                        answerbean.setSequence(new Long(i+1));
-                        answerbean.setLabel(AnswerBean.choiceLabels[i]);
-                        list.add(answerbean);
+           int currentsize = list.size();
+           int newlength = currentsize+ new Integer(newvalue).intValue();
+           if (newlength<=26){
+              for (int i=currentsize; i<newlength; i++){
+                  AnswerBean answerbean = new AnswerBean();
+                  answerbean.setSequence(new Long(i+1));
+                  answerbean.setLabel(AnswerBean.choiceLabels[i]);
+                  list.add(answerbean);
 
                 }
-        }
-        setMultipleChoiceAnswers(list);
-        setAdditionalChoices("0");
+              setMultipleChoiceAnswers(list);
+              setAdditionalChoices("0");
 
-        // if mcmc, need to set corrAnswers 
-       if (getMultipleCorrect()) {
-          ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
-          int corrsize = corranswersList.size();
-          int counter = 0;
-          String[] corrchoices = new String[corrsize];
-          Iterator iter = corranswersList.iterator();
-          while (iter.hasNext()) {
+              // if mcmc, need to set corrAnswers 
+              if (getMultipleCorrect()) {
+                 ArrayList corranswersList = ContextUtil.paramArrayValueLike("mccheckboxes");
+                 int corrsize = corranswersList.size();
+                 int counter = 0;
+                 String[] corrchoices = new String[corrsize];
+                 Iterator iter = corranswersList.iterator();
+                 while (iter.hasNext()) {
 
-            String currentcorrect = (String) iter.next();
-	    corrchoices[counter]= currentcorrect; 
-            counter++;
-          }
-        this.setCorrAnswers(corrchoices);
+                   String currentcorrect = (String) iter.next();
+	           corrchoices[counter]= currentcorrect; 
+                   counter++;
+                 }
+                 this.setCorrAnswers(corrchoices);
+             }
+           }
+           else
+	       {
+		   //print error
+               FacesContext context=FacesContext.getCurrentInstance();
+	       ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+
+	       context.addMessage(null,new FacesMessage((String)rb.getObject("MCanswer_outofbound_error")));
+	       }
+    
        }
-
-
         return "multipleChoiceItem";
   }
 
