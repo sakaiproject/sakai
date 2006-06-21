@@ -293,6 +293,32 @@ public class ContentHostingService
 		return service.addResource(param0, param1, param2, param3, param4, param5, param6);
 	}
 
+	public static org.sakaiproject.content.api.ContentResource addResource(java.lang.String param0, java.lang.String param1,
+			byte[] param2, org.sakaiproject.entity.api.ResourceProperties param3, java.util.Collection param4, int param5)
+			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.InconsistentException,
+			org.sakaiproject.exception.OverQuotaException, org.sakaiproject.exception.ServerOverloadException
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.addResource(param0, param1, param2, param3, param4, param5);
+	}
+
+	public static org.sakaiproject.content.api.ContentResource addResource(java.lang.String param0, java.lang.String param1,
+			int param2, java.lang.String param3, byte[] param4, org.sakaiproject.entity.api.ResourceProperties param5,
+			java.util.Collection param6, int param7)
+			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdInvalidException,
+			org.sakaiproject.exception.InconsistentException, org.sakaiproject.exception.OverQuotaException,
+			org.sakaiproject.exception.ServerOverloadException, org.sakaiproject.exception.IdUniquenessException,
+			org.sakaiproject.exception.IdLengthException
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.addResource(param0, param1, param2, param3, param4, param5, param6, param7);
+	}
+
 	public static org.sakaiproject.content.api.ContentResourceEdit addResource(java.lang.String param0)
 			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.InconsistentException,

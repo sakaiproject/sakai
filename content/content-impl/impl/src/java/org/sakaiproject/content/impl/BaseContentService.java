@@ -1867,7 +1867,63 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	} // allowAddResource
 
 	/**
-	 * Create a new resource with the given resource id.
+	 * Create a new resource with the given resource id and attributes, including group awareness.
+	 * 
+	 * @param id
+	 *        The id of the new resource.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        An array containing the bytes of the resource's content.
+	 * @param properties
+	 *        A java Properties object with the properties to add to the new resource.
+	 * @param groups
+	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
+	 *        May be empty to indicate access is not limited to a group or groups.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUsedException
+	 *            if the resource id is already in use.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addResource(String id, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
+			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
+			ServerOverloadException
+	{
+		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
+		ContentResourceEdit edit = addResource(id);
+		edit.setContentType(type);
+		edit.setContent(content);
+		addProperties(edit.getPropertiesEdit(), properties);
+		// commit the change
+		if(groups == null || groups.isEmpty())
+		{
+			// access is inherited (the default)
+		}
+		else
+		{
+			edit.setGroupAccess(groups);
+			// TODO: Need to deal with failure here
+		}
+		
+		commitResource(edit, priority);
+
+		return edit;
+
+	} // addResource
+
+	/**
+	 * Create a new resource with the given resource id and attributes but no group awareness.
 	 * 
 	 * @param id
 	 *        The id of the new resource.
@@ -1897,21 +1953,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			throws PermissionException, IdUsedException, IdInvalidException, InconsistentException, OverQuotaException,
 			ServerOverloadException
 	{
-		id = (String) ((Hashtable) fixTypeAndId(id, type)).get("id");
-		ContentResourceEdit edit = addResource(id);
-		edit.setContentType(type);
-		edit.setContent(content);
-		addProperties(edit.getPropertiesEdit(), properties);
-		// commit the change
-		commitResource(edit, priority);
-
-		return edit;
-
-	} // addResource
-
+		Collection no_groups = new Vector();
+		return addResource(id, type, content, properties, no_groups, priority);
+	}
+	
 	/**
 	 * Create a new resource with the given resource name used as a resource id within the specified collection or (if that id is already in use) with a resource id based on a variation on the name to achieve a unique id, provided a unique id can be found
-	 * before a limit is reached on the number of attempts to achieve uniqueness.
+	 * before a limit is reached on the number of attempts to achieve uniqueness.  Used to create a group-aware resource.
 	 * 
 	 * @param name
 	 *        The name of the new resource (such as a filename).
@@ -1925,6 +1973,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        An array containing the bytes of the resource's content.
 	 * @param properties
 	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @param groups
+	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
+	 *        May be empty to indicate access is not limited to a group or groups.
 	 * @param priority
 	 *        The notification priority for this commit.
 	 * @exception PermissionException
@@ -1944,8 +1995,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @return a new ContentResource object.
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
-			ResourceProperties properties, int priority) throws PermissionException, IdUniquenessException, IdLengthException,
-			IdInvalidException, InconsistentException, OverQuotaException, ServerOverloadException
+			ResourceProperties properties, Collection groups, int priority) 
+		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+			InconsistentException, OverQuotaException, ServerOverloadException
 	{
 		try
 		{
@@ -1977,6 +2029,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			edit.setContentType(type);
 			edit.setContent(content);
 			addProperties(edit.getPropertiesEdit(), properties);
+			if(groups == null || groups.isEmpty())
+			{
+				// access is inherited (the default)
+			}
+			else
+			{
+				edit.setGroupAccess(groups);
+				// TODO: Need to deal with failure here
+			}
+			
 			// commit the change
 			commitResource(edit, priority);
 		}
@@ -2031,6 +2093,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						edit = addResource(new_id);
 						edit.setContentType(type);
 						edit.setContent(content);
+						if(groups == null || groups.isEmpty())
+						{
+							// access is inherited (the default)
+						}
+						else
+						{
+							edit.setGroupAccess(groups);
+							// TODO: Need to deal with failure here
+						}
+						
 						addProperties(edit.getPropertiesEdit(), properties);
 						// commit the change
 						commitResource(edit, priority);
@@ -2053,6 +2125,48 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	}
 
+	/**
+	 * Create a new resource with the given resource name used as a resource id within the specified collection or (if that id is already in use) with a resource id based on a variation on the name to achieve a unique id, provided a unique id can be found
+	 * before a limit is reached on the number of attempts to achieve uniqueness. Used to create a resource that is not group aware.
+	 * 
+	 * @param name
+	 *        The name of the new resource (such as a filename).
+	 * @param collectionId
+	 *        The id of the collection to which the resource should be added.
+	 * @param limit
+	 *        The maximum number of attempts at finding a unique id based on the given name.
+	 * @param type
+	 *        The mime type string of the resource.
+	 * @param content
+	 *        An array containing the bytes of the resource's content.
+	 * @param properties
+	 *        A ResourceProperties object with the properties to add to the new resource.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @exception PermissionException
+	 *            if the user does not have permission to add a resource to the containing collection.
+	 * @exception IdUniquenessException
+	 *            if a unique resource id cannot be found before the limit on the number of attempts is reached.
+	 * @exception IdLengthException
+	 *            if the resource id exceeds the maximum number of characters for a valid resource id.
+	 * @exception IdInvalidException
+	 *            if the resource id is invalid.
+	 * @exception InconsistentException
+	 *            if the containing collection does not exist.
+	 * @exception OverQuotaException
+	 *            if this would result in being over quota.
+	 * @exception ServerOverloadException
+	 *            if the server is configured to write the resource body to the filesystem and the save fails.
+	 * @return a new ContentResource object.
+	 */
+	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
+			ResourceProperties properties, int priority) 
+		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
+			InconsistentException, OverQuotaException, ServerOverloadException
+	{
+		Collection no_groups = new Vector();
+		return addResource(name, collectionId, limit, type, content, properties, no_groups, priority);
+	}
 	/**
 	 * Create a new resource with the given resource id, locked for update. Must commitResource() to make official, or cancelResource() when done!
 	 * 
@@ -2188,7 +2302,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		commitCollection(edit);
 
 		// and add the resource
-		return addResource(id, type, content, properties, NotificationService.NOTI_NONE);
+		return addResource(id, type, content, properties, new Vector(), NotificationService.NOTI_NONE);
 
 	} // addAttachmentResource
 
@@ -2295,7 +2409,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		commitCollection(edit);
 
 		// and add the resource
-		return addResource(id, type, content, properties, NotificationService.NOTI_NONE);
+		return addResource(id, type, content, properties, new Vector(), NotificationService.NOTI_NONE);
 
 	} // addAttachmentResource
 
@@ -3246,7 +3360,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			try
 			{
 				ContentResource newResource = addResource(new_id, thisResource.getContentType(), thisResource.getContent(),
-						newProps, NotificationService.NOTI_NONE);
+						newProps, thisResource.getGroups(), NotificationService.NOTI_NONE);
 
 				// use the creator and creation-date of the original instead of the copy
 				BaseResourceEdit resource = (BaseResourceEdit) m_storage.editResource(newResource.getId());
@@ -3469,6 +3583,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			try
 			{
 				ContentResource newResource = addResource(new_id, resource.getContentType(), resource.getContent(), newProps,
+						resource.getGroups(), 
 						NotificationService.NOTI_NONE);
 				if (M_log.isDebugEnabled()) M_log.debug("copyResource successful");
 				still_trying = false;
@@ -7257,6 +7372,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			
 			m_access = access;
+			if(m_access == null || AccessMode.SITE == m_access)
+			{
+				m_access = AccessMode.INHERITED;
+			}
 			
 			// extract release date
 			m_releaseDate = TimeService.newTime(0);
@@ -7585,6 +7704,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			stack.push(collection);
 
 			collection.setAttribute("id", m_id);
+			if(m_access == null || AccessMode.SITE == m_access)
+			{
+				m_access = AccessMode.INHERITED;
+			}
 			collection.setAttribute(ACCESS_MODE, m_access.toString());
 			collection.setAttribute(RELEASE_DATE, m_releaseDate.toString());
 			collection.setAttribute(RETRACT_DATE, m_retractDate.toString());
@@ -7929,6 +8052,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					access = AccessMode.fromString(access_mode);
 				}
 				m_access = access;
+				if(m_access == null || AccessMode.SITE == m_access)
+				{
+					m_access = AccessMode.INHERITED;
+				}
 				
 				// extract release date
 				m_releaseDate = TimeService.newTime(0);
@@ -8231,6 +8358,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 			// add access
+			if(m_access == null || AccessMode.SITE == m_access)
+			{
+				m_access = AccessMode.INHERITED;
+			}
 			resource.setAttribute(ACCESS_MODE, m_access.toString());
 			
 			// add release-date and retract-date
