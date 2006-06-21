@@ -1593,6 +1593,8 @@ public class DeliveryActionListener
     int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
     //System.out.println("***time passed before reload next page="+timeElapsed+timeTakenBefore);
     ag.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+    // not sure why isLate lost its value, so setting it again here
+    ag.setIsLate(Boolean.FALSE);
     GradingService gradingService = new GradingService();
     gradingService.saveOrUpdateAssessmentGrading(ag);
     delivery.setTimeElapse(ag.getTimeElapsed().toString());
