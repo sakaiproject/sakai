@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-site-manage-impl</name>
+	<name>sakai-site-manage-util</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-site-manage-impl</id>
+	<id>sakai-site-manage-util</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
@@ -50,13 +50,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-site-manage-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>

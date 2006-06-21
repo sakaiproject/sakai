@@ -111,6 +111,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.SubjectAffiliates;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;

@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.site.tool;
+package org.sakaiproject.util;
 
 import java.util.Collection;
 import java.util.Vector;
