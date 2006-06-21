@@ -1462,7 +1462,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
@@ -1474,7 +1474,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			rv.add(userReference(ref.getId()));
 
-			ref.addUserTemplateAuthzGroup(rv, sessionManager().getCurrentSessionUserId());
+			ref.addUserTemplateAuthzGroup(rv, userId);
 		}
 		catch (NullPointerException e)
 		{
