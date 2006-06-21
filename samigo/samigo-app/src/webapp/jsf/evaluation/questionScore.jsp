@@ -472,12 +472,18 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:outputText  value="(#{msg.click_shortAnswer})" />
     </h:outputLink>
+
+<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+
+    <h:outputText  value="(#{msg.click_rationale})" />
+    </h:outputLink>
+<%--
     <h:outputLink title="#{msg.t_rationale}"
       rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}" 
       value="#" onclick="javascript:window.alert('#{description.rationale}');" onkeypress="javascript:window.alert('#{description.rationale}');" >
     <h:outputText  value="(#{msg.click_rationale})"/>
     </h:outputLink>
-
+--%>
       <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload2">
           <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>

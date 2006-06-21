@@ -283,8 +283,9 @@ public class AgentResults
   }
 
   public String getRationale() {
-    String unicodeRationale= ContextUtil.getStringInUnicode(rationale);
-    return Validator.check(unicodeRationale, "");
+      // String unicodeRationale= ContextUtil.getStringInUnicode(rationale);
+    return Validator.check(rationale,"");
+    // return Validator.check(unicodeRationale, "");
   }
   public void setRationale(String param) {
     this.rationale= param;
