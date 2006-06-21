@@ -4698,7 +4698,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
@@ -4779,11 +4779,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			else if(AccessMode.GROUPED.equals(access))
 			{
 				Site site = m_siteService.getSite(ref.getContext());
-				User user = UserDirectoryService.getCurrentUser();
 				boolean useSiteAsContext = false;
-				if(site != null && user != null)
+				if(site != null && userId != null)
 				{
-					useSiteAsContext = site.isAllowed(user.getId(), EVENT_RESOURCE_ALL_GROUPS);
+					useSiteAsContext = site.isAllowed(userId, EVENT_RESOURCE_ALL_GROUPS);
 				}
 				if(useSiteAsContext)
 				{
