@@ -955,7 +955,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/**
 	 * {@inheritDoc}
 	 */
-	public Collection getEntityAuthzGroups(Reference ref)
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
@@ -971,7 +971,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 			// make a new reference on the azGroup's id
 			Reference refnew = entityManager().newReference(ref.getId());
-			rv.addAll(refnew.getRealms());
+			rv.addAll(refnew.getAuthzGroups(userId));
 		}
 
 		return rv;

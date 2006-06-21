@@ -267,7 +267,7 @@ public abstract class SakaiSecurity implements SecurityService
 		Reference ref = entityManager().newReference(entityRef);
 
 		// get this entity's AuthzGroups
-		Collection azgs = ref.getRealms();
+		Collection azgs = ref.getAuthzGroups(userId);
 		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
 		// cache
@@ -297,7 +297,7 @@ public abstract class SakaiSecurity implements SecurityService
 		Reference ref = entityManager().newReference(reference);
 
 		// get this resource's Realms
-		Collection realms = ref.getRealms();
+		Collection realms = ref.getAuthzGroups();
 
 		// get the users who can unlock in these realms
 		List ids = new Vector();

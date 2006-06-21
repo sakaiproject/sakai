@@ -208,7 +208,7 @@ public class PermissionsAction
 
 			// get this resource's role Realms,those that refine the role definitions, but not it's own
 			Reference ref = EntityManager.newReference(edit.getId());
-			Collection realms = ref.getRealms();
+			Collection realms = ref.getAuthzGroups();
 			realms.remove(ref.getReference());
 
 			for (Iterator iRoles = roles.iterator(); iRoles.hasNext();)
