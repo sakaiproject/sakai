@@ -1755,6 +1755,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// close the edit object
 		((BaseCollectionEdit) edit).closeEdit();
 
+		// the collection has changed so we must remove
+		// the old version from thread-local cache.
+		String ref = edit.getReference();
+		ThreadLocalManager.set("findCollection@" + ref, null);
+		
 	} // commitCollection
 
 	/**
