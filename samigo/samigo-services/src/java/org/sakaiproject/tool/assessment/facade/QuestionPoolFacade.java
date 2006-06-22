@@ -29,6 +29,9 @@ import java.util.Set;
 import org.osid.shared.Id;
 import org.osid.shared.SharedException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPool;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolException;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -45,6 +48,9 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 public class QuestionPoolFacade
     implements QuestionPoolDataIfc, Cloneable
 {
+  private static Log log = LogFactory.getLog(QuestionPoolFacade.class);
+
+
   public static Long ACCESS_DENIED = new Long(30);
   public static Long READ_ONLY = new Long(31);
   public static Long READ_COPY = new Long(32);
@@ -796,4 +802,11 @@ public class QuestionPoolFacade
     QuestionPoolFacade newPool = new QuestionPoolFacade((QuestionPoolData)data.clone());
     return newPool;
   }
+
+  public String getOwnerDisplayName() {
+    String ownerIdString = this.getOwnerId();
+    String ownerDisplayName= AgentFacade.getDisplayName(ownerIdString);
+    return ownerDisplayName;
+  }
+
 }

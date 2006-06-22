@@ -99,6 +99,7 @@
 </h:panelGroup>
     </h:column>
 
+  
     <h:column id="col2">
      <f:facet name="header">
      <h:panelGroup>
@@ -123,7 +124,10 @@
      </h:panelGroup>
      </f:facet>
      <h:panelGroup id="secondcolumn">
-        <h:outputText value="#{pool.ownerId}"/>
+<%-- 
+lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns the long internal ID, rather than the short login, Will need to fix sorting too, but right now qpool is person scoped so sorting doesn't make any difference 
+--%>
+        <h:outputText value="#{pool.ownerDisplayName}"/>
      </h:panelGroup>
     </h:column>
 
