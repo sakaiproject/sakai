@@ -55,7 +55,7 @@
 <div class="tier2">
   <span id="num1" class="number"></span>
   <div class="shorttext"><h:outputLabel for="answerptr" value="#{msg.answer_point_value}" />
-  <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" >
+  <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
     <f:validateDoubleRange />
   </h:inputText>
  <br/>  <h:message for="answerptr" styleClass="validate"/>
