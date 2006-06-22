@@ -132,11 +132,41 @@ public class DiscussionForumTool
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
 
-  private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "Insufficient privileges to edit Template Settings";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS = "cdfm_insufficient_privileges";
+  private static final String INSUFFICIENT_PRIVILEAGES_TO="cdfm_insufficient_privileages_to";
+  private static final String INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM="cdfm_insufficient_privileges_change_forum";
+  private static final String INSUFFICIENT_PRIVILEGES_NEW_TOPIC = "cdfm_insufficient_privileges_new_topic";
+  private static final String INSUFFICIENT_PRIVILEGES_CREATE_TOPIC="cdfm_insufficient_privileges_create_topic";
+  private static final String USER_NOT_ALLOWED_CREATE_FORUM="cdfm_user_not_allowed_create_forum";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM="cdfm_insufficient_privileges_delete_forum";
   private static final String SHORT_DESC_TOO_LONG = "cdfm_short_desc_too_long";
   private static final String LAST_REVISE_BY = "cdfm_last_revise_msg"; 
-  private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on"; 
-
+  private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on";
+  private static final String VALID_FORUM_TITLE_WARN = "cdfm_valid_forum_title_warn";
+  private static final String VALID_TOPIC_TITLE_WARN = "cdfm_valid_topic_title_warn";
+  private static final String INVALID_SELECTED_FORUM ="cdfm_invalid_selected_forum";
+  private static final String FORUM_NOT_FOUND = "cdfm_forum_not_found";
+  private static final String SELECTED_FORUM_NOT_FOUND =  "cdfm_selected_forum_not_found";
+  private static final String FAILED_NEW_TOPIC ="cdfm_failed_new_topic";
+  private static final String TOPIC_WITH_ID = "cdfm_topic_with_id";
+  private static final String MESSAGE_WITH_ID = "cdfm_message_with_id";
+  private static final String NOT_FOUND_WITH_QUOTE = "cdfm_not_found_quote";
+  private static final String PARENT_FORUM_NOT_FOUND = "cdfm_parent_forum_not_found";
+  private static final String NOT_FOUND_REDIRECT_PAGE = "cdfm_not_found_redirect_page";
+  private static final String MESSAGE_REFERENCE_NOT_FOUND = "cdfm_message_reference_not_found";
+  private static final String TOPC_REFERENCE_NOT_FOUND = "cdfm_topic_reference_not_found";
+  private static final String UNABLE_RETRIEVE_TOPIC = "cdfm_unable_retrieve_topic";
+  private static final String PARENT_TOPIC_NOT_FOUND = "cdfm_parent_topic_not_found";
+  private static final String FAILED_CREATE_TOPIC = "cdfm_failed_create_topic";
+  private static final String FAILED_REND_MESSAGE = "cdfm_failed_rend_message";
+  private static final String VIEW_UNDER_CONSTRUCT = "cdfm_view_under_construct";
+  private static final String LOST_ASSOCIATE = "cdfm_lost_association";
+  private static final String NO_MARKED_READ_MESSAGE = "cdfm_no_message_mark_read";
+  private static final String GRADE_SUCCESSFUL = "cdfm_grade_successful";
+  private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
+  private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
+  private static final String ALERT = "cdfm_alert";
+  
   private List forums = new ArrayList();
 
   // compose
@@ -391,7 +421,7 @@ public class DiscussionForumTool
     	       	
     if(!isInstructor())
     {
-      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
       return MAIN;
     }
     return TEMPLATE_SETTING;
@@ -462,7 +492,7 @@ public class DiscussionForumTool
     LOG.debug("processActionSaveTemplateSettings()");
     if(!isInstructor())
     {
-      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
       return MAIN;
     }    
     
@@ -480,7 +510,7 @@ public class DiscussionForumTool
     LOG.debug("processActionRestoreDefaultTemplate()");
     if(!isInstructor())
     {
-      setErrorMessage(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS);
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_TEMPLATE_SETTINGS));
       return MAIN;
     }
     
@@ -541,7 +571,7 @@ public class DiscussionForumTool
 //  TODO:
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to delete this forum");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE_FORUM));
       return MAIN;
     }
     selectedForum.setMarkForDeletion(true);
@@ -559,7 +589,7 @@ public class DiscussionForumTool
     }
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEAGES_TO));
       return MAIN;
     }
     forumManager.deleteForum(selectedForum.getForum());
@@ -588,7 +618,7 @@ public class DiscussionForumTool
     }
     else
     {
-      setErrorMessage("User is not allowed to create a new forum");
+      setErrorMessage(getResourceBundleString(USER_NOT_ALLOWED_CREATE_FORUM));
       return MAIN;
     }
   }
@@ -605,13 +635,13 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if ((forumId) == null)
     {
-      setErrorMessage("Invalid forum selected");
+      setErrorMessage(getResourceBundleString(INVALID_SELECTED_FORUM));
       return MAIN;
     }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
     if(!uiPermissionsManager.isChangeSettings(forum))
     {
-      setErrorMessage("Insufficient privileges to change forum settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return MAIN;
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
@@ -631,12 +661,12 @@ public class DiscussionForumTool
     setPermissionMode(PERMISSION_MODE_FORUM);
     if ((selectedForum) == null)
     {
-      setErrorMessage("Forum not found");
+      setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
       return MAIN;
     }
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change forum settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return MAIN;
     }
     List attachList = selectedForum.getForum().getAttachments();
@@ -670,25 +700,25 @@ public class DiscussionForumTool
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid forum title");
+      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change forum settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return MAIN;
     }   
     
     DiscussionForum forum = saveForumSettings(false);    
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to create new topic");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
       return MAIN;
     }    
     selectedTopic = createTopic(forum.getId());
     if (selectedTopic == null)
     {
-      setErrorMessage("Create New Topic Failed!");
+      setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
       return MAIN;
@@ -715,14 +745,14 @@ public class DiscussionForumTool
     
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change forum settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return MAIN;
     }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid forum title");
+      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
     saveForumSettings(false);
@@ -748,14 +778,14 @@ public class DiscussionForumTool
 
     if(!uiPermissionsManager.isChangeSettings(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change forum settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return MAIN;
     }
     if(selectedForum!=null && selectedForum.getForum()!=null && 
         (selectedForum.getForum().getTitle()==null 
           ||selectedForum.getForum().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid forum title");
+      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return FORUM_SETTING_REVISE;
     }    
     saveForumSettings(true);
@@ -770,14 +800,14 @@ public class DiscussionForumTool
     
     if (selectedForum == null)
     {
-      setErrorMessage("Selected Forum not found");
+      setErrorMessage(getResourceBundleString(SELECTED_FORUM_NOT_FOUND));
       return null;
     }
   
     DiscussionForum forum = selectedForum.getForum();
     if (forum == null)
     {
-      setErrorMessage("Forum not found");
+      setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
       return null;
     }
     
@@ -830,14 +860,14 @@ public class DiscussionForumTool
     setNewTopicBeanAssign();
     if (selectedTopic == null)
     {
-      setErrorMessage("Create New Topic Failed!");
+      setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
       return MAIN;
     }
     if(!uiPermissionsManager.isNewTopic(selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to create new topic");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CREATE_TOPIC));
       return MAIN;
     }
     attachments.clear();
@@ -864,8 +894,8 @@ public class DiscussionForumTool
     }
     if (topic == null)
     {
-      setErrorMessage("Topic with id '" + getExternalParameterByKey(TOPIC_ID)
-          + "'not found");
+      setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + getExternalParameterByKey(TOPIC_ID)
+          + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
       return MAIN;
     }
   
@@ -876,7 +906,7 @@ public class DiscussionForumTool
     
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change topic settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return MAIN;
     }
     List attachList = selectedTopic.getTopic().getAttachments();
@@ -910,21 +940,21 @@ public class DiscussionForumTool
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid topic title");
+      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
     saveTopicSettings(false);    
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
     {
-      setErrorMessage("Parent Forum not found");
+      setErrorMessage(getResourceBundleString(PARENT_FORUM_NOT_FOUND));
       return MAIN;
     }
     selectedTopic = null;
     selectedTopic = createTopic(forumId);
     if (selectedTopic == null)
     {
-      setErrorMessage("Create New Topic Failed!");
+      setErrorMessage(getResourceBundleString(FAILED_NEW_TOPIC));
       attachments.clear();
       prepareRemoveAttach.clear();
       return MAIN;
@@ -955,7 +985,7 @@ public class DiscussionForumTool
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid topic title");
+      setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
     saveTopicSettings(false);    
@@ -983,12 +1013,12 @@ public class DiscussionForumTool
         (selectedTopic.getTopic().getTitle()==null 
           ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
     {
-      setErrorMessage("Please enter a valid topic title");
+      setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change topic settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return MAIN;
     }
     saveTopicSettings(true);    
@@ -1040,7 +1070,7 @@ public class DiscussionForumTool
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change topic settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return MAIN;
     }
     selectedTopic.setMarkForDeletion(true);
@@ -1059,7 +1089,7 @@ public class DiscussionForumTool
     }
     if(!uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change topic settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return MAIN;
     }
     forumManager.deleteTopic(selectedTopic.getTopic());
@@ -1086,7 +1116,7 @@ public class DiscussionForumTool
     setSelectedForumForCurrentTopic(topic);
     if(!uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum()))
     {
-      setErrorMessage("Insufficient privileges to change topic settings");
+      setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return MAIN;
     }
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
@@ -1102,7 +1132,7 @@ public class DiscussionForumTool
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     if (redirectTo == null)
     {
-      setErrorMessage("Could not find a redirect page : Read / Hide full descriptions");
+      setErrorMessage(getResourceBundleString(NOT_FOUND_REDIRECT_PAGE));
       return MAIN;
     }
   
@@ -1134,7 +1164,7 @@ public class DiscussionForumTool
     String redirectTo = getExternalParameterByKey(REDIRECT_PROCESS_ACTION);
     if (redirectTo == null)
     {
-      setErrorMessage("Could not find a redirect page : Read / Hide full descriptions");
+      setErrorMessage(getResourceBundleString(NOT_FOUND_REDIRECT_PAGE));
       return MAIN;
     }
     if (redirectTo.equals("displayHome"))
@@ -1217,12 +1247,12 @@ public class DiscussionForumTool
     String topicId = getExternalParameterByKey(TOPIC_ID);
     if (messageId == null)
     {
-      setErrorMessage("Message reference not found");
+      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
       return MAIN;
     }
     if (topicId == null)
     {
-      setErrorMessage("Topic reference not found for the message");
+      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
       return MAIN;
     }
     // Message message=forumManager.getMessageById(new Long(messageId));
@@ -1232,7 +1262,7 @@ public class DiscussionForumTool
         new Long(messageId), true);
     if (message == null)
     {
-      setErrorMessage("Message with id '" + messageId + "'not found");
+      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
       return MAIN;
     }
     message = messageManager.getMessageByIdWithAttachments(message.getId());
@@ -1612,7 +1642,7 @@ public class DiscussionForumTool
         catch (NumberFormatException e)
         {
           LOG.error(e.getMessage(), e);
-          setErrorMessage("Unable to retrieve topic");
+          setErrorMessage(getResourceBundleString(UNABLE_RETRIEVE_TOPIC));
           return MAIN;
         }
 
@@ -1622,7 +1652,7 @@ public class DiscussionForumTool
       else
       {
         LOG.error("Topic with id '" + externalTopicId + "' not found");
-        setErrorMessage("Topic with id '" + externalTopicId + "' not found");
+        setErrorMessage(getResourceBundleString(TOPIC_WITH_ID) + externalTopicId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
         return MAIN;
       }
     }
@@ -1660,7 +1690,7 @@ public class DiscussionForumTool
     String forumId = getExternalParameterByKey(FORUM_ID);
     if (forumId == null)
     {
-      setErrorMessage("Parent Forum for new topic was not found");
+      setErrorMessage(getResourceBundleString(PARENT_TOPIC_NOT_FOUND));
       return null;
     }
     return createTopic(new Long(forumId));
@@ -1674,13 +1704,13 @@ public class DiscussionForumTool
   {
     if (forumId == null)
     {
-      setErrorMessage("Parent Forum for new topic was not found");
+    	setErrorMessage(getResourceBundleString(PARENT_TOPIC_NOT_FOUND));
       return null;
     }
     DiscussionForum forum = forumManager.getForumById(forumId);
     if (forum == null)
     {
-      setErrorMessage("Parent Forum for new topic was not found");
+    	setErrorMessage(getResourceBundleString(PARENT_TOPIC_NOT_FOUND));
       return null;
     }
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
@@ -1689,7 +1719,7 @@ public class DiscussionForumTool
     DiscussionTopic topic = forumManager.createTopic(forum);
     if (topic == null)
     {
-      setErrorMessage("Failed to create new topic");
+      setErrorMessage(getResourceBundleString(FAILED_CREATE_TOPIC));
       return null;
     }
     selectedTopic = new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
@@ -3152,7 +3182,7 @@ public class DiscussionForumTool
     {
       FacesContext currentContext = FacesContext.getCurrentInstance();
       String uiComponentId = "DF-1:dfMsgGradeGradePoint";
-      FacesMessage validateMessage = new FacesMessage("Please input number greater than 0.");
+      FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_GREATER_ZERO));
       validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
       currentContext.addMessage(uiComponentId, validateMessage);
       
@@ -3162,7 +3192,7 @@ public class DiscussionForumTool
     {
       FacesContext currentContext = FacesContext.getCurrentInstance();
       String uiComponentId = "DF-1:dfMsgGradeGradePoint";
-      FacesMessage validateMessage = new FacesMessage("Please input number with 2 or fewer digits after decimal point.");
+      FacesMessage validateMessage = new FacesMessage(getResourceBundleString(GRADE_DECIMAL_WARN));
       validateMessage.setSeverity(FacesMessage.SEVERITY_ERROR);
       currentContext.addMessage(uiComponentId, validateMessage); 
       
@@ -3406,7 +3436,7 @@ public class DiscussionForumTool
     if (changeView == null)
     {
       threaded = false;
-      setErrorMessage("Failed Rending Messages");
+      setErrorMessage(getResourceBundleString(FAILED_REND_MESSAGE));
       return;
     }
     if (changeView.equals(ALL_MESSAGES))
@@ -3452,7 +3482,7 @@ public class DiscussionForumTool
             else
             {
               threaded = false;
-              setErrorMessage("This view is under contruction");
+              setErrorMessage(getResourceBundleString(VIEW_UNDER_CONSTRUCT));
               return;
             }
   }
@@ -3527,13 +3557,13 @@ public class DiscussionForumTool
   {
     if (selectedTopic == null)
     {
-      setErrorMessage("Lost association with current topic");
+      setErrorMessage(getResourceBundleString(LOST_ASSOCIATE));
       return ALL_MESSAGES;
     }
     List messages = selectedTopic.getMessages();
     if (messages == null || messages.size() < 1)
     {
-      setErrorMessage("No message selected to mark as read. Please select a message");
+      setErrorMessage(getResourceBundleString(NO_MARKED_READ_MESSAGE));
       return ALL_MESSAGES;
     }
     Iterator iter = messages.iterator();
@@ -3718,13 +3748,13 @@ public class DiscussionForumTool
   {
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage("Alert: " + errorMsg));
+        new FacesMessage(getResourceBundleString(ALERT) + errorMsg));
   }
   
   private void setGradeNoticeMessage()
   {
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(" Grade submission successful. "));
+        new FacesMessage(getResourceBundleString(GRADE_SUCCESSFUL)));
   }
   
  
