@@ -1111,6 +1111,7 @@ public class QuestionPoolFacadeQueries
              }
 	   }
 	   catch(NumberFormatException e){
+             log.warn("rename title of duplicate pool:"+ e.getMessage());
 	   }
        }
      }

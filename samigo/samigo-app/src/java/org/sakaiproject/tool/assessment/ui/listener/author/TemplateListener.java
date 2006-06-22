@@ -149,7 +149,8 @@ public class TemplateListener extends TemplateBaseListener
       try {
         bean.setTemplateAscending((Boolean.valueOf(tempAscending)).booleanValue());
       }
-      catch (Exception ex) { //skip
+      catch (Exception ex) {
+        log.warn("tempAscending is not a boolena value:"+ex.getMessage());
       }
     }
   }
