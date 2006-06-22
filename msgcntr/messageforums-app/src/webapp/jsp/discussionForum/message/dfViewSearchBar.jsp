@@ -1,6 +1,7 @@
 <h4>
 	<div style="width:100%">
-		<div   style="float:left;width:49%;" >View &nbsp;&nbsp;
+		<div   style="float:left;width:49%;" >
+		  <h:outputText value="#{msgs.df_view}" />
 			<h:selectOneMenu  onchange="this.form.submit();"  valueChangeListener="#{ForumTool.processValueChangeForMessageView}" value="#{ForumTool.selectedMessageView}">
 				<f:selectItem itemValue="dfAllMessages" itemLabel="#{msgs.msg_view_all}" />
 				<f:selectItem itemValue="dfThreadedView" itemLabel="#{msgs.msg_view_threaded}" />
