@@ -742,6 +742,7 @@ public class QuestionPoolFacade
   public void setQuestionPoolItems(Set questionPoolItems) {
     this.questionPoolItems = questionPoolItems;
     this.data.setQuestions(questionPoolItems);
+    this.data.setQuestionPoolItems(questionPoolItems);
   }
 
   public void addQuestionPoolItem(QuestionPoolItemIfc queestionPoolItem){

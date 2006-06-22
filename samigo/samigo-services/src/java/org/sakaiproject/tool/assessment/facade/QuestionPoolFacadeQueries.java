@@ -752,8 +752,6 @@ public class QuestionPoolFacadeQueries
     boolean insert = false;
     try {
       QuestionPoolData qpp = (QuestionPoolData) pool.getData();
-      String ownerId = qpp.getOwnerId();
-	  System.out.println("**** 1. QP belongs to ="+ownerId);
       qpp.setLastModified(new Date());
       qpp.setLastModifiedById(AgentFacade.getAgentString());
       int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
@@ -763,6 +761,7 @@ public class QuestionPoolFacadeQueries
       }
       while (retryCount > 0){
         try {
+          getHibernateTemplate().clear();
           getHibernateTemplate().saveOrUpdate(qpp);
           retryCount = 0;
         }
@@ -772,14 +771,10 @@ public class QuestionPoolFacadeQueries
         }
       }
 
-	  System.out.println("**** 2. QP belongs to ="+qpp.getOwnerId());
-	  System.out.println("**** 2. QP Id ="+qpp.getQuestionPoolId());
-
       if (insert) {
         // add a QuestionPoolAccessData record for the owner who should have ADMIN access to the pool
-	  System.out.println("**** 3. QP belongs to ="+ownerId);
         QuestionPoolAccessData qpa = new QuestionPoolAccessData(qpp.
-            getQuestionPoolId(), ownerId, QuestionPoolData.ADMIN);
+            getQuestionPoolId(), qpp.getOwnerId(), QuestionPoolData.ADMIN);
         retryCount = PersistenceService.getInstance().getRetryCount().intValue();
         while (retryCount > 0){
           try {
@@ -965,14 +960,12 @@ public class QuestionPoolFacadeQueries
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
                        Long destId) {
-    System.out.println("**** 1. copy pool, agentId:"+agentId);
     try {
       boolean haveCommonRoot = false;
       boolean duplicate = false;
 
       // Get the Pools
       QuestionPoolFacade oldPool = getPool(sourceId, agentId);
-        System.out.println("***** old pool owner Id="+oldPool.getOwnerId());
       String oldPoolName= oldPool.getDisplayName();
 
       // Are we creating a duplicate under the same parent?
@@ -984,8 +977,7 @@ public class QuestionPoolFacadeQueries
       // If so, make sure the source level is not higher(up the tree)
       // than the dest. to avoid the endless loop.
       if (!duplicate) {
-        haveCommonRoot = tree.haveCommonRoot
-            (sourceId, destId);
+        haveCommonRoot = tree.haveCommonRoot(sourceId, destId);
       }
 
       if (haveCommonRoot &&
@@ -995,98 +987,36 @@ public class QuestionPoolFacadeQueries
         // We should revisit this.
       }
 
+      QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
+      newPool.setParentPoolId(destId);
+      newPool.setQuestionPoolId(new Long(0));
+      Set questionSet = newPool.getQuestionPoolItems();
+      newPool.setQuestionPoolItems(new HashSet());
+
       // If Pools in same trees,
-      System.out.println("****2. has common root="+haveCommonRoot);
-      if (haveCommonRoot) {
-        // Copy to a Pool inside the root
-        // Copy *this* Pool first
-        QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
-        newPool.setParentPoolId(destId);
-        newPool.setQuestionPoolId(new Long(0));
-        resetQuestions(newPool);
-        newPool = savePool(newPool);
-
-        // Get the SubPools of oldPool
-        Iterator citer = (tree.getChildList(sourceId))
-            .iterator();
-        while (citer.hasNext()) {
-          Long childPoolId =
-              new Long( ( (IdImpl) citer.next()).getIdString());
-          copyPool(
-              tree, agentId, childPoolId,
-              new Long(newPool.getId().getIdString()));
-        }
-      }
-      else { // If Pools in different trees,
-
+      if (!haveCommonRoot) {
+        // If Pools in different trees,
         // Copy to a Pool outside the same root
         // Copy *this* Pool first
-        QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
-        newPool.setParentPoolId(destId);
-        newPool.setQuestionPoolId(new Long(0));
-        resetQuestions(newPool);
-
-        System.out.println("***** new pool owner Id="+newPool.getOwnerId());
-        //newPool = savePool(newPool);
-
-        if (duplicate) {
-	    //find name by loop through sibslings
-	    List siblings=this.getSubPools(destId);
-            boolean subVersion=true;
-	    int num=0;
-	    int indexNum=0;
-	    int maxNum=0;
-           for (int l = 0; l < siblings.size(); l++) {
-	       QuestionPoolData a = (QuestionPoolData)siblings.get(l);
-	       String n=a.getTitle();
-               if(n.startsWith("Copy of ")){
-		   if(n.equals("Copy of "+oldPoolName)){
-		      if (maxNum<1) maxNum=1;
-		   }
-	       }
-               if(n.startsWith("Copy(")){
-                       indexNum=n.indexOf(")",4);
-                       if(indexNum>5){
-			   try{
-			       num=Integer.parseInt(n.substring(5,indexNum));
-			       if(oldPoolName.equals(n.substring(indexNum+5).trim())){
-				   if (num>maxNum)
-				       maxNum=num;
-			       }
-			   }
-		       
-			   catch(NumberFormatException e){
-			      
-			   }
-		       }
-	       }
-	   }
-           if(maxNum==0)
-	  
-	       newPool.updateDisplayName("Copy of "+oldPoolName);
-           else
-               newPool.updateDisplayName("Copy("+(maxNum+1)+") of "+oldPoolName);
-	  
-        }
-        else {
+        if (duplicate) 
+          resetTitle(destId, newPool, oldPoolName);
+        else 
           newPool.updateDisplayName(oldPoolName);
-        }
+      }
 
-        newPool = savePool(newPool);
+      newPool = savePool(newPool);
+      // then save question to pool
+      newPool.setQuestionPoolItems(prepareQuestions(newPool.getQuestionPoolId(), questionSet));
+      newPool = savePool(newPool);
 
-        // Get the SubPools of oldPool
-        Iterator citer = (tree.getChildList(sourceId))
-            .iterator();
-        while (citer.hasNext()) {
-          Long childPoolId = (Long) citer.next();
-          copyPool(tree, agentId, childPoolId, newPool.getQuestionPoolId());
-        }
+      // Get the SubPools of oldPool
+      Iterator citer = (tree.getChildList(sourceId)).iterator();
+      while (citer.hasNext()) {
+        Long childPoolId = (Long) citer.next();
+        copyPool(tree, agentId, childPoolId, newPool.getQuestionPoolId());
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
-    }
-    catch (OsidException e) {
       e.printStackTrace();
     }
   }
@@ -1146,19 +1076,49 @@ public class QuestionPoolFacadeQueries
     return h;
   }
 
-  public void resetQuestions(QuestionPoolFacade newPool){
-    HashSet s = new HashSet();
-    Set c = newPool.getQuestionPoolItems();
-    if (c!=null){
-      System.out.println("**** question.size="+c.size());
-      Iterator iter = c.iterator();
-      while (iter.hasNext()){
-        QuestionPoolItemData i = (QuestionPoolItemData)iter.next();
-        QuestionPoolItemData item = new QuestionPoolItemData(new Long("0"), i.getItemId());
-        s.add(item);
-      }
+  public HashSet prepareQuestions(Long questionPoolId, Set questionSet){
+    HashSet set = new HashSet();
+    Iterator iter = questionSet.iterator();
+    while (iter.hasNext()){
+      QuestionPoolItemData i = (QuestionPoolItemData)iter.next();
+      set.add(new QuestionPoolItemData(questionPoolId, i.getItemId()));
     }
-    newPool.setQuestionPoolItems(s);
+    return set;
+  }
+
+  private void resetTitle(Long destId, QuestionPoolFacade newPool, String oldPoolName){
+    //find name by loop through sibslings
+    List siblings=getSubPools(destId);
+    boolean subVersion=true;
+    int num=0;
+    int indexNum=0;
+    int maxNum=0;
+    for (int l = 0; l < siblings.size(); l++) {
+       QuestionPoolData a = (QuestionPoolData)siblings.get(l);
+       String n=a.getTitle();
+       if(n.startsWith("Copy of ")){
+         if(n.equals("Copy of "+oldPoolName)){
+           if (maxNum<1) maxNum=1;
+         }
+       }
+       if(n.startsWith("Copy(")){
+         indexNum=n.indexOf(")",4);
+         if(indexNum>5){
+	   try{
+             num=Integer.parseInt(n.substring(5,indexNum));
+             if(oldPoolName.equals(n.substring(indexNum+5).trim())){
+               if (num>maxNum) maxNum=num;
+             }
+	   }
+	   catch(NumberFormatException e){
+	   }
+       }
+     }
+   }
+   if(maxNum==0)
+     newPool.updateDisplayName("Copy of "+oldPoolName);
+   else
+     newPool.updateDisplayName("Copy("+(maxNum+1)+") of "+oldPoolName);
   }
 
 }
