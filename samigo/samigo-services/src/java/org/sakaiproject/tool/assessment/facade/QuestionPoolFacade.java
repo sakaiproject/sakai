@@ -43,7 +43,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 public class QuestionPoolFacade
-  implements QuestionPoolDataIfc
+    implements QuestionPoolDataIfc, Cloneable
 {
   public static Long ACCESS_DENIED = new Long(30);
   public static Long READ_ONLY = new Long(31);
@@ -203,7 +203,6 @@ public class QuestionPoolFacade
       throw new DataFacadeException(ex1.getMessage());
     }
   }
-
 
   /**
    * IMPORTANT: this constructor do not have "data", this constructor is
@@ -790,5 +789,10 @@ public class QuestionPoolFacade
 
   private ItemIteratorFacade getItemIterator() {
     return new ItemIteratorFacade(items);
+  }
+
+  public Object clone(){
+    QuestionPoolFacade newPool = new QuestionPoolFacade((QuestionPoolData)data.clone());
+    return newPool;
   }
 }

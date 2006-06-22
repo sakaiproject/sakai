@@ -25,6 +25,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
@@ -39,7 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  * @version $Id$
  */
 public class QuestionPoolData
-  implements Serializable, QuestionPoolDataIfc
+    implements Serializable, QuestionPoolDataIfc, Cloneable
 {
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 9180085666292824370L;
@@ -436,6 +438,37 @@ public class QuestionPoolData
   public Integer getSubPoolSize()
   {
     return subPoolSize;
+  }
+
+  public Object clone(){
+    QuestionPoolData newQ = new QuestionPoolData();
+    newQ.setQuestionPoolId(questionPoolId);
+    newQ.setTitle(title);
+    newQ.setDescription(description);
+    newQ.setParentPoolId(parentPoolId);
+    newQ.setOwnerId(ownerId);
+    newQ.setOwner(owner);
+    newQ.setDateCreated(dateCreated);
+    newQ.setLastModified(lastModified);
+    newQ.setLastModifiedById(lastModifiedById);
+    newQ.setLastModifiedBy(lastModifiedBy);
+    newQ.setAccessTypeId(accessTypeId);
+    newQ.setAccessType(accessType);
+    newQ.setObjectives(objectives);
+    newQ.setKeywords(keywords);
+    newQ.setRubric(rubric);
+    newQ.setTypeId(typeId);
+    newQ.setType(type);
+    newQ.setIntellectualPropertyId(intellectualPropertyId);
+    newQ.setOrganizationName(organizationName);
+    HashSet s = new HashSet();
+    Iterator iter = questionPoolItems.iterator();
+    while (iter.hasNext()){
+      QuestionPoolItemData item = (QuestionPoolItemData)iter.next();
+      s.add(item.clone());
+    } 
+    newQ.setQuestionPoolItems(s);
+    return newQ;
   }
 
 }

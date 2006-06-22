@@ -752,39 +752,45 @@ public class QuestionPoolFacadeQueries
     boolean insert = false;
     try {
       QuestionPoolData qpp = (QuestionPoolData) pool.getData();
+      String ownerId = qpp.getOwnerId();
+	  System.out.println("**** 1. QP belongs to ="+ownerId);
       qpp.setLastModified(new Date());
       qpp.setLastModifiedById(AgentFacade.getAgentString());
+      int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
       if (qpp.getQuestionPoolId() == null ||
           qpp.getQuestionPoolId().equals(new Long("0"))) { // indicate a new pool
         insert = true;
       }
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().saveOrUpdate(qpp);
-        retryCount = 0;
+      while (retryCount > 0){
+        try {
+          getHibernateTemplate().saveOrUpdate(qpp);
+          retryCount = 0;
+        }
+        catch (Exception e) {
+          log.warn("problem saving Or Update pool: "+e.getMessage());
+          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        }
       }
-      catch (Exception e) {
-        log.warn("problem saving Or Update pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
+
+	  System.out.println("**** 2. QP belongs to ="+qpp.getOwnerId());
+	  System.out.println("**** 2. QP Id ="+qpp.getQuestionPoolId());
 
       if (insert) {
         // add a QuestionPoolAccessData record for the owner who should have ADMIN access to the pool
+	  System.out.println("**** 3. QP belongs to ="+ownerId);
         QuestionPoolAccessData qpa = new QuestionPoolAccessData(qpp.
-            getQuestionPoolId(), qpp.getOwnerId(), QuestionPoolData.ADMIN);
-    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().save(qpa);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem saving pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
+            getQuestionPoolId(), ownerId, QuestionPoolData.ADMIN);
+        retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+        while (retryCount > 0){
+          try {
+            getHibernateTemplate().save(qpa);
+            retryCount = 0;
+          }
+          catch (Exception e) {
+            log.warn("problem saving pool: "+e.getMessage());
+            retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          }
+        }
       }
       return pool;
     }
@@ -811,12 +817,6 @@ public class QuestionPoolFacadeQueries
 	    	};
 	    };
 	    return getHibernateTemplate().executeFind(hcb);
-
-//    return getHibernateTemplate().find(
-//        "from QuestionPoolData as qpp where qpp.parentPoolId=?",
-//        new Object[] {poolId}
-//        , new org.hibernate.type.Type[] {Hibernate.LONG});
-    //return new ArrayList();
   }
 
   public int getSubPoolSize(Long poolId) {
@@ -965,12 +965,14 @@ public class QuestionPoolFacadeQueries
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
                        Long destId) {
+    System.out.println("**** 1. copy pool, agentId:"+agentId);
     try {
       boolean haveCommonRoot = false;
       boolean duplicate = false;
 
       // Get the Pools
       QuestionPoolFacade oldPool = getPool(sourceId, agentId);
+        System.out.println("***** old pool owner Id="+oldPool.getOwnerId());
       String oldPoolName= oldPool.getDisplayName();
 
       // Are we creating a duplicate under the same parent?
@@ -994,29 +996,15 @@ public class QuestionPoolFacadeQueries
       }
 
       // If Pools in same trees,
+      System.out.println("****2. has common root="+haveCommonRoot);
       if (haveCommonRoot) {
         // Copy to a Pool inside the root
         // Copy *this* Pool first
-        QuestionPoolFacade newPool =
-            new QuestionPoolFacade
-            (oldPool.getData());
+        QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
         newPool.setParentPoolId(destId);
         newPool.setQuestionPoolId(new Long(0));
+        resetQuestions(newPool);
         newPool = savePool(newPool);
-
-        // Get the old questionpool Questions
-        Collection questions = oldPool.getQuestions();
-        Iterator iter = questions.iterator();
-
-        // For each question ,
-        while (iter.hasNext()) {
-          ItemFacade item = (ItemFacade) iter.next();
-          QuestionPoolItemData qpi = new QuestionPoolItemData
-              (new Long(newPool.getId().getIdString()), item.getItemIdString());
-
-          // add that question to questionpool
-          addItemToPool(qpi);
-        }
 
         // Get the SubPools of oldPool
         Iterator citer = (tree.getChildList(sourceId))
@@ -1033,11 +1021,12 @@ public class QuestionPoolFacadeQueries
 
         // Copy to a Pool outside the same root
         // Copy *this* Pool first
-        QuestionPoolFacade newPool =
-            new QuestionPoolFacade(oldPool.getData());
+        QuestionPoolFacade newPool = (QuestionPoolFacade) oldPool.clone();
         newPool.setParentPoolId(destId);
         newPool.setQuestionPoolId(new Long(0));
+        resetQuestions(newPool);
 
+        System.out.println("***** new pool owner Id="+newPool.getOwnerId());
         //newPool = savePool(newPool);
 
         if (duplicate) {
@@ -1084,31 +1073,6 @@ public class QuestionPoolFacadeQueries
         }
 
         newPool = savePool(newPool);
-
-        // Get the map of the old questionpool and its questions
-        // we don't create new questions, what we are doing is create association
-        // between the questions in the old pool and the new pool - daisyf
-        Collection questionPoolItems = oldPool.getQuestionPoolItems();
-        Collection newQuestionPoolItems = new ArrayList();
-        Iterator iter = questionPoolItems.iterator();
-
-        HashSet h = new HashSet();
-        // For each question ,
-        while (iter.hasNext()) {
-          QuestionPoolItemData item = (QuestionPoolItemData) iter.next();
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().save(new QuestionPoolItemData(
-           newPool.getQuestionPoolId(), item.getItemId()));
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem copying pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-        }
 
         // Get the SubPools of oldPool
         Iterator citer = (tree.getChildList(sourceId))
@@ -1180,6 +1144,21 @@ public class QuestionPoolFacadeQueries
       h.put(q.getItemId(), q);
     }
     return h;
+  }
+
+  public void resetQuestions(QuestionPoolFacade newPool){
+    HashSet s = new HashSet();
+    Set c = newPool.getQuestionPoolItems();
+    if (c!=null){
+      System.out.println("**** question.size="+c.size());
+      Iterator iter = c.iterator();
+      while (iter.hasNext()){
+        QuestionPoolItemData i = (QuestionPoolItemData)iter.next();
+        QuestionPoolItemData item = new QuestionPoolItemData(new Long("0"), i.getItemId());
+        s.add(item);
+      }
+    }
+    newPool.setQuestionPoolItems(s);
   }
 
 }

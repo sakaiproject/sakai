@@ -31,7 +31,7 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolItemIf
  * @version $Id$
  */
 public class QuestionPoolItemData
-  implements Serializable, QuestionPoolItemIfc
+    implements Serializable, QuestionPoolItemIfc, Cloneable 
 {
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 9180085666292824370L;
@@ -100,4 +100,9 @@ public class QuestionPoolItemData
     String s = this.itemId+":"+(this.questionPoolId).toString();
     return (s.hashCode());
   }
+
+  public Object clone(){
+    return new QuestionPoolItemData(questionPoolId, itemId);
+  }
+
 }

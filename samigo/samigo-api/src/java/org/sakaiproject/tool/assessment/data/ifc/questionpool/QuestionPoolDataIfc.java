@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
  * @version $Id$
  */
 public interface QuestionPoolDataIfc
-      extends java.io.Serializable{
+    extends java.io.Serializable, Cloneable{
 
   Long getQuestionPoolId();
 
@@ -131,4 +131,5 @@ public interface QuestionPoolDataIfc
   // for JSF, sigh - daisyf
   Integer getSubPoolSize();
 
+  Object clone();
 }
