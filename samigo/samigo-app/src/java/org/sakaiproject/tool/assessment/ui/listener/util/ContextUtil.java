@@ -306,7 +306,7 @@ public static ArrayList paramArrayValueLike(String paramPart)
     String s="";
     char[] charArray = string.toCharArray();
     for (int i=0; i<charArray.length;i++){
-      char ch = charArray[i];
+	char ch = charArray[i];
       s += toUnicode(ch);
     }
     log.debug("***unicode="+s);
@@ -363,5 +363,11 @@ public static ArrayList paramArrayValueLike(String paramPart)
     String protocol = server.substring(0, index);
     return protocol;
   }
+ 
+  public static String stringWYSIWYG(String s){// this is to detect an empty in WYSIWYG FF1.5
+    if("&nbsp;".equals(s.trim()))
+        s="";
+    return s;
+}
 
 }

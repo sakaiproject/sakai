@@ -84,11 +84,12 @@ public class ItemAddListener
     //log.info("ItemAdd LISTENER.");
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
-    String iText=item.getItemText();
+    String iText=cu.stringWYSIWYG(item.getItemText());
     String iType=item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
-    if(!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||((iText.replaceAll("<.*?>", "")).trim().equals("")))){
+   
+    if(!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals("")))){
 	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
@@ -157,10 +158,12 @@ public class ItemAddListener
 	if(item.getMultipleChoiceAnswers()!=null){
 	    while (iter.hasNext()) {
 		AnswerBean answerbean = (AnswerBean) iter.next();
-		if((answerbean.getText()!=null) && (((answerbean.getText()).replaceAll("<.*?>", "")).trim()).equals(""))
+                String answerTxt=cu.stringWYSIWYG(answerbean.getText());
+		if(answerTxt.replaceAll("<.*?>", "").trim().equals(""))
                     answerbean.setText("");
 		label = answerbean.getLabel();
                 txt=answerbean.getText();
+		  
 		corrChoices[counter]=label;
 		if(isCorrectChoice(item,label)&&((txt==null) ||(txt.equals("")))){          
                     error=true;

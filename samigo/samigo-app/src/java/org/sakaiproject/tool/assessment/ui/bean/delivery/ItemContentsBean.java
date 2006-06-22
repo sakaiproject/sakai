@@ -35,6 +35,7 @@ import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Copyright: Copyright (c) 2004 Sakai</p>
@@ -47,7 +48,7 @@ public class ItemContentsBean
   implements Serializable
 {
   private static Log log = LogFactory.getLog(ItemContentsBean.class);
-
+  private static ContextUtil cu;
   private boolean review;
   private boolean unanswered;
   private ItemDataIfc itemData;
@@ -130,17 +131,17 @@ public class ItemContentsBean
   public boolean getModelAnswerIsNotEmpty(){
       String k=getKey();
       if(k!="null")
-        return isNotEmpty(strip(k));
+	  return isNotEmpty(strip(cu.stringWYSIWYG(k)));
       else 
 	return false;
   }
 
   public boolean getFeedbackIsNotEmpty(){
-      return isNotEmpty(strip(getFeedback()));
+      return isNotEmpty(strip(cu.stringWYSIWYG(getFeedback())));
   }
 
   public boolean getGradingCommentIsNotEmpty(){
-    return isNotEmpty(strip(getGradingComment()));
+      return isNotEmpty(strip(getGradingComment()));
   }
  
 
@@ -877,52 +878,7 @@ public class ItemContentsBean
 
   public String getKeyInUnicode()
   {
-    return getStringInUnicode(getKey());
-  }
-
-    /*
-  public String getStringInUnicode(String string)
-  {
-    try{
-      byte[] utf8 = string.getBytes("UTF-8");
-      string = new String(utf8, "UTF-8");
-    }
-    catch(Exception e){
-      log.warn(e.getMessage());
-    }
-    return string;
-  }
-    */
-  public String getStringInUnicode(String string)
-  {
-    String s="";
-    char[] charArray = string.toCharArray();
-    for (int i=0; i<charArray.length;i++){
-      char ch = charArray[i];
-      s += toUnicode(ch);
-    }
-    return s;
-  }
-
-  private char hexdigit(int v) {
-    String symbs = "0123456789ABCDEF";
-    return symbs.charAt(v & 0x0f);
-  }
-
-  private String hexval(int v) {
-    return String.valueOf(hexdigit(v >>> 12)) + String.valueOf(hexdigit(v >>> 8))
-      + String.valueOf(hexdigit(v >>> 4)) + String.valueOf(hexdigit(v));
-  }
-
-  private String toUnicode(char ch) {
-    int val = (int) ch;
-    if (val == 10) return "\\n";       
-    else if (val == 13) return "\\r";  
-    else if (val == 92) return "\\\\"; 
-    else if (val == 34) return "\\\""; 
-    else if (val == 39) return "\\\'"; 
-    else if (val < 32 || val > 126) return "\\u" + hexval(val);
-    else return String.valueOf(ch);
+    return cu.getStringInUnicode(getKey());
   }
 
 }

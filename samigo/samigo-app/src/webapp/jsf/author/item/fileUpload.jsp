@@ -70,7 +70,7 @@
 
    <span id="num2" class="number"></span>
  <div class="longtext">
-  <h:outputLabel for="qtextarea" value="#{msg.q_text}" />
+  <h:outputLabel  value="#{msg.q_text}" />
   <br/>
   <!-- WYSIWYG -->
     <%--
