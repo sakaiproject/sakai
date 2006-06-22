@@ -3952,7 +3952,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
-
+		
+		// must remove old version of this edit from thread-local cache
+		// so we get new version if we try to retrieve it in same thread
+		String ref = edit.getReference();
+		ThreadLocalManager.set("findResource@" + ref, null);
+		
 	} // commitResourceEdit
 	
 	/**
