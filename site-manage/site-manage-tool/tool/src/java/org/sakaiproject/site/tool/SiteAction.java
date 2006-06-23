@@ -3196,6 +3196,7 @@ public class SiteAction extends PagedResourceActionII
       M_log.warn("chef-site import" + e1.getMessage());
     }
     //create toolzipList
+    boolean web_content_tool = false;
     for (Iterator iter = allzipList.iterator(); iter.hasNext();)
     {
       boolean toolpresent=false ;
@@ -3205,11 +3206,20 @@ public class SiteAction extends PagedResourceActionII
         SitePage pgelement = (SitePage) iterator.next();
         if (pgelement.getTitle().equals(zipelement.getSakaiTool())){
           toolpresent=true;
+          if(zipelement.getSakaiTool().equals("Web Content"))
+          {
+          	web_content_tool = true;
+          }
         }
       }
       if(toolpresent){
         toolzipList.add(zipelement) ;
       }      
+      if(zipelement.getSakaiTool().equals("Web Content") && !web_content_tool)
+      {
+      	toolzipList.add(zipelement);
+      	web_content_tool = true;
+      }
     }
 
     state.setAttribute(ALL_ZIP_IMPORT_SITES, toolzipList);
