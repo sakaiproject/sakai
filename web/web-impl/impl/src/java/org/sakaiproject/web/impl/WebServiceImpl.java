@@ -224,5 +224,11 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 		return value;
 	}
 
+	public Collection getEntityAuthzGroups(Reference ref, String userId)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 }
