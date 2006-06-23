@@ -23,6 +23,7 @@ package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Source;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -152,6 +154,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
+   private TransformerFactory transformerFactory = null;
+   
 	/**
 	 * Access this service from the inner classes.
 	 */
@@ -449,6 +453,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				// make the table to hold the event caches
 				m_eventCaches = new Hashtable();
 			}
+
+         // create transformerFactory object needed by generatePDF
+         transformerFactory = TransformerFactory.newInstance();
+         transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
 
 			M_log.info("init(): caching: " + m_caching);
 		}
@@ -4756,13 +4764,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	// XSL File Names
-	protected final static String DAY_VIEW_XLST_FILENAME = "schedule.xsl";
+	protected final static String DAY_VIEW_XSLT_FILENAME = "schedule.xsl";
 
-	protected final static String LIST_VIEW_XLST_FILENAME = "schlist.xsl";
+	protected final static String LIST_VIEW_XSLT_FILENAME = "schlist.xsl";
 
-	protected final static String MONTH_VIEW_XLST_FILENAME = "schedulemm.xsl";
+	protected final static String MONTH_VIEW_XSLT_FILENAME = "schedulemm.xsl";
 
-	protected final static String WEEK_VIEW_XLST_FILENAME = "schedule.xsl";
+	protected final static String WEEK_VIEW_XSLT_FILENAME = "schedule.xsl";
 
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
@@ -5520,32 +5528,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		driver.setOutputStream(streamOut);
 		driver.setRenderer(Driver.RENDER_PDF);
 
-		Transformer transformer = null;
 		try
 		{
-			// Note: an attempt to move the xls files into the jar and get it from the classpath:
-			// InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
-			// failed - the file was found and readable, but newTransformer() generated an IOException -ggolden
+			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
+			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
 
-			transformer = TransformerFactory.newInstance().newTransformer(new StreamSource(xslFileName));
+			Source src = new DOMSource(doc);
+
+			transformer.transform(src, new SAXResult(driver.getContentHandler()));
 		}
 
 		catch (TransformerException e)
 		{
+e.printStackTrace();
 			M_log.warn(".generatePDF(): " + e);
-			return;
-		}
-
-		Source x = new DOMSource(doc);
-
-		try
-		{
-			transformer.transform(x, new SAXResult(driver.getContentHandler()));
-		}
-
-		catch (TransformerException e1)
-		{
-			M_log.warn(".generatePDF(): " + e1);
 			return;
 		}
 	}
@@ -6238,31 +6234,25 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	protected String getXSLFileNameForScheduleType(int scheduleType)
 	{
-		// get a full file system path to the file
+		// get a relative path to the file
 		String baseFileName = "";
-		String fullPath = "";
-		boolean goodScheduleType = false;
 
 		switch (scheduleType)
 		{
 			case WEEK_VIEW:
-				baseFileName = WEEK_VIEW_XLST_FILENAME;
-				goodScheduleType = true;
+				baseFileName = WEEK_VIEW_XSLT_FILENAME;
 				break;
 
 			case DAY_VIEW:
-				baseFileName = DAY_VIEW_XLST_FILENAME;
-				goodScheduleType = true;
+				baseFileName = DAY_VIEW_XSLT_FILENAME;
 				break;
 
 			case MONTH_VIEW:
-				baseFileName = MONTH_VIEW_XLST_FILENAME;
-				goodScheduleType = true;
+				baseFileName = MONTH_VIEW_XSLT_FILENAME;
 				break;
 
 			case LIST_VIEW:
-				baseFileName = LIST_VIEW_XLST_FILENAME;
-				goodScheduleType = true;
+				baseFileName = LIST_VIEW_XSLT_FILENAME;
 				break;
 
 			default:
@@ -6270,14 +6260,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				break;
 		}
 
-		if (goodScheduleType)
-		{
-			// TODO: note the hard coding of the components package name -ggolden
-			String componentsRoot = System.getProperty(ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP);
-			fullPath = componentsRoot + "sakai-calendar-pack/WEB-INF/calendar/" + baseFileName;
-		}
-
-		return fullPath;
+		return baseFileName;
 	}
 
 	/**
@@ -6517,6 +6500,37 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		return null;
 	}
+   
+   /**
+    ** Internal class for resolving stylesheet URIs
+    **/
+   protected class MyURIResolver implements URIResolver
+   {
+      ClassLoader classLoader = null;
+      
+      /**
+       ** Constructor: use BaseCalendarService ClassLoader
+       **/
+      public MyURIResolver( ClassLoader classLoader )
+      {
+         this.classLoader = classLoader;
+      }
+      
+      /**
+       ** Resolve XSLT pathnames invoked within stylesheet (e.g. xsl:import)
+       ** using ClassLoader.
+       **
+       ** @param href href attribute of XSLT file
+       ** @param base base URI in affect when href attribute encountered
+       ** @return Source object for requested XSLT file
+       **/
+      public Source resolve( String href, String base )
+         throws TransformerException
+      {
+         InputStream in = classLoader.getResourceAsStream(href);
+         return (Source)(new StreamSource(in));
+      }
+   }
 
 } // BaseCalendarService
 
