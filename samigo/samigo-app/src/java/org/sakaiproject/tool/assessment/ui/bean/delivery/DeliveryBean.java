@@ -2061,10 +2061,14 @@ public class DeliveryBean
     ArrayList list = new ArrayList();
     list.add(itemGradingData);
     //find out sectionId from questionId
+    log.debug("**** attachToItemContentBean, questionId="+questionId);
+    /*
     PublishedAssessmentService publishedService = new
   PublishedAssessmentService();
     PublishedItemData publishedItem = publishedService.
   loadPublishedItem(questionId);
+    */
+    PublishedItemData publishedItem = (PublishedItemData) getPublishedItemHash().get(new Long(questionId));
     PublishedSectionData publishedSection = (PublishedSectionData) publishedItem.getSection();
     String sectionId = publishedSection.getSectionId().toString();
     SectionContentsBean partSelected = null;
