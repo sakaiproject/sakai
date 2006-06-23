@@ -286,4 +286,6 @@ public class SchemaNames
 
 	public static final String ATTR_LOCAL_NAME = "local-name";
 
+	public static final String ATTR_DISPLAY_USER = "user-display";
+
 }
