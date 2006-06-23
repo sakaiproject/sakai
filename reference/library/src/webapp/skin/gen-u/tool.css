@@ -43,7 +43,6 @@ a:focus{
 table.calendar td a:hover{
 	text-decoration: underline;
 }
-
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
 	color: #35b;
@@ -75,27 +74,39 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
-	color: #27d;
-	padding: .2em .3em 1px 0;
+	color: #337;
+	line-height: 2em;
 	white-space: nowrap;
-	border-bottom: none;
+	text-decoration: none;
+	border-style: solid;
+	border-width: 0px 1px 1px 0px;
+	margin-bottom:2em;
+	margin-top:.2em;
+	padding: .15em;
+	background-color: #eee8e0;
 }
 
 .itemAction  a:visited{
-	color: #27d;
+		color: #337;
 	text-decoration: none;
-	border-bottom: 1px solid #fff;
+	margin-bottom:.2em;
 }
 
 .itemAction  a:hover{
 	color: #27d; /*for ie*/
-	text-decoration: underline !important; 
+	background-color: #d6ddd3;
+	margin-bottom:2em;
+	margin-top:.2em;
+	padding: .15em;
 }
 
 html>body .itemAction  a:hover{
 	color: #27d;
 	text-decoration: none !important; /*for other browsers*/
-	border-bottom: 1px solid #27d;
+	border-bottom: 1px solid #000;
+	margin-bottom:2em;
+	margin-top:.2em;
+	padding: .15em;
 }
 
 /*certain links are highlighted in resources after a selection*/
@@ -110,23 +121,42 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 	border-bottom: none;
 }
 
-/*links for the generic toolbar*/
 /*links for the generic toolbar  - inline-block is there to make IE behave
-see: http://www.quirksmode.org/bugreports/archives/2005/07/
-Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
+see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
 .navIntraTool a, .navIntraTool a:link{
-	margin: 0 .5em;
-	text-decoration: underline;
+	margin: .5em .2em;
+	text-decoration: none;
+	color:#000;
 	white-space: nowrap;
-	display:inline-block
-}
+	padding:2px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#fff #333377 #333377 #fff;
+	background:#EEE8E0;
 
+}
+* html .navIntraTool a, * html  .navIntraTool a:link{
+	display:inline-block
+}	
 .navIntraTool a:visited{
-	color: #35b;
-	text-decoration: underline;
+		margin: .5em .2em;
+	text-decoration: none;
+	color:#000;
+	white-space: nowrap;
+	padding:2px;
+	border-style:solid;
+	border-width:1px;
+	border-color:#fff #333377 #333377 #fff;
+	background:#EEE8E0;
+	display:inline-block
+
 }
 
 .navIntraTool a:hover{
+	border-style:solid;
+	border-width:1px;
+	border-color:#fff #000 #000 #fff;
+	background: #D6DDD3;
 	color: #33f;
 	text-decoration: underline;
 }
@@ -355,7 +385,7 @@ table.calendar .event{
 
 /*skinned header of standard tab. data table*/
 .listHier th{
-	background-color: #ddd;
+	background-color: #F6F5ED;
 }
 /*skinned cell of standard tab. data table*/
 .listHier td{
@@ -387,12 +417,6 @@ table.nolines td{
 	border-bottom: 0px solid #bbb;
 	border-top: 0px solid #eee;
 }
-/*ie (via tan hack) gets some lines because it cannot get a hover*/
-* html body table.nolines td{
-	border-bottom: 1px solid #eee;
-	border-top: 1px solid #eee;
-}
-
 /*when an item has been copied - signal this*/
 /*see resources*/
 tr.selectedCopy{
@@ -526,12 +550,11 @@ textarea:focus{
 /*SECTION 8 TOOLBAR*/
 /*see: any tool*/
 .navIntraTool{
-	background-color: #eee;	
-	padding:.3em;
+	background-color: #fff;	
+	padding:.5em 0;
 	margin: 0;
-	line-height: 1.5em;
-	border-top:1px solid #eee;
-	border-bottom:1px solid #eee;
+	line-height: 2em;
+	border-bottom:1px  solid #D6DDD3;
 	text-align: left;
 	font-size: .9em;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
@@ -541,7 +564,9 @@ textarea:focus{
 * html .navIntraTool{
 	font-size:.85em;
 }
-
+.navIntraTool:hover{
+	border-bottom:1px solid silver;
+}
 .navIntraTool .searchField{
 	border:1px solid silver;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
@@ -636,7 +661,7 @@ visibility gets toggled*/
 you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
 .act .active {
-	color:#27d
+	color:#CC6633
 }
 
 /*SECTION 10 DATA PANELS*/
@@ -752,6 +777,7 @@ you loose the native buttonishness affordance of the os/browser */
 	padding: 0;
 	width: 50%;
 	vertical-align: top;
+/*	border-left: 1px solid orange;*/
 	padding-left:.2em
 }
 
@@ -759,11 +785,10 @@ tr.selectedFound td{
 
 }
 
-/*photo displayed in the roster and profile tools
-if you know all your images are going to the same specific size, set the size here
-if you do not know what size they will be or there will be different sizes, omit any measurement */
+
 .rosterImage{
 	border:1px solid #bbb;
+	height: 75px;
 	width:75px
 }
 
@@ -844,9 +869,9 @@ width:auto !important
 	display: inline;
 	margin: 0 0 0 .2em;
 	padding: 0;
-	color: #555;
+	color: #CC6633;
 	font-weight: bold;
-	font-size: 1em;
+	font-size: 1.2em;
 }
 
 .portletTitle .title a{
@@ -858,7 +883,7 @@ width:auto !important
 }
 
 .portletTitle .action{
-	padding: 2px 4px 6px 2px;
+	padding: 4px 4px 6px 2px;
 	text-align: right;
 	vertical-align: middle;
 }
@@ -893,4 +918,13 @@ width:auto !important
 /*see presense list when one member is in chat room*/
 .presenceList li.inChat {
 	background: url(images/chatpresicon.gif) -.1em center no-repeat;
+}
+
+/*some definitions overriding tool_base.css for the external xlogin screen*/
+.loginform label{
+	color: #000;
+}
+.login td.logo{
+	width: 11em;
+	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
 }

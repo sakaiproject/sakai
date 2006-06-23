@@ -10,7 +10,6 @@ body{
 /*PART 1 - MAIN LAYOUT BLOCKS*/
 /*outer wrapper for portal content (decorative - child is #portalContainer )*/
 #portalOuterContainer{
-
 }
 
 /*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
@@ -30,23 +29,29 @@ body{
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
 	width: 98%;
-	margin: 0 auto;
-	border:1px solid #fff
+	margin: 1em auto;
+	border:1px solid #000
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
 #toolMenuWrap{
-	padding:.2em;
-	border-bottom:1px solid #CB2DCC;
-	margin-bottom:.5em
+	float: left;
+	width: 9.6em;
+	color: #000;
+	text-align: left;
+	padding:0 .5em 0 0;
+
 }
+
 
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #content{
-	padding: 0 0 1em 0;
-
+	padding: 0;
+	margin-top: .5em;
+	margin-left: 11em;
 }
 
+* html #content{margin-left:11.3em}
 /*wrapper for footer blocks*/
 #footer{
 	color: #000;
@@ -56,7 +61,7 @@ body{
 	width: auto;
 	clear: both;
 	top: 0;
-	border-top: 1px solid #CB2DCC;
+	border-top: 1px solid #516C80;
 	text-align: center;
 }
 
@@ -66,7 +71,6 @@ body{
 	/*user not logged in*/
 	height: 90px;
 	width: 100%;
-	border-bottom:1px solid #CB2DCC
 }
 
 .sitenav-max{
@@ -81,7 +85,6 @@ body{
 	/*user logged in - iframe height tweak for IE*/
 	height: 8em;
 	}
-
 .sitenav-min{
 	/*no logos or banners*/
 	height: 2em;
@@ -91,10 +94,12 @@ body{
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
 TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
-#siteNavWrapper{
-	margin: 0; /*float:right*/
+.siteNavWrap{
+	margin: 0; 
+	border-bottom:3px solid #fff;
+	height:100%;
+	overflow:auto
 }
-
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
 #mastHead{
 	font-size: .8em;
@@ -139,23 +144,33 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 	border: 0;
 }
 
-/*login links for CAS,logout link*/
 #mastLogin a,#mastLogin a:visited{
-	color: #CB2DCC;
-	margin-top: 0;
+	color: #fff;
+	background: #69b;
+	font-family: verdana, arial, helvetica, sans-serif;
+	font-weight: bold;
+	padding:.5em 1em .7em 1em;
+	border: solid #000;
+	border-width: 0 2px 2px 0;
 }
 
 #mastLogin a:hover{
-	color: #CB2DCC;
-	text-decoration: none;
+	color: #fff;
+	background: #504560;
+	text-decoration: underline;
+	border: solid #005;
+	border-width: 0 2px 2px 0;
 }
 
 /*login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label{
 }
 
-#loginForm is the form for login - contains children #eid #pw #submit*/
+#loginForm is the form for LOGIN - contains children #eid #pw #submit*/
 #loginForm{
-	margin: 1em 0;
+	background: #039;
+	color:#fff;
+	font-weight: bold;
+	padding:1em;
 }
 
 #eid{
@@ -173,15 +188,14 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 }
 
 #loginForm label{
-	color: #000;
-	padding-right:1em
+	color: #fff;
 }
 
 #submit{
 }
 
 #submit:hover{
-	color: #CB2DCC;
+	color: #09c;
 }
 
 /*block for login/logout links */
@@ -202,7 +216,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #CB2DCC;
+	background: #D6D6E9;
 	padding: 0;
 	margin: 0;
 	float: left;
@@ -216,19 +230,18 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteNav td{
 	padding:0
 }
-* html body #siteNav{
-	height:1.5em;
-}
 
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
-	padding: 0;
-}
 
+}
+* html body  #linkNav{
+/*margin-top:.2em*/
+}
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
 	padding: .2em;
-	text-align: right;
+		text-align: right;
 }
 
 /*the <select> contextually defined*/
@@ -247,10 +260,13 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #siteLinkList{
 	white-space: nowrap;
 	list-style: none none none;
-	font-size: .8em;
-	margin: 0;	
+	font-size: .9em;
+	margin: 3px 0 -4px 0;	
 	padding: 4px 0;
 	width: auto;
+}
+* html #siteLinkList{
+	padding: 12px 0;
 }
 
 /*list elements - children are <span> and <a>*/
@@ -268,23 +284,32 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	#siteLinkList .selectedTab a:link,
 	#siteLinkList .selectedTab a:visited,
 	#siteLinkList .selectedTab a:hover{
-	color: #000;
+	background:#fff url(images/tab_sel.gif) left no-repeat;
+	color: #D56633;
+	font-weight: bold;
 	cursor: text;
+	border-right:#aaa;
 	text-decoration: none;
+	border-bottom: 4px solid #fff;
+		border-right: 1px solid #666;
 }
 
 /*links to other sites*/
 #siteLinkList a,#siteLinkList a:link,#siteLinkList a:visited{
 	color: #fff;
-	padding: 2px 6px 2px 4px;
-	text-decoration: underline;
-	border-right: 1px solid #fff;
+	padding: 4px 6px 4px 10px;
+	background:#2A7B64 url(images/tab.gif) left no-repeat;
+	text-decoration: none;
+	border-right: 1px solid #666;
 }
 
 /*hover state for links to other sites*/
 #siteLinkList a:hover{
+	border:none;
+	background:#560 url(images/tabgh.gif) left no-repeat;
 	color: #fff;
 	text-decoration: none;
+	border-right: 1px solid #666;
 }
 
 .fixTabsIE{
@@ -301,12 +326,14 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
 /*wrapper for ul that lists the links to tools*/
 #toolMenu{
-	text-align: right;
-	width:100%;
+	width: 12em;
+	padding: 0;
+	margin: 1em 0 0 2px;
 	font-size: 80%;
-	padding:.2em;
 	color: #000;
 	background: inherit;
+	text-align: left;
+
 }
 
 #toolMenu ul{
@@ -314,51 +341,65 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
+	padding-left: 0;
 }
 
 #toolMenu li{
-	display:inline;
 	margin: 0;
 	width: auto;
 	padding: 0;
-	border: 1px solid #fff;
-	text-align: right;
+	text-align: left;
 }
 
 /*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
 */
+
 #toolMenu li span{
+/*comment this line for a return to sanity
+display:none*/
 }
 
+
+
 #toolMenu li a:link,#toolMenu li a{
+	display: block;
+	width:100%;
+	font-weight: bold;
 	text-decoration: none;
-	color: #CB2DCC;
-	padding: 2px 0px 2px 4px;
+	color: #fff;
+	background:#516C80;
+	border:1px solid #000;
+	padding: 4px;
+	margin:1px
+
 }
 #toolMenu li a:hover{
-	text-decoration: underline;
-	color: #CB2DCC;
-	padding: 2px 0px 2px 4px;
+	background: #DDDDFF;
+	text-decoration: none;
+	color: #702200;
 }
 
 #toolMenu li a.selected{
+	background:#fff;
 	text-decoration: none;
-	color: #000;
+	color: #CC9900;
 	cursor: text;
-	padding: 2px 0px 2px 4px;
 }
 
 #toolMenu li a.selected:hover{
 	text-decoration: none;
 	color: #000;
 	cursor: text;
-	padding: 2px 0px 2px 4px;
 }
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
 #worksiteLogo{
-	display: none;
+	width: 9.7em;
+	height: auto;
+	overflow: hidden;
+	display: block;
 }
 
 /*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
@@ -387,8 +428,9 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 
 /*wrapper for all elements of presence display */
 #presenceWrapper{
-	display:none
-	}
+	width: 9.65em;
+	margin-top: .5em;
+}
 
 /*wrapper for title of iframe ("Users present")*/
 #presenceTitle{
@@ -407,11 +449,11 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*PART 7 - PORTLETS - children of #content*/
 /*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
 #col1{
-	
+	padding-right: .5em;
 }
 
 #col1of2{
-	width: 50%;
+	width: 49%;
 	float: left;
 	margin: 0;
 }
@@ -419,20 +461,22 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 #col2of2{
 	width: 50%;
 	float: right;
-}
-
-/*keep ie from doing the bad thing*/
-* html #col1of2, * html #col2of2  {width: 49%;}
+	padding-right:.2em;
+	}
 
 /*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
 .portlet{
+	border:1px solid #ccc;
+	padding:.5em;
+	margin-top:13px;
+		margin-bottom:13px;
 }
 
 /*.portletTitleWrap and .portletTitleWrap are wrappers for the iframes holding the tool title documents,
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-		border-bottom: 2px solid #CB2DCC;
+
 }
 
 #col1 .portletMainWrap{
@@ -441,7 +485,6 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-		border-bottom: 2px solid #CB2DCC;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -498,7 +541,7 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-	color: #CB2DCC;
+	color: #516C80;
 }
 
 /*PART 8 - CONVENIENCE*/

@@ -43,7 +43,6 @@ a:focus{
 table.calendar td a:hover{
 	text-decoration: underline;
 }
-
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
 	color: #35b;
@@ -111,15 +110,16 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 }
 
 /*links for the generic toolbar  - inline-block is there to make IE behave
-see: http://www.quirksmode.org/bugreports/archives/2005/07/
-Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
+see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
 .navIntraTool a, .navIntraTool a:link{
-	margin: 0 .5em;
+	margin-right:1em;
 	text-decoration: underline;
 	white-space: nowrap;
-	display:inline-block
 }
 
+* html .navIntraTool a, * html  .navIntraTool a:link{
+	display:inline-block
+}
 .navIntraTool a:visited{
 	color: #35b;
 	text-decoration: underline;
@@ -386,12 +386,6 @@ table.nolines td{
 	border-bottom: 0px solid #bbb;
 	border-top: 0px solid #eee;
 }
-/*ie (via tan hack) gets some lines because it cannot get a hover*/
-* html body table.nolines td{
-	border-bottom: 1px solid #eee;
-	border-top: 1px solid #eee;
-}
-
 /*when an item has been copied - signal this*/
 /*see resources*/
 tr.selectedCopy{
@@ -540,7 +534,9 @@ textarea:focus{
 * html .navIntraTool{
 	font-size:.85em;
 }
-
+.navIntraTool:hover{
+	border-bottom:1px solid silver;
+}
 .navIntraTool .searchField{
 	border:1px solid silver;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
@@ -759,11 +755,10 @@ tr.selectedFound td{
 
 }
 
-/*photo displayed in the roster and profile tools
-if you know all your images are going to the same specific size, set the size here
-if you do not know what size they will be or there will be different sizes, omit any measurement */
+
 .rosterImage{
 	border:1px solid #bbb;
+	height: 75px;
 	width:75px
 }
 
@@ -893,4 +888,13 @@ width:auto !important
 /*see presense list when one member is in chat room*/
 .presenceList li.inChat {
 	background: url(images/chatpresicon.gif) -.1em center no-repeat;
+}
+
+/*some definitions overriding tool_base.css for the external xlogin screen*/
+.loginform label{
+	color: #000;
+}
+.login td.logo{
+	width: 11em;
+	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
 }
