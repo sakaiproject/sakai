@@ -54,7 +54,7 @@
   <h3>
     <h:outputText value="#{msg.title_total}"/>
     <h:outputText value="#{msg.column} "/>
-    <h:outputText value="#{totalScores.assessmentName} "/>
+    <h:outputText value="#{totalScores.assessmentName} "/> 
   </h3>
 
   <p class="navViewAction">
@@ -142,46 +142,14 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <f:verbatim></span></f:verbatim> 
   </h:panelGroup>
 
+
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
 <div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" id="totalScoreTable" value="#{totalScores.agents}"
     var="description" styleClass="listHier" columnClasses="textTable">
+    
     <!-- NAME/SUBMISSION ID -->
-
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName'}">
-
-     <f:facet name="header">
-        <h:outputText value="#{msg.name}" />
-     </f:facet>
-     <h:panelGroup>
-       <h:outputText value="<a name=\"" escape="false" />
-       <h:outputText value="#{description.lastInitial}" />
-       <h:outputText value="\"></a>" escape="false" />
-
-         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
-         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
-         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
-         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
-       <h:commandLink title="#{msg.t_sortLastName}" action="studentScores" rendered="#{description.assessmentGradingId ne '-1'}" >
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
-         <h:outputText value="#{description.lastName}" />
-         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous'}" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-         <f:param name="studentid" value="#{description.idString}" />
-         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
-         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
-         <f:param name="sortType" value="lastName" />
-       </h:commandLink>
-     </h:panelGroup>
-    </h:column>
-
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType ne 'lastName'}">
      <f:facet name="header">
         <h:commandLink title="#{msg.t_sortLastName}" immediate="true" id="lastName" action="totalScores">
@@ -189,6 +157,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="lastName" />
+        <f:param name="sortAscending" value="true"/>        
         </h:commandLink>
      </f:facet>
      <h:panelGroup> <span class="tier2">
@@ -219,6 +188,85 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </h:panelGroup>
     </h:column>
 
+
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortLastName}" action="totalScores">
+          <h:outputText value="#{msg.name}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortLastNameDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+     <h:panelGroup> <span class="tier2">
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}" >
+         <h:outputText value="#{description.firstName}" />
+         <h:outputText value=" " />
+         <h:outputText value="#{description.lastName}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+</span>
+     </h:panelGroup>
+    </h:column>
+    
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortLastName}" action="totalScores">
+        <h:outputText value="#{msg.name}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortLastNameAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+            <h:panelGroup> <span class="tier2">
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+
+         <h:outputText value="#{description.firstName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value=" " rendered="#{description.assessmentGradingId eq '-1'}"/>
+         <h:outputText value="#{description.lastName}" rendered="#{description.assessmentGradingId eq '-1'}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous' && description.assessmentGradingId eq '-1'}" />
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}" >
+         <h:outputText value="#{description.firstName}" />
+         <h:outputText value=" " />
+         <h:outputText value="#{description.lastName}" />
+         <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+</span>
+     </h:panelGroup>
+    </h:column>
+    
+
+    <!-- ANONYMOUS and ASSESSMENTGRADINGID -->
     <h:column rendered="#{totalScores.anonymous eq 'true' && totalScores.sortType ne 'assessmentGradingId'}">
      <f:facet name="header">
         <h:commandLink title="#{msg.t_sortSubmissionId}" action="totalScores" >
@@ -226,6 +274,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="assessmentGradingId" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
      <h:panelGroup >
@@ -248,10 +297,16 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </h:panelGroup>
     </h:column>
 
-    <h:column rendered="#{totalScores.anonymous eq 'true' && totalScores.sortType eq 'assessmentGradingId'}">
-     <f:facet name="header">
+    <h:column rendered="#{totalScores.anonymous eq 'true' && totalScores.sortType eq 'assessmentGradingId' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmissionId}" action="totalScores">
           <h:outputText value="#{msg.sub_id}" />
-     </f:facet>
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortSubmissionIdAscending}" rendered="#{totalScores.sortDescending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
      <h:panelGroup>
 <%--
        <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
@@ -271,6 +326,37 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
        </h:commandLink>
      </h:panelGroup>
     </h:column>
+    
+    <h:column rendered="#{totalScores.anonymous eq 'true' && totalScores.sortType eq 'assessmentGradingId' && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortSubmissionId}" action="totalScores">
+        <h:outputText value="#{msg.sub_id}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortSubmissionIdDescending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+     <h:panelGroup>
+<%--
+       <h:outputText value="Anonymous" rendered="#{description.assessmentGradingId eq '-1'}" />
+--%>
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true" rendered="#{description.assessmentGradingId ne '-1'}">
+         <h:outputText value="#{description.assessmentGradingId}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="studentName" value="#{description.assessmentGradingId}" />
+         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+     </h:panelGroup>
+    </h:column>
+ 
 
    <!-- STUDENT ID -->
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='idString'}" >
@@ -280,17 +366,38 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="idString" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.idString}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString'}" >
-     <f:facet name="header">
-       <h:outputText value="#{msg.uid}" />
-     </f:facet>
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortUserId}" action="totalScores">
+          <h:outputText value="#{msg.uid}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortUserIdDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
         <h:outputText value="#{description.idString}" />
     </h:column>
+    
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString' && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortUserId}" action="totalScores">
+        <h:outputText value="#{msg.uid}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortUserIdAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+        <h:outputText value="#{description.idString}" />
+    </h:column>
+ 
 
     <!-- ROLE -->
     <h:column rendered="#{totalScores.sortType ne 'role'}">
@@ -300,18 +407,41 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="role" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.role}" 
              rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType eq 'role'}">
-     <f:facet name="header" >
-       <h:outputText value="#{msg.role}" />
-     </f:facet>
-        <h:outputText value="#{description.role}" rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}"/>
+    <h:column rendered="#{totalScores.sortType=='role' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortRole}" action="totalScores">
+          <h:outputText value="#{msg.role}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortRoleDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+       <h:outputText value="#{description.role}" 
+             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
     </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='role'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortRole}" action="totalScores">
+        <h:outputText value="#{msg.role}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortRoleAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+       <h:outputText value="#{description.role}" 
+             rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
+    </h:column>
+    
 
     <!-- DATE -->
     <h:column rendered="#{totalScores.sortType!='submittedDate'}">
@@ -321,6 +451,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="submittedDate" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
@@ -328,14 +459,36 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:outputText>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='submittedDate'}">
-     <f:facet name="header">
-       <h:outputText value="#{msg.date}" />
-     </f:facet>
-        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}">
-           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+    <h:column rendered="#{totalScores.sortType=='submittedDate' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="totalScores">
+          <h:outputText value="#{msg.date}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortSubmittedDateDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
     </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='submittedDate'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortSubmittedDate}" action="totalScores">
+        <h:outputText value="#{msg.date}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortSubmittedDateAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+        <h:outputText value="#{description.submittedDate}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+        </h:outputText>
+    </h:column>
+    
 
     <!-- STATUS -->
     <h:column rendered="#{totalScores.sortType!='status'}">
@@ -345,6 +498,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="status" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
       <h:outputText value="#{msg.submitted}" 
@@ -363,72 +517,152 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='status'}">
+	<h:column rendered="#{totalScores.sortType=='status' && totalScores.sortAscending}">
       <f:facet name="header">
-        <h:outputText value="#{msg.status}" />
+        <h:commandLink title="#{msg.t_sortStatus}" action="totalScores">
+          <h:outputText value="#{msg.status}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortStatusDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{msg.submitted}"
-         rendered="#{description.status == 2 && description.attemptDate != null
+<h:outputText value="#{msg.submitted}" 
+         rendered="#{description.status == 2 && description.attemptDate != null 
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-      <h:outputText value="#{description.status == 4 && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"
+      <h:outputText value=" " 
          rendered="#{description.status == 3 && description.attemptDate != null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
-      <h:panelGroup rendered=""><f:verbatim><br/></f:verbatim>
-      <h:outputText value="#{msg.late}" style="color:red"/>
+<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+<f:verbatim><br/></f:verbatim>
+      <h:outputText style="color:red" value="#{msg.late}"/>
+</h:panelGroup>
+      <h:outputText value="#{msg.no_submission}"
+         rendered="#{description.attemptDate == null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+    </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='status'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortStatus}" action="totalScores">
+        <h:outputText value="#{msg.status}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortStatusAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+      <h:outputText value="#{msg.submitted}" 
+         rendered="#{description.status == 2 && description.attemptDate != null 
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+      <h:outputText value=" " 
+         rendered="#{description.status == 3 && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
+<h:panelGroup rendered="#{description.status == 4 && description.attemptDate != null
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}">
+<f:verbatim><br/></f:verbatim>
+      <h:outputText style="color:red" value="#{msg.late}"/>
 </h:panelGroup>
       <h:outputText value="#{msg.no_submission}"
          rendered="#{description.attemptDate == null
                     && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')}"/>
     </h:column>
 
+
     <!-- TOTAL -->
     <h:column rendered="#{totalScores.sortType!='totalAutoScore'}">
       <f:facet name="header">
         <h:commandLink title="#{msg.t_sortScore}" id="totalAutoScore" action="totalScores">
           <h:outputText value="#{msg.tot}" />
+          <f:param name="sortBy" value="totalAutoScore" />
+          <f:param name="sortAscending" value="true"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="totalAutoScore" />
         </h:commandLink>
       </f:facet>
       <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1'}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='totalAutoScore'}">
+    <h:column rendered="#{totalScores.sortType=='totalAutoScore' && totalScores.sortAscending}">
       <f:facet name="header">
-        <h:outputText value="#{msg.tot}" />
+        <h:commandLink title="#{msg.t_sortScore}" action="totalScores">
+          <h:outputText value="#{msg.tot}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortAdjustScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
       </f:facet>
       <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
-
+    
+    <h:column rendered="#{totalScores.sortType=='totalAutoScore'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortScore}" action="totalScores">
+        <h:outputText value="#{msg.tot}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortAdjustScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+      <h:outputText value="#{description.roundedTotalAutoScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    </h:column>
+    
     <!-- ADJUSTMENT -->
     <h:column rendered="#{totalScores.sortType!='totalOverrideScore'}">
       <f:facet name="header">
         <h:commandLink title="#{msg.t_sortAdjustScore}" id="totalOverrideScore" action="totalScores">
-          <h:outputText value="#{msg.adj}" />
-          <f:actionListener
+    	    <h:outputText value="#{msg.adj}" />
+        	<f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="totalOverrideScore" />
+	        <f:param name="sortBy" value="totalOverrideScore" />
+	        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
-<f:validateDoubleRange/>
-</h:inputText>
-<br />
+		<f:validateDoubleRange/>
+	 </h:inputText>
+	 <br />
      <h:message for="adjustTotal" style="color:red"/>
-    </h:column>
+   </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='totalOverrideScore'}">
+
+    <h:column rendered="#{totalScores.sortType=='totalOverrideScore' && totalScores.sortAscending}">
       <f:facet name="header">
-        <h:outputText value="#{msg.adj}"/>
+        <h:commandLink title="#{msg.t_sortAdjustScore}" action="totalScores">
+          <h:outputText value="#{msg.adj}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
       </f:facet>
       <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
-<f:validateDoubleRange/>
-</h:inputText>
-<br />
+		<f:validateDoubleRange/>
+	 </h:inputText>
+	 <br />
      <h:message for="adjustTotal2" style="color:red"/>
-    </h:column>
+   </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='totalOverrideScore'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortAdjustScore}" action="totalScores">
+        <h:outputText value="#{msg.adj}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+		<f:validateDoubleRange/>
+	 </h:inputText>
+	 <br />
+     <h:message for="adjustTotal3" style="color:red"/>
+   </h:column>
+  
 
     <!-- FINAL SCORE -->
     <h:column rendered="#{totalScores.sortType!='finalScore'}">
@@ -438,26 +672,48 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         <f:param name="sortBy" value="finalScore" />
+        <f:param name="sortAscending" value="true"/>
       </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='finalScore'}">
-     <f:facet name="header">
-        <h:outputText value="#{msg.final}" />
-     </f:facet>
-        <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    <h:column rendered="#{totalScores.sortType=='finalScore' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortFinalScore}" action="totalScores">
+          <h:outputText value="#{msg.final}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortFinalScoreDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+      <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
     </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='finalScore'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortFinalScore}" action="totalScores">
+        <h:outputText value="#{msg.final}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortFinalScoreAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+      </h:commandLink> 
+      </f:facet>
+      <h:outputText value="#{description.roundedFinalScore}" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    </h:column>
+
 
     <!-- COMMENT -->
     <h:column rendered="#{totalScores.sortType!='comments'}">
      <f:facet name="header">
       <h:commandLink title="#{msg.t_sortComments}" id="comments" action="totalScores">
         <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />    
         <h:outputText value="#{msg.comment}"/>
         <f:param name="sortBy" value="comments" />
+        <f:param name="sortAscending" value="true"/>
       </h:commandLink>
      </f:facet>
    <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
@@ -469,13 +725,38 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 --%>
     </h:column>
 
-    <h:column rendered="#{totalScores.sortType=='comments'}">
-     <f:facet name="header">
-        <h:outputText value="#{msg.comment}" />
-     </f:facet>
-<h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+    <h:column rendered="#{totalScores.sortType=='comments' && totalScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortComments}" action="totalScores">
+          <h:outputText value="#{msg.comment}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortCommentDescending}" rendered="#{totalScores.sortAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+  	    </h:commandLink>    
+      </f:facet>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
 
-<%--temporary replaced by inputTextArea util toggle small/large produced
+<%-- temporary replaced by inputTextArea util toggle small/large produced
+     <samigo:wysiwyg rows="140" value="#{description.comments}" >
+       <f:validateLength maximum="4000"/>
+     </samigo:wysiwyg>
+--%>
+    </h:column>
+    
+    <h:column rendered="#{totalScores.sortType=='comments'  && !totalScores.sortAscending}">
+      <f:facet name="header">
+      <h:commandLink title="#{msg.t_sortComments}" action="totalScores">
+        <h:outputText value="#{msg.comment}" />
+        <f:param name="sortAscending" value="true"/>
+        <h:graphicImage alt="#{msg.alt_sortCommentAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <f:actionListener
+             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />              
+      </h:commandLink> 
+      </f:facet>
+   <h:inputTextarea value="#{description.comments}" rows="3" cols="30" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"/>
+
+<%-- temporary replaced by inputTextArea util toggle small/large produced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
