@@ -1304,7 +1304,8 @@ public String getAddOrEdit()
           pool.setDisplayName(thepool.getDisplayName());
           pool.setParentPoolId(thepool.getParentPoolId());
           pool.setDescription(thepool.getDescription());
-          pool.setOwner(thepool.getOwnerId());
+          pool.setOwner(thepool.getOwnerDisplayName());
+          //pool.setOwner(thepool.getOwnerId());
           pool.setObjectives(thepool.getObjectives());
           pool.setKeywords(thepool.getKeywords());
           pool.setOrganizationName(thepool.getOrganizationName());
@@ -1439,7 +1440,7 @@ public String getAddOrEdit()
 
 
  // create a new pool with 2 properties: owner and parentpool
- 	pool.setOwner(AgentFacade.getAgentString());
+ 	pool.setOwner(AgentFacade.getDisplayName(AgentFacade.getAgentString()));
 
 
           String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
@@ -1636,7 +1637,7 @@ String poolId = ContextUtil.lookupParam("qpid");
           pool.setDisplayName(thepool.getDisplayName());
           pool.setParentPoolId(thepool.getParentPoolId());
           pool.setDescription(thepool.getDescription());
-          pool.setOwner(thepool.getOwnerId());
+          pool.setOwner(thepool.getOwnerDisplayName());
           pool.setObjectives(thepool.getObjectives());
           pool.setOrganizationName(thepool.getOrganizationName());
           pool.setKeywords(thepool.getKeywords());

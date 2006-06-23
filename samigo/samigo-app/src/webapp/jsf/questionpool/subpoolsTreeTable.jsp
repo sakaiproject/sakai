@@ -125,7 +125,7 @@
      </h:panelGroup>
      </f:facet>
      <h:panelGroup id="secondcolumn">
-        <h:outputText value="#{pool.ownerId}"/>
+        <h:outputText value="#{pool.ownerDisplayName}"/>
      </h:panelGroup>
     </h:column>
 

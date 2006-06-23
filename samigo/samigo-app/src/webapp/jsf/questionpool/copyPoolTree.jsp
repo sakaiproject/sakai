@@ -115,7 +115,7 @@
      </h:panelGroup>
      </f:facet>
      <h:panelGroup id="secondcolumn" rendered="#{!(questionpool.selfOrDescendant && questionpool.actionType == 'pool')}">
-        <h:outputText value="#{pool.ownerId}"/>
+        <h:outputText value="#{pool.ownerDisplayName}"/>
      </h:panelGroup>
     </h:column>
 
