@@ -1471,6 +1471,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				ThreadLocalManager.set("findCollection@" + ref, new BaseCollectionEdit(collection));
 			}
 		}
+		else
+		{
+			collection = new BaseCollectionEdit(collection);
+		}
 
 //		// if not caching
 //		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
@@ -1500,7 +1504,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			}
 //		}
 
-		return new BaseCollectionEdit(collection);
+		return collection;
 
 	} // findCollection
 
@@ -2687,6 +2691,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				ThreadLocalManager.set("findResource@" + ref, new BaseResourceEdit(resource));
 			}
 		}
+		else
+		{
+			resource = new BaseResourceEdit(resource);
+		}
 		
 //		// if not caching
 //		if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
@@ -2716,8 +2724,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //				m_cache.put(key, resource);
 //			}
 //		}
+		
 
-		return new BaseResourceEdit(resource);
+		return resource;
 
 	} // findResource
 
