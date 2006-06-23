@@ -86,6 +86,7 @@ public class TotalScoresBean
   private String lateHandling; // read-only property set for UI late handling
   private String dueDate;
   private String sortType;
+  private boolean sortAscending = true;
   private String roleSelection;
   private String allSubmissions = ALL_SUBMISSIONS;
   private RecordingData recordingData;
@@ -94,7 +95,7 @@ public class TotalScoresBean
   private HashMap answeredItems;
   private boolean hasRandomDrawPart;
   private String scoringOption;
-
+  
   private String selectedSectionFilterValue = ALL_SECTIONS_SELECT_VALUE;
   private List sectionFilterSelectItems;
   private List availableSections;
@@ -442,6 +443,24 @@ public class TotalScoresBean
     sortType = psortType;
   }
 
+  /**
+   * is scores table sorted in ascending order
+   * @return true if it is
+   */
+  public boolean isSortAscending()
+  {
+    return sortAscending;
+  }
+
+  /**
+  *
+  * @param sortAscending is scores table sorted in ascending order
+  */
+ public void setSortAscending(boolean sortAscending)
+ {
+   this.sortAscending = sortAscending;
+ }
+ 
   /**
    * Is this an all submissions or, the highest, or the largest
    * Scoring option from assessment Settings page 

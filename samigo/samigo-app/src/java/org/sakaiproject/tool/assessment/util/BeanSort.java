@@ -88,6 +88,23 @@ public class BeanSort
 
     return collection;
   }
+  
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public Collection sortDesc()
+  {
+    Object[] array = arraySort();
+    collection.clear();
+    for(int i = array.length-1; i >= 0; i--)
+    {
+      collection.add(array[i]);
+    }
+
+    return collection;
+  }
 
   /**
    * DOCUMENTATION PENDING

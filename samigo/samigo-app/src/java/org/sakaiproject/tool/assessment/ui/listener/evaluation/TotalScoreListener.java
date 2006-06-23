@@ -104,7 +104,6 @@ public class TotalScoreListener
   {
 
     log.debug("TotalScore LISTENER.");
-
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
 
@@ -117,11 +116,13 @@ public class TotalScoreListener
 
     // reset scoringType based on evaluationModel,scoringType if coming from authorIndex     
     EvaluationModelIfc model = pubAssessment.getEvaluationModel();
-    if (model != null && model.getScoringType()!=null)
-      bean.setAllSubmissions(model.getScoringType().toString());
-    else
+    if (model != null && model.getScoringType()!=null){
+    	bean.setAllSubmissions(model.getScoringType().toString());
+    }
+    else {
       bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION); 
-
+    }
+    
    // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();
     AuthorBean author = (AuthorBean) cu.lookupBean("author");
@@ -196,11 +197,20 @@ public class TotalScoreListener
   public boolean totalScores(
     PublishedAssessmentFacade pubAssessment, TotalScoresBean bean, boolean isValueChange)
   {
+	log.debug("TotalScoreListener: totalScores() starts");
     if (cu.lookupParam("sortBy") != null &&
 	!cu.lookupParam("sortBy").trim().equals("")){
       bean.setSortType(cu.lookupParam("sortBy"));
+      log.debug("TotalScoreListener: totalScores() :: sortBy = " + cu.lookupParam("sortBy"));
     }
-
+    boolean sortAscending = true;
+    if (cu.lookupParam("sortAscending") != null &&
+    		!cu.lookupParam("sortAscending").trim().equals("")){
+    	sortAscending = Boolean.valueOf(cu.lookupParam("sortAscending")).booleanValue();
+    	bean.setSortAscending(sortAscending);
+    	log.debug("TotalScoreListener: totalScores() :: sortAscending = " + sortAscending);
+    }
+    
     log.debug("totalScores()");
     try
     {
@@ -254,7 +264,6 @@ public class TotalScoreListener
       ArrayList agentUserIds = getAgentIds(useridMap);
       AgentHelper helper = IntegrationContextFactory.getInstance().getAgentHelper();
       Map userRoles = helper.getUserRolesFromContextRealm(agentUserIds);
-
       //#4 - prepare agentResult list
       prepareAgentResult(p, scores.iterator(), agents, userRoles);
       prepareNotSubmittedAgentResult(students_not_submitted.iterator(), agents, userRoles);
@@ -262,7 +271,7 @@ public class TotalScoreListener
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
 
       //#5 - set role & sort selection
-      setRoleAndSortSelection(bean, agents);
+      setRoleAndSortSelection(bean, agents, sortAscending);
 
       //#6 - this is for audio questions?
       //setRecordingData(bean);
@@ -433,11 +442,12 @@ public class TotalScoreListener
 
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
-    GradingService gradingService = new GradingService();
+	  GradingService gradingService = new GradingService();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
       AssessmentGradingData gdata = (AssessmentGradingData) iter.next();
+      
       // no need to initialize itemSet 'cos we don't need to use it in totalScoresPage. So I am
       // stuffing it with an empty HashSet - daisyf
       //gdata.setItemGradingSet(gradingService.getItemGradingSet(gdata.getAssessmentGradingId().toString()));
@@ -459,6 +469,7 @@ public class TotalScoreListener
         results.setFinalScore(gdata.getFinalScore().toString());
       else
         results.setFinalScore("0.0");
+      
       results.setComments(gdata.getComments());
 
       int graded=0;
@@ -514,8 +525,9 @@ public class TotalScoreListener
   }
 
 
-  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents){
-    if (cu.lookupParam("roleSelection") != null)
+  public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents, boolean sortAscending){
+    log.debug("TotalScoreListener: setRoleAndSortSection() starts");
+	  if (cu.lookupParam("roleSelection") != null)
     {
       bean.setRoleSelection(cu.lookupParam("roleSelection"));
     }
@@ -534,6 +546,8 @@ public class TotalScoreListener
  
     String sortProperty = bean.getSortType();
     //System.out.println("****Sort type is " + sortProperty);
+    log.debug("TotalScoreListener: setRoleAndSortSection() :: sortProperty = " + sortProperty);
+    
     bs = new BeanSort(agents, sortProperty);
 
     if ((sortProperty).equals("lastName")) bs.toStringSort();
@@ -547,7 +561,14 @@ public class TotalScoreListener
     if ((sortProperty).equals("totalOverrideScore")) bs.toNumericSort();
     if ((sortProperty).equals("finalScore")) bs.toNumericSort();
 
-    agents = (ArrayList)bs.sort();
+    if (sortAscending) {
+    	log.debug("TotalScoreListener: setRoleAndSortSection() :: sortAscending");
+    	agents = (ArrayList)bs.sort();
+    }
+    else {
+    	log.debug("TotalScoreListener: setRoleAndSortSection() :: !sortAscending");
+    	agents = (ArrayList)bs.sortDesc();
+    }
   }
 
     public void setRecordingData(TotalScoresBean bean){
@@ -576,6 +597,7 @@ public class TotalScoreListener
   // students_not_submitted
   public void prepareNotSubmittedAgentResult(Iterator notsubmitted_iter,
                                              ArrayList agents, Map userRoles){
+	log.debug("TotalScoreListener: prepareNotSubmittedAgentResult starts");
     while (notsubmitted_iter.hasNext()){
       String studentid = (String) notsubmitted_iter.next();
       AgentResults results = new AgentResults();
