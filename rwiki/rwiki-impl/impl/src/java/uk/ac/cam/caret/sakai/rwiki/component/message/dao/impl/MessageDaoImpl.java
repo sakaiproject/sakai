@@ -32,7 +32,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import uk.ac.cam.caret.sakai.rwiki.message.model.MessageImpl;
+import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.MessageDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Message;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
@@ -53,7 +53,7 @@ public class MessageDaoImpl extends HibernateDaoSupport implements MessageDao
 	public Message createMessage(String pageSpace, String pageName,
 			String sessionid, String user, String message)
 	{
-		Message m = new MessageImpl();
+		Message m = new RwikiMessageImpl();
 		m.setLastseen(new Date());
 		m.setPagename(pageName);
 		m.setPagespace(pageSpace);

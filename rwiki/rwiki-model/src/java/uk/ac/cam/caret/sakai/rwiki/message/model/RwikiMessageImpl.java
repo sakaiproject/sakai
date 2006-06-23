@@ -22,14 +22,16 @@ package uk.ac.cam.caret.sakai.rwiki.message.model;
 
 import java.util.Date;
 
-import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
+import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Message;
 
 /**
  * @author ieb
  */
-public class TriggerImpl implements Trigger
+public class RwikiMessageImpl implements Message
 {
 	private String id;
+
+	private String sessionid;
 
 	private String user;
 
@@ -39,12 +41,12 @@ public class TriggerImpl implements Trigger
 
 	private Date lastseen;
 
-	private String triggerspec;
+	private String message;
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getId()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getId()
 	 */
 	public String getId()
 	{
@@ -54,7 +56,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setId(java.lang.String)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setId(java.lang.String)
 	 */
 	public void setId(String id)
 	{
@@ -64,7 +66,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getLastseen()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getLastseen()
 	 */
 	public Date getLastseen()
 	{
@@ -74,7 +76,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setLastseen(java.util.Date)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setLastseen(java.util.Date)
 	 */
 	public void setLastseen(Date lastseen)
 	{
@@ -84,7 +86,27 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getPagename()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getMessage()
+	 */
+	public String getMessage()
+	{
+		return message;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setMessage(java.lang.String)
+	 */
+	public void setMessage(String message)
+	{
+		this.message = message;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getPagename()
 	 */
 	public String getPagename()
 	{
@@ -94,7 +116,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setPagename(java.lang.String)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setPagename(java.lang.String)
 	 */
 	public void setPagename(String pagename)
 	{
@@ -104,7 +126,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getPagespace()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getPagespace()
 	 */
 	public String getPagespace()
 	{
@@ -114,7 +136,7 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setPagespace(java.lang.String)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setPagespace(java.lang.String)
 	 */
 	public void setPagespace(String pagespace)
 	{
@@ -124,27 +146,27 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getTriggerspec()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getSessionid()
 	 */
-	public String getTriggerspec()
+	public String getSessionid()
 	{
-		return triggerspec;
+		return sessionid;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setTriggerspec(java.lang.String)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setSessionid(java.lang.String)
 	 */
-	public void setTriggerspec(String triggerspec)
+	public void setSessionid(String sessionid)
 	{
-		this.triggerspec = triggerspec;
+		this.sessionid = sessionid;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#getUser()
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#getUser()
 	 */
 	public String getUser()
 	{
@@ -154,11 +176,10 @@ public class TriggerImpl implements Trigger
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see uk.ac.cam.caret.sakai.rwiki.message.model.impl.Trigger#setUser(java.lang.String)
+	 * @see uk.ac.cam.caret.sakai.rwiki.service.notitication.api.model.ChatMessage#setUser(java.lang.String)
 	 */
 	public void setUser(String user)
 	{
 		this.user = user;
 	}
-
 }

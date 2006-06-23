@@ -25,20 +25,12 @@
 <beans>
   <!-- components context -->
 
-  <!-- The RWiki Transaction Manager, using the RWiki Session factory -->
-  <bean id="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"
-    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
-    </property>
-  </bean>
-
   <!-- START NEW STUFF -->
   <!-- Register the Data Access Object as a Transactional Interceptor -->
   <bean id="rwikiCurrentObjectDao"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -59,7 +51,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiCurrentObjectDaoImpl"
     singleton="true">
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
     <property name="contentDAO"><ref bean="rwikiCurrentObjectContentDaoImpl" /></property>
     <property name="historyDAO"><ref bean="rwikiHistoryObjectDaoImpl" /></property>		
@@ -70,7 +62,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiCurrentObjectContentDaoImpl"
     singleton="true">
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 
@@ -78,7 +70,7 @@
   <bean id="rwikiHistoryObjectDao"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -100,7 +92,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiHistoryObjectDaoImpl"
     singleton="true">
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
     <property name="contentDAO"><ref bean="rwikiHistoryObjectContentDaoImpl" /></property>
   </bean>
@@ -110,7 +102,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiHistoryObjectContentDaoImpl"
     singleton="true">
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 
@@ -120,7 +112,7 @@
   <bean id="rwikiPropertyDao"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -135,7 +127,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiPropertyDaoImpl"
     singleton="true">
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 

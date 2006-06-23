@@ -32,7 +32,7 @@ import org.hibernate.criterion.Expression;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-import uk.ac.cam.caret.sakai.rwiki.message.model.TriggerImpl;
+import uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.dao.TriggerDao;
 import uk.ac.cam.caret.sakai.rwiki.service.message.api.model.Trigger;
 import uk.ac.cam.caret.sakai.rwiki.utils.TimeLogger;
@@ -53,7 +53,7 @@ public class TriggerDaoImpl extends HibernateDaoSupport implements TriggerDao
 	public Trigger createTrigger(String pageName, String pageSpace,
 			String triggerSpec, String user)
 	{
-		Trigger t = new TriggerImpl();
+		Trigger t = new RwikiTriggerImpl();
 		t.setLastseen(new Date());
 		t.setPagename(pageName);
 		t.setPagespace(pageSpace);

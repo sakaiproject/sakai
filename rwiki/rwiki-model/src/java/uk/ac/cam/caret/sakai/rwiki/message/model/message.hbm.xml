@@ -61,7 +61,7 @@
       Added as a user submits chats.
       These are kept
        -->
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.MessageImpl"
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl"
           table="rwikipagemessage" >
           <id name="id" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>
@@ -75,7 +75,7 @@
           <property name="message" type="text" />
       </class>
       
-      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.TriggerImpl"
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl"
           table="rwikipagetrigger" >
           <id name="id" unsaved-value="null" >
               <column name="id" length="36" not-null="true"/>

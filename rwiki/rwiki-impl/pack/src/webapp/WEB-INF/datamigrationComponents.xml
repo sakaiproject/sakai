@@ -29,7 +29,7 @@
   <bean id="rwikiDataMigration"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiTransactionManager"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -71,7 +71,7 @@
       <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051017.sql</value>			
     </property>
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 
@@ -98,7 +98,7 @@
       <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051026.sql</value>			
     </property>
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
   <!-- schema migration 20051026 to 20051107, change the subspace separator to / -->
@@ -110,7 +110,7 @@
       <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051107.sql</value>			
     </property>
     <property name="sessionFactory"><ref
-	bean="uk.ac.cam.caret.sakai.rwiki.RWikiSessionFactory"/>
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 
