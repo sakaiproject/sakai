@@ -1468,7 +1468,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(collection != null)
 			{
-				ThreadLocalManager.set("findCollection@" + ref, collection);
+				ThreadLocalManager.set("findCollection@" + ref, new BaseCollectionEdit(collection));
 			}
 		}
 
@@ -1500,7 +1500,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			}
 //		}
 
-		return collection;
+		return new BaseCollectionEdit(collection);
 
 	} // findCollection
 
@@ -1583,6 +1583,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseCollectionEdit) edit).closeEdit();
 
 		((BaseCollectionEdit) edit).setRemoved();
+
+		// remove the old version from thread-local cache.
+		String ref = edit.getReference();
+		ThreadLocalManager.set("findCollection@" + ref, null);
 
 		// remove any realm defined for this resource
 		try
@@ -2680,7 +2684,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(resource != null)
 			{
-				ThreadLocalManager.set("findResource@" + ref, resource);
+				ThreadLocalManager.set("findResource@" + ref, new BaseResourceEdit(resource));
 			}
 		}
 		
@@ -2713,7 +2717,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //			}
 //		}
 
-		return resource;
+		return new BaseResourceEdit(resource);
 
 	} // findResource
 
@@ -2799,6 +2803,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseResourceEdit) edit).closeEdit();
 
 		((BaseResourceEdit) edit).setRemoved();
+
+		// remove old version of this edit from thread-local cache
+		String ref = edit.getReference();
+		ThreadLocalManager.set("findResource@" + ref, null);
 
 		// remove any realm defined for this resource
 		try
@@ -4831,7 +4839,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Collection rv = (Collection) ThreadLocalManager.get("getEntityAuthzGroups@" + ref.getReference());
 		if(rv != null)
 		{
-			return rv;
+			return new Vector(rv);
 		}
 
 		// use the resources realm, all container (folder) realms
@@ -4927,7 +4935,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 		}
 
-		ThreadLocalManager.set("getEntityAuthzGroups@" + ref.getReference(), rv);
+		ThreadLocalManager.set("getEntityAuthzGroups@" + ref.getReference(), new Vector(rv));
 
 		return rv;
 	}
