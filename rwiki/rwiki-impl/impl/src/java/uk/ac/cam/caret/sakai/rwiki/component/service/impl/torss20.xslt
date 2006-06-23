@@ -53,6 +53,7 @@
                             />
                         </link>
                         <description>
+			  Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
                             <xsl:copy-of select="content/rendered-cdata/node()"/>
                         </description>
                     </item>

@@ -63,6 +63,7 @@
                         <xsl:value-of select="concat($baseurl,'/access/wiki',@name,'.html')"/>
                     </link>
                     <description>
+			  Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
                         <xsl:value-of select="content/rendered-cdata/node()"/>
                     </description>
                 </item>

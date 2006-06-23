@@ -46,6 +46,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.utils.DebugContentHandler;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.SchemaNames;
+import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
 
 /**
  * Provides a XSLT Based handler, that outputs the changes on the object.
@@ -168,9 +169,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			if (entity instanceof RWikiEntity)
 			{
 				RWikiEntity rwe = (RWikiEntity) entity;
-				
-				
-				
+
 				if (!rwe.isContainer())
 				{
 					RWikiObject rwo = rwe.getRWikiObject();
@@ -180,7 +179,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					addElement(ch, SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_XMLPROPERTY,
 							SchemaNames.EL_NSXMLPROPERTY, propA,
-							NameHelper.localizeName(rwo.getName(), rwo.getRealm()));
+							NameHelper.localizeName(rwo.getName(), rwo
+									.getRealm()));
 				}
 				else
 				{
@@ -287,9 +287,10 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
 					"string", rwco.getId());
-			// FIXME why do we know about "," here?! 
+			// FIXME why do we know about "," here?!
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", rwco.getName() + "," + rwco.getRevision());
+					SchemaNames.ATTR_NAME, "string", rwco.getName() + ","
+							+ rwco.getRevision());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
 					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
 							.localizeName(rwo.getName(), rwo.getRealm()));
@@ -297,12 +298,17 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_OWNER,
 					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
-			propA.addAttribute("", SchemaNames.ATTR_REFERENCED,
-					SchemaNames.ATTR_REFERENCED, "string", rwco.getReferenced());
+			propA
+					.addAttribute("", SchemaNames.ATTR_REFERENCED,
+							SchemaNames.ATTR_REFERENCED, "string", rwco
+									.getReferenced());
 			propA.addAttribute("", SchemaNames.ATTR_SHA1,
 					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
 			propA.addAttribute("", SchemaNames.ATTR_USER,
 					SchemaNames.ATTR_USER, "string", rwco.getUser());
+			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER,
+					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper
+							.formatDisplayName(rwco.getUser()));
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
@@ -350,12 +356,17 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 					SchemaNames.ATTR_OWNER, "string", rwco.getOwner());
 			propA.addAttribute("", SchemaNames.ATTR_REALM,
 					SchemaNames.ATTR_REALM, "string", rwco.getRealm());
-			propA.addAttribute("", SchemaNames.ATTR_REFERENCED,
-					SchemaNames.ATTR_REFERENCED, "string", rwco.getReferenced());
+			propA
+					.addAttribute("", SchemaNames.ATTR_REFERENCED,
+							SchemaNames.ATTR_REFERENCED, "string", rwco
+									.getReferenced());
 			propA.addAttribute("", SchemaNames.ATTR_SHA1,
 					SchemaNames.ATTR_SHA1, "string", rwco.getSha1());
 			propA.addAttribute("", SchemaNames.ATTR_USER,
 					SchemaNames.ATTR_USER, "string", rwco.getUser());
+			propA.addAttribute("", SchemaNames.ATTR_DISPLAY_USER,
+					SchemaNames.ATTR_DISPLAY_USER, "string", UserDisplayHelper
+							.formatDisplayName(rwco.getUser()));
 			propA.addAttribute("", SchemaNames.ATTR_REVISION,
 					SchemaNames.ATTR_REVISION, "string", String.valueOf(rwco
 							.getRevision()));
