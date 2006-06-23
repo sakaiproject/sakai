@@ -83,6 +83,8 @@ public interface AgentHelper extends Serializable
   //cwen
   public String getRoleForAgentAndSite(String agentString, String siteId);
 
+  public String getEid(String agentString);
+
   /**
    * This is a kludge to work around a JSF scriptlet dependency introduced by cwen
    * on org.sakaiproject.service.component.cover.ServerConfigurationService.

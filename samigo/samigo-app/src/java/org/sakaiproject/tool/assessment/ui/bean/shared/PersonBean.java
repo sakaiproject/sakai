@@ -69,6 +69,11 @@ public class PersonBean implements Serializable
       return getAgentString();
   }
 
+  public String getEid()
+  {
+    return AgentFacade.getEid();
+  }
+
   public void setAnonymousId(String anonymousId)
   {
     this.anonymousId=anonymousId;

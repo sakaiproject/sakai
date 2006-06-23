@@ -59,6 +59,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 
   private AgentImpl agent;
   private String agentString;
+  private String eid;
   private boolean accessViaUrl;
 
   /**
@@ -69,6 +70,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
   {
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
+    eid = helper.getEid(agentId);
   }
 
   /**
@@ -80,6 +82,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
     String agentId = helper.getAgentString(helper.UNASSIGNED_AGENT_STRING);
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
+    eid = helper.getEid(helper.UNASSIGNED_AGENT_STRING); 
   }
 
   /**
@@ -101,6 +104,13 @@ public class AgentFacade implements Serializable, AgentDataIfc
   {
     AgentFacade facade =new AgentFacade();
     return facade.agentString;
+  }
+
+
+  public static String getEid()
+  {
+    AgentFacade facade =new AgentFacade();
+    return facade.eid;
   }
 
   /**
