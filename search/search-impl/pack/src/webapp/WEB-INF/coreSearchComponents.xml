@@ -53,34 +53,24 @@
     </property>
     <property name="searchIndexBuilderWorkerDao"><ref bean="searchIndexBuilderWorkerDao" /></property>
   </bean>
-  
-  
-  <bean id="org.sakaiproject.search.SearchSessionFactory"
-    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
-    
-    <property name="dataSource">
-      <ref bean="javax.sql.DataSource"/>
-    </property>
+
+ <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.search"
+    class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+
     <property name="mappingResources">
       <list>
         <value>org/sakaiproject/search/model/impl/search.hbm.xml</value>
       </list>
     </property>
   </bean>
-  
-  <bean id="org.sakaiproject.search.SearchTransactionManager"
-    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory"><ref
-      bean="org.sakaiproject.search.SearchSessionFactory"/>
-    </property>
-  </bean>
+
   
   <!-- START NEW STUFF -->
   <!-- Register the Data Access Object as a Transactional Interceptor -->
   <bean id="searchBuilderItemDao"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-      bean="org.sakaiproject.search.SearchTransactionManager"/>
+      bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -94,14 +84,14 @@
   <bean id="searchBuilderItemDaoImpl"
     class="org.sakaiproject.search.component.dao.impl.SearchBuilderItemDaoImpl" singleton="true">
     <property name="sessionFactory"><ref
-      bean="org.sakaiproject.search.SearchSessionFactory"/>
+      bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
     </property>
   </bean>
 
   <bean id="searchIndexBuilderWorkerDao"
     class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager"><ref
-      bean="org.sakaiproject.search.SearchTransactionManager"/>
+      bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
     </property>
     <property name="transactionAttributes">
       <props>
@@ -114,7 +104,7 @@
   <bean id="searchIndexBuilderWorkerDaoImpl"
     class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoImpl" 
     init-method="init" >
-    <property name="sessionFactory" ><ref bean="org.sakaiproject.search.SearchSessionFactory" /></property>
+    <property name="sessionFactory" ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" /></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
   </bean>
   
