@@ -406,7 +406,7 @@
 				#if ($!groups)
 					<p class="checkbox  indnt1">
 						#if (!$!allowGroupAssignmentsInGradebook)
-							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('addToGradebook').style.display = 'block';document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('addToGradebook').style.display = 'block';document.getElementById('groupTable').style.display = 'none';"/>
+							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" onkeypress="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';"/>
 						#else
 							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
 						#end
@@ -427,7 +427,7 @@
 				## added group awareness
 				<p class="checkbox indnt1">
 					#if (!$!allowGroupAssignmentsInGradebook)
-						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('addToGradebook').style.display = 'none';document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('addToGradebook').style.display = 'none';document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" />
+						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('addToGradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('addToGradebook').checked=false};document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" />
 					#else
 						<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" onkeypress="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';" />
 					#end
@@ -439,7 +439,7 @@
 				#else
 					#set ($listDisplay="none")
 				#end
-					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
+				<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 						<tr>
 							<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
 								<input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
