@@ -34,26 +34,78 @@ public interface PodcastService // extends EntityProducer
   /** This string can be used to find the service in the service manager. */
 	public static final String COLLECTION_PODCASTS = "podcasts";
 	
+	/** This string used as part of URL for podcast feed **/
 	public static final String COLLECTION_PODCASTS_FEED = "podcastsFeed";
 	
+	/** This string used for Title of the podcast collection **/
 	public static final String COLLECTION_PODCASTS_TITLE = "Podcasts";
 	
+	/** This string gives description for podcasts folder **/
 	public static final String COLLECTION_PODCASTS_DESCRIPTION = "Common Folder for All Site Podcasts";
-		
+
+	/** Service name (class w/ package prefix) for podcast service **/
 	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
 
-	public void addPodcast(String title, Date displayDate, String description, byte[] body);
+	/**
+	 * Does the actual adding of podcast to Resources
+	 * 
+	 * @param title User specified title for the podcast
+	 * @param displayDate Date when podcast will be available for viewing
+	 * @param description User specified description for the podcast
+	 * @param body The actual contents of the podcast
+	 * @param filename The filename of the podcast being saved
+	 */
+	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
+			               String filename);
 	
+	/**
+	 * Returns a list of the podcasts stored in site/podcasts folder
+	 * 
+	 * @return List of podcasts
+	 */
 	public List getPodcasts();
-	
+
+	/**
+	 * Removes a podcast from site/podcasts folder
+	 * 
+	 * @param resourceId resourceId of the podcast to be deleted
+	 */
 	public void removePodcast(String resourceId);
 	
+	/**
+	 * Returns SiteId for the site this tool is a part of
+	 * 
+	 * @return String of the site id
+	 */
 	public String getSiteId();
 	
+	/**
+	 * Determines if podcast folder is part of Resources of site.
+	 * If not, creates it.
+	 * 
+	 * @return true if folder exists/created, false otherwise.
+	 */
 	public boolean checkPodcastFolder ();
-	
+
+	/**
+	 * Used to inject the ContentHostingService
+	 * 
+	 * @param chs The application's ContentHostingService
+	 */
 	public void setContentHostingService(ContentHostingService chs);
 	
+	/**
+	 * Used to inject the ToolManager
+	 * 
+	 * @param tm The application's ToolManager
+	 */
 	public void setToolManager(ToolManager tm);
+
+	/**
+	 * Determines if there are actual podcasts in the folder
+	 * 
+	 * @return true if there are actual podcasts, false otherwise
+	 */
+	public boolean checkForActualPodcasts();
 
 }

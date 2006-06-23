@@ -18,22 +18,22 @@
 
   <h:form enctype="multipart/form-data">
     <div>  <!-- Page title and Instructions -->
-      <h3><h:outputText value="#{msgs.podcast_options_title}" /></h3>
+      <h3><h:outputText value="#{msgs.options_title}" /></h3>
       <div class="indnt1">
           <p class="instruction"> 
-            <h:outputText value="#{msgs.podcast_options_directions1}" />
+            <h:outputText value="#{msgs.options_directions1}" />
             <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
  	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcast_home_podcatcher}" />,
+ 	           <h:outputText value="#{msgs.podcatcher}" />,
  	        </span>
 
- 	        <h:outputText value="#{msgs.podcast_options_directions2}" />
+ 	        <h:outputText value="#{msgs.options_directions2}" />
             <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
  	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcast_home_podcatcher}" />,
+ 	           <h:outputText value="#{msgs.podcatcher}" />,
  	        </span>
 
- 	        <h:outputText value="#{msgs.podcast_options_directions3}" />
+ 	        <h:outputText value="#{msgs.options_directions3}" />
           </p>
  	  </div>
     </div>
@@ -43,7 +43,7 @@
        summary="Table holds radio buttons to select access rights.">
 
       <tr class="navIntraTool">
-        <th align="center"><h:outputText value="#{msgs.podcast_access}" /></th>
+        <th align="center"><h:outputText value="#{msgs.access}" /></th>
       </tr>
 
       <tr>
@@ -56,9 +56,9 @@
   </table>
   
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{podOptions.processOptionChange}" value="#{msgs.podcast_change_submit}"
+      <sakai:button_bar_item action="#{podOptions.processOptionChange}" value="#{msgs.change_submit}"
             accesskey="s" title="Save Podcast Display Options" styleClass="active"/>
-      <sakai:button_bar_item action="#{podOptions.processOptionCancel}" value="#{msgs.podcast_cancel}" 
+      <sakai:button_bar_item action="#{podOptions.processOptionCancel}" value="#{msgs.cancel}" 
             accesskey="c" title="Cancel Podcast Display Options" />
     </sakai:button_bar>
   </h:form>
@@ -68,8 +68,6 @@
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
         style="position:absolute; top: -1000px; left: -1000px; visibility:hidden;">
-      A podcatcher is a computer program used to automatically download
-      podcasts.  iTunes is a popular podcatcher, but is not the only
-      software available for this purpose.
+      <h:outputText value="#{msgs.popup_text}" />
     </div>
 </f:view>  

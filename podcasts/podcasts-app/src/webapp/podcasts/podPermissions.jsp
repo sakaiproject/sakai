@@ -15,9 +15,9 @@
     <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
 
   <div>
-    <h3><h:outputText value="#{msgs.podcast_perm_title}" /></h3>
+    <h3><h:outputText value="#{msgs.perm_title}" /></h3>
     <div styleclass="instruction" >
-        <h:outputText value="#{msgs.podcast_perm_directions}" styleClass="indnt1"/>
+        <h:outputText value="#{msgs.perm_directions}" styleClass="indnt1"/>
 
         <!-- TODO: pull down site name (id) and add to message above-->
 
@@ -31,15 +31,15 @@
        column 5 is Delete permission">
 
       <tr class="navIntraTool">
-        <th align="center"><h:outputText value="#{msgs.podcast_perm_role}" /></th>
-        <th align="center"><h:outputText value="#{msgs.podcast_perm_new}" /></th>
-        <th align="center"><h:outputText value="#{msgs.podcast_perm_read}" /></th>
-        <th align="center"><h:outputText value="#{msgs.podcast_perm_revise}" /></th>
-        <th align="center"><h:outputText value="#{msgs.podcast_perm_delete}" /></th>
+        <th align="center"><h:outputText value="#{msgs.role}" /></th>
+        <th align="center"><h:outputText value="#{msgs.new}" /></th>
+        <th align="center"><h:outputText value="#{msgs.read}" /></th>
+        <th align="center"><h:outputText value="#{msgs.revise}" /></th>
+        <th align="center"><h:outputText value="#{msgs.delete}" /></th>
       </tr>        
 
       <tr>
-        <td><h:outputText value="#{msgs.podcast_perm_maint}" /></td>
+        <td><h:outputText value="#{msgs.maint}" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.mNew}" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.mRead}" disabled="true" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.mRevise}" /></td>
@@ -47,7 +47,7 @@
       </tr>
 
       <tr>
-        <td><h:outputText value="#{msgs.podcast_access}" /></td>
+        <td><h:outputText value="#{msgs.access}" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.aNew}" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.aRead}" disabled="true" /></td>
         <td><h:selectBooleanCheckbox value="#{podPerms.aRevise}" /></td>
@@ -57,9 +57,9 @@
     <br />
 
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{podPerms.processPermChange}" value="#{msgs.podcast_change_submit}" 
+      <sakai:button_bar_item action="#{podPerms.processPermChange}" value="#{msgs.change_submit}" 
           accesskey="s" title="Save Podcast Permissions" styleClass="active" />
-      <sakai:button_bar_item action="#{podPerms.processPermCancel}" value="#{msgs.podcast_cancel}"
+      <sakai:button_bar_item action="#{podPerms.processPermCancel}" value="#{msgs.cancel}"
           accesskey="c" title="Cancel Podcast Permission Change" />
     </sakai:button_bar>
   </h:form>

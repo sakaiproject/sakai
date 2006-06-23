@@ -21,7 +21,6 @@
 package org.sakaiproject.tool.podcasts;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,32 +29,58 @@ import javax.faces.context.FacesContext;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.cover.ToolManager;
 
 
 public class podHomeBean {
 	
+	/**
+	 * Stores the properties of a specific podcast to be displayed
+	 * on the main page.
+	 * 
+	 * @author josephrodriguez
+	 *
+	 */
 	public class DecoratedPodcastBean {
 		private String filename;
-		private Date displayDate;
+		private Time displayDate;
 		private String title;
-		private String decsription;
-		private int size;
+		private String description;
+		private String size;
 		private String type;
-		public String getDecsription() {
-			return decsription;
+		
+		public DecoratedPodcastBean() {
+			
 		}
-		public void setDecsription(String decsription) {
-			this.decsription = decsription;
+		
+		public DecoratedPodcastBean(String filename, Time displayDate, String title, String description, String size, String type) {
+			this.filename = filename;
+			this.displayDate = displayDate;
+			this.title = title;
+			this.description = description;
+			this.size = size;
+			this.type = type;
 		}
-		public Date getDisplayDate() {
+		
+		public String getDescription() {
+			return description;
+		}
+		public void setDescription(String decsription) {
+			this.description = decsription;
+		}
+		public Time getDisplayDate() {
 			return displayDate;
 		}
-		public void setDisplayDate(Date displayDate) {
+		public void setDisplayDate(Time displayDate) {
 			this.displayDate = displayDate;
 		}
 		public String getFilename() {
@@ -64,10 +89,10 @@ public class podHomeBean {
 		public void setFilename(String filename) {
 			this.filename = filename;
 		}
-		public int getSize() {
+		public String getSize() {
 			return size;
 		}
-		public void setSize(int size) {
+		public void setSize(String size) {
 			this.size = size;
 		}
 		public String getTitle() {
@@ -85,8 +110,10 @@ public class podHomeBean {
 		
 		
 	}
+	
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
+	private boolean actPodcastsExist;
 	private boolean podcastResourceCheckFirstTry;
 	private PodcastService podcastService;
 	private List contents;
@@ -96,7 +123,8 @@ public class podHomeBean {
 	
 	public podHomeBean() {
 		resourceToolExists=false;
-		podcastFolderExists = true;
+		podcastFolderExists = false;
+		actPodcastsExist = false;
 		podcastResourceCheckFirstTry=true;
 	}
 
@@ -158,11 +186,6 @@ public class podHomeBean {
 		  
 		  if (resourceToolExists) {
 			  // we know resources tool exists, but need to know if podcast folder does
-			  // TODO: check to Resource tool to see if Podcasts folder exists
-			  //       if it does, check if any podcasts exist.
-			  //                       if they do, construct the list, sort by date,
-			  //                       and return them 
-			  //       else return true
 			  podcastFolderExists = podcastService.checkPodcastFolder();
 		  }
 		  
@@ -191,27 +214,87 @@ public class podHomeBean {
 		this.podcastService = podcastService;
 	}
 
-	public ArrayList getContents() {
-		List tempPodcasts = podcastService.getPodcasts();
+	public List getContents() {
+		contents = podcastService.getPodcasts();
 
 		// create local List of DecoratedBeans
 		ArrayList decoratedPodcasts = new ArrayList();
 
-		Iterator podcastIter = tempPodcasts.iterator();
+		if (contents != null) {
+			Iterator podcastIter = contents.iterator();
 		
-		// for each bean
-		while (podcastIter.hasNext() ) {
+			// for each bean
+			while (podcastIter.hasNext() ) {
+				try {
+					// get its properties from ContentHosting
+					ResourceProperties podcastProperties = ((ContentResource) podcastIter.next()).getProperties();
 			
+					// Create a new decorated bean to store the info
+					DecoratedPodcastBean podcastInfo = new DecoratedPodcastBean();
+
+					// fill up the decorated bean
+					podcastInfo.setTitle(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
+					podcastInfo.setDescription(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
+					podcastInfo.setDisplayDate(podcastProperties.getTimeProperty(ResourceProperties.PROP_CREATION_DATE));
+					podcastInfo.setFilename(podcastProperties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME));
+					podcastInfo.setSize(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+					
+					// TODO: figure out how to determine/store content type
+					podcastInfo.setType("MP3");
+				
+					// add it to the ArrayList to send to the page
+					decoratedPodcasts.add(podcastInfo);
+			
+					// get the next podcast if it exists
+				}
+				catch (EntityPropertyNotDefinedException ende) {
+					
+				}
+				catch (EntityPropertyTypeException epte) {
+					
+				}
+				catch (/*IdUnused*/Exception e) {
+					//TODO: determine exact execptions to catch
+					System.out.println("Wrong Id used to collect podcasts ");
+					return null;
+				}
+/*			catch (PermissionException pe) {
+				System.out.println("PermissionException");
+			}
+*/
+			}
+		
 		}
-		//   ContentHostingService.getReqProps(name?)
-		//   create new DecoratedBean
-		//   fill up
-		//   add to List
+
 		// when done:
+		// TODO: sort the list
 		return decoratedPodcasts; //new decorated list 
 	}
 
 	public void setContents(List contents) {
 		this.contents = contents;
+	}
+
+	/**
+	 * Resources/podcasts exists, but are there any actual podcasts
+	 * 
+	 * @return true if there are podcasts, false otherwise
+	 */
+	public boolean getActPodcastsExist() {
+		if (!getPodcastFolderExists()) {
+			// if for some reason there is not a podcast folder
+			// for example, was renamed in Resources
+			actPodcastsExist = false;
+		}
+		else  {
+			// ask the service if there is anything in the podcast folder
+			actPodcastsExist = podcastService.checkForActualPodcasts();
+		}
+
+		return actPodcastsExist;
+	}
+
+	public void setActPodcastsExist(boolean actPodcastsExist) {
+		this.actPodcastsExist = actPodcastsExist;
 	}
 }

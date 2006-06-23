@@ -85,3 +85,5 @@
 	      <to-view-id>/podcasts/revisePodcast.jsp</to-view-id>
 	    </navigation-case>
 	</navigation-rule>
+	
+</faces-config>

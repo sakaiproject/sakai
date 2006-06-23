@@ -12,9 +12,9 @@
         <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
     <h:form>
       <sakai:tool_bar>
-          <sakai:tool_bar_item action="addPodcast" value="#{msgs.podcast_add}" rendered="#{podHomeBean.resourceToolExists}" />
-          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.podcast_options}" rendered="#{podHomeBean.resourceToolExists}" />
-          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.podcast_permissions}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="addPodcast" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" rendered="#{podHomeBean.resourceToolExists}" />
       </sakai:tool_bar>
 
  	  <div>
@@ -25,7 +25,7 @@
  
             <span onmouseover="showPopupHere(this,'podcatcher'); return false;" 
  	              onmouseout="hidePopup('podcatcher');" style="color: #0099cc;" class="active">
- 	           <h:outputText value="#{msgs.podcast_home_podcatcher}" />
+ 	           <h:outputText value="#{msgs.podcatcher}" />
  	        </span>
 
  	     </div>
@@ -34,31 +34,46 @@
  	  </div>
 
       <div class="indnt1" style="position:relative; top:20px;">
-         <h:outputText  styleClass="instruction" value="#{msgs.podcast_no_podcasts}" rendered="#{podHomeBean.podcastFolderExists}" />
+         <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" 
+                rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
       </div>
  
 	  <!-- TODO: if there are podcasts, display their information here 
-	     or possibly return this part from previous tag
+	     or possibly return this part from previous tag  -->
       <sakai:flat_list value="#{podHomeBean.contents}" var="eachPodcast" >
         <h:column>
-          <h:outputText value="#{eachPodcast.displayDate}" rendered="#{podHomeBean.podcastFolderExists}"/>
-          <h:outputText value="#{eachPodcast.title}" rendered="#{podHomeBean.podcastFolderExists}"/>
-          <h:outputText value="#{eachPodcast.description}" rendered="#{podHomeBean.podcastFolderExists}"/>
-          <sakai:tool_bar_item action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" rendered="#{podHomeBean.podcastFolderExists}" />
-          (<h:outputText value="#{eachPodcast.size}" rendered="#{podHomeBean.podcastFolderExists}"/>
-           <h:outputText value="#{eachPodcast.type}" rendered="#{podHomeBean.podcastFolderExists}"/>) |
-          <sakai:tool_bar_item action="revise" value="#{msgs.podcast_Revise}" rendered="#{podHomeBean.podcastFolderExists}"/> |
-          <sakai:tool_bar_item action="delete" value="#{msgs.podcast_Delete}" rendered="#{podHomeBean.podcastFolderExists}"/>
+            <h:outputText value="#{eachPodcast.displayDate}" rendered="#{podHomeBean.actPodcastsExist}"/>
+
+            <h:outputText value="#{eachPodcast.title}" rendered="#{podHomeBean.actPodcastsExist}"/>
+
+            <h:outputText value="#{eachPodcast.description}" rendered="#{podHomeBean.actPodcastsExist}"/>
+            
+            <!--  Download link -->
+            <h:commandLink action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" styleClass="active" 
+                 rendered="#{podHomeBean.actPodcastsExist}" />
+
+            <h:outputText value=" (" rendered="#{podHomeBean.actPodcastsExist}" />
+            <h:outputText value="#{eachPodcast.size}" rendered="#{podHomeBean.actPodcastsExist}"/>
+            <h:outputText value=" " rendered="#{podHomeBean.actPodcastsExist}"/>
+            <h:outputText value="#{eachPodcast.type}" rendered="#{podHomeBean.actPodcastsExist}"/>
+
+            <!--  go to Revise page -->
+            <h:outputText value=") | " rendered="#{podHomeBean.actPodcastsExist}" />
+            <h:commandLink action="revise" value="#{msgs.revise}" styleClass="active"
+                 rendered="#{podHomeBean.actPodcastsExist}"/>
+                 
+            <!--  go to Delete page --> 
+            <h:outputText value=" | " rendered="#{podHomeBean.actPodcastsExist}" />
+            <h:commandLink action="delete" value="#{msgs.delete}" styleClass="active"
+                 rendered="#{podHomeBean.actPodcastsExist}"/>
         </h:column>
-      </sakai:flat_list>  -->
+      </sakai:flat_list>
     </h:form>
   </sakai:view>
   
   <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="podcatcher" class="podcatcher_popup" 
         style="position:absolute; top: -1000px; left: -1000px; visibility:hidden;">
-  	  A podcatcher is a computer program used to automatically download
-  	  podcasts.  iTunes is a popular podcatcher, but is not the only
-      software available for this purpose.
+  	  <h:outputText value="#{msgs.popup_text}" />
     </div>
 </f:view>

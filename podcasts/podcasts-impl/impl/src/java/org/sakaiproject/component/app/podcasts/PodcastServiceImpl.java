@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +58,7 @@ public class PodcastServiceImpl implements PodcastService
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	private Reference siteRef;
 	private boolean podcastCollection;
+
 	
 	PodcastServiceImpl() {
 	}
@@ -86,7 +88,8 @@ public class PodcastServiceImpl implements PodcastService
 	}
 
 	/**
-	 * Retrieve Podcasts for site
+	 * Retrieve Podcasts for site and if podcast folder does not exist,
+	 * create it.
 	 * 
 	 * @return A List of podcast resources
 	 */
@@ -156,7 +159,8 @@ public class PodcastServiceImpl implements PodcastService
 	 *  @param body
 	 *  			the bytes of this podcast
 	 */
-	public void addPodcast(String title, Date displayDate, String description, byte[] body) {
+	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
+			               String filename) {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 
 		try {
@@ -168,6 +172,8 @@ public class PodcastServiceImpl implements PodcastService
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
 			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
 			resourceProperties.addProperty(ResourceProperties.PROP_CREATION_DATE, displayDate.toString());
+			resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+			resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
 			
 			contentHostingService.addResource(Validator.escapeResourceName(title), resourceCollection, 0,
 					ResourceProperties.FILE_TYPE, body, resourceProperties, NotificationService.NOTI_NONE);
@@ -229,12 +235,10 @@ public class PodcastServiceImpl implements PodcastService
 	 * @return true if exists, false otherwise
 	 */
 	public boolean checkPodcastFolder () {
-		String siteCollection = contentHostingService.getSiteCollection(toolManager.getCurrentPlacement().getContext());
+		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
-		ContentCollectionEdit collectionEdit = null;
 		
 		try {
-			//collectionEdit = contentHostingService.editCollection(podcastsCollection);
 			contentHostingService.checkCollection(podcastsCollection);		
 			podcastCollection =  true;
 		}
@@ -286,6 +290,32 @@ public class PodcastServiceImpl implements PodcastService
 	
 	public void setPodcastCollection (boolean podcastCollection) {
 		this.podcastCollection = podcastCollection;
+	}
+	
+	public boolean checkForActualPodcasts() {
+		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+		List resourcesList = null;
+		
+		try {
+			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
+			
+			resourcesList = collection.getMemberResources();
+			
+			if (resourcesList != null) {
+				if (resourcesList.isEmpty())
+					return false;
+				else
+					return true;					
+			}
+			else 
+				return false;
+		}
+		catch (Exception e) {
+			
+		}
+
+		return false;
 	}
 	
 }

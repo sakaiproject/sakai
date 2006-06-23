@@ -167,7 +167,7 @@ public class addPodcastBean {
 			System.out.println("What happened to the fileStream?");
 		}
 		
-		podcastService.addPodcast(title, date, description, fileContents);
+		podcastService.addPodcast(title, date, description, fileContents, filename);
 
 		date = null;
 		title="";
