@@ -9727,7 +9727,7 @@ public class ResourcesAction
 			folder.setRights(rightsObj);
 			
 			AccessMode access = collection.getAccess();
-			if(access == null || AccessMode.SITE.equals(access))
+			if(access == null || AccessMode.SITE == access)
 			{
 				folder.setAccess(AccessMode.INHERITED.toString());
 			}
@@ -9737,7 +9737,7 @@ public class ResourcesAction
 			}
 			
 			AccessMode inherited_access = collection.getInheritedAccess();
-			if(inherited_access == null || AccessMode.SITE.equals(inherited_access))
+			if(inherited_access == null || AccessMode.SITE == inherited_access)
 			{
 				folder.setInheritedAccess(AccessMode.INHERITED.toString());
 			}
@@ -9751,12 +9751,13 @@ public class ResourcesAction
 			{
 				access_groups = new Vector();
 			}
+			folder.setGroups(access_groups);
 			Collection inherited_access_groups = collection.getInheritedGroupObjects();
 			if(inherited_access_groups == null)
 			{
 				inherited_access_groups = new Vector();
 			}
-			folder.setInheritedGroups(access_groups);
+			folder.setInheritedGroups(inherited_access_groups);
 
 			if(highlightedItems == null || highlightedItems.isEmpty())
 			{
@@ -9890,6 +9891,7 @@ public class ResourcesAction
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
 
 						newItem.setAccess(access_mode.toString());
+						newItem.setInheritedAccess(folder.getEffectiveAccess());
 
 						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
 						newItem.setRights(rightsObj2);
@@ -9898,10 +9900,10 @@ public class ResourcesAction
 						{
 							groups = new Vector();
 						}
-						Collection inheritedGroups = ((GroupAwareEntity) resource).getInheritedGroupObjects();
+						Collection inheritedGroups = folder.getGroups();
 						if(inheritedGroups == null)
 						{
-							inheritedGroups = new Vector();
+							inheritedGroups = folder.getInheritedGroups();
 						}
 						newItem.setGroups(groups);	
 						newItem.setInheritedGroups(inheritedGroups);
@@ -11525,21 +11527,24 @@ public class ResourcesAction
 		public String getGroupNames()
 		{
 			String rv = "";
-				Collection groups = getGroups();
-				if(groups == null || groups.isEmpty())
+			
+			Collection groups = getGroups();
+			if(groups == null || groups.isEmpty())
+			{
+				groups = getInheritedGroups();
+			}
+			
+			Iterator it = groups.iterator();
+			while(it.hasNext())
+			{
+				Group g = (Group) it.next();
+				rv += g.getTitle();
+				if(it.hasNext())
 				{
-					groups = getInheritedGroups();
+					rv += ", ";
 				}
-					Iterator it = groups.iterator();
-					while(it.hasNext())
-					{
-						Group g = (Group) it.next();
-						rv += g.getTitle();
-						if(it.hasNext())
-						{
-							rv += ", ";
-						}
-					}
+			}
+			
 			return rv;
 		}
 
