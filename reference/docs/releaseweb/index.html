@@ -2,9 +2,9 @@
 <html>
 <head>
 
-<title>Sakai 2.1.2 Release Page</title>
+<title>Sakai 2.2.0 Release Page</title>
  <link href="styles/pos.css" rel="stylesheet" type="text/css" />
- <link href="styles/styles3.css" rel="stylesheet" type="text/css" />
+ <link href="styles/styles.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
@@ -28,7 +28,7 @@
 	  <img src="http://www.sakaiproject.org/images/M_images/arrow.png" height="9"width="9" />
 	  Release
       <img src="http://www.sakaiproject.org/images/M_images/arrow.png" height="9" width="9" />
-	  2.1.2
+	  2.2.0
 	  <br />&nbsp;
 	  <!--END BAR-->
 	</div>
@@ -52,11 +52,10 @@
 </div>
 
 <!-- BEGIN CONTENT -->
-
-<h1>Sakai 2.1.2 Release<br><span style="font:	12px/1.4 Arial, Helvetica, sans-serif;">(April 12, 2006)</span></h1>
-<p>Welcome to the Sakai release page for version 2.1.2!  Sakai 2.1.2 offers functionality improvements in addition to the latest round of fixes to issues unearthed in the 2.1 code.  Among the key improvements are better integration between the Assignments and Gradebook tools, and significant refinements based on Rutgers University's contributions to Sakai's WebDAV and Access servlets.  See the <a href="release_notes.html">release notes</a> for more details.</p>
-
-<p>The 2.1 series is marked most prominently by the inclusion of course sections and making several of the bundle tools "section-aware," but there are other new tools and many improvements to the code.  2.1 is also the first level of release to include <a href="provisional.html">provisional tools</a> from the broader community.  See the <a href="#documentation">Documentation</a> area below for more details.</p>
+<div class="pad">
+<h1>Sakai 2.2.0 Release<br><span style="font:	12px/1.4 Arial, Helvetica, sans-serif;">(July 14, 2006)</span></h1>
+<p>Welcome to the Sakai release page for version 2.2.0!  Sakai 2.2.0 marks the culmination of a significant effort to restructure the framework into more logical
+functional/architectural units, paving the way for multiple focused teams to work in parallel on moving the framework and legacy code forward.  The functional improvements include group awareness for each of the Resources, Assignments, and Schedule tools, the inclusion of French and Japanese translations, updated help content, and the addition of four innovative <a href="provisional.html">provisional tools</a>.  See the <a href="release_notes.html">release notes</a> for more details.</p>
 
 <p>On this page you'll find further details concerning what the release includes, along with system requirements, an installation guide, and links to other relevant community spaces for the Sakai project.</p>
 <br clear="all" />
@@ -80,13 +79,13 @@ configuration, perfect for a quick and easy demo of Sakai.&nbsp;
 					evaluation or production.
 	</td>
 	<td>
-				  <a href="sakai_2-1-2/sakai-demo_2-1-2.zip">
-				  sakai-demo_2-1-2.zip</a><br />
+				  <a href="sakai_2-2-0/sakai-demo_2-2-0.zip">
+				  sakai-demo_2-2-0.zip</a><br />
 				(68.1M)
 	</td>
 	<td>
-				  <a href="sakai_2-1-2/sakai-demo_2-1-2.tar.gz">
-				  sakai-demo_2-1-2.tar.gz</a>
+				  <a href="sakai_2-2-0/sakai-demo_2-2-0.tar.gz">
+				  sakai-demo_2-2-0.tar.gz</a>
 				  <br />
 					(67.1M)
 	</td>
@@ -98,12 +97,12 @@ configuration, perfect for a quick and easy demo of Sakai.&nbsp;
 				Download the Binary release if you want to just drop Sakai into a
 				pre-existing Tomcat environment.
 	</td>
-	<td><a href="sakai_2-1-2/sakai-bin_2-1-2.zip">
-				  sakai-bin_2-1-2.zip</a><br />
+	<td><a href="sakai_2-2-0/sakai-bin_2-2-0.zip">
+				  sakai-bin_2-2-0.zip</a><br />
 				(61.0M)
 	</td>
-	<td><a href="sakai_2-1-2/sakai-bin_2-1-2.tar.gz">
-				  sakai-bin_2-1-2.tar.gz</a><br />
+	<td><a href="sakai_2-2-0/sakai-bin_2-2-0.tar.gz">
+				  sakai-bin_2-2-0.tar.gz</a><br />
 				(60.8M)
 	</td>
 </tr>
@@ -112,10 +111,10 @@ configuration, perfect for a quick and easy demo of Sakai.&nbsp;
 	<td>The Sakai Source is all the Sakai source code from this release.&nbsp;
 				   Start from Source if you plan to customize your Sakai system.
 	</td>
-	<td><a href="sakai_2-1-2/sakai-src_2-1-2.zip">sakai-src_2-1-2.zip</a><br />
+	<td><a href="sakai_2-2-0/sakai-src_2-2-0.zip">sakai-src_2-2-0.zip</a><br />
 				(9.8M)
 	</td>
-	<td><a href="sakai_2-1-2/sakai-src_2-1-2.tar.gz">sakai-src_2-1-2.tar.gz
+	<td><a href="sakai_2-2-0/sakai-src_2-2-0.tar.gz">sakai-src_2-2-0.tar.gz
 				  </a><br />(6.9M)
 	</td>
 </tr>
@@ -124,7 +123,7 @@ configuration, perfect for a quick and easy demo of Sakai.&nbsp;
 
 <a name="overview"></a><br>
 <h3>System Requirements</h3>
-Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbsp;The platforms against which Sakai 2.1.2 has been specifically tested, however, are:<br />
+Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbsp;The platforms against which Sakai 2.2.0 has been specifically tested, however, are:<br />
 
 <table class="dec">
 <tr>
@@ -132,35 +131,35 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 	<th>Solaris</th>
 	<th>Linux</th>
 	<th>Mac OS 10.4</th>
-	<th>WinXP</th>
+	<th>Win 2003</th>
 </tr>
 <tr>
 	<th>HSQLDB&nbsp;</th>
-	<td class="topw">FT/DT</td>
 	<td class="topw">DT</td>
 	<td class="topw">DT</td>
-	<td class="topw">&nbsp;</td>
+	<td class="topw">DT</td>
+	<td class="topw">DT</td>
 </tr>
 <tr>
-	<th>MySQL</th>
+	<th>MySQL 4.1</th>
 	<td class="topbl">DT</td>
-	<td class="topw">FT/DT</td>
+	<td class="topbl">FT</td>
 	<td class="topw">DT</td>
 	<td class="topw">&nbsp;</td>
 </tr>
 <tr>
 	<th>Oracle 9i</th>
-	<td class="topbl">DT</td>
+	<td class="topbl">FT</td>
 	<td class="topw">&nbsp;</td>
 	<td class="topw">&nbsp;</td>
 	<td class="topw">&nbsp;</td>
 </tr>
 <tr>
 	<th>Oracle&nbsp;10g&nbsp;</th>
-	<td class="topbl">FT/DT</td>
-	<td class="topbl">FT/DT</td>
+	<td class="topbl">DT</td>
+	<td class="topbl">FT</td>
 	<td class="topw">&nbsp;</td>
-	<td class="topw">&nbsp;</td>
+	<td class="topw">FT</td>
 </tr>
 
 </table>
@@ -169,7 +168,7 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 <tr>
 	<td>&nbsp;</td>
 	<td colspan="4" align="right">
-<strong>FT:</strong> Functional Test (Tool Functionality)
+<strong>FT:</strong> Functional Test (Tool Functionality + DT)
 <br />
 <strong>DT:</strong> Deployment Test  (Installation and Configuration)
 <br />
@@ -182,7 +181,7 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 
   <p>&nbsp;</p>
   The basic underlying requirements for a successful
-	deployment of Sakai 2.1.2 are:
+	deployment of Sakai 2.2.0 are:
        <table border="0" cellpadding="0" cellspacing="10">
          <tbody>
             <tr>
@@ -193,9 +192,9 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 <tr><td colspan="4" class="line">&nbsp;</td></tr>
 			 <tr>
                 <td class="top">Java</td>
-                <td class="top">1.4.2</td>
+                <td class="top">1.4.2/1.5.0</td>
                 <td>
-				Java 1.4.2 is required to build and run Sakai.
+				Java 1.4.2 or 1.5.0 is required to build and run Sakai.
                 </td>
               </tr>
 			<tr><td colspan="4" class="line">&nbsp;</td></tr>
@@ -204,13 +203,9 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
               <td  class="top">
 			             5.5 + Compatibility patch
            </td>
-             <td>Although Tomcat is not the only available web container,
-			  it is highly recommended and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.9, but the latest stable version of 5.5 will likely not present problems.
-			  <br /><br />
-			Tomcat 5.5 requires a
-			compatibility patch in order to run with Java 1.4. This
-			compatibility patch is also
-			available from the Tomcat download page.
+             <td><p>Although Tomcat is not the only available web container, it is highly recommended, and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.17, but the latest stable version of 5.5 will likely not present problems.</p>
+			  <p>
+			Tomcat 5.5 requires a compatibility patch in order to run with Java 1.4, and some Sakai dependencies will require this, even if you are using Java 1.5 to build and run it. This compatibility patch is also available from the <a href="http://tomcat.apache.org/download-55.cgi">Tomcat download page</a>.</p>
 			</td>
          </tr>
 		 <tr><td colspan="4" class="line">&nbsp;</td></tr>
@@ -235,14 +230,14 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 		           <p>OR</p>
 		           <p>Oracle 9i+ (with 10g connector)</p>
         </td>
-          <td>Sakai uses HSQLDB as its
+          <td><p>Sakai uses HSQLDB as its
 		"out of the box" database, requiring no special installation
 		steps to set up,&nbsp;but this database is not recommended for any
 		level of production deployment. &nbsp;Both
-		MySQL and Oracle are currently supported by Sakai 2.1, but setting them
+		MySQL 4.1 (Sakai has not been adequately tested against MySQL 5.0) and Oracle 9+ are currently supported by Sakai 2.2, but setting them
 		up to serve as Sakai's back end will require additional configuration
-		(see the
-		<a href="#Documentation">Documentation</a>).
+		(see the <a href="install-overview.html">Installation Guide</a>).</p>
+		<p>It's important to note that Oracle requires the 10g driver even if Oracle 9i is used for the database.  The recommended driver for MySQL is 3.1.12, since there is a greater weight of production success behind it, and although early testing has revealed no significant problems with the 3.1.13 driver, it should be used advisedly.</p>
 		</td>
       </tr>
 	  <tr><td colspan="4" class="line">&nbsp;</td></tr>
@@ -251,12 +246,10 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 
 <p></p>
 <strong>Hardware note:</strong>
-There are as yet no
-firm hardware
-recommendations.
-&nbsp;Sakai should run on a middle-class laptop for purposes of tool demonstration, but
+Hardware recommendations depend on the scale of the installation.
+&nbsp;Sakai should run on a middle-class laptop for purposes of development or tool demonstration, but
 at least 1GB of memory is recommended for Sakai to run smoothly for
-multiple users concurrently accessing the system, while a production environment for an institution will likely
+multiple users concurrently accessing the system, while a production environment for a large institution will likely
 involve clustered application servers.
 <p>&nbsp;</p>
 
@@ -268,10 +261,9 @@ involve clustered application servers.
           <th>Release Notes</th>
            <td>
             <ul>
-             <li><a href="release_notes.html">2.1.2 Release Notes</a></li>
-             <li><a class="red" href="important_issues.html">2.1.2 Important Issues</span></a></li>
-<li><a href="open_issues.html">2.1.2 Open Issues</a></li>
-<li><a href="http://bugs.sakaiproject.org/confluence/display/SAM/2.1.2">Tests & Quizzes (SAMigo) Release Notes</a></li>
+             <li><a href="release_notes.html">2.2.0 Release Notes</a></li>
+             <li><a class="red" href="important_issues.html">2.2.0 Important Issues</span></a></li>
+<li><a href="open_issues.html">2.2.0 Open Issues</a></li>
             </ul>
             </td>
        </tr>
@@ -280,7 +272,7 @@ involve clustered application servers.
        <th>HTML Guides</th>
         <td>
          <ul>
-          <li><a href="InstallGuide.html">Installation Guide</a></li>
+          <li><a href="install-overview.html">Installation Guide</a></li>
           <li><a href="provisional.html">Provisional Tools</a></li>
          </ul>
          </td>
@@ -296,6 +288,12 @@ involve clustered application servers.
         </td>
       </tr>
 	  <tr><td colspan="2" class="line">&nbsp;</td></tr>
+	  <tr>
+	  	        <th>For Developers</th>
+	  	        <td><p>The best introduction for new developers is found in a wiki space called the <a href="http://bugs.sakaiproject.org/confluence/display/BOOT/Home">Programmer's Cafe</a>.  A number of experienced Sakai developers have banded together there to produce guides and tutorial materials for developers who wish to start hacking Sakai.</p><br/>
+	  	         </td>
+     </tr>
+     <tr><td colspan="2" class="line">&nbsp;</td></tr>
      <tr>
 	        <th>On Confluence</th>
 	        <td>Confluence is the wiki software used by the Sakai project.  Among the wiki spaces there is a staging ground for <a href="http://bugs.sakaiproject.org/confluence/display/DOC/Home">Sakai documentation</a>.  Comments and suggestions are highly encouraged there.
@@ -341,14 +339,14 @@ mailing list.
 
 <a name="latest"></a>
 <h3>Getting the Latest Source Code</h3>
-Sakai is using Subversion. You can browse the code for this release using this URL:
+Sakai is using Subversion for its source control, and has maintenance branches for its most current releases. You can find the maintenance branch for Sakai 2.2 at:<br/>
+<a href="https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/">
+https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</a>
 <br />
-<a href="https://source.sakaiproject.org/svn/sakai/tags/sakai_2-1-2/">
-https://source.sakaiproject.org/svn/sakai/tags/sakai_2-1-2/ </a>
 <p></p>
 The same URL can be used with an SVN client to check out the code:
 <br />
-<em>svn co https://source.sakaiproject.org/svn/sakai/tags/sakai_2-1-2/ </em>
+<em>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/ </em>
 <p></p>
 The Sakai development trunk is located here:
 <br />
@@ -370,33 +368,36 @@ Sakai Jira </a>
 <a name="community"></a>
 <h3>Community</h3>
 
- <p>The Sakai community interacts mainly in two electronic fora.  The first is through the email archives attached to the sites on <a href="http://collab.sakaiproject.org">Sakai Collab</a>.  Of these sites, sakai-dev is most active and it is where most of the technical discussion goes on.  We encourage you to create an account and participate.</p>
+ <p>The Sakai community interacts mainly in two electronic fora.  The first is through the email archives attached to the sites on <a href="http://collab.sakaiproject.org">Sakai Collab</a>.  Of these sites, <b>sakai-dev</b> is most active and it is where most of the technical discussion goes on.  We encourage you to create an account and participate.</p>
 
- <p>The second forum is <a href="http://bugs.sakaiproject.org/confluence">Confluence</a>, the wiki web used by the project.  Confluence is used mostly for the collaborative forging of documents and sharing of notes.  You're also encouraged to create an account there.</p>
+ <p>The second forum is <a href="http://bugs.sakaiproject.org/confluence">Confluence</a>, the wiki web used by the project.  Confluence is used mostly for the collaborative forging of documents and sharing of notes.  A great deal of valuable information (such as the Sakaipedia and the Programmer's Cafe) can be searched for and found there.  You're also encouraged to create an account there.</p>
 <p>&nbsp;</p>
 
 <a name="releases"></a>
 <h3>Older Releases</h3>
  Older Sakai Releases are still available:
  <br />
- <a href="http://cvs.sakaiproject.org/release/2.1.1/">
+ <a href="http://source.sakaiproject.org/release/2.1.2/">
+   2.1.2</a>
+ <br />
+ <a href="http://source.sakaiproject.org/release/2.1.1/">
   2.1.1</a>
  <br />
- <a href="http://cvs.sakaiproject.org/release/2.1.0/">
+ <a href="http://source.sakaiproject.org/release/2.1.0/">
  2.1.0</a>
  <br />
-  <a href="http://cvs.sakaiproject.org/release/2.0.1/">
+  <a href="http://source.sakaiproject.org/release/2.0.1/">
 2.0.1</a>
  <br />
- <a href="http://cvs.sakaiproject.org/release/2.0.0/">
+ <a href="http://source.sakaiproject.org/release/2.0.0/">
 2.0.0</a>
 <br />
-<a href="http://cvs.sakaiproject.org/release/1.5.1/">1.5.1</a>
+<a href="http://source.sakaiproject.org/release/1.5.1/">1.5.1</a>
 <br />
-<a href="http://cvs.sakaiproject.org/release/1.5.0/">
+<a href="http://source.sakaiproject.org/release/1.5.0/">
 1.5.0 </a>
 <br />
-<a  href="http://cvs.sakaiproject.org/release/1.0.0/">
+<a  href="http://source.sakaiproject.org/release/1.0.0/">
 1.0.0 </a>
 <p>&nbsp;</p>
 
