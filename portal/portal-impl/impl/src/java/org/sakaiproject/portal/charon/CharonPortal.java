@@ -623,6 +623,7 @@ public class CharonPortal extends HttpServlet
 				+ skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n"
+				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\"" + getScriptPath() + "headscripts.js\"></script>\n"
 				+ "    <title>"
 				+ toolTitle
 				+ "</title>\n" + "  </head>\n" + "  <body>\n";
@@ -641,12 +642,9 @@ public class CharonPortal extends HttpServlet
 			out.write("\t<div class=\"action\">\n");
 		if (showHelpButton)
 		{
-			out
-					.write("\t\t<a href=\"javascript:;\" onclick=\"window.open('"
-							+ helpActionUrl
-							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('"
-							+ helpActionUrl
-							+ "','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
+			out.write("\t\t<a href=\"" + helpActionUrl + "\" target=\"_blank\" "
+					+ "onclick=\"openWindow('" + helpActionUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+					+ "<img src=\"/library/image/transparent.gif\" alt=\"Help\" border=\"0\" /></a>\n");
 		}
 		out.write("\t</div>\n");
 		out.write("</div>\n");
@@ -1717,10 +1715,9 @@ public class CharonPortal extends HttpServlet
 			out.println("			<li>");
 
 			// help gets its own accesskey - h
-			out.println("				<a  accesskey=\"h\" href=\"javascript:;\" " + "onclick=\"window.open('" + helpUrl + "'"
-				+ ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\" onkeypress=\"window.open('" + helpUrl
-				+ "'" + ",'Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')\"><span>" + rb.getString("sit.help")
-				+ "</span></a>");
+			out.println("				<a  accesskey=\"h\" href=\"" + helpUrl + "\" target=\"_blank\" "
+				+ "onclick=\"openWindow('" + helpUrl + "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+				+ "<span>" + rb.getString("sit.help") + "</span></a>");
 
 			out.println("			</li>");
 		}
