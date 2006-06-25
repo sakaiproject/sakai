@@ -2229,3 +2229,8 @@ create index POSTEM_GB_CONTEXT_I on SAKAI_POSTEM_GRADEBOOK (context);
 create index POSTEM_GB_TITLE_I on SAKAI_POSTEM_GRADEBOOK (title);
 
 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- Increase the field size for the SESSION_IP field in the SAKAI_SESSION table
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ALTER TABLE SAKAI_SESSION CHANGE SESSION_IP SESSION_IP VARCHAR (128);
