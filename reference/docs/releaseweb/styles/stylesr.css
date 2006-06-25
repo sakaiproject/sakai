@@ -300,3 +300,7 @@ td.cols {colspan: 2;}
 	width: 645px;
 	padding: 4px;
 	}
+	
+em.note {
+	color:red;
+	}
