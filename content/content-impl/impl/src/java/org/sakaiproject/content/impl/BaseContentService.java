@@ -5460,14 +5460,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			id = reference.substring(REFERENCE_ROOT.length(), reference.length());
 		}
 
-		// for content hosting resources and collections - full url
-		// TODO: really? would this ever be used? -ggolden
-		else if (reference.startsWith(getUrl("")))
-		{
-			// parse out the local resource id
-			id = reference.substring(getUrl("").length(), reference.length());
-		}
-
 		// not mine
 		else
 		{
