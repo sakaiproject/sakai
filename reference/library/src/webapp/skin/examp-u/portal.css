@@ -37,28 +37,14 @@ body{
 #toolMenuWrap{
 	float: left;
 	width: 9.6em;
-	color: #000;
+	color: #CBCC03;
 	text-align: right;
 	padding:0 .5em 0 0;
-	border-right:2px solid #FFF
+	border-right:2px solid #fff
 }
-
 #toolMenuWrap:hover{
-	border-right:2px solid #09c;
-	}
-/*depending on site type - different hover effects for the tool menu parent block
-site types are a local setting - adjust */
-.workspace #toolMenuWrap:hover{
-	border-right:2px solid #8CE2FF;
+	border-right:2px solid #cbcc03
 }
-.course #toolMenuWrap:hover{
-	border-right:2px solid #06C;
-}
-.project #toolMenuWrap:hover{
-	border-right:2px solid #FC6;
-}
-
-
 /*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
 #content{
 	padding: 0;
@@ -76,7 +62,7 @@ site types are a local setting - adjust */
 	width: auto;
 	clear: both;
 	top: 0;
-	border-top: 1px solid #09c;
+	border-top: 1px solid #004D73;
 	text-align: center;
 }
 
@@ -86,7 +72,7 @@ site types are a local setting - adjust */
 	/*user not logged in*/
 	height: 90px;
 	width: 100%;
-	border-bottom:1px solid #09c
+	border-bottom:1px solid #004D73
 }
 
 .sitenav-max{
@@ -101,6 +87,7 @@ site types are a local setting - adjust */
 	/*user logged in - iframe height tweak for IE*/
 	height: 8em;
 	}
+
 .sitenav-min{
 	/*no logos or banners*/
 	height: 2em;
@@ -110,25 +97,9 @@ site types are a local setting - adjust */
 /*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
 /*outer wrapper for contents of site navigation document that is displayed inside of the site navigation iframe
 TODO:get it and its children onto main document. Children are #mastHead,#tabNavWrap*/
-.siteNavWrap{
-	margin: 0; 
-	border-bottom:3px solid #fff;
-	height:100%;
-	overflow:auto
+#siteNavWrapper{
+	margin: 0;
 }
-/*depending on site type - different border-bottoms for the site menu parent block
-site types are a local setting - adjust */
-.workspace .siteNavWrap{
-	border-bottom:3px solid #8CE2FF;
-}
-.course .siteNavWrap{
-	border-bottom:3px solid #06c;
-}
-.project .siteNavWrap{
-	border-bottom:3px solid #fc6;
-}
-
-
 
 /*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
 #mastHead{
@@ -176,12 +147,12 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*login links for CAS,logout link*/
 #mastLogin a,#mastLogin a:visited{
-	color: #09c;
+	color: #069;
 	margin-top: 0;
 }
 
 #mastLogin a:hover{
-	color: #09c;
+	color: #069;
 	text-decoration: none;
 }
 
@@ -196,27 +167,27 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 #eid{
 	border: 1px solid #aaa;
 	padding: 3px;
-	margin-left: .5em;
 	width: 7em;
 }
 
 #pw{
 	border: 1px solid #aaa;
 	padding: 3px;
-	margin-left: .5em;
 	width: 7em;
 }
-
+#eid:focus,#pw:focus{
+	border: 1px solid #069;
+}
 #loginForm label{
 	color: #000;
-	padding: 0 .5em
+	padding-right:.5em;
 }
 
 #submit{
 }
 
 #submit:hover{
-	color: #09c;
+	color: #069;
 }
 
 /*block for login/logout links */
@@ -237,11 +208,10 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 .siteNavWrap{
 	width: 100%;
-	background: #09c url(images/sitenavback.jpg) top left repeat-x;
 	padding: 0;
 	margin: 0;
 	float: left;
-	border-top: 1px solid #09c;
+	background: #004D73;
 }
 
 /*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
@@ -253,17 +223,18 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	padding:0
 }
 
+* html body #siteNav{
+	height:1.5em;
+}
+
 /*wrapper for the site link list   - the #siteLinkList child)*/
 #linkNav{
-
-}
-* html body  #linkNav{
-/*margin-top:.2em*/
+	padding: 0;
 }
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectNav{
 	padding: .2em;
-		text-align: right;
+	text-align: right;
 }
 
 /*the <select> contextually defined*/
@@ -303,7 +274,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	#siteLinkList .selectedTab a:link,
 	#siteLinkList .selectedTab a:visited,
 	#siteLinkList .selectedTab a:hover{
-	color: #000;
+	color: #CBCC03;
 	cursor: text;
 	text-decoration: none;
 }
@@ -341,9 +312,6 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	margin: 1em 0 0 0;
 	font-size: 80%;
 	color: #000;
-/*	clear: both;*/
-	background: inherit;
-
 }
 
 #toolMenu ul{
@@ -363,12 +331,8 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 }
 
 /*span shim for fine grained manipulation of link display (decorative)
-also hide if are going to be using icon links (as background of <a> nad <li>
 */
-
 #toolMenu li span{
-/*comment this line for a return to sanity
-display:none*/
 }
 
 
@@ -376,25 +340,35 @@ display:none*/
 #toolMenu li a:link,#toolMenu li a{
 	display: block;
 	text-decoration: underline;
-	color: #09c;
+	color: #069;
 	padding: 2px 0px 2px 4px;
+/*comment these last 3 lines for a return to sanity
+	width:2em;
+	height:2em;
+	background:url(images/warn.gif)  top left no-repeat;*/
 
 }
 #toolMenu li a:hover{
+	display: block;
 	text-decoration: none;
-	color: #09c;
+	color: #069;
+	padding: 2px 0px 2px 4px;
 }
 
 #toolMenu li a.selected{
+	display: block;
 	text-decoration: none;
 	color: #000;
 	cursor: text;
+	padding: 2px 0px 2px 4px;
 }
 
 #toolMenu li a.selected:hover{
+	display: block;
 	text-decoration: none;
 	color: #000;
 	cursor: text;
+	padding: 2px 0px 2px 4px;
 }
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
@@ -475,7 +449,7 @@ display:none*/
 below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
 #col1 .portletTitleWrap{
 	width: 99%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CBCC03;
 }
 
 #col1 .portletMainWrap{
@@ -484,7 +458,7 @@ below they are contextually defined depending on the column as an example,as you
 
 #col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
 	width: 98.5%;
-		border-bottom: 2px solid #09c;
+		border-bottom: 2px solid #CBCC03;
 }
 
 #col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
@@ -515,13 +489,13 @@ below they are contextually defined depending on the column as an example,as you
 
 /*the links displayed inside the wrapper above*/
 .footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
-	color: #000;
+	color: #069;
 	text-decoration: none;
 	margin: 1em;
 }
 
 .footerExtNav a:hover{
-	color: #aaa;
+	color: #069;
 	text-decoration: underline;
 	margin: 1em;
 }
@@ -541,7 +515,7 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-	color: #09c;
+	color: #000;
 }
 
 /*PART 8 - CONVENIENCE*/

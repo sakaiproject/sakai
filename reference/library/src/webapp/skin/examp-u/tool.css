@@ -20,17 +20,17 @@ hr.itemSeparator{
 
 /*SECTION 2 LINKS*/
 a:link{
-	color: #35b;
+	color: #069;
 	text-decoration: none;
 }
 
 a:visited{
-	color: #53b;
+	color: #069;
 	text-decoration: none;
 }
 
 a:hover,a:active{
-	color: #33f;
+	color: #069;
 	text-decoration: underline !important;
 }
 
@@ -43,27 +43,28 @@ a:focus{
 table.calendar td a:hover{
 	text-decoration: underline;
 }
+
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
-	color: #35b;
+	color: #069;
 	text-decoration: underline;
 	border: none;
 }
 
 .listHier th a:hover{
-	color: #33f;
+	color: #069;
 	text-decoration: underline;
 }
 
 /*some links are jscripted so the href is the same - cannot provide visited functionality - so make both the same*/
 /*see: list of assignments - the cells are classed with "specialLink" */ 
 .specialLink a:link,.specialLink a:visited{
-	color: #35b;
+	color: #069;
 	text-decoration: none;
 }
 
 .specialLink a:hover{
-	color: #33f;
+	color: #069;
 	text-decoration: underline;
 }
 /*links in resources - selected for move*/
@@ -74,25 +75,25 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
-	color: #27d;
+	color: #004D73;
 	padding: .2em .3em 1px 0;
 	white-space: nowrap;
 	border-bottom: none;
 }
 
 .itemAction  a:visited{
-	color: #27d;
+	color: #004D73;
 	text-decoration: none;
 	border-bottom: 1px solid #fff;
 }
 
 .itemAction  a:hover{
-	color: #27d; /*for ie*/
+	color: #004D73; /*for ie*/
 	text-decoration: underline !important; 
 }
 
 html>body .itemAction  a:hover{
-	color: #27d;
+	color: #004D73;
 	text-decoration: none !important; /*for other browsers*/
 	border-bottom: 1px solid #27d;
 }
@@ -111,15 +112,15 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 
 /*links for the generic toolbar  - inline-block is there to make IE behave
 see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
-.navIntraTool a, .navIntraTool a:link{
-	margin-right:1em;
+.navIntraTool a,.navIntraTool a:link{
+	margin: 0 .5em;
 	text-decoration: underline;
 	white-space: nowrap;
 }
-
 * html .navIntraTool a, * html  .navIntraTool a:link{
 	display:inline-block
 }
+
 .navIntraTool a:visited{
 	color: #35b;
 	text-decoration: underline;
@@ -145,12 +146,10 @@ see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_
 }
 
 .breadCrumb a:link,.breadCrumb a:visited{
-	color: #35b;
 	text-decoration: none;
 }
 
 .breadCrumb a:hover{
-	color: #33f;
 	text-decoration: underline;
 }
 
@@ -386,6 +385,12 @@ table.nolines td{
 	border-bottom: 0px solid #bbb;
 	border-top: 0px solid #eee;
 }
+/*ie (via tan hack) gets some lines because it cannot get a hover*/
+* html body table.nolines td{
+	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
+}
+
 /*when an item has been copied - signal this*/
 /*see resources*/
 tr.selectedCopy{
@@ -529,14 +534,14 @@ textarea:focus{
 	font-size: .9em;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
 }
-
+.navIntraTool:hover{
+		border-bottom:1px solid silver;
+}
 /*ie does not understand font sizing well - so fix here with the star hack*/
 * html .navIntraTool{
 	font-size:.85em;
 }
-.navIntraTool:hover{
-	border-bottom:1px solid silver;
-}
+
 .navIntraTool .searchField{
 	border:1px solid silver;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
@@ -631,7 +636,7 @@ visibility gets toggled*/
 you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
 .act .active {
-	color:#27d
+	color:#006194
 }
 
 /*SECTION 10 DATA PANELS*/
@@ -889,12 +894,50 @@ width:auto !important
 .presenceList li.inChat {
 	background: url(images/chatpresicon.gif) -.1em center no-repeat;
 }
+/*external login form formatting*/
+.login{
+	margin: 5em auto;
+	border: 1px solid #555;
+	width: auto;
+}
 
-/*some definitions overriding tool_base.css for the external xlogin screen*/
+.login th{
+	background-color:#eee;
+	padding: .5em;
+	border-bottom: 1px solid #555;
+}
+
+.login td.logo{
+	width: 13em;
+	background:#fff url(images/logo_inst.gif) 2em 1em no-repeat
+}
+
+.login td.form{
+	padding: .5em;
+}
+
+.loginform{
+	color: #000;
+}
+
 .loginform label{
 	color: #000;
 }
-.login td.logo{
-	width: 11em;
-	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
+
+.loginform td{
+	padding: .3em;
+	color: #fff;
 }
+
+.loginform td #eid{
+	width: 10.6em;
+}
+
+.loginform td #pwd{
+	width: 10em;
+}
+
+.loginform td #submit{
+	float: right;
+}
+
