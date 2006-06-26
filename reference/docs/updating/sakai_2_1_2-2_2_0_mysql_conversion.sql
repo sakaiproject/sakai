@@ -2149,7 +2149,10 @@ alter table MFR_MESSAGE_T add index FK80C1A316FE0789EA (IN_REPLY_TO), add constr
 alter table MFR_MESSAGE_T add index FK80C1A3164FDCE067 (surrogateKey), add constraint FK80C1A3164FDCE067 foreign key (surrogateKey) references MFR_TOPIC_T (ID);
 create index MFR_AREA_CONTEXT_I on MFR_AREA_T (CONTEXT_ID);
 create index MFR_AREA_TYPE_I on MFR_AREA_T (TYPE_UUID);
-create index MFR_PVT_MSG_USR_I1 on MFR_PVT_MSG_USR_T (USER_ID, TYPE_UUID, CONTEXT_ID, READ_STATUS);
+create index MFR_PVT_MSG_USR_I1 on MFR_PVT_MSG_USR_T (USER_ID);
+create index MFR_PVT_MSG_USR_I2 on MFR_PVT_MSG_USR_T (TYPE_UUID);
+create index MFR_PVT_MSG_USR_I3 on MFR_PVT_MSG_USR_T (CONTEXT_ID);
+create index MFR_PVT_MSG_USR_I4 on MFR_PVT_MSG_USR_T (READ_STATUS);
 alter table MFR_PVT_MSG_USR_T add index FKC4DE0E14FA8620E (messageSurrogateKey), add constraint FKC4DE0E14FA8620E foreign key (messageSurrogateKey) references MFR_MESSAGE_T (ID);
 create index MFR_ATTACHMENT_PARENT_I4 on MFR_ATTACHMENT_T (t_surrogateKey);
 create index MFR_ATTACHMENT_PARENT_I on MFR_ATTACHMENT_T (m_surrogateKey);
