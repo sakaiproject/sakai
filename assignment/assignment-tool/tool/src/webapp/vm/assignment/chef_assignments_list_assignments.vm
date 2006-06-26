@@ -1,6 +1,6 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - list view
-<script type="text/javascript" language="JavaScript">d
+<script type="text/javascript" language="JavaScript">
   focus_path = ["search"];
 </script>
 <div class="portletBody">
