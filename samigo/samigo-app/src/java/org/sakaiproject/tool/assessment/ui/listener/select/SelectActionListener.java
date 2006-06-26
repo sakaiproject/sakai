@@ -346,6 +346,7 @@ public class SelectActionListener
         bean.setTakeableAscending((Boolean.valueOf(takeAscending)).booleanValue());
       }
       catch (Exception ex) { //skip
+        log.warn(ex.getMessage());
       }
     }
     else
@@ -358,6 +359,7 @@ public class SelectActionListener
         bean.setReviewableAscending(Boolean.valueOf(reviewAscending).booleanValue());
       }
       catch (Exception ex) { //skip
+       log.warn(ex.getMessage());
       }
     }
     else

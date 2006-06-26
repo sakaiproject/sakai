@@ -157,14 +157,18 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
         itemauthorbean.setItemType("");
         itemauthorbean.setItemTypeString("");
         int itype=0; //
-        if (item.getItemType()!=null)
+log.debug("item.getItemType() = " + item.getItemType());
+        if ((item.getItemType()!=null) && !("".equals(item.getItemType())))
         {
+log.debug("item.getItemType() integer = " + item.getItemType());
           itype = new Integer(item.getItemType()).intValue();
         }
         else if ("".equals(item.getItemType()))
         {
+log.debug("item.getItemType() , use default type 1 = " + item.getItemType());
           itype = 1; // we only appear to get here when when the mouse is clicked a lot.
         }
+log.debug("after getting item.getItemType() ");
         switch (itype) {
                 case 1:
                         item.setMultipleCorrect(Boolean.FALSE.booleanValue());

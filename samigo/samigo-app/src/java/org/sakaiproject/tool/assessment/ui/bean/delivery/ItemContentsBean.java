@@ -38,10 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
- * <p> </p>
- * @author Ed Smiley
- * @version $Id$
+ * <p>This bean represents an item </p>
  */
 
 public class ItemContentsBean
@@ -409,6 +406,7 @@ public class ItemContentsBean
     }
     catch (Exception e)
     {
+      log.warn(e.getMessage());
       // True/false
     }
 
@@ -461,6 +459,7 @@ public class ItemContentsBean
     }
     catch (Exception e)
     {
+      log.warn(e.getMessage());
       // True/false
     }
 

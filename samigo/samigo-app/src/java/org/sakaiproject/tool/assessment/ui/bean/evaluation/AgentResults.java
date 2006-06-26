@@ -35,8 +35,7 @@ import java.text.NumberFormat;
 /**
  * A set of information for an agent.  This contains both totalScores
  * and questionScores information.
- * @author Rachel Gollub <rgollub@stanford.edu>
- */
+*/
 
 public class AgentResults
     implements Serializable

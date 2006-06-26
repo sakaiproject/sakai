@@ -373,6 +373,7 @@ public class UploadAudioMediaServlet extends HttpServlet
       }
       catch (IOException ex1)
       {
+        log.warn(ex1.getMessage());
       }
     }
     return mediaByte;

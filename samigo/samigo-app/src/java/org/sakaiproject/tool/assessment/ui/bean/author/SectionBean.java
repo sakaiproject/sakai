@@ -105,6 +105,7 @@ private String outcome;
       this.sectionDescription = section.getDescription();
     }
     catch (Exception ex) {
+      log.warn(ex.getMessage());
     }
   }
 

@@ -40,9 +40,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 /**
  * <p>Description: class form for evaluating question scores</p>
  *
- * Used to be org.navigoproject.ui.web.form.evaluation.QuestionScoresForm
- *
- * @author Rachel Gollub
  */
 public class QuestionScoresBean
   implements Serializable
@@ -375,6 +372,7 @@ public class QuestionScoresBean
       }
       catch (Exception ex)
       {
+        log.warn(ex.getMessage());
         // if there is any problem, we skip, and go on
       }
     }

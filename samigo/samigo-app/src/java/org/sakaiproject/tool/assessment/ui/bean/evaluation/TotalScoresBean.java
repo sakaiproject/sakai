@@ -56,9 +56,6 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 /**
  * <p>Description: class form for evaluating total scores</p>
  *
- * Used to be org.navigoproject.ui.web.form.evaluation.TotalScoresForm
- *
- * @author Rachel Gollub
  */
 public class TotalScoresBean
   implements Serializable
@@ -286,6 +283,7 @@ public class TotalScoresBean
       }
       catch (Exception ex)
       {
+        log.warn(ex.getMessage());
         // if there is any problem, we skip, and go on
       }
     }
@@ -674,13 +672,15 @@ public class TotalScoresBean
 
   public Map getUserIdMap() {
         List enrollments = getEnrollmentListForSelectedSections();
+
 // for debugging
+/*
       Iterator useriter = enrollments.iterator();
       while (useriter.hasNext())
       {
          EnrollmentRecord enrollrec = (EnrollmentRecord) useriter.next();
       }
-// end for debugging
+*/
 
         Map enrollmentMap = new HashMap();
 

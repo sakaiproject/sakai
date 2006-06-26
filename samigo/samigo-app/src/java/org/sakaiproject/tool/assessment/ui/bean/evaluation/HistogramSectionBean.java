@@ -30,11 +30,8 @@ import java.util.ArrayList;
 /**
  *
  * <p>Description: Helper bean for Histograms.
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p> </p>
- * @author Rachel Gollub <rgollub@stanford.edu>
- * @version $Id$
  */
+
 public class HistogramSectionBean
   implements Serializable
 {

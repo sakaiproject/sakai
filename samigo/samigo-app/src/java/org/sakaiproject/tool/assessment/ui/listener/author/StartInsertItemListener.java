@@ -61,7 +61,9 @@ public class StartInsertItemListener implements ValueChangeListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     String olditemtype = (String) ae.getOldValue();
+    log.debug("StartInsertItemListener olditemtype ." + olditemtype);
     String selectedvalue= (String) ae.getNewValue();
+    log.debug("StartInsertItemListener selecteevalue." + selectedvalue);
     String newitemtype = null;
     String insertItemPosition = null;
     String insertToSection = null;
@@ -89,9 +91,10 @@ public class StartInsertItemListener implements ValueChangeListener
             if (children.get(i) instanceof UISelectItem)
             {
               UISelectItem selectItem = (UISelectItem) children.get(i);
-//              log.info("***" + i + "***");
-              //log.info("selectItem.getItemValue()="+selectItem.getItemValue());
+    	      log.debug("***" + i + "***");
+              log.debug("selectItem.getItemValue()="+selectItem.getItemValue());
               String itemValue =  (String) selectItem.getItemValue();
+              log.debug("itemValue ="+ itemValue);
               String[] insertArray = itemValue.split(",");
               // add in p#,q#
               insertToSection = insertArray[1].trim();
@@ -138,6 +141,11 @@ public class StartInsertItemListener implements ValueChangeListener
       itemauthorbean.setInsertPosition(insertItemPosition);
       itemauthorbean.setInsertType(newitemtype);
       itemauthorbean.setItemNo(String.valueOf(Integer.parseInt(insertItemPosition) +1));
+
+    log.debug("new itemtype." + newitemtype);
+    log.debug("new insert to secction." + insertToSection);
+    log.debug("new insert to pos ." + insertItemPosition);
+    log.debug("new temno ." + itemauthorbean.getItemNo());
 
     StartCreateItemListener listener = new StartCreateItemListener();
 

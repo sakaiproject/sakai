@@ -286,6 +286,7 @@ public class PublishedAssessmentSettingsBean
       this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
     }
     catch (Exception ex) {
+      log.warn(ex.getMessage());
     }
   }
 

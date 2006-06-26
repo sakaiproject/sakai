@@ -89,6 +89,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
       // default
     }
     return agentS;
@@ -111,6 +112,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
       // default
     }
     return agentS;
@@ -239,6 +241,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
       // leave... ...mostly for unit testing
     }
     return anonymousId;
@@ -285,6 +288,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
       // leave... ...mostly for unit testing
     }
     return agentS;

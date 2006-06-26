@@ -39,12 +39,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
- * <p>Title: Samigo</p>2
- * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $Id$
+ * <p>Description: SortInactivePublishedAssessmentListener</p>
  */
 
 public class SortInactivePublishedAssessmentListener
@@ -121,6 +116,7 @@ public class SortInactivePublishedAssessmentListener
         bean.setInactivePublishedAscending((Boolean.valueOf(inactivePublishedAscending)).booleanValue());
       }
       catch (Exception ex) { //skip
+        log.warn(ex.getMessage());
       }
     }
     else

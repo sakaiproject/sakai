@@ -29,13 +29,8 @@ import org.apache.commons.logging.LogFactory;
 
 
 /**
- * <p>Title: sakaiproject.org</p>
- * <p>Description: AAM - class form for evaluating student scores</p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: Stanford University</p>
+ * <p>Description: class form for evaluating student scores</p>
  *
- * @author Rachel Gollub
- * @version 1.0
  */
 public class StudentScoresBean implements Serializable
 {

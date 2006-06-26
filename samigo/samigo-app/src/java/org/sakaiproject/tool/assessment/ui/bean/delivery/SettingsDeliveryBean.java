@@ -30,11 +30,7 @@ import java.util.Set;
 import java.util.Iterator;
 
 /**
- * Created on May 28, 2004
- * @author casong
- * @author Ed Smiley esmiley@stanford.edu
- *
- * Used to be QtiSettingsDeliveryBean
+ * Assessment Settings used in Delivery   
  */
 public class SettingsDeliveryBean
 {

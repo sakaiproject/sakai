@@ -26,13 +26,10 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import java.io.Serializable;
 
 /**
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
  * <p> Table of Contents and Contents Data</p>
  * <p>This is a 'dual purpose' bean.  It can serve as a
  * representation of the entire (table of) contents for an
  * assessment, or the contents presented in a praticular page view.</p>
- * @author Ed Smiley
- * @version $Id$
  */
 
 public class ContentsDeliveryBean

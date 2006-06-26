@@ -43,12 +43,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /**
- * <p>Title: Samigo</p>2
- * <p>Description: Sakai Assessment Manager</p>
- * <p>Copyright: Copyright (c) 2004 Sakai Project</p>
- * <p>Organization: Sakai Project</p>
- * @author Ed Smiley
- * @version $Id$
+ * <p>Description: Listener for the Template(Assessment Type) page</p>
  */
 
 public class TemplateListener extends TemplateBaseListener

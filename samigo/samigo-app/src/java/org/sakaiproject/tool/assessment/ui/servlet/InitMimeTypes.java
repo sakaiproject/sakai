@@ -61,6 +61,7 @@ public class InitMimeTypes extends HttpServlet{
 	    if (input != null) input.close();
         }
         catch (IOException ex1) {
+          log.warn(ex1.getMessage());
         }
     }
   }

@@ -28,6 +28,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
+
 import org.sakaiproject.tool.assessment.util.StringParseUtils;
 
 /**
@@ -41,6 +46,9 @@ import org.sakaiproject.tool.assessment.util.StringParseUtils;
 
 public class GetTextFromXML
 {
+
+  private static Log log = LogFactory.getLog(GetTextFromXML.class);
+
   private static String dirName; // JSF source directory
   private static File file;
   private static String SEP = "<>";
@@ -126,7 +134,7 @@ private static String getContents(File file)
     }
   }
   catch (Exception ex) {
-    //log.info("oops " + file.getName());
+    log.warn(ex.getMessage());
   }
 
 

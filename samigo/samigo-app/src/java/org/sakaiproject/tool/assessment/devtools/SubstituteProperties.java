@@ -32,8 +32,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class SubstituteProperties
 {
+
+  private static Log log = LogFactory.getLog(SubstituteProperties.class);
+
   private static Properties properties;
   private static Map map;
   private static String propFileName; // resource bundle
@@ -65,7 +71,7 @@ public class SubstituteProperties
       properties.load(new FileInputStream(propFileName));
     }
     catch (Exception ex) {
-      //log.info("oops " + propFileName);
+      log.warn("oops " + propFileName);
     }
   }
 
@@ -100,7 +106,7 @@ public class SubstituteProperties
       }
     }
     catch (Exception ex) {
-      //log.info("oops " + fileName);
+      log.warn("oops " + fileName);
     }
 
     Iterator iter = map.keySet().iterator();
@@ -116,7 +122,7 @@ public class SubstituteProperties
         contents = contents.replaceAll(toReplace, replaceWith);
       }
       catch (Exception ex) {
-        //log.info("**** UNABLE TO REPLACE ****: '" +toReplace+"'");
+        log.warn("**** UNABLE TO REPLACE ****: '" +toReplace+"'");
       }
     }
 

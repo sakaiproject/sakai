@@ -38,12 +38,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @author rshastri
+ * <p>Description: Backing bean for Published Assessment</p>
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  *
- * Used to be org.navigoproject.ui.web.asi.author.assessment.AssessmentActionForm.java
  */
 public class PublishedAssessmentBeanie
     implements Serializable {
@@ -89,6 +86,7 @@ public class PublishedAssessmentBeanie
       setQuestionSizeAndTotalScore();
     }
     catch (Exception ex) {
+      log.warn(ex.getMessage());
     }
   }
 

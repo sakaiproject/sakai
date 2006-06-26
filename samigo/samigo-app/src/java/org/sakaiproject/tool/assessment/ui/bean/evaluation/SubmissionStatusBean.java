@@ -36,9 +36,7 @@ import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 
 /**
- * <p>Title: sakaiproject.org</p>
  * <p>Description: class form for evaluating submission status</p>
- * <p>Company: Stanford University</p>
  *
  *
  */
@@ -247,6 +245,7 @@ public class SubmissionStatusBean
       catch (Exception ex)
       {
         // if there is any problem, we skip, and go on
+        log.warn(ex.getMessage());
       }
     }
 

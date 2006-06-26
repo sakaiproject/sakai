@@ -63,6 +63,7 @@ public class TestAuthzHelper extends TestCase {
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
     }
     assertNotNull(actualReturn);
     assertEquals(actualReturn.size(), 0);
@@ -105,6 +106,7 @@ public class TestAuthzHelper extends TestCase {
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
     }
 
     assertNotNull(actualReturn);
@@ -160,7 +162,7 @@ public class TestAuthzHelper extends TestCase {
     }
     catch (Exception ex)
     {
-      System.out.println("ex="+ex);
+      log.warn(ex.getMessage());
     }
     assertTrue(success);
   }
@@ -180,7 +182,7 @@ public class TestAuthzHelper extends TestCase {
     }
     catch (Exception ex)
     {
-//      System.out.println("testCreateAuthorization " + ex);
+      log.warn(ex.getMessage());
     }
     assertEquals("return value", expectedReturn, actualReturn);
     assertFalse(createdWithNulls);

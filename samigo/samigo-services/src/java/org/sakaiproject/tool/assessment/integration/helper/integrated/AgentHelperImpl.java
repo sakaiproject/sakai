@@ -275,6 +275,7 @@ public class AgentHelperImpl implements AgentHelper
     }
     catch (Exception ex)
     {
+      log.warn(ex.getMessage());
       // leave... ...mostly for unit testing
     }
     return anonymousId;

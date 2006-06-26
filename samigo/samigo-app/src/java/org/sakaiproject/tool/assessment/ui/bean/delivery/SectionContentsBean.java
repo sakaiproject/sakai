@@ -38,12 +38,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 
 /**
- * <p> </p>
- * <p> </p>
- * <p>Copyright: Copyright (c) 2004 Sakai</p>
- * <p> </p>
- * @author Ed Smiley
- * @version $Id$
+ * <p>This bean represents a Part in an assessment </p>
  */
 
 public class SectionContentsBean

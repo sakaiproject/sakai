@@ -36,6 +36,10 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 /**
  *
  * <p>Description:  modified from an example in the core jsf book</p>
@@ -53,6 +57,9 @@ import javax.faces.render.Renderer;
 public class PagerRenderer
   extends Renderer
 {
+
+  private static Log log = LogFactory.getLog(PagerRenderer.class);
+
   public void encodeBegin(FacesContext context,
     UIComponent component) throws IOException
   {
@@ -282,6 +289,7 @@ public class PagerRenderer
       catch (NumberFormatException ex)
       {
         // do nothing, leave at zero
+        log.debug("do nothing, leave at zero"); 
       }
       first = (page - 1) * pagesize;
     }

@@ -422,8 +422,10 @@ public class QuestionPoolFacade
       setParentPoolId(new Long(parentId.getIdString()));
     }
     catch (SharedException ex) {
+      log.warn(ex.getMessage());
     }
     catch (NumberFormatException ex) {
+      log.warn(ex.getMessage());
     }
   }
 
