@@ -31,7 +31,6 @@ should be included in file importing DeliveryMessages
 
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">
-  <h:messages id="file_upload_error" layout="table" style="color:red"/>
   <h:outputText escape="false" value="#{msg.upload_instruction} <br />" />
   <h:outputText value="#{msg.file} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
