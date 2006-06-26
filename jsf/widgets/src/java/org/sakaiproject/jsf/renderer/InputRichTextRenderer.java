@@ -230,7 +230,8 @@ public class InputRichTextRenderer extends Renderer
        if (textareaColumns > 0) writer.write(" cols=\""+textareaColumns+"\"");
        if (textareaRows > 0) writer.write(" rows=\""+textareaRows+"\"");
        writer.write(">");
-       writer.write((String) value);
+       if (value != null)
+          writer.write((String) value);
        writer.write("</textarea>");
 
        writer.write("<script type=\"text/javascript\" src=\"/library/editor/FCKeditor/fckeditor.js\"></script>\n");
