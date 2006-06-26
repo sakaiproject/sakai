@@ -45,7 +45,6 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
-import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.user.api.User;
@@ -535,7 +534,7 @@ public class RealmsAction extends PagedResourceActionII
 		state.setAttribute("new", "true");
 
 		// disable auto-updates while in view mode
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+		disableObservers(state);
 
 	} // doNew
 
@@ -556,7 +555,7 @@ public class RealmsAction extends PagedResourceActionII
 			state.setAttribute("mode", "edit");
 
 			// disable auto-updates while in view mode
-			((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+			disableObservers(state);
 		}
 		catch (GroupNotDefinedException e)
 		{
@@ -683,7 +682,7 @@ public class RealmsAction extends PagedResourceActionII
 		state.setAttribute("mode", "confirm");
 
 		// disable auto-updates while in view mode
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+		disableObservers(state);
 
 	} // doRemove
 
