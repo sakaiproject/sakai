@@ -609,7 +609,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 				|| resourceReference.length() == RWikiObjectService.REFERENCE_ROOT
 						.length())
 		{
-			return NotificationService.PREF_IMMEDIATE;
+			return NotificationService.PREF_IGNORE;
 		}
 
 		resourceReference = resourceReference.substring(
@@ -621,7 +621,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		if (preference == null || "".equals(preference))
 		{
-			return NotificationService.PREF_IMMEDIATE;
+			return NotificationService.PREF_IGNORE;
 		}
 
 		if (PreferenceService.NONE_PREFERENCE.equals(preference))
@@ -639,7 +639,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			return NotificationService.PREF_IMMEDIATE;
 		}
 
-		return NotificationService.PREF_IMMEDIATE;
+		return NotificationService.PREF_IGNORE;
 	}
 
 }
