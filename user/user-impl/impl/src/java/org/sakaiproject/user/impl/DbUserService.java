@@ -283,34 +283,37 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		public List search(String criteria, int first, int last)
 		{
-			// TODO: what about eid search?
 			String search = "%" + criteria + "%";
-			Object[] fields = new Object[4];
-			fields[0] = search;
-			fields[1] = search.toLowerCase();
-			fields[2] = search;
+			Object[] fields = new Object[5];
+			fields[0] = criteria;
+			fields[1] = search;
+			fields[2] = search.toLowerCase();
 			fields[3] = search;
+			fields[4] = search;
 			List rv = super
 					.getSelectedResources(
-							"UPPER(USER_ID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?)",
-							fields);
+							"SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?))",
+							"SAKAI_USER_ID_MAP.EID",
+							fields,
+							"SAKAI_USER_ID_MAP");
 
 			return rv;
 		}
 
 		public int countSearch(String criteria)
 		{
-			// TODO: what about eid search?
 			String search = "%" + criteria + "%";
-			Object[] fields = new Object[4];
-			fields[0] = search;
-			fields[1] = search.toLowerCase();
-			fields[2] = search;
+			Object[] fields = new Object[5];
+			fields[0] = criteria;
+			fields[1] = search;
+			fields[2] = search.toLowerCase();
 			fields[3] = search;
+			fields[4] = search;
 			int rv = super
 					.countSelectedResources(
-							"UPPER(USER_ID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?)",
-							fields);
+							"SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?))",
+							fields,
+							"SAKAI_USER_ID_MAP");
 
 			return rv;
 		}
