@@ -365,7 +365,8 @@ public static ArrayList paramArrayValueLike(String paramPart)
   }
  
   public static String stringWYSIWYG(String s){// this is to detect an empty in WYSIWYG FF1.5
-    if("&nbsp;".equals(s.trim()))
+    
+    if((s!=null) && ("&nbsp;".equals(s.trim())))
         s="";
     return s;
 }
