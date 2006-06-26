@@ -517,11 +517,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		if (mode.equals(MODE_LIST_ASSIGNMENTS))
-		{
-			// allow remove assignment?
-			boolean allowRemoveAssignment = AssignmentService.allowRemoveAssignment(contextString);
-			context.put("allowRemoveAssignment", Boolean.valueOf(allowRemoveAssignment));
-			
+		{	
 			// build the context for the student assignment view
 			template = build_list_assignments_context(portlet, context, data, state);
 		}
@@ -821,6 +817,17 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		state.setAttribute(STATE_ALLOW_GRADE_SUBMISSION, new Boolean(allowGradeSubmission));
 		context.put("allowGradeSubmission", state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION));
+		
+		// allow remove assignment?
+		boolean allowRemoveAssignment = false;
+		for (Iterator aIterator=assignments.iterator(); !allowRemoveAssignment && aIterator.hasNext(); )
+		{
+			if (AssignmentService.allowRemoveAssignment(((Assignment) aIterator.next()).getReference()))
+			{
+				allowRemoveAssignment = true;
+			}
+		}
+		context.put("allowRemoveAssignment", Boolean.valueOf(allowRemoveAssignment));
 		
 		add2ndToolbarFields(data, context);
 
@@ -4164,13 +4171,11 @@ public class AssignmentAction extends PagedResourceActionII
 			for (int i = 0; i < assignmentIds.length; i++)
 			{
 				String id = (String) assignmentIds[i];
-
+				if (!AssignmentService.allowRemoveAssignment(id))
+				{
+					addAlert(state, rb.getString("youarenot9") + " " + id + ". ");
+				}
 				ids.add(id);
-			}
-			
-			if (!AssignmentService.allowRemoveAssignment((String) state.getAttribute(STATE_CONTEXT_STRING)))
-			{
-				addAlert(state, rb.getString("youarenot9") + "\". ");
 			}
 			
 			if (state.getAttribute(STATE_MESSAGE) == null)

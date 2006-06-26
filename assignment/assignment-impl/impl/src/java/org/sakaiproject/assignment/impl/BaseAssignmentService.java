@@ -2370,14 +2370,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * 
 	 * @return True if the current User is allowed to remove the Assignment, false if not.
 	 */
-	public boolean allowRemoveAssignment(String context)
+	public boolean allowRemoveAssignment(String assignmentReference)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
-
-		if (M_log.isDebugEnabled()) M_log.debug("Entering allow remove Assignment " + resourceString);
+		if (M_log.isDebugEnabled()) M_log.debug("Entering allow remove Assignment " + assignmentReference);
 
 		// check security (throws if not permitted)
-		return unlockCheck(SECURE_REMOVE_ASSIGNMENT, resourceString);
+		return unlockCheck(SECURE_REMOVE_ASSIGNMENT, assignmentReference);
 	}
 
 	/**
