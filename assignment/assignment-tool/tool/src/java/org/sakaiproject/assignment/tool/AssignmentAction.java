@@ -45,7 +45,6 @@ import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -477,6 +476,9 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/** The total list item before paging */
 	private static final String STATE_PAGEING_TOTAL_ITEMS = "state_paging_total_items";
+	
+	/** is current user allowed to grade assignment? */
+	private static final String STATE_ALLOW_GRADE_SUBMISSION = "state_allow_grade_submission";
 
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -495,10 +497,6 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
 		context.put("allowAddAssignment", Boolean.valueOf(allowAddAssignment));
 
-		// allow grade assignment?
-		boolean allowGradeSubmission = AssignmentService.allowGradeSubmission(contextString);
-		context.put("allowGradeSubmission", Boolean.valueOf(allowGradeSubmission));
-
 		// allow update site?
 		context.put("allowUpdateSite", Boolean
 						.valueOf(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext())));
@@ -507,6 +505,16 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
 
 		String mode = (String) state.getAttribute(STATE_MODE);
+		
+		if (!mode.equals(MODE_LIST_ASSIGNMENTS))
+		{
+			// allow grade assignment?
+			if (state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION) == null)
+			{
+				state.setAttribute(STATE_ALLOW_GRADE_SUBMISSION, Boolean.FALSE);
+			}
+			context.put("allowGradeSubmission", state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION));
+		}
 
 		if (mode.equals(MODE_LIST_ASSIGNMENTS))
 		{
@@ -566,12 +574,12 @@ public class AssignmentAction extends PagedResourceActionII
 				template = build_instructor_delete_assignment_context(portlet, context, data, state);
 			}
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) && allowGradeSubmission)
+		else if (mode.equals(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
 		{
 			// build the context for the instructor's grade assignment
 			template = build_instructor_grade_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION) && allowGradeSubmission)
+		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
@@ -579,17 +587,17 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for the instructor's grade submission
 			template = build_instructor_grade_submission_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION) && allowGradeSubmission)
+		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
 		{
 			// build the context for the instructor's preview grade submission
 			template = build_instructor_preview_grade_submission_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT) && allowAddAssignment)
+		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT))
 		{
 			// build the context for preview one assignment
 			template = build_instructor_preview_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT) && (allowAddAssignment || allowGradeSubmission))
+		else if (mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT))
 		{
 			// disable auto-updates while leaving the list view
 			justDelivered(state);
@@ -597,12 +605,12 @@ public class AssignmentAction extends PagedResourceActionII
 			// build the context for view one assignment
 			template = build_instructor_view_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT) && (allowAddAssignment || allowGradeSubmission))
+		else if (mode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
 			// build the context for the instructor's create new assignment view
 			template = build_instructor_view_students_assignment_context(portlet, context, data, state);
 		}
-		else if (mode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS) && (allowAddAssignment || allowGradeSubmission))
+		else if (mode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
 			// build the context for the instructor's view of report submissions
 			template = build_instructor_report_submissions(portlet, context, data, state);
@@ -800,7 +808,20 @@ public class AssignmentAction extends PagedResourceActionII
 		List assignments = prepPage(state);
 
 		context.put("assignments", assignments.iterator());
-
+		
+		// test whether user user can grade at least one assignment
+		// and update the state variable.  
+		boolean allowGradeSubmission = false;
+		for (Iterator aIterator=assignments.iterator(); !allowGradeSubmission && aIterator.hasNext(); )
+		{
+			if (AssignmentService.allowGradeSubmission(((Assignment) aIterator.next()).getReference()))
+			{
+				allowGradeSubmission = true;
+			}
+		}
+		state.setAttribute(STATE_ALLOW_GRADE_SUBMISSION, new Boolean(allowGradeSubmission));
+		context.put("allowGradeSubmission", state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION));
+		
 		add2ndToolbarFields(data, context);
 
 		// inform the observing courier that we just updated the page...
@@ -4182,8 +4203,6 @@ public class AssignmentAction extends PagedResourceActionII
 			try
 			{
 				AssignmentEdit aEdit = AssignmentService.editAssignment(assignmentId);
-
-				String assignmentRef = aEdit.getReference();
 
 				ResourcePropertiesEdit pEdit = aEdit.getPropertiesEdit();
 				String title = aEdit.getTitle();

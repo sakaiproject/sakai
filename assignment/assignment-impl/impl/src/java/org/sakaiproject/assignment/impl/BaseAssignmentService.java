@@ -2603,16 +2603,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return unlockCheck(SECURE_REMOVE_ASSIGNMENT_SUBMISSION, submissionReference);
 	}
 
-	public boolean allowGradeSubmission(String context)
+	public boolean allowGradeSubmission(String assignmentReference)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
-
 		if (M_log.isDebugEnabled())
 		{
-			M_log.debug("Entering allow add Assignment with resource string : " + resourceString);
-			M_log.debug("                                    context string : " + context);
+			M_log.debug("Entering allow grade Assignment with resource string : " + assignmentReference);
 		}
-		return unlockCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, resourceString);
+		return unlockCheck(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
 	}
 
 	/**
@@ -2643,65 +2640,66 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// ignore exception
 		}
 
-		if (allowGradeSubmission(context))
+		short rowNum = 0;
+		HSSFWorkbook wb = new HSSFWorkbook();
+		HSSFSheet sheet = wb.createSheet(siteTitle);
+
+		// Create a row and put some cells in it. Rows are 0 based.
+		HSSFRow row = sheet.createRow(rowNum++);
+
+		row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.title"));
+
+		// empty line
+		row = sheet.createRow(rowNum++);
+		row.createCell((short) 0).setCellValue("");
+
+		// site title
+		row = sheet.createRow(rowNum++);
+		row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
+
+		// download time
+		row = sheet.createRow(rowNum++);
+		row.createCell((short) 0).setCellValue(
+				rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
+
+		// empty line
+		row = sheet.createRow(rowNum++);
+		row.createCell((short) 0).setCellValue("");
+
+		// the bold font
+		HSSFFont font = wb.createFont();
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+
+		// the cell style with bold font
+		HSSFCellStyle style = wb.createCellStyle();
+		style.setFont(font);
+
+		// set up the header cells
+		row = sheet.createRow(rowNum++);
+		short cellNum = 0;
+
+		// user enterprise id column
+		HSSFCell cell = row.createCell(cellNum++);
+		cell.setCellStyle(style);
+		cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
+
+		// user name column
+		cell = row.createCell(cellNum++);
+		cell.setCellStyle(style);
+		cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
+
+		Iterator assignments = getAssignmentsForContext(context);
+		Vector assignmentTypeVector = new Vector();
+		Vector assignmentSubmissionVector = new Vector();
+
+		int index = 0;
+		List members = new Vector();
+		while (assignments.hasNext())
 		{
-			short rowNum = 0;
-			HSSFWorkbook wb = new HSSFWorkbook();
-			HSSFSheet sheet = wb.createSheet(siteTitle);
-
-			// Create a row and put some cells in it. Rows are 0 based.
-			HSSFRow row = sheet.createRow(rowNum++);
-
-			row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.title"));
-
-			// empty line
-			row = sheet.createRow(rowNum++);
-			row.createCell((short) 0).setCellValue("");
-
-			// site title
-			row = sheet.createRow(rowNum++);
-			row.createCell((short) 0).setCellValue(rb.getString("download.spreadsheet.site") + siteTitle);
-
-			// download time
-			row = sheet.createRow(rowNum++);
-			row.createCell((short) 0).setCellValue(
-					rb.getString("download.spreadsheet.date") + TimeService.newTime().toStringLocalFull());
-
-			// empty line
-			row = sheet.createRow(rowNum++);
-			row.createCell((short) 0).setCellValue("");
-
-			// the bold font
-			HSSFFont font = wb.createFont();
-			font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-
-			// the cell style with bold font
-			HSSFCellStyle style = wb.createCellStyle();
-			style.setFont(font);
-
-			// set up the header cells
-			row = sheet.createRow(rowNum++);
-			short cellNum = 0;
-
-			// user enterprise id column
-			HSSFCell cell = row.createCell(cellNum++);
-			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.userid"));
-
-			// user name column
-			cell = row.createCell(cellNum++);
-			cell.setCellStyle(style);
-			cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
-
-			Iterator assignments = getAssignmentsForContext(context);
-			Vector assignmentTypeVector = new Vector();
-			Vector assignmentSubmissionVector = new Vector();
-
-			int index = 0;
-			List members = new Vector();
-			while (assignments.hasNext())
+			Assignment a = (Assignment) assignments.next();
+			// for column header, check allow grade permission based on each assignment
+			if (allowGradeSubmission(a.getReference()))
 			{
-				Assignment a = (Assignment) assignments.next();
 				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 				if ((deleted == null || deleted.equals("")) && (!a.getDraft()) && (a.getOpenTime().before(TimeService.newTime())))
 				{
@@ -2734,119 +2732,117 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					index++;
 				}
 			}
+		}
 
-			// is there a grade or not
-			AssignmentSubmission submissionWithGrade = null;
-			List submitterIds = null;
-			String submitterId = "";
-			User member = null;
-			for (Iterator it = members.iterator(); it.hasNext();)
+		// is there a grade or not
+		AssignmentSubmission submissionWithGrade = null;
+		List submitterIds = null;
+		String submitterId = "";
+		User member = null;
+		for (Iterator it = members.iterator(); it.hasNext();)
+		{
+			// create one row for each user
+			row = sheet.createRow(rowNum++);
+			cellNum = 0;
+			member = (User) it.next();
+
+			// show user's enterprise id
+			row.createCell(cellNum++).setCellValue(member.getDisplayId());
+
+			// show user's name
+			row.createCell(cellNum++).setCellValue(member.getSortName());
+
+			for (int i = 0; i < assignmentSubmissionVector.size(); i++)
 			{
-				// create one row for each user
-				row = sheet.createRow(rowNum++);
-				cellNum = 0;
-				member = (User) it.next();
+				// type for this assignment
+				int assignmentType = ((Integer) assignmentTypeVector.get(i)).intValue();
 
-				// show user's enterprise id
-				row.createCell(cellNum++).setCellValue(member.getDisplayId());
+				// submission for this assignment
+				List submissions = (List) (assignmentSubmissionVector.get(i));
 
-				// show user's name
-				row.createCell(cellNum++).setCellValue(member.getSortName());
+				// initialize it for every assignment
+				submissionWithGrade = null;
 
-				for (int i = 0; i < assignmentSubmissionVector.size(); i++)
+				for (int k = 0; k < submissions.size() && submissionWithGrade == null; k++)
 				{
-					// type for this assignment
-					int assignmentType = ((Integer) assignmentTypeVector.get(i)).intValue();
+					AssignmentSubmission s = (AssignmentSubmission) submissions.get(k);
 
-					// submission for this assignment
-					List submissions = (List) (assignmentSubmissionVector.get(i));
-
-					// initialize it for every assignment
-					submissionWithGrade = null;
-
-					for (int k = 0; k < submissions.size() && submissionWithGrade == null; k++)
+					submitterIds = (List) s.getSubmitterIds();
+					for (int submitterIndex = 0; submitterIndex < submitterIds.size(); submitterIndex++)
 					{
-						AssignmentSubmission s = (AssignmentSubmission) submissions.get(k);
+						submitterId = (String) submitterIds.get(submitterIndex);
 
-						submitterIds = (List) s.getSubmitterIds();
-						for (int a = 0; a < submitterIds.size(); a++)
+						if (submitterId.equals(member.getId()))
 						{
-							submitterId = (String) submitterIds.get(a);
-
-							if (submitterId.equals(member.getId()))
+							// found the member's submission to the assignment
+							// show user's grade
+							if ((s != null) && (s.getGraded()) && (s.getGradeReleased()))
 							{
-								// found the member's submission to the assignment
-								// show user's grade
-								if ((s != null) && (s.getGraded()) && (s.getGradeReleased()))
-								{
-									submissionWithGrade = s;
-								}
-							} // if
-						} // for
+								submissionWithGrade = s;
+							}
+						} // if
 					} // for
+				} // for
 
-					if (submissionWithGrade != null)
+				if (submissionWithGrade != null)
+				{
+					if (assignmentType == 3)
 					{
-						if (assignmentType == 3)
+						try
 						{
-							try
-							{
-								// numeric cell type?
-								String grade = submissionWithGrade.getGradeDisplay();
-								Float.parseFloat(grade);
+							// numeric cell type?
+							String grade = submissionWithGrade.getGradeDisplay();
+							Float.parseFloat(grade);
 
-								cell = row.createCell(cellNum++);
-								cell.setCellType(0);
-								cell.setCellValue(Float.parseFloat(grade));
+							cell = row.createCell(cellNum++);
+							cell.setCellType(0);
+							cell.setCellValue(Float.parseFloat(grade));
 
-								style = wb.createCellStyle();
-								style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
-								cell.setCellStyle(style);
-							}
-							catch (Exception e)
-							{
-								// if the grade is not numeric, let's make it as String type
-								cell = row.createCell(cellNum++);
-								cell.setCellType(1);
-								cell.setCellValue(submissionWithGrade.getGrade());
-							}
-
+							style = wb.createCellStyle();
+							style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+							cell.setCellStyle(style);
 						}
-						else
+						catch (Exception e)
 						{
-							// String cell type
+							// if the grade is not numeric, let's make it as String type
 							cell = row.createCell(cellNum++);
 							cell.setCellType(1);
 							cell.setCellValue(submissionWithGrade.getGrade());
 						}
-					} // if
+
+					}
 					else
 					{
-						// no grade to show yet
 						// String cell type
-						// set value to be "" if there is no grade yet
 						cell = row.createCell(cellNum++);
 						cell.setCellType(1);
-						cell.setCellValue("");
-					} // if
-				} // for
+						cell.setCellValue(submissionWithGrade.getGrade());
+					}
+				} // if
+				else
+				{
+					// no grade to show yet
+					// String cell type
+					// set value to be "" if there is no grade yet
+					cell = row.createCell(cellNum++);
+					cell.setCellType(1);
+					cell.setCellValue("");
+				} // if
 			} // for
-
-			Blob b = new Blob();
-			try
-			{
-				wb.write(b.outputStream());
-			}
-			catch (IOException e)
-			{
-				M_log.debug(this + "Can not output the grade spread sheet. ");
-			}
-			return b.getBytes();
-		}
-		else
+		} // for
+		
+		// output
+		Blob b = new Blob();
+		try
 		{
-			return null;
+			wb.write(b.outputStream());
 		}
+		catch (IOException e)
+		{
+			M_log.debug(this + "Can not output the grade spread sheet. ");
+		}
+		
+		return b.getBytes();
 
 	} // getGradesSpreadsheet
 
@@ -2874,7 +2870,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Blob b = new Blob();
 			StringBuffer exceptionMessage = new StringBuffer();
 
-			if (allowGradeSubmission(a.getContext()))
+			if (allowGradeSubmission(a.getReference()))
 			{
 				try
 				{
@@ -3117,10 +3113,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					EntityAccessOverloadException, EntityCopyrightException
 			{
 				// need update permission for any of these accesses
-				if (!allowUpdateAssignment(ref.getReference()) && !allowGradeSubmission(ref.getContext()))
+				/*if (!allowUpdateAssignment(ref.getReference()) && !allowGradeSubmission(ref.getContext()))
 					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), SECURE_UPDATE_ASSIGNMENT, ref
 							.getReference());
-
+*/
 				try
 				{
 					if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
