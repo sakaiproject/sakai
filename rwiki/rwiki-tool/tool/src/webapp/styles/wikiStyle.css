@@ -671,10 +671,14 @@ h6 {
   font-family: courier, courier new, monospace;
   font-size: 12px;
   line-height: 100%;
-  white-space: pre;
+  /*white-space: pre; */
   overflow: -moz-scrollbars-horizontal;
   overflow-x: auto;
   width: 98%;
+}
+
+.code pre {
+  padding: 5px 5px 5px 5px;
 }
 
 

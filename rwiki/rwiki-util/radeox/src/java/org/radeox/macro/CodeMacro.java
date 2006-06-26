@@ -154,9 +154,10 @@ public class CodeMacro extends LocalePreserved
 		}
 
 		String result = formatter.filter(params.getContent(), nullContext);
-
+		result = replace(result.trim());
+		
 		writer.write(start);
-		writer.write(replace(result.trim()));
+		writer.write(result.replaceAll("\n","&#x0a;"));
 		writer.write(end);
 		return;
 	}

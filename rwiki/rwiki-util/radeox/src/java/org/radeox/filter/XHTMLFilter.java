@@ -73,6 +73,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 		blockElements.put("h7", l);
 		blockElements.put("ul", l);
 		blockElements.put("ol", l);
+		blockElements.put("div", l);
 	}
 
 	private static HashMap emptyTag = new HashMap();
