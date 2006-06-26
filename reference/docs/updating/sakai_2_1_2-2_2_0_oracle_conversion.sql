@@ -1803,8 +1803,8 @@ alter table osp_workflow_item add constraint FKB38697A091A4BC5E foreign key (wor
 
 -- These tables have been renamed
 
-RENAME OSP_REPOSITORY_LOCK TO CONTENT_RESOURCE_LOCK;
-RENAME OSP_STRUCTURED_ARTIFACT_DEF TO METAOBJ_FORM_DEF;
+RENAME osp_repository_lock TO CONTENT_RESOURCE_LOCK;
+RENAME osp_structured_artifact_def TO METAOBJ_FORM_DEF;
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------
