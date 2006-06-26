@@ -122,6 +122,7 @@ public class TotalScoreUpdateListener
 
         boolean update = needUpdate(agentResults, map);
         if (update){
+        	log.debug("update is true");
           if (!agentResults.getAssessmentGradingId().equals(new Long(-1)) ) {
 	    // these are students who have submitted for grades.
             // Add up new score
@@ -159,7 +160,7 @@ public class TotalScoreUpdateListener
             // note that I am not sure if we should set this people as late or what?
             grading.add(data);
           }
-	}
+        }
       }
 
       GradingService delegate = new GradingService();
@@ -185,6 +186,9 @@ public class TotalScoreUpdateListener
 
   private boolean needUpdate(AgentResults agentResults, HashMap map){
     boolean update = true;
+    String newComments = agentResults.getComments();
+    log.debug("newComments = " + newComments);
+    
     float newScore = new Float(agentResults.getTotalAutoScore()).floatValue() +
                      new Float(agentResults.getTotalOverrideScore()).floatValue();
     Boolean newIsLate = agentResults.getIsLate(); // if the duedate were postpond, we need to adjust this
@@ -194,7 +198,10 @@ public class TotalScoreUpdateListener
     if (old != null){
       float oldScore = old.getFinalScore().floatValue();
       Boolean oldIsLate=old.getIsLate();
-      if (oldScore==newScore && oldIsLate.equals(newIsLate)) {
+      
+      String oldComments = old.getComments();
+      log.debug("oldComments = " + oldComments);
+      if (oldScore==newScore && oldIsLate.equals(newIsLate) && oldComments.equals(newComments)) {
         update = false;
       }
     }
