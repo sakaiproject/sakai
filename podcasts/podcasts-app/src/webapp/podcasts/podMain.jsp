@@ -39,35 +39,51 @@
       </div>
  
 	  <!-- TODO: if there are podcasts, display their information here 
-	     or possibly return this part from previous tag  -->
-      <sakai:flat_list value="#{podHomeBean.contents}" var="eachPodcast" >
+	     or possibly return this part from previous tag -->
+      <div class="indnt1" style="position:relative; top:20px;">
+      <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast"  rendered="#{podHomeBean.actPodcastsExist}" >
         <h:column>
-            <h:outputText value="#{eachPodcast.displayDate}" rendered="#{podHomeBean.actPodcastsExist}"/>
+            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
+			<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.title}" rendered="#{podHomeBean.actPodcastsExist}"/>
+            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat podPosition" />
+			<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.description}" rendered="#{podHomeBean.actPodcastsExist}"/>
+            <h:outputText value="#{eachPodcast.description}" styleClass="podPosition" />
+			<f:verbatim><br /></f:verbatim>
             
             <!--  Download link -->
-            <h:commandLink action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" styleClass="active" 
-                 rendered="#{podHomeBean.actPodcastsExist}" />
+            <f:verbatim><div class="podLinksFormat podPosition" ></f:verbatim>
+              <h:commandLink action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" styleClass="active" />
 
-            <h:outputText value=" (" rendered="#{podHomeBean.actPodcastsExist}" />
-            <h:outputText value="#{eachPodcast.size}" rendered="#{podHomeBean.actPodcastsExist}"/>
-            <h:outputText value=" " rendered="#{podHomeBean.actPodcastsExist}"/>
-            <h:outputText value="#{eachPodcast.type}" rendered="#{podHomeBean.actPodcastsExist}"/>
+              <h:outputText value=" (" />
+              <h:outputText value="#{eachPodcast.size}" />
+            
+              <h:outputText value=" " />
+              <h:outputText value="#{eachPodcast.type}" />
 
-            <!--  go to Revise page -->
-            <h:outputText value=") | " rendered="#{podHomeBean.actPodcastsExist}" />
-            <h:commandLink action="revise" value="#{msgs.revise}" styleClass="active"
-                 rendered="#{podHomeBean.actPodcastsExist}"/>
+              <!--  go to Revise page -->
+              <h:outputText value=") | " />
+              <h:commandLink action="revise" value="#{msgs.revise}" styleClass="active" />
                  
-            <!--  go to Delete page --> 
-            <h:outputText value=" | " rendered="#{podHomeBean.actPodcastsExist}" />
-            <h:commandLink action="delete" value="#{msgs.delete}" styleClass="active"
-                 rendered="#{podHomeBean.actPodcastsExist}"/>
+              <!--  go to Delete page --> 
+              <h:outputText value=" | " />
+              <h:commandLink action="delete" value="#{msgs.delete}" styleClass="active" />
+            <f:verbatim></div></f:verbatim>
+
+            <f:verbatim><div class="posted podPosition"></f:verbatim>
+              <h:outputText value="#{msgs.posted_by}" />
+              <h:outputText value="#{eachPodcast.author}" />
+              <h:outputText value="#{msgs.at}" />
+              <h:outputText value="#{eachPodcast.postedTime}" />
+              <h:outputText value="#{msgs.on}" />
+              <h:outputText value="#{eachPodcast.postedDate}" />
+            <f:verbatim></div><br /></f:verbatim>
+            
         </h:column>
-      </sakai:flat_list>
+      </h:dataTable>
+      </div>
+ 
     </h:form>
   </sakai:view>
   

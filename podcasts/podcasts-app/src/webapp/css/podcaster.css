@@ -31,3 +31,19 @@
 span.active {
   color: #0099cc;
 }
+
+.podDateFormat {
+	position: relative;
+	top: 5px;
+	font-size: 15pt;
+}
+
+.podTitleFormat {
+	position: relative;
+	top: 8px;
+	font-size: 12pt;
+}
+
+.posted {
+	font-size: 8pt;
+}

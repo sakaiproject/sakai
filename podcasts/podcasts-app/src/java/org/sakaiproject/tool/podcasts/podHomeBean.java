@@ -20,7 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.tool.podcasts;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,7 +39,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.cover.ToolManager;
 
 
@@ -52,17 +53,20 @@ public class podHomeBean {
 	 */
 	public class DecoratedPodcastBean {
 		private String filename;
-		private Time displayDate;
+		private String displayDate;
 		private String title;
 		private String description;
 		private String size;
 		private String type;
+		private String postedTime;
+		private String postedDate;
+		private String author;
 		
 		public DecoratedPodcastBean() {
 			
 		}
 		
-		public DecoratedPodcastBean(String filename, Time displayDate, String title, String description, String size, String type) {
+		public DecoratedPodcastBean(String filename, String displayDate, String title, String description, String size, String type) {
 			this.filename = filename;
 			this.displayDate = displayDate;
 			this.title = title;
@@ -77,10 +81,11 @@ public class podHomeBean {
 		public void setDescription(String decsription) {
 			this.description = decsription;
 		}
-		public Time getDisplayDate() {
+		public String getDisplayDate() {
 			return displayDate;
 		}
-		public void setDisplayDate(Time displayDate) {
+
+		public void setDisplayDate(String displayDate) {
 			this.displayDate = displayDate;
 		}
 		public String getFilename() {
@@ -106,6 +111,30 @@ public class podHomeBean {
 		}
 		public void setType(String type) {
 			this.type = type;
+		}
+
+		public String getPostedTime() {
+			return postedTime;
+		}
+
+		public void setPostedTime(String postedTime) {
+			this.postedTime = postedTime;
+		}
+
+		public String getPostedDate() {
+			return postedDate;
+		}
+
+		public void setPostedDate(String postedDate) {
+			this.postedDate = postedDate;
+		}
+
+		public String getAuthor() {
+			return author;
+		}
+
+		public void setAuthor(String author) {
+			this.author = author;
 		}
 		
 		
@@ -235,13 +264,31 @@ public class podHomeBean {
 					// fill up the decorated bean
 					podcastInfo.setTitle(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 					podcastInfo.setDescription(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
-					podcastInfo.setDisplayDate(podcastProperties.getTimeProperty(ResourceProperties.PROP_CREATION_DATE));
+
+					// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
+					SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
+					Date tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+					podcastInfo.setDisplayDate(formatter.format(tempDate));
+										
 					podcastInfo.setFilename(podcastProperties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME));
 					podcastInfo.setSize(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
 					
 					// TODO: figure out how to determine/store content type
-					podcastInfo.setType("MP3");
-				
+					podcastInfo.setType(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+
+					// get and format last modified time
+					formatter.applyPattern("hh:mm a z" );
+					tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+					podcastInfo.setPostedTime(formatter.format(tempDate));
+
+					// get and format last modified date
+					formatter.applyPattern("MM/dd/yyyy" );
+					tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+					podcastInfo.setPostedDate(formatter.format(tempDate));
+
+					// get author
+					podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
+
 					// add it to the ArrayList to send to the page
 					decoratedPodcasts.add(podcastInfo);
 			
@@ -256,6 +303,7 @@ public class podHomeBean {
 				catch (/*IdUnused*/Exception e) {
 					//TODO: determine exact execptions to catch
 					System.out.println("Wrong Id used to collect podcasts ");
+					e.printStackTrace();
 					return null;
 				}
 /*			catch (PermissionException pe) {
