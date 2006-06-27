@@ -144,15 +144,17 @@ public class AuthnPortal extends HttpServlet
 			throws ToolException
 	{
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// go to the parameter'ed place, if set, after
+		String url = req.getParameter("url");
+		if (url != null)
 		{
-			// where to go after
-			String url = req.getParameter("url");
-			if (url == null)
-			{
-				url = ServerConfigurationService.getPortalUrl();
-			}
 			session.setAttribute(Tool.HELPER_DONE_URL, url);
+		}
+
+		// otherwise go to the configured place, after, unless already set
+		else if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		{
+			session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getPortalUrl());
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
@@ -164,15 +166,17 @@ public class AuthnPortal extends HttpServlet
 			throws ToolException
 	{
 		// setup for the helper if needed (Note: in session, not tool session, special for Login helper)
-		if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		// go to the parameter'ed place, if set, after
+		String url = req.getParameter("url");
+		if (url != null)
 		{
-			// where to go after
-			String url = req.getParameter("url");
-			if (url == null)
-			{
-				url = ServerConfigurationService.getLoggedOutUrl();
-			}
 			session.setAttribute(Tool.HELPER_DONE_URL, url);
+		}
+		
+		// otherwise go to the configured place, after, unless already set
+		else if (session.getAttribute(Tool.HELPER_DONE_URL) == null)
+		{
+			session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService.getLoggedOutUrl());
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");

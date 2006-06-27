@@ -19,7 +19,7 @@
     </filter-mapping>
 
     <servlet>
-    		<servlet-name>sakai.portal.authn</servlet-name>
+    	<servlet-name>sakai.portal.authn</servlet-name>
         <servlet-class>org.sakaiproject.login.tool.AuthnPortal</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>

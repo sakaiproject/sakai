@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-login-authn-tool</name>
+	<name>authn</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-login-authn-tool</id>
+	<id>authn</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
