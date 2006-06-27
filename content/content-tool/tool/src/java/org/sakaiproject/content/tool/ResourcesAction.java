@@ -568,6 +568,8 @@ public class ResourcesAction
 
 	private static final String DELIM = "@";
 
+	/** string used to represent "public" access mode in UI elements */
+	protected static final String PUBLIC_ACCESS = "public";
 	/**
 	* Build the context for normal display
 	*/
@@ -671,7 +673,7 @@ public class ResourcesAction
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", AccessMode.PUBLIC.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 
 		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
 		if(selectedItems == null)
@@ -2217,7 +2219,8 @@ public class ResourcesAction
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", AccessMode.PUBLIC.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+
 
 		String collectionId = (String) current_stack_frame.get(STATE_STACK_EDIT_COLLECTION_ID);
 		context.put ("collectionId", collectionId);
@@ -3214,11 +3217,9 @@ public class ResourcesAction
 							preventPublicDisplay = Boolean.FALSE;
 							state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 						}
-						if(! preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
+						if(! preventPublicDisplay.booleanValue() && item.isPubview())
 						{
-							ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-							edit.setPublicAccess();
-							ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
+							ContentHostingService.setPubView(resource.getId(), true);
 						}
 						
 						String mode = (String) state.getAttribute(STATE_MODE);
@@ -3292,21 +3293,6 @@ public class ResourcesAction
 						alerts.add(rb.getString("failed"));
 						continue outerloop;
 					} 
-					catch (IdUnusedException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					catch (TypeException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					catch (InUseException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 				}
 				catch(RuntimeException e)
 				{
@@ -3610,65 +3596,10 @@ public class ResourcesAction
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
 				
-				try
+				if(!preventPublicDisplay.booleanValue() && item.isPubview())
 				{
-					Collection groupRefs = new Vector();
-					Iterator it = item.getGroups().iterator();
-					while(it.hasNext())
-					{
-						Group group = (Group) it.next();
-						groupRefs.add(group.getReference());
-					}
-					// TODO: must be atomic with constructor
-					ContentCollectionEdit edit = ContentHostingService.editCollection(collection.getId());
-					// TODO: what if parent has groups and user tries to set no groups??  
-					// Should tool prevent that without needing exception??
-					
-					if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
-					{
-						try
-						{
-							edit.setPublicAccess();
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
-						catch(PermissionException e)
-						{
-							alerts.add(rb.getString("access.nopub"));
-						}
-					}
-					else if(!groupRefs.isEmpty())
-					{
-						try
-						{
-							edit.setGroupAccess(groupRefs);
-						}
-						catch(InconsistentException e)
-						{
-							alerts.add(rb.getString("add.nogroups"));
-						}
-					}
-					else
-					{
-						// edit.clearGroupAccess();
-					}
-					ContentHostingService.commitCollection(edit);
+					ContentHostingService.setPubView(collection.getId(), true);
 				}
-				catch (IdUnusedException e)
-				{
-					
-				}
-				catch (TypeException e)
-				{
-					
-				}
-				catch (InUseException e)
-				{
-					
-				}
-
 			}
 			catch (IdUsedException e)
 			{
@@ -3840,26 +3771,9 @@ public class ResourcesAction
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
 				
-				if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
+				if(!preventPublicDisplay.booleanValue() && item.isPubview())
 				{
-					try
-					{
-						ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-						edit.setPublicAccess();
-						ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-					}
-					catch (IdUnusedException e)
-					{
-						
-					}
-					catch (TypeException e)
-					{
-						
-					}
-					catch (InUseException e)
-					{
-						
-					}
+					ContentHostingService.setPubView(resource.getId(), true);
 				}
 
 				String mode = (String) state.getAttribute(STATE_MODE);
@@ -4785,37 +4699,9 @@ public class ResourcesAction
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
 				
-				if(!preventPublicDisplay.booleanValue() && AccessMode.PUBLIC.toString().equals(item.getAccess()))
+				if(!preventPublicDisplay.booleanValue() && item.isPubview())
 				{
-					try
-					{
-						ContentResourceEdit edit = ContentHostingService.editResource(resource.getId());
-						edit.setPublicAccess();
-						ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-					}
-					catch(InconsistentException e)
-					{
-						alerts.add(rb.getString("access.nopub"));
-					}
-					catch(PermissionException e)
-					{
-						alerts.add(rb.getString("access.nopub"));
-					} 
-					catch (IdUnusedException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					catch (TypeException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					catch (InUseException e) 
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					ContentHostingService.setPubView(resource.getId(), true);
 				}
 
 				String mode = (String) state.getAttribute(STATE_MODE);
@@ -4947,7 +4833,7 @@ public class ResourcesAction
 		context.put("SITE_ACCESS", AccessMode.SITE.toString());
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", AccessMode.PUBLIC.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 
 		context.put("max_upload_size", state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE));
 
@@ -6996,37 +6882,39 @@ public class ResourcesAction
 			String access_mode = params.getString("access_mode");
 			if(access_mode != null)
 			{
-				item.setAccess(access_mode);
-				if(AccessMode.GROUPED.toString().equals(access_mode))
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
 				{
-					String[] access_groups = params.getStrings("access_groups");
-					item.clearGroups();
-					for(int gr = 0; gr < access_groups.length; gr++)
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				if(PUBLIC_ACCESS.equals(access_mode))
+				{
+					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
 					{
-						item.addGroup(access_groups[gr]);
+						item.setPubview(true);
+						item.setAccess(AccessMode.INHERITED.toString());
 					}
 				}
-				else if( ! item.isPubviewInherited())
+				else if(AccessMode.GROUPED.toString().equals(access_mode))
 				{
-					Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-					if(preventPublicDisplay == null)
+					String[] access_groups = params.getStrings("access_groups");
+					if(access_groups != null && access_groups.length > 0)
 					{
-						preventPublicDisplay = Boolean.FALSE;
-						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-					}
-					
-					if(preventPublicDisplay.equals(Boolean.FALSE))
-					{
-						if(AccessMode.PUBLIC.toString().equals(access_mode))
+						item.setAccess(AccessMode.GROUPED.toString());
+						item.clearGroups();
+						for(int gr = 0; gr < access_groups.length; gr++)
 						{
-							item.setPubview(true);
+							item.addGroup(access_groups[gr]);
 						}
-						else
-						{
-							item.setPubview(false);
-						}
+						item.setPubview(false);
 					}
-	
+				}
+				else 
+				{
+					item.setAccess(AccessMode.INHERITED.toString());
+					item.clearGroups();
+					item.setPubview(false);
 				}
 			}
 		}
@@ -7487,9 +7375,9 @@ public class ResourcesAction
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 					}
 					
-					if(preventPublicDisplay.equals(Boolean.FALSE))
+					if(! preventPublicDisplay.booleanValue())
 					{
-						if(AccessMode.PUBLIC.toString().equals(access_mode))
+						if(PUBLIC_ACCESS.equals(access_mode))
 						{
 							item.setPubview(true);
 						}
@@ -7941,19 +7829,19 @@ public class ResourcesAction
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 					}
 					
-					if(! AccessMode.GROUPED.toString().equals(item.getAccess()) && AccessMode.GROUPED == gedit.getAccess())
+					if(! preventPublicDisplay.booleanValue())
+					{
+						ContentHostingService.setPubView(gedit.getId(), item.isPubview());
+						if(item.isPubview() && AccessMode.GROUPED == gedit.getAccess())
+						{
+							gedit.clearGroupAccess();
+						}
+					}
+					else if(! AccessMode.GROUPED.toString().equals(item.getAccess()) && AccessMode.GROUPED == gedit.getAccess())
 					{
 						gedit.clearGroupAccess();
 					}
-					else if(! AccessMode.PUBLIC.toString().equals(item.getAccess()) && AccessMode.PUBLIC == gedit.getAccess())
-					{
-						gedit.clearPublicAccess();
-					}
-					else if(AccessMode.PUBLIC.toString().equals(item.getAccess()) && AccessMode.PUBLIC != gedit.getAccess() && ! preventPublicDisplay.booleanValue())
-					{
-						gedit.setPublicAccess();
-					}
-					else if(gedit.getAccess() == AccessMode.GROUPED && item.getGroups().isEmpty())
+					else if(AccessMode.GROUPED == gedit.getAccess() && item.getGroups().isEmpty())
 					{
 						gedit.clearGroupAccess();
 					}
@@ -9758,6 +9646,16 @@ public class ResourcesAction
 				inherited_access_groups = new Vector();
 			}
 			folder.setInheritedGroups(inherited_access_groups);
+			
+			if(parent != null && (parent.isPubview() || parent.isPubviewInherited()))
+			{
+				folder.setPubviewInherited(true);
+				folder.setPubview(false);
+			}
+			else if(ContentHostingService.isPubView(folder.getId()))
+			{
+				folder.setPubview(true);
+			}
 
 			if(highlightedItems == null || highlightedItems.isEmpty())
 			{
@@ -9876,7 +9774,7 @@ public class ResourcesAction
 						AccessMode access_mode = ((GroupAwareEntity) resource).getAccess();
 						if(access_mode == null)
 						{
-							access_mode = AccessMode.SITE;
+							access_mode = AccessMode.INHERITED;
 						}
 						else if(access_mode == AccessMode.GROUPED)
 						{
@@ -9973,6 +9871,16 @@ public class ResourcesAction
 						{
 							String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
 							newItem.setModifiedBy(modifiedBy);
+						}
+
+						if(folder.isPubview() || folder.isPubviewInherited())
+						{
+							newItem.setPubviewInherited(true);
+							newItem.setPubview(false);
+						}
+						else if(ContentHostingService.isPubView(resource.getId()))
+						{
+							newItem.setPubview(true);
 						}
 
 						String size = props.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH);
@@ -10878,7 +10786,10 @@ public class ResourcesAction
 		protected Collection m_possibleGroups;
 		protected BasicRightsAssignment m_rights;
 
-
+		protected boolean m_pubview;
+		protected boolean m_pubview_inherited;
+		protected boolean m_pubview_possible;
+		
 		/**
 		 * @param id
 		 * @param name
@@ -10924,6 +10835,10 @@ public class ResourcesAction
 			m_target = "";
 			m_root = "";
 
+			m_pubview = false;
+			m_pubview_inherited = false;
+			m_pubview_possible = true;
+			
 			m_isHighlighted = false;
 			m_inheritsHighlight = false;
 
@@ -11503,13 +11418,17 @@ public class ResourcesAction
 		{
 			String rv = rb.getString("access.site1");
 			
-			if(AccessMode.GROUPED.toString().equals(getEffectiveAccess()))
-			{
-				rv = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNames()});
-			}
-			else if(AccessMode.PUBLIC.toString().equals(getEffectiveAccess()))
+			if(this.isPubviewInherited())
 			{
 				rv = rb.getString("access.public1");
+			}
+			else if(this.isPubview())
+			{
+				rv = rb.getString("access.public1");
+			}
+			else if(AccessMode.GROUPED.toString().equals(getEffectiveAccess()))
+			{
+				rv = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNames()});
 			}
 			return rv;
 		}
@@ -11811,6 +11730,54 @@ public class ResourcesAction
 		}
 
 		/**
+		 * @return Returns the pubview.
+		 */
+		public boolean isPubview() 
+		{
+			return m_pubview;
+		}
+		/**
+		 * @param pubview The pubview to set.
+		 */
+		public void setPubview(boolean pubview) 
+		{
+			m_pubview = pubview;
+		}
+		
+		/**
+		 * @param pubview The pubview to set.
+		 */
+		public void setPubviewPossible(boolean possible) 
+		{
+			m_pubview_possible = possible;
+		}
+		
+		/**
+		 * @return Returns the pubviewset.
+		 */
+		public boolean isPubviewInherited() 
+		{
+			return m_pubview_inherited;
+		}
+		
+		/**
+		 * 
+		 *
+		 */
+		public boolean isPubviewPossible()
+		{
+			return m_pubview_possible;
+		}
+		
+		/**
+		 * @param pubviewset The pubviewset to set.
+		 */
+		public void setPubviewInherited(boolean pubviewset) 
+		{
+			m_pubview_inherited = pubviewset;
+		}
+
+		/**
 		 * @return Returns the rights.
 		 */
 		public BasicRightsAssignment getRights()
@@ -11838,10 +11805,6 @@ public class ResourcesAction
 		protected String m_copyrightStatus;
 		protected String m_copyrightInfo;
 		// protected boolean m_copyrightAlert;
-		
-		protected boolean m_pubview;
-		protected boolean m_pubview_inherited;
-		protected boolean m_pubview_possible;
 		
 		protected String m_filename;
 		protected byte[] m_content;
@@ -11905,9 +11868,6 @@ public class ResourcesAction
 			m_properties = new Vector();
 			m_isBlank = true;
 			m_instruction = "";
-			m_pubview = false;
-			m_pubview_inherited = false;
-			m_pubview_possible = true;
 			m_ccRightsownership = "";
 			m_ccLicense = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
@@ -12288,46 +12248,6 @@ public class ResourcesAction
 		{
 			m_metadata.put(name, value);
 		}
-		/**
-		 * @return Returns the pubview.
-		 */
-		public boolean isPubview() 
-		{
-			return m_pubview;
-		}
-		/**
-		 * @param pubview The pubview to set.
-		 */
-		public void setPubview(boolean pubview) 
-		{
-			m_pubview = pubview;
-		}
-		
-		/**
-		 * @param pubview The pubview to set.
-		 */
-		public void setPubviewPossible(boolean possible) 
-		{
-			m_pubview_possible = possible;
-		}
-		
-		/**
-		 * @return Returns the pubviewset.
-		 */
-		public boolean isPubviewInherited() 
-		{
-			return m_pubview_inherited;
-		}
-		
-		/**
-		 * 
-		 *
-		 */
-		public boolean isPubviewPossible()
-		{
-			return m_pubview_possible;
-		}
-		
 		public boolean isSitePossible()
 		{
 			return !m_pubview_inherited && !isGroupInherited() && !isSingleGroupInherited();
@@ -12344,14 +12264,6 @@ public class ResourcesAction
 			return AccessMode.GROUPED.toString().equals(m_inheritedAccess);
 		}
 		
-		/**
-		 * @param pubviewset The pubviewset to set.
-		 */
-		public void setPubviewInherited(boolean pubviewset) 
-		{
-			m_pubview_inherited = pubviewset;
-		}
-
 		/**
 		 * Does this entity inherit grouped access mode with a single group that has access?
 		 * @return true if this entity inherits grouped access mode with a single group that has access, and false otherwise.

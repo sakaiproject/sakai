@@ -4913,7 +4913,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				inherited = true;
 				access = entity.getInheritedAccess();
 			}
-			if(isDropbox || AccessMode.SITE == access || AccessMode.INHERITED == access || AccessMode.PUBLIC == access)
+			if(isDropbox || AccessMode.SITE == access || AccessMode.INHERITED == access)
 			{
 				// site
 				ref.addSiteContextAuthzGroup(rv);
@@ -7086,11 +7086,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public void clearPublicAccess() throws InconsistentException, PermissionException 
 		{
-			if(this.m_access != AccessMode.PUBLIC)
-			{
-				throw new InconsistentException(this.getReference());
-			}
-			
 			setPubView(this.m_id, false);
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
@@ -7100,7 +7095,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public void setPublicAccess() throws PermissionException
 		{
 			setPubView(this.m_id, true);
-			this.m_access = AccessMode.PUBLIC;
+			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 		}
 
@@ -7114,9 +7109,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				throw new InconsistentException(this.getReference());
 			}
 			
-			if(isInheritingPubView(this.m_id) || isPubView(this.m_id))
+			if(isInheritingPubView(this.m_id))
 			{
 				throw new InconsistentException(this.getReference());
+			}
+			
+			if(isPubView(this.m_id))
+			{
+				setPubView(this.m_id, false);
 			}
 			
 			SortedSet groupRefs = new TreeSet();

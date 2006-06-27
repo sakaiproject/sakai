@@ -113,12 +113,12 @@ public interface GroupAwareEntity extends Entity
 			if (SITE.m_id.equals(access)) return SITE;
 			if (GROUPED.m_id.equals(access)) return GROUPED;
 			if (INHERITED.m_id.equals(access)) return INHERITED;
-			if (PUBLIC.m_id.equals(access)) return PUBLIC;
+			//if (PUBLIC.m_id.equals(access)) return PUBLIC;
 			return null;
 		}
 
 		/** public access to the entity */
-		public static final AccessMode PUBLIC = new AccessMode("public");
+		//public static final AccessMode PUBLIC = new AccessMode("public");
 
 		/** channel (site) level access to the entity */
 		public static final AccessMode SITE = new AccessMode("site");

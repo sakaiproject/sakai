@@ -1371,13 +1371,13 @@
 					<div  class="labelindnt">
 						#if($item.isPubviewPossible())
 							<p class="checkbox">
-												<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if("$!item.access" == "public") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
-												<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
+								<input type="radio" name="access_mode$i" id="access_mode${i}_public" value="public" #if($!item.isPubview()) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
+								<label for="access_mode${i}_public">$tlang.getString("edit.access2")</label>
 							</p>
-									#end
+						#end
 						<p class="checkbox">
-											<input type="radio" name="access_mode$i" id="access_mode${i}_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
-											<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
+							<input type="radio" name="access_mode$i" id="access_mode${i}_$SITE_ACCESS" value="$SITE_ACCESS" #if("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS") checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
+							<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
 						</p>
 						
 						#if($item.isGroupPossible())
