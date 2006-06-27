@@ -196,7 +196,8 @@ java version "1.5.0_06"
 Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
 Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             <para>If you're going to be building the source (i.e. if you chose the source install)
-                then you'll want to make sure that you have also installed the full J2SE, and not just the JRE.</para>
+                then you'll want to make sure that you have also installed the full J2SE, and not
+                just the JRE.</para>
             <note>
                 <title>JRE vs. JDK vs. J2SE vs. J2EE</title>
                 <para>If you're unfamiliar with the Java world, you may find the acronyms for
@@ -530,7 +531,7 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                 sites, and sending out email notifications. For sending mail Sakai needs the address
                 (name or IP) of an SMTP server that will accept mail from Sakai. This needs to be
                 set in your sakai.properties file:</para>
-            <screen>smtp@org.sakaiproject.service.framework.email.EmailService=some.smtp.org</screen>
+            <screen>smtp@org.sakaiproject.email.api.EmailService=some.smtp.org</screen>
             <para>To enable Sakai to receive mail there are a few settings needed in the
                 sakai.properties file:</para>
             <screen>
