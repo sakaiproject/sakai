@@ -108,7 +108,7 @@
 			<description>Bean Dependency: Email Service</description>
 			<property-name>emailService</property-name>
 			<value>
-				#{Components["org.sakaiproject.service.framework.email.EmailService"]}
+				#{Components["org.sakaiproject.email.api.EmailService"]}
 			</value>
 		</managed-property>       
 	</managed-bean>
