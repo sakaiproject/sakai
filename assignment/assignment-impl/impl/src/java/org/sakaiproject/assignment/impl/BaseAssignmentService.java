@@ -197,6 +197,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	/** Event for submitting an assignment submission. */
 	public static final String EVENT_SUBMIT_ASSIGNMENT_SUBMISSION = "asn.submit.submission";
+	
+	/** Event for grading an assignment submission. */
+	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -1690,6 +1693,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public void commitEdit(AssignmentSubmissionEdit submission)
 	{
+		String submissionRef = submission.getReference();
+		
 		// check for closed edit
 		if (!submission.isActiveEdit())
 		{
@@ -1711,23 +1716,43 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		// complete the edit
 		m_submissionStorage.commit(submission);
-
-		// track it
-		if (submission.getSubmitted())
-		{
-			// submitting a submission
-			EventTrackingService.post(EventTrackingService.newEvent(EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, submission.getReference(),
-					true));
-		}
-		else
-		{
-			// saving a submission
-			EventTrackingService.post(EventTrackingService.newEvent(EVENT_SAVE_ASSIGNMENT_SUBMISSION, submission.getReference(),
-					true));
-		}
-
+		
 		// close the edit object
 		((BaseAssignmentSubmissionEdit) submission).closeEdit();
+
+		try
+		{
+			AssignmentSubmission s = getSubmission(submissionRef);
+			Time returnedTime = s.getTimeReturned();
+			Time submittedTime = s.getTimeSubmitted();
+			
+			// track it
+			if (!s.getSubmitted())
+			{
+				// saving a submission
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SAVE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			}
+			else if (submittedTime != null && returnedTime != null && returnedTime.after(submittedTime))
+			{
+				// grading, releasing or returning a submission
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			}
+			else
+			{
+				// submitting a submission
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			}
+				
+			
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("commitEdit(), submissionId=" + submissionRef, e);
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("commitEdit(), submissionId=" + submissionRef, e);
+		}
 
 	} // commitEdit(Submission)
 
