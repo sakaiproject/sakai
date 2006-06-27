@@ -181,6 +181,7 @@ public class ItemContentsBean
     {
       return false;
     }
+log.debug("getReview():"+  data.getReview().booleanValue());
     return data.getReview().booleanValue();
   }
 
@@ -190,6 +191,7 @@ public class ItemContentsBean
    */
   public void setReview(boolean preview)
   {
+log.debug("setReview():  preview = " + preview);
     if (getItemGradingDataArray().isEmpty())
     {
       ItemGradingData data = new ItemGradingData();
@@ -406,7 +408,7 @@ public class ItemContentsBean
     }
     catch (Exception e)
     {
-      log.warn(e.getMessage());
+      log.warn("get ReponseId() " + e.getMessage());
       // True/false
     }
 
@@ -459,7 +461,7 @@ public class ItemContentsBean
     }
     catch (Exception e)
     {
-      log.warn(e.getMessage());
+      log.warn("setResponseId() "  + e.getMessage());
       // True/false
     }
 

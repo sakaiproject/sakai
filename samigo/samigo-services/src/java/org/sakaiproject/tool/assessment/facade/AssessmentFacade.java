@@ -45,8 +45,9 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
  */
 
 public class AssessmentFacade extends AssessmentBaseFacade
-    implements AssessmentIfc
+    implements java.io.Serializable, AssessmentIfc
 {
+  private static final long serialVersionUID = 7526471155622776147L;
   private AssessmentIfc data;
   private Long assessmentTemplateId;
   private Long assessmentId;

@@ -43,8 +43,9 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 public class PublishedAssessmentFacade
-    implements PublishedAssessmentIfc, Cloneable
+    implements java.io.Serializable, PublishedAssessmentIfc, Cloneable
 {
+  private static final long serialVersionUID = 7526471155622776147L;
   private static Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
   public static Integer ACTIVE_STATUS = new Integer(1);
   public static Integer INACTIVE_STATUS = new Integer(0);

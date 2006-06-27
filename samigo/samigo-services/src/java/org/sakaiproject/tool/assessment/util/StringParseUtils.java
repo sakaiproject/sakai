@@ -116,7 +116,7 @@ public class StringParseUtils
       } // ifnames
     } //for
 
-    s.trim();
+    s = s.trim();
 
     return s;
   }
@@ -157,7 +157,7 @@ public class StringParseUtils
       } // ifnames
     } //for
 
-    s.trim();
+    s = s.trim();
 
     if (s.length() == 0)
     {

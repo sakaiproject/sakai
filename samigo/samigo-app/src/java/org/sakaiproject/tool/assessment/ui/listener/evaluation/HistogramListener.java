@@ -1324,14 +1324,7 @@ if (answer != null)
     // special handling if insufficient data to calculate
     if(k < 2)
     {
-      if(scores != null)
-      {
         return scores[0];
-      }
-      else
-      {
-        return 0;
-      }
     }
 
     return scores[k - 1] + (f * (scores[k] - scores[k - 1]));

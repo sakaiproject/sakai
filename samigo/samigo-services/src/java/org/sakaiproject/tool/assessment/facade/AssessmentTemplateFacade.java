@@ -32,8 +32,9 @@ import org.sakaiproject.tool.assessment.osid.assessment.impl.AssessmentImpl;
 
 public class AssessmentTemplateFacade
     extends AssessmentBaseFacade
-       implements AssessmentTemplateIfc
+    implements java.io.Serializable, AssessmentTemplateIfc
 {
+  private static final long serialVersionUID = 7526471155622776147L;
   public static String AUTHORS = "ASSESSMENTTEMPLATE_AUTHORS";
   public static String KEYWORDS = "ASSESSMENTTEMPLATE_KEYWORDS";
   public static String OBJECTIVES = "ASSESSMENTTEMPLATE_OBJECTIVES";

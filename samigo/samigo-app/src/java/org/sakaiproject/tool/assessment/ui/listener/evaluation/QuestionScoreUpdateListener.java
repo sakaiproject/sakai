@@ -128,14 +128,16 @@ public class QuestionScoreUpdateListener
           // check if there is differnce in score, if so, update. Otherwise, do nothing
           float newAutoScore = (new Float(ar.getTotalAutoScore())).floatValue() / (float) datas.size();
           String newComments = ar.getComments();
-          if (newComments!=null) newComments.trim();
+          if (newComments!=null) 
+ 		newComments = newComments.trim();
 
           float oldAutoScore = 0;
           if (data.getAutoScore() !=null)
             oldAutoScore=data.getAutoScore().floatValue();
           String oldComments = data.getComments();
 
-          if (oldComments!=null) oldComments.trim();
+          if (oldComments!=null) 
+		oldComments = oldComments.trim();
           if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
 	    data.setAutoScore(new Float(newAutoScore));
             data.setComments(ar.getComments());

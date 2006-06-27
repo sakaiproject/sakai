@@ -56,7 +56,8 @@ public class QTIServiceImpl implements QTIServiceAPI
     }
     catch (Exception ex)
     {
-       new QTIServiceException(ex);
+       log.warn("createImportedAssessment() returning null");
+       //new QTIServiceException(ex);
     }
     log.error("createImportedAssessment() returning null");
     return null;
@@ -78,7 +79,8 @@ public class QTIServiceImpl implements QTIServiceAPI
     }
     catch (Exception ex)
     {
-       new QTIServiceException(ex);
+       log.warn("createImportedItem() returning null");
+       //new QTIServiceException(ex);
     }
     log.error("createImportedItem() returning null");
     return null;
@@ -103,7 +105,8 @@ public class QTIServiceImpl implements QTIServiceAPI
     }
     catch (Exception ex)
     {
-       new QTIServiceException(ex);
+       log.warn("getExportedAssessment() returning null");
+       //new QTIServiceException(ex);
     }
     log.error("getExportedAssessment() returning null");
     return null;
@@ -128,7 +131,8 @@ public class QTIServiceImpl implements QTIServiceAPI
     }
     catch (Exception ex)
     {
-       new QTIServiceException(ex);
+       log.warn("getExportedItem() returning null");
+       //new QTIServiceException(ex);
     }
     log.error("getExportedItem() returning null");
     return null;
@@ -153,7 +157,8 @@ public class QTIServiceImpl implements QTIServiceAPI
     }
     catch (Exception ex)
     {
-       new QTIServiceException(ex);
+      log.warn("getExportedItemBank() returning null");
+      // new QTIServiceException(ex);
     }
     log.error("getExportedItemBank() returning null");
     return null;

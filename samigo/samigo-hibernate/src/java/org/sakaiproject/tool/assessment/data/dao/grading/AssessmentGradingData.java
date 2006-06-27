@@ -39,10 +39,12 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
  */
 
 public class AssessmentGradingData
-    implements AssessmentGradingIfc
+    implements java.io.Serializable, AssessmentGradingIfc
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
+  private static final long serialVersionUID = 7526471155622776147L;
+
   public static Integer AUTO_GRADED = new Integer(2);
   public static Integer NEED_HUMAN_ATTENTION = new Integer(3);
   public static Integer LATE_SUBMISSION = new Integer(4);

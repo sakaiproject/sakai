@@ -46,10 +46,10 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * @author Ed Smiley <esmiley@stanford.edu>
  */
 public class QuestionPoolFacade
-    implements QuestionPoolDataIfc, Cloneable
+    implements java.io.Serializable, QuestionPoolDataIfc, Cloneable
 {
   private static Log log = LogFactory.getLog(QuestionPoolFacade.class);
-
+  private static final long serialVersionUID = 7526471155622776147L;
 
   public static Long ACCESS_DENIED = new Long(30);
   public static Long READ_ONLY = new Long(31);

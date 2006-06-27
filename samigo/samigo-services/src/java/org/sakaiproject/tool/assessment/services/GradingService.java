@@ -538,9 +538,9 @@ public class GradingService
       // newly submitted answers, updated answers and MCMR/FIB answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
-      log.debug("****itemGrading size="+itemGradingSet.size());
       if (itemGradingSet == null)
         itemGradingSet = new HashSet();
+      log.debug("****itemGrading size="+itemGradingSet.size());
       Iterator iter = itemGradingSet.iterator();
 
       // fibAnswersMap contains a map of HashSet of answers for a FIB item,

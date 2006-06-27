@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateIteratorFacade;
 
 /**
  * General authoring information.
@@ -52,7 +51,6 @@ public class AuthorBean implements Serializable
   private String assessmentDescription;
   private String assessmentID;
   private AssessmentFacade assessment;
-  private AssessmentTemplateIteratorFacade assessmentTemplateIter;
   private ArrayList assessmentTemplateList;
   private ArrayList assessments;
   private ArrayList publishedAssessments;
@@ -122,7 +120,6 @@ public class AuthorBean implements Serializable
   }
 
   public void setAssessmentTemplateList(ArrayList list){
-    //this.assessmentTemplateIter = new AssessmentTemplateIteratorFacade(list);
     this.assessmentTemplateList = new ArrayList();
     try{
       for (int i=0; i<list.size();i++){

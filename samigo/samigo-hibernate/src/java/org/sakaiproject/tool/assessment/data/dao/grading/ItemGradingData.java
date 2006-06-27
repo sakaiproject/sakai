@@ -40,7 +40,9 @@ import java.lang.Float;
  */
 
 public class ItemGradingData
-    implements ItemGradingIfc {
+    implements java.io.Serializable, ItemGradingIfc {
+
+  private static final long serialVersionUID = 7526471155622776147L;
   private Long itemGradingId;
   private Long assessmentGradingId;
   private AssessmentGradingIfc assessmentGrading;

@@ -34,19 +34,13 @@ import java.util.HashMap;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 
 /**
- * <p>
- * Copyright: Copyright (c) 2003, 2004 Sakai Project
+ * <p>  JSF backing bean for Template pages
  * </p>
  *
- * Used to be org.navigoproject.ui.web.form.edit.TemplateForm.java
- *
- * @author Marc Brierley
- * @author Lydia Li
- *
- * @version $Id$
  */
 public class TemplateBean implements Serializable
 {
+  private static final long serialVersionUID = 7526471155622776147L;
   private HashMap values = new HashMap();
   private String newName;
   private String templateName;
