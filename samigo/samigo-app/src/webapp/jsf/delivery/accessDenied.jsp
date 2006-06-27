@@ -48,7 +48,7 @@
   <h:outputText  value="#{msg.access_denied_message}" />
   </div>
  <p class="act">
-  <h:commandButton accesskey="#{msg.a_login}" value="#{msg.button_login}" type="button"
+  <h:commandButton accesskey="#{msg.a_login}" value="#{msg.button_continue}" type="button"
      styleClass="active" onclick="javascript:window.open('/portal/login','_top')" onkeypress="javascript:window.open('/portal/login','_top')" />
 <%--
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_ok}" type="submit"
