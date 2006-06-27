@@ -332,7 +332,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       <h:commandLink title="#{msg.t_sortSubmissionId}" action="totalScores">
         <h:outputText value="#{msg.sub_id}" />
         <f:param name="sortAscending" value="true"/>
-        <h:graphicImage alt="#{msg.alt_sortSubmissionIdDescending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
+        <h:graphicImage alt="#{msg.alt_sortSubmissionIdAscending}" rendered="#{!totalScores.sortAscending}" url="/images/sortdescending.gif"/>
         <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
