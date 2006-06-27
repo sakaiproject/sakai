@@ -21,9 +21,7 @@
 
 package org.sakaiproject.search.tool;
 
-import java.text.MessageFormat;
-
-import org.sakaiproject.search.api.SearchStatus;
+import org.sakaiproject.exception.PermissionException;
 
 /**
  * A backing bean for the search admin page. The implementation of this bean
@@ -50,8 +48,9 @@ public interface SearchAdminBean
 	 *           {2} is the current worker node (none if none)
 	 *           {3} is the Latest time of completion of the worker
 	 * @return
+	 * @throws PermissionException if the user does not have permissions to perform the action
 	 */
-	String getIndexStatus(String statusFormatString);
+	String getIndexStatus(String statusFormatString) throws PermissionException;
 	
 	/**
 	 * 

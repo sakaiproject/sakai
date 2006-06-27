@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
@@ -85,6 +86,12 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	private String commandFeedback = "";
 
+	private boolean superUser = false;
+	
+	private String userName = null;
+
+	private String siteCheck = null;
+
 	/**
 	 * Construct a SearchAdminBean, checking permissions first
 	 * 
@@ -102,10 +109,11 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		siteId = toolManager.getCurrentPlacement().getContext();
 		Site currentSite = siteService.getSite(siteId);
-		String siteCheck = currentSite.getReference();
+		siteCheck = currentSite.getReference();
+		userName = sessionManager.getCurrentSessionUserId();
+		superUser = SecurityService.isSuperUser();
 		if (!siteService.allowUpdateSite(siteId))
 		{
-			String userName = sessionManager.getCurrentSessionUserId();
 			throw new PermissionException(userName, "site.update", siteCheck);
 		}
 		this.searchService = searchService;
@@ -120,7 +128,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	}
 
-	private void doCommand()
+	private void doCommand() throws PermissionException
 	{
 		if (internCommand == null) return;
 		if (internCommand == REBUILDSITE)
@@ -172,9 +180,14 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	/**
 	 * Refresh all the documents in the index
+	 * @throws PermissionException 
 	 */
-	private void doRefreshInstance()
+	private void doRefreshInstance() throws PermissionException
 	{
+		if (!superUser)
+		{
+			throw new PermissionException(userName, "site.update", siteCheck);
+		}
 		searchService.refreshInstance();
 		commandFeedback = "Ok";
 
@@ -183,9 +196,14 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	/**
 	 * Rebuild the index from scratch, this dumps the existing index and reloads
 	 * all entities from the EntityContentProviders
+	 * @throws PermissionException 
 	 */
-	private void doRebuildInstance()
+	private void doRebuildInstance() throws PermissionException
 	{
+		if (!superUser)
+		{
+			throw new PermissionException(userName, "site.update", siteCheck);
+		}
 		searchService.rebuildInstance();
 		commandFeedback = "Ok";
 
@@ -221,8 +239,9 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	/**
 	 * {@inheritDoc}
+	 * @throws PermissionException 
 	 */
-	public String getIndexStatus(String statusFormat)
+	public String getIndexStatus(String statusFormat) throws PermissionException
 	{
 		doCommand();
 		SearchStatus ss = searchService.getSearchStatus();
@@ -308,17 +327,20 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+				COMMAND_REFRESHSTATUS, "Refresh Status" }));
+		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REBUILDSITE, "Rebuild Site Index" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REFRESHSITE, "Refresh Site Index" }));
-		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+		if (superUser)
+		{
+			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REBUILDINSTANCE, "Rebuild Whole Index" }));
-		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REFRESHINSTANCE, "Refresh Whole Index" }));
-		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHSTATUS, "Refresh Status" }));
-		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REMOVELOCK, "Remove Lock, only use if you <b>know</b> there is no worker running" }));
+		}
 		return sb.toString();
 	}
 	
