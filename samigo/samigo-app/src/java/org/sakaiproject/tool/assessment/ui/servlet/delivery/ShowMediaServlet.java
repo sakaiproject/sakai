@@ -70,12 +70,13 @@ public class ShowMediaServlet extends HttpServlet
     String mediaId = req.getParameter("mediaId");
     log.info("**mediaId = "+mediaId);
     GradingService gradingService = new GradingService();
+    log.info("** 2. mediaId = "+mediaId);
     MediaData mediaData = gradingService.getMedia(mediaId);
+    log.info("** 3. mediaId = "+mediaId);
     String mediaLocation = mediaData.getLocation();
+    log.info("** 4. mediaId = "+mediaId);
     int fileSize = mediaData.getFileSize().intValue();
-    byte[] media = mediaData.getMedia();
-    log.debug("****1. media file size="+mediaData.getFileSize());
-    log.debug("****2. media length="+media.length);
+    log.info("****1. media file size="+mediaData.getFileSize());
 
     // get assessment's ownerId
     String assessmentCreatedBy = req.getParameter("createdBy");
@@ -126,8 +127,14 @@ public class ShowMediaServlet extends HttpServlet
       ServletOutputStream outputStream = res.getOutputStream();
       BufferedOutputStream buf_outputStream = new BufferedOutputStream(outputStream);
       if (mediaLocation == null || (mediaLocation.trim()).equals("")){
-        buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
-        log.debug("**** media.length="+media.length);
+        try{
+          byte[] media = mediaData.getMedia();
+          buf_inputStream = new BufferedInputStream(new ByteArrayInputStream(media));
+          log.debug("**** media.length="+media.length);
+        }
+        catch(Exception e){
+          log.error("****empty media ="+e.getMessage());
+        }
       }
       else{
         inputStream = getFileStream(mediaLocation);
@@ -175,16 +182,14 @@ public class ShowMediaServlet extends HttpServlet
   }
 
   public String getAgentString(HttpServletRequest req,  HttpServletResponse res){ 
-    String agentIdString = req.getRemoteUser();
-    System.out.println("**** Show Media: agentId"+agentIdString);
-    if (agentIdString == null){ // try this
-      agentIdString = AgentFacade.getAgentString();
-    }
+      //String agentIdString = req.getRemoteUser();
+    String agentIdString = AgentFacade.getAgentString();
     if (agentIdString == null || agentIdString.equals("")){ // try this
       PersonBean person = (PersonBean) ContextUtil.lookupBeanFromExternalServlet(
 			   "person", req, res);
       agentIdString = person.getAnonymousId();
     }
+    System.out.println("**** Show Media: agentId"+agentIdString);
     return agentIdString;
   }
 

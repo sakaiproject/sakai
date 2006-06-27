@@ -485,7 +485,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public MediaData getMedia(Long mediaId){
     MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class,mediaId);
-    mediaData.setMedia(getMediaStream(mediaId));
+    String mediaLocation = mediaData.getLocation();
+    if (mediaLocation == null || (mediaLocation.trim()).equals("")){
+      mediaData.setMedia(getMediaStream(mediaId));
+    }
     return mediaData;
   }
 
