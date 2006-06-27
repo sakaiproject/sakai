@@ -85,11 +85,12 @@ public class ItemAddListener
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) cu.lookupBean("itemauthor");
     ItemBean item =itemauthorbean.getCurrentItem();
     String iText=cu.stringWYSIWYG(item.getItemText());
+    String iInstruction=cu.stringWYSIWYG(item.getInstruction());
     String iType=item.getItemType();
     String err="";
     FacesContext context=FacesContext.getCurrentInstance();
    
-    if(!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals("")))){
+    if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
 	String emptyText_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
 	context.addMessage(null,new FacesMessage(emptyText_err));
 	return;
