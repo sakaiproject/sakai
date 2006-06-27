@@ -1298,31 +1298,8 @@ public class ResourcesAction
 			{
 			}
 			
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(itemType);
-				if(encoding != null)
-				{
-					item.setEncoding(encoding);
-				}
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-				item.setPossibleGroups(new Vector(groups));
-				if(inherited_access_groups != null)
-				{
-					item.setInheritedGroups(inherited_access_groups);
-				}
-				if(inherited_access == null || inherited_access.equals(AccessMode.SITE))
-				{
-					item.setInheritedAccess(AccessMode.INHERITED.toString());
-				}
-				else
-				{
-					item.setInheritedAccess(inherited_access.toString());
-				}
-				
-			}
+			boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
+			
 
 		}
 		context.put("new_items", new_items);
@@ -2521,11 +2498,30 @@ public class ResourcesAction
 			state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 		}
 
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+
 		String collectionId = params.getString ("collectionId");
 		current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 
-		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
+		List new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
+
+		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
+		current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
+
+		current_stack_frame.put(STATE_STACK_CREATE_NUMBER, new Integer(1));
+
+		state.setAttribute(STATE_CREATE_ALERTS, new HashSet());
+		current_stack_frame.put(STATE_CREATE_MISSING_ITEM, new HashSet());
+		current_stack_frame.remove(STATE_STACK_STRUCTOBJ_TYPE);
+
+		current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
+		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
+
+	}	// doCreate
+	
+	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, int number)
+	{
+		List new_items = new Vector();
 		
 		ContentCollection collection = null;
 		AccessMode inheritedAccess = AccessMode.INHERITED;
@@ -2544,7 +2540,8 @@ public class ResourcesAction
 		}
 		catch(PermissionException e)
 		{
-			alerts.add(rb.getString("notpermis4"));
+			//alerts.add(rb.getString("notpermis4"));
+			e.printStackTrace();
 		} 
 		catch (IdUnusedException e) 
 		{
@@ -2556,19 +2553,37 @@ public class ResourcesAction
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
 		
 		Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-
-		List new_items = new Vector();
+		boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
+		
 		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
 		{
-			EditItem item = new EditItem(itemType);
-			item.setContainer(collectionId);
+			EditItem item = new EditItem(itemtype);
 			if(encoding != null)
 			{
 				item.setEncoding(encoding);
 			}
-			if(preventPublicDisplay.booleanValue())
+			item.setInDropbox(isInDropbox);
+			item.setCopyrightStatus(defaultCopyrightStatus);
+			new_items.add(item);
+			item.setPossibleGroups(new Vector(possibleGroups));
+			if(inheritedGroups != null)
+			{
+				item.setInheritedGroups(inheritedGroups);
+			}
+			if(inheritedAccess == null || AccessMode.SITE == inheritedAccess)
+			{
+				item.setInheritedAccess(AccessMode.INHERITED.toString());
+			}
+			else
+			{
+				item.setInheritedAccess(inheritedAccess.toString());
+			}
+			
+			if(preventPublicDisplay)
 			{
 				item.setPubviewPossible(false);
 				item.setPubviewInherited(false);
@@ -2581,28 +2596,10 @@ public class ResourcesAction
 				//item.setPubview(pubviewset);
 			}
 
-			item.setAccess(AccessMode.INHERITED.toString());
-			item.setInheritedAccess(inheritedAccess.toString());
-			item.setInheritedGroups(inheritedGroups);
-			item.setPossibleGroups(possibleGroups);
-			
-			item.setCopyrightStatus(defaultCopyrightStatus);
-			new_items.add(item);
 		}
 
-		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-		current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
-
-		current_stack_frame.put(STATE_STACK_CREATE_NUMBER, new Integer(1));
-
-		state.setAttribute(STATE_CREATE_ALERTS, new HashSet());
-		current_stack_frame.put(STATE_CREATE_MISSING_ITEM, new HashSet());
-		current_stack_frame.remove(STATE_STACK_STRUCTOBJ_TYPE);
-
-		current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
-		state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_CREATE_INIT);
-
-	}	// doCreate
+		return new_items;
+	}
 
 	
 	public static void addCreateContextAlert(SessionState state, String message)
@@ -2637,10 +2634,11 @@ public class ResourcesAction
 		Map current_stack_frame = peekAtStack(state);
 		boolean pop = false;
 		
-
+		String collectionId = params.getString("collectionId");
 		String itemType = params.getString("itemType");
 		String flow = params.getString("flow");
 		
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 
 		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
 		if(alerts == null)
@@ -2675,17 +2673,7 @@ public class ResourcesAction
 
 				String encoding = data.getRequest().getCharacterEncoding();
 
-				items = new Vector();
-				for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-				{
-					EditItem item = new EditItem(itemType);
-					if(encoding != null)
-					{
-						item.setEncoding(encoding);
-					}
-					item.setCopyrightStatus(defaultCopyrightStatus);
-					items.add(item);
-				}
+				items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 
 			}
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, items);
@@ -2828,18 +2816,9 @@ public class ResourcesAction
 				}
 
 				String encoding = data.getRequest().getCharacterEncoding();
+				
+				new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 
-				new_items = new Vector();
-				for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-				{
-					EditItem item = new EditItem(itemType);
-					if(encoding != null)
-					{
-						item.setEncoding(encoding);
-					}
-					item.setCopyrightStatus(defaultCopyrightStatus);
-					new_items.add(item);
-				}
 				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
 			}
@@ -2872,17 +2851,7 @@ public class ResourcesAction
 
 				String encoding = data.getRequest().getCharacterEncoding();
 
-				new_items = new Vector();
-				for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-				{
-					EditItem item = new EditItem(itemType);
-					if(encoding != null)
-					{
-						item.setEncoding(encoding);
-					}
-					item.setCopyrightStatus(defaultCopyrightStatus);
-					new_items.add(item);
-				}
+				new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
 			}
@@ -2921,17 +2890,7 @@ public class ResourcesAction
 
 				String encoding = data.getRequest().getCharacterEncoding();
 
-				new_items = new Vector();
-				for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-				{
-					EditItem item = new EditItem(itemType);
-					if(encoding != null)
-					{
-						item.setEncoding(encoding);
-					}
-					item.setCopyrightStatus(defaultCopyrightStatus);
-					new_items.add(item);
-				}
+				new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 				current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 			}
 			if(new_items != null && new_items.size() > twiggleNumber)
@@ -3096,6 +3055,17 @@ public class ResourcesAction
 	private static void createStructuredArtifacts(SessionState state)
 	{
 		Map current_stack_frame = peekAtStack(state);
+		
+		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+		if(collectionId == null || collectionId.trim().length() == 0)
+		{
+			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			if(collectionId == null || collectionId.trim().length() == 0)
+			{
+				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
+		}
 
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
@@ -3117,29 +3087,8 @@ public class ResourcesAction
 				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
 			}
 			String encoding = (String) state.getAttribute(STATE_ENCODING);
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(itemType);
-				if(encoding != null)
-				{
-					item.setEncoding(encoding);
-				}
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-			}
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, true, CREATE_MAX_ITEMS);
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-		}
-
-		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-		if(collectionId == null || collectionId.trim().length() == 0)
-		{
-			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			if(collectionId == null || collectionId.trim().length() == 0)
-			{
-				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 		}
 
 		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
@@ -3517,6 +3466,17 @@ public class ResourcesAction
 
 		Map current_stack_frame = peekAtStack(state);
 
+		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+		if(collectionId == null || collectionId.trim().length() == 0)
+		{
+			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			if(collectionId == null || collectionId.trim().length() == 0)
+			{
+				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
+		}
+
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
@@ -3526,14 +3486,11 @@ public class ResourcesAction
 				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
 				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
+			String encoding = (String) state.getAttribute(STATE_ENCODING);
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			
+			new_items = newEditItems(collectionId, TYPE_FOLDER, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(TYPE_FOLDER);
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-			}
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
 		}
@@ -3547,17 +3504,6 @@ public class ResourcesAction
 		{
 			number = new Integer(1);
 			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-
-		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-		if(collectionId == null || collectionId.trim().length() == 0)
-		{
-			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			if(collectionId == null || collectionId.trim().length() == 0)
-			{
-				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 		}
 
 		int numberOfFolders = 1;
@@ -3663,6 +3609,17 @@ public class ResourcesAction
 
 		Map current_stack_frame = peekAtStack(state);
 
+		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+		if(collectionId == null || collectionId.trim().length() == 0)
+		{
+			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			if(collectionId == null || collectionId.trim().length() == 0)
+			{
+				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
+		}
+
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
@@ -3673,13 +3630,11 @@ public class ResourcesAction
 				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(TYPE_UPLOAD);
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-			}
+			String encoding = (String) state.getAttribute(STATE_ENCODING);
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			
+			new_items = newEditItems(collectionId, TYPE_FOLDER, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
+
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 
 		}
@@ -3693,17 +3648,6 @@ public class ResourcesAction
 		{
 			number = new Integer(1);
 			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-		}
-
-		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-		if(collectionId == null || collectionId.trim().length() == 0)
-		{
-			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			if(collectionId == null || collectionId.trim().length() == 0)
-			{
-				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
 		}
 
 		int numberOfItems = 1;
@@ -4851,6 +4795,18 @@ public class ResourcesAction
 		}
 		context.put("itemType", itemType);
 
+		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+		if(collectionId == null || collectionId.trim().length() == 0)
+		{
+			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			if(collectionId == null || collectionId.trim().length() == 0)
+			{
+				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			}
+			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
+		}
+		context.put("collectionId", collectionId);
+
 		String field = (String) current_stack_frame.get(STATE_ATTACH_FORM_FIELD);
 		if(field == null)
 		{
@@ -4869,6 +4825,13 @@ public class ResourcesAction
 			state.removeAttribute(STATE_CREATE_MESSAGE);
 		}
 
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
@@ -4881,33 +4844,11 @@ public class ResourcesAction
 
 			String encoding = data.getRequest().getCharacterEncoding();
 
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(itemType);
-				if(encoding != null)
-				{
-					item.setEncoding(encoding);
-				}
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-			}
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 		}
 		context.put("new_items", new_items);
 		
-		String collectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-		if(collectionId == null || collectionId.trim().length() == 0)
-		{
-			collectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			if(collectionId == null || collectionId.trim().length() == 0)
-			{
-				collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-			}
-			current_stack_frame.put(STATE_STACK_CREATE_COLLECTION_ID, collectionId);
-		}
-		context.put("collectionId", collectionId);
-
 		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
 		if(number == null)
 		{
@@ -5822,6 +5763,8 @@ public class ResourcesAction
 			String itemName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
 			item = new EditItem(id, itemName, itemType);
+			
+			item.setInDropbox(ContentHostingService.isInDropbox(id));
 			
 			BasicRightsAssignment rightsObj = new BasicRightsAssignment(item.getItemNum(), properties);
 			item.setRights(rightsObj);
@@ -7522,6 +7465,7 @@ public class ResourcesAction
 		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
 		if(new_items == null)
 		{
+			String collectionId = params.getString("collectionId");
 			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
 			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 			{
@@ -7539,13 +7483,12 @@ public class ResourcesAction
 				}
 				current_stack_frame.put(STATE_STACK_CREATE_TYPE, itemType);
 			}
-			new_items = new Vector();
-			for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-			{
-				EditItem item = new EditItem(itemType);
-				item.setCopyrightStatus(defaultCopyrightStatus);
-				new_items.add(item);
-			}
+			
+			String encoding = (String) state.getAttribute(STATE_ENCODING);
+
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 			current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
 		}
 
@@ -9611,6 +9554,9 @@ public class ResourcesAction
 				folder.setRoot(parent.getRoot());
 			}
 			
+			boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
+			folder.setInDropbox(isInDropbox);
+			
 			BasicRightsAssignment rightsObj = new BasicRightsAssignment(folder.getItemNum(), cProperties);
 			folder.setRights(rightsObj);
 			
@@ -9791,6 +9737,8 @@ public class ResourcesAction
 						newItem.setAccess(access_mode.toString());
 						newItem.setInheritedAccess(folder.getEffectiveAccess());
 
+						newItem.setInDropbox(isInDropbox);
+						
 						BasicRightsAssignment rightsObj2 = new BasicRightsAssignment(newItem.getItemNum(), props);
 						newItem.setRights(rightsObj2);
 						Collection groups = ((GroupAwareEntity) resource).getGroupObjects();
@@ -10756,6 +10704,8 @@ public class ResourcesAction
 		protected boolean m_canAddItem;
 		protected boolean m_canAddFolder;
 		protected boolean m_canSelect;
+		
+		protected boolean m_inDropbox;
 
 		protected List m_members;
 		protected boolean m_isEmpty;
@@ -11426,6 +11376,10 @@ public class ResourcesAction
 			{
 				rv = rb.getString("access.public1");
 			}
+			else if(this.isInDropbox())
+			{
+				rv = rb.getString("access.dropbox1");
+			}
 			else if(AccessMode.GROUPED.toString().equals(getEffectiveAccess()))
 			{
 				rv = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNames()});
@@ -11791,6 +11745,22 @@ public class ResourcesAction
 		public void setRights(BasicRightsAssignment rights)
 		{
 			this.m_rights = rights;
+		}
+
+		/**
+		 * @return Returns true if the item is in a dropbox (assuming it's been initialized correctly).
+		 */
+		public boolean isInDropbox() 
+		{
+			return m_inDropbox;
+		}
+
+		/**
+		 * @param inDropbox The value for inDropbox to set.
+		 */
+		public void setInDropbox(boolean inDropbox) 
+		{
+			this.m_inDropbox = inDropbox;
 		}
 
 	}	// inner class BrowseItem

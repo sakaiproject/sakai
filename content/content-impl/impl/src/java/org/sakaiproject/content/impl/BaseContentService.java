@@ -816,6 +816,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		return lock;
 	}
+	
+	/**
+	 * Check whether an id would identify an entity in a dropbox.  Does not determine existence of the entity, just whether its id indicates it is a dropbox or contained within a dropbox.
+	 * @return true if the entity is a dropbox or in a dropbox, false otherwise. 
+	 */
+	public boolean isInDropbox(String entityId)
+	{
+		return entityId.startsWith("/group-user");
+	}
 
 	/**
 	 * Check security permission.

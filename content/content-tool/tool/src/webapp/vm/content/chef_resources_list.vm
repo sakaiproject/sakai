@@ -618,6 +618,8 @@
 							<td headers="access" title="$member.effectiveGroups">
 								#if($member.isPubviewInherited() || $member.isPubview())
 									$tlang.getString("access.public")
+								#elseif($member.isInDropbox())
+									$tlang.getString("access.dropbox")
 								#elseif("$effectiveAccess" == "$INHERITED_ACCESS" || "$effectiveAccess" == "$SITE_ACCESS")
 									$tlang.getString("access.site")
 								#elseif("$effectiveAccess" == "$GROUP_ACCESS")
@@ -1086,6 +1088,8 @@
 									<td headers="access" title="$member.effectiveGroups">
 										#if($member.isPubviewInherited() || $member.isPubview())
 											$tlang.getString("access.public")
+										#elseif($member.isInDropbox())
+											$tlang.getString("access.dropbox")
 										#elseif("$effectiveAccess" == "$INHERITED_ACCESS" || "$effectiveAccess" == "$SITE_ACCESS")
 											$tlang.getString("access.site")
 										#elseif("$effectiveAccess" == "$GROUP_ACCESS")

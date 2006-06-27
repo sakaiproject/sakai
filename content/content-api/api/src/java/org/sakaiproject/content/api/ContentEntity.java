@@ -42,4 +42,5 @@ public interface ContentEntity extends GroupAwareEntity
 	 * @return true if the entity implements the ContentCollection interface, false otherwise.
 	 */
 	public boolean isCollection();
+	
 }

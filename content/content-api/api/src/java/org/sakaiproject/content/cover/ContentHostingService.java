@@ -871,6 +871,14 @@ public class ContentHostingService
 
 		return service.getDropboxDisplayName(param0);
 	}
+	
+	public static boolean isInDropbox(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isInDropbox(param0);
+	}
 
 	public static java.util.Comparator newContentHostingComparator(java.lang.String param0, boolean param1)
 	{

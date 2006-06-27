@@ -1323,6 +1323,13 @@ public interface ContentHostingService extends EntityProducer
 	public String getDropboxDisplayName(String siteId);
 	
 	/**
+	 * Check whether an id would identify an entity in a dropbox.  Does not determine existence of the entity, 
+	 * just whether its id indicates it is a dropbox or contained within a dropbox.
+	 * @return true if the entity is a dropbox or in a dropbox, false otherwise. 
+	 */
+	public boolean isInDropbox(String entityId);
+	
+	/**
 	 * Construct a content hosting comparator.
 	 * 
 	 * @param property
