@@ -157,7 +157,7 @@ public class LoginServlet
             path = "/jsf/delivery/login.faces";
           else{
             relativePath = false;
-            path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
+            path = "/portal/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
 	  }
         }
         else { //isAuthenticated but not authorized

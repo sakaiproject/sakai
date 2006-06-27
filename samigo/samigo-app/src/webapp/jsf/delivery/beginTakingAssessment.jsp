@@ -160,8 +160,8 @@
   </h:commandButton>
 
   <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="button"
-     style="act" onclick="javascript:window.open('/portal/','_top')"
-onkeypress="javascript:window.open('/portal/','_top')"
+     style="act" onclick="javascript:window.open('/portal/login','_top')"
+onkeypress="javascript:window.open('/portal/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
      disabled="#{delivery.actionString=='previewAssessment'}"/>
 </p>
