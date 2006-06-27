@@ -175,7 +175,12 @@ public class QuestionScoreListener
       if (cu.lookupParam("newItemId") != null &&
           !cu.lookupParam("newItemId").trim().equals(""))
         itemId = cu.lookupParam("newItemId");
-
+      
+      if (cu.lookupParam("sortAscending") != null &&
+      		!cu.lookupParam("sortAscending").trim().equals("")){
+      	bean.setSortAscending(Boolean.valueOf(cu.lookupParam("sortAscending")).booleanValue());
+      }
+      
       String which = bean.getAllSubmissions();
       if (which == null && totalBean.getAllSubmissions() != null)
       {
@@ -562,8 +567,15 @@ public class QuestionScoreListener
         bs.toStringSort();
       }
 
-
-      bs.sort();
+      if (bean.isSortAscending()) {
+      	log.debug("sortAscending");
+      	agents = (ArrayList)bs.sort();
+      }
+      else {
+      	log.debug("!sortAscending");
+      	agents = (ArrayList)bs.sortDesc();
+      }
+      
       //log.info("Listing agents.");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());

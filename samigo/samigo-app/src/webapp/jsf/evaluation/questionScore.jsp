@@ -240,30 +240,6 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     var="description" styleClass="listHier" columnClasses="textTable">
 
     <!-- NAME/SUBMISSION ID -->
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'lastName'}">
-     <f:facet name="header">
-        <h:outputText value="#{msg.name}" />
-     </f:facet>
-     <h:panelGroup>
-       <h:outputText value="<a name=\"" escape="false" />
-       <h:outputText value="#{description.lastInitial}" />
-       <h:outputText value="\"></a>" escape="false" />
-       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
-         <h:outputText value="#{description.firstName}" />
-         <h:outputText value=" " />
-         <h:outputText value="#{description.lastName}" />
-	 <h:outputText value="#{description.idString}" rendered="#{description.lastInitial eq 'Anonymous'}" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
-         <f:actionListener
-            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
-         <f:param name="studentid" value="#{description.idString}" />
-         <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
-         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
-       </h:commandLink>
-     </h:panelGroup>
-    </h:column>
-
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType ne 'lastName'}">
      <f:facet name="header">
         <h:commandLink title="#{msg.t_sortLastName}" id="lastName" action="questionScores">
@@ -273,6 +249,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         <f:param name="sortBy" value="lastName" />
+        <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
      <h:panelGroup>
@@ -294,6 +271,70 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
      </h:panelGroup>
     </h:column>
 
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'lastName' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortLastName}" action="questionScores">
+          <h:outputText value="#{msg.name}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortLastNameDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+     <h:panelGroup>
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
+         <h:outputText value="#{description.firstName}" />
+         <h:outputText value=" " />
+         <h:outputText value="#{description.lastName}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+     </h:panelGroup>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'lastName' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortLastName}" action="questionScores">
+          <h:outputText value="#{msg.name}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortLastNameAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+     <h:panelGroup>
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
+         <h:outputText value="#{description.firstName}" />
+         <h:outputText value=" " />
+         <h:outputText value="#{description.lastName}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+     </h:panelGroup>
+    </h:column>  
+
+
+	<!-- SUBMISSION ID -->
     <h:column rendered="#{questionScores.anonymous eq 'true' && questionScores.sortType ne 'assessmentGradingId'}">
      <f:facet name="header">
         <h:commandLink title="#{msg.t_sortSubmissionId}" action="questionScores">
@@ -317,14 +358,21 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
-
      </h:panelGroup>
     </h:column>
 
-    <h:column rendered="#{questionScores.anonymous eq 'true' && questionScores.sortType eq 'assessmentGradingId'}">
-     <f:facet name="header">
+    <h:column rendered="#{questionScores.anonymous eq 'true' && questionScores.sortType eq 'assessmentGradingId' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmissionId}" action="questionScores">
           <h:outputText value="#{msg.sub_id}" />
-     </f:facet>
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortSubmissionIdDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
      <h:panelGroup>
        <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
          <h:outputText value="#{description.assessmentGradingId}" />
@@ -338,7 +386,35 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
      </h:panelGroup>
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.anonymous eq 'true' && questionScores.sortType eq 'assessmentGradingId' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmissionId}" action="questionScores">
+          <h:outputText value="#{msg.sub_id}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortSubmissionIdAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+      <h:panelGroup>
+       <h:commandLink title="#{msg.t_student}" action="studentScores" immediate="true">
+         <h:outputText value="#{description.assessmentGradingId}" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+         <f:actionListener
+            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="studentName" value="#{description.assessmentGradingId}" />
+         <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+     </h:panelGroup>
+    </h:column>  
+
 
    <!-- STUDENT ID -->
     <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType!='idString'}" >
@@ -350,17 +426,42 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         <f:param name="sortBy" value="idString" />
+        <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.idString}" />
     </h:column>
 
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString'}" >
-     <f:facet name="header">
-       <h:outputText value="#{msg.uid}" />
-     </f:facet>
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortUserId}" action="questionScores">
+          <h:outputText value="#{msg.uid}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortUserIdDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
         <h:outputText value="#{description.idString}" />
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortUserId}" action="questionScores">
+          <h:outputText value="#{msg.uid}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortUserIdAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText value="#{description.idString}" />
+    </h:column>      
+
 
     <!-- ROLE -->
     <h:column rendered="#{questionScores.sortType ne 'role'}">
@@ -372,17 +473,42 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         <f:param name="sortBy" value="role" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.role}"/>
     </h:column>
 
-    <h:column rendered="#{questionScores.sortType eq 'role'}">
-     <f:facet name="header" >
-       <h:outputText value="#{msg.role}" />
-     </f:facet>
+    <h:column rendered="#{questionScores.sortType eq 'role' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortRole}" action="questionScores">
+          <h:outputText value="#{msg.role}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortRoleDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
         <h:outputText value="#{description.role}"/>
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.sortType eq 'role' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortRole}" action="questionScores">
+          <h:outputText value="#{msg.role}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortRoleAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText value="#{description.role}"/>
+    </h:column>      
+
 
     <!-- DATE -->
     <h:column rendered="#{questionScores.sortType!='submittedDate'}">
@@ -394,6 +520,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         <f:param name="sortBy" value="submittedDate" />
+        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.submittedDate}">
@@ -404,16 +531,44 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           rendered="#{description.isLate}"/>
     </h:column>
 
-    <h:column rendered="#{questionScores.sortType=='submittedDate'}">
-     <f:facet name="header">
-       <h:outputText value="#{msg.date}" />
-     </f:facet>
+    <h:column rendered="#{questionScores.sortType eq 'submittedDate' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="questionScores">
+          <h:outputText value="#{msg.date}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortSubmittedDateDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
         <h:outputText value="#{description.submittedDate}">
          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
         </h:outputText>
         <h:outputText styleClass="red" value="#{msg.all_late}" escape="false"
           rendered="#{description.isLate}"/>
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.sortType eq 'submittedDate' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="questionScores">
+          <h:outputText value="#{msg.date}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortSubmittedDateAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+        <h:outputText value="#{description.submittedDate}">
+         <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+        </h:outputText>
+        <h:outputText styleClass="red" value="#{msg.all_late}" escape="false"
+          rendered="#{description.isLate}"/>
+    </h:column>    
+
 
     <!-- SCORE -->
     <h:column rendered="#{questionScores.sortType!='totalAutoScore'}">
@@ -425,6 +580,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
         <f:param name="sortBy" value="totalAutoScore" />
+        <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
       <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" required="false">
@@ -433,16 +589,44 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 <br />
  <h:message for="qscore" style="color:red"/>
  </h:column>
-    <h:column rendered="#{questionScores.sortType=='totalAutoScore'}">
+ 
+ 
+    <h:column rendered="#{questionScores.sortType eq 'totalAutoScore' && questionScores.sortAscending}">
       <f:facet name="header">
-        <h:outputText value="#{msg.score}" />
+        <h:commandLink title="#{msg.t_sortScore}" action="questionScores">
+          <h:outputText value="#{msg.score}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortAdjustScoreDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
       </f:facet>
-      <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" required="false">
-<f:validateDoubleRange/>
-</h:inputText>
-
- <h:message for="qscore2" style="color:red"/>
-    </h:column>
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" required="false">
+	  	<f:validateDoubleRange/>
+	  </h:inputText>
+	  <h:message for="qscore2" style="color:red"/>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.sortType eq 'totalAutoScore' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortScore}" action="questionScores">
+          <h:outputText value="#{msg.score}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortAdjustScoreAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore3" required="false">
+	  	<f:validateDoubleRange/>
+	  </h:inputText>
+	  <h:message for="qscore2" style="color:red"/>
+    </h:column>    
+ 
 
     <!-- ANSWER -->
     <h:column rendered="#{questionScores.sortType!='answer'}">
@@ -458,6 +642,7 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
             <f:actionListener
                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
             <f:param name="sortBy" value="answer" />
+            <f:param name="sortAscending" value="true" />
           </h:commandLink>
         </h:panelGroup>
       </f:facet>
@@ -497,12 +682,36 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
       </h:panelGroup>
     </h:column>
 
-    <h:column rendered="#{questionScores.sortType=='answer'}">
+    <h:column rendered="#{questionScores.sortType eq 'answer' && questionScores.sortAscending}">
       <f:facet name="header">
-        <h:outputText value="#{msg.stud_resp}" />
+        <h:commandLink title="#{msg.t_sortResponse}" action="questionScores">
+          <h:outputText value="#{msg.stud_resp}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortResponseDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
       </f:facet>
       <h:outputText value="#{description.answer}" escape="false" />
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortResponse}" action="questionScores">
+          <h:outputText value="#{msg.stud_resp}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortResponseAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+      <h:outputText value="#{description.answer}" escape="false" />
+    </h:column> 
+
 
     <!-- COMMENT -->
     <h:column rendered="#{questionScores.sortType!='comments'}">
@@ -524,17 +733,46 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 --%>
     </h:column>
 
-    <h:column rendered="#{questionScores.sortType=='comments'}">
-     <f:facet name="header">
-        <h:outputText value="#{msg.comment}" />
-     </f:facet>
+    <h:column rendered="#{questionScores.sortType eq 'comments' && questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortComment}" action="questionScores">
+          <h:outputText value="#{msg.comment}" />
+          <f:param name="sortAscending" value="false" />
+          <h:graphicImage alt="#{msg.alt_sortCommentDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
  <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
 <%-- temp replaced by inputTextArea until resize is introduced
      <samigo:wysiwyg rows="140" value="#{description.comments}" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
 --%>
-    </h:column>
+    </h:column>    
+    
+    <h:column rendered="#{questionScores.sortType eq 'comments' && !questionScores.sortAscending}">
+      <f:facet name="header">
+        <h:commandLink title="#{msg.t_sortComment}" action="questionScores">
+          <h:outputText value="#{msg.comment}" />
+          <f:param name="sortAscending" value="true" />
+          <h:graphicImage alt="#{msg.alt_sortCommentAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+      	  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
+          <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+          </h:commandLink>    
+      </f:facet>
+ <h:inputTextarea value="#{description.comments}" rows="3" cols="30"/>
+<%-- temp replaced by inputTextArea until resize is introduced
+     <samigo:wysiwyg rows="140" value="#{description.comments}" >
+       <f:validateLength maximum="4000"/>
+     </samigo:wysiwyg>
+--%>
+    </h:column> 
+
   </h:dataTable>
 </div>
 <p class="act">
