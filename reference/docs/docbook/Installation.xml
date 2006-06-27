@@ -19,7 +19,7 @@
                     <varlistentry>
                         <term>Demo</term>
                         <listitem>
-                            <para>this archive provides the quickest and easiest way to try out
+                            <para>This archive provides the quickest and easiest way to try out
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
                                 that the only prerequisite for getting started is Java (v. 1.4.2 or
                                 higher).</para>
@@ -28,21 +28,19 @@
                     <varlistentry>
                         <term>Binary</term>
                         <listitem>
-                            <para>this archive is a kind of Tomcat overlay. If you have a working
+                            <para>This archive is a kind of Tomcat overlay. If you have a working
                                 Tomcat appropriately configured, the binary installation provides a
                                 quick way to drop the Sakai application bundle into place without
-                                requiring a maven build. This may be a good choice if you're already
-                                comfortable with Sakai installation and configuration, but it is not
-                                recommended for a first look at the software.</para>
+                                requiring a maven build. This may be a good choice if you know you don't need to make any code-level changes.</para>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
                         <term>Source</term>
                         <listitem>
-                            <para>this archive includes only the source code to build Sakai, and
+                            <para>This archive includes only the source code to build Sakai, and
                                 therefore calls for separate, preparatory installations of Tomcat
                                 and the Maven build tool, along with (most likely) a preferred
-                                database.</para>
+                                database.  The installation and configuration of these components comprises the bulk of this installation guide.</para>
                         </listitem>
                     </varlistentry>
                 </variablelist>
@@ -53,13 +51,12 @@
             <para>A demo installation is brief and straightforward. The steps are as follows:</para>
             <procedure>
                 <step>
-                    <para>Verify Java Installation and Environment Variables (see "Set up
-                        Environment").</para>
+                    <para>Verify Java Installation and Environment Variables (see <link linkend="install-env">Set up Environment</link>).</para>
                     <note>
                         <title>Tuning the JVM</title>
                         <para>The default JVM is not sufficient to run Sakai out of the box, and
                             some of its settings will need to be adjusted by setting a new
-                            environment variable called JAVA_OPTS. See the "Set up Environment"
+                            environment variable called JAVA_OPTS. See the <link linkend="install-env">Set up Environment</link>
                             section.</para>
                     </note>
                 </step>
@@ -67,10 +64,10 @@
                     <para>Download and unpack the Demo archive</para>
                     <itemizedlist>
                         <listitem>
-                            <para>"Windows archive"</para>
+                            <para><link xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip">Windows demo archive</link></para>
                         </listitem>
                         <listitem>
-                            <para>"Mac/*nix archive"</para>
+                            <para><link xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz">Mac/*nix archive</link></para>
                         </listitem>
                     </itemizedlist>
                 </step>
@@ -97,11 +94,11 @@
                 </step>
             </procedure>
             <para>Once Tomcat is started up, you can point your browser to
-                "http://localhost:8080/portal". This will bring you to the Sakai gateway site where
+                <link xl:href="http://localhost:8080/portal">http://localhost:8080/portal</link>. This will bring you to the Sakai gateway site where
                 you can log in using the default administrator's account (the user id and password
-                are both 'admin'). New user accounts can be created from the "User" tool in the
-                admin workspace, or by using the "New Account" link on the gateway page. New sites
-                can be created using the "Worksite Setup" tool.</para>
+                are both 'admin'). New user accounts can be created from the <emphasis>User</emphasis> tool in the
+                admin workspace, or by using the <emphasis>New Account</emphasis> link on the gateway page. New sites
+                can be created using the <emphasis>Worksite Setup</emphasis> tool.</para>
             <para>To stop the demo:</para>
             <variablelist>
                 <varlistentry>
@@ -146,7 +143,7 @@
         <sect2 xml:id="install-overview-binary">
             <title>Binary Installation</title>
             <para>The Binary installation of Sakai provides a shortcut for those that already have
-                Tomcat in place and configured as needed (see "Set up Environment" for details on
+                Tomcat in place and configured as needed (see <link linkend="install-env">Set up Environment</link> for details on
                 Tomcat configuration), and it does so by providing a pre-built Sakai that can simply
                 be dropped into place. All you need to do is unpack the binary archive at the root
                 Tomcat directory, and the appropriate wars, jars, etc., will be deposited in the
@@ -154,34 +151,52 @@
             <para>If you wish to configure a binary installation you'll need to manually create a
                     <filename>sakai</filename> directory in <command>$CATALINA_HOME</command> to
                 hold your <filename>sakai.properties</filename> file, as described in
-                "Post-Installation Configuration".</para>
+                <link linkend="install-config">Post-Installation Configuration</link>.</para>
         </sect2>
         <sect2 xml:id="install-overview-source">
             <title>Source Installation</title>
             <para>The Demo and Binary installs described above provide quick ways to get up and
-                running, but assume that no code customization is called for. The remainder of this
-                installation guide is focused on the more rigorous and customizable Source
+                running, but assume that no code-level changes are called for. The remainder of this
+                installation guide devotes itself to the more rigorous and customizable Source
                 installation, the steps of which may be organized into the following phases:</para>
             <orderedlist>
                 <listitem>
-                    <para>"Set up Environment", including Java, Tomcat, and Maven.</para>
+                    <para><link linkend="install-env">Set up Environment</link>, including Java, Tomcat, and Maven.</para>
                 </listitem>
                 <listitem>
-                    <para>"Build and Deploy" Sakai by running Maven.</para>
+                    <para><link linkend="install-build">Build and Deploy</link> Sakai by running Maven.</para>
                 </listitem>
                 <listitem>
-                    <para>Perform appropriate "Post-installation Configuration" of the
+                    <para>Perform appropriate <link linkend="install-config">Post-installation Configuration</link> of the
                     application.</para>
                 </listitem>
                 <listitem>
                     <para>If you want to configure Sakai for either MySQL or Oracle, perform the
-                        requisite "Database Configuration".</para>
+                        requisite <link linkend="install-dbconfig">Database Configuration</link>.</para>
                 </listitem>
             </orderedlist>
         </sect2>
         <sect2 xml:id="install-overview-migrating">
             <title>Migrating from a Previous Release</title>
-            <para/>
+            <para>Since there have been a number of changes in tools, DB schema, and APIs, migrating to 2.2 from a previous release requires close attention to detail.  Be sure to go over the release notes carefully, and a few potential stumbling points are identified below:</para>
+            <variablelist>
+               <varlistentry>
+                   <term>sakai.properties</term>
+                   <listitem><para>The 2.2 refactoring means that many package names have changed, and these differences will mainly be encountered in sakai.properties settings which reference beans.  It's best to not try to use a sakai.properties from a previous release, and instead start with the sample in reference/docs/sakai.properties.</para></listitem>
+                   </varlistentry>
+                <varlistentry>
+                    <term>DB conversion scripts</term>
+                    <listitem><para>Every release has DB conversion scripts, and 2.2 is no exception.  Be sure, however, to read these scripts over carefully before executing them on your production data.  They do not take into account any special customizations you may have done, and you may need to alter them for your situation.  See the <link linkend="install-dbconfig">Database Configuration</link> section for more details.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>provisional tools</term>
+                    <listitem><para>A few contrib tools that schools may have already put into production are now provisional with the 2.2 release.  The DB conversion scripts in particular assume that these new provisional tools are not represented in your schema, and attempt to introduce them.  If you have already deployed Message Center, Post 'Em, Search, or Summary Calendar on a production system, you'll want to be sure to avoid running the portions of the conversion scripts that pertain to them.  Again, see the <link linkend="install-dbconfig">Database Configuration</link> section for more details.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>providers</term>
+                    <listitem><para>Among the changes that 2.2 introduces is a separation of external user identifiers from Sakai's internal user ids.  Any custom <filename>UserDirectoryProvider</filename> will need some alteration to account for this, along with changes to its import statements and declarations that stem from API changes.  See the <link xl:href="release_notes.html">release notes</link> for more details.</para></listitem>
+                </varlistentry>
+            </variablelist>
         </sect2>
     </sect1>
     <sect1 xml:id="install-env">
@@ -215,20 +230,17 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
         </sect2>
         <sect2>
             <title>Verify Java Environment Variables</title>
-            <para>Set the "JAVA_HOME" environment variable to point to the base directory of your
-                Java installation, which will enable Tomcat to find the right Java installation.
-                This may already have been set up for you by your Java installation, but it should
-                be double-checked.</para>
-            <para>In UNIX operating systems you typically modify a startup file like ~/.bash_login
-                to set and export these shell variables. For Windows XP you would go to
-                    <emphasis>Start -> Control Panel -> System -> Advanced -> Environment
-                Variables</emphasis> and then set them to point to the correct locations (samples
+            <para>There are three Java environment variables you'll want to set for everything to function as it should, and though some of them may have already been set by your Java installation (depending on your platform), you'll want to double-check them all.  You can also look at the <link
+                xl:href="http://java.sun.com/j2se/1.5.0/install.html">Sun Java Installation
+                Instructions</link> page at the Java web site for further details.</para>
+            <para>First you'll need to set the <command>JAVA_HOME</command> environment variable to point to the base directory of your Java installation, which will enable Tomcat to find it. In UNIX operating systems you typically modify a startup file like <filename>~/.bash_login</filename> to set and export these shell variables, while for Windows XP you would go to
+<emphasis>Start -> Control Panel -> System -> Advanced -> Environment Variables</emphasis> and then set them to point to the correct locations through the text fields of the GUI (samples
                 below):</para>
             <variablelist>
                 <varlistentry>
                     <term>Windows</term>
                     <listitem>
-                        <para> Set the environment variable <command>JAVA_HOME</command> to
+                        <para> Set the (or create a new) environment variable <command>JAVA_HOME</command> to
                                 <command>C:\jdk1.5.0_06</command>. </para>
                     </listitem>
                 </varlistentry>
@@ -265,21 +277,39 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
+            <para>Finally, you'll need to set an environment variable that will increase the size and performance of your JVM (Java Virtual Machine - the default JVM settings are unfortunately not sufficient for Sakai), and the variable is named <command>JAVA_OPTS</command>.  The value suggested below should be suitable for developers or demo installations.</para>
+            <variablelist>
+                <varlistentry>
+                    <term>Windows</term>
+                    <listitem>
+                        <para> Create a new environment variable <command>JAVA_OPTS</command> to
+                            hold the value <command>-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m</command>. </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Mac/*nix</term>
+                    <listitem>
+                        <para>
+                            <command>export JAVA_HOME="-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</command>
+                        </para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <note>
+                <title>More on JVM Tuning</title>
+                <para>The above <command>JAVA_OPTS</command> settings are, it must be emphasized once again, minimal.  For settings more suitable for production servers, see the <link linkend="install-config-jvm">JVM Tuning</link> section of Post-Installation Configuration.</para>
+            </note>
             <para>You should test that these variables are set correctly. In both Windows XP and
-                *nix operating systems you can simply start a new shell and type the 'set' command
-                to see your environment variables. You may run the <command>java -version</command>
-                command once more as a final check. You can also look for the <link
-                    xl:href="http://java.sun.com/j2se/1.5.0/install.html">Sun Java Installation
-                    Instructions</link> page at the Java web site for further details.</para>
+                *nix operating systems you can simply start a new shell and type the <command>set</command> command to see your environment variables.</para>
         </sect2>
         <sect2>
             <title>Install Tomcat</title>
-            <para>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17. Tomcat can be downloaded as a binary
+            <para>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17, and so that's the version we recommend, although the latest stable version will most likely not present problems. Tomcat can be downloaded as a binary
                 from <link xl:href="http://tomcat.apache.org/download-55.cgi"
                     >http://tomcat.apache.org/download-55.cgi</link>. The distribution you want is
                 the one labeled <emphasis>Core</emphasis>, along with the <emphasis>JDK 1.4
                     Compatibility Package</emphasis> (even if you're using Java 1.5, some portions
-                of the Sakai code will need the compatibility package).</para>
+                of the Sakai code will require the compatibility package, and Sakai won't start up without it).</para>
             <note>
                 <title>Tomcat on Windows</title>
                 <para>Windows users have the option of either downloading an .exe Tomcat installer
@@ -288,12 +318,11 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     details, and for brevity's sake it's recommended that you grab the .zip. Sakai
                     requires some tuning of the JVM, and the service install manages these settings
                     through the registry rather than environment variables (see Tomcat installation
-                    instructions for more details). It's the latter approach that these instructions
-                    assume.</para>
+                    instructions for more details if you're committed to installing Tomcat as a service).</para>
             </note>
             <para>Unpack the Tomcat archive at your desired location, and unpack the compatibility
                 package directly on top of it. From this point forward these instructions will refer
-                to the top-level Tomcat directory (e.g. apache-tomcat-5.5.17) as $CATALINA_HOME. You
+                to the top-level Tomcat directory (e.g. <filename>apache-tomcat-5.5.17</filename>) as <command>$CATALINA_HOME</command>. You
                 may set this as an environment variable for convenience's sake, but this is not
                 required. Make sure that you have write permissions to the Tomcat files and
                 directories before proceeding, or you may later run into errors during the build
@@ -304,22 +333,23 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             <para>Sakai supports UTF-8, allowing for non-Roman characters, but this requires that
                 Tomcat be configured to accept UTF-8 URLs since it ships with ISO-8859-1 as the
                 default URL encoding. To change this setting, edit
-                    <command>$CATALINA_HOME/conf/server.xml</command>. Add the attribute
+                    <filename>$CATALINA_HOME/conf/server.xml</filename>. Add the attribute
                     <command>URIEncoding="UTF-8"</command> to the &lt;connector&gt; element.
                 For example:</para>
-            <screen>&lt;Connector port="8080" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+            <screen>
+&lt;Connector port="8080" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
 enableLookups="false" redirectPort="8443" acceptCount="100" debug="0" 
 connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</screen>
             <para>If you want to run Tomcat on different ports than the defaults, this would also be
-                a good time to make those changes in the server.xml file. See <link
+                a good time to make those changes in the <filename>server.xml</filename> file. See <link
                     xl:href="http://tomcat.apache.org/tomcat-5.5-doc/config/http.html">Tomcat
                     configuration</link> documentation for more details.</para>
-            <para> If you're going to run Tomcat as your sole web server (i.e. if you're not going
-                to connect it to Apache) then you'll want to make a further minor change that may
-                spare some confusion later. The ROOT webapp is the one served up when a request is
+            <para> If you're going to run Tomcat as a standalone web server (i.e. if you're not going
+                to connect it to the Apache web server) then you'll want to make a further minor change that may
+                spare some confusion later. The <filename>ROOT</filename> webapp is the one served up when a request is
                 made to your Tomcat's root URL, and so if you want users to be re-directed
-                automatically to the Sakai application, you'll want to insert an index.html file
-                into webapps/ROOT that prompts this re-direction. It should look something like: </para>
+                automatically to the Sakai application, you'll want to insert an <filename>index.html</filename> file
+                into <filename>webapps/ROOT</filename> that prompts this re-direction. It should look something like: </para>
             <screen>
 &lt;html&gt;
     &lt;head&gt;
@@ -329,7 +359,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
         redirecting to /portal ...
     &lt;/body&gt;
 &lt;/html&gt;</screen>
-            <para>If you don't make this change you (and your users) will need to append '/portal'
+            <para>If you don't make this change you (and your users) will need to append '<command>/portal</command>'
                 to the URL entered to access Sakai each time. If you intend to connect Tomcat with
                 Apache, you can handle this issue as a matter of Apache configuration, which is
                 however outside the scope of this document.</para>
@@ -360,7 +390,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     <term>Windows</term>
                     <listitem>
                         <para> Create a new <command>MAVEN_HOME</command> environment variable to
-                                <command>C:\maven-1.0.2</command> Append to the PATH variable
+                                <command>C:\maven-1.0.2</command>.  Then append to the PATH variable
                                 <command>;C:\maven-1.0.2\bin</command>
                         </para>
                     </listitem>
@@ -369,7 +399,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     <term>Mac/*nix</term>
                     <listitem>
                         <para>
-                            <command>export MAVEN_HOME=/usr/local/maven export
+                            <command>export MAVEN_HOME=/usr/local/maven; export
                                 PATH=$PATH:$MAVEN_HOME/bin</command>
                         </para>
                     </listitem>
@@ -397,7 +427,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
             </variablelist>
             <para>Finally, you'll need to create a build properties file in your home directory
                 which will define some basic parameters for your Sakai build. Simply create a new
-                text file with the filename build.properties in your home directory, and paste in
+                text file with the filename <filename>build.properties</filename> in your home directory, and paste in
                 the following contents:</para>
             <screen>
 maven.repo.remote=http://source.sakaiproject.org/maven/
@@ -557,7 +587,7 @@ smtp.enabled = true</screen>
                 non-restricted port, then. For example:</para>
             <screen>smtp.port = 8025</screen>
         </sect2>
-        <sect2>
+        <sect2 xml:id="install-config-jvm">
             <title>JVM Tuning</title>
             <para>The default Java virtual machine is not adequate to run an application of Sakai's
                 size, and several JVM parameters must be increased to a certain threshold for Sakai
@@ -586,8 +616,7 @@ smtp.enabled = true</screen>
                 with a bare minimum which will at least avoid "Out of Memory" errors, and be
                 suitable for developer installs of the software:</para>
             <screen>
-JAVA_OPTS="-server -Xms512m -Xmx768m -XX:NewSize=192m -XX:MaxNewSize=384m 
--XX:PermSize=96m -XX:MaxPermSize=160m"</screen>
+JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</screen>
             <para>This is an adequate - if minimal - starting point: it selects server mode, sets an
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
@@ -600,13 +629,13 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
             <para>This is better: a larger heap size is set for smoother performance, we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
                 are set to be the same values, and garbage collection messages are turned on.
-                Another important setting is the NewSize - what is important is the ratio of NewSize
+                Another important consideration is the ratio of NewSize
                 to the size of the heap. We want as large a NewSize as we can fit in the total heap,
                 while keeping the total heap significantly bigger than NewSize in order for Java to
                 properly garbage collect.</para>
             <para>As you can see, there's a lot to think about here, and in practice each
                 implementing institution uses their own particular JAVA_OPTS that they've settled on
-                for their deployment and hardware; these typically use more option arguments than
+                for their deployment and hardware, and they often use more option arguments than
                 we've shown here. This discussion is meant only as a head start, and there is no
                 replacement for doing your own testing.</para>
             <para>In any event, once you set JAVA_OPTS Tomcat will see this environment variable

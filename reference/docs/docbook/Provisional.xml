@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0b5/rng/docbook.rng" type="xml"?>
+<article xmlns="http://docbook.org/ns/docbook" xml:lang="en" xmlns:xl="http://www.w3.org/1999/xlink"
+    version="5.0">
+    
+    <info>
+        <title>Provisional Tools</title>
+        <author>
+            <personname>Clay Fenlason</personname>
+        </author>
+        <edition>15 June 2006 – Document version 2.2</edition>
+    </info>
+    
+    <sect1 xml:id="provisional">
+        <title>What Makes a Tool Provisional</title>
+        <para>A provisional tool is one which is considered to be mature enough to be included in the release distribution, but is not (yet) considered to be an official part of the enterprise bundle, and which does not come enabled by default. Additional steps are required to enable these additional tools, per the discretion of the deploying institutions or individuals.</para>
+        <para>The basic idea of a provisional tools is to allow sites to have readier access to these blossoming tools, for testing and evaluation.  If they meet needs and success is reported in production, they may be included as a standard part of the bundle in future releases. Your feedback on the suitability of these tools for inclusion in an upcoming Sakai release is therefore an important part of this process.</para>
+        <para>You'll find a more complete treatment of the criteria for provisional status among the "community practices" posted on Confluence:  <link xl:href="http://bugs.sakaiproject.org/confluence/display/SCP/Criteria+for+Provisional+Status">Criteria for Provisional Status</link></para>
+    </sect1> 
+    <sect1 xml:id="unstealth">
+        <title>Unstealthing Tools</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="rwiki">
+        <title>Rwiki</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="su">
+        <title>SU</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="sakaiscript">
+        <title>Sakaiscript</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="roster">
+        <title>Roster</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="twinpeaks">
+        <title>TwinPeaks</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="messagecenter">
+        <title>Message Center</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="postem">
+        <title>Post 'Em</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="summarycalendar">
+        <title>Summary Calendar</title>
+        <para></para>
+    </sect1>
+    <sect1 xml:id="search">
+            <title>Search</title>
+            <para></para>
+    </sect1></article>
