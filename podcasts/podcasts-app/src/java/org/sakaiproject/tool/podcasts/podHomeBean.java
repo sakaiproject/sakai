@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.podcasts;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +33,7 @@ import javax.faces.context.FacesContext;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -256,25 +258,45 @@ public class podHomeBean {
 			while (podcastIter.hasNext() ) {
 				try {
 					// get its properties from ContentHosting
-					ResourceProperties podcastProperties = ((ContentResource) podcastIter.next()).getProperties();
+					ContentResource podcastResource = (ContentResource) podcastIter.next();
+					ResourceProperties podcastProperties = podcastResource.getProperties();
 			
 					// Create a new decorated bean to store the info
 					DecoratedPodcastBean podcastInfo = new DecoratedPodcastBean();
 
 					// fill up the decorated bean
+					
+					// store Title and Description
 					podcastInfo.setTitle(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 					podcastInfo.setDescription(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
 
+					// store Display date
 					// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
 					SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
 					Date tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 					podcastInfo.setDisplayDate(formatter.format(tempDate));
 										
+					// store actual filename (for revision/deletion purposes?)
 					podcastInfo.setFilename(podcastProperties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME));
-					podcastInfo.setSize(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+
+					// store formatted file size
+					// determine whether to display filesize as bytes or MB
+					long size = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+					double sizeMB = size / (1024.0*1024.0); 
+					DecimalFormat df = new DecimalFormat("#.#");
+					String sizeString;
+					if ( sizeMB >  0.3) {
+						sizeString = df.format(sizeMB) + "MB";
+					}
+					else {
+						df.applyPattern("#,###");
+						sizeString = "" + df.format(size) + " bytes";
+					}
+					podcastInfo.setSize(sizeString);
 					
 					// TODO: figure out how to determine/store content type
-					podcastInfo.setType(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+//					podcastInfo.setType( ContentTypeImageService.getContentType( );
+					podcastInfo.setType( "MP3" );
 
 					// get and format last modified time
 					formatter.applyPattern("hh:mm a z" );

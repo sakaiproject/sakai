@@ -69,8 +69,8 @@
 	      <redirect />
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO addPodcast -->
-	        <from-outcome>addPodcast</from-outcome>
-	        <to-view-id>/podcasts/addPodcast.jsp</to-view-id>
+	        <from-outcome>podcastAdd</from-outcome>
+	        <to-view-id>/podcasts/podAdd.jsp</to-view-id>
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podPermissions -->
 	        <from-outcome>podcastPermissions</from-outcome>
@@ -82,7 +82,11 @@
 	    </navigation-case>
 	    <navigation-case>  <!-- GOTO podRevise -->
 	      <from-outcome>podcastRevise</from-outcome>
-	      <to-view-id>/podcasts/revisePodcast.jsp</to-view-id>
+	      <to-view-id>/podcasts/podRevise.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case> <!-- GOTO podDelete -->
+	      <from-outcome>podcastDelete</from-outcome>
+	      <to-view-id>/podcasts/podDelete.jsp</to-view-id>
 	    </navigation-case>
 	</navigation-rule>
 	

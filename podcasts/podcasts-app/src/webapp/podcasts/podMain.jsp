@@ -12,7 +12,7 @@
         <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
     <h:form>
       <sakai:tool_bar>
-          <sakai:tool_bar_item action="addPodcast" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists}" />
           <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.resourceToolExists}" />
           <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" rendered="#{podHomeBean.resourceToolExists}" />
       </sakai:tool_bar>
@@ -46,36 +46,36 @@
             <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
 			<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat podPosition" />
+            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
 			<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.description}" styleClass="podPosition" />
+            <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat podPosition" />
 			<f:verbatim><br /></f:verbatim>
             
             <!--  Download link -->
-            <f:verbatim><div class="podLinksFormat podPosition" ></f:verbatim>
+            <f:verbatim><div class="podLinksPosition" ></f:verbatim>
               <h:commandLink action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" styleClass="active" />
 
               <h:outputText value=" (" />
               <h:outputText value="#{eachPodcast.size}" />
             
-              <h:outputText value=" " />
-              <h:outputText value="#{eachPodcast.type}" />
+              <h:outputText value=" " /> <!--  type -->
+              <h:outputText value="#{eachPodcast.filename}" />
 
               <!--  go to Revise page -->
               <h:outputText value=") | " />
-              <h:commandLink action="revise" value="#{msgs.revise}" styleClass="active" />
+              <h:commandLink action="podcastRevise" value="#{msgs.revise}" styleClass="active" />
                  
               <!--  go to Delete page --> 
               <h:outputText value=" | " />
-              <h:commandLink action="delete" value="#{msgs.delete}" styleClass="active" />
-            <f:verbatim></div></f:verbatim>
+              <h:commandLink action="podcastDelete" value="#{msgs.delete}" styleClass="active" />
+            <f:verbatim></div><br /></f:verbatim>
 
             <f:verbatim><div class="posted podPosition"></f:verbatim>
               <h:outputText value="#{msgs.posted_by}" />
-              <h:outputText value="#{eachPodcast.author}" />
+              <h:outputText value="#{eachPodcast.author} " />
               <h:outputText value="#{msgs.at}" />
-              <h:outputText value="#{eachPodcast.postedTime}" />
+              <h:outputText value="#{eachPodcast.postedTime} " />
               <h:outputText value="#{msgs.on}" />
               <h:outputText value="#{eachPodcast.postedDate}" />
             <f:verbatim></div><br /></f:verbatim>
