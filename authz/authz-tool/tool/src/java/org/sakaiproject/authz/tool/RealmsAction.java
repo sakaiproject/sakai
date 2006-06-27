@@ -199,7 +199,15 @@ public class RealmsAction extends PagedResourceActionII
 		int currentPageNubmer = Integer.valueOf(state.getAttribute(STATE_CURRENT_PAGE).toString()).intValue();
 		int startNumber = pageSize * (currentPageNubmer - 1) + 1;
 		int endNumber = pageSize * currentPageNubmer;
-		int totalNumber = Integer.valueOf(state.getAttribute(STATE_NUM_MESSAGES).toString()).intValue();
+
+		int totalNumber = 0;
+		try
+		{
+			totalNumber = Integer.valueOf(state.getAttribute(STATE_NUM_MESSAGES).toString()).intValue();
+		}
+		catch (java.lang.NullPointerException ignore) {}
+		catch (java.lang.NumberFormatException ignore) {}
+
 		if (totalNumber < endNumber) endNumber = totalNumber;
 
 		context.put("startNumber", new Integer(startNumber));
