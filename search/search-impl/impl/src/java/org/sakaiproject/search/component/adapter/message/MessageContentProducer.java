@@ -23,6 +23,7 @@ package org.sakaiproject.search.component.adapter.message;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -147,6 +148,16 @@ public class MessageContentProducer implements EntityContentProducer
 				Message m = ms.getMessage(ref);
 				MessageHeader mh = m.getHeader();
 				StringBuffer sb = new StringBuffer();
+				Class c = mh.getClass();
+				try {
+					Method getSubject = c.getMethod("getSubject",new Class[] {} );
+					Object o = getSubject.invoke(mh,new Object[]{});
+					sb.append("Subject: ").append(o.toString()).append("\n");
+				} catch ( Exception ex ) {
+					// no subject, and I dont mind
+					log.debug("Didnt get Subject  from "+mh,ex);
+				}
+
 				sb.append("Message Headers\n");
 				sb.append("From ").append(mh.getFrom().getDisplayName())
 						.append("\n");
@@ -154,6 +165,25 @@ public class MessageContentProducer implements EntityContentProducer
 				sb.append(m.getBody()).append("\n");
 				log.debug("Message Content for " + cr.getReference() + " is "
 						+ sb.toString());
+
+				// resolve attachments
+				List attachments = mh.getAttachments();
+				for ( Iterator atti = attachments.iterator(); atti.hasNext(); ) {
+					try {
+						Reference attr = (Reference) atti.next();
+						EntityContentProducer ecp = searchIndexBuilder.newEntityContentProducer(attr);
+						String attachementDigest = ecp.getContent(attr.getEntity());
+						sb.append("Attachement: \n").append(attachementDigest).append("\n");
+					} catch ( Exception ex ) {
+						log.info(" Failed to digest attachement "+ex.getMessage());
+					}
+				}
+				
+				
+				
+				
+				
+				
 				return sb.toString();
 			}
 			catch (IdUnusedException e)
@@ -182,7 +212,18 @@ public class MessageContentProducer implements EntityContentProducer
 				MessageService ms = (MessageService) ep;
 				Message m = ms.getMessage(ref);
 				MessageHeader mh = m.getHeader();
-				return "Message From " + mh.getFrom().getDisplayName();
+				Class c = mh.getClass();
+				String subject = "Message ";
+				try {
+					Method getSubject = c.getMethod("getSubject",new Class[] {} );
+					Object o = getSubject.invoke(mh,new Object[]{});
+					subject = "Subject: "+o.toString()+" ";
+				} catch ( Exception ex ) {
+					log.info("Didnt get Subject  from "+mh);
+				}
+				
+				
+				return subject+"From " + mh.getFrom().getDisplayName();
 			}
 			catch (IdUnusedException e)
 			{
@@ -386,7 +427,7 @@ public class MessageContentProducer implements EntityContentProducer
 			try
 			{
 
-				MessageChannel c = messageService.getChannel(chanellId);
+				MessageChannel c = messageService.getChannel(messageService.channelReference(context,chanellId));
 
 				List messages = c.getMessages(null, true);
 				// WARNING: I think the implementation caches on thread, if this
@@ -401,7 +442,8 @@ public class MessageContentProducer implements EntityContentProducer
 			}
 			catch (Exception ex)
 			{
-				log.debug("Failed to get channel " + chanellId);
+				ex.printStackTrace();
+				log.warn("Failed to get channel " + chanellId);
 
 			}
 		}

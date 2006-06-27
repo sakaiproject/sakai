@@ -301,12 +301,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						if ( process ) {
 							resetActivity();
 						} 
+					
 
+						// should this node consider taking the lock ?
+						if ((System.currentTimeMillis() - lastLock) > 60000L)
+						{
 						if (process && getLockTransaction())
 						{
-							// should this node consider taking the lock ?
-							if ((System.currentTimeMillis() - lastLock) > 60000L)
-							{
 
 								log.debug("===" + nodeID
 										+ "=============PROCESSING ");
@@ -318,7 +319,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 								lockedTo = nodeID;
 
 								lastLock = System.currentTimeMillis();
-
+							
 								searchIndexBuilderWorkerDao
 										.processToDoListTransaction(this);
 
@@ -338,12 +339,12 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 							}
 							else
 							{
-								log.debug("Not taking Lock, too much activity");
+								break;
 							}
-
 						}
 						else
 						{
+							log.debug("Not taking Lock, too much activity");
 							break;
 						}
 					}

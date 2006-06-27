@@ -327,19 +327,20 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHSTATUS, "Refresh Status" }));
+				COMMAND_REFRESHSTATUS, "Refresh Status","" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REBUILDSITE, "Rebuild Site Index" }));
+				COMMAND_REBUILDSITE, "Rebuild Site Index","" }));
 		sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHSITE, "Refresh Site Index" }));
+				COMMAND_REFRESHSITE, "Refresh Site Index","" }));
 		if (superUser)
 		{
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REBUILDINSTANCE, "Rebuild Whole Index" }));
+				COMMAND_REBUILDINSTANCE, "Rebuild Whole Index","" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REFRESHINSTANCE, "Refresh Whole Index" }));
+				COMMAND_REFRESHINSTANCE, "Refresh Whole Index","" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
-				COMMAND_REMOVELOCK, "Remove Lock, only use if you <b>know</b> there is no worker running" }));
+				COMMAND_REMOVELOCK, "Remove Lock", 
+				"onClick=\"return confirm('Are you sure you want to remove the lock\\n Check there are no indexers running');\"" }));
 		}
 		return sb.toString();
 	}

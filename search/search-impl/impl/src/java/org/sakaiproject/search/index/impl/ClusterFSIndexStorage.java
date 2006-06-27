@@ -267,6 +267,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 
 	public void doPostIndexUpdate() throws IOException
 	{
+		FSDirectory.setDisableLocks(true);
 		// get the tmp index
 		File tmpSegment = clusterFS.getTemporarySegment(false);
 		Directory[] tmpDirectory = new Directory[1];
@@ -292,7 +293,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 		{
 			currentSegment = clusterFS.newSegment();
 			log.debug("Created new segment " + currentSegment.getName());
-			indexWriter = new IndexWriter(currentSegment, getAnalyzer(), true);
+			indexWriter = new IndexWriter(FSDirectory.getDirectory(currentSegment,false), getAnalyzer(), true);
 			indexWriter.setUseCompoundFile(true);
 			//indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
@@ -301,14 +302,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 		else
 		{
 			clusterFS.touchSegment(currentSegment);
-			indexWriter = new IndexWriter(currentSegment, getAnalyzer(), false);
+			indexWriter = new IndexWriter(FSDirectory.getDirectory(currentSegment,false), getAnalyzer(), false);
 			indexWriter.setUseCompoundFile(true);
 			//indexWriter.setInfoStream(System.out);
 			indexWriter.setMaxMergeDocs(50);
 			indexWriter.setMergeFactor(50);
 		}
 
-		indexWriter.addIndexes(tmpDirectory);
+		if ( tmpDirectory[0].fileExists("segments") ) {
+			indexWriter.addIndexes(tmpDirectory);
+		}
 		indexWriter.close();
 
 		clusterFS.removeTemporarySegment();

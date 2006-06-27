@@ -115,6 +115,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			resourceName = "";
 		}
 		EntityContentProducer ecp = newEntityContentProducer(event);
+		if ( ecp.getSiteId(resourceName) == null ) {
+			log.debug("Not indexing "+resourceName+" as it has no context");
+			return;
+		}
 		Integer action = ecp.getAction(event);
 		int retries = 5;
 		while (retries > 0)

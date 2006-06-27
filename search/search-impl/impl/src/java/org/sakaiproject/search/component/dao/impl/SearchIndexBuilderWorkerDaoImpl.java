@@ -218,6 +218,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 										{
 											sbi
 													.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+											
 											continue;
 										}
 										// remove document
@@ -233,6 +234,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 											{
 												sbi
 														.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
+									
 											}
 											else
 											{
@@ -299,23 +301,15 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									}
 									Entity entity = ref.getEntity();
 
+									
 									try
 									{
 										EntityContentProducer sep = searchIndexBuilder
 												.newEntityContentProducer(ref);
-										if (sep != null && sep.isForIndex(ref))
+										if (sep != null && sep.isForIndex(ref) && ref.getContext() != null)
 										{
 
 											Document doc = new Document();
-											if (ref.getContext() == null)
-											{
-												log
-														.warn("Context is null for "
-																+ sbi.getName()
-																+ " stored context was "
-																+ sbi
-																		.getContext());
-											}
 											String container = ref
 													.getContainer();
 											if (container == null)
@@ -451,9 +445,9 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 
 											log.debug("Indexing Document "
 													+ doc);
-
+											
 											indexWrite.addDocument(doc);
-
+											
 											log.debug("Done Indexing Document "
 													+ doc);
 											
