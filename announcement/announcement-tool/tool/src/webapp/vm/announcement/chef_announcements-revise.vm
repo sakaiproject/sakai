@@ -103,26 +103,10 @@
 								<input type="checkbox" name="selectall" value="" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'selectedGroups')" onkeypress="javascript:toggleSelectAll(this, 'selectedGroups')" />
 							</th>
 					 		<th id ="groupname">
-								#if (!$currentSortedBy.equals("grouptitle"))
-									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitle")">$tlang.getString("revise.group.list.title")</a>
-								#else
-									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitleasc")">$tlang.getString("revise.group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("revise.group.list.sorttitleasc")" /></a>
-									#else
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sorttitledesc")">$tlang.getString("revise.group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("revise.group.list.sorttitledesc")"/></a>
-									#end
-								#end
+								$tlang.getString("revise.group.list.title")
 							</th>
 							<th id ="groupdescription">
-								#if (!$currentSortedBy.equals("groupdescription"))
-									<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdesc")">$tlang.getString("revise.group.list.desc")</a>
-								#else
-									#if ($currentSortAsc.equals("true"))
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdescasc")">$tlang.getString("revise.group.list.desc") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("revise.group.list.sortdescasc")" /></a>
-									#else
-										<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("revise.group.list.sortdescdesc")">$tlang.getString("revise.group.list.desc") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("revise.group.list.sortdescdesc")"/></a>
-									#end
-								#end
+								$tlang.getString("revise.group.list.desc")
 							</th>
 						</tr>
 						#foreach ($group in $!groups)
