@@ -1,0 +1,44 @@
+2006/06/20 - Version 0.5
+------------------------------
+- adapted tool to collect data from the Event API in realtime
+- added support for more events
+- event names are now in a resource bundle
+- event types can be specified in sakai.properties like: eventIds@StatsManager=pres.begin,chat.new
+- resources in Resource page have icons and links to the referred resource
+
+2006/06/01 - Version 0.4
+------------------------------
+- added totals and average for unique visitors and activity in Overview page
+- added month and year view to chart (last 30 days/12 months)
+- chart week view now show last 7 days
+- events that compose 'activity' can be configured in Preferences page
+- faster: statistical data is now aggregated in separate tables
+- data can be updated using a quartz job, on tool access (slow - as before), or by 
+  clicking on an "Update" button (that can be hidden or disabled if site was updated in 
+  the last n hours)
+- added sakai.sitestats.admin tool (start in site list view)
+- fixed get(msgs) WARN Spring message sent to logs (in Events and Resources pages)
+
+2006/05/16 - Version 0.2.3
+------------------------------
+- switch to hibernate3
+- use of AdditionalHibernateMappingsImpl approach
+- performance improvement (thanks to Stephen Marquard)
+
+2006/05/08 - Version 0.2.2
+------------------------------
+- user id and name splitted in two columns - UI and exported files (XLS and CSV)
+- updated custom patches to SAK-4120 to filter pages accessed from webservices
+- check permissions when accessing with tool direct URL
+- fixed CSS inclusion leading to invalid html
+
+2006/04/09 - Version 0.2.1
+--------------------------
+- fixed spelling correction: Assignments submitted
+- added missing license headers to java files
+
+2006/04/03 - Version 0.2
+--------------------------
+- fixed date bugs
+- added bar chart for current week
+- added support for HSQLDB (tested) and Oracle (not tested)

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.sitestats.admin"
+    	title="Site Stats"
+        description="Tool for showing site statistics by user, event, or resource for every site (admin).">
+    	
+    	<category name="sakai.admin" />
+
+		<!-- <configuration name="roles.allow" value="maintain,Instructor" /> -->
+	</tool>
+</registration>

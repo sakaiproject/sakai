@@ -1,0 +1,86 @@
+.sst {
+     vertical-align: top;
+     text-align: left;
+     width: 50%;	
+}
+.left {text-align: left;}
+.center {text-align: center;}
+.right {text-align: right;}
+.left1 {
+     vertical-align: top;
+     text-align: left;
+     width: 80%;
+}
+.right1 {
+     vertical-align: top;
+     text-align: right;
+     width: 20%;
+     /*width: 160px;*/
+}
+
+
+/* CHART: WEEK */
+#vbartbl {
+	font: 11px verdana, arial, helvetica, sans-serif; 
+}
+#vbartbl table {
+    height: 150px; 
+	background: #ffffff url(../images/bgfade.png) repeat-x top left;
+	border: 1px solid #ECECEC;
+	margin-top: 0; 
+	margin-bottom: 0;
+}
+#vbartbl td { 
+	width: 35px;
+	border-color: #ECECEC; 
+	border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; 
+	font: 11px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+#vbartbl th { 
+	border-color: #ECECEC; 
+	border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; 
+	padding: 1px 2px 1px 1px; 
+	font: 11px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+	
+/* CHART: MONTH */
+#vbartbl_mo table {
+    height: 150px; 
+	background: #ffffff url(../images/bgfade.png) repeat-x top left;
+	border: 1px solid #ECECEC;
+	margin-top: 0; 
+	margin-bottom: 0;
+}
+#vbartbl_mo td { 
+	width: 6px;
+	border-color: #ECECEC; 
+	/*border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; */
+	font: 7px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+#vbartbl_mo th { 
+	border-color: #ECECEC; 
+	/*border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; */
+	padding: 1px 2px 1px 1px; 
+	font: 7px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+	
+/* CHART: YEAR */
+#vbartbl_yr table {
+    height: 150px; 
+	background: #ffffff url(../images/bgfade.png) repeat-x top left;
+	border: 1px solid #ECECEC;
+	margin-top: 0; 
+	margin-bottom: 0;
+}
+#vbartbl_yr td { 
+	width: 12px;
+	border-color: #ECECEC; 
+	/*border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; */
+	font: 9px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+#vbartbl_yr th { 
+	border-color: #ECECEC; 
+	/*border-left-width: 0px; border-right-width: 1px; border-top-width: 0px; border-bottom-width: 1px; */
+	padding: 1px 2px 1px 1px; 
+	font: 9px verdana, arial, helvetica, sans-serif; text-align:center; color: #000000; }
+
+#vbartbl .currentday { font-weight: bold; } 
+.legvbartbl {vertical-align:middle; font-size: 8px; color: gray; text-align:right}
+#ivbartbl table {height:0px; width:0px; background: none; margin: 0px; border:0px; padding:0px;}
+#ivbartbl td {width: 0px; font-size: 9px; margin: 0px; border:0px; padding:0px; color: #000000; }
+#ivbartbl th {margin: 0px; border:0px; padding:0px; color: #000000; }

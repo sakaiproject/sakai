@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+		
+	<!-- Hibernate Mappings (.hbm) -->	
+	<bean id="sitestats-additional-mappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
+				<value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	
+	<!-- StatsManager -->	
+	<bean id="StatsManager"
+		class="org.sakaiproject.sitestats.impl.StatsManagerImpl"
+		singleton="true"
+		init-method="init">
+		<property name="sessionFactory">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+		<!-- Event IDs to be collected (event names are set in resource bundle) -->
+		<property name="eventIds">
+			<value>
+				pres.begin,mail.new,mail.delete.any,mail.delete.own,chat.new,chat.delete.any,chat.delete.own,disc.new,disc.new.category,disc.null,disc.delete.any,disc.delete.own,content.new,content.read,content.revise,content.delete,asn.new.assignment,asn.revise.assignment,asn.delete.assignment,asn.submit.submission,asn.save.submission,asn.grade.submission,annc.new,annc.revise.own,annc.revise.any,annc.delete.own,annc.delete.any,calendar.new,calendar.revise,wiki.revise,syllabus.post.new,syllabus.post.change
+			</value>
+		</property>
+		<!-- Aggregate administrator events? -->
+		<property name="collectAdminEvents">
+			<value>false</value>
+		</property>
+		<!-- Sakai services -->
+		<property name="autoDdl" value="${auto.ddl}"/>
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="userService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.StatsManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<ref bean="StatsManager"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<!-- StatsUpdateManager -->	
+	<bean id="StatsUpdateManager"
+		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
+		singleton="true"
+		lazy-init="true"
+		init-method="init"
+		destroy-method="destroy">
+		<property name="sessionFactory">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		</property>
+		<property name="statsManager">
+			<ref bean="org.sakaiproject.sitestats.api.StatsManager" />
+		</property>
+		<property name="usageSessionService">
+			<ref bean="org.sakaiproject.event.api.UsageSessionService" />
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<ref bean="StatsUpdateManager"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- CommonStatGrpByDate -->	
+	<bean id="org.sakaiproject.sitestats.api.CommonStatGrpByDate"
+		class="org.sakaiproject.sitestats.impl.CommonStatGrpByDateImpl">
+	</bean>
+
+	<!-- Prefs -->	
+	<bean id="org.sakaiproject.sitestats.api.Prefs"
+		class="org.sakaiproject.sitestats.impl.PrefsImpl">
+	</bean>
+
+	<!-- ResourceStat -->	
+	<bean id="org.sakaiproject.sitestats.api.ResourceStat"
+		class="org.sakaiproject.sitestats.impl.ResourceStatImpl">
+	</bean>
+
+	<!-- EventStat -->	
+	<bean id="org.sakaiproject.sitestats.api.EventStat"
+		class="org.sakaiproject.sitestats.impl.EventStatImpl">
+	</bean>
+
+	<!-- SiteVisits -->	
+	<bean id="org.sakaiproject.sitestats.api.SiteVisits"
+		class="org.sakaiproject.sitestats.impl.SiteVisitsImpl">
+	</bean>
+
+	<!-- SiteVisits -->	
+	<bean id="org.sakaiproject.sitestats.api.SiteActivity"
+		class="org.sakaiproject.sitestats.impl.SiteActivityImpl">
+	</bean>
+
+</beans>

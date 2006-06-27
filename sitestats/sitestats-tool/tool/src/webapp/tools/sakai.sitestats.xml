@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.sitestats"
+    	title="Site Stats"
+        description="Tool for showing site statistics by user, event, or resource.">
+    	
+    	<category name="course" />
+		<category name="project" />
+
+		<configuration name="roles.allow" value="maintain,Instructor" />
+		
+		<!--
+		<configuration name="roles.order" value="allow,deny" />
+		<configuration name="roles.deny" value="access,guest" />
+		-->
+	</tool>
+</registration>

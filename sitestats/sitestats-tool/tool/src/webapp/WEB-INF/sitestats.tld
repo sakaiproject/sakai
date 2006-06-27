@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" 
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+<tlib-version>0.01</tlib-version>
+<jsp-version>1.2</jsp-version>
+<short-name>simple</short-name>
+  <uri>http://sakaiproject.org/jsf/sitestats</uri>
+<description>This tag library contains chart components.</description>
+
+<tag>
+<name>chart</name>
+<tag-class>org.sakaiproject.sitestats.tool.jsf.ChartTag</tag-class>
+
+<attribute> 
+<name>binding</name> 
+<description>A value binding that points to a bean property</description>
+</attribute> 
+
+<attribute> 
+<name>id</name> 
+<description>The client id of this component</description>
+</attribute> 
+
+<attribute> 
+<name>rendered</name>
+<description>Is this component rendered?</description>
+</attribute>
+
+<attribute> 
+<name>type</name>
+<required>true</required>
+<description>The JFreeChart chart type.</description>
+</attribute>
+
+<attribute> 
+<name>dataset</name>
+<required>true</required>
+<description>A JFreeChart dataset (extends AbstractDataset).</description>
+</attribute>
+
+<attribute>
+<name>height</name>
+<required>true</required>
+<description>Height of the generated chart.</description>
+</attribute>
+
+<attribute>
+<name>width</name>
+<required>true</required>
+<description>Width of the generated chart.</description>
+</attribute>
+
+<attribute>
+<name>title</name>
+<required>false</required>
+<description>Chart title.</description>
+</attribute>
+
+<attribute>
+<name>legend</name>
+<required>false</required>
+<description>Draw chart legend?</description>
+</attribute>
+
+<attribute>
+<name>xlabel</name>
+<required>false</required>
+<description>Chart X label.</description>
+</attribute>
+
+<attribute>
+<name>ylabel</name>
+<required>false</required>
+<description>Chart Y label.</description>
+</attribute>
+
+<attribute>
+<name>background</name>
+<required>false</required>
+<description>The background color.</description>
+</attribute>
+
+<attribute>
+<name>drawTransparent</name>
+<required>false</required>
+<description>Transparent background?</description>
+</attribute>
+
+<attribute>
+<name>drawBorder</name>
+<required>false</required>
+<description>Draw chart border?</description>
+</attribute>
+
+<attribute>
+<name>drawOutline</name>
+<required>false</required>
+<description>Draw chart outline?</description>
+</attribute>
+
+</tag>
+
+
+
+  
+<tag>
+<name>vbarchart</name>
+<tag-class>org.sakaiproject.sitestats.tool.jsf.VBarChartTag</tag-class>
+
+<attribute> 
+<name>binding</name> 
+<description>A value binding that points to a bean property</description>
+</attribute> 
+
+<attribute> 
+<name>id</name> 
+<description>The client id of this component</description>
+</attribute> 
+
+<attribute> 
+<name>rendered</name>
+<description>Is this component rendered?</description>
+</attribute>
+
+<attribute> 
+<name>type</name>
+<required>true</required>
+<description>The chart type: week, month or year.</description>
+</attribute>
+
+<attribute> 
+<name>lastDate</name>
+<required>true</required>
+<description>Date in milliseconds (Long) reflecting date of last day in data.</description>
+</attribute>
+
+<attribute> 
+<name>column1</name>
+<required>true</required>
+<description>A java.util.List of Integer's matching column1.</description>
+</attribute>
+
+<attribute> 
+<name>column2</name>
+<required>true</required>
+<description>A java.util.List of Integer's matching column2.</description>
+</attribute>
+
+<attribute> 
+<name>column3</name>
+<required>true</required>
+<description>A java.util.List of Integer's matching column3.</description>
+</attribute>
+
+</tag>
+
+</taglib>
