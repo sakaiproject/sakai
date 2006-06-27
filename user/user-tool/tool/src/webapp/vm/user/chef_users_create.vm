@@ -3,28 +3,7 @@
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["id"];
 </script>
-<script type="text/javascript" language="JavaScript">
-	function validatePassword(evt)
-	{
-		var pwdef = document.getElementById("pw").defaultValue;
-		var pw1 = document.getElementById("pw").value;
-		var pw2 = document.getElementById("pw0").value;
-		if((pw1 == pwdef && pw2 == pwdef) || pw1 == pw2)
-		{
-			return true;
-		}
-		if(evt.preventDefault)
-		{
-			evt.preventDefault();
-		}
-		alert("$tlang.getString("usecre.pass")");
-		document.getElementById("pw").value = "";
-		document.getElementById("pw0").value = "";
-		document.getElementById("pw").focus();
-		
-		return false;
-	}
-</script>
+
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -35,31 +14,31 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("usecre.alert") $validator.escapeHtml($alertMessage)</div>#end	
 
-	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" onsubmit="return validatePassword(event);">
+	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post">
 		<p class="shorttext required">
 			#if(!$user)<span class="reqStar">*</span>#end
 			<label #if(!$user) for="eid" #end>
 				 $tlang.getString("usecre.useid")
 			</label>
-			#if(!$user)<input type="text" name="eid" id="eid"/>#else$validator.escapeHtml($user.Eid)#end
+			#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
 		</p>
 		<p class="shorttext">
 			<label for="first-name">
 				$tlang.getString("usecre.firnam")
 			</label>
-			<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#end/>
+			<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
 		</p>
 		<p class="shorttext">
 			<label for="last-name">
 				$tlang.getString("usecre.lasnam")
 			</label>
-			<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#end/>
+			<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
 		</p>
 		<p class="shorttext">
 			<label for="email">
 				$tlang.getString("usecre.ema")
 			</label>
-			<input type="text" name="email" id="email"#if($user) value="$validator.escapeHtml($user.Email)"#end />
+			<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
 		</p>
 		<p class="shorttext required">
 			#if ($pwRequired) <span class="reqStar">*</span> #end

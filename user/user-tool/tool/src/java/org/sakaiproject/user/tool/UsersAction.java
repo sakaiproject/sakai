@@ -264,6 +264,18 @@ public class UsersAction extends PagedResourceActionII
 		// attribute "create-user" is true only for New Account tool
 		context.put("pwRequired", state.getAttribute("create-user"));
 
+		String value = (String) state.getAttribute("valueEid");
+		if (value != null) context.put("valueEid", value);
+
+		value = (String) state.getAttribute("valueFirstName");
+		if (value != null) context.put("valueFirstName", value);
+
+		value = (String) state.getAttribute("valueLastName");
+		if (value != null) context.put("valueLastName", value);
+
+		value = (String) state.getAttribute("valueEmail");
+		if (value != null) context.put("valueEmail", value);
+
 		return "_create";
 
 	} // buildCreateContext
@@ -301,6 +313,21 @@ public class UsersAction extends PagedResourceActionII
 		{
 			context.put(Menu.CONTEXT_MENU, bar);
 		}
+
+		String value = (String) state.getAttribute("valueEid");
+		if (value != null) context.put("valueEid", value);
+
+		value = (String) state.getAttribute("valueFirstName");
+		if (value != null) context.put("valueFirstName", value);
+
+		value = (String) state.getAttribute("valueLastName");
+		if (value != null) context.put("valueLastName", value);
+
+		value = (String) state.getAttribute("valueEmail");
+		if (value != null) context.put("valueEmail", value);
+
+		value = (String) state.getAttribute("valueType");
+		if (value != null) context.put("valueType", value);
 
 		return "_edit";
 
@@ -532,6 +559,11 @@ public class UsersAction extends PagedResourceActionII
 		state.removeAttribute("user");
 		state.removeAttribute("newuser");
 		state.removeAttribute("new");
+		state.removeAttribute("valueEid");
+		state.removeAttribute("valueFirstName");
+		state.removeAttribute("valueLastName");
+		state.removeAttribute("valueEmail");
+		state.removeAttribute("valueType");
 
 		// return to main mode
 		state.removeAttribute("mode");
@@ -596,6 +628,11 @@ public class UsersAction extends PagedResourceActionII
 		state.removeAttribute("user");
 		state.removeAttribute("newuser");
 		state.removeAttribute("new");
+		state.removeAttribute("valueEid");
+		state.removeAttribute("valueFirstName");
+		state.removeAttribute("valueLastName");
+		state.removeAttribute("valueEmail");
+		state.removeAttribute("valueType");
 
 		// return to main mode
 		state.removeAttribute("mode");
@@ -682,24 +719,19 @@ public class UsersAction extends PagedResourceActionII
 		// read the form
 		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
 		String eid = StringUtil.trimToNull(data.getParameters().getString("eid"));
+		state.setAttribute("valueEid", eid);
 		String firstName = StringUtil.trimToNull(data.getParameters().getString("first-name"));
+		state.setAttribute("valueFirstName", firstName);
 		String lastName = StringUtil.trimToNull(data.getParameters().getString("last-name"));
+		state.setAttribute("valueLastName", lastName);
 		String email = StringUtil.trimToNull(data.getParameters().getString("email"));
+		state.setAttribute("valueEmail", email);
 		String pw = StringUtil.trimToNull(data.getParameters().getString("pw"));
+		String pwConfirm = StringUtil.trimToNull(data.getParameters().getString("pw0"));
 
 		String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
-
-		// if in Gateway New Account tool, password is required
-		if (createUser)
-		{
-			if (pw == null)
-			{
-				addAlert(state, rb.getString("usecre.pasismis"));
-				return false;
-			}
-		}
 
 		boolean typeEnable = false;
 		String type = null;
@@ -716,6 +748,7 @@ public class UsersAction extends PagedResourceActionII
 		{
 			// for the case of Admin User tool creating new user
 			type = StringUtil.trimToNull(data.getParameters().getString("type"));
+			state.setAttribute("valueType", type);
 		}
 		else
 		{
@@ -732,6 +765,30 @@ public class UsersAction extends PagedResourceActionII
 		// add if needed
 		if (user == null)
 		{
+			// make sure we have eid
+			if (eid == null)
+			{
+				addAlert(state, rb.getString("usecre.eidmis"));
+				return false;
+			}
+			
+			// if in create mode, make sure we have a password
+			if (createUser)
+			{
+				if (pw == null)
+				{
+					addAlert(state, rb.getString("usecre.pasismis"));
+					return false;
+				}				
+			}
+
+			// make sure we have matching password fields
+			if (StringUtil.different(pw, pwConfirm))
+			{
+				addAlert(state, rb.getString("usecre.pass"));
+				return false;
+			}
+
 			try
 			{
 				// add the user in one step so that all you need is add not update permission
@@ -766,8 +823,16 @@ public class UsersAction extends PagedResourceActionII
 			user.setFirstName(firstName);
 			user.setLastName(lastName);
 			user.setEmail(email);
-			if (pw != null) user.setPassword(pw);
 			if (type != null) user.setType(type);
+			
+			// make sure we have matching password fields
+			if (StringUtil.different(pw, pwConfirm))
+			{
+				addAlert(state, rb.getString("usecre.pass"));
+				return false;
+			}
+
+			if (pw != null) user.setPassword(pw);
 		}
 
 		return true;

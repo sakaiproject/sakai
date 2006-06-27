@@ -2144,10 +2144,18 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		 */
 		public void setPassword(String pw)
 		{
-			// encode this password
-			String encoded = OneWayHash.encode(pw);
-
-			m_pw = encoded;
+			// to clear it
+			if (pw == null)
+			{
+				m_pw = null;
+			}
+			
+			// else encode the new one
+			else
+			{
+				String encoded = OneWayHash.encode(pw);
+				m_pw = encoded;
+			}
 		}
 
 		/**
