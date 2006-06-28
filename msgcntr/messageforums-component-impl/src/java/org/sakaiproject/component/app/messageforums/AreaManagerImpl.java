@@ -121,7 +121,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public Area getPrivateArea() {
         Area area = getAreaByContextIdAndTypeId(typeManager.getPrivateMessageAreaType());
         if (area == null) {
-            area = createArea(typeManager.getPrivateMessageAreaType());
+            area = createArea(typeManager.getPrivateMessageAreaType(), null);
             area.setContextId(getContextId());
             area.setName("Private Messages");
             area.setEnabled(Boolean.FALSE);
@@ -136,7 +136,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     public Area getDiscusionArea() {
         Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         if (area == null) {
-            area = createArea(typeManager.getDiscussionForumType());
+            area = createArea(typeManager.getDiscussionForumType(), null);
             area.setName("Disucssion Area");
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
@@ -150,13 +150,31 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         return getPrivateArea().getEnabled().booleanValue();
     }
 
-    public Area createArea(String typeId) {
+    public Area createArea(String typeId, String contextParam) {
+    	
+    	  if (LOG.isDebugEnabled())
+        {
+          LOG.debug("createArea(" + typeId + "," + contextParam + ")");
+        }
+    	      	      	  
         Area area = new AreaImpl();
         area.setUuid(getNextUuid());
         area.setTypeUuid(typeId);
         area.setCreated(new Date());
         area.setCreatedBy(getCurrentUser());
-        area.setContextId(getContextId());
+        
+        /** compatibility with web services*/
+        if (contextParam == null){
+        	String contextId = getContextId();
+        	if (contextId == null){
+        		throw new IllegalStateException("Cannot retrive current context");
+        	}        	
+        	area.setContextId(contextId);
+        }
+        else{
+        	area.setContextId(contextParam);
+        }                      
+                                                                         
         LOG.debug("createArea executed with areaId: " + area.getUuid());
         return area;
     }

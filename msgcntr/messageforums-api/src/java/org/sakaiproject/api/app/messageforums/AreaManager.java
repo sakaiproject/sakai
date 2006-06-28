@@ -29,7 +29,7 @@ public interface AreaManager
  
   public boolean isPrivateAreaEnabled();
   public void saveArea(Area area);
-  public Area createArea(String typeId);
+  public Area createArea(String typeId, String contextId);
   public void deleteArea(Area area);
   public Area getAreaByContextIdAndTypeId(String typeId);
   public Area getAreaByType(final String typeId);  
