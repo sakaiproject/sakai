@@ -31,13 +31,13 @@ import org.sakaiproject.tool.summarycalendar.jsf.InitializableBean;
 import org.sakaiproject.util.ResourceLoader;
 
 public class PrefsBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID	= 1L;
+	private static final long	serialVersionUID	= -6671159843904531584L;
 
 	/** Our log (commons). */
 	private static Log			LOG					= LogFactory.getLog(PrefsBean.class);
 
 	/** Resource bundle */
-	ResourceLoader				msgs				= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
+	private transient ResourceLoader				msgs				= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
 
 	/** Bean members */
 

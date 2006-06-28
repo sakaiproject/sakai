@@ -20,11 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class Day {
+public class Day implements Serializable {
+	private static final long	serialVersionUID				= 1136403394613377956L;
 	public final static String	STYLE_TODAY						= "calToday";
 	public final static String	STYLE_SELECTEDDAY				= "calSelectedDay";
 	public final static String	STYLE_WITH_ACTIVITY				= "calDayWithActivity";
@@ -44,8 +46,8 @@ public class Day {
 	}
 
 	public Day(Date date, boolean hasEvents) {
-		setHasEvents(hasEvents);
-		setDate(date);
+		this.hasEvents = hasEvents;
+		this.date = date;
 	}
 
 	public void setDate(Date date) {
@@ -53,7 +55,7 @@ public class Day {
 	}
 
 	public String getDateAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat(CalendarBean.DATE_FORMAT);
 		return formatter.format(date);
 	}
 

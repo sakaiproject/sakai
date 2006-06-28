@@ -55,13 +55,14 @@ import org.sakaiproject.util.ResourceLoader;
 
 
 public class CalendarBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID		= 1L;
-
+	private static final long	serialVersionUID	= 3399742150736774779L;
+	public static final String	DATE_FORMAT			= "MMM dd, yyyy";
+	
 	/** Our log (commons). */
 	private static Log			LOG						= LogFactory.getLog(CalendarBean.class);
 
 	/** Resource bundle */
-	ResourceLoader				msgs					= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
+	private transient ResourceLoader				msgs					= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
 
 	/** Bean members */
 	private Date				today					= null;
@@ -74,24 +75,24 @@ public class CalendarBean extends InitializableBean implements Serializable {
 
 	/** Private members */
 	private boolean				updateEventList			= true;
-	private List				weeks					= null;
+	private List				weeks					= new ArrayList();
 	private MonthWeek			week1					= new MonthWeek();
 	private MonthWeek			week2					= new MonthWeek();
 	private MonthWeek			week3					= new MonthWeek();
 	private MonthWeek			week4					= new MonthWeek();
 	private MonthWeek			week5					= new MonthWeek();
 	private MonthWeek			week6					= new MonthWeek();
-	private List				calendarReferences		= null;
+	private List				calendarReferences		= new ArrayList();
 	private String				siteId					= null;
 	private String[]			months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct", "mon_nov", "mon_dec" };
-	private Map					eventImageMap			= null;
+	private Map					eventImageMap			= new HashMap();
 	private boolean				firstTime				= true;
 
-	private CalendarService		M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
-	private TimeService			M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
-	private SiteService			M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
-	private SecurityService		M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
-	private ToolManager			M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	private transient CalendarService		M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
+	private transient TimeService			M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
+	private transient SiteService			M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private transient SecurityService		M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
+	private transient ToolManager			M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 
 	// ######################################################################################
 	// Main methods
@@ -107,7 +108,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			t.setTime(selectedDay);
 			selectedDayHasEvents = getDayEventCount(t) > 0;
 		}
-		if(firstTime || selectedDay == getToday()){
+		if(firstTime || (selectedDay != null && selectedDay.equals(getToday()))){
 			firstTime = false;
 			if(selectedDayHasEvents) selectedDay = getToday();
 			else selectedDay = null;
@@ -118,7 +119,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	// Private methods
 	// ######################################################################################
 	private List getCalendarReferences() {
-		if(calendarReferences == null){
+		if(calendarReferences == null || calendarReferences.size() == 0){
 			MergedList mergedCalendarList = new MergedList();
 
 			String[] channelArray = null;
@@ -239,7 +240,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			Map paramMap = context.getRequestParameterMap();
 			String dateStr = (String) paramMap.get("selectedDay");
-			DateFormat df = new SimpleDateFormat("MMM dd, yyyy");
+			DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 			selectedDay = df.parse(dateStr);
 			selectedEventRef = null;
 			updateEventList = true;
@@ -292,7 +293,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	}
 
 	public List getWeeks() {
-		if(weeks == null) initializeWeeksDataStructure();
+		if(weeks == null || weeks.size() == 0) initializeWeeksDataStructure();
 		if(updateEventList){
 			// selected month
 			Calendar c = Calendar.getInstance();
@@ -433,7 +434,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	}
 
 	public Map getEventImageMap() {
-		if(eventImageMap == null){
+		if(eventImageMap == null || eventImageMap.size() == 0){
 			String px = "../../../library/image/sakai/";
 			eventImageMap = new HashMap();
 			eventImageMap.put("Academic Calendar", px + "academic_calendar.gif");

@@ -20,11 +20,14 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
+import java.io.Serializable;
+
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.util.ResourceLoader;
 
 
-public class EventSummary {
+public class EventSummary implements Serializable {
+	private static final long	serialVersionUID	= 4943854683550852507L;
+
 	private final int	MAX_TEXT_SIZE	= 30;
 
 	private String		displayName		= "";
@@ -36,8 +39,6 @@ public class EventSummary {
 	private String		url				= "";
 	private String		calendarRef		= "";
 	private String		eventRef		= "";
-
-	ResourceLoader		msgs			= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
 
 	public String getDisplayName() {
 		return displayName;

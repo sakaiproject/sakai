@@ -21,9 +21,6 @@
 package org.sakaiproject.tool.summarycalendar.jsf;
 
 import java.io.Serializable;
-import java.util.ResourceBundle;
-
-import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +35,7 @@ import org.sakaiproject.jsf.model.PhaseAware;
 public abstract class InitializableBean implements PhaseAware, Serializable {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);
 
-	protected ResourceBundle messageBundle;
+	//protected transient ResourceBundle messageBundle;
 	
 	private transient boolean notValidated;
 
@@ -52,8 +49,8 @@ public abstract class InitializableBean implements PhaseAware, Serializable {
 	 * abstract.
 	 */
 	protected void init() {
-        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
-        messageBundle =ResourceBundle.getBundle(bundleName);
+//        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+//        messageBundle =ResourceBundle.getBundle(bundleName);
 	}
 
 	/**
