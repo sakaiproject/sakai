@@ -41,7 +41,7 @@
    
    <bean id="changeParticipantRole" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arfb</value></property>
-      <property name="name"><value>Changing Participant Roles</value></property>
+      <property name="name"><value>Change Participant Roles</value></property>
       <property name="location"><value>/sakai_siteinfo/arfb.html</value></property>
    </bean>
    
