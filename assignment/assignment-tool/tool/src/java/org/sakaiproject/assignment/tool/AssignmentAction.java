@@ -2960,10 +2960,19 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			closeHour = 0;
 		}
+		Time closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
 		// validate date
 		if (!Validator.checkDate(closeDay, closeMonth, closeYear))
 		{
 			addAlert(state, rb.getString("date.invalid") + rb.getString("date.closedate") + ".");
+		}
+		if (closeTime.before(openTime))
+		{
+			addAlert(state, rb.getString("acesubdea3"));
+		}
+		if (closeTime.before(dueTime))
+		{
+			addAlert(state, rb.getString("acesubdea2"));
 		}
 
 		// SECTION MOD
@@ -3318,12 +3327,6 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			Time dueTime = TimeService.newTimeLocal(dueYear, dueMonth, dueDay, dueHour, dueMin, 0, 0);
 
-			// checks on the times
-			if (dueTime.before(openTime))
-			{
-				addAlert(state, rb.getString("assig3"));
-			}
-
 			// close time
 			Time closeTime = TimeService.newTime();
 			boolean enableCloseDate = ((Boolean) state.getAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE)).booleanValue();
@@ -3344,16 +3347,6 @@ public class AssignmentAction extends PagedResourceActionII
 					closeHour = 0;
 				}
 				closeTime = TimeService.newTimeLocal(closeYear, closeMonth, closeDay, closeHour, closeMin, 0, 0);
-
-				// if there is a close time, check it
-				if (closeTime.before(openTime))
-				{
-					addAlert(state, rb.getString("acesubdea3"));
-				}
-				if (closeTime.before(dueTime))
-				{
-					addAlert(state, rb.getString("acesubdea2"));
-				}
 			}
 
 			// sections
