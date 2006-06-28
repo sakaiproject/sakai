@@ -31,7 +31,7 @@
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032794"></a>4.1. Create folder for properties file</h3></div></div></div>
+<a name="install-config-folder"></a>4.1. Create folder for properties file</h3></div></div></div>
 
             <p>Sakai runs with a default set of configuration properties for its various
                 components. To override them you'll want to specify them in a
@@ -46,8 +46,8 @@
                     yourself frequently blowing Tomcat away, and you'll likely want to avoid
                     recreating the sakai folder and its contained file(s) each time.</p>
                 <p>To accomplish this, you need only modify the java startup command (or the
-                    JAVA_OPTS environment variable) to set the system property
-                    <span><strong class="command">sakai.home</strong></span>:</p>
+                        <span><strong class="command">JAVA_OPTS</strong></span> environment variable) to set the system
+                    property <span><strong class="command">sakai.home</strong></span>:</p>
                 <pre class="screen">-Dsakai.home=/path/to/desired/sakai/home/</pre>
                 <p>You'll need to make sure that this location is readable and writable to
                     Tomcat.</p>
@@ -55,14 +55,14 @@
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032854"></a>4.2. The sakai.properties file</h3></div></div></div>
+<a name="install-config-skprop"></a>4.2. The sakai.properties file</h3></div></div></div>
 
-            <p>The main configuration file for Sakai is called sakai.properties, and you can
-                either create it from scratch or copy in a known working copy. A sample
-                sakai.properties file which self-documents many of the standard properties in its
-                comments can be found in the source under
-                    <span><strong class="command">sakai-src/reference/docs/sakai.properties</strong></span>, while the
-                properties file that the OOTB software uses as its default may be found in
+            <p>The main configuration file for Sakai is called
+                <code class="filename">sakai.properties</code>, and you can either create it from scratch or
+                copy in a known working copy. A sample <code class="filename">sakai.properties</code> file
+                which self-documents many of the standard properties in its comments can be found in
+                the source under <span><strong class="command">sakai-src/reference/docs/sakai.properties</strong></span>, while
+                the properties file that the OOTB software uses as its default may be found in
                     <code class="filename">sakai-src/kernel/component/src/config/org/sakaiproject/config/sakai.properties.</code></p>
             <p>New value settings can be freely added to the
                 <code class="filename">sakai.properties</code> file. Since any component property can in
@@ -71,26 +71,26 @@
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Learning more about sakai.properties</h3>
 
-                <p>Settings in sakai.properties govern everything from setting your institution
-                    name to configuring your database. The essential settings for installation are
-                    covered here, but to find the most detailed documentation on the full variety of
-                    possible <code class="filename">sakai.properties</code> settings, look in <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_properties.doc" target="_top">sakai_properties.doc</a> in subversion or
-                        <code class="filename">reference/docs/architecture</code> of the source
-                archive.</p>
+                <p>Settings in <code class="filename">sakai.properties</code> govern everything from
+                    setting your institution name to configuring your database. The essential
+                    settings for installation are covered here, but to find the most detailed
+                    documentation on the full variety of possible
+                    <code class="filename">sakai.properties</code> settings, look in <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_properties.doc" target="_top">sakai_properties.doc</a> in subversion or
+                        <code class="filename">reference/docs/architecture/sakai_properties.doc</code> of the
+                    source archive.</p>
             </div>
         </div>
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032930"></a>4.3. Email configuration</h3></div></div></div>
+<a name="install-config-email"></a>4.3. Email configuration</h3></div></div></div>
 
             <p>Sakai needs to be set up for two email functions: receiving email sent to Sakai
                 sites, and sending out email notifications. For sending mail Sakai needs the address
-                (name or IP) of an SMTP server that will accept mail from Sakai. This needs to be
-                set in your sakai.properties file:</p>
-            <pre class="screen">smtp@org.sakaiproject.service.framework.email.EmailService=some.smtp.org</pre>
-            <p>To enable Sakai to receive mail there are a few settings needed in the
-                sakai.properties file:</p>
+                (name or IP) of an SMTP server that will accept mail from Sakai, and this needs to
+                be set in your <code class="filename">sakai.properties</code> file:</p>
+            <pre class="screen">smtp@org.sakaiproject.email.api.EmailService=some.smtp.org</pre>
+            <p>To enable Sakai to receive mail you'll need to set the following:</p>
             <pre class="screen">
 # dns addresses used for incoming email
 smtp.dns.1 = 255.255.255.1
@@ -102,21 +102,21 @@ smtp.port = 25
 
 # flag to enable or disable our SMTP server for incoming email (true | false)
 smtp.enabled = true</pre>
-            <p>To disable the SMTP server for incoming email, use this line in sakai.properties:</p>
+            <p>To disable the SMTP server for incoming email, use this line in
+                    <code class="filename">sakai.properties</code>:</p>
             <pre class="screen">smtp.enabled=false</pre>
-            <p>Sakai's SMTP server is 'James,' and to run with the above configuration which runs
-                James on the standard SMTP port 25 you must be running with admin privileges. Most
-                admins won't want to let Tomcat run with those permissions, and would rather run a
-                standard mailer like postfix on port 25 and configure it to forward requests to
-                Sakai. You might also already have a mailer service running on port 25 (Linux
-                usually has it running by default), and so you'd want to change the James port
-                simply to avoid a conflict. You'll typically want to run James on another,
-                non-restricted port, then. For example:</p>
+            <p>Sakai's SMTP server is <span class="emphasis"><em>James</em></span>, and to run with the above
+                configuration which runs James on the standard SMTP port 25 you must be running with
+                admin privileges. Most admins won't want to let Tomcat run with those permissions,
+                and would rather run a standard mailer like postfix on port 25 and configure it to
+                forward requests to Sakai. You might also already have a mailer service running on
+                port 25 (Linux usually has it running by default), and so you'd want to change the
+                James port simply to avoid a conflict. For example:</p>
             <pre class="screen">smtp.port = 8025</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032982"></a>4.4. JVM Tuning</h3></div></div></div>
+<a name="install-config-jvm"></a>4.4. JVM Tuning</h3></div></div></div>
 
             <p>The default Java virtual machine is not adequate to run an application of Sakai's
                 size, and several JVM parameters must be increased to a certain threshold for Sakai
@@ -131,20 +131,18 @@ smtp.enabled = true</pre>
                     experimentation and testing, but the following details are however offered only
                     as samples or suggestions, and we recommend that you consult a systems
                     administrator or local Java guru before making any such changes to a production
-                    system. See the <a href="http://bugs.sakaiproject.org/confluence/display/BOOT/Sakai+2.2+developer+JVM+tuning" target="_top">Programmer's Cafe</a> on our Confluence wiki for more details, or Sun's
-                        <a href="http://java.sun.com/docs/hotspot/gc5.0/gc_tuning_5.html" target="_top">Tuning Garbage Collection</a> documentation for more details.
-                Developers</p>
+                    system. See the <a href="http://bugs.sakaiproject.org/confluence/display/BOOT/Sakai+2.2+developer+JVM+tuning" target="_top">Programmer's Cafe</a> on our Confluence wiki for more discussion of the
+                    details.</p>
             </div>
             <p>The standard way to control the JVM options when Tomcat starts up is to have an
-                environment variable JAVA_OPTS defined with JVM startup options. Since any given
-                Sakai instance may be deployed for a variety of purposes - ranging from developers
-                doing private testing to large-scale deployments - it's hard to recommend a single
-                set of such options as the preferred ones for every case. We can, however, start
-                with a bare minimum which will at least avoid "Out of Memory" errors, and be
-                suitable for developer installs of the software:</p>
+                environment variable <span><strong class="command">JAVA_OPTS</strong></span> defined with JVM startup options.
+                Since any given Sakai instance may be deployed for a variety of purposes - ranging
+                from developers doing private testing to large-scale deployments - it's hard to
+                recommend a single set of such options as the preferred ones for every case. We can,
+                however, start with a bare minimum which will at least avoid "Out of Memory" errors,
+                and be suitable for developer installs of the software:</p>
             <pre class="screen">
-JAVA_OPTS="-server -Xms512m -Xmx768m -XX:NewSize=192m -XX:MaxNewSize=384m
--XX:PermSize=96m -XX:MaxPermSize=160m"</pre>
+JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</pre>
             <p>This is an adequate - if minimal - starting point: it selects server mode, sets an
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
@@ -154,37 +152,40 @@ JAVA_OPTS="-server -Xms512m -Xmx768m -XX:NewSize=192m -XX:MaxNewSize=384m
             <pre class="screen">
 JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m
 -XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails"</pre>
-            <p>This is better: a larger heap size is set for smoother performance, we have found
+            <p>This is better: a larger heap size is set for smoother performance (we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
-                are set to be the same values, and garbage collection messages are turned on.
-                Another important setting is the NewSize - what is important is the ratio of NewSize
-                to the size of the heap. We want as large a NewSize as we can fit in the total heap,
-                while keeping the total heap significantly bigger than NewSize in order for Java to
-                properly garbage collect.</p>
+                are set to be the same values), and garbage collection messages are turned on.
+                Another important consideration is the ratio of NewSize to the size of the heap. We
+                want as large a NewSize as we can fit in the total heap, while keeping the total
+                heap significantly bigger than NewSize in order for Java to properly garbage
+                collect.</p>
             <p>As you can see, there's a lot to think about here, and in practice each
-                implementing institution uses their own particular JAVA_OPTS that they've settled on
-                for their deployment and hardware; these typically use more option arguments than
-                we've shown here. This discussion is meant only as a head start, and there is no
-                replacement for doing your own testing.</p>
-            <p>In any event, once you set JAVA_OPTS Tomcat will see this environment variable
-                upon startup and use it. Instead of putting this in an environment variable, you
-                might modify the $CATALINA_HOME/bin/catalina.bat or $CATALINA_HOME/bin/catalina.sh
-                file to automatically set these values during startup.</p>
+                implementing institution uses their own particular <span><strong class="command">JAVA_OPTS</strong></span> that
+                they've settled on for their deployment and hardware, and they often use more option
+                arguments than we've shown here. This discussion is meant only as a head start, and
+                there is no replacement for doing your own testing.</p>
+            <p>In any event, once you set <span><strong class="command">JAVA_OPTS</strong></span> Tomcat will see this
+                environment variable upon startup and use it. Instead of putting this in an
+                environment variable, you might modify the
+                <code class="filename">$CATALINA_HOME/bin/catalina.bat</code> or the
+                    <code class="filename">$CATALINA_HOME/bin/catalina.sh</code> file to automatically set
+                these values during startup.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">JVM Tuning in Windows XP</h3>
 
-                <p>Windows users may set Java options in a "Tomcat Properties" dialog. But you
-                    may find that the permanent generation settings mentioned above will not work
-                    appropriately if set in the Java Options: field of the dialog window. That's
-                    because these settings have their own fields in the properties GUI, under the
-                    headings Initial Memory Pool and Maximum memory pool, respectively. Windows
-                    apparently ignores attempts to alter these values through the Java Options
-                    field.</p>
+                <p>Windows users that have installed Tomcat as a service may set Java options in
+                    a <span class="emphasis"><em>Tomcat Properties</em></span> dialog. But you may find that the
+                    permanent generation settings mentioned above will not work appropriately if set
+                    in the "Java Options:" field of the dialog window. That's because these settings
+                    have their own fields in the properties GUI, under the headings
+                        <span class="emphasis"><em>Initial Memory Pool</em></span> and <span class="emphasis"><em>Maximum Memory
+                    Pool</em></span>, respectively. Windows will ignore attempts to alter these
+                    values through the Java Options field.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5033107"></a>4.5. Test Sakai</h3></div></div></div>
+<a name="install-config-test"></a>4.5. Test Sakai</h3></div></div></div>
 
             <p>At this stage your installation of Sakai has not yet been configured to use your
                 preferred database (it will use its own HSQLDB by default), but you should now be
@@ -192,7 +193,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                 can be helpful at this point to know if any problems exist before you try to connect
                 it to another database. Tomcat will take a minute or so to start up, depending on
                 the speed of your machine, and it's a good idea to watch the Tomcat log as it comes
-                up to catch any errors (see "Troubleshooting").</p>
+                up to catch any errors (see <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>).</p>
             <p>From <span><strong class="command">$CATALINA_HOME</strong></span> you can start up Tomcat with the command:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -219,10 +220,11 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 </table></div>
             <p>Once Tomcat has loaded the Sakai application (again, this can take a minute or so)
                 point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. If the gateway page does not come up,
-                check the Tomcat logs (see the Troubleshooting section) for any errors and stack
-                traces. If the gateway page does come up, log in with the default admin account (the
-                username and password are both 'admin'). If you can log in without errors you should
-                be able to stop Tomcat and proceed with Database configuration, if needed.</p>
+                check the Tomcat logs (see the <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>
+                section) for any errors and stack traces. If the gateway page does come up, log in
+                with the default admin account (the username and password are both 'admin'). If you
+                can log in without errors you should be able to stop Tomcat and proceed with
+                Database configuration, if needed.</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>

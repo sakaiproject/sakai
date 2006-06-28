@@ -26,7 +26,7 @@
 <div class="titlepage">
 <div>
 <div><h1 class="title">
-<a name="id5031640"></a>Installation Guide</h1></div>
+<a name="id1841390"></a>Installation Guide</h1></div>
 <div><div class="author"><h3 class="author">Clay Fenlason</h3></div></div>
 </div>
 <hr>
@@ -44,33 +44,33 @@
 </dl></dd>
 <dt><span class="sect1"><a href="install-env.html">2. Set up Environment</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="install-env.html#id5032022">2.1. Verify Java Installation</a></span></dt>
-<dt><span class="sect2"><a href="install-env.html#id5032062">2.2. Verify Java Environment Variables</a></span></dt>
-<dt><span class="sect2"><a href="install-env.html#id5032239">2.3. Install Tomcat</a></span></dt>
-<dt><span class="sect2"><a href="install-env.html#id5032286">2.4. Configure Tomcat</a></span></dt>
-<dt><span class="sect2"><a href="install-env.html#id5032343">2.5. Install Maven</a></span></dt>
-<dt><span class="sect2"><a href="install-env.html#id5032385">2.6. Configure Maven</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-jinstall">2.1. Verify Java Installation</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-jenv">2.2. Verify Java Environment Variables</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-tinstall">2.3. Install Tomcat</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-tconfig">2.4. Configure Tomcat</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-minstall">2.5. Install Maven</a></span></dt>
+<dt><span class="sect2"><a href="install-env.html#install-env-mconfig">2.6. Configure Maven</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-build.html">3. Build and Deploy</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="install-build.html#id5032631">3.1. Download Source</a></span></dt>
-<dt><span class="sect2"><a href="install-build.html#id5032675">3.2. Unpack Source</a></span></dt>
-<dt><span class="sect2"><a href="install-build.html#id5032692">3.3. Run Maven</a></span></dt>
+<dt><span class="sect2"><a href="install-build.html#install-build-download">3.1. Download Source</a></span></dt>
+<dt><span class="sect2"><a href="install-build.html#install-build-unpack">3.2. Unpack Source</a></span></dt>
+<dt><span class="sect2"><a href="install-build.html#install-build-maven">3.3. Run Maven</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-config.html">4. Post-Installation Configuration</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="install-config.html#id5032794">4.1. Create folder for properties file</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#id5032854">4.2. The sakai.properties file</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#id5032930">4.3. Email configuration</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#id5032982">4.4. JVM Tuning</a></span></dt>
-<dt><span class="sect2"><a href="install-config.html#id5033107">4.5. Test Sakai</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-folder">4.1. Create folder for properties file</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-skprop">4.2. The sakai.properties file</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-email">4.3. Email configuration</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-jvm">4.4. JVM Tuning</a></span></dt>
+<dt><span class="sect2"><a href="install-config.html#install-config-test">4.5. Test Sakai</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-dbconfig.html">5. Database Configuration</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="install-dbconfig.html#id5033261">5.1. Migrating from an Earlier Version</a></span></dt>
-<dt><span class="sect2"><a href="install-dbconfig.html#id5153630">5.2. Deploy Drivers</a></span></dt>
-<dt><span class="sect2"><a href="install-dbconfig.html#id5153705">5.3. Create Database and User</a></span></dt>
-<dt><span class="sect2"><a href="install-dbconfig.html#id5153727">5.4. Database Properties</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-migrating">5.1. Migrating from an Earlier Version</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-drivers">5.2. Deploy Drivers</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-create">5.3. Create Database and User</a></span></dt>
+<dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-properties">5.4. Database Properties</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-tshoot.html">6. Troubleshooting</a></span></dt>
 </dl>
@@ -94,7 +94,7 @@
 <td>
 <span class="term">Demo</span></td>
 <td>
-                            <p>this archive provides the quickest and easiest way to try out
+                            <p>This archive provides the quickest and easiest way to try out
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
                                 that the only prerequisite for getting started is Java (v. 1.4.2 or
                                 higher).</p>
@@ -104,22 +104,22 @@
 <td>
 <span class="term">Binary</span></td>
 <td>
-                            <p>this archive is a kind of Tomcat overlay. If you have a working
+                            <p>This archive is a kind of Tomcat overlay. If you have a working
                                 Tomcat appropriately configured, the binary installation provides a
                                 quick way to drop the Sakai application bundle into place without
-                                requiring a maven build. This may be a good choice if you're already
-                                comfortable with Sakai installation and configuration, but it is not
-                                recommended for a first look at the software.</p>
+                                requiring a maven build. This may be a good choice if you know you
+                                don't need to make any code-level changes.</p>
                         </td>
 </tr>
 <tr>
 <td>
 <span class="term">Source</span></td>
 <td>
-                            <p>this archive includes only the source code to build Sakai, and
+                            <p>This archive includes only the source code to build Sakai, and
                                 therefore calls for separate, preparatory installations of Tomcat
                                 and the Maven build tool, along with (most likely) a preferred
-                                database.</p>
+                                database. The installation and configuration of these components
+                                comprises the bulk of this installation guide.</p>
                         </td>
 </tr>
 </tbody>
@@ -134,25 +134,27 @@
             <p>A demo installation is brief and straightforward. The steps are as follows:</p>
             <div class="procedure"><ol type="1">
 <li>
-                    <p>Verify Java Installation and Environment Variables (see "Set up
-                        Environment").</p>
+                    <p>Verify Java Installation and Environment Variables (see <a href="install-env.html" title="2. Set up Environment">Set up Environment</a>).</p>
                     <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Tuning the JVM</h3>
 
                         <p>The default JVM is not sufficient to run Sakai out of the box, and
                             some of its settings will need to be adjusted by setting a new
-                            environment variable called JAVA_OPTS. See the "Set up Environment"
-                            section.</p>
+                            environment variable called JAVA_OPTS. See the <a href="install-env.html" title="2. Set up Environment">Set up Environment</a> section.</p>
                     </div>
                 </li>
 <li>
                     <p>Download and unpack the Demo archive</p>
                     <div class="itemizedlist"><ul>
 <li>
-                            <p>"Windows archive"</p>
+                            <p>
+                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip" target="_top">Windows demo archive</a>
+                            </p>
                         </li>
 <li>
-                            <p>"Mac/*nix archive"</p>
+                            <p>
+                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz" target="_top">Mac/*nix archive</a>
+                            </p>
                         </li>
 </ul></div>
                 </li>
@@ -183,12 +185,12 @@
 </table></div>
                 </li>
 </ol></div>
-            <p>Once Tomcat is started up, you can point your browser to
-                "http://localhost:8080/portal". This will bring you to the Sakai gateway site where
-                you can log in using the default administrator's account (the user id and password
-                are both 'admin'). New user accounts can be created from the "User" tool in the
-                admin workspace, or by using the "New Account" link on the gateway page. New sites
-                can be created using the "Worksite Setup" tool.</p>
+            <p>Once Tomcat is started up, you can point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. This
+                will bring you to the Sakai gateway site where you can log in using the default
+                administrator's account (the user id and password are both 'admin'). New user
+                accounts can be created from the <span class="emphasis"><em>User</em></span> tool in the admin
+                workspace, or by using the <span class="emphasis"><em>New Account</em></span> link on the gateway
+                page. New sites can be created using the <span class="emphasis"><em>Worksite Setup</em></span> tool.</p>
             <p>To stop the demo:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -246,38 +248,40 @@
 <a name="install-overview-binary"></a>1.3. Binary Installation</h3></div></div></div>
 
             <p>The Binary installation of Sakai provides a shortcut for those that already have
-                Tomcat in place and configured as needed (see "Set up Environment" for details on
-                Tomcat configuration), and it does so by providing a pre-built Sakai that can simply
-                be dropped into place. All you need to do is unpack the binary archive at the root
-                Tomcat directory, and the appropriate wars, jars, etc., will be deposited in the
-                correct locations.</p>
+                Tomcat in place and configured as needed (see <a href="install-env.html" title="2. Set up Environment">Set up
+                    Environment</a> for details on Tomcat configuration), and it does so by
+                providing a pre-built Sakai that can simply be dropped into place. All you need to
+                do is unpack the binary archive at the root Tomcat directory, and the appropriate
+                wars, jars, etc., will be deposited in the correct locations.</p>
             <p>If you wish to configure a binary installation you'll need to manually create a
                     <code class="filename">sakai</code> directory in <span><strong class="command">$CATALINA_HOME</strong></span> to
-                hold your <code class="filename">sakai.properties</code> file, as described in
-                "Post-Installation Configuration".</p>
+                hold your <code class="filename">sakai.properties</code> file, as described in <a href="install-config.html" title="4. Post-Installation Configuration">Post-Installation Configuration</a>.</p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-source"></a>1.4. Source Installation</h3></div></div></div>
 
             <p>The Demo and Binary installs described above provide quick ways to get up and
-                running, but assume that no code customization is called for. The remainder of this
-                installation guide is focused on the more rigorous and customizable Source
+                running, but assume that no code-level changes are called for. The remainder of this
+                installation guide devotes itself to the more rigorous and customizable Source
                 installation, the steps of which may be organized into the following phases:</p>
             <div class="orderedlist"><ol type="1">
 <li>
-                    <p>"Set up Environment", including Java, Tomcat, and Maven.</p>
+                    <p><a href="install-env.html" title="2. Set up Environment">Set up Environment</a>, including Java,
+                        Tomcat, and Maven.</p>
                 </li>
 <li>
-                    <p>"Build and Deploy" Sakai by running Maven.</p>
+                    <p><a href="install-build.html" title="3. Build and Deploy">Build and Deploy</a> Sakai by running
+                        Maven.</p>
                 </li>
 <li>
-                    <p>Perform appropriate "Post-installation Configuration" of the
-                    application.</p>
+                    <p>Perform appropriate <a href="install-config.html" title="4. Post-Installation Configuration">Post-installation
+                            Configuration</a> of the application.</p>
                 </li>
 <li>
                     <p>If you want to configure Sakai for either MySQL or Oracle, perform the
-                        requisite "Database Configuration".</p>
+                        requisite <a href="install-dbconfig.html" title="5. Database Configuration">Database
+                    Configuration</a>.</p>
                 </li>
 </ol></div>
         </div>
@@ -285,7 +289,64 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-migrating"></a>1.5. Migrating from a Previous Release</h3></div></div></div>
 
-            <p></p>
+            <p>Since there have been a number of changes in tools, DB schema, and APIs, migrating
+                to 2.2 from a previous release requires close attention to detail. Be sure to go
+                over the release notes carefully, and a few potential stumbling points are
+                identified below:</p>
+            <div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term">sakai.properties</span></td>
+<td>
+                        <p>The 2.2 refactoring means that many package names have changed, and
+                            these differences will mainly be encountered in sakai.properties
+                            settings which reference beans. It's best to not try to use a
+                            sakai.properties from a previous release, and instead start with the
+                            sample in reference/docs/sakai.properties.</p>
+                    </td>
+</tr>
+<tr>
+<td>
+<span class="term">DB conversion scripts</span></td>
+<td>
+                        <p>Every release has DB conversion scripts, and 2.2 is no exception. Be
+                            sure, however, to read these scripts over carefully before executing
+                            them on your production data. They do not take into account any special
+                            customizations you may have done, and you may need to alter them for
+                            your situation. See the <a href="install-dbconfig.html" title="5. Database Configuration">Database
+                                Configuration</a> section for more details.</p>
+                    </td>
+</tr>
+<tr>
+<td>
+<span class="term">provisional tools</span></td>
+<td>
+                        <p>A few contrib tools that schools may have already put into production
+                            are now provisional with the 2.2 release. The DB conversion scripts in
+                            particular assume that these new provisional tools are not represented
+                            in your schema, and attempt to introduce them. If you have already
+                            deployed Message Center, Post 'Em, Search, or Summary Calendar on a
+                            production system, you'll want to be sure to avoid running the portions
+                            of the conversion scripts that pertain to them. Again, see the <a href="install-dbconfig.html" title="5. Database Configuration">Database Configuration</a> section for
+                            more details.</p>
+                    </td>
+</tr>
+<tr>
+<td>
+<span class="term">providers</span></td>
+<td>
+                        <p>Among the changes that 2.2 introduces is a separation of external user
+                            identifiers from Sakai's internal user ids. Any custom
+                                <code class="filename">UserDirectoryProvider</code> will need some alteration
+                            to account for this, along with changes to its import statements and
+                            declarations that stem from API changes. See the <a href="release_notes.html" target="_top">release notes</a> for more
+                        details.</p>
+                    </td>
+</tr>
+</tbody>
+</table></div>
         </div>
     </div>
 

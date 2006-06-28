@@ -40,7 +40,7 @@
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032631"></a>3.1. Download Source</h3></div></div></div>
+<a name="install-build-download"></a>3.1. Download Source</h3></div></div></div>
 
             <p>If you haven't yet, download the Source archive from <a href="http://www.sakaiproject.org" target="_top">http://www.sakaiproject.org/release</a></p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
@@ -48,14 +48,14 @@
 
                 <p>Alternatively, you may check out the source code from subversion with the
                     command:</p>
-                <pre class="screen">svn co https://source.sakaiproject.org/svn/tags/sakai_2-2</pre>
+                <pre class="screen">svn co https://source.sakaiproject.org/svn/tags/sakai_2-2-0</pre>
                 <p>In which case you could skip the unpacking step below, and your root directory
-                    would be sakai_2-2 instead of sakai-src.</p>
+                    would be sakai_2-2-0 instead of sakai-src.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032675"></a>3.2. Unpack Source</h3></div></div></div>
+<a name="install-build-unpack"></a>3.2. Unpack Source</h3></div></div></div>
 
             <p>Choose a location to unpack the Sakai source (your home directory is fine), and
                 when you unpack it you will see a directory named
@@ -63,7 +63,7 @@
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032692"></a>3.3. Run Maven</h3></div></div></div>
+<a name="install-build-maven"></a>3.3. Run Maven</h3></div></div></div>
 
             <p>From within the <span><strong class="command">sakai-src</strong></span> directory, run the command
                     <span><strong class="command">maven bld dpl</strong></span>. </p>
@@ -81,7 +81,7 @@
                 completes with the message <span><strong class="command">BUILD SUCCESSFUL</strong></span>, you should be able
                 to move on to the next step. If you are greeted with the report <span><strong class="command">BUILD
                     FAILED</strong></span> read the accompanying error message carefully to troubleshoot
-                (see the "Troubleshooting" section).</p>
+                (see the <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a> section).</p>
             <p>You will probably be able to start up Tomcat and run Sakai with the default
                 configuration at this point, but it would be better to take care of some basic
                 post-installation configuration first.</p>

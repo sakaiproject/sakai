@@ -31,7 +31,7 @@
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032022"></a>2.1. Verify Java Installation</h3></div></div></div>
+<a name="install-env-jinstall"></a>2.1. Verify Java Installation</h3></div></div></div>
 
             <p>Check to see if you have Java (version 1.4.2 or higher) installed on your system
                 by running the following command (sample output from a *nix system):</p>
@@ -41,7 +41,8 @@ java version "1.5.0_06"
 Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_06-b05)
 Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
             <p>If you're going to be building the source (i.e. if you chose the source install)
-                then you'll want to make sure that you have also installed the full J2SE, and not just the JRE.</p>
+                then you'll want to make sure that you have also installed the full J2SE, and not
+                just the JRE.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">JRE vs. JDK vs. J2SE vs. J2EE</h3>
 
@@ -60,17 +61,20 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032062"></a>2.2. Verify Java Environment Variables</h3></div></div></div>
+<a name="install-env-jenv"></a>2.2. Verify Java Environment Variables</h3></div></div></div>
 
-            <p>Set the "JAVA_HOME" environment variable to point to the base directory of your
-                Java installation, which will enable Tomcat to find the right Java installation.
-                This may already have been set up for you by your Java installation, but it should
-                be double-checked.</p>
-            <p>In UNIX operating systems you typically modify a startup file like ~/.bash_login
-                to set and export these shell variables. For Windows XP you would go to
-                    <span class="emphasis"><em>Start -&gt; Control Panel -&gt; System -&gt; Advanced -&gt; Environment
-                Variables</em></span> and then set them to point to the correct locations (samples
-                below):</p>
+            <p>There are three Java environment variables you'll want to set for everything to
+                function as it should, and though some of them may have already been set by your
+                Java installation (depending on your platform), you'll want to double-check them
+                all. You can also look at the <a href="http://java.sun.com/j2se/1.5.0/install.html" target="_top">Sun Java Installation
+                    Instructions</a> page at the Java web site for further details.</p>
+            <p>First you'll need to set the <span><strong class="command">JAVA_HOME</strong></span> environment variable to
+                point to the base directory of your Java installation, which will enable Tomcat to
+                find it. In UNIX operating systems you typically modify a startup file like
+                    <code class="filename">~/.bash_login</code> to set and export these shell variables,
+                while for Windows XP you would go to<span class="emphasis"><em>Start -&gt; Control Panel -&gt; System -&gt;
+                    Advanced -&gt; Environment Variables</em></span> and then set them to point to the
+                correct locations through the text fields of the GUI (samples below):</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -78,8 +82,9 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <td>
 <span class="term">Windows</span></td>
 <td>
-                        <p> Set the environment variable <span><strong class="command">JAVA_HOME</strong></span> to
-                                <span><strong class="command">C:\jdk1.5.0_06</strong></span>. </p>
+                        <p> Set the (or create a new) environment variable
+                            <span><strong class="command">JAVA_HOME</strong></span> to <span><strong class="command">C:\jdk1.5.0_06</strong></span>.
+                        </p>
                     </td>
 </tr>
 <tr>
@@ -123,21 +128,59 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 </tr>
 </tbody>
 </table></div>
+            <p>Finally, you'll need to set an environment variable that will increase the size
+                and performance of your JVM (Java Virtual Machine - the default JVM settings are
+                unfortunately not sufficient for Sakai), and the variable is named
+                    <span><strong class="command">JAVA_OPTS</strong></span>. The value suggested below should be suitable for
+                developers or demo installations.</p>
+            <div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term">Windows</span></td>
+<td>
+                        <p> Create a new environment variable <span><strong class="command">JAVA_OPTS</strong></span> to
+                            hold the value <span><strong class="command">-server -Xmx512m -Xms512m -XX:PermSize=128m
+                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m</strong></span>.
+                        </p>
+                    </td>
+</tr>
+<tr>
+<td>
+<span class="term">Mac/*nix</span></td>
+<td>
+                        <p>
+                            <span><strong class="command">export JAVA_HOME="-server -Xmx512m -Xms512m -XX:PermSize=128m
+                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</strong></span>
+                        </p>
+                    </td>
+</tr>
+</tbody>
+</table></div>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">More on JVM Tuning</h3>
+
+                <p>The above <span><strong class="command">JAVA_OPTS</strong></span> settings are, it must be emphasized
+                    once again, minimal. For settings more suitable for production servers, see the
+                        <a href="install-config.html#install-config-jvm" title="4.4. JVM Tuning">JVM Tuning</a> section of
+                    Post-Installation Configuration.</p>
+            </div>
             <p>You should test that these variables are set correctly. In both Windows XP and
-                *nix operating systems you can simply start a new shell and type the 'set' command
-                to see your environment variables. You may run the <span><strong class="command">java -version</strong></span>
-                command once more as a final check. You can also look for the <a href="http://java.sun.com/j2se/1.5.0/install.html" target="_top">Sun Java Installation
-                    Instructions</a> page at the Java web site for further details.</p>
+                *nix operating systems you can simply start a new shell and type the
+                <span><strong class="command">set</strong></span> command to see your environment variables.</p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032239"></a>2.3. Install Tomcat</h3></div></div></div>
+<a name="install-env-tinstall"></a>2.3. Install Tomcat</h3></div></div></div>
 
-            <p>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17. Tomcat can be downloaded as a binary
-                from <a href="http://tomcat.apache.org/download-55.cgi" target="_top">http://tomcat.apache.org/download-55.cgi</a>. The distribution you want is
+            <p>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17, and so that's the version we recommend,
+                although the latest stable version will most likely not present problems. Tomcat can
+                be downloaded as a binary from <a href="http://tomcat.apache.org/download-55.cgi" target="_top">http://tomcat.apache.org/download-55.cgi</a>. The distribution you want is
                 the one labeled <span class="emphasis"><em>Core</em></span>, along with the <span class="emphasis"><em>JDK 1.4
                     Compatibility Package</em></span> (even if you're using Java 1.5, some portions
-                of the Sakai code will need the compatibility package).</p>
+                of the Sakai code will require the compatibility package, and Sakai won't start up
+                without it).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Tomcat on Windows</h3>
 
@@ -147,39 +190,43 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
                     details, and for brevity's sake it's recommended that you grab the .zip. Sakai
                     requires some tuning of the JVM, and the service install manages these settings
                     through the registry rather than environment variables (see Tomcat installation
-                    instructions for more details). It's the latter approach that these instructions
-                    assume.</p>
+                    instructions for more details if you're committed to installing Tomcat as a
+                    service).</p>
             </div>
             <p>Unpack the Tomcat archive at your desired location, and unpack the compatibility
                 package directly on top of it. From this point forward these instructions will refer
-                to the top-level Tomcat directory (e.g. apache-tomcat-5.5.17) as $CATALINA_HOME. You
-                may set this as an environment variable for convenience's sake, but this is not
-                required. Make sure that you have write permissions to the Tomcat files and
-                directories before proceeding, or you may later run into errors during the build
-                phase.</p>
+                to the top-level Tomcat directory (e.g. <code class="filename">apache-tomcat-5.5.17</code>)
+                as <span><strong class="command">$CATALINA_HOME</strong></span>. You may set this as an environment variable
+                for convenience's sake, but this is not required. Make sure that you have write
+                permissions to the Tomcat files and directories before proceeding, or you may later
+                run into errors during the build phase.</p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032286"></a>2.4. Configure Tomcat</h3></div></div></div>
+<a name="install-env-tconfig"></a>2.4. Configure Tomcat</h3></div></div></div>
 
             <p>Sakai supports UTF-8, allowing for non-Roman characters, but this requires that
                 Tomcat be configured to accept UTF-8 URLs since it ships with ISO-8859-1 as the
                 default URL encoding. To change this setting, edit
-                    <span><strong class="command">$CATALINA_HOME/conf/server.xml</strong></span>. Add the attribute
+                    <code class="filename">$CATALINA_HOME/conf/server.xml</code>. Add the attribute
                     <span><strong class="command">URIEncoding="UTF-8"</strong></span> to the &lt;connector&gt; element.
                 For example:</p>
-            <pre class="screen">&lt;Connector port="8080" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+            <pre class="screen">
+&lt;Connector port="8080" maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
 enableLookups="false" redirectPort="8443" acceptCount="100" debug="0"
 connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</pre>
             <p>If you want to run Tomcat on different ports than the defaults, this would also be
-                a good time to make those changes in the server.xml file. See <a href="http://tomcat.apache.org/tomcat-5.5-doc/config/http.html" target="_top">Tomcat
+                a good time to make those changes in the <code class="filename">server.xml</code> file. See
+                    <a href="http://tomcat.apache.org/tomcat-5.5-doc/config/http.html" target="_top">Tomcat
                     configuration</a> documentation for more details.</p>
-            <p> If you're going to run Tomcat as your sole web server (i.e. if you're not going
-                to connect it to Apache) then you'll want to make a further minor change that may
-                spare some confusion later. The ROOT webapp is the one served up when a request is
-                made to your Tomcat's root URL, and so if you want users to be re-directed
-                automatically to the Sakai application, you'll want to insert an index.html file
-                into webapps/ROOT that prompts this re-direction. It should look something like: </p>
+            <p> If you're going to run Tomcat as a standalone web server (i.e. if you're not
+                going to connect it to the Apache web server) then you'll want to make a further
+                minor change that may spare some confusion later. The <code class="filename">ROOT</code>
+                webapp is the one served up when a request is made to your Tomcat's root URL, and so
+                if you want users to be re-directed automatically to the Sakai application, you'll
+                want to insert an <code class="filename">index.html</code> file into
+                <code class="filename">webapps/ROOT</code> that prompts this re-direction. It should look
+                something like: </p>
             <pre class="screen">
 &lt;html&gt;
     &lt;head&gt;
@@ -189,14 +236,14 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
         redirecting to /portal ...
     &lt;/body&gt;
 &lt;/html&gt;</pre>
-            <p>If you don't make this change you (and your users) will need to append '/portal'
-                to the URL entered to access Sakai each time. If you intend to connect Tomcat with
-                Apache, you can handle this issue as a matter of Apache configuration, which is
-                however outside the scope of this document.</p>
+            <p>If you don't make this change you (and your users) will need to append
+                    '<span><strong class="command">/portal</strong></span>' to the URL entered to access Sakai each time. If
+                you intend to connect Tomcat with Apache, you can handle this issue as a matter of
+                Apache configuration, which is however outside the scope of this document.</p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032343"></a>2.5. Install Maven</h3></div></div></div>
+<a name="install-env-minstall"></a>2.5. Install Maven</h3></div></div></div>
 
             <p>Maven is the build tool used by Sakai, and the latest stable release (currently
                 1.0.2) can be downloaded from <a href="http://maven.apache.org/start/download.html" target="_top">
@@ -213,7 +260,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5032385"></a>2.6. Configure Maven</h3></div></div></div>
+<a name="install-env-mconfig"></a>2.6. Configure Maven</h3></div></div></div>
 
             <p>To use Maven you'll need to set two more environment variables and then create a
                 local repository using a script provided by Maven. Just as with the Java variables,
@@ -227,7 +274,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 <span class="term">Windows</span></td>
 <td>
                         <p> Create a new <span><strong class="command">MAVEN_HOME</strong></span> environment variable to
-                                <span><strong class="command">C:\maven-1.0.2</strong></span> Append to the PATH variable
+                                <span><strong class="command">C:\maven-1.0.2</strong></span>. Then append to the PATH variable
                                 <span><strong class="command">;C:\maven-1.0.2\bin</strong></span>
                         </p>
                     </td>
@@ -237,7 +284,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 <span class="term">Mac/*nix</span></td>
 <td>
                         <p>
-                            <span><strong class="command">export MAVEN_HOME=/usr/local/maven export
+                            <span><strong class="command">export MAVEN_HOME=/usr/local/maven; export
                                 PATH=$PATH:$MAVEN_HOME/bin</strong></span>
                         </p>
                     </td>
@@ -271,8 +318,8 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 </table></div>
             <p>Finally, you'll need to create a build properties file in your home directory
                 which will define some basic parameters for your Sakai build. Simply create a new
-                text file with the filename build.properties in your home directory, and paste in
-                the following contents:</p>
+                text file with the filename <code class="filename">build.properties</code> in your home
+                directory, and paste in the following contents:</p>
             <pre class="screen">
 maven.repo.remote=http://source.sakaiproject.org/maven/
 maven.tomcat.home=/usr/local/tomcat/</pre>

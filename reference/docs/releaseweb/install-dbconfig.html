@@ -29,14 +29,14 @@
 <div class="titlepage"><div><div><h2 class="title">
 <a name="install-dbconfig"></a>5. Database Configuration</h2></div></div></div>
 
-        <p>Text</p>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5033261"></a>5.1. Migrating from an Earlier Version</h3></div></div></div>
+<a name="install-dbconfig-migrating"></a>5.1. Migrating from an Earlier Version</h3></div></div></div>
 
-            <p>There are database schema changes between 2.1.1 and 2.1.2, and the update scripts
+            <p>There are database schema changes between 2.1.2 and 2.2.0, and the update scripts
                 to be applied - in distinct versions for MySQL and Oracle, respectively - are found
-                in the docs/updating folder of the release or on subversion:</p>
+                in the <code class="filename">reference/docs/updating</code> folder of the release or on
+                subversion:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -44,41 +44,78 @@
 <td>
 <span class="term">MySQL</span></td>
 <td>
-                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-1-2/docs/updating/sakai_2_1_1-2_1_2_mysql_conversion.sql</p>
+                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</p>
                     </td>
 </tr>
 <tr>
 <td>
 <span class="term">Oracle</span></td>
 <td>
-                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-1-2/docs/updating/sakai_2_1_1-2_1_2_oracle_conversion.sql</p>
+                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</p>
                     </td>
 </tr>
 </tbody>
 </table></div>
             <p>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate update scripts. You cannot, for example, move from 2.0.1 to
-                2.1.1 by applying a single DB script. You will need to move first from 2.0.1 to
-                2.1.0, and then to 2.1.1.</p>
+                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
+                2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
+                2.1.2, and then to 2.2.0.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Examine before using</h3>
 
                 <p>As a general rule, be sure to read through these conversion scripts before
-                    applying them. The 2.0-2.1 script, in particular, includes notes about roles
-                    that may spare you a potential headache if you've been running 2.0 in
-                    production.</p>
+                    applying them. They do not take into account any special customizations you may
+                    have made - such as new roles, or the deployment of additional tools - and they
+                    may complicate your migration with unintended consequences if you execute the
+                    script blindly.</p>
+                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool is one
+                    such particular example. A number of schools deployed <span class="emphasis"><em>Message
+                    Center</em></span> in 2.1.x production instances, before it was yet a provisional
+                    tool. Now that <span class="emphasis"><em>Message Center</em></span> is a provisional tool in
+                    2.2.0, the conversion scripts were written to alter the database to introduce
+                    them, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new tool for
+                    your instance. If it isn't, you'll want to comment out the portions of the
+                    conversion script that treat it, and instead execute the following conversions:</p>
+                <div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term">MySQL</span></td>
+<td>
+                            <pre class="screen">
+ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
+ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</pre>
+                        </td>
+</tr>
+<tr>
+<td>
+<span class="term">Oracle</span></td>
+<td>
+                            <pre class="screen">
+ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
+                        </td>
+</tr>
+</tbody>
+</table></div>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5153630"></a>5.2. Deploy Drivers</h3></div></div></div>
+<a name="install-dbconfig-drivers"></a>5.2. Deploy Drivers</h3></div></div></div>
 
             <p>The supported production-grade databases include MySQL 4.1+ and Oracle 9i+. The
                 version of the JDBC driver (or connector) is also important. For MySQL the 3.1.12
                 connector should be used, while for Oracle the 10g driver must be used, even if the
                 database is Oracle 9i. These drivers should be copied into your
-                $CATALINA_HOME/common/lib directory, and they are available from the official sites:</p>
+                    <code class="filename">$CATALINA_HOME/common/lib</code> directory, and they are available
+                from the official sites:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -86,14 +123,18 @@
 <td>
 <span class="term">MySQL</span></td>
 <td>
-                        <p>http://dev.mysql.com/downloads/connector/j/3.1.html</p>
+                        <p>
+                            <a href="http://dev.mysql.com/downloads/connector/j/3.1.html" target="_top">http://dev.mysql.com/downloads/connector/j/3.1.html</a>
+                        </p>
                     </td>
 </tr>
 <tr>
 <td>
 <span class="term">Oracle</span></td>
 <td>
-                        <p>http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html</p>
+                        <p>
+                            <a href="http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html" target="_top">http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html</a>
+                        </p>
                     </td>
 </tr>
 </tbody>
@@ -107,17 +148,18 @@
                     version.</p>
 
                 <p>Problems have been reported for both the 3.1.10 and 3.1.11 MySQL drivers.
-                    3.1.12 is the recommended version.</p>
+                    3.1.12 is the recommended version since it has the greatest weight of production
+                    experience behind hit, however early testing of 3.1.13 has not yet revealed any
+                    problems.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5153705"></a>5.3. Create Database and User</h3></div></div></div>
+<a name="install-dbconfig-create"></a>5.3. Create Database and User</h3></div></div></div>
 
             <p>A Sakai database and privileged user must be prepared for Sakai's use. Consult
                 your database documentation for details, but below are sample commands for MySQL.
-                Note in particular that the database needs to be configured for the UTF-8 character
-                set.</p>
+            </p>
             <pre class="screen">
 C:\sakai\reference\sql\legacy\mysql\&gt;
 mysql -u root -p
@@ -138,10 +180,24 @@ mysql&gt; grant all on sakai.* to sakaiuser@'127.0.0.1' identified by 'sakaipass
 Query OK, 0 rows affected (0.00 sec)
 
 mysql&gt; quit</pre>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">UTF-8 Character Set</h3>
+
+                <p>When the database is created you must be sure to create it to use the UTF-8 character set, just as Tomcat was configured to use UTF-8.  If you don't you may run into a range of issues when attempting to use Unicode characters in Sakai, and this goes for both MySQL and Oracle.  Consult your DB documentation or a local DBA for instructions on how to do this.</p>
+                <p>If you're not certain how your database is currently configured, you can check with a query.  Here is a sample query from Oracle showing the correct value:</p>
+                <pre class="screen">
+SQL&gt; select value from nls_database_parameters where parameter = 'NLS_CHARACTERSET';
+
+VALUE
+--------------------------------------------------------------------------------
+AL32UTF8</pre>
+
+                <p>Converting a database from one character set to another is non-trivial, particularly if it's a large production database.</p>
+            </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id5153727"></a>5.4. Database Properties</h3></div></div></div>
+<a name="install-dbconfig-properties"></a>5.4. Database Properties</h3></div></div></div>
 
             <p>There are settings in sakai.properties that also define the database technology
                 and connection information. Appropriate <code class="filename">sakai.properties</code>
@@ -202,10 +258,10 @@ testOnBorrow@javax.sql.BaseDataSource=false</pre>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Oracle and Tests&amp;Quizzes</h3>
 
-                <p>If you're running Oracle you should check the datatype of the "MEDIA" column
-                    in the SAM_MEDIA_T table. Hibernate tries to choose the right data type for a
-                    field, but has a habit of choosing the wrong one for Oracle. The correct types
-                    for each database are:</p>
+                <p>If you're running Oracle you should check the datatype of the
+                    <span><strong class="command">MEDIA</strong></span> column in the <span><strong class="command">SAM_MEDIA_T</strong></span> table.
+                    Hibernate tries to choose the right data type for a field, but has a habit of
+                    choosing the wrong one for Oracle. The correct types for each database are:</p>
                 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
