@@ -334,8 +334,12 @@ function uncheckOther(field){
       <h:outputText value="#{msg.high_security_allow_only_specified_ip}"
         rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
       <%-- no WYSIWYG for IP addresses --%>
+      <h:panelGroup>
       <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"
         rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
+
+<h:outputText escape="false" value="<br/>#{msg.ip_note} <br/>#{msg.ip_example}#{msg.ip_ex}"/> 
+     </h:panelGroup>
       <h:selectBooleanCheckbox
          rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"
          value="#{assessmentSettings.valueMap.hasUsernamePassword}"/>
