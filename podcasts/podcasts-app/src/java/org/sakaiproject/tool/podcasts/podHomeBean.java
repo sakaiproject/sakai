@@ -26,14 +26,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -141,16 +143,22 @@ public class podHomeBean {
 		
 		
 	}
+
+	// podHomeBean constants
+	private static final String DOT = ".";
+	private static final String NO_RESOURCES_ERR_MSG = "To use the Podcasts tool, you must first add the Resources tool.";
+	private static final String TITLE = "title";
 	
+	// podHomeBean member variables
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
 	private boolean actPodcastsExist;
 	private boolean podcastResourceCheckFirstTry;
 	private PodcastService podcastService;
 	private List contents;
-	
-
 	private String URL;
+	private DecoratedPodcastBean selectedPodcast;
+
 	
 	public podHomeBean() {
 		resourceToolExists=false;
@@ -195,7 +203,7 @@ public class podHomeBean {
 	    
 			if(!resourceToolExists)
 			{
-				setErrorMessage("To use the Podcasts tool, you must first add the Resources tool.");
+				setErrorMessage(NO_RESOURCES_ERR_MSG);
 			}
 		}
 		
@@ -244,6 +252,68 @@ public class podHomeBean {
 	public void setPodcastService(PodcastService podcastService) {
 		this.podcastService = podcastService;
 	}
+	
+	public DecoratedPodcastBean getAPodcast(ResourceProperties podcastProperties)
+		throws EntityPropertyNotDefinedException, EntityPropertyTypeException {
+		DecoratedPodcastBean podcastInfo = new DecoratedPodcastBean();
+		
+		// fill up the decorated bean
+		
+		// store Title and Description
+		podcastInfo.setTitle(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
+		podcastInfo.setDescription(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
+
+		// store Display date
+		// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
+		SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
+		Date tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+		podcastInfo.setDisplayDate(formatter.format(tempDate));
+							
+		// store actual filename (for revision/deletion purposes?)
+		// put in local variable to use to get MIME type
+		String filename = podcastProperties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
+		podcastInfo.setFilename(filename);
+
+		// store formatted file size
+		// determine whether to display filesize as bytes or MB
+		long size = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+		double sizeMB = size / (1024.0*1024.0); 
+		DecimalFormat df = new DecimalFormat("#.#");
+		String sizeString;
+		if ( sizeMB >  0.3) {
+			sizeString = df.format(sizeMB) + "MB";
+		}
+		else {
+			df.applyPattern("#,###");
+			sizeString = "" + df.format(size) + " bytes";
+		}
+		podcastInfo.setSize(sizeString);
+		
+		// TODO: figure out how to determine/store content type
+		// this version, just capitalize extension
+		// ie, MP3, AVI, etc
+		if (filename.indexOf(DOT) == -1)
+			podcastInfo.setType("unknown");
+		else {
+			String extension = filename.substring(filename.indexOf(DOT) + 1);
+			podcastInfo.setType( extension.toUpperCase() );
+		}
+
+		// get and format last modified time
+		formatter.applyPattern("hh:mm a z" );
+		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+		podcastInfo.setPostedTime(formatter.format(tempDate));
+
+		// get and format last modified date
+		formatter.applyPattern("MM/dd/yyyy" );
+		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+		podcastInfo.setPostedDate(formatter.format(tempDate));
+
+		// get author
+		podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
+		
+		return podcastInfo;
+	}
 
 	public List getContents() {
 		contents = podcastService.getPodcasts();
@@ -262,56 +332,9 @@ public class podHomeBean {
 					ResourceProperties podcastProperties = podcastResource.getProperties();
 			
 					// Create a new decorated bean to store the info
-					DecoratedPodcastBean podcastInfo = new DecoratedPodcastBean();
+					DecoratedPodcastBean podcastInfo = getAPodcast(podcastProperties);
 
-					// fill up the decorated bean
-					
-					// store Title and Description
-					podcastInfo.setTitle(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
-					podcastInfo.setDescription(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
-
-					// store Display date
-					// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
-					SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
-					Date tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
-					podcastInfo.setDisplayDate(formatter.format(tempDate));
-										
-					// store actual filename (for revision/deletion purposes?)
-					podcastInfo.setFilename(podcastProperties.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME));
-
-					// store formatted file size
-					// determine whether to display filesize as bytes or MB
-					long size = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-					double sizeMB = size / (1024.0*1024.0); 
-					DecimalFormat df = new DecimalFormat("#.#");
-					String sizeString;
-					if ( sizeMB >  0.3) {
-						sizeString = df.format(sizeMB) + "MB";
-					}
-					else {
-						df.applyPattern("#,###");
-						sizeString = "" + df.format(size) + " bytes";
-					}
-					podcastInfo.setSize(sizeString);
-					
-					// TODO: figure out how to determine/store content type
-//					podcastInfo.setType( ContentTypeImageService.getContentType( );
-					podcastInfo.setType( "MP3" );
-
-					// get and format last modified time
-					formatter.applyPattern("hh:mm a z" );
-					tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
-					podcastInfo.setPostedTime(formatter.format(tempDate));
-
-					// get and format last modified date
-					formatter.applyPattern("MM/dd/yyyy" );
-					tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
-					podcastInfo.setPostedDate(formatter.format(tempDate));
-
-					// get author
-					podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
-
-					// add it to the ArrayList to send to the page
+					// add it to the List to send to the page
 					decoratedPodcasts.add(podcastInfo);
 			
 					// get the next podcast if it exists
@@ -322,16 +345,7 @@ public class podHomeBean {
 				catch (EntityPropertyTypeException epte) {
 					
 				}
-				catch (/*IdUnused*/Exception e) {
-					//TODO: determine exact execptions to catch
-					System.out.println("Wrong Id used to collect podcasts ");
-					e.printStackTrace();
-					return null;
-				}
-/*			catch (PermissionException pe) {
-				System.out.println("PermissionException");
-			}
-*/
+
 			}
 		
 		}
@@ -366,5 +380,46 @@ public class podHomeBean {
 
 	public void setActPodcastsExist(boolean actPodcastsExist) {
 		this.actPodcastsExist = actPodcastsExist;
+	}
+	
+	public void podMainListener(ActionEvent e) {
+	    FacesContext context = FacesContext.getCurrentInstance();
+	    Map requestParams = context.getExternalContext().getRequestParameterMap();
+	    String resourceTitle = (String) requestParams.get(TITLE);
+
+	    setPodcastSelected(resourceTitle);
+	}
+	
+	public void setPodcastSelected(String resourceId) {
+		Iterator podcastIter = contents.iterator();
+		
+		// for each bean
+		while (podcastIter.hasNext() ) {
+			try {
+
+				// get its properties from ContentHosting
+				ContentResource podcastResource = (ContentResource) podcastIter.next();
+				ResourceProperties podcastProperties = podcastResource.getProperties();
+
+				if (podcastProperties.getProperty(ResourceProperties.PROP_DISPLAY_NAME).equals(resourceId))
+						selectedPodcast = getAPodcast(podcastProperties);
+
+			} catch (EntityPropertyNotDefinedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (EntityPropertyTypeException e) {
+				// TODO Auto-generated catch block
+					e.printStackTrace();
+			}
+
+		}
+	}
+	
+	public DecoratedPodcastBean getSelectedPodcast() {
+		return selectedPodcast;
+	}
+
+	public void setSelectedPodcast(DecoratedPodcastBean selectedPodcast) {
+		this.selectedPodcast = selectedPodcast;
 	}
 }

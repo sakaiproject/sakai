@@ -45,14 +45,6 @@ span.active {
 }
 
 .podDescFormat {
-	padding: 0px 0px 5px 0px;
-}
-
-.posted {
-	font-size: 8pt;
-}
-
-.podPosition {
 	position: relative;
 	top: 18px;
 }
@@ -60,4 +52,10 @@ span.active {
 .podLinksPosition {
 	position: relative;
 	top: 22px;
+}
+
+.posted {
+	position: relative;
+	top: 13px;
+	font-size: 8pt;
 }

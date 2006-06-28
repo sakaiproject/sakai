@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.tool.api.ToolManager;
 
 // import org.sakaiproject.entity.api.EntityProducer;
@@ -64,6 +65,13 @@ public interface PodcastService // extends EntityProducer
 	 * @return List of podcasts
 	 */
 	public List getPodcasts();
+
+	/**
+	 * Returns the requested podcast
+	 * 
+	 * @return ContentResource of the podcast wanted
+	 */
+//	public ContentResource getAPodcast(String Id);
 
 	/**
 	 * Removes a podcast from site/podcasts folder

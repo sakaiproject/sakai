@@ -28,13 +28,20 @@
 		<description>podcastService</description>
 		<property-name>podcastService</property-name>
 		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
-	</managed-property>   
+	</managed-property>
   </managed-bean>
+  
+   <managed-bean>
+  	  <description>Comparator to sort podcasts</description>
+  	  <managed-bean-name>podcastComparator</managed-bean-name>
+  	  <managed-bean-class>org.sakaiproject.tool.podcasts.PodcastComparator</managed-bean-class>
+  	  <managed-bean-scope>session</managed-bean-scope>
+  	</managed-bean>
 
   <managed-bean>
     <description>Info for Add podcast page</description>
     <managed-bean-name>podAddBean</managed-bean-name>
-    <managed-bean-class>org.sakaiproject.tool.podcasts.addPodcastBean</managed-bean-class>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podAddBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
 
     <!--	 Needed to access the services of PodcastService -->

@@ -49,7 +49,7 @@
             <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
 			<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat podPosition" />
+            <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat" />
 			<f:verbatim><br /></f:verbatim>
             
             <!--  Download link -->
@@ -60,16 +60,20 @@
               <h:outputText value="#{eachPodcast.size}" />
             
               <h:outputText value=" " /> <!--  type -->
-              <h:outputText value="#{eachPodcast.filename}" />
+              <h:outputText value="#{eachPodcast.type}" />
 
               <!--  go to Revise page -->
               <h:outputText value=") | " />
-              <h:commandLink action="podcastRevise" value="#{msgs.revise}" styleClass="active" />
+              <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" >
+                <f:param name="title" value="#{eachPodcast.title}" />
+              </h:commandLink>
                  
               <!--  go to Delete page --> 
               <h:outputText value=" | " />
-              <h:commandLink action="podcastDelete" value="#{msgs.delete}" styleClass="active" />
-            <f:verbatim></div><br /></f:verbatim>
+              <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" >
+                <f:param name="title" value="#{eachPodcast.title}" />
+              </h:commandLink>
+              <f:verbatim></div><br /></f:verbatim>
 
             <f:verbatim><div class="posted podPosition"></f:verbatim>
               <h:outputText value="#{msgs.posted_by}" />

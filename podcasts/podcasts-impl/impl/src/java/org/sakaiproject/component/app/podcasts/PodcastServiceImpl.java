@@ -21,7 +21,7 @@
 
 package org.sakaiproject.component.app.podcasts;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +51,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.Validator;
 
+
 public class PodcastServiceImpl implements PodcastService
 {
 	private ContentHostingService contentHostingService;
@@ -58,7 +59,7 @@ public class PodcastServiceImpl implements PodcastService
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	private Reference siteRef;
 	private boolean podcastCollection;
-
+	private PodcastComparator podcastComparator;
 	
 	PodcastServiceImpl() {
 	}
@@ -94,17 +95,25 @@ public class PodcastServiceImpl implements PodcastService
 	 * @return A List of podcast resources
 	 */
 	public List getPodcasts() {
-		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
-		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 		List resourcesList = null;
 		
+		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+
 		try {
 			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
-			
+
 			resourcesList = collection.getMemberResources();
+			
+			PodcastComparator podcastComparator = new PodcastComparator(ResourceProperties.PROP_CREATION_DATE, false);
+			
+			Collections.sort(resourcesList, podcastComparator);
+
+			// call a sort using Collections.sort(comparator, resourcesList);
 		}
 		catch (IdUnusedException ex) {
 			try {
+				// Podcasts folder does not exist, create it and return a null list
 				System.out.println("Attempting to create podcasts folder.");
 				ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 				
@@ -118,10 +127,11 @@ public class PodcastServiceImpl implements PodcastService
 				ContentCollectionEdit edit = contentHostingService.editCollection(collection.getId());
 
 				contentHostingService.commitCollection(edit);
+
+				// TODO: create an empty resourceList instead of null?
 			}
 			catch (IdUnusedException e) {
 				// TODO: handle if necessary
-				System.out.println("Problem creating podcasts folder");
 			}
 			catch (TypeException e) {
 			}
@@ -146,6 +156,24 @@ public class PodcastServiceImpl implements PodcastService
 		
 		return resourcesList;
 	}
+	
+	public ContentResourceEdit getAResource(String resourceId) {
+
+		try {
+			return (ContentResourceEdit) contentHostingService.getResource(resourceId);				
+		}
+		catch (PermissionException pe) {
+			
+		}
+		catch (TypeException te) {
+			
+		}
+		catch (IdUnusedException iue) {
+			
+		}
+		return null;
+	} 
+	
 	
 	/**
 	 *  Add a podcast to the site's resources
@@ -317,5 +345,13 @@ public class PodcastServiceImpl implements PodcastService
 
 		return false;
 	}
-	
+
+	public PodcastComparator getPodcastComparator() {
+		return podcastComparator;
+	}
+
+	public void setPodcastComparator(PodcastComparator podcastComparator) {
+		this.podcastComparator = podcastComparator;
+	}
+
 }

@@ -34,7 +34,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 
-public class addPodcastBean {
+public class PodAddBean {
 	private String filename;
 	private Date date;
 	private String title;
@@ -51,14 +51,14 @@ public class addPodcastBean {
 		new SelectItem("high", "High - All participants")
 	};
 	
-	public addPodcastBean () {
+	public PodAddBean () {
 		filename = "";
 		title="";
 		description="";
 		email="";
 }
 	
-	public addPodcastBean (String filename, Date date, String title, String description, String email) {
+	public PodAddBean (String filename, Date date, String title, String description, String email) {
 		this.filename = filename;
 		this.date = date;
 		this.title = title;
