@@ -61,6 +61,9 @@
    rendered="#{authorization.editOwnQuestionPool}">
   <h:outputText id="poolnametext" value="#{pool.displayName}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="orderBy" value="text"/>
+  <f:param name="ascending" value="true"/>
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
 </h:commandLink>
 
 <h:panelGroup rendered="#{!authorization.editOwnQuestionPool}">

@@ -210,12 +210,12 @@ public class QuestionPoolServiceImpl
   /**
    * Get all items sorted by orderby
    */
-  public List getAllItemsSorted(Long poolId, String orderBy)
+    public List getAllItemsSorted(Long poolId, String orderBy, String ascending)
   {
     try
     {
       QuestionPoolService service = new QuestionPoolService();
-      return service.getAllItemsSorted(poolId, orderBy);
+      return service.getAllItemsSorted(poolId, orderBy, ascending);
     }
     catch (Exception ex)
     {

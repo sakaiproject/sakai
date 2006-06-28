@@ -250,7 +250,7 @@ public class QuestionPoolFacadeQueries
   }
 
   	public List getAllItemFacadesOrderByItemText(final Long questionPoolId,
-                                               final String orderBy) {
+						     final String orderBy, final String ascending) {
 	    
 	  	// Fixed for bug 3559
 	    log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: orderBy=" + orderBy);  
@@ -289,31 +289,56 @@ public class QuestionPoolFacadeQueries
 	    Iterator it = v.iterator();
 	    Vector orderdValueV;
 	    Integer value;
-	    while (it.hasNext()) {
-	    	String key =  (String)it.next();
-	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (key) = '" + key + "'");
-	    	orderdValueV = (Vector) hp.get(key);
-	    	Iterator iter = orderdValueV.iterator();
-	    	while (iter.hasNext()) {
+            String key;
+            if( (ascending!=null)&&("false").equals(ascending))
+		{//sort descending
+		for(int l=v.size()-1;l>=0;l--){
+		    key =  (String)v.get(l);
+		    orderdValueV = (Vector) hp.get(key);
+		    Iterator iter = orderdValueV.iterator();
+		    while (iter.hasNext()) {
+			value =  (Integer)iter.next();
+    	 
+			ItemData itemdata = (ItemData) list.get(value.intValue());
+			ItemFacade f = new ItemFacade(itemdata);
+			itemList.add(f);
+		    }
+		}
+		}
+	    else{//sort ascending
+		while (it.hasNext()) {
+		    key =  (String)it.next();
+		    orderdValueV = (Vector) hp.get(key);
+		    Iterator iter = orderdValueV.iterator();
+		    while (iter.hasNext()) {
 	    		value =  (Integer)iter.next();
 	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: sorted (value) = " + value);
 	    		itemFacade = (ItemFacade) facadeVector.get(value.intValue());
 	    		itemList.add(itemFacade);
-	    	}
+		    }
+		}
 	    }
 	    return itemList;
   	}
 
   public List getAllItemFacadesOrderByItemType(final Long questionPoolId,
-                                               final String orderBy) {
+                                               final String orderBy, final String ascending) {
 	  log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: orderBy=" + orderBy);
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
+		    Query q;
+                    if("false".equals(ascending)){
+		         q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
+                        orderBy + " desc");
+		    }
+		    else{
+	    	     	q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi, TypeD t where ab.itemId=qpi.itemId and ab.typeId=t.typeId and qpi.questionPoolId = ? order by t." +
                         orderBy);
-	    		q.setLong(0, questionPoolId.longValue());
-	    		log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
-	    		return q.list();
+		    }
+                       
+	    	   q.setLong(0, questionPoolId.longValue());
+	    	   log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemType:: getQueryString() = " + q.getQueryString());
+	    	   return q.list();
 	    	};
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);

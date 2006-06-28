@@ -53,14 +53,23 @@ public class SortQuestionListListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-
+   
     // get service and managed bean
-    QuestionPoolBean questionpoolbean = (QuestionPoolBean) cu.lookupBean("questionpool");
-
+     QuestionPoolBean questionpoolbean = (QuestionPoolBean) cu.lookupBean("questionpool");
     String orderBy = cu.lookupParam("orderBy");
-      QuestionPoolService delegate = new QuestionPoolService();
-      ArrayList list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy);
-      questionpoolbean.setAllItems(list);
+    String ascending=cu.lookupParam("ascending");
+    String qpid=cu.lookupParam("qpid");
+    QuestionPoolService delegate = new QuestionPoolService();
+    ArrayList list= new ArrayList();
+    if (qpid==null ||("").equals(qpid)){
+     list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy,ascending);
+    }
+    else{
+	list = delegate.getAllItemsSorted(Long.getLong(qpid),orderBy, ascending);
+    }
+    
+    System.out.println("FAIL AFTER CALLING DELEGATE");
+    questionpoolbean.setAllItems(list);
 
   }
 }

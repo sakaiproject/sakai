@@ -30,6 +30,7 @@
         <h:commandLink title="#{msg.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool">
           <h:outputText value="#{msg.q_text}" />
           <f:param name="orderBy" value="text"/>
+          <f:param name="ascending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
         </h:commandLink>
 

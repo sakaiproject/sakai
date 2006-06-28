@@ -222,6 +222,7 @@ public class QuestionPoolService
   /**
    * Get all items sorted by orderby
    */
+    /*
   public ArrayList getAllItemsSorted(Long poolId, String orderBy)
   {
     ArrayList results = null;
@@ -233,6 +234,31 @@ public class QuestionPoolService
       else if ("keyword".equals(orderBy)) {
         results = (ArrayList) PersistenceService.getInstance().
            getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy);
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+    */
+
+    public ArrayList getAllItemsSorted(Long poolId, String orderBy, String ascending)
+  {
+    ArrayList results = null;
+    try {
+      if ("text".equals(orderBy)) {
+      
+	   
+	    results = (ArrayList) PersistenceService.getInstance().getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemText(poolId, "instruction", ascending);
+	 
+
+      }
+      else if ("keyword".equals(orderBy)) {
+        
+ results = (ArrayList) PersistenceService.getInstance().
+     getQuestionPoolFacadeQueries().getAllItemFacadesOrderByItemType(poolId, orderBy, ascending);
+	
       }
     } catch (Exception e) {
       e.printStackTrace();
