@@ -5963,6 +5963,14 @@ public class SiteAction extends PagedResourceActionII
 			String replyTo = NULL_STRING;
 			String sender = UserDirectoryService.getCurrentUser().getDisplayName();
 			String userId = StringUtil.trimToZero(SessionManager.getCurrentSessionUserId());
+			try
+			{
+				userId = UserDirectoryService.getUserEid(userId);
+			}
+			catch (UserNotDefinedException e)
+			{
+				M_log.warn(this + rb.getString("user.notdefined") + " " + userId);
+			}
 			
 			//To Support
 			from = UserDirectoryService.getCurrentUser().getEmail();
