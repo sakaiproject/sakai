@@ -34,17 +34,33 @@
 
     <servlet>
         <servlet-name>sakai.sections</servlet-name>
-        <servlet-class>org.sakaiproject.tool.section.jsf.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
-            <param-value>overview</param-value>
+            <param-value>entry.servlet</param-value>
         </init-param>
         <init-param>
             <param-name>path</param-name>
             <param-value>/</param-value>
         </init-param>
+        <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
+
+	<!-- Redirects the user to the appropriate starting page, based on their role -->
+	<servlet>
+		<servlet-name>Entry Servlet</servlet-name>
+		<servlet-class>org.sakaiproject.tool.section.EntryServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>Entry Servlet</servlet-name>
+		<url-pattern>/entry.servlet</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>Faces Servlet</servlet-name>
@@ -96,7 +112,7 @@
     </filter>
     <filter-mapping>
         <filter-name>SectionAuthzFilter</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>*.jsf</url-pattern>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
