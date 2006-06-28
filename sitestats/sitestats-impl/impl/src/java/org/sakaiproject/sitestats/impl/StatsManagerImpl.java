@@ -287,68 +287,13 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return eventNameMap;
 	}
 		
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceName(java.lang.String)
-	 */
-//	public String getResourceName(String ref){
-//		String parts[] = ref.split("\\/");
-//		StringBuffer _fileName = new StringBuffer("");		
-//		// filename		
-//		if(parts[2].equals("user")){
-//			return null;
-//		}		
-//		if(parts[2].equals("attachment")){
-//			if(parts.length <= 4) return null;
-//			if(parts[4].equals("Choose File")){
-//				// assignment/annoucement attachment
-//				if(parts.length <= 6) return null;
-//				_fileName.append("attachment");
-//				_fileName.append(SEPARATOR);
-//				for(int i = 6; i < parts.length - 1; i++)
-//					_fileName.append(parts[i] + SEPARATOR);
-//				_fileName.append(parts[parts.length - 1]);
-//			}else{
-//				// mail attachment
-//				return null;
-//				// FIXME Id is not in the reference - must invoke MailArchive...
-////				if(parts.length <= 4) return null;
-////				_fileName.append("attachment");
-////				_fileName.append(SEPARATOR);
-////				for(int i = 4; i < parts.length - 1; i++)
-////					_fileName.append(parts[i] + SEPARATOR);
-////				_fileName.append(parts[parts.length - 1]);
-//				
-//			}
-//			// append filename
-//		}else if(parts[2].equals("group")){
-//			if(parts.length <= 4) return null;
-//			for(int i = 4; i < parts.length - 1; i++)
-//				_fileName.append(parts[i] + SEPARATOR);
-//			_fileName.append(parts[parts.length - 1]);
-//		}else if(parts[2].equals("group-user")){
-//			if(parts.length <= 5) return null;
-//			// append user eid
-//			String userEid = null;
-//			try{
-//				userEid = M_uds.getUserEid(parts[4]);
-//			}catch(UserNotDefinedException e){
-//				userEid = parts[4];
-//			}
-//			_fileName.append(userEid);
-//			_fileName.append(SEPARATOR);
-//			// append filename
-//			for(int i = 5; i < parts.length - 1; i++)
-//				_fileName.append(parts[i] + SEPARATOR);
-//			_fileName.append(parts[parts.length - 1]);
-//		}
-//		String fileName = _fileName.toString();
-//		if(fileName.trim().equals("")) return null;
-//		return fileName;
-//	}
 	
 	public String getResourceName(String ref){
 		Reference r = EntityManager.newReference(ref);
 		ResourceProperties rp = r.getProperties();
+		if(rp == null){
+			return getResourceName_ManualParse(ref);
+		}
 		String name = rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		StringBuffer _fileName = new StringBuffer("");
 		
@@ -387,25 +332,77 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		return _fileName.toString();		
 	}
 	
+	public String getResourceName_ManualParse(String ref) {
+		String parts[] = ref.split("\\/");
+		StringBuffer _fileName = new StringBuffer("");
+		// filename
+		if(parts[2].equals("user")){ return null; }
+		if(parts[2].equals("attachment")){
+			if(parts.length <= 4) return null;
+			if(parts[4].equals("Choose File")){
+				// assignment/annoucement attachment
+				if(parts.length <= 6) return null;
+				_fileName.append("attachment");
+				_fileName.append(SEPARATOR);
+				for(int i = 6; i < parts.length - 1; i++)
+					_fileName.append(parts[i] + SEPARATOR);
+				_fileName.append(parts[parts.length - 1]);
+			}else{
+				// mail attachment
+				return null;
+
+			}
+			// append filename
+		}else if(parts[2].equals("group")){
+			if(parts.length <= 4) return null;
+			for(int i = 4; i < parts.length - 1; i++)
+				_fileName.append(parts[i] + SEPARATOR);
+			_fileName.append(parts[parts.length - 1]);
+		}else if(parts[2].equals("group-user")){
+			if(parts.length <= 5) return null;
+			// append user eid
+			String userEid = null;
+			try{
+				userEid = M_uds.getUserEid(parts[4]);
+			}catch(UserNotDefinedException e){
+				userEid = parts[4];
+			}
+			_fileName.append(userEid);
+			_fileName.append(SEPARATOR);
+			// append filename
+			for(int i = 5; i < parts.length - 1; i++)
+				_fileName.append(parts[i] + SEPARATOR);
+			_fileName.append(parts[parts.length - 1]);
+		}
+		String fileName = _fileName.toString();
+		if(fileName.trim().equals("")) return null;
+		return fileName;
+	}
+	
 	public String getResourceImage(String ref){
 		String href = "../../../library/image/";
 		Reference r = EntityManager.newReference(ref);
 		ResourceProperties rp = r.getProperties();
 		
 		boolean isCollection;
-		try{
-			isCollection = rp.getBooleanProperty(rp.getNamePropIsCollection());
-		}catch(EntityPropertyNotDefinedException e){
+		if(rp != null){
+			try{
+				isCollection = rp.getBooleanProperty(rp.getNamePropIsCollection());
+			}catch(EntityPropertyNotDefinedException e){
+				isCollection = false;
+			}catch(EntityPropertyTypeException e){
+				isCollection = false;
+			}
+		}else
 			isCollection = false;
-		}catch(EntityPropertyTypeException e){
-			isCollection = false;
-		}
 		
 		String imgLink = "";
 		if(isCollection)
 			imgLink = href + ContentTypeImageService.getContentTypeImage("folder");			
-		else
+		else if(rp != null)
 			imgLink = href + ContentTypeImageService.getContentTypeImage(rp.getProperty(rp.getNamePropContentType()));
+		else
+			imgLink = href + "sakai/generic.gif";
 		return imgLink;
 	}	
 	

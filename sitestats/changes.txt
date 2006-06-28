@@ -1,3 +1,7 @@
+2006/06/28 - Version 0.5.1
+------------------------------
+- fix case where resource no longer exists (failed while creating link to it)
+
 2006/06/20 - Version 0.5
 ------------------------------
 - adapted tool to collect data from the Event API in realtime
