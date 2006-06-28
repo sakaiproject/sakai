@@ -20,27 +20,25 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-
-public class Day implements Serializable {
+public class Day {
 	public final static String	STYLE_TODAY						= "calToday";
 	public final static String	STYLE_SELECTEDDAY				= "calSelectedDay";
 	public final static String	STYLE_WITH_ACTIVITY				= "calDayWithActivity";
 	public final static String	STYLE_WITHOUT_ACTIVITY			= "calDayWithoutActivity";
 	public final static String	STYLE_OTHER_WITHOUT_ACTIVITY	= "calOtherDayWithNoActivity";
 
-	private Date				date							= null;
-	private String				styleClass						= "";
-	private boolean				hasEvents						= false;
+	Date						date							= null;
+	String						styleClass						= "";
+	boolean						hasEvents						= false;
 
-	private int					dayOfMonth						= -1;
-	private boolean				isToday							= false;
-	private boolean				occursInOtherMonth				= false;
-	private boolean				isSelected						= false;
+	int							dayOfMonth						= -1;
+	boolean						isToday							= false;
+	boolean						occursInOtherMonth				= false;
+	boolean						isSelected						= false;
 
 	public Day() {
 	}

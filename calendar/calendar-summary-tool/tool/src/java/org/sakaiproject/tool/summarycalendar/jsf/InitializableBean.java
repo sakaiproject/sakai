@@ -38,7 +38,7 @@ import org.sakaiproject.jsf.model.PhaseAware;
 public abstract class InitializableBean implements PhaseAware, Serializable {
 	private static final Log logger = LogFactory.getLog(InitializableBean.class);
 
-	protected transient ResourceBundle messageBundle;
+	protected ResourceBundle messageBundle;
 	
 	private transient boolean notValidated;
 
