@@ -4874,7 +4874,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
 				rv.add(root);
 
-				for (int next = 2; next < paths.length - 1; next++)
+				// for (int next = 2; next < paths.length - 1; next++)
+				for (int next = 2; next < paths.length; next++)
 				{
 //					root = root + paths[next];
 //					if (next < paths.length - 1)
@@ -4886,7 +4887,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //						// don't include the container itself
 //						break;
 //					}
-					root = root + paths[next] + Entity.SEPARATOR;
+					root += paths[next];
+					if(next < paths.length - 1 || container)
+					{
+						root +=  Entity.SEPARATOR;
+					}
 					rv.add(root);
 				}
 			}
