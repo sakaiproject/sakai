@@ -200,8 +200,13 @@ public class TotalScoreUpdateListener
       Boolean oldIsLate=old.getIsLate();
       
       String oldComments = old.getComments();
-      log.debug("oldComments = " + oldComments);
-      if (oldScore==newScore && oldIsLate.equals(newIsLate) && oldComments.equals(newComments)) {
+      log.debug("***oldScore = " + oldScore);
+      log.debug("***newScore = " + newScore);
+      log.debug("***oldIsLate = " + oldIsLate);
+      log.debug("***newIsLate = " + newIsLate);
+      log.debug("***oldComments = " + oldComments);
+      log.debug("***newComments = " + newComments);
+      if (oldScore==newScore && oldIsLate.equals(newIsLate) && newComments.equals(oldComments)) {
         update = false;
       }
     }
