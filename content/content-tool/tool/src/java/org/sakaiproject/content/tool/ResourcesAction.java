@@ -1272,9 +1272,12 @@ public class ResourcesAction
 			}
 
 			Site site;
-			try {
+			try 
+			{
 				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			} catch (IdUnusedException e1) {
+			} 
+			catch (IdUnusedException e1) 
+			{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -1299,7 +1302,15 @@ public class ResourcesAction
 			}
 			
 			boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
-			
+
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+
+			new_items = newEditItems(collectionId, itemType, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), CREATE_MAX_ITEMS);
 
 		}
 		context.put("new_items", new_items);
