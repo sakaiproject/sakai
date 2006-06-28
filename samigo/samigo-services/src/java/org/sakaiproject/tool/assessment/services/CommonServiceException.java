@@ -21,30 +21,33 @@
 
 
 
-package org.sakaiproject.tool.assessment.shared.api.qti;
+
+package org.sakaiproject.tool.assessment.services;
+
 
 /**
- * <p>Isolates exceptions in the QTI service layer.</p>
+ * <p>Isolates exceptions in the common services.</p>
+ * <p> </p>
  */
-
-public class QTIServiceException extends RuntimeException
+public class CommonServiceException extends RuntimeException
 {
 
-  public QTIServiceException()
+  public CommonServiceException()
   {
+    super();
   }
 
-  public QTIServiceException(String message)
+  public CommonServiceException(String message)
   {
     super(message);
   }
 
-  public QTIServiceException(String message, Throwable cause)
+  public CommonServiceException(String message, Throwable cause)
   {
     super(message, cause);
   }
 
-  public QTIServiceException(Throwable cause)
+  public CommonServiceException(Throwable cause)
   {
     super(cause);
   }

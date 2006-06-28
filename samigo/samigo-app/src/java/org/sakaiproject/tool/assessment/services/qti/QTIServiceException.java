@@ -35,6 +35,7 @@ public class QTIServiceException extends RuntimeException
 
   public QTIServiceException()
   {
+    super();
   }
 
   public QTIServiceException(String message)

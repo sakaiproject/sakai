@@ -19,24 +19,19 @@
  *
  **********************************************************************************/
 
-
-
-
-package org.sakaiproject.tool.assessment.shared.api.assessment;
-
+package org.sakaiproject.tool.assessment.services.assessment;
 
 /**
  * <p>Isolates exceptions in the assessment services.</p>
- * <p> </p>
- * <p>Copyright: Copyright (c) 2005 Sakai</p>
- * <p> </p>
- * @author Ed Smiley esmiley@stanford.edu
+ *
  */
+
 public class AssessmentServiceException extends RuntimeException
 {
 
   public AssessmentServiceException()
   {
+    super();
   }
 
   public AssessmentServiceException(String message)

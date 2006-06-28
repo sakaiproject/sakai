@@ -22,34 +22,32 @@
 
 
 
-package org.sakaiproject.tool.assessment.shared.api.common;
+package org.sakaiproject.tool.assessment.services;
 
 
 /**
- * <p>Isolates exceptions in the common services.</p>
+ * <p>Isolates exceptions in the questionpool services.</p>
  * <p> </p>
- * <p>Copyright: Copyright (c) 2005 Sakai</p>
- * <p> </p>
- * @author Ed Smiley <esmiley@stanford.edu>
  */
-public class CommonServiceException extends RuntimeException
+public class QuestionPoolServiceException extends RuntimeException
 {
 
-  public CommonServiceException()
+  public QuestionPoolServiceException()
   {
+    super();
   }
 
-  public CommonServiceException(String message)
+  public QuestionPoolServiceException(String message)
   {
     super(message);
   }
 
-  public CommonServiceException(String message, Throwable cause)
+  public QuestionPoolServiceException(String message, Throwable cause)
   {
     super(message, cause);
   }
 
-  public CommonServiceException(Throwable cause)
+  public QuestionPoolServiceException(Throwable cause)
   {
     super(cause);
   }

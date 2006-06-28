@@ -22,34 +22,32 @@
 
 
 
-package org.sakaiproject.tool.assessment.shared.api.questionpool;
+package org.sakaiproject.tool.assessment.services.grading;
 
 
 /**
- * <p>Isolates exceptions in the questionpool services.</p>
+ * <p>Isolates exceptions in the grading services.</p>
  * <p> </p>
- * <p>Copyright: Copyright (c) 2005 Sakai</p>
- * <p> </p>
- * @author Ed Smiley <esmiley@stanford.edu>
  */
-public class QuestionPoolServiceException extends RuntimeException
+public class GradingServiceException extends RuntimeException
 {
 
-  public QuestionPoolServiceException()
+  public GradingServiceException()
   {
+    super();
   }
 
-  public QuestionPoolServiceException(String message)
+  public GradingServiceException(String message)
   {
     super(message);
   }
 
-  public QuestionPoolServiceException(String message, Throwable cause)
+  public GradingServiceException(String message, Throwable cause)
   {
     super(message, cause);
   }
 
-  public QuestionPoolServiceException(Throwable cause)
+  public GradingServiceException(Throwable cause)
   {
     super(cause);
   }
