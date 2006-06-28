@@ -1492,7 +1492,7 @@
 					</td>
 				</tr>
 			#end
-			#if (! $item.isFolder() && ! $item.isStructuredArtifact())
+			#if (! $item.isStructuredArtifact())
 				<tr> 
 					<td style="width:180px;padding-left:.7em"> 
 						<label>$tlang.getString("gen.stored")</label>
@@ -1526,14 +1526,6 @@
 					</td>
 				</tr>
 			#end
-			<tr>
-				<td style="width:180px;padding-left:.7em"> 
-					$tlang.getString("gen.stored")
-				</td>
-				<td>
-					$item.url
-				</td>
-			</tr>
 		</table> 
 		#if (!$dropboxMode)
 			#if (!$item.isFolder())
