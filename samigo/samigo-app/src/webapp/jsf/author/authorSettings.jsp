@@ -326,11 +326,11 @@ function uncheckOther(field){
 <h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{msg.heading_high_security}">
     <f:verbatim><div class="tier2"></f:verbatim>
-    <h:panelGrid border="0" columns="3"
+    <h:panelGrid border="0" columns="2"
         summary="#{summary_msg.high_security_sec}">
-       <h:selectBooleanCheckbox
+       <!--h:selectBooleanCheckbox
          rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"
-         value="#{assessmentSettings.valueMap.hasSpecificIP}"/>
+         value="#{assessmentSettings.valueMap.hasSpecificIP}"/-->
       <h:outputText value="#{msg.high_security_allow_only_specified_ip}"
         rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
       <%-- no WYSIWYG for IP addresses --%>
@@ -338,11 +338,11 @@ function uncheckOther(field){
       <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"
         rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}"/>
 
-<h:outputText escape="false" value="<br/>#{msg.ip_note} <br/>#{msg.ip_example}#{msg.ip_ex}"/> 
+<h:outputText escape="false" value="<br/>#{msg.ip_note} <br/>#{msg.ip_example}#{msg.ip_ex}<br/>"/> 
      </h:panelGroup>
-      <h:selectBooleanCheckbox
+      <!--h:selectBooleanCheckbox
          rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"
-         value="#{assessmentSettings.valueMap.hasUsernamePassword}"/>
+         value="#{assessmentSettings.valueMap.hasUsernamePassword}"/-->
       <h:outputText value="#{msg.high_security_secondary_id_pw}"
         rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}"/>
       <h:panelGrid border="0" columns="2"  columnClasses="longtext"

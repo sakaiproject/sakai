@@ -80,7 +80,6 @@ public class ConfirmPublishAssessmentListener
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
-
     //#1 - permission checking before proceeding - daisyf
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -116,8 +115,8 @@ public class ConfirmPublishAssessmentListener
     }
     String toGradebook = assessmentSettings.getToDefaultGradebook();
     try{
-      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-          gbsHelper.isAssignmentDefined(assessmentName, g)){
+	if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+	    gbsHelper.isAssignmentDefined(assessmentName, g)){
         String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
         context.addMessage(null,new FacesMessage(gbConflict_err));
         error=true;
@@ -138,53 +137,53 @@ public class ConfirmPublishAssessmentListener
       context.addMessage(null,new FacesMessage(time_err));
       error=true;
     }
-
+    //Remove checkbox check for username and password and IP address
     // check username not empty if Secondary ID and Password is checked
-    Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
-    boolean hasUserName=false;
-    try
-    {
-      if (userName != null)
-      {
-	  hasUserName = ( (Boolean) userName).booleanValue();
-      }
-    }
-    catch (Exception ex)
-    {
+    //  Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
+    // boolean hasUserName=false;
+    // try
+    // {
+    //  if (userName != null)
+    //  {
+    //	  hasUserName = ( (Boolean) userName).booleanValue();
+    //  }
+    //  }
+    //   catch (Exception ex)
+    //   {
       // keep default
-      log.warn("Expecting Boolean hasUswerNamePassword, got: " + userName);
+    //   log.warn("Expecting Boolean hasUswerNamePassword, got: " + userName);
 
-    }
+    //  }
 
-    if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
-	String userName_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
-	context.addMessage(null,new FacesMessage(userName_err));
-        error=true;
+    // if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
+    //	String userName_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
+    //	context.addMessage(null,new FacesMessage(userName_err));
+    //    error=true;
 
-    }
+    //  }
 
   // check ip address not empty if allow specific IP addresses
-    Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
-    boolean hasIp=false;
-    try
-    {
-      if (ip != null)
-      {
-	  hasIp = ( (Boolean) ip).booleanValue();
-      }
-    }
-    catch (Exception ex)
-    {
+  //  Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
+    //   boolean hasIp=false;
+    //   try
+    //   {
+    //    if (ip != null)
+    //    {
+    //	  hasIp = ( (Boolean) ip).booleanValue();
+    //  }
+    //  }
+    //  catch (Exception ex)
+    //   {
       // keep default
-      log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
-    }
+    //    log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
+    //  }
 
         boolean ipErr=false;
         String ipString = assessmentSettings.getIpAddresses().trim(); 
-	if(hasIp){
-         if(ipString.equals(""))
-	   ipErr=true;
-	}
+	//	if(hasIp){
+	//  if(ipString.equals(""))
+	//  ipErr=true;
+	//	}
         String[]arraysIp=(ipString.split("\n"));
         //System.out.println("arraysIp.length: "+arraysIp.length);
         for(int a=0;a<arraysIp.length;a++){
@@ -272,5 +271,7 @@ public class ConfirmPublishAssessmentListener
     isOwner = agentId.equals(ownerId);
     return isOwner;
   }
+
+
   
 }

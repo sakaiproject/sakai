@@ -137,7 +137,7 @@ public class SaveAssessmentSettingsListener
 	context.addMessage(null,new FacesMessage(time_err));
         error=true;
     }
-
+    /** Rempove IP address and Username/password checkboxes
     Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
     boolean hasUserName=false;
     try
@@ -179,15 +179,16 @@ public class SaveAssessmentSettingsListener
     }
    
     // check valid ip addresses
-    boolean ipErr=false;
+ 
     String ipString = assessmentSettings.getIpAddresses().trim();    
      if(hasIp){
          if(ipString.equals(""))
 	   ipErr=true;
      }
-     
+    */
+    String ipString = assessmentSettings.getIpAddresses().trim();  
      String[]arraysIp=(ipString.split("\n"));
-       
+     boolean ipErr=false;
      for(int a=0;a<arraysIp.length;a++){
 	 String currentString=arraysIp[a];
 	 if(!currentString.trim().equals("")){
