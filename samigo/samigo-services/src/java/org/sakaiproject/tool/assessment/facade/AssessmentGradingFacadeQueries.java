@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.io.InputStream;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -470,11 +471,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public void removeMediaById(Long mediaId){
     MediaData media = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
+    String mediaLocation = media.getLocation();
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().delete(media);
         retryCount = 0;
+        if (mediaLocation != null){
+          File mediaFile = new File(mediaLocation);
+          mediaFile.delete();
+	}
       }
       catch (Exception e) {
         log.warn("problem removing mediaId="+mediaId+":"+e.getMessage());
@@ -484,10 +490,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public MediaData getMedia(Long mediaId){
-    MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class,mediaId);
-    String mediaLocation = mediaData.getLocation();
-    if (mediaLocation == null || (mediaLocation.trim()).equals("")){
-      mediaData.setMedia(getMediaStream(mediaId));
+      /*
+    MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
+    if (mediaData != null){
+      mediaData.setMedia(null);
+      String mediaLocation = mediaData.getLocation();
+      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
+        mediaData.setMedia(getMediaStream(mediaId));
+      }
+    }
+      */
+
+    System.out.println("****a. mediaId="+mediaId);
+    MediaData mediaData = null;
+    String query = "select new MediaData(m.mediaId, m.itemGradingData,"+
+                   " m.fileSize, m.mimeType, m.description,"+
+                   " m.location, m.filename, m.isLink, m.isHtmlInline, m.status,"+
+                   " m.createdBy, m.createdDate, m.lastModifiedBy, m.lastModifiedDate," +
+                   " m.duration) from MediaData as m where m.mediaId=?";
+
+    System.out.println("****b. query="+query);
+    List list = getHibernateTemplate().find(query, mediaId);
+    System.out.println("****c. no. of media="+list.size());
+    if (!list.isEmpty()){
+      mediaData = (MediaData) list.get(0);
+      mediaData.setMedia(null);
+      String mediaLocation = mediaData.getLocation();
+      if (mediaLocation == null || (mediaLocation.trim()).equals("")){
+        mediaData.setMedia(getMediaStream(mediaId));
+      }
     }
     return mediaData;
   }
@@ -505,10 +536,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     };
     List list = getHibernateTemplate().executeFind(hcb);
 
-//    List list = getHibernateTemplate().find(
-//        "from MediaData m where m.itemGradingData.itemGradingId=?",
-//        new Object[] { itemGradingId },
-//        new org.hibernate.type.Type[] { Hibernate.LONG });
     for (int i=0;i<list.size();i++){
       a.add((MediaData)list.get(i));
     }
@@ -666,6 +693,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   private byte[] getMediaStream(Long mediaId){
     byte[] b = new byte[4000];
     Session session = null;
+    InputStream in = null; 
     try{
       session = getSessionFactory().openSession();
       Connection conn = session.connection();
@@ -677,18 +705,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (rs.next()){
         java.lang.Object o = rs.getObject("MEDIA");
         if (o!=null){
-          InputStream in = rs.getBinaryStream("MEDIA");
+          in = rs.getBinaryStream("MEDIA");
           in.mark(0);
           int ch;
           int len=0;
-          while ((ch=in.read())!=-1)
-        len++;
-
+          while ((ch=in.read())!=-1){
+            len++;
+            System.out.print(ch+" ");
+	  }
+          System.out.println();
           b = new byte[len];
           in.reset();
           in.read(b,0,len);
-          in.close();
-  }
+        }
       }
     }
     catch(Exception e){
@@ -697,6 +726,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     finally{
       try{
         if (session !=null) session.close();
+        if (in !=null) in.close();
       }
       catch(Exception ex){
         log.warn(ex.getMessage());

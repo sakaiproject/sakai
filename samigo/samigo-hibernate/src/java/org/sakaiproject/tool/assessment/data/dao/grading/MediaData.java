@@ -73,6 +73,29 @@ public class MediaData
     this.duration = duration;
   }
 
+  public MediaData(Long mediaId, ItemGradingIfc itemGradingData, Long fileSize,
+                   String mimeType, String description, String location,
+                   String filename, boolean isLink, boolean isHtmlInline,
+                   Integer status, String createdBy, Date createdDate,
+                   String lastModifiedBy, Date lastModifiedDate, String duration){
+    this.mediaId = mediaId;
+    this.itemGradingData = itemGradingData;
+    this.fileSize = fileSize;
+    this.mimeType = mimeType;
+    this.description = description;
+    this.location = location;
+    this.filename = filename;
+    this.isLink = isLink;
+    this.isHtmlInline = isHtmlInline;
+    this.status = status;
+    this.createdBy = createdBy;
+    this.createdDate = createdDate;
+    this.lastModifiedBy = lastModifiedBy;
+    this.lastModifiedDate = lastModifiedDate;
+    this.duration = duration;
+  }
+
+
   public MediaData(byte[] media, String mimeType)
   {
     setMimeType(mimeType);
