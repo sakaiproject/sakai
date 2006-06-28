@@ -84,7 +84,7 @@ public interface QuestionPoolServiceAPI
   /**
    * Get all items sorted by orderby
    */
-  public List getAllItemsSorted(Long poolId, String orderBy);
+    public List getAllItemsSorted(Long poolId, String orderBy, String ascending);
 
 
   /**
