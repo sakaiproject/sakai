@@ -206,7 +206,7 @@ public class TotalScoreUpdateListener
       log.debug("***newIsLate = " + newIsLate);
       log.debug("***oldComments = " + oldComments);
       log.debug("***newComments = " + newComments);
-      if (oldScore==newScore && oldIsLate.equals(newIsLate) && 
+      if (oldScore==newScore && newIsLate.equals(oldIsLate) && 
            ((newComments!=null && newComments.equals(oldComments)) || (newComments==null && oldComments==null))) {
         update = false;
       }
