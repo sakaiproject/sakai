@@ -16,19 +16,11 @@
 <div class="helpBody">
 <h2>Creating questions for an assessment</h2>
 
+<a name="topa"> </a>
 
-
-
-
-
-
-
-
-
-
-<p><strong>Note:</strong> To complete the procedures in this document,
-you need to be assigned a role that has the necessary permissions.  To
-find out what your role is, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>. To see a list of what permissions are
+<p><strong>Note:</strong> To complete the procedures in this
+document, you must be assigned a role having the necessary
+permissions.  To determine your role, follow the directions in <a href="content.hlp?docId=arbu">Participant roles</a>. To view a list of permissions
 associated with a given role, see <a href="content.hlp?docId=armh">Permissions, roles, and tools</a>. For a basic understanding of roles and
 permissions, see <a href="content.hlp?docId=arax">Permissions and Roles: Overview</a>.</p>
 
@@ -45,23 +37,23 @@ different types available, which are outlined in the document <a href="content.h
 
 
 <p>In the <a href="content.hlp?docId=arcc">menubar</a> of the relevant course or project site,
-click . To create questions for an assessment, you
+click <strong><code>Tests &amp;
+Quizzes</code></strong>. To create questions for an assessment, you
 will use the authoring tool on the Assessments page. To create a new
 assessment, under the "New Assessment" heading, type a name for your
 assessment in the "Title:" field, and then click <strong><code>Create</code></strong>. You
 may base the assessment on a saved template by choosing the template
 from the "Choose Existing Template" drop-down list. You also can
 import an assessment by using the Import feature. For more
-information, see <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>.
+information, see <a href="content.hlp?docId=aqys">Importing or exporting an assessment</a>.</p>
 
-</p><p><a name="topb"> </a>
-
-To begin adding questions to a new assessment, choose the type of
+<p>To begin adding questions to a new assessment, choose the type of
 question you want to add from the "Add Question:" drop-down
-menu. Below, you'll find instructions for each question type:
-</p><ul><li><a href="#mult">Multiple Choice</a></li><li><a href="#survey">Survey</a></li><li><a href="#essay">Short Answer/Essay</a></li><li><a href="#fib">Fill in the Blank</a></li><li><a href="#mat">Matching</a></li><li><a href="#true">True/False</a></li><li><a href="#file">File Upload</a></li><li><a href="#upload">Copy from Question Pool</a></li></ul>
+menu. Below, you'll find instructions for each question type:</p>
 
-<a name="mult"> </a><h4>Multiple Choice</h4>
+<ul><li><a href="#multa">Multiple Choice</a></li><li><a href="#surveya">Survey</a></li><li><a href="#essaya">Short Answer/Essay</a></li><li><a href="#fiba">Fill in the Blank</a></li><li><a href="#mata">Matching</a></li><li><a href="#truea">True/False</a></li><li><a href="#filea">File Upload</a></li><li><a href="#uploada">Copy from Question Pool</a></li></ul>
+
+<a name="multa"> </a><h4>Multiple Choice</h4>
 
 <p>To create a Multiple Choice question, follow these steps:</p>
 <ol><li>In the Questions screen, from the "Add Question:" drop-down list,
@@ -116,9 +108,9 @@ added to the assessment.
 </li></ol>
 
 
-<a href="#topb">Back to top</a>
+<a href="#topa">Back to top</a>
 
-<a name="survey"> </a><h4>Survey</h4>
+<a name="surveya"> </a><h4>Survey</h4>
 
 <p>The process for creating a Survey question is
 similar to that used to create a Multiple Choice question, except for
@@ -134,8 +126,8 @@ choices are as follows:<br /><br />
 </li><li>You do not have the option to randomize answers or require a
 rationale.
 </li></ul>
-<a href="#topb">Back to top</a>
-<a name="essay"> </a><h4>Short Answer/Essay</h4>
+<a href="#topa">Back to top</a>
+<a name="essaya"> </a><h4>Short Answer/Essay</h4>
 
 <p>
 To create a Short Answer/Essay question, follow these steps:
@@ -163,8 +155,8 @@ assessment editing screen. You'll see that your new question has been
 added to the assessment.
 </li></ol>
 
-<a href="#topb">Back to top</a>
-<a name="fib"> </a><h4>Fill in the Blank</h4>
+<a href="#topa">Back to top</a>
+<a name="fiba"> </a><h4>Fill in the Blank</h4>
 
 <p>To create a Fill in the Blank question, follow these steps:</p>
 <ol><li>In the Questions screen, from the "Add Question:"
@@ -189,38 +181,63 @@ around words requiring a blank, for example:
 
 <span class="example">  In Unix, to find the current directory path, type {pwd} at the prompt.</span>
 
-<p>
-If more than one response is correct for a given blank, or if you want
-to allow for alternate spellings, use pipes
-(<code> | </code>) to separate the alternate responses, for
-example:</p>
-<span class="example">  Much to everyone's surprise, Darth Vader actually was Luke
-  Skywalker's {father | dad | poppa | pops | daddy}.</span>
+<p>Other options for building a Fill in the Blank question include:</p>
 
-<p>For questions with more than one blank, each response is mutually
-exclusive, meaning that each blank must contain a distinct
-response. Take the following example:</p>
-<span class="example">  The colors of the American flag are {red | white | blue}, {red | white | blue}, and {red | white | blue}.</span>
+<ul><li><strong>Wildcards:</strong> Use an asterisk
+(<code> * </code>) to represent one or more characters in a
+response. For example:
 
-<p>
-For the above, the grading engine looks for three distinct answers. To
-answer correctly, the user must respond with some combination of red,
-white, and blue.</p>
-</li><li>From the "Assign to Part:" drop-down list, choose the part (i.e.,
-section) to which you want to assign this question. Leave this as the
-default value if you haven't created any parts.<br /><br />
-</li><li>If you want to assign this question to a question pool, from the
-"Assign to question pool:" drop-down list, select the desired
-pool name.<br /><br />
-</li><li>Under "Correct/Incorrect answer feedback:", you may choose to
-provide question-level feedback.  <br /><br />
+<span class="example">An adverb, like {*ly}, modifies a verb.</span>
+</li><li><strong>Either|Or:</strong> If two or more specific answers could
+belong in a blank, you can use a pipe (<code> | </code>) to
+separate them. For example:
+
+<span class="example">  {red|yellow|blue} is the primary color I like best.</span>
+</li><li><strong>Case sensitivity:</strong> Click to place a checkmark in
+the "Case senstive" checkbox if case matters in the response. For
+example:
+
+<span class="example">  The capital of California is {Sacramento}.</span>
+</li><li><strong>Mutual exclusivity:</strong> Click to place a checkmark in
+the "Mutually exclusive" checkbox if your question has two or more
+blanks with identical answer choices, but the student must answer each
+one differently. For example:
+
+<span class="example">  When you toss a coin, it lands on {heads|tails} or {heads|tails}.</span>
+
+<p>If the answers are mutually exclusive, the student must type
+"heads" in one blank and "tails" in the other to answer the question
+correctly. If the answers were not mutually exclusive, then typing
+"heads" in both blanks would be considered correct.</p>
+
+<p>You can use the mutually exclusive option only when it applies to
+all the blanks in a question. For example, take the following
+question:</p>
+
+<span class="example">  We mixed {red|blue} and {red|blue} dye together to make {purple}.</span>
+
+<p>If you select the mutually exclusive option for the above question,
+it will automatically uncheck itself when you save your question.</p>
+</li></ul>
+</li><li>If your assessment has more than one part (i.e., section), use the
+"Assign to Part:" drop-down list to assign the question to a specific
+part.<br /><br />
+</li><li>To save the question in a question pool for later use, from the
+"Assign to question pool:" drop-down list, select the desired pool
+name. To do this, you must have created at least one question
+pool. For instructions, see <a href="content.hlp?docId=arej">Adding, moving, copying, or removing a question pool or subpool</a>.<br /><br />
+</li><li>The "Correct/Incorrect answer feedback:" fields allow you to set
+optional messages for students. Use the assessment's feedback settings
+to determine if and when students see these messages. For more
+information, see <a href="content.hlp?docId=arag">Assessment settings</a>.<br /><br />
 </li><li>When you're finished, click <strong><code>Save</code></strong> to return to the
 Questions screen. You'll see that your new question has been
 added to the assessment.
 </li></ol>
-<a href="#topb">Back to top</a>
 
-<a name="mat"> </a><h4>Matching</h4>
+<a href="#topa">Back to top</a>
+
+<a name="mata"> </a><h4>Matching</h4>
 
 <p>To create a Matching question, follow these steps:
 </p>
@@ -252,8 +269,8 @@ provide question-level feedback.  <br /><br />
 </li><li>Click <strong><code>Save</code></strong> to return to the Questions screen. You'll see
 that your new question has been added to the assessment.</li></ol>
 
-<a href="#topb">Back to top</a>
-<a name="true"> </a><h4>True/False</h4>
+<a href="#topa">Back to top</a>
+<a name="truea"> </a><h4>True/False</h4>
 
 <p>To create a True/False question, follow these steps:</p>
 <ol><li>In the Questions screen, from the "Add Question:"
@@ -281,9 +298,9 @@ added to the assessment, along with radio buttons for selecting the
 correct response.
 </li></ol>
 
-<a href="#topb">Back to top</a>
+<a href="#topa">Back to top</a>
 
-<a name="file"> </a><h4>File Upload</h4>
+<a name="filea"> </a><h4>File Upload</h4>
 
 <p>To create a File Upload question, which requires the user to upload
 a file, follow these steps:</p>
@@ -312,9 +329,9 @@ added to the assessment, along with the <strong><code>Upload file</code></strong
 
 </li></ol>
 
-<a href="#topb">Back to top</a>
+<a href="#topa">Back to top</a>
 
-<a name="upload"> </a><h4>Copy from Question Pool</h4>
+<a name="uploada"> </a><h4>Copy from Question Pool</h4>
 
 <p>To copy a question from a question pool, follow these steps:
 </p>
@@ -327,14 +344,7 @@ drop-down list, select <strong><code>Copy from Question Pool</code></strong>.<br
 question(s) you wish to import into the current assessment, and then
 click <strong><code>Import</code></strong>.</li></ol>
 
-<a href="#topb">Back to top</a>
-
-
-
-<a name="demos"> </a> 
-
-
-
+<a href="#topa">Back to top</a>
 
 
 </div>
