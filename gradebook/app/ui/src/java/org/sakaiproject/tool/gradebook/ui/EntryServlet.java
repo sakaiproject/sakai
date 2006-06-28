@@ -71,7 +71,8 @@ public class EntryServlet extends HttpServlet {
                     path.append("/studentView.jsf");
                 } else {
 					// The role filter has not been invoked yet, so this could happen here
-					throw new RuntimeException("User " + authnService.getUserUid() + " attempted to access gradebook " + gradebookUid + " without any role");
+//					throw new RuntimeException("User " + authnService.getUserUid() + " attempted to access gradebook " + gradebookUid + " without any role");
+                    path.append("/noRole.jsp");
                 }
                 String queryString = request.getQueryString();
                 if (queryString != null) {
