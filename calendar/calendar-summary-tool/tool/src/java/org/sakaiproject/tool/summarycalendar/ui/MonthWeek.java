@@ -20,8 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
-public class MonthWeek {
-	Day[] days		= new Day[7];
+import java.io.Serializable;
+
+public class MonthWeek implements Serializable {
+	private Day[] days		= new Day[7];
 
 	public MonthWeek() {
 
