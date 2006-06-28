@@ -10354,6 +10354,17 @@ public class SiteAction extends PagedResourceActionII
 		int i;
 		Vector pList = new Vector();
 		
+		Site site = null;
+		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
+		try
+		{
+			site = SiteService.getSite(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("java.specif") + " " + siteId);
+		}
+		
 		String invalidEmailInIdAccountString = ServerConfigurationService.getString("invalidEmailInIdAccountString", null);
 		
 		//accept noEmailInIdAccounts and/or emailInIdAccount account names
@@ -10393,9 +10404,17 @@ public class SiteAction extends PagedResourceActionII
 					try
 					{
 						User u = UserDirectoryService.getUserByEid(noEmailInIdAccount);
-						participant.name = u.getDisplayName();
-						participant.uniqname = noEmailInIdAccount;
-						pList.add(participant);
+						if (site != null && site.getUserRole(u.getId()) != null)
+						{
+							// user already exists in the site, cannot be added again
+							addAlert(state, rb.getString("java.user") + " " + noEmailInIdAccount + " " + rb.getString("java.exists"));
+						}
+						else
+						{
+							participant.name = u.getDisplayName();
+							participant.uniqname = noEmailInIdAccount;
+							pList.add(participant);
+						}
 					}
 					catch (UserNotDefinedException e) 
 					{
@@ -10451,9 +10470,17 @@ public class SiteAction extends PagedResourceActionII
 						{
 							// if the emailInIdAccount user already exists
 							User u = UserDirectoryService.getUserByEid(emailInIdAccount);
-							participant.name = u.getDisplayName();
-							participant.uniqname = emailInIdAccount;
-							pList.add(participant);
+							if (site != null && site.getUserRole(u.getId()) != null)
+							{
+								// user already exists in the site, cannot be added again
+								addAlert(state, rb.getString("java.user") + " " + emailInIdAccount + " " + rb.getString("java.exists"));
+							}
+							else
+							{
+								participant.name = u.getDisplayName();
+								participant.uniqname = emailInIdAccount;
+								pList.add(participant);
+							}
 						}
 						catch (UserNotDefinedException e)
 						{
@@ -10495,12 +10522,13 @@ public class SiteAction extends PagedResourceActionII
 		}
 		
 		// remove duplicate or existing user from participant list
+		int pListOldSize = pList.size();
 		pList=removeDuplicateParticipants(pList, state);
 		pList=removeExistingParticipants(pList, state);
 		state.setAttribute(STATE_ADD_PARTICIPANTS, pList);
 		
 		// if the add participant list is empty after above removal, stay in the current page
-		if (pList.size() == 0)
+		if (pListOldSize > 0 && pList.size() == 0)
 		{
 			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
 			addAlert(state, rb.getString("java.guest"));
