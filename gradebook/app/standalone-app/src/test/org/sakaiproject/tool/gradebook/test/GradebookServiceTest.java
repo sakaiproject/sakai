@@ -100,31 +100,22 @@ public class GradebookServiceTest extends GradebookTestBase {
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
 
         // Make sure that internal name conflicts are detected
-        boolean exceptionThrown = false;
         try {
             gradebookService.addExternalAssessment(GRADEBOOK_UID, "A unique external id", null, ASN_1, 10, new Date(), "Samigo");
-        } catch (ConflictingAssignmentNameException e) {
-            exceptionThrown = true;
-        }
-        Assert.assertTrue(exceptionThrown);
+            fail();
+        } catch (ConflictingAssignmentNameException e) {}
 
         // Make sure that external name conflicts are detected
-        exceptionThrown = false;
         try {
             gradebookService.addExternalAssessment(GRADEBOOK_UID, "Another unique external id", null, EXT_TITLE_1, 10, new Date(), "Samigo");
-        } catch (ConflictingAssignmentNameException e) {
-            exceptionThrown = true;
-        }
-        Assert.assertTrue(exceptionThrown);
+            fail();
+        } catch (ConflictingAssignmentNameException e) {}
 
         // Make sure that external id conflicts are detected
-        exceptionThrown = false;
         try {
             gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, "A unique title", 10, new Date(), "Samigo");
-        } catch (ConflictingExternalIdException e) {
-            exceptionThrown = true;
-        }
-        Assert.assertTrue(exceptionThrown);
+            fail();
+        } catch (ConflictingExternalIdException e) {}
 
         // Test a floating value.
         double floatingPoints = 10.66666;
@@ -240,6 +231,9 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Ensure that the course grade record for student1 has been updated
         cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(10)));// 10 points on internal, 0 points on external
+        
+        // Try to add another external assessment with the same external ID as the recently deleted external assessment
+        gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, "some other unique title", 10, new Date(), "Samigo");        
     }
 
     public void testDeleteGradebook() throws Exception {
@@ -261,23 +255,27 @@ public class GradebookServiceTest extends GradebookTestBase {
 
     public void testExternalAssignmentWithZeroPoints() throws Exception {
         //add assignment to grade book
-        boolean exceptionThrown = false;
         try{
             gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 0, new Date(), "Samigo");
-        }catch(AssignmentHasIllegalPointsException e){
-            exceptionThrown = true;
+            fail();
+        }catch(AssignmentHasIllegalPointsException e){}
 
-        }
-        Assert.assertTrue(exceptionThrown);
-
-        exceptionThrown = false;
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
         try{
-
             gradebookService.updateExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1,0, null);
-        }catch(AssignmentHasIllegalPointsException e){
-            exceptionThrown = true;
-        }
-        Assert.assertTrue(exceptionThrown);
+            fail();
+        } catch(AssignmentHasIllegalPointsException e) {}
+    }
+
+    public void testDuplicateExternalIds() throws Exception {
+        // Add an external assessment
+        gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
+
+        // Try to add another external assessment with a duplicate external ID
+        try {
+            gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, "some unique title", 10, new Date(), "Samigo");
+            fail();
+        } catch (ConflictingExternalIdException e) {}
+
     }
 }
