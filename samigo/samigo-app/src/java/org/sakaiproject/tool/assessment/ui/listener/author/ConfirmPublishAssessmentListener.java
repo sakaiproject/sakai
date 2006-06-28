@@ -179,11 +179,12 @@ public class ConfirmPublishAssessmentListener
       log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
     }
 
-    if(hasIp){
         boolean ipErr=false;
-        String ipString = assessmentSettings.getIpAddresses().trim();    
+        String ipString = assessmentSettings.getIpAddresses().trim(); 
+	if(hasIp){
          if(ipString.equals(""))
 	   ipErr=true;
+	}
         String[]arraysIp=(ipString.split("\n"));
         //System.out.println("arraysIp.length: "+arraysIp.length);
         for(int a=0;a<arraysIp.length;a++){
@@ -203,7 +204,7 @@ public class ConfirmPublishAssessmentListener
 	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
 
-	}
+       
     }
  //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){

@@ -209,17 +209,18 @@ public class SaveAssessmentSettings
     assessmentService.deleteAllSecuredIP(assessment);
 
     // k. set ipAddresses
+   
     HashSet ipSet = new HashSet();
     String ipAddresses = assessmentSettings.getIpAddresses();
     if (ipAddresses == null)
       ipAddresses = "";
+    
     String[] ip = ipAddresses.split("\\n");
     for (int j=0; j<ip.length;j++){
       if (ip[j]!=null)
         ipSet.add(new SecuredIPAddress(assessment.getData(),null,ip[j]));
     }
     assessment.setSecuredIPAddressSet(ipSet);
-
     // l. FINALLY: save the assessment
     assessmentService.saveAssessment(assessment);
     //assessmentService.saveOrUpdate(template);
@@ -248,12 +249,17 @@ public class SaveAssessmentSettings
 
     public boolean isIpValid(String ipString){
       String[] parts=ipString.split("\\.");
-        for(int i=0;i<parts.length;i++){	    
-	   String s=parts[i]; 
-	     try{
+      int l=parts.length;
+      if((l>4)||((l<4)&&(ipString.indexOf("*")<0)))
+	  return false;
+      for(int i=0;i<l;i++){
+	  String s=parts[i];
+          if(s.trim().equals(""))
+	      return false;
+	  try{
 	      String s2=s.replace('*','0');
 	      if(Integer.parseInt(s2)<0 ||Integer.parseInt(s2)>255){
-	   	   return false;
+		  return false;
 	       }
 	     }
 	     catch(NumberFormatException e){
@@ -269,8 +275,11 @@ public class SaveAssessmentSettings
 	       index++;
 	   }//end while
 	}//end for	
+      
 	return true;
     }
+  
+    
 
 
 }

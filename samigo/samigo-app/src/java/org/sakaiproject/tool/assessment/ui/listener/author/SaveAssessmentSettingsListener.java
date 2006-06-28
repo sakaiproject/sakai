@@ -82,14 +82,14 @@ public class SaveAssessmentSettingsListener
     AssessmentService assessmentService = new AssessmentService();
     SaveAssessmentSettings s= new SaveAssessmentSettings();
     String assessmentName=assessmentSettings.getTitle();
-    System.out.println ("BEFORE CHECK NAME EMPTY");
+ 
     // check if name is empty
     if(assessmentName!=null &&(assessmentName.trim()).equals("")){
      	String nameEmpty_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_empty");
 	context.addMessage(null,new FacesMessage(nameEmpty_err));
 	error=true;
     }
- System.out.println ("BEFORE CHECK NAME UNIQUE");
+
     // check if name is unique 
     if(!assessmentService.assessmentTitleIsUnique(assessmentId,assessmentName,false)){
 	String nameUnique_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","assessmentName_error");
@@ -179,32 +179,34 @@ public class SaveAssessmentSettingsListener
     }
    
     // check valid ip addresses
-    if(hasIp){
-        boolean ipErr=false;
-        String ipString = assessmentSettings.getIpAddresses().trim();    
+    boolean ipErr=false;
+    String ipString = assessmentSettings.getIpAddresses().trim();    
+     if(hasIp){
          if(ipString.equals(""))
 	   ipErr=true;
-        String[]arraysIp=(ipString.split("\n"));
+     }
+     
+     String[]arraysIp=(ipString.split("\n"));
        
-        for(int a=0;a<arraysIp.length;a++){
-            String currentString=arraysIp[a];
-	    if(!currentString.trim().equals("")){
-		if(a<(arraysIp.length-1))
-		    currentString=currentString.substring(0,currentString.length()-1);           
-		if(!s.isIpValid(currentString)){
-		ipErr=true;
-		break;
-		}
-	    }
+     for(int a=0;a<arraysIp.length;a++){
+	 String currentString=arraysIp[a];
+	 if(!currentString.trim().equals("")){
+	     if(a<(arraysIp.length-1))
+		 currentString=currentString.substring(0,currentString.length()-1);           
+	     if(!s.isIpValid(currentString)){
+		 ipErr=true;
+		 break;
+	     }
+	 }
 	
-	}
+     }
 	if(ipErr){
 	    error=true;
 	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
 
 	}
-    }
+
 
     //check feedback - if at specific time then time should be defined.
    
