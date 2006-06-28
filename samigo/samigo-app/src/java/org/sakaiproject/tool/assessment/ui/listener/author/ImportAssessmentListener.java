@@ -90,23 +90,27 @@ public class ImportAssessmentListener implements ActionListener
     String fileName = testFileName;
 
     // Create an assessment based on the uploaded file
-    AssessmentFacade assessment = createImportedAssessment(fileName);
+      AssessmentFacade assessment = createImportedAssessment(fileName);
+    
 
+    if (assessment!=null) {
+    // import successful
     // Go to editAssessment.jsp, so prepare assessmentBean
-    assessmentBean.setAssessment(assessment);
+      assessmentBean.setAssessment(assessment);
     // reset in case anything hanging around
-    author.setAssessTitle("");
-    author.setAssessmentDescription("");
-    author.setAssessmentTypeId("");
-    author.setAssessmentTemplateId(AssessmentTemplateFacade.
-      DEFAULTTEMPLATE.toString());
+      author.setAssessTitle("");
+      author.setAssessmentDescription("");
+      author.setAssessmentTypeId("");
+      author.setAssessmentTemplateId(AssessmentTemplateFacade.
+        DEFAULTTEMPLATE.toString());
 
     // update core AssessmentList: get the managed bean, author and set the list
-    AssessmentService assessmentService = new AssessmentService();
-    ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
+      AssessmentService assessmentService = new AssessmentService();
+      ArrayList list = assessmentService.getBasicInfoOfAllActiveAssessments(
                      AssessmentFacadeQueries.TITLE,true);
     //
-    author.setAssessments(list);
+      author.setAssessments(list);
+    }
   }
 
   private AssessmentFacade createImportedAssessment(String fullFileName)

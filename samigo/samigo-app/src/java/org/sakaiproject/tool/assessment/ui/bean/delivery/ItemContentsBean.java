@@ -194,6 +194,7 @@ log.debug("getReview():"+  data.getReview().booleanValue());
 log.debug("setReview():  preview = " + preview);
     if (getItemGradingDataArray().isEmpty())
     {
+log.debug("setReview():  isEmpty = " + preview);
       ItemGradingData data = new ItemGradingData();
       data.setPublishedItemId(itemData.getItemId());
       if (itemData.getItemTextSet().size() > 0)
@@ -206,9 +207,11 @@ log.debug("setReview():  preview = " + preview);
       setItemGradingDataArray(items);
     }
     Iterator iter = getItemGradingDataArray().iterator();
+log.debug("setReview():  getItemGradingDataArray size = " + getItemGradingDataArray().size());
     while (iter.hasNext())
     {
       ItemGradingData data = (ItemGradingData) iter.next();
+log.debug("setReview():  setreview at the end = " + preview);
       data.setReview(new Boolean(preview));
     }
   }
@@ -376,8 +379,10 @@ log.debug("setReview():  preview = " + preview);
   {
     if (itemGradingDataArray == null)
     {
+ log.debug("getReview : getitemgradingdataarray is null, size =0 ");
       return new ArrayList();
     }
+ log.debug("getReview: getitemgradingdataarray size " + itemGradingDataArray.size());
     return itemGradingDataArray;
   }
 
@@ -408,7 +413,7 @@ log.debug("setReview():  preview = " + preview);
     }
     catch (Exception e)
     {
-      log.warn("get ReponseId() " + e.getMessage());
+      log.warn("get ResponseId() " + e.getMessage());
       // True/false
     }
 
@@ -429,7 +434,7 @@ log.debug("setReview():  preview = " + preview);
     }
     catch (Exception e)
     {
-      e.printStackTrace();
+      log.warn("get ResponseId() " + e.getMessage());
       return responseId;
     }
   }

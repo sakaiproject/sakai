@@ -455,6 +455,7 @@ public class AuthoringHelper
   {
     AssessmentFacade assessment = null;
 
+    AssessmentService assessmentService = new AssessmentService();
     try
     {
       // we need to know who we are
@@ -462,7 +463,6 @@ public class AuthoringHelper
 
       // create the assessment
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
-      AssessmentService assessmentService = new AssessmentService();
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml);
@@ -570,14 +570,15 @@ public class AuthoringHelper
 
       //assessmentService.update(assessment);
       assessmentService.saveAssessment(assessment);
+      return assessment;
     }
     catch (Exception e)
     {
       log.error(e.getMessage(), e);
+      assessmentService.removeAssessment(assessment.getAssessmentId().toString());
       throw new RuntimeException(e);
     }
 
-    return assessment;
   }
 
   /**

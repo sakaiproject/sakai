@@ -99,7 +99,6 @@ public class AgentHelperImpl implements AgentHelper
       }
       else
       {
-// log.debug("userid = " + user.getEid());
         agentS = user.getId();
       }
     }
@@ -107,7 +106,6 @@ public class AgentHelperImpl implements AgentHelper
     {
       log.warn(ex);
     }
-    // log.debug("** getAgentString() ="+agentS);
     return agentS;
   }
 
@@ -125,7 +123,7 @@ public class AgentHelperImpl implements AgentHelper
       }
       else
       {
-        log.debug("**** userEid = " + user.getEid());
+        //log.debug("**** userEid = " + user.getEid());
         eid = user.getEid();
       }
     }
@@ -224,7 +222,7 @@ public class AgentHelperImpl implements AgentHelper
       userRole = siteAuthzGroup.getUserRole(agentString);
       if (userRole!=null)
         role = userRole.getId();
-      log.debug(realmName + ":" + role);
+      //log.debug(realmName + ":" + role);
     }
     catch(Exception e)
     {
@@ -311,7 +309,7 @@ public class AgentHelperImpl implements AgentHelper
    String siteName=null;
    try{
       siteName = SiteService.getSite(siteId).getTitle();
-      log.debug("**** siteName="+siteName);
+      //log.debug("**** siteName="+siteName);
     }
     catch (Exception ex){
       log.warn(ex);
