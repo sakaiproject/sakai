@@ -435,7 +435,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public Long saveMedia(byte[] media, String mimeType){
-    System.out.println("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
+    log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){ 
@@ -448,12 +448,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-    System.out.println("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
+    log.debug("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
     return mediaData.getMediaId();
   }
 
   public Long saveMedia(MediaData mediaData){
-    System.out.println("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
+    log.debug("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -465,7 +465,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
       }
     }
-    System.out.println("****"+mediaData.getFilename()+" saved media."+(new Date()));
+    log.debug("****"+mediaData.getFilename()+" saved media."+(new Date()));
     return mediaData.getMediaId();
   }
 
@@ -483,7 +483,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (rs.next()){
         mediaLocation = rs.getString("LOCATION");
       }
-      System.out.println("****mediaLocation="+mediaLocation);
+      log.debug("****mediaLocation="+mediaLocation);
 
       String query="delete from SAM_MEDIA_T where MEDIAID=?";
       PreparedStatement statement = conn.prepareStatement(query);
@@ -502,19 +502,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
     }
 
-    /*
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){ 
-      try {
-        getHibernateTemplate().delete(media);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem removing mediaId="+mediaId+":"+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
-    */
     try{
       if (mediaLocation != null){
         File mediaFile = new File(mediaLocation);
@@ -726,9 +713,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           int len=0;
           while ((ch=in.read())!=-1){
             len++;
-            System.out.print(ch+" ");
 	  }
-          System.out.println();
           b = new byte[len];
           in.reset();
           in.read(b,0,len);
