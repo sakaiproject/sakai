@@ -47,7 +47,7 @@
             <td>
                 <!--<table>-->
                 #set ($mm = $yearArray.getMonth($xn,$mn))
-                <table width="100%" cellspacing="0" class="calendar"  summary="$tlang.getString('viewm.list.summary2') $mm.MonthName $tlang.getString('viewm.list.summary2')">
+                <table width="100%" cellspacing="0" class="calendar"  summary="$tlang.getString('viewy.list.summary2') $mm.MonthName $tlang.getString('viewy.list.summary3')">
                         <tr>
                             ##<td colspan="7" class="borderWhiteYear">
                             <th colspan="7">

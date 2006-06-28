@@ -2,8 +2,11 @@
 <xsl:stylesheet
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
+   xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
 
+<xsl:param name="rb"/>
+        
 <xsl:template match="schedule">
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
 
@@ -37,14 +40,14 @@
             color="black"
             text-align="left"
             padding-top="0pt">
-		Schedule for <xsl:value-of select="uid"/>  - page <fo:page-number/> 
+		<xsl:value-of select="ResourceBundle:getString($rb, 'sched.for')"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> - <fo:page-number/> 
     	</fo:block>    	
    </fo:static-content> 
 	  
   <fo:static-content flow-name="xsl-region-after">
 	<!--	<fo:block text-align="end" 
 			font-size="7pt" font-family="verdana,sans-serif" line-height="1em + 2pt">
-			Schedule for <xsl:value-of select="uid"/> - page <fo:page-number/>
+			<xsl:value-of select="ResourceLoader:getString($rb, 'sched.for')"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> - <fo:page-number/>
       </fo:block> -->
   </fo:static-content>
 

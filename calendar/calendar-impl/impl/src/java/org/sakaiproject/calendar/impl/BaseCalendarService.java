@@ -40,6 +40,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -121,6 +122,7 @@ import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -155,6 +157,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
    private TransformerFactory transformerFactory = null;
+   
+   private ResourceLoader rb = new ResourceLoader("calendarimpl");
    
 	/**
 	 * Access this service from the inner classes.
@@ -5535,13 +5539,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			Source src = new DOMSource(doc);
 
+			// Kludge: Xalan does not properly interpret ResourceLoader object
+			// when passed as parameter, so here we fetch the locale-specific
+			// ResourceBundle.
+			ResourceBundle resbud = ResourceBundle.getBundle("calendarimpl",
+                                                          rb.getLocale() );
+			transformer.setParameter("rb", resbud);
 			transformer.transform(src, new SAXResult(driver.getContentHandler()));
 		}
 
 		catch (TransformerException e)
 		{
-e.printStackTrace();
-			M_log.warn(".generatePDF(): " + e);
+			e.printStackTrace();
+			M_log.warn(this+".generatePDF(): " + e);
 			return;
 		}
 	}
