@@ -294,24 +294,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       };
 
       BaseForum tempForum = null;
-      Set resultSet = new HashSet();      
-      List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-      for (Iterator i = temp.iterator(); i.hasNext();)
-      {
-        Object[] results = (Object[]) i.next();        
-            
-        if (results != null) {
-          if (results[0] instanceof BaseForum) {
-            tempForum = (BaseForum)results[0];
-            tempForum.setArea((Area)results[1]);            
-          } else {
-            tempForum = (BaseForum)results[1];
-            tempForum.setArea((Area)results[0]);
-          }
-          resultSet.add(tempForum);
-        }
-      }
-      return Util.setToList(resultSet);
+      //Set resultSet = new HashSet();
+      
+      return (ArrayList) getHibernateTemplate().execute(hcb);
+//      for (Iterator i = temp.iterator(); i.hasNext();)
+//      {
+//        Object[] results = (Object[]) i.next();        
+//            
+//        if (results != null) {
+//          if (results[0] instanceof BaseForum) {
+//            tempForum = (BaseForum)results[0];
+//            tempForum.setArea((Area)results[1]);            
+//          } else {
+//            tempForum = (BaseForum)results[1];
+//            tempForum.setArea((Area)results[0]);
+//          }
+//          resultSet.add(tempForum);
+//        }
+//      }
+//      return Util.setToList(resultSet);
     }
 
     public Topic getTopicByIdWithAttachments(final Long topicId) {
