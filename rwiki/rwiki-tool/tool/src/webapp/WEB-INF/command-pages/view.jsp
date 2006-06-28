@@ -82,7 +82,7 @@
       <title>View: <c:out value="${renderBean.localisedPageName}"/></title>
       <jsp:expression>request.getAttribute("sakai.html.head")</jsp:expression>
 	<link rel="alternate" title="Sakai Wiki RSS" 
- 			href="${viewBean.baseAccessUrl}10.rss" type="application/rss+xml" />
+ 			href="${viewBean.rssAccessUrl}" type="application/rss+xml" />
 
     </head>
     <jsp:element name="body">
@@ -93,6 +93,16 @@
 	<div class="navIntraTool">
 	  <form action="?#" method="get" class="rwiki_searchForm">
 	    <span class="rwiki_pageLinks">
+	      <jsp:element name="a">
+	      <jsp:attribute name="href"><c:out value="${viewBean.rssAccessUrl}"/></jsp:attribute>
+	      <jsp:attribute name="target">rssfeed</jsp:attribute>
+	      <jsp:element name="img" >
+	      <jsp:attribute name="src"><c:out value="${viewBean.rssButtonUrl}"/></jsp:attribute>
+	      <jsp:attribute name="alt">RSS</jsp:attribute>
+	      <jsp:attribute name="border">0</jsp:attribute>
+	      <jsp:attribute name="align">right</jsp:attribute>
+	      </jsp:element>
+	      </jsp:element>
 	      <!-- Home Link -->
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 	      <!-- View Link -->
