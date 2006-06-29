@@ -58,6 +58,73 @@
 <%@ include file="/js/delivery.js" %>
 
 <script language="javascript" type="text/JavaScript">
+
+function showNotif(item, button,formName)
+{
+
+/*
+	if (button !="noBlock")
+	{
+		eval("document." + formName + "." + button + ".disabled=true");
+	}
+*/
+	if (item !="noNotif")
+	{
+		var browserType;
+		if (document.all) {browserType = "ie"}
+		if (window.navigator.userAgent.toLowerCase().match("gecko")) {browserType= "gecko"}
+		if (browserType == "gecko" )
+			document.showItem = eval('document.getElementById(item)');
+		else if (browserType == "ie")
+			document.showItem = eval('document.all[item]');
+		else
+			document.showItem = eval('document.layers[item]');
+
+			document.showItem.style.visibility = "visible";
+	}
+	
+	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+	{
+		if (document.getElementsByTagName("input").item(i).className == "disableme")
+		{
+			document.getElementsByTagName("input").item(i).disabled = "disabled";
+		}
+	}
+		
+}
+function showNotif2(item, button,formName)
+{
+        alert('item: '+item);
+        alert('button: '+button);
+       alert('formname: '+formName);
+	if (button !="noBlock")
+	{
+		eval("document." + formName + "." + button + ".disabled=true");
+	}
+	if (item !="noNotif")
+	{
+		var browserType;
+		if (document.all) {browserType = "ie"}
+		if (window.navigator.userAgent.toLowerCase().match("gecko")) {browserType= "gecko"}
+		if (browserType == "gecko" )
+			document.showItem = eval('document.getElementById(item)');
+		else if (browserType == "ie")
+			document.showItem = eval('document.all[item]');
+		else
+			document.showItem = eval('document.layers[item]');
+
+			document.showItem.style.visibility = "visible";
+	}
+	
+	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
+	{
+		if (document.getElementsByTagName("input").item(i).className == "disableme")
+		{
+			document.getElementsByTagName("input").item(i).disabled = "disabled";
+		}
+	}		
+}
+
 function checkRadio()
 {
   for (i=0; i<document.forms[0].elements.length; i++)

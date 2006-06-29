@@ -41,9 +41,9 @@ should be included in file importing DeliveryMessages
     target="jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}"
     valueChangeListener="#{delivery.addMediaToItemGrading}" />
   <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-  <h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" action="#{delivery.getOutcome}" />
+  <h:commandButton id="upl" accesskey="#{msg.a_upload}" value="#{msg.upload}" action="#{delivery.getOutcome}" onclick="showNotif('submitnotif',this.name,'takeAssessmentForm');"/>
 </h:panelGroup>
-
+<h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' 
                        || delivery.actionString=='reviewAssessment' 
                        || delivery.actionString=='gradeAssessment'}">
