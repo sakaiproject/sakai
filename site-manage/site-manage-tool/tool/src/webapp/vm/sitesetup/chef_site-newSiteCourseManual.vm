@@ -90,7 +90,7 @@
 					<tr>
 						<td></td>
 						<td colspan="3">
-						<label for="number" class="skip">$tlang.getString("gen.listnav.select")</label>
+						<label for="number" class="skip">$tlang.getString("man.addmore.label")</label>
 							<select name="number" id="number" onchange="document.requestCourseForm.option.value='change';javascript:document.requestCourseForm.submit();" tabindex = "$count">
 								<option selected="selected">$tlang.getString("man.addmore")</option>
 								#foreach ($j in [1..3])
