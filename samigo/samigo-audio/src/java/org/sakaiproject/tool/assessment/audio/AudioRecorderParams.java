@@ -234,7 +234,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex)
       {
-        // leave
+        System.out.println(ex.getMessage());
       }
 
       for (int i = 0; i < this.frequenciesAllowed.length; i++)
@@ -256,7 +256,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex)
       {
-        // leave
+        System.out.println(ex.getMessage());
       }
 
       for (int i = 0; i < this.bitsAllowed.length; i++)
@@ -308,7 +308,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex)
       {
-        // leave
+        System.out.println(ex.getMessage());
       }
     }
     s = applet.getParameter("attemptsAllowed");
@@ -320,7 +320,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex1)
       {
-        // leave
+        System.out.println(ex1.getMessage());
       }
     }
     s = applet.getParameter("attemptsRemaining");
@@ -332,7 +332,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex1)
       {
-        // leave
+        System.out.println(ex1.getMessage());
       }
     }
     s = applet.getParameter("currentRecordingLength");
@@ -344,7 +344,7 @@ public class AudioRecorderParams implements Serializable
       }
       catch (NumberFormatException ex1)
       {
-        // leave
+        System.out.println(ex1.getMessage());
       }
     }
 
