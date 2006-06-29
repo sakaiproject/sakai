@@ -112,12 +112,15 @@ public class ConfirmPublishAssessmentListener
     }
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
    
-    if(assessmentBean.getTotalScore()<=0)
+    if(assessmentSettings.getToDefaultGradebook().equals("1"))
 	{
- String gb_err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-                                                 "gradebook_exception_min_points");
-        context.addMessage(null, new FacesMessage(gb_err));
-        error=true;
+	    if(assessmentBean.getTotalScore()<=0)
+		{
+                String gb_err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+							    "gradebook_exception_min_points");
+		context.addMessage(null, new FacesMessage(gb_err));
+		error=true;
+		}
 	}
 
 
