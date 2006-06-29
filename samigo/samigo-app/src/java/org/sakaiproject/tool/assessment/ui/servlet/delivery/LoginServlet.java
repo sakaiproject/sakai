@@ -136,6 +136,8 @@ public class LoginServlet
           isAuthorized = checkMembership(pub, req, res);
       }
 
+      log.debug("*** agentIdString: "+agentIdString);
+
       // check if assessment is available
       // We are getting the total no. of submission (for grade) per assessment
       // by the given agent at the same time

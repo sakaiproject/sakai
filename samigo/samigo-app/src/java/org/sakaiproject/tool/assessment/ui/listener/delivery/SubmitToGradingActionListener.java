@@ -289,7 +289,7 @@ public class SubmitToGradingActionListener implements ActionListener
         // make update to old item and insert new item
         // and we will only update item that has been changed
         log.debug("*** 2ad. set assessmentGrading with new/updated itemGrading "+(new Date()));
-        HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap, mcmrMap);
+        HashSet updateItemGradingSet = getUpdateItemGradingSet(itemGradingSet, adds, fibMap, mcmrMap, adata);
         adata.setItemGradingSet(updateItemGradingSet);
       }
     }
@@ -323,7 +323,8 @@ public class SubmitToGradingActionListener implements ActionListener
   }
 
   private HashSet getUpdateItemGradingSet(Set oldItemGradingSet, Set newItemGradingSet, 
-                                          HashMap fibMap, HashMap mcmrMap){
+                                          HashMap fibMap, HashMap mcmrMap,
+                                          AssessmentGradingData adata){
     HashSet updateItemGradingSet = new HashSet();
     HashSet h = new HashSet();
     Iterator iter = oldItemGradingSet.iterator();
@@ -366,6 +367,8 @@ public class SubmitToGradingActionListener implements ActionListener
       }
       else {  // itemGrading from new set doesn't exist, add to set in this case
         //log.debug("**** SubmitToGrading: need add new item");
+        log.debug("** who r u?"+AgentFacade.getAgentString());
+        newItem.setAgentId(adata.getAgentId());
         updateItemGradingSet.add(newItem);
       }
     }
