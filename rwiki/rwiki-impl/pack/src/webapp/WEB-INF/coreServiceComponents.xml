@@ -297,6 +297,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
     <!--  <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>-->
     <property name="responseHeaders">
       <map>
@@ -326,6 +327,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
     <property name="feedFormat"><value>&lt;a href="{0}10.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss10.gif" border="0"  alt="RSS 1.0" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -355,6 +357,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
     <property name="feedFormat"><value>&lt;a href="{0}09.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss091.gif" border="0"  alt="RSS 0.91" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -389,6 +392,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
     <property name="feedFormat"><value>&lt;a href="{0}20.rss" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/rss20.gif" border="0"  alt="RSS 2.0"/&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
@@ -423,6 +427,7 @@ DISABLED
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
+    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
     <property name="feedFormat"><value>&lt;a href="{0}atom" target="feeds"&gt;&lt;img src="/sakai-rwiki-tool/images/atom03.gif" border="0" alt="Atom 0.3" /&gt;&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>

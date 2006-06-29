@@ -34,8 +34,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -57,6 +61,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 {
 	private RWikiObjectService rwikiObjectService = null;
 
+	private SiteService siteService;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -92,7 +98,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			{
 				ch = opch;
 			}
-
+			Decoded decodedReference = decode(entity.getReference() + getMinorType());			
+			
 			Attributes dummyAttributes = new AttributesImpl();
 
 			ch.startDocument();
@@ -151,21 +158,22 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				String name = String.valueOf(key);
 				String value = String.valueOf(rp.getProperty(name));
 				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", name);
-				addElement(ch, SchemaNames.NS_CONTAINER,
-						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, value);
+				addPropertyElement(name, value, ch);
 			}
-			{
-				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", "_handler");
-				addElement(ch, SchemaNames.NS_CONTAINER,
-						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA,
-						" XSLTEntity Handler");
+			addPropertyElement("_handler", " XSLTEntity Handler", ch);
+
+			// XXX assumption that context is a Site.
+			Site site = (Site) siteService.getEntity(EntityManager.newReference(decodedReference.getContext()));
+			String title;
+			if (site != null) {
+				title = site.getTitle();
+			} else {
+				title = decodedReference.getContext();
 			}
+
+			addPropertyElement("_siteDisplay", title, ch);
+			addPropertyElement("_container", decodedReference.getContainer(), ch);
+
 			if (entity instanceof RWikiEntity)
 			{
 				RWikiEntity rwe = (RWikiEntity) entity;
@@ -173,50 +181,35 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 				if (!rwe.isContainer())
 				{
 					RWikiObject rwo = rwe.getRWikiObject();
-					AttributesImpl propA = new AttributesImpl();
-					propA.addAttribute("", SchemaNames.ATTR_NAME,
-							SchemaNames.ATTR_NAME, "string", "_title");
-					addElement(ch, SchemaNames.NS_CONTAINER,
-							SchemaNames.EL_XMLPROPERTY,
-							SchemaNames.EL_NSXMLPROPERTY, propA,
-							NameHelper.localizeName(rwo.getName(), rwo
-									.getRealm()));
+					// XXX internationalization
+					title = "Change History for " + title + ":" + NameHelper.localizeName(rwo.getName(), decodedReference.getContext());					
 				}
 				else
 				{
-					AttributesImpl propA = new AttributesImpl();
-					propA.addAttribute("", SchemaNames.ATTR_NAME,
-							SchemaNames.ATTR_NAME, "string", "_title");
-					addElement(ch, SchemaNames.NS_CONTAINER,
-							SchemaNames.EL_XMLPROPERTY,
-							SchemaNames.EL_NSXMLPROPERTY, propA, entity
-									.getReference());
+					// XXX internationalization
+					if (decodedReference.getContainer() != null && decodedReference.getContainer().length() > 1) {
+						title = "Recent Changes in " + title + ":" + decodedReference.getContainer().substring(1);
+					} else {
+						title = "Recent Changes in " + title;
+					}
+					
 				}
+				
+				addPropertyElement("_title", title, ch);
 
 			}
+			
 			{
-				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", "_description");
-				addElement(ch, SchemaNames.NS_CONTAINER,
-						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA,
-						ServerConfigurationService.getString("ui.service"));
-
+				addPropertyElement("_description", ServerConfigurationService.getString("ui.service"), ch);
+				
 			}
 			{
-				AttributesImpl propA = new AttributesImpl();
-				propA.addAttribute("", SchemaNames.ATTR_NAME,
-						SchemaNames.ATTR_NAME, "string", "_datestamp");
+				// XXX Internationalize 
 				// 2006-02-16T18:28:03+01:00
 				SimpleDateFormat sd = new SimpleDateFormat(
 						"yyyy-MM-dd'T'HH:mm:ssZ");
-
-				addElement(ch, SchemaNames.NS_CONTAINER,
-						SchemaNames.EL_XMLPROPERTY,
-						SchemaNames.EL_NSXMLPROPERTY, propA, sd
-								.format(new Date()));
-
+				addPropertyElement("_datestamp", sd
+						.format(new Date()), ch);
 			}
 
 			ch.endElement(SchemaNames.NS_CONTAINER,
@@ -272,6 +265,17 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			throw new RuntimeException("Failed to serialise "
 					+ ex.getLocalizedMessage(), ex);
 		}
+	}
+
+	private void addPropertyElement(String property, String value, ContentHandler ch) throws SAXException
+	{
+		AttributesImpl propA = new AttributesImpl();
+		propA.addAttribute("", SchemaNames.ATTR_NAME,
+				SchemaNames.ATTR_NAME, "string", property);
+		addElement(ch, SchemaNames.NS_CONTAINER,
+				SchemaNames.EL_XMLPROPERTY,
+				SchemaNames.EL_NSXMLPROPERTY, propA,
+				value);
 	}
 
 	public void changeHistoryToXML(RWikiObject rwo, ContentHandler ch)
@@ -340,6 +344,8 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 		List changes = rwikiObjectService.findAllChangedSince(g.getTime(),
 				basepath);
 		int nchanges = 0;
+		
+		
 		for (Iterator i = changes.iterator(); i.hasNext() && nchanges < 20;)
 		{
 			nchanges++;
@@ -400,4 +406,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 		this.rwikiObjectService = rwikiObjectService;
 	}
 
+	public void setSiteService(SiteService siteService) 
+	{
+		this.siteService = siteService;
+	}
+	
 }
