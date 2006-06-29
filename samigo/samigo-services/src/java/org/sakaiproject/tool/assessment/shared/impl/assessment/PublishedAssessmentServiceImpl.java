@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmentServiceAPI;
 
 // Note on takability:

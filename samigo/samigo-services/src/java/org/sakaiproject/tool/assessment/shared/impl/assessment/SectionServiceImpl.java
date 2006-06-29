@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.SectionService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
 
 /**

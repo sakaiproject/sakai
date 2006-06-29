@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareServiceAPI;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
+import org.sakaiproject.tool.assessment.services.GradingServiceException;
 import java.util.ArrayList;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 //import org.sakaiproject.tool.assessment.integration.helper.integrated.SectionAwareServiceHelperImpl;

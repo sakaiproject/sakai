@@ -26,8 +26,6 @@ package org.sakaiproject.tool.assessment.shared.api.grading;
 
 import java.util.List;
 
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
-
 /**
  *
  * The GradingServiceAPI implements the shared interface to get grading information.

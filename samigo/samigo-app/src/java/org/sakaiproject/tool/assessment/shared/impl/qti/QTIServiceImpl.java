@@ -29,7 +29,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceException;
+import org.sakaiproject.tool.assessment.services.qti.QTIServiceException;
 
 /**
  * QTIServiceImpl implements a shared interface to get/set assessment

@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 
 /**

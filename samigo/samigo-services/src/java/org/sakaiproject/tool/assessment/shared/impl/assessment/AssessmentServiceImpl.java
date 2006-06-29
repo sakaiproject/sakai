@@ -34,7 +34,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.assessment.AssessmentServiceException;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceException;
 
 /**
  * AssessmentServiceImpl implements a shared interface to get/set assessment

@@ -35,7 +35,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceException;
+import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
 
 /**
  *

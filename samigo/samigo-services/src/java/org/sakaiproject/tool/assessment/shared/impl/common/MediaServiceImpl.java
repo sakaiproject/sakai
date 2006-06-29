@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.services.shared.MediaService;
-import org.sakaiproject.tool.assessment.shared.api.common.CommonServiceException;
+import org.sakaiproject.tool.assessment.services.CommonServiceException;
 import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
 
 

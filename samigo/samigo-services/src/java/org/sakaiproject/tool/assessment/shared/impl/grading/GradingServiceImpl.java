@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
+import org.sakaiproject.tool.assessment.services.GradingServiceException;
 
 /**
  *

@@ -32,7 +32,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.gradebook.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceException;
+import org.sakaiproject.tool.assessment.services.GradingServiceException;
 
 /**
  * The GradebookServiceAPI describes an interface for gradebook information

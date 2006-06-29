@@ -22,7 +22,7 @@
 
 
 
-package org.sakaiproject.tool.assessment.services.grading;
+package org.sakaiproject.tool.assessment.services;
 
 
 /**

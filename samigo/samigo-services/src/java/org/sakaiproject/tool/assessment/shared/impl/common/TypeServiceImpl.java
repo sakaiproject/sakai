@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.services.shared.TypeService;
-import org.sakaiproject.tool.assessment.shared.api.common.CommonServiceException;
+import org.sakaiproject.tool.assessment.services.CommonServiceException;
 import org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI;
 
 
