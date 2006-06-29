@@ -632,11 +632,8 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <h:column rendered="#{questionScores.sortType!='answer'}">
       <f:facet name="header">
         <h:panelGroup>
-          <h:outputText value="#{msg.stud_resp}" 
-             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
           <h:commandLink title="#{msg.t_sortResponse}" id="answer" action="questionScores" >
-            <h:outputText value="#{msg.stud_resp}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
+            <h:outputText value="#{msg.stud_resp}"/>
             <f:actionListener
                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
             <f:actionListener
@@ -652,14 +649,11 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
 
-<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-
-
+	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
     <h:outputText  value="(#{msg.click_shortAnswer})" />
     </h:outputLink>
 
-<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
-
+	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
     <h:outputText  value="(#{msg.click_rationale})" />
     </h:outputLink>
 <%--
@@ -694,7 +688,30 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
+     <f:verbatim><br/></f:verbatim>
+   	<!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
+
+
+	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+    <h:outputText  value="(#{msg.click_shortAnswer})" />
+    </h:outputLink>
+
+	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+    <h:outputText  value="(#{msg.click_rationale})" />
+    </h:outputLink>
+    
+    <h:panelGroup rendered="#{questionScores.typeId == '6'}">
+        <f:subview id="displayFileUpload3">
+          <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
+        </f:subview>
+      </h:panelGroup>
+
+      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
+        <f:subview id="displayAudioRecording3">
+          <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
+        </f:subview>
+      </h:panelGroup>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
@@ -709,7 +726,30 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" />
+	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
+     <f:verbatim><br/></f:verbatim>
+   	<!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
+
+
+	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+    <h:outputText  value="(#{msg.click_shortAnswer})" />
+    </h:outputLink>
+
+	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+    <h:outputText  value="(#{msg.click_rationale})" />
+    </h:outputLink>
+    
+          <h:panelGroup rendered="#{questionScores.typeId == '6'}">
+        <f:subview id="displayFileUpload4">
+          <%@ include file="/jsf/evaluation/item/displayFileUploadAnswer.jsp" %>
+        </f:subview>
+      </h:panelGroup>
+
+      <h:panelGroup rendered="#{questionScores.typeId == '7'}">
+        <f:subview id="displayAudioRecording4">
+          <%@ include file="/jsf/evaluation/item/displayAudioRecordingAnswer.jsp" %>
+        </f:subview>
+      </h:panelGroup>
     </h:column> 
 
 
