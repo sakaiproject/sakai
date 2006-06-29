@@ -22,6 +22,8 @@ package org.sakaiproject.component.app.messageforums;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -98,6 +100,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_PF_SUR_KEY_BY_TOPIC = "findPFTopicSurKeyByTopicId";
 
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
+    
+    public static Comparator FORUM_CREATED_DATE_COMPARATOR;    
+    public static Comparator FORUM_CREATED_DATE_COMPARATOR_DESC;
 
     private IdManager idManager;
 
@@ -108,6 +113,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     public MessageForumsForumManagerImpl() {}
 
     private EventTrackingService eventTrackingService;
+    
+    static {
+    	FORUM_CREATED_DATE_COMPARATOR = new Comparator()
+      {                                        
+        public int compare(Object forum, Object otherForum)
+        {
+          if (forum != null && otherForum != null
+              && forum instanceof OpenForum && otherForum instanceof OpenForum)
+          {
+            Date date1=((OpenForum) forum).getCreated();
+            Date date2=((OpenForum) otherForum).getCreated();
+            return date1.compareTo(date2);
+          }
+          return -1;
+        }
+      };
+      
+      FORUM_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
+    }
 
     public void init() {
         ;
@@ -294,25 +318,29 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       };
 
       BaseForum tempForum = null;
-      //Set resultSet = new HashSet();
+      Set resultSet = new HashSet();
+      List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+            
+      for (Iterator i = temp.iterator(); i.hasNext();)
+      {
+        Object[] results = (Object[]) i.next();        
+            
+        if (results != null) {
+          if (results[0] instanceof BaseForum) {
+            tempForum = (BaseForum)results[0];
+            tempForum.setArea((Area)results[1]);            
+          } else {
+            tempForum = (BaseForum)results[1];
+            tempForum.setArea((Area)results[0]);
+          }
+          resultSet.add(tempForum);
+        }
+      }
       
-      return (ArrayList) getHibernateTemplate().execute(hcb);
-//      for (Iterator i = temp.iterator(); i.hasNext();)
-//      {
-//        Object[] results = (Object[]) i.next();        
-//            
-//        if (results != null) {
-//          if (results[0] instanceof BaseForum) {
-//            tempForum = (BaseForum)results[0];
-//            tempForum.setArea((Area)results[1]);            
-//          } else {
-//            tempForum = (BaseForum)results[1];
-//            tempForum.setArea((Area)results[0]);
-//          }
-//          resultSet.add(tempForum);
-//        }
-//      }
-//      return Util.setToList(resultSet);
+      List resultList = Util.setToList(resultSet);
+      Collections.sort(resultList, FORUM_CREATED_DATE_COMPARATOR_DESC);
+      
+      return resultList;      
     }
 
     public Topic getTopicByIdWithAttachments(final Long topicId) {

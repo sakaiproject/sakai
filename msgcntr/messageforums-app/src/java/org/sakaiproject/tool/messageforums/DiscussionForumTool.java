@@ -1896,6 +1896,9 @@ public class DiscussionForumTool
 
     selectedTopic.getTopic().addMessage(dMsg);
     forumManager.saveTopic(selectedTopic.getTopic());
+    
+    /** mark message creator as having read the message */
+    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), dMsg.getId(), true);        
 
     this.composeBody = null;
     this.composeLabel = null;
@@ -1903,6 +1906,9 @@ public class DiscussionForumTool
 
     this.attachments.clear();
 
+    // refresh page with unread status     
+    selectedTopic = getDecoratedTopic(forumManager.getTopicById(selectedTopic.getTopic().getId()));
+    
     return ALL_MESSAGES;
   }
 

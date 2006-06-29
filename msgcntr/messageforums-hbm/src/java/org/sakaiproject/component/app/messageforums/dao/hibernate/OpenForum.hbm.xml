@@ -124,12 +124,11 @@
   </query>
   
   <query name="findForumByTypeAndContext">
-    <![CDATA[select of from org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl as of
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.BaseForumImpl as of
              join of.area as area
              left join fetch of.topicsSet
              where of.typeUuid = :typeUuid and
-                   area.contextId = :contextId
-             order by of.created desc
+                   area.contextId = :contextId             
     ]]>
   </query>
   
