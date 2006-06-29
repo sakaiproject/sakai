@@ -7786,12 +7786,9 @@ public class ResourcesAction
 					if(! preventPublicDisplay.booleanValue())
 					{
 						ContentHostingService.setPubView(gedit.getId(), item.isPubview());
-						if(item.isPubview() && AccessMode.GROUPED == gedit.getAccess())
-						{
-							gedit.clearGroupAccess();
-						}
 					}
-					else if(! AccessMode.GROUPED.toString().equals(item.getAccess()) && AccessMode.GROUPED == gedit.getAccess())
+					
+					if(! AccessMode.GROUPED.toString().equals(item.getAccess()) && AccessMode.GROUPED == gedit.getAccess())
 					{
 						gedit.clearGroupAccess();
 					}
@@ -7799,7 +7796,7 @@ public class ResourcesAction
 					{
 						gedit.clearGroupAccess();
 					}
-					else if(!item.getGroups().isEmpty())
+					else if(! item.getGroups().isEmpty())
 					{
 						Collection groupRefs = new Vector();
 						Iterator it = item.getGroups().iterator();
@@ -7816,6 +7813,7 @@ public class ResourcesAction
 					// TODO: Should this be reported to user??
 					logger.warn("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 				}
+				
 				
 				if(item.isFolder())
 				{
@@ -9758,7 +9756,7 @@ public class ResourcesAction
 							groups = new Vector();
 						}
 						Collection inheritedGroups = folder.getGroups();
-						if(inheritedGroups == null)
+						if(inheritedGroups == null || inheritedGroups.isEmpty())
 						{
 							inheritedGroups = folder.getInheritedGroups();
 						}
