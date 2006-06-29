@@ -2242,4 +2242,4 @@ create sequence POSTEM_STUDGRADES_S;
 -- Increase the field size for the SESSION_IP field in the SAKAI_SESSION table
 ----------------------------------------------------------------------------------------------------------------------------------------
 
-ALTER TABLE SAKAI_SESSION CHANGE SESSION_IP SESSION_IP VARCHAR2 (128);
+ALTER TABLE SAKAI_SESSION MODIFY SESSION_IP VARCHAR2 (128);
