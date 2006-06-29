@@ -152,7 +152,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
 
 		// start the response
-		PrintWriter out = startResponse(res, title, null);
+		PrintWriter out = startResponse(res, title, null, false);
 
 		// Show session information
 		out.println("<h2>Session</h2>");
@@ -247,7 +247,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		// the 'little' top area
 		includeGalleryNav(out, req, session, siteId);
@@ -270,7 +270,7 @@ public class CharonPortal extends HttpServlet
 		String skin = SiteService.getSiteSkin(siteId);
 
 		// start the response
-		PrintWriter out = startResponse(res, "Site Navigation", skin);
+		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
 
 		// Remove the logout button from gallery since it is designed to be included within
 		// some other application (like a portal) which will want to control logout.
@@ -751,7 +751,7 @@ public class CharonPortal extends HttpServlet
 	protected void doNavLogin(HttpServletRequest req, HttpServletResponse res, Session session, String siteId) throws IOException
 	{
 		// start the response
-		PrintWriter out = startResponse(res, "Login", null);
+		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeLogo(out, req, session, siteId);
 		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
@@ -764,7 +764,7 @@ public class CharonPortal extends HttpServlet
 			throws IOException
 	{
 		// start the response
-		PrintWriter out = startResponse(res, "Login", null);
+		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeGalleryLogin(out, req, session, siteId);
 		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
@@ -813,7 +813,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, page.getSkin());
+		PrintWriter out = startResponse(res, title, page.getSkin(), true);
 
 		// div to wrap the works
 		String siteType = calcSiteType(site.getId());
@@ -1058,7 +1058,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		// the 'full' top area
 		includeSiteNav(out, req, session, siteId);
@@ -1133,7 +1133,7 @@ public class CharonPortal extends HttpServlet
 		String skin = SiteService.getSiteSkin(siteId);
 
 		// start the response
-		PrintWriter out = startResponse(res, "Site Navigation", skin);
+		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
 
 		includeLogo(out, req, session, siteId);
 		includeTabs(out, req, session, siteId, "site", false);
@@ -1145,6 +1145,8 @@ public class CharonPortal extends HttpServlet
 	protected void doTool(HttpServletRequest req, HttpServletResponse res, Session session, String placementId,
 			String toolContextPath, String toolPathInfo) throws ToolException, IOException
 	{
+		if (redirectIfLoggedOut(res)) return;
+
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
 		if (siteTool == null)
@@ -1297,7 +1299,7 @@ public class CharonPortal extends HttpServlet
 		String title = ServerConfigurationService.getString("ui.service") + " : " + site.getTitle() + " : " + page.getTitle();
 
 		// start the response
-		PrintWriter out = startResponse(res, title, site.getSkin());
+		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		String siteType = calcSiteType(siteId);
 		out.println("<div id=\"container\"" + ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
@@ -2120,7 +2122,7 @@ public class CharonPortal extends HttpServlet
 	}
 
 	/**
-	 * TODO: I'm not sure why this has to be different from doLogin...
+	 * Send the POST request to login
 	 * 
 	 * @param req
 	 * @param res
@@ -2176,7 +2178,7 @@ public class CharonPortal extends HttpServlet
 		}
 	}
 
-	protected PrintWriter startResponse(HttpServletResponse res, String title, String skin) throws IOException
+	protected PrintWriter startResponse(HttpServletResponse res, String title, String skin, boolean top) throws IOException
 	{
 		// headers
 		res.setContentType("text/html; charset=UTF-8");
@@ -2210,6 +2212,14 @@ public class CharonPortal extends HttpServlet
 
 		// start the body
 		out.println("<body class=\"portalBody\">");
+
+		// if top, mark this as the portal window
+		if (top)
+		{
+			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("var sakaiPortalWindow = \"\";");
+			out.println("</script>");
+		}
 
 		return out;
 	}
@@ -2264,5 +2274,39 @@ public class CharonPortal extends HttpServlet
 		}
 
 		return -1;
+	}
+
+	/**
+	 * Check for any just expired sessions and redirect
+	 * 
+	 * @return true if we redirected, false if not
+	 */
+	protected boolean redirectIfLoggedOut(HttpServletResponse res) throws IOException
+	{
+		// if we are in a newly created session where we had an invalid (presumed timed out) session in the request,
+		// send script to cause a sakai top level redirect
+		if (ThreadLocalManager.get(SessionManager.CURRENT_INVALID_SESSION) != null)
+		{
+			String loggedOutUrl = ServerConfigurationService.getLoggedOutUrl();
+			sendPortalRedirect(res, loggedOutUrl);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Send a redirect so our Portal window ends up at the url, via javascript.
+	 * 
+	 * @param url
+	 *        The redirect url
+	 */
+	protected void sendPortalRedirect(HttpServletResponse res, String url) throws IOException
+	{
+		PrintWriter out = startResponse(res, null, null, false);
+		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("portalWindowRefresh('" + url + "');");
+		out.println("</script>");
+		endResponse(out);
 	}
 }
