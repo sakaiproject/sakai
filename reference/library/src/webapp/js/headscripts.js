@@ -1,10 +1,23 @@
 /**********************************************************************************
-*
-* $Header: /cvs/sakai2/reference/library/src/webapp/js/headscripts.js,v 1.12 2005/06/02 15:55:21 janderse.umich.edu Exp $
-*
-***********************************************************************************
-@license@
-**********************************************************************************/
+ * $URL: https://source.sakaiproject.org/svn/access/trunk/access-impl/impl/src/java/org/sakaiproject/access/tool/AccessServlet.java $
+ * $Id: AccessServlet.java 7534 2006-04-09 17:09:10Z ggolden@umich.edu $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
 
 var courierRunning = false;
 
@@ -502,8 +515,26 @@ function updateNow()
 	checkForUpdate();
 }
 
-/**********************************************************************************
-*
-* $Header: /cvs/sakai2/reference/library/src/webapp/js/headscripts.js,v 1.12 2005/06/02 15:55:21 janderse.umich.edu Exp $
-*
-**********************************************************************************/
+function portalWindowRefresh(url)
+{
+	if (typeof(sakaiPortalWindow) != "undefined")
+	{
+		location.replace(url);
+	}
+	else if (parent && (typeof(parent.sakaiPortalWindow) != "undefined"))
+	{
+		parent.location.replace(url);
+	}
+	else if (parent && parent.parent && (typeof(parent.parent.sakaiPortalWindow) != "undefined"))
+	{
+		parent.parent.location.replace(url);
+	}
+	else if (parent && parent.parent && parent.parent.parent && (typeof(parent.parent.parent.sakaiPortalWindow) != "undefined"))
+	{
+		parent.parent.parent.location.replace(url);
+	}
+	else
+	{
+		location.replace(url);
+	}
+}
