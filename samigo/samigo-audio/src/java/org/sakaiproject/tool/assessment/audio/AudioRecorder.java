@@ -88,6 +88,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -132,7 +133,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   SamplingGraph samplingGraph;
   Timer timer;
 
-  JButton playB, captB, pausB, loadB;
+  JButton playB, captB;
   JTextField textField;
   JTextField rtextField;
 
@@ -141,13 +142,30 @@ public class AudioRecorder extends JPanel implements ActionListener,
   double duration, seconds;
   File file;
   Vector lines = new Vector();
+
   AudioRecorderParams params;
+  String imageUrl;
+  ImageIcon recordIcon = null;
+  ImageIcon playIcon = null;
+  ImageIcon stopIcon = null;
 
   public AudioRecorder(AudioRecorderParams params)
   {
     this.params = params;
     if (params.getAttemptsRemaining() == -1){
       params.setAttemptsRemaining(params.getAttemptsAllowed());
+    }
+
+    // load images
+    imageUrl = params.getImageUrl();
+    System.out.println("**** imageUrl="+imageUrl);
+    try{
+      recordIcon = new ImageIcon(new URL(imageUrl+"/audio_record.gif"));
+      playIcon = new ImageIcon(new URL(imageUrl+"/audio_play.gif"));
+      stopIcon = new ImageIcon(new URL(imageUrl+"/audio_stop.gif"));
+    }
+    catch (Exception ex){
+      reportStatus("**** cannot create image icons for applet:"+ex.toString());
     }
 
     formatControls = new FormatControls(params);
@@ -214,13 +232,16 @@ public class AudioRecorder extends JPanel implements ActionListener,
     if (params.getAttemptsRemaining() > 0 || params.getAttemptsRemaining() == -1){
       captB = addButton(res.getString("Record"), buttonsPanel, true,
                         params.isEnableRecord());
+      if (recordIcon !=null) captB.setIcon(recordIcon);
     }
     else{
       captB = addButton(res.getString("Record"), buttonsPanel, false,
                         params.isEnableRecord());
+      if (recordIcon !=null) captB.setIcon(recordIcon);
     }
     playB = addButton(res.getString("Play"), buttonsPanel, false,
                       params.isEnablePlay());
+    if (playIcon !=null) playB.setIcon(playIcon);
     return buttonsPanel;
   }
 
@@ -289,6 +310,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         samplingGraph.start();
         captB.setEnabled(false);
         playB.setText(" " + res.getString("playB_Text"));
+        if (stopIcon !=null) playB.setIcon(stopIcon);
       }
       else
       {
@@ -297,8 +319,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
         if (params.getAttemptsAllowed()>0)
         {
           captB.setEnabled(true);
+          if (recordIcon !=null) captB.setIcon(recordIcon);
         }
         playB.setText(res.getString("Play"));
+        if (playIcon !=null) playB.setIcon(playIcon);
       }
     }
     else if (obj.equals(captB))
@@ -310,12 +334,15 @@ public class AudioRecorder extends JPanel implements ActionListener,
         fileName = res.getString("default_file_name");
         samplingGraph.start();
         playB.setEnabled(false);
+        if (playIcon !=null) playB.setIcon(playIcon);
         captB.setText(" " + res.getString("playB_Text"));
+        if (stopIcon !=null) captB.setIcon(stopIcon);
         startTimer();
       }
       else
       {
         captureAudio();
+        if (recordIcon !=null) captB.setIcon(recordIcon);
       }
     }
   }
@@ -390,8 +417,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
       reportStatus(ex.toString());
       samplingGraph.repaint();
     }
-
   }
+
   /**
    * Post audio data directly.
    *

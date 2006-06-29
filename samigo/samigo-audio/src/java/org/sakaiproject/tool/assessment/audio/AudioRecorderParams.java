@@ -56,6 +56,7 @@ public class AudioRecorderParams implements Serializable
   private boolean stereo = false;
   private int maxSeconds = 60;
   private int attemptsAllowed = 5;
+  private String imageUrl="";
 
   // -1 indicate that attemptsRemaining is not set, it should be set when question is loaded the 1st time.
   private int attemptsRemaining = -1; 
@@ -347,6 +348,12 @@ public class AudioRecorderParams implements Serializable
       }
     }
 
+    s = applet.getParameter("imageUrl");
+    if (s != null)
+    {
+      imageUrl = s;
+    }
+
   }
 
   public boolean isBigendian()
@@ -558,4 +565,15 @@ public class AudioRecorderParams implements Serializable
   {
     this.bigendian = bigendian;
   }
+
+  public String getImageUrl()
+  {
+    return imageUrl;
+  }
+
+  public void setImageUrl(String imageUrl)
+  {
+    this.imageUrl = imageUrl;
+  }
+
 }
