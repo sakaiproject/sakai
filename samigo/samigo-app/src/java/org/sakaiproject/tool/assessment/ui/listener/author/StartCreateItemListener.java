@@ -216,7 +216,7 @@ log.debug("after getting item.getItemType() ");
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
 // check for metadata settings

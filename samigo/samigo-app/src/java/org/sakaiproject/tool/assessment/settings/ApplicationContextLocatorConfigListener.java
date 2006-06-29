@@ -57,7 +57,7 @@ public class ApplicationContextLocatorConfigListener
     try {
       p = path.getSettingsProperties("spring_contexts.properties");
     } catch (IOException e) {
-     throw new Error(e);
+      throw new RuntimeException(e);
     }
     ApplicationContextLocator.init(p);
 

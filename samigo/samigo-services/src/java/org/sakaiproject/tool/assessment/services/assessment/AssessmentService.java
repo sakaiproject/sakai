@@ -63,7 +63,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -75,7 +75,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -87,7 +87,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -99,7 +99,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -111,7 +111,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -123,7 +123,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -185,7 +185,7 @@ public class AssessmentService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -306,7 +306,7 @@ public void deleteAssessment(Id assessmentId)
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -318,7 +318,7 @@ public void deleteAssessment(Id assessmentId)
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 

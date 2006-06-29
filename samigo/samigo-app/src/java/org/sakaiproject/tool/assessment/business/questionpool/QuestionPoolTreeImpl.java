@@ -266,8 +266,6 @@ public class QuestionPoolTreeImpl
     catch(Exception e)
     {
       e.printStackTrace();
-//      throw new Error(e);
-
       return "0";
     }
 
@@ -298,8 +296,6 @@ public class QuestionPoolTreeImpl
     catch(Exception e)
     {
       e.printStackTrace();
-//      throw new Error(e);
-
       return "0";
     }
 
@@ -379,7 +375,8 @@ public class QuestionPoolTreeImpl
       catch(Exception e)
       {
         e.printStackTrace();
-	throw new Error(e);
+        throw new RuntimeException(e);
+
       }
     }
 
@@ -422,7 +419,7 @@ public class QuestionPoolTreeImpl
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
     return total;
@@ -441,7 +438,7 @@ public class QuestionPoolTreeImpl
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
     return total;
@@ -668,7 +665,6 @@ public class QuestionPoolTreeImpl
     }
 	catch(Exception e){
                 e.printStackTrace();
-//      throw new Error(e);
       		return false;
     	}
   }
@@ -689,7 +685,6 @@ public class QuestionPoolTreeImpl
 
     }catch(Exception e){
       e.printStackTrace();
-//      throw new Error(e);
       return false;
     }
   }
@@ -715,7 +710,6 @@ public class QuestionPoolTreeImpl
     return level;
     }catch(Exception e){
       e.printStackTrace();
-//      throw new Error(e);
       return 0;
     }
   }

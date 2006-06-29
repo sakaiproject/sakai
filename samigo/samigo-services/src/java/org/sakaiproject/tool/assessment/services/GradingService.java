@@ -157,7 +157,7 @@ public class GradingService
       throw ge;
     } catch (Exception e) {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
 
@@ -373,7 +373,7 @@ public class GradingService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -384,7 +384,7 @@ public class GradingService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -395,7 +395,7 @@ public class GradingService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -435,7 +435,7 @@ public class GradingService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -446,7 +446,7 @@ public class GradingService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -456,7 +456,7 @@ public class GradingService
                getItemGradingSet(new Long(assessmentGradingId));
     }
     catch(Exception e){
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -466,7 +466,7 @@ public class GradingService
                getAssessmentGradingByItemGradingId(new Long(publishedAssessmentId));
     }
     catch(Exception e){
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -500,7 +500,7 @@ public class GradingService
       throw ge;
     } catch (Exception e) {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -631,7 +631,7 @@ public class GradingService
       throw ge;
     } catch (Exception e) {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
     // save#3: itemGradingSet has been saved above so just need to update assessmentGrading
@@ -1044,7 +1044,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
        throw ge;
      } catch (Exception e) {
        e.printStackTrace();
-       throw new Error(e);
+       throw new RuntimeException(e);
      }
   }
 

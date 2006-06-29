@@ -710,7 +710,7 @@ public class ItemAuthorBean
 
     }
     catch (Exception e){
-		throw new Error(e);
+		throw new RuntimeException(e);
     }
 
     return poolListSelectItems;

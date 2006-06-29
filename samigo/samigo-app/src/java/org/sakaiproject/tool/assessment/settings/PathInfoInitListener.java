@@ -78,7 +78,7 @@ public class PathInfoInitListener
     catch(Exception ex)
     {
       log.error(ex);
-      throw new Error(ex);
+      throw new RuntimeException(ex);
     }
   }
 

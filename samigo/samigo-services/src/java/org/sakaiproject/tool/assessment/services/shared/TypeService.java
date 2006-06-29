@@ -54,7 +54,7 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -66,7 +66,7 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -78,7 +78,7 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -89,7 +89,7 @@ public class TypeService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 }

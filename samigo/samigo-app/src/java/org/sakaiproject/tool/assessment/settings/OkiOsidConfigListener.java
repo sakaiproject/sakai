@@ -80,7 +80,7 @@ public class OkiOsidConfigListener
     catch(OsidException e)
     {
       log.fatal(e.getMessage(), e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
   }

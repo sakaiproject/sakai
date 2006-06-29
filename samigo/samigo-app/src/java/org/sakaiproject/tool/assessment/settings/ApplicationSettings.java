@@ -62,7 +62,7 @@ public class ApplicationSettings
           Constants.SETTINGS_FILE);
       if (p == null)
       {
-        throw new Error("Could not find settings file: "
+        throw new RuntimeException("Could not find settings file: "
             + Constants.SETTINGS_FILE);
       }
 
@@ -162,7 +162,7 @@ public class ApplicationSettings
     catch (IOException e)
     {
       log.fatal(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 

@@ -61,7 +61,7 @@ public class QuestionPoolDataModel extends DataModel
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 	return model.getRowData();
   }

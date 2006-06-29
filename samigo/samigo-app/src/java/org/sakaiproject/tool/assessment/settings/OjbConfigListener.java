@@ -58,7 +58,7 @@ public class OjbConfigListener
     catch(Exception e)
     {
       log.fatal(e.getMessage(), e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
     log.info("OjbConfigListener initialized successfully!");

@@ -133,7 +133,7 @@ public class PoolSaveListener implements ActionListener
 	   
     }
     catch(Exception e){
-	throw new Error(e);
+	throw new RuntimeException(e);
     } //if error=false then save, if not then create error message
     
   }

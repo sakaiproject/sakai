@@ -103,7 +103,8 @@ public class XmlMapper
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); 
+      throw new RuntimeException(e);
     }
   }
 

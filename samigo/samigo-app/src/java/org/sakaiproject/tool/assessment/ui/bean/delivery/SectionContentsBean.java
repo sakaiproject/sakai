@@ -362,7 +362,7 @@ public class SectionContentsBean
     catch (Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 

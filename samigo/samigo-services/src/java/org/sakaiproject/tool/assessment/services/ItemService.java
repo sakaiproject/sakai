@@ -59,7 +59,7 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return item;
@@ -78,14 +78,14 @@ public class ItemService
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
       if (!item.getData().getCreatedBy().equals(agentId))
-        throw new Error(new Exception());
+        throw new RuntimeException("you are not allowed to delete item if you are not the owner");
 */
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItem(itemId, agentId);
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -103,14 +103,14 @@ public class ItemService
 /*  do not check for owner, anyone who has maintain role can modify items see SAK-2214
       // you are not allowed to delete item if you are not the owner
       if (!item.getData().getCreatedBy().equals(agentId))
-        throw new Error(new Exception());
+        throw new RuntimeException("you are not allowed to delete item if you are not the owner");
 */
       PersistenceService.getInstance().getItemFacadeQueries().
         deleteItemContent(itemId, agentId);
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -136,7 +136,7 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -161,7 +161,7 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -180,7 +180,6 @@ public class ItemService
     catch(Exception e)
     {
       log.error(e);
-//      throw new Error(e);
 
       return item;
     }
@@ -193,7 +192,7 @@ public class ItemService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 

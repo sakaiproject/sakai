@@ -62,7 +62,8 @@ public class URIResolver implements javax.xml.transform.URIResolver
         }
         catch (URISyntaxException e)
         {
-            log.error(e); throw new Error(e);
+            log.error(e); 
+            throw new RuntimeException(e);
         }
 
         return source;

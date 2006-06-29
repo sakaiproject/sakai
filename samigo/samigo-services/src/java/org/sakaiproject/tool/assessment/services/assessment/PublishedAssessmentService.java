@@ -106,7 +106,7 @@ public class PublishedAssessmentService {
       catch (Exception e1) {
         log.fatal("Wrapping Error around unhandled Exception: "
                   + e1.getMessage());
-        throw new Error(e1.getMessage());
+        throw new RuntimeException(e1.getMessage());
       }
       // for testing only
       reviewableAssessmentList.add(f);
@@ -159,7 +159,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -171,7 +171,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -183,7 +183,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -203,7 +203,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -243,7 +243,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -255,7 +255,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -267,7 +267,7 @@ public class PublishedAssessmentService {
     }
     catch (Exception e) {
       log.error(e);
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 

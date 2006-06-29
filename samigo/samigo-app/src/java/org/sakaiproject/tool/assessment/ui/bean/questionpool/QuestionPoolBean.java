@@ -23,7 +23,6 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,7 +70,6 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIf
  * $Id$
  */
 public class QuestionPoolBean
-  implements Serializable
 {
   private String name;
   private Collection pools;
@@ -305,7 +303,7 @@ public class QuestionPoolBean
     }
     catch(Exception e)
     {
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -342,7 +340,7 @@ public class QuestionPoolBean
         }
         catch(Exception e)
         {
-          throw new Error(e);
+          throw new RuntimeException(e);
         }
       }
 
@@ -398,7 +396,7 @@ public class QuestionPoolBean
         }
         catch(Exception e)
         {
-          throw new Error(e);
+          throw new RuntimeException(e);
         }
 
       }
@@ -1126,7 +1124,7 @@ public String getAddOrEdit()
           catch(Exception e)
           {
             e.printStackTrace();
-                throw new Error(e);
+            throw new RuntimeException(e);
           }
         }
 
@@ -1186,7 +1184,7 @@ public String getAddOrEdit()
             catch(Exception e)
             {
                 e.printStackTrace();
-                throw new Error(e);
+                throw new RuntimeException(e);
             }
           }
         }
@@ -1324,7 +1322,7 @@ public String getAddOrEdit()
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
 
   }
@@ -1372,7 +1370,7 @@ public String getAddOrEdit()
             catch(Exception e)
             {
 		e.printStackTrace();
-		throw new Error(e);
+                throw new RuntimeException(e);
             
 	    }
 	  }
@@ -1414,7 +1412,7 @@ public String getAddOrEdit()
           catch(Exception e)
           {
             e.printStackTrace();
-		throw new Error(e);
+            throw new RuntimeException(e);
           }
         }
 
@@ -1459,7 +1457,7 @@ public String getAddOrEdit()
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -1663,7 +1661,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     catch(Exception e)
     {
       e.printStackTrace();
-      throw new Error(e);
+      throw new RuntimeException(e);
     }
   }
 

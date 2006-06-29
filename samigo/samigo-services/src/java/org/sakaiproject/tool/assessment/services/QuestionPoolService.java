@@ -91,7 +91,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return pool;
@@ -111,7 +111,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return idList;
@@ -154,7 +154,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return idList;
@@ -174,7 +174,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return poolList;
@@ -194,7 +194,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
     return poolSize;
   }
@@ -213,7 +213,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
     return result;
@@ -296,7 +296,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -312,7 +312,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -361,7 +361,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
 
   }
@@ -378,13 +378,13 @@ public class QuestionPoolService
 
       // you are not allowed to delete pool if you are not the owner
       if (!qp.getOwnerId().equals(agentId))
-        throw new Error(new Exception());
+        throw new Exception("You are not allowed to delete pool if you are not the owner");
       PersistenceService.getInstance().getQuestionPoolFacadeQueries().
         deletePool(poolId, agentId, tree);
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -400,7 +400,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -423,7 +423,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -440,7 +440,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -457,7 +457,7 @@ public class QuestionPoolService
     }
     catch(Exception e)
     {
-      log.error(e); throw new Error(e);
+      log.error(e); throw new RuntimeException(e);
     }
   }
 
@@ -488,7 +488,6 @@ public class QuestionPoolService
     catch(Exception e)
     {
       log.error(e);
-//      throw new Error(e);
 
       return pool;
     }

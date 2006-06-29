@@ -174,7 +174,7 @@ public class OjbBootStrap
 					connectionRepository.addDescriptor(jdbcConnectionDescriptor);
 			}
 			else{
-				throw new Error("Error is MetadataManager is null");
+				throw new RuntimeException("Error is MetadataManager is null");
 			}
 
 
