@@ -497,6 +497,8 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
 		context.put("allowAddAssignment", Boolean.valueOf(allowAddAssignment));
 
+		Object allowGradeSubmission = state.getAttribute(STATE_ALLOW_GRADE_SUBMISSION);
+		
 		// allow update site?
 		context.put("allowUpdateSite", Boolean
 						.valueOf(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext())));
@@ -572,21 +574,30 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
 		{
-			// build the context for the instructor's grade assignment
-			template = build_instructor_grade_assignment_context(portlet, context, data, state);
+			if (allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's grade assignment
+				template = build_instructor_grade_assignment_context(portlet, context, data, state);
+			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION))
 		{
-			// disable auto-updates while leaving the list view
-			justDelivered(state);
-
-			// build the context for the instructor's grade submission
-			template = build_instructor_grade_submission_context(portlet, context, data, state);
+			if (allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, disable auto-updates while leaving the list view
+				justDelivered(state);
+	
+				// build the context for the instructor's grade submission
+				template = build_instructor_grade_submission_context(portlet, context, data, state);
+			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
 		{
-			// build the context for the instructor's preview grade submission
-			template = build_instructor_preview_grade_submission_context(portlet, context, data, state);
+			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's preview grade submission
+				template = build_instructor_preview_grade_submission_context(portlet, context, data, state);
+			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT))
 		{
@@ -603,13 +614,19 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
-			// build the context for the instructor's create new assignment view
-			template = build_instructor_view_students_assignment_context(portlet, context, data, state);
+			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's create new assignment view
+				template = build_instructor_view_students_assignment_context(portlet, context, data, state);
+			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
-			// build the context for the instructor's view of report submissions
-			template = build_instructor_report_submissions(portlet, context, data, state);
+			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's view of report submissions
+				template = build_instructor_report_submissions(portlet, context, data, state);
+			}
 		}
 
 		if (template == null)
