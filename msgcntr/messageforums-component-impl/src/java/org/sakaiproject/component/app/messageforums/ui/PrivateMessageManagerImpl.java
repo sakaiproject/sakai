@@ -856,13 +856,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return;
     }
 
+    String currentUserAsString = getCurrentUser();
     List recipientList = new UniqueArrayList();
 
     /** test for draft message */
     if (message.getDraft().booleanValue())
     {
       PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-          getCurrentUser(), typeManager.getDraftPrivateMessageType(),
+      		currentUserAsString, typeManager.getDraftPrivateMessageType(),
           getContextId(), Boolean.TRUE);
 
       recipientList.add(receiver);
@@ -939,6 +940,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       String bodyString = body.toString();
       
+      /** determine if current user is equal to recipient */
+      Boolean isRecipientCurrentUser = 
+        (currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
+      
       if (!asEmail && forwardingEnabled){
           emailService.send(u.getEmail(), pf.getAutoForwardEmail(), message.getTitle(), 
               bodyString, u.getEmail(), null, additionalHeaders);
@@ -947,7 +952,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
           
           PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
               userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-              Boolean.FALSE);
+              isRecipientCurrentUser);
           recipientList.add(receiver);                    
       }      
       else if (asEmail){
@@ -957,14 +962,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       else{        
         PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
             userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-            Boolean.FALSE);
+            isRecipientCurrentUser);
         recipientList.add(receiver);
       }
     }
 
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-        getCurrentUser(), typeManager.getSentPrivateMessageType(),
+    		currentUserAsString, typeManager.getSentPrivateMessageType(),
         getContextId(), Boolean.TRUE);
 
     recipientList.add(sender);
