@@ -97,7 +97,14 @@ public class GradebookServiceTest extends GradebookTestBase {
      */
     public void testCreateExternalAssessment() throws Exception {
         Assert.assertTrue(gradebookService.isGradebookDefined(GRADEBOOK_UID));
+        
+        // Make sure the service knows that the external id has not been defined
+        Assert.assertFalse(gradebookService.isExternalAssignmentDefined(GRADEBOOK_UID, EXT_ID_1));
+        
         gradebookService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, new Date(), "Samigo");
+
+        // Make sure the service knows that the external id has been defined
+        Assert.assertTrue(gradebookService.isExternalAssignmentDefined(GRADEBOOK_UID, EXT_ID_1));
 
         // Make sure that internal name conflicts are detected
         try {

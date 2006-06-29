@@ -186,6 +186,17 @@ public interface GradebookService {
 	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle)
         throws GradebookNotFoundException;
 
+	/**
+	 * Check to see if an assignment with the given external id already exists
+	 * in the given gradebook. This will give external assessment systems
+	 * a chance to avoid the ConflictingExternalIdException.
+	 * 
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @param externalId The external assessment's external identifier
+	 */
+	public boolean isExternalAssignmentDefined(String gradebookUid, String externalId)
+        throws GradebookNotFoundException;
+
     // Application service hooks.
 
     /**
