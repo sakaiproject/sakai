@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentSettingsBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -80,6 +81,9 @@ public class ConfirmPublishAssessmentListener
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
         lookupBean(
         "assessmentSettings");
+ AssessmentBean assessmentBean = (AssessmentBean) cu.
+        lookupBean(
+        "assessmentBean");
     //#1 - permission checking before proceeding - daisyf
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -106,6 +110,17 @@ public class ConfirmPublishAssessmentListener
       context.addMessage(null,new FacesMessage(nameUnique_err));
       error=true;
     }
+    //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
+   
+    if(assessmentBean.getTotalScore()<=0)
+	{
+ String gb_err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+                                                 "gradebook_exception_min_points");
+        context.addMessage(null, new FacesMessage(gb_err));
+        error=true;
+	}
+
+
 
     //#2b - check if gradebook exist, if so, if assessment title already exists in GB
     GradebookService g = null;
