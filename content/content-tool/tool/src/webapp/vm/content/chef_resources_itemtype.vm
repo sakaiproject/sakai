@@ -1359,10 +1359,13 @@
 				## show access options only if public view is allowed or there are groups in the site
 				#if($item.isPubviewInherited())
 					<h4>$tlang.getString("access.title2")</h4>
+					<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
 				#elseif($item.isSingleGroupInherited())
 					<h4>$item.singleGroupTitle</h4>
+					<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
 				#elseif($item.isSiteOnly())
 					<h4>$tlang.getString("access.title3")</h4>
+					<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
 				#elseif(!$item.isSitePossible())
 					<h4>$tlang.getString("access.title5")</h4>
 					#set ($listDisplay="block")

@@ -5867,7 +5867,7 @@ public class ResourcesAction
 				{
 					String groupRef = (String) it.next();
 					Group group = site.getGroup(groupRef);
-					item.addGroup(group.getId());
+					item.addInheritedGroup(group.getId());
 				}
 			}
 			
@@ -6833,43 +6833,84 @@ public class ResourcesAction
 		}
 		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
-			String access_mode = params.getString("access_mode");
-			if(access_mode != null)
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
 			{
-				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-				if(preventPublicDisplay == null)
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			String access_mode = params.getString("access_mode");
+			
+			if(access_mode == null)
+			{
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups");
+				
+				SortedSet inherited_groups = new TreeSet();
+				SortedSet new_groups = new TreeSet();
+				for(int gr = 0; gr < access_groups.length; gr++)
 				{
-					preventPublicDisplay = Boolean.FALSE;
-					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+					new_groups.add(access_groups[gr]);
 				}
-				if(PUBLIC_ACCESS.equals(access_mode))
+				
+				item.clearGroups();
+				boolean groups_are_inherited = true;
+				
+				Iterator it = item.getInheritedGroups().iterator();
+				while(it.hasNext())
 				{
-					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+					String ref = null;
+					Group group = (Group) it.next();
+					
+					if(new_groups.contains(group.getId()))
 					{
-						item.setPubview(true);
-						item.setAccess(AccessMode.INHERITED.toString());
+						item.addGroup(group);
+					}
+					else
+					{
+						groups_are_inherited = false;
 					}
 				}
-				else if(AccessMode.GROUPED.toString().equals(access_mode))
-				{
-					String[] access_groups = params.getStrings("access_groups");
-					if(access_groups != null && access_groups.length > 0)
-					{
-						item.setAccess(AccessMode.GROUPED.toString());
-						item.clearGroups();
-						for(int gr = 0; gr < access_groups.length; gr++)
-						{
-							item.addGroup(access_groups[gr]);
-						}
-						item.setPubview(false);
-					}
-				}
-				else 
+				
+				if(groups_are_inherited)
 				{
 					item.setAccess(AccessMode.INHERITED.toString());
 					item.clearGroups();
+				}
+				else
+				{
+					item.setAccess(AccessMode.GROUPED.toString());
+				}
+				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+				{
+					item.setPubview(true);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+			}
+			else if(AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				String[] access_groups = params.getStrings("access_groups");
+				if(access_groups != null && access_groups.length > 0)
+				{
+					item.setAccess(AccessMode.GROUPED.toString());
+					item.clearGroups();
+					for(int gr = 0; gr < access_groups.length; gr++)
+					{
+						item.addGroup(access_groups[gr]);
+					}
 					item.setPubview(false);
 				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			{
+				item.setAccess(AccessMode.INHERITED.toString());
+				item.clearGroups();
+				item.setPubview(false);
 			}
 		}
 
@@ -7304,48 +7345,88 @@ public class ResourcesAction
 
 		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
 			String access_mode = params.getString("access_mode" + index);
+			
 			if(access_mode == null)
 			{
-				item.setAccess(AccessMode.INHERITED.toString());
-			}
-			else
-			{
-				item.setAccess(access_mode);
-				if(AccessMode.GROUPED.toString().equals(access_mode))
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups" + index);
+				
+				SortedSet inherited_groups = new TreeSet();
+				SortedSet new_groups = new TreeSet();
+				for(int gr = 0; gr < access_groups.length; gr++)
 				{
-					String[] access_groups = params.getStrings("access_groups" + index);
+					new_groups.add(access_groups[gr]);
+				}
+				
+				item.clearGroups();
+				boolean groups_are_inherited = true;
+				
+				Iterator it = item.getInheritedGroups().iterator();
+				while(it.hasNext())
+				{
+					String ref = null;
+					Group group = (Group) it.next();
+					
+					if(new_groups.contains(group.getId()))
+					{
+						item.addGroup(group);
+					}
+					else
+					{
+						groups_are_inherited = false;
+					}
+				}
+				
+				if(groups_are_inherited)
+				{
+					item.setAccess(AccessMode.INHERITED.toString());
+					item.clearGroups();
+				}
+				else
+				{
+					item.setAccess(AccessMode.GROUPED.toString());
+				}
+				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+				{
+					item.setPubview(true);
+					item.setAccess(AccessMode.INHERITED.toString());
+				}
+			}
+			else if(AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				String[] access_groups = params.getStrings("access_groups" + index);
+				if(access_groups != null && access_groups.length > 0)
+				{
+					item.setAccess(AccessMode.GROUPED.toString());
+					item.clearGroups();
 					for(int gr = 0; gr < access_groups.length; gr++)
 					{
 						item.addGroup(access_groups[gr]);
 					}
+					item.setPubview(false);
 				}
-				else if(! item.isPubviewInherited())
-				{
-					Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-					if(preventPublicDisplay == null)
-					{
-						preventPublicDisplay = Boolean.FALSE;
-						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-					}
-					
-					if(! preventPublicDisplay.booleanValue())
-					{
-						if(PUBLIC_ACCESS.equals(access_mode))
-						{
-							item.setPubview(true);
-						}
-						else
-						{
-							item.setPubview(false);
-						}
-					}
-	
-				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			{
+				item.setAccess(AccessMode.INHERITED.toString());
+				item.clearGroups();
+				item.setPubview(false);
 			}
 		}
 
-		int noti = NotificationService.NOTI_NONE;
+			int noti = NotificationService.NOTI_NONE;
 		// %%STATE_MODE_RESOURCES%%
 		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
@@ -7365,6 +7446,7 @@ public class ResourcesAction
 				noti = NotificationService.NOTI_OPTIONAL;
 			}
 		}
+		
 		item.setNotification(noti);
 
 		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
@@ -11621,6 +11703,24 @@ public class ResourcesAction
 			}
 
 		}
+		
+		/**
+		 * Add a Group to the list of groups that have access to this item.
+		 * @param group The Group object to be added
+		 */
+		public void addGroup(Group group) 
+		{
+			if(m_groups == null)
+			{
+				m_groups = new Vector();
+			}
+			if(! hasGroup(group.getReference()))
+			{
+				m_groups.add(group);
+			}
+		}
+
+
 		
 		/**
 		 * Add a string reference identifying a Group to the list of groups that have access to this item.
