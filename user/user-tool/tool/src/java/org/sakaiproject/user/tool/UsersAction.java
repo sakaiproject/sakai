@@ -248,6 +248,21 @@ public class UsersAction extends PagedResourceActionII
 
 		context.put("incType", Boolean.valueOf(true));
 
+		String value = (String) state.getAttribute("valueEid");
+		if (value != null) context.put("valueEid", value);
+
+		value = (String) state.getAttribute("valueFirstName");
+		if (value != null) context.put("valueFirstName", value);
+
+		value = (String) state.getAttribute("valueLastName");
+		if (value != null) context.put("valueLastName", value);
+
+		value = (String) state.getAttribute("valueEmail");
+		if (value != null) context.put("valueEmail", value);
+
+		value = (String) state.getAttribute("valueType");
+		if (value != null) context.put("valueType", value);
+
 		return "_edit";
 
 	} // buildNewContext
