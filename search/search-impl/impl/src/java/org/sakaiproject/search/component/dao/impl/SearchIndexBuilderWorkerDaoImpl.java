@@ -299,11 +299,11 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 												.error("Unrecognised trigger object presented to index builder "
 														+ sbi);
 									}
-									Entity entity = ref.getEntity();
 
 									
 									try
 									{
+										Entity entity = ref.getEntity();
 										EntityContentProducer sep = searchIndexBuilder
 												.newEntityContentProducer(ref);
 										if (sep != null && sep.isForIndex(ref) && ref.getContext() != null)
