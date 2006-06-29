@@ -632,8 +632,11 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     <h:column rendered="#{questionScores.sortType!='answer'}">
       <f:facet name="header">
         <h:panelGroup>
+		  <h:outputText value="#{msg.stud_resp}" 
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
           <h:commandLink title="#{msg.t_sortResponse}" id="answer" action="questionScores" >
-            <h:outputText value="#{msg.stud_resp}"/>
+            <h:outputText value="#{msg.stud_resp}" 
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
             <f:actionListener
                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
             <f:actionListener
@@ -678,15 +681,20 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
 
     <h:column rendered="#{questionScores.sortType eq 'answer' && questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortResponse}" action="questionScores">
-          <h:outputText value="#{msg.stud_resp}" />
+      <h:panelGroup>
+		  <h:outputText value="#{msg.stud_resp}" 
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+          <h:commandLink title="#{msg.t_sortResponse}" action="questionScores" >
+            <h:outputText value="#{msg.stud_resp}" 
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{msg.alt_sortResponseDescending}" rendered="#{questionScores.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortResponseDescending}" rendered="#{questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortascending.gif"/>
       	  <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
           <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-          </h:commandLink>    
+          </h:commandLink>  
+          </h:panelGroup>  
       </f:facet>
       <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
      <f:verbatim><br/></f:verbatim>
@@ -716,15 +724,20 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
     
     <h:column rendered="#{questionScores.sortType eq 'answer' && !questionScores.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortResponse}" action="questionScores">
-          <h:outputText value="#{msg.stud_resp}" />
+		  <h:panelGroup>
+		  <h:outputText value="#{msg.stud_resp}" 
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+          <h:commandLink title="#{msg.t_sortResponse}" action="questionScores" >
+            <h:outputText value="#{msg.stud_resp}" 
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
           <f:param name="sortAscending" value="true" />
-          <h:graphicImage alt="#{msg.alt_sortResponseAscending}" rendered="#{!questionScores.sortAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{msg.alt_sortResponseAscending}" rendered="#{!questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortdescending.gif"/>
       	  <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
           <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
+          </h:panelGroup>
       </f:facet>
 	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
      <f:verbatim><br/></f:verbatim>
