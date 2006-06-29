@@ -76,6 +76,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -136,6 +137,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
   JButton playB, captB;
   JTextField textField;
   JTextField rtextField;
+
+  JLabel statusLabel = new JLabel("", SwingConstants.LEFT);
 
   String fileName = res.getString("default_file_name");
   String errStr;
@@ -302,6 +305,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
   {
     Object obj = e.getSource();
 
+    statusLabel.setVisible(false);
+    statusLabel.setText("");
     if (obj.equals(playB))
     {
       if (playB.getText().startsWith(res.getString("Play")))
@@ -341,6 +346,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
       }
       else
       {
+        statusLabel.setText(res.getString("processing"));
+        statusLabel.setVisible(true);
         captureAudio();
         if (recordIcon !=null) captB.setIcon(recordIcon);
       }
@@ -979,8 +986,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
     f.getContentPane().add(res.getString("Center"), capturePlayback);
     f.pack();
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    int w = 720;
-    int h = 340;
+    int w = 600;
+    int h = 250;
     f.setLocation(screenSize.width / 2 - w / 2, screenSize.height / 2 - h / 2);
     f.setSize(w, h);
     f.show();
@@ -988,7 +995,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
   private JPanel makeAttemptsAllowedLabel()
   {
-    GridLayout grid = new GridLayout(2, 1);
+    GridLayout grid = new GridLayout(2, 3);
     JPanel panel = new JPanel(grid);
     JLabel label1 = new JLabel(res.getString("attempts_allowed")+" "+
                       params.getAttemptsAllowed(), SwingConstants.LEFT);
@@ -1000,9 +1007,16 @@ public class AudioRecorder extends JPanel implements ActionListener,
                       params.getMaxSeconds()+" sec", SwingConstants.LEFT);
     Font font = new Font("Ariel", Font.PLAIN, 11);
     label1.setFont(font); 
-    label2.setFont(font); 
-    panel.add(label1);
+    label2.setFont(font);
+
+    Font statusFont = new Font("Ariel", Font.BOLD, 12);
+    statusLabel = new JLabel("", SwingConstants.CENTER);
+    statusLabel.setFont(statusFont);
+    statusLabel.setForeground(Color.red);
+ 
     panel.add(label2);
+    panel.add(statusLabel);
+    panel.add(label1);
     return panel;
   }
 
@@ -1090,7 +1104,9 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private void startTimer(){
     Action stopRecordingAction = new AbstractAction(){
       public void actionPerformed(ActionEvent e) {
-        reportStatus(res.getString("time_passed")+"\n" );
+        //reportStatus(res.getString("time_passed")+"\n" );
+        statusLabel.setText(res.getString("time_expired"));
+        statusLabel.setVisible(true);
         captureAudio();
       }
     };
