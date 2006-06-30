@@ -1461,7 +1461,7 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 				// check SECURE_ALL_GROUPS - if not, check if the message has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || (!m_authzGroupService.isAllowed(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext()))))
+				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_authzGroupService.isAllowed(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
@@ -2999,9 +2999,9 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				Site site = m_siteService.getSite(m_context);
 				Collection groups = site.getGroups();
 
-				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), select all site groups
-				if (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
-						&& unlockCheck(function, getReference()))
+				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
+				if (m_securityService.isSuperUser() || (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
+						&& unlockCheck(function, getReference())))
 				{
 					return groups;
 				}
@@ -3715,39 +3715,6 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			}
 
 			return rv;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void addGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
-
-			if (!m_groups.contains(group.getReference()))
-			{
-				// this group must be one that the user has permission to SECURE_ADD in
-				if (!((BaseMessageEdit) this.m_message).m_channel.getGroupsAllowAddMessage().contains(group))
-				{
-					throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), group.getReference());
-				}
-	
-				m_groups.add(group.getReference());
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void removeGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ADD), "null");
-
-			// we don't check that the group is permitted, since it's alredy in the message being edited -ggolden
-
-			if (m_groups.contains(group.getReference())) m_groups.remove(group.getReference());
 		}
 
 		/**
