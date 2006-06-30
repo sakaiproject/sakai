@@ -2427,8 +2427,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Site site = SiteService.getSite(context);
 			Collection groups = site.getGroups();
 
-			// if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
-			if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context)))
+			// if the user has SECURE_ALL_GROUPS in the context (site), or  a super user, select all site groups
+			if (SecurityService.isSuperUser()
+				|| (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context))))
 			{
 				return groups;
 			}
@@ -3315,7 +3316,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				// check SECURE_ALL_GROUPS - if not, check if the assignment has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext()))))
+				if ((userId == null) || ((!SecurityService.isSuperUser(userId)) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
