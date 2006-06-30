@@ -74,6 +74,14 @@ public class SecurityService
 		return service.isSuperUser();
 	}
 
+	public static boolean isSuperUser(java.lang.String param0)
+	{
+		org.sakaiproject.authz.api.SecurityService service = getInstance();
+		if (service == null) return false;
+
+		return service.isSuperUser(param0);
+	}
+
 	public static boolean unlock(java.lang.String param0, java.lang.String param1)
 	{
 		org.sakaiproject.authz.api.SecurityService service = getInstance();

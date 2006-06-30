@@ -100,6 +100,15 @@ public abstract class NoSecurity implements SecurityService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSuperUser(String userId)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("isSuperUser(userId) true user: " + userId);
+		return true;
+	}
+
+	/**
 	 * Can the user in the security context unlock the lock for use with this resource?
 	 * 
 	 * @param lock

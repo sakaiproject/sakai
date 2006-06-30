@@ -78,6 +78,15 @@ public interface SecurityService
 	boolean isSuperUser();
 
 	/**
+	 * Is this user a super special super (admin) user?
+	 * 
+	 * @param userId
+	 *        The user to test.
+	 * @return true, if this user is a cut above the rest, false if a mere mortal.
+	 */
+	boolean isSuperUser(String userId);
+
+	/**
 	 * Establish a new SecurityAdvisor for this thread, at the top of the stack (it gets first dibs on the answer).
 	 * 
 	 * @param advisor
