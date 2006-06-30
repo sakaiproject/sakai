@@ -372,7 +372,7 @@ public interface ContentHostingService extends EntityProducer
 	 *        The ContentCollectionEdit object to commit.
 	 * @throws PermissionException 
 	 */
-	public void commitCollection(ContentCollectionEdit edit) throws PermissionException;
+	public void commitCollection(ContentCollectionEdit edit);
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.
@@ -928,10 +928,8 @@ public interface ContentHostingService extends EntityProducer
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @exception PermissionException 
-	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException, PermissionException;
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException;
 
 	/**
 	 * Commit the changes made, and release the lock. The Object is disabled, and not to be used after this call.
@@ -944,10 +942,8 @@ public interface ContentHostingService extends EntityProducer
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @exception PermissionException 
-	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, PermissionException;
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException;
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.

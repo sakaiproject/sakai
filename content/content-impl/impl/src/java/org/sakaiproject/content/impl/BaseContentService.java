@@ -840,8 +840,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		boolean isAllowed = SecurityService.isSuperUser();
 		if(! isAllowed)
 		{
-			// need to check whether user has all_groups??
-			
 			lock = convertLockIfDropbox(lock, id);
 	
 			// make a reference from the resource id, if specified
@@ -1680,7 +1678,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The ContentCollectionEdit object to commit.
 	 * @throws PermissionException 
 	 */
-	public void commitCollection(ContentCollectionEdit edit) throws PermissionException
+	public void commitCollection(ContentCollectionEdit edit)
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -1690,74 +1688,74 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return;
 		}
 
-		boolean allowed = true;
-		try
-		{
-			boolean inherited = false;
-			GroupAwareEntity gaEntity = findCollection(edit.getId());
-			AccessMode access = gaEntity.getAccess(); //  edit.getAccess();
-			Collection currentGroupRefs = new Vector();
-			if(AccessMode.INHERITED == access)
-			{
-				inherited = true;
-				access = gaEntity.getInheritedAccess();
-			}
-			
-			if(AccessMode.GROUPED.equals(access))
-			{
-				Reference ref = m_entityManager.newReference(edit.getReference());
-				if(SecurityService.isSuperUser() || SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, ref.getContext()))
-				{
-					allowed = true;
-				}
-				else
-				{
-					GroupAwareEntity entity = findCollection(edit.getId());
-					if(entity == null)
-					{
-						entity = edit;
-					}
-					
-					if(inherited)
-					{
-						currentGroupRefs.addAll(entity.getInheritedGroups());
-					}
-					else
-					{
-						currentGroupRefs.addAll(entity.getGroups());
-					}
-					
-					// the Group objects the user has add permission
-					Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
-		
-					// check all defined groups in the edit
-					for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
-					{
-						String groupRef = (String) i.next();
-						
-						// if this group has been added in this edit
-						if (!currentGroupRefs.contains(groupRef))
-						{
-							// make sure it's among those groups this user has add permissions for
-							if (!groupCollectionContainsRefString(allowedGroups, groupRef))
-							{
-								allowed = false;
-							}
-						}
-					}
-				}
-			}
-		}
-		catch(TypeException e)
-		{
-			// ignore
-		}
-		
-		if (!allowed)
-		{
-			cancelCollection(edit);
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
-		}
+//		boolean allowed = true;
+//		try
+//		{
+//			boolean inherited = false;
+//			GroupAwareEntity gaEntity = findCollection(edit.getId());
+//			AccessMode access = gaEntity.getAccess(); //  edit.getAccess();
+//			Collection currentGroupRefs = new Vector();
+//			if(AccessMode.INHERITED == access)
+//			{
+//				inherited = true;
+//				access = gaEntity.getInheritedAccess();
+//			}
+//			
+//			if(AccessMode.GROUPED.equals(access))
+//			{
+//				Reference ref = m_entityManager.newReference(edit.getReference());
+//				if(SecurityService.isSuperUser() || SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, ref.getContext()))
+//				{
+//					allowed = true;
+//				}
+//				else
+//				{
+//					GroupAwareEntity entity = findCollection(edit.getId());
+//					if(entity == null)
+//					{
+//						entity = edit;
+//					}
+//					
+//					if(inherited)
+//					{
+//						currentGroupRefs.addAll(entity.getInheritedGroups());
+//					}
+//					else
+//					{
+//						currentGroupRefs.addAll(entity.getGroups());
+//					}
+//					
+//					// the Group objects the user has add permission
+//					Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
+//		
+//					// check all defined groups in the edit
+//					for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
+//					{
+//						String groupRef = (String) i.next();
+//						
+//						// if this group has been added in this edit
+//						if (!currentGroupRefs.contains(groupRef))
+//						{
+//							// make sure it's among those groups this user has add permissions for
+//							if (!groupCollectionContainsRefString(allowedGroups, groupRef))
+//							{
+//								allowed = false;
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		catch(TypeException e)
+//		{
+//			// ignore
+//		}
+//		
+//		if (!allowed)
+//		{
+//			cancelCollection(edit);
+//			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
+//		}
 		
 		// update the properties for update
 		addLiveUpdateCollectionProperties(edit);
@@ -3839,7 +3837,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @exception PermissionException 
 	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException, PermissionException
+	public void commitResource(ContentResourceEdit edit) throws OverQuotaException, ServerOverloadException
 	{
 		commitResource(edit, NotificationService.NOTI_OPTIONAL);
 
@@ -3856,10 +3854,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *            if this would result in being over quota (the edit is then cancled).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @exception PermissionException 
-	 * 			 if the user is trying to make a change for which they lack permission.
 	 */
-	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException, PermissionException
+	public void commitResource(ContentResourceEdit edit, int priority) throws OverQuotaException, ServerOverloadException
 	{
 
 		// check for closed edit
@@ -3896,7 +3892,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The notification priority of this commit.
 	 * @throws PermissionException 
 	 */
-	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException, PermissionException
+	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -3912,65 +3908,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return;
 		}
 		
-		boolean allowed = true;
-		try
-		{
-			boolean inherited = false;
-			ContentResource entity = findResource(edit.getId());
-			if(entity == null)
-			{
-				entity = edit;
-			}
-			AccessMode access = entity.getAccess(); //  edit.getAccess();
-			Collection currentGroupRefs = new Vector();
-			if(AccessMode.INHERITED == access)
-			{
-				inherited = true;
-				access = entity.getInheritedAccess();
-			}
-			
-			if(AccessMode.GROUPED.equals(access))
-			{
-				if(inherited)
-				{
-					currentGroupRefs.addAll(entity.getInheritedGroups());
-				}
-				else
-				{
-					currentGroupRefs.addAll(entity.getGroups());
-				}
-				
-				// the Group objects the user has add permission
-				Collection allowedGroups = getGroupsWithAddPermission(isolateContainingId(edit.getId()));
-	
-				// check all defined groups in the edit
-				for (Iterator i = edit.getGroups().iterator(); allowed && i.hasNext();)
-				{
-					String groupRef = (String) i.next();
-					
-					// if this group has been added in this edit
-					if (!currentGroupRefs.contains(groupRef))
-					{
-						// make sure it's among those groups this user has add permissions for
-						if (!groupCollectionContainsRefString(allowedGroups, groupRef))
-						{
-							allowed = false;
-						}
-					}
-				}
-			}
-		}
-		catch(TypeException e)
-		{
-			// ignore
-		}
-		
-		if (!allowed)
-		{
-			cancelResource(edit);
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(),((BaseResourceEdit) edit).getEvent(), edit.getReference());
-		}
-
 		// update the properties for update
 		addLiveUpdateResourceProperties(edit);
 
@@ -6632,8 +6569,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public static final String SITE_UPDATE_ACCESS = "site.upd";
 	
-	protected static final String ALL_GROUP_ACCESS = "content.all.groups";
-
 	protected static final String GROUP_LIST = "sakai:authzGroup";
 
 	protected static final String GROUP_NAME = "sakai:group_name";
@@ -6781,11 +6716,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			M_log.warn("createDropboxCollection(): InconsistentException: " + e.getMessage());
 			return;
 		}
-		catch (PermissionException e) 
-		{
-			M_log.warn("createDropboxCollection(): PermissionException: " + dropbox);
-			return;
-		}
+//		catch (PermissionException e) 
+//		{
+//			M_log.warn("createDropboxCollection(): PermissionException: " + dropbox);
+//			return;
+//		}
 
 		// The EVENT_DROPBOX_OWN is granted within the site, so we can ask for all the users who have this ability
 		// using just the dropbox collection
@@ -6821,10 +6756,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				M_log.warn("createDropboxCollection(): InconsistentException: " + userFolder);
 			}
-			catch (PermissionException e) 
-			{
-				M_log.warn("createDropboxCollection(): PermissionException: " + userFolder);
-			}
+//			catch (PermissionException e) 
+//			{
+//				M_log.warn("createDropboxCollection(): PermissionException: " + userFolder);
+//			}
 		}
 	}
 
@@ -6877,10 +6812,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					M_log.warn("createIndividualDropbox(): InconsistentException: " + userFolder);
 				} 
-				catch (PermissionException e) 
-				{
-					M_log.warn("createIndividualDropbox(): PermissionException: " + userFolder);
-				}
+//				catch (PermissionException e) 
+//				{
+//					M_log.warn("createIndividualDropbox(): PermissionException: " + userFolder);
+//				}
 			}
 
 		} 
@@ -6988,57 +6923,71 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Collection rv = new Vector();
 		
 		Collection groups = new Vector();
+		Collection groupRefs = new TreeSet();
 		if(this.m_allowGroupResources)
 		{
-			Reference ref = m_entityManager.newReference(refString);
 			ContentCollection container;
 			try
 			{
+				Reference ref = m_entityManager.newReference(refString);
+				Site site = m_siteService.getSite(ref.getContext());
+				
 				container = findCollection(ref.getId());
 				if(AccessMode.INHERITED == container.getAccess())
 				{
 					groups.addAll(container.getInheritedGroupObjects());
+					groupRefs.addAll(container.getInheritedGroups());
 				}
 				else
 				{
 					groups.addAll(container.getGroupObjects());
+					groupRefs.addAll(container.getGroups());
 				}
-			}
-			catch (TypeException e1)
-			{
-				// ignore
-			}
-			
-			try
-			{
-				Site site = m_siteService.getSite(ref.getContext());
+
 				if(groups.isEmpty())
 				{
 					// get the channel's site's groups
 					groups.addAll(site.getGroups());
-				}
-	
-				// if the user has permission to create resources in the root-level of the site, return all groups
-				if (SecurityService.unlock(ALL_GROUP_ACCESS, site.getReference()))
-				{
-					rv.addAll(groups);
-				}
-				// otherwise, check the groups for function
-				else
-				{
 					for (Iterator i = groups.iterator(); i.hasNext();)
 					{
 						Group group = (Group) i.next();
-						if(SecurityService.unlock(function, group.getReference()))
+						groupRefs.add(group.getReference());
+					}
+				}
+				if(SecurityService.isSuperUser())
+				{
+					rv.addAll(groups);
+				}
+				else if(SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, container.getId()))
+				{
+					rv.addAll(groups);
+				}
+				else
+				{
+					// ask the authzGroup service to filter them down based on function
+					groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(), function, groupRefs);
+
+					// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+					for (Iterator i = groups.iterator(); i.hasNext();)
+					{
+						Group group = (Group) i.next();
+						if (groupRefs.contains(group.getReference()))
 						{
 							rv.add(group);
 						}
 					}
 				}
+
 			}
-			catch (IdUnusedException e)
+			catch (TypeException e1)
 			{
+				// ignore
 			}
+			catch(IdUnusedException e)
+			{
+				// ignore
+			}
+			
 		}
 		return rv;
 	}
