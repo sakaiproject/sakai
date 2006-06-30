@@ -265,12 +265,9 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             <note>
                 <title>JRE vs. JDK vs. J2SE vs. J2EE</title>
                 <para>If you're unfamiliar with the Java world, you may find the acronyms for
-                    various Java environments a little mysterious. The JRE is simply the runtime
-                    environment which allows you to run compiled Java code. The JDK (or, for version
-                    1.4 of Java, the J2SDK) is the Java Developer's Kit, which includes all the
-                    basic requirements for developing and building Java code. The J2SE (the
-                    "Standard Edition") is simply the combination of the JDK and the JRE - this is
-                    the one you want to complete the source installation.</para>
+                    various Java environments a little mysterious. The JRE is simply the "runtime
+                    environment" which allows you to execute compiled Java bytecode, and for many platforms this is all you usually get - for the very good reason that the average user just wants to run programs, and doesn't need to be building code. For this latter purpose you'll need the JDK, which stands for "Java Developer's Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the JDK and the JRE - this is
+                    the one you want in order to complete the source installation.</para>
                 <para>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -335,7 +332,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 </varlistentry>
             </variablelist>
             <para>Finally, you'll need to set an environment variable that will increase the size
-                and performance of your JVM (Java Virtual Machine - the default JVM settings are
+                and performance of your JVM ("Java Virtual Machine": the default JVM settings are
                 unfortunately not sufficient for Sakai), and the variable is named
                     <command>JAVA_OPTS</command>. The value suggested below should be suitable for
                 developers or demo installations.</para>
@@ -344,17 +341,14 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <term>Windows</term>
                     <listitem>
                         <para> Create a new environment variable <command>JAVA_OPTS</command> to
-                            hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m</command>".
-                        </para>
+                            hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m</command>". </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Mac/*nix</term>
                     <listitem>
                         <para>
-                            <command>export JAVA_HOME="-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</command>
+                            <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</command>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -389,7 +383,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     details, and for brevity's sake it's recommended that you grab the .zip. Sakai
                     requires some tuning of the JVM, and the service install manages these settings
                     through the registry rather than environment variables (see Tomcat installation
-                    instructions for more details if you're committed to installing Tomcat as a
+                    instructions on the Apache site if you're committed to installing Tomcat as a
                     service).</para>
             </note>
             <para>Unpack the Tomcat archive at your desired location, and unpack the compatibility
@@ -479,7 +473,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>Next you'll want to create your local repository by running the following:</para>
+            <para>Next you'll want to create your local maven repository in your home directory by running the following command:</para>
             <variablelist>
                 <varlistentry>
                     <term>Windows</term>
@@ -499,6 +493,10 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     </listitem>
                 </varlistentry>
             </variablelist>
+            <note>
+                <title>Home Directories in Windows</title>
+                <para>You may not often deal with the notion of the home directory on Windows systems, but it's still there.  By default its location is <filename>C:\Documents and Settings\yourusername</filename>.  Windows also establishes it through environment variables which you've just seen above - the combination of your "home drive" location and your "home path" location:  <command>%HOMEDRIVE%%HOMEPATH%</command> (The %-sign is how Windows brackets environment variables).</para>
+            </note>
             <para>Finally, you'll need to create a build properties file in your home directory
                 which will define some basic parameters for your Sakai build. Simply create a new
                 text file with the filename <filename>build.properties</filename> in your home
@@ -575,6 +573,12 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                 to move on to the next step. If you are greeted with the report <command>BUILD
                     FAILED</command> read the accompanying error message carefully to troubleshoot
                 (see the <link linkend="install-tshoot">Troubleshooting</link> section).</para>
+            <note>
+                <title>Maven and Memory</title>
+                <para>You may find that your machine runs out of memory while it is building Sakai.  As it turns out, maven does not read <command>JAVA_OPTS</command> when it starts up, and so if your build output complains of "Out of Memory" errors you'll need to set an additional environment variable, namely, <command>MAVEN_OPTS</command>.  The value in the sample Unix command below should be more than enough:</para>
+                <screen>
+export MAVEN_OPTS="-Xmx512m -XX:PermSize=64m -XX:MaxPermSize=128m"</screen>
+            </note>
             <para>You will probably be able to start up Tomcat and run Sakai with the default
                 configuration at this point, but it would be better to take care of some basic
                 post-installation configuration first.</para>
@@ -895,8 +899,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         <sect2 xml:id="install-dbconfig-create">
             <title>Create Database and User</title>
             <para>A Sakai database and privileged user must be prepared for Sakai's use. Consult
-                your database documentation for details, but below are sample commands for MySQL.
-            </para>   
+                your database documentation for details, but below are sample commands for MySQL. </para>
             <screen>
 C:\sakai\reference\sql\legacy\mysql\>
 mysql -u root -p
@@ -919,16 +922,22 @@ Query OK, 0 rows affected (0.00 sec)
 mysql> quit</screen>
             <note>
                 <title>UTF-8 Character Set</title>
-                <para>When the database is created you must be sure to create it to use the UTF-8 character set, just as Tomcat was configured to use UTF-8.  If you don't you may run into a range of issues when attempting to use Unicode characters in Sakai, and this goes for both MySQL and Oracle.  Consult your DB documentation or a local DBA for instructions on how to do this.</para>
-                <para>If you're not certain how your database is currently configured, you can check with a query.  Here is a sample query from Oracle showing the correct value:</para>
+                <para>When the database is created you must be sure to create it to use the UTF-8
+                    character set, just as Tomcat was configured to use UTF-8. If you don't you may
+                    run into a range of issues when attempting to use Unicode characters in Sakai,
+                    and this goes for both MySQL and Oracle. Consult your DB documentation or a
+                    local DBA for instructions on how to do this.</para>
+                <para>If you're not certain how your database is currently configured, you can check
+                    with a query. Here is a sample query from Oracle showing the correct value:</para>
                 <screen>
 SQL> select value from nls_database_parameters where parameter = 'NLS_CHARACTERSET';
                     
 VALUE
 --------------------------------------------------------------------------------
 AL32UTF8</screen>
-                
-                <para>Converting a database from one character set to another is non-trivial, particularly if it's a large production database.</para>
+
+                <para>Converting a database from one character set to another is non-trivial,
+                    particularly if it's a large production database.</para>
             </note>
         </sect2>
         <sect2 xml:id="install-dbconfig-properties">
