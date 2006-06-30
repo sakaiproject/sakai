@@ -223,10 +223,10 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
              <tr>
               <td  class="top"><p>Tomcat</p></td>
               <td  class="top">
-			             <p>5.5 + Compatibility patch</p>
+			             <p>5.5.17+ and the Compatibility patch</p>
            </td>
-             <td><p>Although Tomcat is not the only available web container, it is highly recommended, and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.17, but the latest stable version of 5.5 will likely not present problems.</p>
-             <p><em class="note">** NOTE: Some minor problems were discovered with Tomcat 5.5.16, so this version is not recommended.</em></p>
+             <td><p>Although Tomcat is not the only available web container, it is highly recommended, and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.17, so this is the recommended version, but the latest stable release of 5.5 will likely not present problems.</p>
+             <p><em class="note">** NOTE: Problems with CAS integration were discovered with Tomcat 5.5.16, so this version is not recommended.</em></p>
 			  <p>
 			Tomcat 5.5 requires a compatibility patch in order to run with Java 1.4, and some Sakai dependencies will require this, even if you are using Java 1.5 to build and run it. This compatibility patch is also available from the <a href="http://tomcat.apache.org/download-55.cgi">Tomcat download page</a>.</p>
 			</td>
@@ -248,7 +248,7 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 	   <tr>
           <td  class="top"><p>Database</p></td>
           <td  class="top">
-		           <p>MySQL 4.1</p>
+		           <p>MySQL 4.1.12+</p>
 		           <p>OR</p>
 		           <p>Oracle 9i+</p>
         </td>
@@ -256,9 +256,9 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 		"out of the box" database, requiring no special installation
 		steps to set up,&nbsp;but this database is not recommended for any
 		level of production deployment. &nbsp;Both
-		MySQL 4.1  and Oracle 9+ are currently supported by Sakai 2.2, but setting them up to serve as Sakai's back end will require additional configuration
+		MySQL 4.1.12+  and Oracle 9i+ are currently supported by Sakai 2.2, but setting them up to serve as Sakai's back end will require additional configuration
 		(see the <a href="install-overview.html">Installation Guide</a>).</p>
-		<p><em class="note">** NOTE: Sakai has not been adequately tested against MySQL 5.0, and it is therefore not yet recommended for running Sakai in production</em>.</p>
+		<p><em class="note">** NOTE: Sakai has not been adequately tested against MySQL 5.0, and it is therefore not yet recommended for running Sakai in production.  Further, a problem has been reported with publishing assessments for MySQL versions 4.1.11 or less (see SAK-4416)</em>.</p>
 		<p>It's important to note that Oracle requires the 10g driver even if Oracle 9i is used for the database.  The recommended driver for MySQL is 3.1.12, since there is a greater weight of production success behind it; although early testing has revealed no significant problems with the 3.1.13 driver, it should be used advisedly.</p>
 		</td>
       </tr>

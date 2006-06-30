@@ -30,8 +30,13 @@
     </sect1>
     <sect1 xml:id="unstealth">
         <title>Unstealthing Tools</title>
-        <para>Provisional tools (among others) are "stealthed" by default.  This means they do not appear as options in either the <emphasis>Worksite Setup</emphasis> or <emphasis>Edit Tools</emphasis> lists - they effectively require the intervention of an admin in order to be added to a site.</para>
-        <para>Tools can be stealthed through a setting in sakai.properties, which simply contains a comma-separated list of all the tool ids for stealthed tools.  Sakai OOTB has the following tools stealthed:</para>
+        <para>Provisional tools (among others) are "stealthed" by default. This means they do not
+            appear as options in either the <emphasis>Worksite Setup</emphasis> or <emphasis>Edit
+                Tools</emphasis> lists - they effectively require the intervention of an admin in
+            order to be added to a site.</para>
+        <para>Tools can be stealthed through a setting in sakai.properties, which simply contains a
+            comma-separated list of all the tool ids for stealthed tools. Sakai OOTB has the
+            following tools stealthed:</para>
         <screen>
 #stealthTools@org.sakaiproject.tool.api.ActiveToolManager=</screen>
     </sect1>
@@ -41,33 +46,60 @@
     </sect1>
     <sect1 xml:id="su">
         <title>SU (sakai.su)</title>
-        <sect2><title>What it Is</title>
-            <para>SU is a tool for administrators to use to log in as another user. It is code developed at Texas State University for their local brand of Sakai called <emphasis>TRACS: Teaching Research and Collaboration System</emphasis>. It is meant to be used within the Admin Workspace, and so it does not need to be stealthed or unstealthed (it will never appear among the tool options in "Worksite Setup"). It features a simple form in which you type the user id of the user you wish to "become" in the system.</para>
-    <para>The name stands for Super User, and comes from a command-line tool in Unix that serves the same purpose. It is often pronounced "Sue."</para></sect2>
+        <sect2>
+            <title>What it Is</title>
+            <para>SU is a tool for administrators to use to log in as another user. It is code
+                developed at Texas State University for their local brand of Sakai called
+                    <emphasis>TRACS: Teaching Research and Collaboration System</emphasis>. It is
+                meant to be used within the Admin Workspace, and so it does not need to be stealthed
+                or unstealthed (it will never appear among the tool options in "Worksite Setup"). It
+                features a simple form in which you type the user id of the user you wish to
+                "become" in the system.</para>
+            <para>The name stands for Super User, and comes from a command-line tool in Unix that
+                serves the same purpose. It is often pronounced "Sue."</para>
+        </sect2>
         <sect2>
             <title>Building / Deploying</title>
-            <para>The tool is only available to adminstrators and not part of the Adminstrator Workspace by default. If you would like to completely remove the SU tool, simply delete the entire module at the path /admin-tools/su in the Sakai source tree.</para>
+            <para>The tool is only available to adminstrators and not part of the Adminstrator
+                Workspace by default. If you would like to completely remove the SU tool, simply
+                delete the entire module at the path /admin-tools/su in the Sakai source
+            tree.</para>
         </sect2>
         <sect2>
             <title>Using the Tool</title>
-            <para>After the SU tool is deployed, it will appear in the list of tools in the Administrative Sites tool. It will NOT appear in the list of tools for the Worksite Setup tool, since SU is intended for administrators only, and not for general use.</para>
-                
-                <para>In order to use the tool, edit the <emphasis>!admin</emphasis> site (i.e. the Admin MyWorkspace) through the admin <emphasis>Sites</emphasis> tool, add a page or edit an existing page, and place the tool on that page. The SU tool will appear in the list with the title "Become User" and the id <emphasis>sakai.su</emphasis>. When you've placed the tool, remember to click the <emphasis>Save</emphasis> button.</para>
-                
-                <para>The tool itself is very simple. There is a text field to type a user id, and there is a <emphasis>Submit</emphasis> button. Your session will continue as though you had logged in as the specified user. This will work even if that user is already logged in at another location.</para>
-                
-                <para>To change back to "yourself," you must logout and log back in.</para>
+            <para>After the SU tool is deployed, it will appear in the list of tools in the
+                Administrative Sites tool. It will NOT appear in the list of tools for the Worksite
+                Setup tool, since SU is intended for administrators only, and not for general use.</para>
+
+            <para>In order to use the tool, edit the <emphasis>!admin</emphasis> site (i.e. the
+                Admin MyWorkspace) through the admin <emphasis>Sites</emphasis> tool, add a page or
+                edit an existing page, and place the tool on that page. The SU tool will appear in
+                the list with the title "Become User" and the id <emphasis>sakai.su</emphasis>. When
+                you've placed the tool, remember to click the <emphasis>Save</emphasis> button.</para>
+
+            <para>The tool itself is very simple. There is a text field to type a user id, and there
+                is a <emphasis>Submit</emphasis> button. Your session will continue as though you
+                had logged in as the specified user. This will work even if that user is already
+                logged in at another location.</para>
+
+            <para>To change back to "yourself," you must logout and log back in.</para>
         </sect2>
         <sect2>
-        <title>Security</title>
-            <para>The SU tool is hard-coded only to work for users with administrative privileges. Naturally you should take care whom you give these privileges to. The ability to have more fine-grained control of permissions on the tool may be developed for a future version.</para>
+            <title>Security</title>
+            <para>The SU tool is hard-coded only to work for users with administrative privileges.
+                Naturally you should take care whom you give these privileges to. The ability to
+                have more fine-grained control of permissions on the tool may be developed for a
+                future version.</para>
         </sect2>
         <sect2>
-        <title>Known Issues</title>
-            <para>It's a small thing, but if you click the "View user info" button, the button should then become disabled unless the id field should change.</para></sect2>
+            <title>Known Issues</title>
+            <para>It's a small thing, but if you click the "View user info" button, the button
+                should then become disabled unless the id field should change.</para>
+        </sect2>
         <sect2>
             <title>Contact</title>
-            <para>Sakai su is written by Zach Thomas at Texas State University. You may contact him at zach.thomas@txstate.edu.</para>
+            <para>Sakai su is written by Zach Thomas at Texas State University. You may contact him
+                at zach.thomas@txstate.edu.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="sakaiscript">
@@ -78,11 +110,16 @@
         <title>Roster</title>
         <sect2>
             <title>Overview</title>
-            <para><emphasis>Roster</emphasis> allows users to view the names, photos and profiles of site participants who have made their information accessible through the <emphasis>Profile</emphasis> tool in <emphasis>My Workspace</emphasis>.  If an institution has institutional photos, the photos can be made accessible separately to site maintainers.</para>
+            <para><emphasis>Roster</emphasis> allows users to view the names, photos and profiles of
+                site participants who have made their information accessible through the
+                    <emphasis>Profile</emphasis> tool in <emphasis>My Workspace</emphasis>. If an
+                institution has institutional photos, the photos can be made accessible separately
+                to site maintainers.</para>
         </sect2>
         <sect2>
             <title>Configuration</title>
-            <para>The tool simply needs to be unstealthed, and requires no special configuration.</para>
+            <para>The tool simply needs to be unstealthed, and requires no special
+            configuration.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="twinpeaks">
@@ -93,26 +130,42 @@
         <title>Message Center</title>
         <sect2>
             <title>Overview</title>
-            <para>Message Center is Indiana University’s solution for discussion and private messaging, facilitating one-on-one and group communication. Through private messaging, users within a site can quickly and easily communicate and can even auto-forward private messages to their favorite email client.  By providing authors with extensive control over permissions and forum/topic status and giving users a more intuitive navigation, the discussion forum feature complements private messaging well.</para>
-          </sect2>
-          <sect2>
-              <title>Configuration</title>
-              <para>System administrators need to set the role-to-permission-level mapping in <filename>sakai.properties</filename>. OOTB generic roles are set to the following:</para>
-<screen>
+            <para>Message Center is Indiana University’s solution for discussion and private
+                messaging, facilitating one-on-one and group communication. Through private
+                messaging, users within a site can quickly and easily communicate and can even
+                auto-forward private messages to their favorite email client. By providing authors
+                with extensive control over permissions and forum/topic status and giving users a
+                more intuitive navigation, the discussion forum feature complements private
+                messaging well.</para>
+        </sect2>
+        <sect2>
+            <title>Configuration</title>
+            <para>System administrators need to set the role-to-permission-level mapping in
+                    <filename>sakai.properties</filename>. OOTB generic roles are set to the
+                following:</para>
+            <screen>
 mc.default.Student=Contributor
 mc.default.Instructor=Owner</screen>
-<para>Note: If you add a role to <filename>sakai.properties</filename> that has a space, you must escape it with a backslash (e.g., <command>mc.default.project\ owner=Owner</command>).</para>
+            <para>Note: If you add a role to <filename>sakai.properties</filename> that has a space,
+                you must escape it with a backslash (e.g., <command>mc.default.project\
+                owner=Owner</command>).</para>
         </sect2>
     </sect1>
     <sect1 xml:id="postem">
         <title>Post 'Em</title>
         <sect2>
             <title>Overview</title>
-            <para><emphasis>Post ‘Em</emphasis> is an automated reporting system that enables faculty to post grades and comments without compromising student privacy.  <emphasis>Post ‘Em</emphasis> accepts CSV files, empowering faculty to track student grades in a spreadsheet application of their choice.  Keep in mind that <emphasis>Post ‘Em</emphasis> files are not restricted to grades and comments, so the research community may also benefit from this functionality.</para>
+            <para><emphasis>Post ‘Em</emphasis> is an automated reporting system that enables
+                faculty to post grades and comments without compromising student privacy.
+                    <emphasis>Post ‘Em</emphasis> accepts CSV files, empowering faculty to track
+                student grades in a spreadsheet application of their choice. Keep in mind that
+                    <emphasis>Post ‘Em</emphasis> files are not restricted to grades and comments,
+                so the research community may also benefit from this functionality.</para>
         </sect2>
         <sect2>
             <title>Configuration</title>
-            <para>The tool simply needs to be unstealthed, and requires no special configuration.</para>
+            <para>The tool simply needs to be unstealthed, and requires no special
+            configuration.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="summarycalendar">

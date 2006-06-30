@@ -47,12 +47,9 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <h3 class="title">JRE vs. JDK vs. J2SE vs. J2EE</h3>
 
                 <p>If you're unfamiliar with the Java world, you may find the acronyms for
-                    various Java environments a little mysterious. The JRE is simply the runtime
-                    environment which allows you to run compiled Java code. The JDK (or, for version
-                    1.4 of Java, the J2SDK) is the Java Developer's Kit, which includes all the
-                    basic requirements for developing and building Java code. The J2SE (the
-                    "Standard Edition") is simply the combination of the JDK and the JRE - this is
-                    the one you want to complete the source installation.</p>
+                    various Java environments a little mysterious. The JRE is simply the "runtime
+                    environment" which allows you to execute compiled Java bytecode, and for many platforms this is all you usually get - for the very good reason that the average user just wants to run programs, and doesn't need to be building code. For this latter purpose you'll need the JDK, which stands for "Java Developer's Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the JDK and the JRE - this is
+                    the one you want in order to complete the source installation.</p>
                 <p>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -129,7 +126,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 </tbody>
 </table></div>
             <p>Finally, you'll need to set an environment variable that will increase the size
-                and performance of your JVM (Java Virtual Machine - the default JVM settings are
+                and performance of your JVM ("Java Virtual Machine": the default JVM settings are
                 unfortunately not sufficient for Sakai), and the variable is named
                     <span><strong class="command">JAVA_OPTS</strong></span>. The value suggested below should be suitable for
                 developers or demo installations.</p>
@@ -141,9 +138,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <span class="term">Windows</span></td>
 <td>
                         <p> Create a new environment variable <span><strong class="command">JAVA_OPTS</strong></span> to
-                            hold the value <span><strong class="command">-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m</strong></span>.
-                        </p>
+                            hold the value "<span><strong class="command">-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m</strong></span>". </p>
                     </td>
 </tr>
 <tr>
@@ -151,8 +146,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <span class="term">Mac/*nix</span></td>
 <td>
                         <p>
-                            <span><strong class="command">export JAVA_HOME="-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</strong></span>
+                            <span><strong class="command">export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</strong></span>
                         </p>
                     </td>
 </tr>
@@ -190,7 +184,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
                     details, and for brevity's sake it's recommended that you grab the .zip. Sakai
                     requires some tuning of the JVM, and the service install manages these settings
                     through the registry rather than environment variables (see Tomcat installation
-                    instructions for more details if you're committed to installing Tomcat as a
+                    instructions on the Apache site if you're committed to installing Tomcat as a
                     service).</p>
             </div>
             <p>Unpack the Tomcat archive at your desired location, and unpack the compatibility
@@ -291,7 +285,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 </tr>
 </tbody>
 </table></div>
-            <p>Next you'll want to create your local repository by running the following:</p>
+            <p>Next you'll want to create your local maven repository in your home directory by running the following command:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -316,6 +310,11 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 </tr>
 </tbody>
 </table></div>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">Home Directories in Windows</h3>
+
+                <p>You may not often deal with the notion of the home directory on Windows systems, but it's still there.  By default its location is <code class="filename">C:\Documents and Settings\yourusername</code>.  Windows also establishes it through environment variables which you've just seen above - the combination of your "home drive" location and your "home path" location:  <span><strong class="command">%HOMEDRIVE%%HOMEPATH%</strong></span> (The %-sign is how Windows brackets environment variables).</p>
+            </div>
             <p>Finally, you'll need to create a build properties file in your home directory
                 which will define some basic parameters for your Sakai build. Simply create a new
                 text file with the filename <code class="filename">build.properties</code> in your home

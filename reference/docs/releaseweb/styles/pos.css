@@ -2,6 +2,11 @@
 	body {
 		text-align:center;
 		}
+		
+	table {
+		margin-left: 0.5in; 
+		margin-right: 0.5in;
+	}
 	
 	#frame {
 		width:990px;

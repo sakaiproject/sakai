@@ -158,8 +158,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <a name="install-dbconfig-create"></a>5.3. Create Database and User</h3></div></div></div>
 
             <p>A Sakai database and privileged user must be prepared for Sakai's use. Consult
-                your database documentation for details, but below are sample commands for MySQL.
-            </p>
+                your database documentation for details, but below are sample commands for MySQL. </p>
             <pre class="screen">
 C:\sakai\reference\sql\legacy\mysql\&gt;
 mysql -u root -p
@@ -183,8 +182,13 @@ mysql&gt; quit</pre>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">UTF-8 Character Set</h3>
 
-                <p>When the database is created you must be sure to create it to use the UTF-8 character set, just as Tomcat was configured to use UTF-8.  If you don't you may run into a range of issues when attempting to use Unicode characters in Sakai, and this goes for both MySQL and Oracle.  Consult your DB documentation or a local DBA for instructions on how to do this.</p>
-                <p>If you're not certain how your database is currently configured, you can check with a query.  Here is a sample query from Oracle showing the correct value:</p>
+                <p>When the database is created you must be sure to create it to use the UTF-8
+                    character set, just as Tomcat was configured to use UTF-8. If you don't you may
+                    run into a range of issues when attempting to use Unicode characters in Sakai,
+                    and this goes for both MySQL and Oracle. Consult your DB documentation or a
+                    local DBA for instructions on how to do this.</p>
+                <p>If you're not certain how your database is currently configured, you can check
+                    with a query. Here is a sample query from Oracle showing the correct value:</p>
                 <pre class="screen">
 SQL&gt; select value from nls_database_parameters where parameter = 'NLS_CHARACTERSET';
 
@@ -192,7 +196,8 @@ VALUE
 --------------------------------------------------------------------------------
 AL32UTF8</pre>
 
-                <p>Converting a database from one character set to another is non-trivial, particularly if it's a large production database.</p>
+                <p>Converting a database from one character set to another is non-trivial,
+                    particularly if it's a large production database.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
