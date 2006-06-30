@@ -276,8 +276,6 @@ public class QuestionPoolBean implements Serializable
 
   public ArrayList getAllItems()
   {
-      QuestionPoolService delegate = new QuestionPoolService();
-      ArrayList list = delegate.getAllItems(this.getCurrentPool().getId());
       return allItems;
   }
 
@@ -1677,7 +1675,7 @@ String poolId = ContextUtil.lookupParam("qpid");
       this.setCurrentPool(pool);
       this.setHtmlIdLevel(htmlIdLevel);
 
-      ArrayList list = delegate.getAllItems(this.getCurrentPool().getId());
+      ArrayList list = delegate.getAllItemsSorted(this.getCurrentPool().getId(), this.getSortQuestionProperty(), String.valueOf(this.getSortQuestionAscending()));
       this.setAllItems(list);
 
     }
