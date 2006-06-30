@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.questionpool;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +70,7 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIf
  * @author Lydia Li<lydial@stanford.edu>
  * $Id$
  */
-public class QuestionPoolBean
+public class QuestionPoolBean implements Serializable
 {
   private String name;
   private Collection pools;
@@ -117,7 +118,9 @@ public class QuestionPoolBean
   private boolean sortMovePoolAscending = true;
   private String sortSubPoolProperty = "title";
   private boolean sortSubPoolAscending = true;
-
+  private String sortQuestionProperty = "text";
+  private boolean sortQuestionAscending = true;
+  
   private ItemFacade itemToPreview;
 
   private static Log log = LogFactory.getLog(QuestionPoolBean.class);
@@ -882,6 +885,16 @@ public class QuestionPoolBean
     sortSubPoolAscending = pstr;
   }
 
+  public boolean getSortQuestionAscending()
+  {
+    return sortQuestionAscending;
+  }
+
+  public void setSortQuestionAscending(boolean pstr)
+  {
+    sortQuestionAscending = pstr;
+  }
+  
   public String getActionType()
   {
     return actionType;
@@ -932,6 +945,16 @@ public class QuestionPoolBean
     sortSubPoolProperty= newProperty;
   }
 
+  public String getSortQuestionProperty()
+  {
+    return sortQuestionProperty;
+  }
+
+  public void setSortQuestionProperty(String newProperty)
+  {
+    sortQuestionProperty= newProperty;
+  }
+  
 public String getAddOrEdit()
   {
     return addOrEdit;

@@ -25,15 +25,31 @@
 
 
     <h:column>
-      <f:facet name="header">
-
-        <h:commandLink title="#{msg.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool">
+      <f:facet name="header">      
+		<h:panelGroup>
+        <h:commandLink title="#{msg.t_sortQuestionText}" id="sortByTitleAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'text'}">
           <h:outputText value="#{msg.q_text}" />
           <f:param name="orderBy" value="text"/>
           <f:param name="ascending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
         </h:commandLink>
 
+        <h:commandLink title="#{msg.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && questionpool.sortQuestionAscending}">
+          <h:outputText value="#{msg.q_text}" />
+          <f:param name="orderBy" value="text"/>
+          <f:param name="ascending" value="false"/>
+          <h:graphicImage alt="#{msg.alt_sortQuestionTextDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
+        </h:commandLink>
+
+        <h:commandLink title="#{msg.t_sortQuestionText}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='text' && !questionpool.sortQuestionAscending}">
+          <h:outputText value="#{msg.q_text}" />
+          <f:param name="orderBy" value="text"/>
+          <f:param name="ascending" value="true"/>
+          <h:graphicImage alt="#{msg.alt_sortQuestionTextAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
+        </h:commandLink>
+        </h:panelGroup>
       </f:facet>
 
 <h:commandLink title="#{msg.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
@@ -76,8 +92,6 @@ onkeypress=
   ><h:outputText id="export" value="#{msg.export}"/>
 </h:outputLink>
 
-
-
 <h:outputText rendered="#{questionpool.importToAuthoring != 'true'}"  value=" #{msg.separator} " />
 <h:commandLink title="#{msg.t_previewQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="previewlink" immediate="true" action="previewQuestion">
   <h:outputText id="preview" value="#{msg.preview}"/>
@@ -87,13 +101,33 @@ onkeypress=
  <f:verbatim></span></f:verbatim>
     </h:column>
 
+
     <h:column>
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortQuestionType}" id="sortByTypeAction" immediate="true" action="editPool">
+        <h:panelGroup>
+        <h:commandLink title="#{msg.t_sortQuestionType}" id="sortByTypeAction" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty ne 'keyword'}">
           <h:outputText value="#{msg.q_type}" />
           <f:param name="orderBy" value="keyword"/>
+          <f:param name="ascending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
         </h:commandLink>
+
+        <h:commandLink title="#{msg.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && questionpool.sortQuestionAscending}">
+          <h:outputText value="#{msg.q_type}" />
+          <f:param name="orderBy" value="keyword"/>
+          <f:param name="ascending" value="false"/>
+          <h:graphicImage alt="#{msg.alt_sortQuestionTypeDescending}" rendered="#{author.publishedAscending}" url="/images/sortascending.gif"/>
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
+        </h:commandLink>
+
+        <h:commandLink title="#{msg.t_sortQuestionType}" immediate="true" action="editPool" rendered="#{questionpool.sortQuestionProperty=='keyword' && !questionpool.sortQuestionAscending}">
+          <h:outputText value="#{msg.q_type}" />
+          <f:param name="orderBy" value="keyword"/>
+          <f:param name="ascending" value="true"/>
+          <h:graphicImage alt="#{msg.alt_sortQuestionTypeAscending}" rendered="#{author.publishedAscending}" url="/images/sortdescending.gif"/>          
+          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.SortQuestionListListener" />
+        </h:commandLink>
+        </h:panelGroup>
       </f:facet>
      <h:outputText rendered="#{question.typeId== 1}" value="#{authmsg.multiple_choice_type}"/>
      <h:outputText rendered="#{question.typeId== 2}" value="#{authmsg.multiple_choice_type}"/>

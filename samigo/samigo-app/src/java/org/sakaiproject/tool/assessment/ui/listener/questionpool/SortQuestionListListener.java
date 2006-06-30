@@ -55,14 +55,27 @@ public class SortQuestionListListener
     FacesContext context = FacesContext.getCurrentInstance();
    
     // get service and managed bean
-     QuestionPoolBean questionpoolbean = (QuestionPoolBean) cu.lookupBean("questionpool");
+    QuestionPoolBean questionpoolbean = (QuestionPoolBean) cu.lookupBean("questionpool");
+    
     String orderBy = cu.lookupParam("orderBy");
-    String ascending=cu.lookupParam("ascending");
+    String ascending =cu.lookupParam("ascending");
+    if (orderBy != null &&!orderBy.trim().equals("")){
+    	questionpoolbean.setSortQuestionProperty(orderBy);
+    	log.debug("orderBy = " + cu.lookupParam("orderBy"));
+    }
+    
+    if (ascending != null && ascending.trim().equals("")){
+    	questionpoolbean.setSortAscending(Boolean.valueOf(ascending).booleanValue());
+    	log.debug("ascending = " + ascending);
+    }
+    
+    questionpoolbean.setSortQuestionAscending(Boolean.valueOf(cu.lookupParam("ascending")).booleanValue());
+    
     String qpid=cu.lookupParam("qpid");
     QuestionPoolService delegate = new QuestionPoolService();
     ArrayList list= new ArrayList();
     if (qpid==null ||("").equals(qpid)){
-     list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy,ascending);
+     list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
     }
     else{
 	list = delegate.getAllItemsSorted(Long.getLong(qpid),orderBy, ascending);
