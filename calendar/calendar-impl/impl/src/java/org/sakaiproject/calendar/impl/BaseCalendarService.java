@@ -22,8 +22,8 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,18 +37,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Source;
-import javax.xml.transform.URIResolver;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
@@ -73,7 +73,6 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -118,11 +117,11 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1318,7 +1317,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 				// check SECURE_ALL_GROUPS - if not, check if the event has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext()))))
+				if ((userId == null) || ((!SecurityService.isSuperUser(userId)) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
 				{
 					// get the calendar to get the message to get group information
 					String calendarRef = calendarReference(ref.getContext(), ref.getContainer());
@@ -3209,8 +3208,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				Collection groups = site.getGroups();
 
 				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the calendar (calendar,site), select all site groups
-				if (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(m_context))
-						&& unlockCheck(function, getReference()))
+				if ((SecurityService.isSuperUser()) || (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(m_context))
+						&& unlockCheck(function, getReference())))
 				{
 					return groups;
 				}
