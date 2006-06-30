@@ -348,6 +348,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
       {
         statusLabel.setText(res.getString("processing"));
         statusLabel.setVisible(true);
+        playB.setEnabled(false);
+        captB.setEnabled(false);
         captureAudio();
         if (recordIcon !=null) captB.setIcon(recordIcon);
       }
@@ -376,7 +378,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
         this.file = file;
         errStr = null;
         audioInputStream = AudioSystem.getAudioInputStream(file);
-        playB.setEnabled(true);
+        //playB.setEnabled(true);
         fileName = file.getName();
         long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                     audioInputStream.getFormat().getFrameRate());
@@ -436,79 +438,83 @@ public class AudioRecorder extends JPanel implements ActionListener,
    * @param attemptsLeft attempts left
    */
   public void saveAndPost(InputStream inputStream,
-                                AudioFileFormat.Type audioType,
-                                String urlString,
-                                int attemptsLeft)
+                          final AudioFileFormat.Type audioType,
+                          final String urlString,
+                          int attemptsLeft)
   {
-    if (audioInputStream == null)
-    {
-      reportStatus(res.getString("No_loaded_audio_to"));
-      return;
-    }
-    // reset to the beginnning of the captured data
-    try
-    {
-      audioInputStream.reset();
-    }
-    catch (Exception ex)
-    {
-      reportStatus(res.getString("Unable_to_reset") + ex);
-      return;
-    }
-
-    String suffix = getAudioSuffix();
-
-    URL url;
-    URLConnection urlConn;
-    try
-    {
-      // URL of audio processing servlet
-      // note for applet security, this must be on same host
-      urlString += "&lastDuration="+duration+"&suffix="+suffix;
-      url = new URL(urlString);
-      urlConn = url.openConnection();
-      urlConn.setDoInput(true);
-      urlConn.setDoOutput(true);
-
-      // No caching, we want the real thing.
-      urlConn.setUseCaches(false);
-
-      urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
-      // Send binary POST output.
-      OutputStream outputStream = urlConn.getOutputStream();
-
-      try{
-	  //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
-        int c = AudioSystem.write(audioInputStream, audioType, outputStream);
-        if (c <= 0){
-          throw new IOException(res.getString("Problems_writing_to"));
+    Thread saveAndPostThread = new Thread(){
+      public void run(){      
+        if (audioInputStream == null){
+          reportStatus(res.getString("No_loaded_audio_to"));
+          return;
         }
-        outputStream.flush();
-        outputStream.close();
-
-        // Get response data.
-        String reportStr = res.getString("contentlenw") + ": " +
-          c + " " + res.getString("bytes") + ".\n  ";
-        DataInputStream input = new DataInputStream(urlConn.getInputStream());
-
-        // need to check that acknowlegement from server matches or display
-        String str;
-        while (null != ( (str = input.readLine())))
-        {
-          reportStr += str;
+        // reset to the beginnning of the captured data
+        try{
+         audioInputStream.reset();
         }
-        input.close();
-        reportStatus(reportStr + "\n");
-      }
-      catch (Exception ex){
-        reportStatus(ex.toString());
-      }
-    }
-    catch (IOException ex)
-    {
-      reportStatus(ex.toString());
-    }
-    samplingGraph.repaint();
+        catch (Exception ex){
+          reportStatus(res.getString("Unable_to_reset") + ex);
+          return;
+        }
+  
+        String suffix = getAudioSuffix();
+        URL url;
+        URLConnection urlConn;
+        try{
+          // URL of audio processing servlet
+          // note for applet security, this must be on same host
+          String queryString = "&lastDuration="+duration+"&suffix="+suffix;
+          url = new URL(urlString+queryString);
+          urlConn = url.openConnection();
+          urlConn.setDoInput(true);
+          urlConn.setDoOutput(true);
+
+          // No caching, we want the real thing.
+          urlConn.setUseCaches(false);
+
+          urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
+          // Send binary POST output.
+          OutputStream outputStream = urlConn.getOutputStream();
+
+          try{
+	    //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
+            int c = AudioSystem.write(audioInputStream, audioType, outputStream);
+            if (c <= 0){
+              throw new IOException(res.getString("Problems_writing_to"));
+             }
+            outputStream.flush();
+            outputStream.close();
+
+            // Get response data.
+            String reportStr = res.getString("contentlenw") + ": " +
+                               c + " " + res.getString("bytes") + ".\n  ";
+            DataInputStream input = new DataInputStream(urlConn.getInputStream());
+
+            // need to check that acknowlegement from server matches or display
+            String str;
+            while (null != ( (str = input.readLine()))){
+              reportStr += str;
+            }
+            input.close();
+            // mock up doesn't require report, let's comment it out
+            //reportStatus(reportStr + "\n");
+	  }
+          catch (Exception ex){
+            reportStatus(ex.toString());
+          }
+        }
+        catch (IOException ex){
+          reportStatus(ex.toString());
+        }
+        // hide the statusLabel and enable buttons after we saved the media
+        statusLabel.setVisible(false);
+        statusLabel.setText("");
+        playB.setEnabled(true);
+        captB.setEnabled(true);
+        samplingGraph.repaint();
+      } // end of run
+    }; // end of saveAndPostThread
+    saveAndPostThread.start(); 
   }
 
   public void saveToFile(String name, AudioFileFormat.Type fileType)
@@ -1086,7 +1092,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     lines.removeAllElements();
     capture.stop();
     samplingGraph.stop();
-    playB.setEnabled(true);
+    //playB.setEnabled(true);
     captB.setText(res.getString("Record"));
     int retry = 1; 
     while (audioInputStream == null && retry < 5){
@@ -1107,6 +1113,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
         //reportStatus(res.getString("time_passed")+"\n" );
         statusLabel.setText(res.getString("time_expired"));
         statusLabel.setVisible(true);
+        playB.setEnabled(false);
+        captB.setEnabled(false);
         captureAudio();
       }
     };
@@ -1121,7 +1129,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     try{
       URL url = new URL(mediaUrl);
       audioInputStream = AudioSystem.getAudioInputStream(url);
-      playB.setEnabled(true);
+      //playB.setEnabled(true);
       long milliseconds = (long) ( (audioInputStream.getFrameLength() * 1000) /
                                     audioInputStream.getFormat().getFrameRate());
       duration = milliseconds / 1000.0;
