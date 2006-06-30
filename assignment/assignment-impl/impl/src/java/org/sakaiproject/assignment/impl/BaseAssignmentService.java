@@ -3316,7 +3316,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				// check SECURE_ALL_GROUPS - if not, check if the assignment has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!SecurityService.isSuperUser(userId)) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!SecurityService.isSuperUser()) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
