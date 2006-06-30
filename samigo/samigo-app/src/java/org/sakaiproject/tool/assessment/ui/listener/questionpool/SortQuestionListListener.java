@@ -81,7 +81,7 @@ public class SortQuestionListListener
 	list = delegate.getAllItemsSorted(Long.getLong(qpid),orderBy, ascending);
     }
     
-    System.out.println("FAIL AFTER CALLING DELEGATE");
+    log.debug("AFTER CALLING DELEGATE");
     questionpoolbean.setAllItems(list);
 
   }
