@@ -143,6 +143,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   String fileName = res.getString("default_file_name");
   String errStr;
   double duration, seconds;
+  int attempts;
   File file;
   Vector lines = new Vector();
 
@@ -323,7 +324,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
         samplingGraph.stop();
         if (params.getAttemptsAllowed()>0)
         {
-          captB.setEnabled(true);
+          if (attempts==0) 
+            captB.setEnabled(false); 
+	  else 
+            captB.setEnabled(true);
           if (recordIcon !=null) captB.setIcon(recordIcon);
         }
         playB.setText(res.getString("Play"));
@@ -356,11 +360,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
     }
   }
 
-  private void resetAttempts(int attempts)
+  private void resetAttempts(int attempts0)
   {
-    if (attempts > 0)
+    if (attempts0 > 0)
     {
-      rtextField.setText("" + attempts);
+      rtextField.setText("" + attempts0);
     }
   }
 
@@ -510,7 +514,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
         statusLabel.setVisible(false);
         statusLabel.setText("");
         playB.setEnabled(true);
-        captB.setEnabled(true);
+        if (attempts==0) 
+          captB.setEnabled(false); 
+	else 
+          captB.setEnabled(true);
+
         samplingGraph.repaint();
       } // end of run
     }; // end of saveAndPostThread
@@ -601,7 +609,11 @@ public class AudioRecorder extends JPanel implements ActionListener,
         samplingGraph.stop();
         if (params.getAttemptsAllowed()>0)
         {
-          captB.setEnabled(true);
+          if (attempts==0) 
+            captB.setEnabled(false); 
+          else 
+            captB.setEnabled(true);
+
         }
         playB.setText(res.getString("Play"));
       }
@@ -905,6 +917,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
       data.setFileName(fileName);
       data.setLine(lines);
       data.setSeconds(seconds);
+      data.setMaxSeconds(params.getMaxSeconds());
 
       paintData(g, data);
 
@@ -1047,7 +1060,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   private void saveMedia(){
     AudioFileFormat.Type type = getAudioType();
 
-    int attempts = params.getAttemptsRemaining();
+    attempts = params.getAttemptsRemaining();
 
     if (attempts > 0){
       if (attempts < 9999){
@@ -1063,8 +1076,13 @@ public class AudioRecorder extends JPanel implements ActionListener,
       else if (params.isSaveToFile()){
         saveToFile(textField.getText().trim(), type);
       }
-
-      textField.setText("" + duration);
+      // earlier we add 1sec leeway for the applet to load after the timer start. to avoid
+      // alarm user, the duration value shown wuld not be over max seconds allowed.
+      // However, for record keeping, the actual duration is saved.
+      if (duration > params.getMaxSeconds())
+        textField.setText("" + params.getMaxSeconds());
+      else
+        textField.setText("" + duration);
       if (attempts==0) captB.setEnabled(false); ;
     }
   }

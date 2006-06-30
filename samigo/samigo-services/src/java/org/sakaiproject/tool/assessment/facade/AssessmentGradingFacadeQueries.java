@@ -608,6 +608,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
   }
 
+  public ItemGradingData getItemGrading(Long id) {
+    return (ItemGradingData) getHibernateTemplate().load(ItemGradingData.class, id);
+  }
+
   public AssessmentGradingData getLastSavedAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
 

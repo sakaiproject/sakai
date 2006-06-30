@@ -36,7 +36,7 @@ public class AudioSamplingData
   private Thread captureThread;
   private java.util.Vector line;
   private javax.sound.sampled.AudioInputStream audioInputStream;
-
+  private double maxSeconds;
 
   public String getErrStr()
   {
@@ -113,4 +113,15 @@ public class AudioSamplingData
   {
     this.audioInputStream = audioInputStream;
   }
+
+  public double getMaxSeconds()
+  {
+    return maxSeconds;
+  }
+
+  public void setMaxSeconds(double maxSeconds)
+  {
+    this.maxSeconds = maxSeconds;
+  }
+
 }

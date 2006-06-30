@@ -48,6 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -425,16 +426,6 @@ public class QuestionScoreListener
 //      authoringHelper.getRemoteUserID() needs servlet stuff
 //      authoringHelper.getRemoteUserName() needs servlet stuff
 
-/* i don't think we use these - daisyf
-      String userId = "";
-      String userName = "";
-      RecordingData recordingData =
-        new RecordingData( userId, userName,
-        courseContext, "0", "30");
-      // set this value in the requestMap for sound recorder
-      bean.setRecordingData(recordingData);
-*/
-
       /* Dump the grading and agent information into AgentResults */
       //ArrayList agents = new ArrayList();
       iter = scoresByItem.values().iterator();
@@ -477,9 +468,16 @@ public class QuestionScoreListener
             answerText = gdataAnswer.getSequence() + ":" +
               answerText;
 
-          // file upload or recording
-          if (bean.getTypeId().equals("6") || bean.getTypeId().equals("7")){
+          // file upload 
+          if (bean.getTypeId().equals("6")){
             gdata.setMediaArray(delegate.getMediaArray(gdata.getItemGradingId().toString()));
+	  }
+
+          // audio recording
+          if (bean.getTypeId().equals("7")){
+            ArrayList mediaList = delegate.getMediaArray(gdata.getItemGradingId().toString());
+            setDurationIsOver(item,mediaList);
+            gdata.setMediaArray(mediaList);
 	  }
 
           if (answerText == null)
@@ -613,5 +611,23 @@ public class QuestionScoreListener
     }
     return map;
   }
+
+  private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList){
+    try{
+      int maxDurationAllowed = item.getDuration().intValue();
+      for (int i=0; i<mediaList.size(); i++){
+	MediaIfc m = (MediaIfc) mediaList.get(i);
+        float duration = (new Float(m.getDuration())).floatValue();
+        if (duration > maxDurationAllowed)
+          m.setDurationIsOver(true);
+       	else
+          m.setDurationIsOver(false);
+      }
+    }
+    catch(Exception e){
+      log.warn("**duration recorded is not an integer value="+e.getMessage());
+    }
+  }
+
 
 }

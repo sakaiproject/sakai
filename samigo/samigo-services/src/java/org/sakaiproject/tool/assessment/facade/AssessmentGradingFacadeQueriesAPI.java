@@ -113,6 +113,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public AssessmentGradingData load(Long id);
 
+  public ItemGradingData getItemGrading(Long id);
+
   public AssessmentGradingData getLastAssessmentGradingByAgentId(
       Long publishedAssessmentId, String agentIdString);
 

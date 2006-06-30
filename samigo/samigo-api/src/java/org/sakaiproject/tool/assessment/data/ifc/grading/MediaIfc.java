@@ -89,4 +89,12 @@ public interface MediaIfc
 
   void setLastModifiedDate(Date lastModifiedDate);
 
+  String getDuration();
+
+  void setDuration(String duration);
+
+  boolean getDurationIsOver();
+
+  void setDurationIsOver(boolean durationIsOver);
+
 }

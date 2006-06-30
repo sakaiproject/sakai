@@ -377,6 +377,17 @@ public class GradingService
     }
   }
 
+  public ItemGradingData getItemGrading(String itemGradingId) {
+    try{
+      return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+          getItemGrading(new Long(itemGradingId));
+    }
+    catch(Exception e)
+    {
+      log.error(e); throw new Error(e);
+    }
+  }
+
   public AssessmentGradingData getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().

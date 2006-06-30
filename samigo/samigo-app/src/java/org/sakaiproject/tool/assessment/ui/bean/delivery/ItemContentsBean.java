@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.apache.commons.logging.Log;
@@ -806,8 +807,26 @@ log.debug("setReview():  setreview at the end = " + preview);
     if (itemGradingData != null && itemGradingData.getItemGradingId()!=null ){
       GradingService service = new GradingService();
       mediaArray = service.getMediaArray(itemGradingData.getItemGradingId().toString());
+      setDurationIsOver(getItemData(), mediaArray);
     }
     return mediaArray;
+  }
+
+  private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList){
+    try{
+      int maxDurationAllowed = item.getDuration().intValue();
+      for (int i=0; i<mediaList.size(); i++){
+	MediaIfc m = (MediaIfc) mediaList.get(i);
+        float duration = (new Float(m.getDuration())).floatValue();
+	if (duration > maxDurationAllowed)
+          m.setDurationIsOver(true);
+	else
+          m.setDurationIsOver(false);
+      }
+    }
+    catch(Exception e){
+      log.warn("**duration recorded is not an integer value="+e.getMessage());
+    }
   }
 
   /**

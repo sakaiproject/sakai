@@ -248,4 +248,13 @@ public class MediaData
     this.duration = duration;
   }
 
+  // convenient method
+  private boolean durationIsOver;
+  public boolean getDurationIsOver() {
+    return durationIsOver;
+  }
+  public void setDurationIsOver(boolean durationIsOver) {
+    this.durationIsOver = durationIsOver;
+  }
+
 }
