@@ -115,7 +115,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private EventTrackingService eventTrackingService;
     
     static {
-    	FORUM_CREATED_DATE_COMPARATOR = new Comparator()
+    	FORUM_CREATED_DATE_COMPARATOR_DESC = new Comparator()
       {                                        
         public int compare(Object forum, Object otherForum)
         {
@@ -124,13 +124,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
           {
             Date date1=((OpenForum) forum).getCreated();
             Date date2=((OpenForum) otherForum).getCreated();
-            return date1.compareTo(date2);
+            return date2.compareTo(date1);
           }
           return -1;
         }
       };
       
-      FORUM_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
+      // remove 5.0 specific code
+      //FORUM_CREATED_DATE_COMPARATOR_DESC = Collections.reverseOrder(FORUM_CREATED_DATE_COMPARATOR);
     }
 
     public void init() {
