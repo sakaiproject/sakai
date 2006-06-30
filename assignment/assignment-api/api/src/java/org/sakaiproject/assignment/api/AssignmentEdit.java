@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.api;
 
+import java.util.Collection;
+
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
@@ -131,24 +133,22 @@ public interface AssignmentEdit extends Assignment, Edit
 	public void setTitle(String title);
 
 	/**
-	 * Add a Group to the list of groups for this assignment.
+	 * Set these as the message's groups, replacing the access and groups already defined.
 	 * 
-	 * @param group
-	 *        The Group to add to those for this assignment.
+	 * @param Collection
+	 *        groups The colelction of Group objects to use for this message.
 	 * @throws PermissionException
-	 *         if the end user does not have permission to do this.
+	 *         if the end user does not have permission to remove from the groups that would be removed or add to the groups that would be added.
 	 */
-	void addGroup(Group group) throws PermissionException;
+	void setGroupAccess(Collection groups) throws PermissionException;
 
 	/**
-	 * Remove this Group from the list of groups for this assignment.
+	 * Remove any grouping for this message; the access mode reverts to channel and any groups are removed.
 	 * 
-	 * @param group
-	 *        The Group to remove from those for this assignment.
 	 * @throws PermissionException
 	 *         if the end user does not have permission to do this.
 	 */
-	void removeGroup(Group group) throws PermissionException;
+	void clearGroupAccess() throws PermissionException;
 
 	/**
 	 * Set the access mode for the assignment - how we compute who has access to the assignment.

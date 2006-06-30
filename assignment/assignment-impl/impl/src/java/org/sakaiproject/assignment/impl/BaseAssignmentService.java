@@ -104,6 +104,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.EmptyIterator;
+import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StorageUser;
@@ -2406,9 +2407,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * @inheritDoc
 	 */
-	public Collection getGroupsAllowRemoveAssignment(String assignmentReference)
+	public Collection getGroupsAllowRemoveAssignment(String context)
 	{
-		return getGroupsAllowFunction(SECURE_REMOVE_ASSIGNMENT, assignmentReference);
+		return getGroupsAllowFunction(SECURE_REMOVE_ASSIGNMENT, context);
 	}
 
 	/**
@@ -2429,7 +2430,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			// if the user has SECURE_ALL_GROUPS in the context (site), or  a super user, select all site groups
 			if (SecurityService.isSuperUser()
-				|| (AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context))))
+				|| AuthzGroupService.isAllowed(SessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, SiteService.siteReference(context)) && unlockCheck(function, SiteService.siteReference(context)))
 			{
 				return groups;
 			}
@@ -3316,7 +3317,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				// check SECURE_ALL_GROUPS - if not, check if the assignment has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!SecurityService.isSuperUser()) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!SecurityService.isSuperUser(userId)) && (!AuthzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
@@ -4787,43 +4788,102 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		/**
 		 * @inheritDoc
 		 */
-		public void addGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
-
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the site?
-			if (!unlockCheck(SECURE_ADD_ASSIGNMENT, group.getReference()))
+		public void setGroupAccess(Collection groups) throws PermissionException
+		{	
+			// convenience (and what else are we going to do?)
+			if ((groups == null) || (groups.size() == 0))
 			{
-				if (!unlockCheck(SECURE_ALL_GROUPS, getReference()))
-				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, group
-							.getReference());
-				}
+				clearGroupAccess();
+				return;
+			}
+			
+			// is there any change?  If we are already grouped, and the group list is the same, ignore the call
+			if ((m_access == AssignmentAccess.GROUPED) && (EntityCollections.isEqualEntityRefsToEntities(m_groups, groups))) return;
+			
+			// there should not be a case where there's no context
+			if (m_context == null)
+			{
+				M_log.warn("setGroupAccess() called with null context: " + getReference());
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:site", getReference());
 			}
 
-			if (!m_groups.contains(group.getReference())) m_groups.add(group.getReference());
+			// isolate any groups that would be removed or added
+			Collection addedGroups = new Vector();
+			Collection removedGroups = new Vector();
+			EntityCollections.computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(addedGroups, removedGroups, groups, m_groups);
+
+			// verify that the user has permission to remove
+			if (removedGroups.size() > 0)
+			{
+				// the Group objects the user has remove permission
+				Collection allowedGroups = getGroupsAllowRemoveAssignment(m_context);
+
+				for (Iterator i = removedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:group:remove", ref);
+					}
+				}
+			}
+			
+			// verify that the user has permission to add in those contexts
+			if (addedGroups.size() > 0)
+			{
+				// the Group objects the user has add permission
+				Collection allowedGroups = getGroupsAllowAddAssignment(m_context);
+
+				for (Iterator i = addedGroups.iterator(); i.hasNext();)
+				{
+					String ref = (String) i.next();
+
+					// is ref a group the user can remove from?
+					if (!EntityCollections.entityCollectionContainsRefString(allowedGroups, ref))
+					{
+						throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:group:add", ref);
+					}
+				}
+			}
+			
+			// we are clear to perform this
+			m_access = AssignmentAccess.GROUPED;
+			EntityCollections.setEntityRefsFromEntities(m_groups, groups);
 		}
 
 		/**
 		 * @inheritDoc
 		 */
-		public void removeGroup(Group group) throws PermissionException
-		{
-			if (group == null)
-				throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, "null");
-
-			// does the current user have SECURE_ADD permission in this group's authorization group, or SECURE_ALL_GROUPS in the channel?
-			if (!unlockCheck(SECURE_ADD_ASSIGNMENT, group.getReference()))
+		public void clearGroupAccess() throws PermissionException
+		{			
+			// is there any change?  If we are already site, ignore the call
+			if (m_access == AssignmentAccess.SITE)
 			{
-				if (!unlockCheck(SECURE_ALL_GROUPS, getReference()))
+				m_groups.clear();
+				return;
+			}
+
+			if (m_context == null)
+			{
+				// there should not be a case where there's no context
+				M_log.warn("clearGroupAccess() called with null context. " + getReference());
+				throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:site", getReference());
+			}
+			else
+			{
+				// verify that the user has permission to add in the site context
+				if (!allowAddSiteAssignment(m_context))
 				{
-					throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, group
-							.getReference());
+					throw new PermissionException(SessionManager.getCurrentSessionUserId(), "access:site", getReference());				
 				}
 			}
 
-			if (m_groups.contains(group.getReference())) m_groups.remove(group.getReference());
+			// we are clear to perform this
+			m_access = AssignmentAccess.SITE;
+			m_groups.clear();
+			
 		}
 
 		/******************************************************************************************************************************************************************************************************************************************************

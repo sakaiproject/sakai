@@ -903,16 +903,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// set up context variables
 		setAssignmentFormContext(state, context);
-		
-		// if group in assignment is allowed, show all the groups in this channal that user has get message in
-		if (AssignmentService.getAllowGroupAssignments())
-		{
-			Collection groups = AssignmentService.getGroupsAllowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
-			if (groups != null && groups.size() > 0)
-			{
-				context.put("groups", groups);
-			}
-		}
 
 		context.put("fField", state.getAttribute(NEW_ASSIGNMENT_FOCUS));
 
@@ -3578,84 +3568,38 @@ public class AssignmentAction extends PagedResourceActionII
 					aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
 
 					// set group property
-					Site site = null;
+					String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
 					try
 					{
-						site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-					}
-					catch (Exception e)
-					{
-						if (Log.getLogger("chef").isDebugEnabled())
-							Log.debug("chef", this + "doPost_assignment(): cannot find site with id "
-									+ ToolManager.getCurrentPlacement().getContext());
-					}
-					String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
-					if (range.equals("site"))
-					{
-						a.setAccess(Assignment.AssignmentAccess.SITE);
-						if (site != null)
+						if (range.equals("site"))
 						{
-							for (Iterator aGroups = a.getGroups().iterator(); aGroups.hasNext();)
+							a.setAccess(Assignment.AssignmentAccess.SITE);
+							a.clearGroupAccess();
+						}
+						else if (range.equals("groups"))
+						{
+							String siteId = ToolManager.getCurrentPlacement().getContext();
+							try
 							{
-								try
+								Site site = SiteService.getSite(siteId);
+								Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
+								Collection groups = new Vector();
+								for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 								{
-									a.removeGroup(site.getGroup((String) aGroups.next()));
+									String groupId = (String) iGroups.next();
+									groups.add(site.getGroup(groupId));
 								}
-								catch (PermissionException e)
-								{
-
-								}
+								a.setGroupAccess(groups);
+							}
+							catch (Exception e)
+							{
+								Log.warn("chef", this + "cannot find site with id "+ siteId);
 							}
 						}
 					}
-					else if (range.equals("groups"))
+					catch (PermissionException e)
 					{
-						Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-
-						// if group has been dropped, remove it from assignment
-						for (Iterator oSIterator = a.getGroups().iterator(); oSIterator.hasNext();)
-						{
-							Reference oGRef = EntityManager.newReference((String) oSIterator.next());
-							boolean selected = false;
-							for (Iterator gIterator = groupChoice.iterator(); gIterator.hasNext() && !selected;)
-							{
-								if (oGRef.getId().equals((String) gIterator.next()))
-								{
-									selected = true;
-								}
-							}
-							if (!selected && site != null)
-							{
-								try
-								{
-									a.removeGroup(site.getGroup(oGRef.getId()));
-								}
-								catch (Exception ignore)
-								{
-									if (Log.getLogger("chef").isDebugEnabled())
-										Log.debug("chef", this + "doPost_assignment(): cannot remove group " + oGRef.getId());
-								}
-							}
-						}
-
-						// add group to assignment
-						if (groupChoice != null)
-						{
-							a.setAccess(Assignment.AssignmentAccess.GROUPED);
-							for (Iterator gIterator2 = groupChoice.iterator(); gIterator2.hasNext();)
-							{
-								String gString = (String) gIterator2.next();
-								try
-								{
-									a.addGroup(site.getGroup(gString));
-								}
-								catch (Exception eIgnore)
-								{
-									if (Log.getLogger("chef").isDebugEnabled())
-										Log.debug("chef", this + "doPost_assignment(): cannot add group " + gString);
-								}
-							}
-						}
+						addAlert(state, rb.getString("youarenot1"));
 					}
 
 					if (state.getAttribute(STATE_MESSAGE) == null)
