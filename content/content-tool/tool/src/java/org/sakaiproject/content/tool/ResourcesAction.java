@@ -7418,7 +7418,7 @@ public class ResourcesAction
 					item.setPubview(false);
 				}
 			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			else if(AccessMode.INHERITED.toString().equals(access_mode) )
 			{
 				item.setAccess(AccessMode.INHERITED.toString());
 				item.clearGroups();
