@@ -8,6 +8,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
@@ -16,6 +17,8 @@
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="lockManager"><ref bean="org.sakaiproject.content.api.LockManager"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+ 
  		<property name="collectionTableName"><value>CONTENT_COLLECTION</value></property>
  		<property name="resourceTableName"><value>CONTENT_RESOURCE</value></property>
  		<property name="resourceBodyTableName"><value>CONTENT_RESOURCE_BODY_BINARY</value></property>

@@ -53,7 +53,7 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -64,7 +64,6 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEdit;
-import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -1602,7 +1601,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// remove any realm defined for this resource
 		try
 		{
-			AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(edit.getReference()));
+			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(edit.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -2827,7 +2826,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// remove any realm defined for this resource
 		try
 		{
-			AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(edit.getReference()));
+			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(edit.getReference()));
 		}
 		catch (AuthzPermissionException e)
 		{
@@ -4791,8 +4790,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
 		
-		Collection rv = (Collection) ThreadLocalManager.get("getEntityAuthzGroups@" + ref.getReference());
-		if(rv != null)
+		// form a key for thread-local caching
+		String threadLocalKey = "getEntityAuthzGroups@" + userId + "@" + ref.getReference();
+		Collection rv = (Collection) ThreadLocalManager.get(threadLocalKey);
+		if (rv != null)
 		{
 			return new Vector(rv);
 		}
@@ -4895,7 +4896,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 		}
 
-		ThreadLocalManager.set("getEntityAuthzGroups@" + ref.getReference(), new Vector(rv));
+		// cache in the thread
+		ThreadLocalManager.set(threadLocalKey, new Vector(rv));
 
 		return rv;
 	}
@@ -6309,7 +6311,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		try
 		{
-			edit = AuthzGroupService.getAuthzGroup(ref);
+			edit = m_authzGroupService.getAuthzGroup(ref);
 		}
 		catch (GroupNotDefinedException e)
 		{
@@ -6318,7 +6320,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				try
 				{
-					edit = AuthzGroupService.addAuthzGroup(ref);
+					edit = m_authzGroupService.addAuthzGroup(ref);
 				}
 				catch (Exception ee)
 				{
@@ -6387,7 +6389,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(edit);
+				m_authzGroupService.removeAuthzGroup(edit);
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -6399,7 +6401,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			try
 			{
-				AuthzGroupService.save(edit);
+				m_authzGroupService.save(edit);
 			}
 			catch (GroupNotDefinedException e)
 			{
