@@ -78,7 +78,7 @@ public class SortQuestionListListener
      list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
     }
     else{
-	list = delegate.getAllItemsSorted(Long.getLong(qpid),orderBy, ascending);
+	list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);
     }
     
     log.debug("AFTER CALLING DELEGATE");
