@@ -616,6 +616,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 
         }
         playB.setText(res.getString("Play"));
+        if (playIcon !=null) playB.setIcon(playIcon);
       }
     }
 
