@@ -80,8 +80,8 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = "enableRecord" VALUE="true">
   <PARAM NAME = "enablePause" VALUE="true">
   <PARAM NAME = "enableLoad" VALUE="false">
-  <PARAM NAME = "saveAu" VALUE="false">
-  <PARAM NAME = "saveWave" VALUE="true">
+  <PARAM NAME = "saveAu" VALUE="true">
+  <PARAM NAME = "saveWave" VALUE="false">
   <PARAM NAME = "saveAiff" VALUE="false">
   <PARAM NAME = "saveToFile" VALUE="false">
   <PARAM NAME = "saveToUrl" VALUE="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>">
@@ -119,8 +119,8 @@ should be included in file importing DeliveryMessages
       enableRecord ="true" \
       enablePause ="true" \
       enableLoad ="false" \
-      saveAu ="false" \
-      saveWave ="true" \
+      saveAu ="true" \
+      saveWave ="false" \
       saveAiff ="false" \
       saveToFile ="false" \
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
