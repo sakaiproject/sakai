@@ -32,7 +32,7 @@ should be included in file importing DeliveryMessages
      without displaying it; audioMediaUploadPath will get this to the back end
 --%>
 <h:outputText escape="false" value="
-<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.timeStamp}.au\"/>" />
+<input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false"/>
 
@@ -87,7 +87,7 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = "saveToUrl" VALUE="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>">
   <PARAM NAME = "fileName" VALUE="audio">
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.timeStamp}" /><f:verbatim>">
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio" /><f:verbatim>">
   <PARAM NAME = "imageUrl" VALUE="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>">
   <PARAM NAME = "compression" VALUE="linear">
   <PARAM NAME = "frequency" VALUE="44100">
@@ -126,7 +126,7 @@ should be included in file importing DeliveryMessages
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
       fileName ="audio" \
       url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio_#{delivery.timeStamp}" /><f:verbatim>" \
+     value="#{delivery.protocol}/samigo/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio" /><f:verbatim>" \
       imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo/images/" /><f:verbatim>" \
       compression ="linear" \
       frequency ="44100" \

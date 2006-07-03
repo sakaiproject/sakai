@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -101,7 +102,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     if (suffix == null || ("").equals(suffix))
       suffix = "au";
     String mediaLocation = req.getParameter("media")+"."+suffix;
-
+    System.out.println("****media location="+mediaLocation);
+    
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
@@ -207,7 +209,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
-    String agentId = mediaLocation.substring(agentIndex+1, myfileIndex);
+    String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
+    String agentId = AgentFacade.getAgentString();
     //System.out.println("****pubAss="+pubAssessmentId);
     //System.out.println("****questionId="+questionId);
     //System.out.println("****agent="+agentId);
