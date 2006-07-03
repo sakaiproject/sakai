@@ -1360,4 +1360,16 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public Collection getGroupsWithAddPermission(String collectionId);
 
+	/**
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.delete" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) in which 
+	 * this user has permission to remove content entities. If access to the collection is determined by group-membership, the return is limited 
+	 * to groups that have "remove" permission in the specified collection. If access is not defined by groups (i.e. it is "site" access), the return 
+	 * includes all groups defined in the site for which this user has remove permission in this collection.
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithRemovePermission(String collectionId);
+
 }

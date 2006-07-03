@@ -893,5 +893,14 @@ public class ContentHostingService
 
 		return service.getGroupsWithReadAccess(param0);
 	}
+	
+	// getGroupsWithRemovePermission
+	public static java.util.Collection getGroupsWithRemovePermission(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
 
+		return service.getGroupsWithRemovePermission(param0);
+	}
+	
 }

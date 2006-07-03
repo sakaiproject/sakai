@@ -4810,7 +4810,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if (paths.length > 1)
 			{
 				String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
-				rv.add(root);
+				
+				// remove /content/group from list of realms
+				// rv.add(root);
 
 				// for (int next = 2; next < paths.length - 1; next++)
 				for (int next = 2; next < paths.length; next++)
@@ -6910,6 +6912,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		return rv;		
 	}
+	
+	/**
+	 * Access a collection (Group) of groups to which this user has access and whose members have "content.delete" permission in the collection. 
+	 * In effect, this method returns a collection that identifies groups that are defined for the collection (locally or inherited) in which 
+	 * this user has permission to remove content entities. If access to the collection is determined by group-membership, the return is limited 
+	 * to groups that have "remove" permission in the specified collection. If access is not defined by groups (i.e. it is "site" access), the return 
+	 * includes all groups defined in the site for which this user has remove permission in this collection.
+	 * 
+	 * @param collectionId
+	 *        The id for the collection.
+	 */
+	public Collection getGroupsWithRemovePermission(String collectionId)
+	{
+		Collection rv = new Vector();
+		
+		String refString = getReference(collectionId);
+		Reference ref = m_entityManager.newReference(refString);
+		Collection groups = getGroupsAllowFunction(EVENT_RESOURCE_REMOVE, ref.getReference());
+		if(groups != null && ! groups.isEmpty())
+		{
+			rv.addAll(groups);
+		}
+		return rv;		
+	}
+
 	
 	/**
 	 * Get a collection (Group) of groups that are defined in the containing context of a resource and that this user can access 
