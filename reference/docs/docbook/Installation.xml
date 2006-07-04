@@ -266,8 +266,13 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 <title>JRE vs. JDK vs. J2SE vs. J2EE</title>
                 <para>If you're unfamiliar with the Java world, you may find the acronyms for
                     various Java environments a little mysterious. The JRE is simply the "runtime
-                    environment" which allows you to execute compiled Java bytecode, and for many platforms this is all you usually get - for the very good reason that the average user just wants to run programs, and doesn't need to be building code. For this latter purpose you'll need the JDK, which stands for "Java Developer's Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the JDK and the JRE - this is
-                    the one you want in order to complete the source installation.</para>
+                    environment" which allows you to execute compiled Java bytecode, and for many
+                    platforms this is all you usually get - for the very good reason that the
+                    average user just wants to run programs, and doesn't need to be building code.
+                    For this latter purpose you'll need the JDK, which stands for "Java Developer's
+                    Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the
+                    JDK and the JRE - this is the one you want in order to complete the source
+                    installation.</para>
                 <para>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -341,14 +346,17 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <term>Windows</term>
                     <listitem>
                         <para> Create a new environment variable <command>JAVA_OPTS</command> to
-                            hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m</command>". </para>
+                            hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m
+                                -XX:MaxPermSize=196m -XX:NewSize=256m
+                            -XX:MaxNewSize=384m</command>". </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Mac/*nix</term>
                     <listitem>
                         <para>
-                            <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</command>
+                            <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
+                                -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</command>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -473,7 +481,8 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>Next you'll want to create your local maven repository in your home directory by running the following command:</para>
+            <para>Next you'll want to create your local maven repository in your home directory by
+                running the following command:</para>
             <variablelist>
                 <varlistentry>
                     <term>Windows</term>
@@ -495,7 +504,13 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
             </variablelist>
             <note>
                 <title>Home Directories in Windows</title>
-                <para>You may not often deal with the notion of the home directory on Windows systems, but it's still there.  By default its location is <filename>C:\Documents and Settings\yourusername</filename>.  Windows also establishes it through environment variables which you've just seen above - the combination of your "home drive" location and your "home path" location:  <command>%HOMEDRIVE%%HOMEPATH%</command> (The %-sign is how Windows brackets environment variables).</para>
+                <para>You may not often deal with the notion of the home directory on Windows
+                    systems, but it's still there. By default its location is <filename>C:\Documents
+                        and Settings\yourusername</filename>. Windows also establishes it through
+                    environment variables which you've just seen above - the combination of your
+                    "home drive" location and your "home path" location:
+                        <command>%HOMEDRIVE%%HOMEPATH%</command> (The %-sign is how Windows brackets
+                    environment variables).</para>
             </note>
             <para>Finally, you'll need to create a build properties file in your home directory
                 which will define some basic parameters for your Sakai build. Simply create a new
@@ -575,7 +590,12 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                 (see the <link linkend="install-tshoot">Troubleshooting</link> section).</para>
             <note>
                 <title>Maven and Memory</title>
-                <para>You may find that your machine runs out of memory while it is building Sakai.  As it turns out, maven does not read <command>JAVA_OPTS</command> when it starts up, and so if your build output complains of "Out of Memory" errors you'll need to set an additional environment variable, namely, <command>MAVEN_OPTS</command>.  The value in the sample Unix command below should be more than enough:</para>
+                <para>You may find that your machine runs out of memory while it is building Sakai.
+                    As it turns out, maven does not read <command>JAVA_OPTS</command> when it starts
+                    up, and so if your build output complains of "Out of Memory" errors you'll need
+                    to set an additional environment variable, namely,
+                    <command>MAVEN_OPTS</command>. The value in the sample Unix command below should
+                    be more than enough:</para>
                 <screen>
 export MAVEN_OPTS="-Xmx512m -XX:PermSize=64m -XX:MaxPermSize=128m"</screen>
             </note>

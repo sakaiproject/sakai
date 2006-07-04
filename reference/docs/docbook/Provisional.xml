@@ -18,36 +18,206 @@
             enterprise bundle, and which does not come enabled by default. Additional steps are
             required to enable these additional tools, per the discretion of the deploying
             institutions or individuals.</para>
-        <para>The basic idea of a provisional tools is to allow sites to have readier access to
-            these blossoming tools, for testing and evaluation. If they meet needs and success is
+        <para>However, a provisional tool may meet a need that the standard tools do not.  Since one of the criteria for provisional status is that the tool must already have seen successful production use at more than one member institution, and since provisional tools are included in the code QA'ed before release, you should be able to deploy a provisional tool in production with some confidence, provided the proper configuration is done in advance.</para>
+        <para>The basic idea of a provisional tools is to allow sites to have ready access to
+            blossoming tools for testing and evaluation. If they meet needs and broad success is
             reported in production, they may be included as a standard part of the bundle in future
             releases. Your feedback on the suitability of these tools for inclusion in an upcoming
             Sakai release is therefore an important part of this process.</para>
-        <para>You'll find a more complete treatment of the criteria for provisional status among the
+        <para>You'll find a more complete description of the criteria for provisional status among the
             "community practices" posted on Confluence: <link
                 xl:href="http://bugs.sakaiproject.org/confluence/display/SCP/Criteria+for+Provisional+Status"
                 >Criteria for Provisional Status</link></para>
     </sect1>
     <sect1 xml:id="unstealth">
         <title>Unstealthing Tools</title>
-        <para>Provisional tools (among others) are "stealthed" by default. This means they do not
+        <para>Provisional tools are, as a general rule, "stealthed" by default. This means they do not
             appear as options in either the <emphasis>Worksite Setup</emphasis> or <emphasis>Edit
                 Tools</emphasis> lists - they effectively require the intervention of an admin in
             order to be added to a site.</para>
-        <para>Tools can be stealthed through a setting in sakai.properties, which simply contains a
+        <para>Tools can be stealthed through a setting in <filename>sakai.properties</filename>, which simply contains a
             comma-separated list of all the tool ids for stealthed tools. Sakai OOTB has the
             following tools stealthed:</para>
         <screen>
-#stealthTools@org.sakaiproject.tool.api.ActiveToolManager=</screen>
+#stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.rwiki,sakai.su,sakai.site.roster,sakai.assignment</screen>
+            <para>There are some provisional tools (e.g. SU, Sakaiscript, Summary Calendar) for which stealthing does not apply, since they are inherently designed for admin enabling and deployment.  These tools are not registered for <emphasis>Worksite Setup</emphasis> in the first place, and so are effectively <emphasis>always</emphasis> stealthed.  Stealthing is a mechanism for obscuring tools from site creators and maintainers, not admins, who can always access all the available tools.</para>
     </sect1>
-    <sect1 xml:id="rwiki">
-        <title>Rwiki (sakai.rwiki)</title>
-        <para/>
-    </sect1>
-    <sect1 xml:id="su">
-        <title>SU (sakai.su)</title>
-        <sect2>
-            <title>What it Is</title>
+    <sect1><title>Provisional Tools in 2.2.0</title>
+    <sect2 xml:id="samigo">
+        <title>Tests&amp;Quizzes</title>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>sakai.samigo</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/Home">http://bugs.sakaiproject.org/confluence/display/SAM/Home</link></para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Lydia Li (lydial@stanford.edu)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <sect3><title>Overview</title>
+            <para>Samigo is the historical project name for the tool that appears in Sakai as <emphasis>Tests&amp;Quizzes</emphasis> (the terms are often used interchangeably).  It is an online assessment tool that supports teaching and learning, in both formative assessments and summative assessments.</para>
+                
+                <para>Its key features are:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>Creating Assessments</term>
+                    <listitem><para>It supports rich text editing of a variety of question types such as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in the Blank, File Upload...etc.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Importing/Exporting</term>
+                    <listitem><para>Assessments can be exported/imported via IMS QTI xml format</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Organizing and Publishing</term>
+                    <listitem><para>with options for specifying release date, due date, and/or retract date, late handling, number of submissions, grading options, feedback settings, and layout...etc  Auto and manual grading; Managing question pool</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Managing assessment-taking</term>
+                    <listitem><para>such as randomized tests, random draw from question pool, timed assessment with auto submit, high security assessments with restricted IP and secondary password, as well as option to send grades to Sakai's Gradebook tool.</para></listitem>
+                </varlistentry>
+            </variablelist></sect3>
+        <sect3><title>Configuration</title>
+        <para>Simply unstealth the tool to begin using it in sites.  It requires no special configuration.</para></sect3>
+    </sect2>
+    <sect2 xml:id="rwiki">
+        <title>Rwiki</title>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>sakai.rwiki</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/RWIKI/Home">http://bugs.sakaiproject.org/confluence/display/RWIKI/Home</link></para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Ian Boston (ian@caret.cam.ac.uk)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <sect3><title>Overview</title>
+            <para>RWiki is an open-source Wiki tool for Sakai that gives worksite members the ability to create and update wiki pages within the worksite. RWiki is designed and developed at the Centre for Applied Research into Educational Technology (CARET) at Cambridge Univeristy.</para>
+        </sect3>
+        <sect3><title>Configuration</title>
+            <para>No special configuration required.</para></sect3>
+    </sect2>
+        <sect2 xml:id="messagecenter">
+            <title>Message Center</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID</term>
+                    <listitem><para>sakai.messagecenter</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space</term>
+                    <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/MFT/Home">http://bugs.sakaiproject.org/confluence/display/MFT/Home</link></para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact</term>
+                    <listitem><para>Kristol Hancock (khancock@iupui.edu)</para></listitem>
+                </varlistentry>
+            </variablelist>
+            <sect3>
+                <title>Overview</title>
+                <para>Message Center is Indiana University’s solution for discussion and private
+                    messaging, facilitating one-on-one and group communication. Through private
+                    messaging, users within a site can quickly and easily communicate and can even
+                    auto-forward private messages to their favorite email client. By providing authors
+                    with extensive control over permissions and forum/topic status and giving users a
+                    more intuitive navigation, the discussion forum feature complements private
+                    messaging well.</para>
+            </sect3>
+            <sect3>
+                <title>Configuration</title>
+                <para>System administrators need to set the role-to-permission-level mapping in
+                    <filename>sakai.properties</filename>. OOTB generic roles are set to the
+                    following:</para>
+                <screen>
+mc.default.Student=Contributor
+mc.default.Instructor=Owner</screen>
+                <para>Note: If you add a role to <filename>sakai.properties</filename> that has a space,
+                    you must escape it with a backslash (e.g., <command>mc.default.project\
+                        owner=Owner</command>).</para>
+            </sect3>
+        </sect2>
+        <sect2 xml:id="osp"><title>OSP (several related tools)</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID</term>
+                    <listitem><para>osp.*</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space</term>
+                    <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/OSP/Home">http://bugs.sakaiproject.org/confluence/display/OSP/Home</link></para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact</term>
+                    <listitem><para>Chris Coppola (chris.coppola@rsmart.com)</para></listitem>
+                </varlistentry>
+            </variablelist>
+            <para>The several OSP tools support the use of online portfolios, and are designed to work in concert.  The number of tools and purposes is too great to take on here, so please visit <link xl:href="http://www.osportfolio.org">http://www.osportfolio.org</link> for more information on the Open Source Portfolio (OSP).</para></sect2>
+        <sect2 xml:id="search">
+            <title>Search</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID</term>
+                    <listitem><para>sakai.search</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space</term>
+                    <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/SEARCH/Home">http://bugs.sakaiproject.org/confluence/display/SEARCH/Home</link></para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact</term>
+                    <listitem><para>Ian Boston (ian@caret.cam.ac.uk)</para></listitem>
+                </varlistentry>
+            </variablelist> 
+            <sect3><title>Overview</title>
+                <para>The search tool aims to provide a tool that allows a Google like search all content in a Sakai instance.</para></sect3>
+            <sect3><title>Configuration</title>
+                <para>You may change the following settings in sakai.properties:</para>
+                <screen>
+#indexStorageName@org.sakaiproject.search.index.IndexStorage = filesystem
+#indexStorageName@org.sakaiproject.search.index.IndexStorage = cluster
+indexStorageName@org.sakaiproject.search.index.IndexStorage = db
+recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
+location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</screen>
+                
+                <para>The <command>indexStorageName</command> is the name of the configured class that is used for index storage.</para>
+                <variablelist>
+                    <varlistentry><term>filesystem</term><listitem> <para>stores the file on the localfilesystem and assumes the system is being run either as a single node, or with a shared filesystem.</para></listitem></varlistentry>
+                    <varlistentry><term>db</term> <listitem><para>stores the index in the sakai database</para></listitem></varlistentry>
+                    <varlistentry><term>cluster</term> <listitem><para>stores the index on local filesystems but performs clusterwide updates as the index is updated. This mechanism relies on a unix shell script to perform the synchronisation, so will need local configuration.</para></listitem>
+                    </varlistentry>
+                </variablelist>
+                
+                <para><command>recoverCorruptedIndex</command> controls what happens if the index is found to be corrupt. If true, the index can be automatically deleted and restarted, but it will have no content. The content can be re-initialised by admin rebuilding the index of the whole instance. If false a corrupted index will cause an exception to be reported to the end user.</para>
+                
+                <para><command>location</command> is the location of the index. If the driver is a database driver, the location will be a database table. If the driver is a filesystem it will be a directory where the index files are stored.</para></sect3>
+        </sect2>
+        <sect2 xml:id="su">
+        <title>SU</title>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>sakai.su</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para>None</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Zach Thomas (zach.thomas@txstate.edu)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <sect3>
+            <title>Overview</title>
             <para>SU is a tool for administrators to use to log in as another user. It is code
                 developed at Texas State University for their local brand of Sakai called
                     <emphasis>TRACS: Teaching Research and Collaboration System</emphasis>. It is
@@ -57,19 +227,9 @@
                 "become" in the system.</para>
             <para>The name stands for Super User, and comes from a command-line tool in Unix that
                 serves the same purpose. It is often pronounced "Sue."</para>
-        </sect2>
-        <sect2>
-            <title>Building / Deploying</title>
-            <para>The tool is only available to adminstrators and not part of the Adminstrator
-                Workspace by default. If you would like to completely remove the SU tool, simply
-                delete the entire module at the path /admin-tools/su in the Sakai source
-            tree.</para>
-        </sect2>
-        <sect2>
-            <title>Using the Tool</title>
-            <para>After the SU tool is deployed, it will appear in the list of tools in the
-                Administrative Sites tool. It will NOT appear in the list of tools for the Worksite
-                Setup tool, since SU is intended for administrators only, and not for general use.</para>
+        </sect3>
+        <sect3>
+            <title>Configuration</title>
 
             <para>In order to use the tool, edit the <emphasis>!admin</emphasis> site (i.e. the
                 Admin MyWorkspace) through the admin <emphasis>Sites</emphasis> tool, add a page or
@@ -83,77 +243,62 @@
                 logged in at another location.</para>
 
             <para>To change back to "yourself," you must logout and log back in.</para>
-        </sect2>
-        <sect2>
+        </sect3>
+        <sect3>
             <title>Security</title>
             <para>The SU tool is hard-coded only to work for users with administrative privileges.
                 Naturally you should take care whom you give these privileges to. The ability to
                 have more fine-grained control of permissions on the tool may be developed for a
                 future version.</para>
-        </sect2>
-        <sect2>
-            <title>Known Issues</title>
-            <para>It's a small thing, but if you click the "View user info" button, the button
-                should then become disabled unless the id field should change.</para>
-        </sect2>
-        <sect2>
-            <title>Contact</title>
-            <para>Sakai su is written by Zach Thomas at Texas State University. You may contact him
-                at zach.thomas@txstate.edu.</para>
-        </sect2>
-    </sect1>
-    <sect1 xml:id="sakaiscript">
+        </sect3>
+    </sect2>
+    <sect2 xml:id="sakaiscript">
         <title>Sakaiscript</title>
-        <para/>
-    </sect1>
-    <sect1 xml:id="roster">
-        <title>Roster</title>
-        <sect2>
-            <title>Overview</title>
-            <para><emphasis>Roster</emphasis> allows users to view the names, photos and profiles of
-                site participants who have made their information accessible through the
-                    <emphasis>Profile</emphasis> tool in <emphasis>My Workspace</emphasis>. If an
-                institution has institutional photos, the photos can be made accessible separately
-                to site maintainers.</para>
-        </sect2>
-        <sect2>
-            <title>Configuration</title>
-            <para>The tool simply needs to be unstealthed, and requires no special
-            configuration.</para>
-        </sect2>
-    </sect1>
-    <sect1 xml:id="twinpeaks">
-        <title>TwinPeaks</title>
-        <para/>
-    </sect1>
-    <sect1 xml:id="messagecenter">
-        <title>Message Center</title>
-        <sect2>
-            <title>Overview</title>
-            <para>Message Center is Indiana University’s solution for discussion and private
-                messaging, facilitating one-on-one and group communication. Through private
-                messaging, users within a site can quickly and easily communicate and can even
-                auto-forward private messages to their favorite email client. By providing authors
-                with extensive control over permissions and forum/topic status and giving users a
-                more intuitive navigation, the discussion forum feature complements private
-                messaging well.</para>
-        </sect2>
-        <sect2>
-            <title>Configuration</title>
-            <para>System administrators need to set the role-to-permission-level mapping in
-                    <filename>sakai.properties</filename>. OOTB generic roles are set to the
-                following:</para>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>NA</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para>None</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Steve Githens (s-githens@northwestern.edu)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <sect3><title>Overview</title>
+        <para>Sakaiscript is essentially a logical web service wrapper to the Sakai API, opening up a number of common admin functions to easy scripting from other languages.</para></sect3>
+        <sect3><title>Configuration</title>
+            <para>Sakai web services and SakaiScript are included in the release and need to be turned on using a property in the Sakai Properties file:</para>
             <screen>
-mc.default.Student=Contributor
-mc.default.Instructor=Owner</screen>
-            <para>Note: If you add a role to <filename>sakai.properties</filename> that has a space,
-                you must escape it with a backslash (e.g., <command>mc.default.project\
-                owner=Owner</command>).</para>
-        </sect2>
-    </sect1>
-    <sect1 xml:id="postem">
+# Indicates whether or not we allow web-service logins
+webservices.allowlogin=false</screen> 
+                <para>This parameter is set to false so as to make sure that no one can robot-guess Sakai passwords using web services out of the box. If you want to support the login and session-establishment, you must set this proprty to true in your Sakai instance.</para></sect3>
+                <sect3><title>Security</title>
+                    <para>Any site enabling web-services should understand the security implications of Sakai web services. Web services should be run over HTTPS in any production environment as IDs, Passwords, and Sakai Session Keys are passed back and forth in plain text using SOAP.</para></sect3>
+    </sect2>
+    
+ 
+    
+    <sect2 xml:id="postem">
         <title>Post 'Em</title>
-        <sect2>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>sakai.postem</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/PEM/Home">http://bugs.sakaiproject.org/confluence/display/PEM/Home</link></para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Kristol Hancock (khancock@iupui.edu)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <sect3>
             <title>Overview</title>
             <para><emphasis>Post ‘Em</emphasis> is an automated reporting system that enables
                 faculty to post grades and comments without compromising student privacy.
@@ -161,19 +306,96 @@ mc.default.Instructor=Owner</screen>
                 student grades in a spreadsheet application of their choice. Keep in mind that
                     <emphasis>Post ‘Em</emphasis> files are not restricted to grades and comments,
                 so the research community may also benefit from this functionality.</para>
-        </sect2>
-        <sect2>
+        </sect3>
+        <sect3>
             <title>Configuration</title>
             <para>The tool simply needs to be unstealthed, and requires no special
             configuration.</para>
-        </sect2>
-    </sect1>
-    <sect1 xml:id="summarycalendar">
+        </sect3>
+    </sect2>
+    <sect2 xml:id="summarycalendar">
         <title>Summary Calendar</title>
-        <para/>
-    </sect1>
-    <sect1 xml:id="search">
-        <title>Search</title>
-        <para/>
+        <variablelist>
+            <varlistentry>
+                <term>Tool ID</term>
+                <listitem><para>sakai.summary.calendar</para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Confluence Space</term>
+                <listitem><para><link xl:href="http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary">http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary</link></para></listitem>
+            </varlistentry>
+            <varlistentry>
+                <term>Contact</term>
+                <listitem><para>Nuno Fernandes (nuno@ufp.pt)</para></listitem>
+            </varlistentry>
+        </variablelist>
+        <para><link xl:href="http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary">Confluence Space</link></para>
+        <sect3><title>Overview</title>
+            <para>Calendar Summary is a synoptic tool for Sakai 2.1.x and 2.2.x that presents a visual monthly view of schedule events in the Home page of My Workspace or other course/project site.  If placed on My Workspace sites, it aggregates schedule events of all active sites the user is member of (except if user is admin).  If placed on course/project sites, it presents only events of that site.</para></sect3>
+            <sect3><title>Configuration</title>
+                <para>This tool may be unstealthed to allow it to be added by site maintainers - just as with most other provisional tools, but it may also be particularly appropriate to add it to all new MyWorkspaces by default, and this can be done by editing the appropriate site template: <command>!user</command> for My Workspace sites; <command>!worksite</command> for course/project sites.
+                </para></sect3>
+    </sect2>
+        <sect2 xml:id="roster">
+            <title>Roster</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID</term>
+                    <listitem><para>sakai.site.roster</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space</term>
+                    <listitem><para>None</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact</term>
+                    <listitem><para>Kristol Hancock (khancock@iupui.edu)</para></listitem>
+                </varlistentry>
+            </variablelist>
+            <sect3>
+                <title>Overview</title>
+                <para><emphasis>Roster</emphasis> allows users to view the names, photos and profiles of
+                    site participants who have made their information accessible through the
+                    <emphasis>Profile</emphasis> tool in <emphasis>My Workspace</emphasis>. If an
+                    institution has institutional photos, the photos can be made accessible separately
+                    to site maintainers.</para>
+            </sect3>
+            <sect3>
+                <title>Configuration</title>
+                <para>The tool simply needs to be unstealthed, and requires no special
+                    configuration.</para>
+            </sect3>
+        </sect2>
+    
+        <sect2 xml:id="twinpeaks">
+            <title>TwinPeaks</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID</term>
+                    <listitem><para>None</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space</term>
+                    <listitem><para>None</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact</term>
+                    <listitem><para>Jeff Kahn (jeffkahn@mit.edu)</para></listitem>
+                </varlistentry>
+            </variablelist>
+            <sect3><title>Overview</title>
+                <para>TwinPeaks is a capability to search external repositories while using the WISYWIG editor. TwinPeaks was originally developed by the Indiana University Library and was extended and merged into the Sakai 2.1 release by the MIT OKI project.</para>
+                
+                <para>To add a repository to TwinPeaks, one must write or obtain an OKI DR OSID implementation for that particular repository and then install the OSID implementation in their Sakai instance. Documentation for installing and registering a new OSID implementation within Sakai is available in the Sakai Development Resources area on collab.sakiaproject.org.</para>
+                <para>TwinPeaks is suitable for use on development servers and can be used to enable sites to begin the development of their DR OSID implementations.  The TwinPeaks implementation in the Sakai 2.2 release should not be turned on in production systems without additional work.</para></sect3>
+            <sect3><title>Configuration</title>
+                <para>TwinPeaks can be enabled by changing the following sakai.properties setting to true.</para>
+                
+                <screen>
+# enable the twinpeaks feature in the WYSIWYG editor in legacy tools: true or false
+wysiwyg.twinpeaks=false</screen>
+                
+            </sect3>
+        </sect2>
     </sect1>
 </article>
