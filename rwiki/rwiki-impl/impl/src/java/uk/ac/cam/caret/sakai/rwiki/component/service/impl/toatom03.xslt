@@ -41,10 +41,10 @@
             <xsl:for-each select="/entity-service/entity/changes/change">
                 <entry>
                     <title>
-                        <xsl:value-of select="@local-name"/>
+                        <xsl:value-of select="@local-name"/> (Revision <xsl:value-of select="@revision"/>)
                     </title>
                     <link rel="alternate" type="text/html"
-                        href="{concat($baseurl,'/access/wiki',@name,',',@revision,'.html')}"/>
+                        href="{concat($baseurl, '/access/wiki', @name, '.html')}"/>
                     <created>
                         <xsl:value-of select="@last-modified"/>
                     </created>
@@ -56,9 +56,10 @@
                     </modified>
                     <id>
                         <xsl:value-of
-                            select="concat($baseurl,'/access/wiki',@name,',',@revision,'.html')"/>
+                            select="concat($baseurl, '/access/wiki', @name, '.html')"/>
                     </id>
-                    <summary><xsl:value-of select="content/contentdigest"/>...</summary>
+                    <summary>Last edited by <xsl:value-of select="@user-display"/> at <xsl:value-of select="@last-modified"/>&lt;hr/&gt;
+                    <xsl:copy-of select="content/rendered-cdata/node()"/></summary>
                 </entry>
             </xsl:for-each>
         </feed>
