@@ -93,7 +93,7 @@ $Id$
   <h:messages styleClass="validation"/>
 
 <f:verbatim><h4></f:verbatim>
-<h:outputText value="#{delivery.assessmentTitle}" />
+<h:outputText value="#{totalScores.assessmentName}" />
 <f:verbatim></h4></f:verbatim>
 <div class="tier3">
 <h:panelGrid columns="2">
