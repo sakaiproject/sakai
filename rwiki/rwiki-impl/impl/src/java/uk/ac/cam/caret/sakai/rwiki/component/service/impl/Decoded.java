@@ -169,7 +169,7 @@ public class Decoded
 
 	public String toString()
 	{
-		return getId() + "," + version;
+		return getId() + "@" + version;
 	}
 
 }

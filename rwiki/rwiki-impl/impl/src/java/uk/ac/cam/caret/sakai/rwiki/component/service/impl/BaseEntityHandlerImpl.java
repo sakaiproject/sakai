@@ -129,8 +129,7 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 
 		String ending = "." + minorType;
 		if (isAvailable() && s.startsWith(accessURLStart) && s.endsWith(ending)
-				&& s.indexOf("//") == -1 && s.indexOf("/,") == -1
-				&& s.indexOf("/.") == -1)
+				&& s.indexOf("//") == -1 )
 		{
 			Decoded decoded = new Decoded();
 			s = s.substring(accessURLStart.length() - 1);
@@ -154,11 +153,17 @@ public abstract class BaseEntityHandlerImpl implements EntityHandler
 			String filename = s.substring(lastslash + 1);
 			filename = filename.substring(0, filename.length()
 					- ending.length());
-			int comma = filename.indexOf(",");
-			if (comma != -1)
+
+			int versionSeparator = filename.lastIndexOf("@");
+			if (versionSeparator != -1 && versionSeparator < filename.length() - 1)
 			{
-				decoded.setPage(filename.substring(0, comma));
-				decoded.setVersion(filename.substring(comma + 1));
+				try { 
+					decoded.setPage(filename.substring(0, versionSeparator));
+					decoded.setVersion(filename.substring(versionSeparator + 1));
+				} catch (NumberFormatException e) {
+					decoded.setPage(filename);
+					decoded.setVersion("-1");
+				}
 			}
 			else
 			{

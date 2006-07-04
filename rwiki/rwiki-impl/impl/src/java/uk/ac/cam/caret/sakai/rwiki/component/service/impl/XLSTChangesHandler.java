@@ -291,9 +291,9 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 			AttributesImpl propA = new AttributesImpl();
 			propA.addAttribute("", SchemaNames.ATTR_ID, SchemaNames.ATTR_ID,
 					"string", rwco.getId());
-			// FIXME why do we know about "," here?!
+			// FIXME why do we know about "@" here?!
 			propA.addAttribute("", SchemaNames.ATTR_NAME,
-					SchemaNames.ATTR_NAME, "string", rwco.getName() + ","
+					SchemaNames.ATTR_NAME, "string", rwco.getName() + "@"
 							+ rwco.getRevision());
 			propA.addAttribute("", SchemaNames.ATTR_LOCAL_NAME,
 					SchemaNames.ATTR_LOCAL_NAME, "string", NameHelper
