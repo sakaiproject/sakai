@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osid.OsidException;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -201,8 +202,31 @@ public class QuestionPoolFacadeQueries
     }
   }
 
-  public List getAllItemsInThisPoolOnly(final Long questionPoolId) {
-  // return items that belong to this pool and this pool only.
+  private List getAllItemsInThisPoolOnlyAndDetachFromAssessment(final Long questionPoolId) {
+  // return items that belong to this pool and this pool only.  These items can not be part of any assessment either.
+    List list = getAllItemsInThisPoolOnly(questionPoolId);
+    ArrayList newlist = new ArrayList();
+    for (int i = 0; i < list.size(); i++) {
+      ItemData itemdata = (ItemData) list.get(i);
+      if (itemdata.getSection()==null ) {
+      // these items do not belong to any assessments, so add them to the list
+       newlist.add(itemdata);
+      }
+      else {
+      // do not add these items to the list, but we need to remove the POOLID metadata
+
+       // this item still links to an assessment 
+       // remove this item's POOLID itemmetadata
+       itemdata.removeMetaDataByType(ItemMetaDataIfc.POOLID);
+       getHibernateTemplate().saveOrUpdate(itemdata);  //save itemdata after removing metadata 
+      }
+    }
+    return newlist;
+  }
+
+
+  private List getAllItemsInThisPoolOnly(final Long questionPoolId) {
+  // return items that belong to this pool and this pool only.  
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
@@ -212,11 +236,6 @@ public class QuestionPoolFacadeQueries
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 
-//    List list = getHibernateTemplate().find("select ab from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?",
-//                                            new Object[] {questionPoolId}
-//                                            ,
-//                                            new org.hibernate.type.Type[] {Hibernate.
-//                                            LONG});
     ArrayList newlist = new ArrayList();
     for (int i = 0; i < list.size(); i++) {
       ItemData itemdata = (ItemData) list.get(i);
@@ -230,6 +249,8 @@ public class QuestionPoolFacadeQueries
     }
     return newlist;
   }
+
+
   public List getAllItems(final Long questionPoolId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -530,6 +551,12 @@ public class QuestionPoolFacadeQueries
    */
   public void deletePool(final Long poolId, String agent, Tree tree) {
     try {
+
+ 
+        QuestionPoolData questionPool = (QuestionPoolData) getHibernateTemplate().load(QuestionPoolData.class, poolId);
+
+// are the following  still valid comments? - lydial
+
       // I decided not to load the questionpool and delete things that associate with it
       // because question is associated with it as ItemImpl not AssetBeanie. To delete
       // AssetBeanie, I would still need to do it manually. I cannot find a way to take advantage of the
@@ -537,19 +564,22 @@ public class QuestionPoolFacadeQueries
 
       // #1. delete all questions which mean AssetBeanie (not ItemImpl) 'cos AssetBeanie
       // is the one that is associated with the DB
-      //List itemList = getAllItems(poolId);
-      List itemList = getAllItemsInThisPoolOnly(poolId);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-    while (retryCount > 0){
-      try {
-        getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
-        retryCount = 0;
+
+
+// lydial:  getting list of items that only belong to this pool and not linked to any assessments. 
+      List itemList = getAllItemsInThisPoolOnlyAndDetachFromAssessment(poolId);
+
+      int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      while (retryCount > 0){
+        try {
+          getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
+          retryCount = 0;
+        }
+        catch (Exception e) {
+          log.warn("problem delete all items in pool: "+e.getMessage());
+          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        }
       }
-      catch (Exception e) {
-        log.warn("problem delete all items in pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-      }
-    }
 
 
       // #2. delete question and questionpool map.
@@ -566,13 +596,15 @@ public class QuestionPoolFacadeQueries
     	    	};
     	    };
     	    List list = getHibernateTemplate().executeFind(hcb);
-    	    getHibernateTemplate().deleteAll(list);
 
-//        getHibernateTemplate().deleteAll(getHibernateTemplate().find(
-//          "select qpi from QuestionPoolItemData as qpi where qpi.questionPoolId= ?",
-//          new Object[] {poolId}
-//          , new org.hibernate.type.Type[] {Hibernate.LONG}));
-        retryCount = 0;
+
+            if (list.size() > 0) {
+              questionPool.setQuestionPoolItems(new HashSet());
+              getHibernateTemplate().deleteAll(list);
+              retryCount = 0;
+            }
+
+            else retryCount = 0;
       }
       catch (Exception e) {
         log.warn("problem delete question and questionpool map: "+e.getMessage());
@@ -641,7 +673,7 @@ public class QuestionPoolFacadeQueries
       }
     }
     catch (Exception e) {
-      log.warn(e.getMessage());
+      log.warn("error deleting pool. " + e.getMessage());
     }
   }
 

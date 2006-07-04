@@ -480,6 +480,23 @@ public class ItemData
   }
 
 
+  public void removeMetaDataByType(String label) {
+   try {
+    if (itemMetaDataSet!= null) {
+      for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+        ItemMetaData itemMetaData= (ItemMetaData) i.next();
+        if (itemMetaData.getLabel().equals(label)) {
+          //this.itemMetaDataSet.remove(itemMetaData);
+          i.remove();
+        } 
+      } 
+    } 
+  }
+  catch (Exception e) {
+   e.printStackTrace();
+  }
+}
+
  /**
  * If this is a true-false question return true if it is true, else false.
  * If it is not a true-false question return false.
