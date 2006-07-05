@@ -12,13 +12,16 @@
 		  <%-- (gsilver) cannot pass a needed title atribute to these next items --%>
 			  <sakai:tool_bar_item
 			    action="#{SyllabusTool.processListNew}"
-					value="#{msgs.bar_new}" />
+					value="#{msgs.bar_new}" 
+			    rendered="#{SyllabusTool.editAble == 'true'}" />
  		    <sakai:tool_bar_item
 					action="#{SyllabusTool.processRedirect}"
-					value="#{msgs.bar_redirect}" />
+					value="#{msgs.bar_redirect}" 
+			    rendered="#{SyllabusTool.editAble == 'true'}" />
  		    <sakai:tool_bar_item
 					action="#{SyllabusTool.processStudentView}"
-					value="#{msgs.bar_student_view}" />
+					value="#{msgs.bar_student_view}" 
+		   			rendered="#{SyllabusTool.editAble == 'true'}" />
    	  </sakai:tool_bar>
 			<syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		  	<sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
@@ -38,7 +41,7 @@
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
-							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}">
+							<h:commandLink action="#{eachEntry.processUpMove}" style="text-decoration:none" title="#{msgs.mainEditLinkUpTitle}" rendered="#{SyllabusTool.editAble == 'true'}">
 								<h:graphicImage url="/syllabus/moveup.gif" alt="#{msgs.mainEditLinkUpTitle}" />
 <%--								<h:outputText value="Move Up"/> --%>
 							</h:commandLink>
@@ -47,7 +50,7 @@
 							<f:facet name="header">
 								<h:outputText value="" />
 							</f:facet>
-							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink">
+							<h:commandLink action="#{eachEntry.processDownMove}"  style="text-decoration:none" title="#{msgs.mainEditLinkDownTitle}" styleClass="imageLink" rendered="#{SyllabusTool.editAble == 'true'}">
 							<h:graphicImage url="/syllabus/movedown.gif" alt="#{msgs.mainEditLinkDownTitle}" />
 <%--								<h:outputText value="Move Down"/> --%>
 							</h:commandLink>
