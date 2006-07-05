@@ -86,8 +86,8 @@ code {
 /* SECTION 2 - LAYOUT*/
 /*only child of body (example: any tool)*/
 .portletBody{
-	padding: 0 0 1em 0;
-	border-width: 1px;
+	padding: 1px 1px 1em 1px;
+	border-width: 0px;
 	border-color: #fff;
 	border-style: solid;
 }
@@ -210,7 +210,6 @@ ul.attachList li{
 	margin: 5px 0 0 0;
 	overflow: hidden;
 	height: 100%;
-	width: 100%;
 }
 
 /*boxes controls and filters on views ("view by"*/
