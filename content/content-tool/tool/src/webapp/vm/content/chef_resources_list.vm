@@ -24,7 +24,7 @@
 		#end 
 	#end
 	#if ($alertMessage)
-		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
 	#end
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		<input type="hidden" name="source" id="source" value="0" />
@@ -231,12 +231,12 @@
 											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 										</a>
 									#else
-										<a href="#"
+											<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('sh.close')" />
+											<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											onkeypress="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											title= "$tlang.getString('sh.close')">
 										##<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
-											<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
 										</a>
 									#end
 									<a href="#"
@@ -645,7 +645,7 @@
 			#if($allowed_to_see_other_sites)
 				#if("$!show_other_sites" == "true")
 					<tr>
-						<th colspan="7">
+						<th colspan="8">
 						<h3>
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
@@ -661,9 +661,10 @@
 					################################################################ Begin Paging widgets
 					#if($!allMsgNumber && $allMsgNumberInt && $allMsgNumberInt > 5)
 						<tr class="exclude">
-							<td colspan="7">
-								<div class="rightNav">
-									<span class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</span>
+							<td colspan="8">
+								<div class="navPanel">
+								<div class="listNav">
+									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
 											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
@@ -697,7 +698,7 @@
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
 									#end
-								</div>
+								</div></div>
 							</td>
 						</tr>
 					#end
@@ -1112,7 +1113,7 @@
 	
 				#else
 					<tr>
-						<th colspan="7">
+						<th colspan="8">
 						<h3>
 							##<a href="#toolLink("ResourcesAction" "doShowOtherSites")" title= "$tlang.getString('list.show')">
 							<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
