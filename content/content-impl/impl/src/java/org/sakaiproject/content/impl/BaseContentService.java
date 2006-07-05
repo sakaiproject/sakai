@@ -5261,139 +5261,181 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// default to import all resources
 		boolean toBeImported = true;
 
-		// get the list of all resources for importing
+		// set up the target collection
+		ContentCollection toCollection = null;
 		try
 		{
-			// get the root collection
-			ContentCollection oCollection = getCollection(fromContext);
-
-			// Get the collection members from the 'new' collection
-			List oResources = oCollection.getMemberResources();
-			for (int i = 0; i < oResources.size(); i++)
-			{
-				// get the original resource
-				Entity oResource = (Entity) oResources.get(i);
-				String oId = oResource.getId();
-
-				if (resourceIds != null && resourceIds.size() > 0)
-				{
-					// only import those with ids inside the list
-					toBeImported = false;
-					for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
-					{
-						if (((String) resourceIds.get(j)).equals(oId))
-						{
-							toBeImported = true;
-						}
-					}
-				}
-
-				if (toBeImported)
-				{
-					String oId2 = oResource.getId();
-					String nId = "";
-
-					int ind = oId2.indexOf(fromContext);
-					if (ind != -1)
-					{
-						String str1 = "";
-						String str2 = "";
-						if (ind != 0)
-						{
-							// the substring before the fromContext string
-							str1 = oId2.substring(0, ind);
-						}
-						if (!((ind + fromContext.length()) > oId2.length()))
-						{
-							// the substring after the fromContext string
-							str2 = oId2.substring(ind + fromContext.length(), oId2.length());
-						}
-						// get the new resource id; fromContext is replaced with toContext
-						nId = str1 + toContext + str2;
-					}
-
-					ResourceProperties oProperties = oResource.getProperties();
-					boolean isCollection = false;
-					try
-					{
-						isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-					}
-					catch (Exception e)
-					{
-					}
-
-					if (isCollection)
-					{
-						// add collection
-						try
-						{
-							ContentCollectionEdit edit = addCollection(nId);
-							// import properties
-							ResourcePropertiesEdit p = edit.getPropertiesEdit();
-							p.clear();
-							p.addAll(oProperties);
-							// complete the edit
-							m_storage.commitCollection(edit);
-							((BaseCollectionEdit) edit).closeEdit();
-						}
-						catch (IdUsedException e)
-						{
-						}
-						catch (IdInvalidException e)
-						{
-						}
-						catch (PermissionException e)
-						{
-						}
-						catch (InconsistentException e)
-						{
-						}
-
-						transferCopyEntities(oResource.getId(), nId, resourceIds);
-					}
-					else
-					{
-						try
-						{
-							// add resource
-							ContentResourceEdit edit = addResource(nId);
-							edit.setContentType(((ContentResource) oResource).getContentType());
-							edit.setContent(((ContentResource) oResource).getContent());
-							// import properties
-							ResourcePropertiesEdit p = edit.getPropertiesEdit();
-							p.clear();
-							p.addAll(oProperties);
-							// complete the edit
-							m_storage.commitResource(edit);
-							((BaseResourceEdit) edit).closeEdit();
-						}
-						catch (PermissionException e)
-						{
-						}
-						catch (IdUsedException e)
-						{
-						}
-						catch (IdInvalidException e)
-						{
-						}
-						catch (InconsistentException e)
-						{
-						}
-						catch (ServerOverloadException e)
-						{
-						}
-					} // if
-				} // if
-			} // for
+			toCollection = getCollection(toContext);
 		}
-		catch (IdUnusedException e)
+		catch(IdUnusedException e)
 		{
+			// not such collection yet, add one
+			try
+			{
+				toCollection = addCollection(toContext);
+			}
+			catch(IdUsedException ee)
+			{
+				M_log.warn(this + toContext, ee);
+			}
+			catch(IdInvalidException ee)
+			{
+				M_log.warn(this + toContext, ee);
+			}
+			catch (PermissionException ee)
+			{
+				M_log.warn(this + toContext, ee);
+			}
+			catch (InconsistentException ee)
+			{
+				M_log.warn(this + toContext, ee);
+			}
 		}
 		catch (TypeException e)
 		{
+			M_log.warn(this + toContext, e);
 		}
 		catch (PermissionException e)
 		{
+			M_log.warn(this + toContext, e);
+		}
+		
+		if (toCollection != null)
+		{
+			// get the list of all resources for importing
+			try
+			{
+				// get the root collection
+				ContentCollection oCollection = getCollection(fromContext);
+	
+				// Get the collection members from the 'new' collection
+				List oResources = oCollection.getMemberResources();
+				for (int i = 0; i < oResources.size(); i++)
+				{
+					// get the original resource
+					Entity oResource = (Entity) oResources.get(i);
+					String oId = oResource.getId();
+	
+					if (resourceIds != null && resourceIds.size() > 0)
+					{
+						// only import those with ids inside the list
+						toBeImported = false;
+						for (int j = 0; j < resourceIds.size() && !toBeImported; j++)
+						{
+							if (((String) resourceIds.get(j)).equals(oId))
+							{
+								toBeImported = true;
+							}
+						}
+					}
+	
+					if (toBeImported)
+					{
+						String oId2 = oResource.getId();
+						String nId = "";
+	
+						int ind = oId2.indexOf(fromContext);
+						if (ind != -1)
+						{
+							String str1 = "";
+							String str2 = "";
+							if (ind != 0)
+							{
+								// the substring before the fromContext string
+								str1 = oId2.substring(0, ind);
+							}
+							if (!((ind + fromContext.length()) > oId2.length()))
+							{
+								// the substring after the fromContext string
+								str2 = oId2.substring(ind + fromContext.length(), oId2.length());
+							}
+							// get the new resource id; fromContext is replaced with toContext
+							nId = str1 + toContext + str2;
+						}
+	
+						ResourceProperties oProperties = oResource.getProperties();
+						boolean isCollection = false;
+						try
+						{
+							isCollection = oProperties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+						}
+						catch (Exception e)
+						{
+						}
+	
+						if (isCollection)
+						{
+							// add collection
+							try
+							{
+								ContentCollectionEdit edit = addCollection(nId);
+								// import properties
+								ResourcePropertiesEdit p = edit.getPropertiesEdit();
+								p.clear();
+								p.addAll(oProperties);
+								// complete the edit
+								m_storage.commitCollection(edit);
+								((BaseCollectionEdit) edit).closeEdit();
+							}
+							catch (IdUsedException e)
+							{
+							}
+							catch (IdInvalidException e)
+							{
+							}
+							catch (PermissionException e)
+							{
+							}
+							catch (InconsistentException e)
+							{
+							}
+	
+							transferCopyEntities(oResource.getId(), nId, resourceIds);
+						}
+						else
+						{
+							try
+							{
+								// add resource
+								ContentResourceEdit edit = addResource(nId);
+								edit.setContentType(((ContentResource) oResource).getContentType());
+								edit.setContent(((ContentResource) oResource).getContent());
+								// import properties
+								ResourcePropertiesEdit p = edit.getPropertiesEdit();
+								p.clear();
+								p.addAll(oProperties);
+								// complete the edit
+								m_storage.commitResource(edit);
+								((BaseResourceEdit) edit).closeEdit();
+							}
+							catch (PermissionException e)
+							{
+							}
+							catch (IdUsedException e)
+							{
+							}
+							catch (IdInvalidException e)
+							{
+							}
+							catch (InconsistentException e)
+							{
+							}
+							catch (ServerOverloadException e)
+							{
+							}
+						} // if
+					} // if
+				} // for
+			}
+			catch (IdUnusedException e)
+			{
+			}
+			catch (TypeException e)
+			{
+			}
+			catch (PermissionException e)
+			{
+			}
 		}
 
 	} // importResources
