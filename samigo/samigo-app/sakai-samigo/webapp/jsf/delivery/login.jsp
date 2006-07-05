@@ -12,7 +12,7 @@
     </f:verbatim>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
-      <meta http-equiv="Refresh" content="0; URL=/authn/login"/>
+      <meta http-equiv="Refresh" content="0; URL=/portal"/>
       </head>
       <body>
       </body>
