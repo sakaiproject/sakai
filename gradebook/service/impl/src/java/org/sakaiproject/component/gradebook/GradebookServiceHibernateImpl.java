@@ -493,7 +493,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 // score has actually changed.
                 Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
                 if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
-					((points == null) && (points != null)) ) {
+					((points == null) && (oldPointsEarned != null)) ) {
 					if (agr == null) {
 						agr = new AssignmentGradeRecord(asn, studentUid, points);
 					} else {
@@ -518,6 +518,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an external score");
 						throw new StaleObjectModificationException(e);
 					}
+				} else {
+					if(log.isDebugEnabled()) log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
 				}
                 return null;
             }

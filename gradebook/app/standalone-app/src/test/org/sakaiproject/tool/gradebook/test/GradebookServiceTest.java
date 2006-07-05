@@ -35,6 +35,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl;
 
 /**
  * Uses spring's mock-objects to test the gradebook service without modifying the database
@@ -190,6 +191,13 @@ public class GradebookServiceTest extends GradebookTestBase {
         // Ensure that the course grade record for student1 has been updated
         CourseGradeRecord cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
         Assert.assertTrue(cgr.getPointsEarned().equals(new Double(12))); // 10 points on internal, 2 points on external
+        
+        // Update the score with null points
+        gradebookService.updateExternalAssessmentScore(gb.getUid(), EXT_ID_1, "student1", null);
+
+        // Ensure that the course grade record for student1 has been updated
+        cgr = gradebookManager.getStudentCourseGradeRecord(gb, "student1");
+        Assert.assertEquals(new Double(10), cgr.getPointsEarned()); // 10 points on internal, 0 points on external
     }
 
     public void testUpdateMultipleScores() throws Exception {
