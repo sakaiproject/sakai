@@ -5,10 +5,7 @@
 
     <info>
         <title>Installation Guide</title>
-        <author>
-            <personname>Clay Fenlason</personname>
-        </author>
-        <edition>15 June 2006 – Document version 2.2</edition>
+        <edition>14 July 2006 – Document version 2.2</edition>
     </info>
 
     <sect1 xml:id="install-overview">

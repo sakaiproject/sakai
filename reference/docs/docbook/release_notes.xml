@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0b5/rng/docbook.rng" type="xml"?>
+<article xmlns="http://docbook.org/ns/docbook" xml:lang="en" xmlns:xl="http://www.w3.org/1999/xlink"
+    version="5.0">
+
+    <info>
+        <title>2.2.0 Release Notes</title>
+        <edition>14 July 2006</edition>
+    </info>
+    <sect1 xml:id="new">
+        <title>What's New</title>
+        <sect2 xml:id="new-function">
+            <title>New Features</title>
+            <sect3 xml:id="new-function-group">
+                <title>Group Awareness</title>
+                <para>Group awareness has been extended to three additional tools:  Resources, Assignments, and Schedule.</para>
+                </sect3>
+            <sect3 xml:id="new-function-eid">
+                <title>EID/UID Separation</title>
+                <para></para>
+            </sect3>
+            <sect3>
+                <title>FCKeditor</title>
+                <para></para>
+            </sect3>
+            <sect3>
+                <title>Included Skins</title>
+                <para></para>
+            </sect3>
+            <sect3>
+                <title>Updated Help Content</title>
+                <para></para>
+            </sect3>
+            <sect3>
+                <title>French and Japanese translations</title>
+                <para></para>
+            </sect3>
+        </sect2>
+        <sect2 xml:id="new-provisional">
+            <title>New Provisional Tools</title>
+            <para>Sakai 2.2.0 has added four new provisional tools</para>
+            <variablelist>
+                <varlistentry>
+                    <term>Message Center
+                    </term>
+                    <listitem><para>a tool combining a discussion forum with private messaging.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Search
+                    </term>
+                    <listitem><para>a tool providing a Google-like search of all site content.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Summary Calendar
+                    </term>
+                    <listitem><para>a synoptic calendar view for the MyWorkspace that includes events from all the sites to which a user is a member.</para></listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Post 'Em
+                    </term>
+                    <listitem><para>an automated reporting system that enables faculty to post grades and comments without compromising student privacy.  Post ‘Em accepts CSV files, empowering faculty to track student grades in a spreadsheet application of their choice.</para></listitem>
+                </varlistentry>
+            </variablelist>
+        </sect2>
+        <sect2 xml:id="new-api">
+            <title>API Changes</title>
+            <para></para>
+        </sect2>
+    </sect1>
+    <sect1 xml:id="migration">
+        <title>Migration</title>
+        <para/>
+        <sect2>
+            <title>Things to be wary of</title>
+            <para/>
+        </sect2>
+    </sect1>
+    <sect1 xml:id="maintenance">
+        <title>Maintenance Release</title>
+        <para/>
+    </sect1>
+    <sect1 xml:id="resolved">
+        <title>Fixes Included in this Release</title>
+        <para/>
+    </sect1>
+    <sect1 xml:id="open-issues">
+        <title>Open Issues</title>
+        <para/>
+    </sect1>
+</article>
