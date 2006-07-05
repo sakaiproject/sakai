@@ -39,7 +39,6 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 
 <h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
-<h:outputText style="instruction" value="#{msg.firefox_download_audio}"  escape="false"/>
   <h:dataTable value="#{question.mediaArray}" var="media" cellpadding="10">
     <h:column>
       <h:outputText escape="false" value="
@@ -47,9 +46,6 @@ should be included in file importing DeliveryMessages
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
 
-      <h:outputLink value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
-        <h:graphicImage value="#{delivery.protocol}/samigo/images/audio.gif"/>
-      </h:outputLink>
       <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{msg.open_bracket}"/>
       <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
@@ -58,6 +54,15 @@ should be included in file importing DeliveryMessages
         <f:convertDateTime pattern="#{msg.delivery_date_format}" />
       </h:outputText>
       <h:outputText value="#{msg.close_bracket}"/>
+      <f:verbatim><br /></f:verbatim>
+ 
+      <div>
+      <h:outputText value="#{msg.can_you_hear_1}"  escape="false"/>
+      <h:outputLink value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
+        <h:outputText value=" #{msg.can_you_hear_2} " escape="false" />
+      </h:outputLink>
+      <h:outputText value="#{msg.can_you_hear_3}"  escape="false"/>
+      </div>
     </h:column>
     <h:column rendered="#{delivery.actionString=='takeAssessment' 
                         || delivery.actionString=='takeAssessmentViaUrl'}">
