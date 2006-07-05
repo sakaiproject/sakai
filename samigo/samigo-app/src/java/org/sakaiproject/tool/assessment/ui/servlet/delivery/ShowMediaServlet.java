@@ -68,15 +68,16 @@ public class ShowMediaServlet extends HttpServlet
   {
     // get media
     String mediaId = req.getParameter("mediaId");
-    log.info("**mediaId = "+mediaId);
     GradingService gradingService = new GradingService();
-    log.info("** 2. mediaId = "+mediaId);
     MediaData mediaData = gradingService.getMedia(mediaId);
-    log.info("** 3. mediaId = "+mediaId);
     String mediaLocation = mediaData.getLocation();
-    log.info("** 4. mediaId = "+mediaId);
     int fileSize = mediaData.getFileSize().intValue();
     log.info("****1. media file size="+mediaData.getFileSize());
+
+    //if setMimeType="false" in query string, implies, we want to do a forced download
+    //in this case, we set contentType='application/octet-stream'
+    String setMimeType = req.getParameter("setMimeType");
+    log.info("****2. setMimeType="+setMimeType);
 
     // get assessment's ownerId
     String assessmentCreatedBy = req.getParameter("createdBy");
@@ -97,8 +98,8 @@ public class ShowMediaServlet extends HttpServlet
     }
 
     // some log checking
-    log.debug("agentIdString ="+agentIdString);
-    log.debug("****current site Id ="+currentSiteId);
+    //log.debug("agentIdString ="+agentIdString);
+    //log.debug("****current site Id ="+currentSiteId);
 
     if (agentIdString !=null && mediaData != null &&
          (agentIdString.equals(mediaData.getCreatedBy()) // user is creator
@@ -111,7 +112,7 @@ public class ShowMediaServlet extends HttpServlet
     }
     else {
       String displayType="inline";
-      if (mediaData.getMimeType()!=null){
+      if (mediaData.getMimeType()!=null && !(setMimeType!=null && ("false").equals(setMimeType))){
         res.setContentType(mediaData.getMimeType());
       }
       else {
@@ -143,22 +144,20 @@ public class ShowMediaServlet extends HttpServlet
 
       int count=0;
       try{
-      int i=0;
-      if (buf_inputStream !=null){
-        while ((i=buf_inputStream.read()) != -1){
-          //System.out.print(i);
-          buf_outputStream.write(i);
-          count++;
+        int i=0;
+        if (buf_inputStream !=null){
+          while ((i=buf_inputStream.read()) != -1){
+            //System.out.print(i);
+            buf_outputStream.write(i);
+            count++;
+          }
         }
       }
-      }
       catch(Exception e){
-        System.out.println(e.getMessage());
-        System.out.println("***** catch count"+count);
+        log.warn(e.getMessage());
       }
 
       log.debug("**** mediaLocation="+mediaLocation);
-      log.debug("**** count="+count);
       res.setContentLength(count);
       res.flushBuffer();
       buf_outputStream.close();
@@ -189,7 +188,6 @@ public class ShowMediaServlet extends HttpServlet
 			   "person", req, res);
       agentIdString = person.getAnonymousId();
     }
-    System.out.println("**** Show Media: agentId"+agentIdString);
     return agentIdString;
   }
 

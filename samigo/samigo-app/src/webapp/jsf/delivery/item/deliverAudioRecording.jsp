@@ -35,14 +35,21 @@ should be included in file importing DeliveryMessages
 <input type=\"hidden\" name=\"mediaLocation_#{question.itemData.itemId}\" value=\"jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{question.itemData.itemId}/#{person.eid}/audio.au\"/>" />
 
 <h:outputText value="#{question.text} "  escape="false"/>
+<f:verbatim><br /></f:verbatim>
+<f:verbatim><br /></f:verbatim>
 
 <h:panelGroup rendered="#{question!=null and question.mediaArray!=null}">
+<h:outputText style="instruction" value="#{msg.firefox_download_audio}"  escape="false"/>
   <h:dataTable value="#{question.mediaArray}" var="media" cellpadding="10">
     <h:column>
       <h:outputText escape="false" value="
-         <embed src=\"/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\" type=\"audio/basic\"
+         <embed src=\"#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}\"
                 volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>
          " />
+
+      <h:outputLink value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
+        <h:graphicImage value="#{delivery.protocol}/samigo/images/audio.gif"/>
+      </h:outputLink>
       <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{msg.open_bracket}"/>
       <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
