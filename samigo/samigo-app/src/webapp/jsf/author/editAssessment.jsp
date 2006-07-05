@@ -154,8 +154,17 @@ document.links[newindex].onclick();
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
         </h:selectOneMenu>
  <f:verbatim>&nbsp; </f:verbatim>
-        <h:outputText rendered="#{partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1'}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_s_lower_case}" />
-        <h:outputText rendered="#{partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_s_lower_case}" />
+
+	<h:panelGroup >
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.questions_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.questions_lower_case}"/>
+
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.questions_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_lower_case}"/>
+
+	</h:panelGroup>
+
      </h:panelGroup>
       <h:panelGroup>
     
@@ -216,7 +225,15 @@ document.links[newindex].onclick();
               <f:selectItems value="#{partBean.questionNumbers}" />
               <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderQuestionsListener" />
             </h:selectOneMenu>
-            <h:outputText value=" #{question.itemData.type.keyword} #{msg.dash} #{question.itemData.score} #{msg.points_lower_case}" />
+
+	<h:panelGroup >
+		<h:outputText value=" #{question.itemData.type.keyword} #{msg.dash} #{question.itemData.score}" />
+		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{msg.points_lower_case}"/>
+		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{msg.point_lower_case}"/>
+		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{msg.points_lower_case}"/>
+	</h:panelGroup>
+
+
         </h:panelGroup>
           <h:panelGroup>
             <h:commandLink title="#{msg.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
