@@ -6904,10 +6904,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGradeReleased(boolean released)
 		{
-			if (allowGradeSubmission(getContext()))
-			{
-				m_gradeReleased = released;
-			}
+			m_gradeReleased = released;
 		}
 
 		/**
@@ -6918,10 +6915,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGrade(String grade)
 		{
-			if (allowGradeSubmission(getContext()))
-			{
-				m_grade = grade;
-			}
+			m_grade = grade;
 		}
 
 		/**
@@ -7036,10 +7030,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGraded(boolean value)
 		{
-			if (allowGradeSubmission(getContext()))
-			{
-				m_graded = value;
-			}
+			m_graded = value;
 		}
 
 		/**

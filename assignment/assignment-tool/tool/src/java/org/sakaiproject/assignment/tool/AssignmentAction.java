@@ -1607,15 +1607,16 @@ public class AssignmentAction extends PagedResourceActionII
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 		boolean gradebookExists = isGradebookDefined();
+		boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, assignmentRef);
 
 		if (gradebookExists)
 		{
 
 			if (addUpdateRemoveAssignment != null)
 			{
-				// add an entry into Gradebook for newly created assignment or modified assignment but newly integrated
-				if (addUpdateRemoveAssignment.equals("add")
-					|| ( addUpdateRemoveAssignment.equals("update") && !g.isAssignmentDefined(gradebookUid, newAssignment_title) && !g.isAssignmentDefined(gradebookUid, oldAssignment_title)))
+				// add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
+				if ((addUpdateRemoveAssignment.equals("add") || addUpdateRemoveAssignment.equals("update")) 
+					&& !isExternalAssignmentDefined)
 				{
 					// add assignment into gradebook
 					try
@@ -1638,7 +1639,7 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							String newTitle = titleBase + "-" + attempts;
 
-							if (!g.isAssignmentDefined(gradebookUid, newTitle))
+							if (!g.isAssignmentDefined(gradebookUid, newTitle) && !isExternalAssignmentDefined)
 							{
 								try
 								{
@@ -1647,61 +1648,73 @@ public class AssignmentAction extends PagedResourceActionII
 											newAssignment_maxPoints / 10, new Date(newAssignment_dueTime.getTime()), "Assignment");
 									trying = false;
 								}
+								catch (ConflictingAssignmentNameException ee)
+								{
+									// still conflicting name, try again till the max meets
+									attempts++;
+									if (attempts >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS)
+									{
+										// add alert prompting for change assignment title
+										addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
+									}
+								}
 								catch (Exception ee)
 								{
-									// try again, ignore the exception
-								}
-							}
-
-							if (trying)
-							{
-								attempts++;
-								if (attempts >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS)
-								{
-									// add alert prompting for change assignment title
-									addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
+									// other type of exception, terminate the loop
+									trying = false;
+									Log.warn("chef", this + ee.getMessage());
 								}
 							}
 						}
 					}
 					catch (ConflictingExternalIdException e)
 					{
-						// ignore
+						// this shouldn't happen, as we have already checked for assignment reference before. Log the error
+						Log.warn("chef", this + e.getMessage());
 					}
 					catch (GradebookNotFoundException e)
 					{
-						// ignore
+						// this shouldn't happen, as we have checked for gradebook existence before
+						Log.warn("chef", this + e.getMessage());
 					}
 					catch (Exception e)
 					{
 						// ignore
+						Log.warn("chef", this + e.getMessage());
 					}
 				}
 				else if (addUpdateRemoveAssignment.equals("update"))
 				{
-					try
+					// is there such record in gradebook?
+					if (isExternalAssignmentDefined)
 					{
-					    Assignment a = AssignmentService.getAssignment(assignmentRef);
-					    	
-					    // update attributes for existing assignment
-				    	g.updateExternalAssessment(gradebookUid, assignmentRef, null, a.getTitle(), a.getContent().getMaxGradePoint()/10, new Date(a.getDueTime().getTime()));
+						try
+						{
+						    Assignment a = AssignmentService.getAssignment(assignmentRef);
+						    	
+						    // update attributes for existing assignment
+					    		g.updateExternalAssessment(gradebookUid, assignmentRef, null, a.getTitle(), a.getContent().getMaxGradePoint()/10, new Date(a.getDueTime().getTime()));
+						}
+					    catch(Exception e)
+				        {
+				        		Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+				        }
 					}
-				    catch(Exception e)
-			        {
-			        	Log.debug("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
-			        }
 				}	// addUpdateRemove != null
 				else if (addUpdateRemoveAssignment.equals("remove"))
 				{
 					// remove assignment and all submission grades
-					try
+					if (isExternalAssignmentDefined)
 					{
-						g.removeExternalAssessment(gradebookUid, assignmentRef);
-					}
-					catch (Exception e)
-					{
-						Log.debug("chef", "Exception when removing assignment " + assignmentRef + " and its submissions:"
-								+ e.getMessage());
+						try
+						{
+							g.removeExternalAssessment(gradebookUid, assignmentRef);
+						}
+						catch (Exception e)
+						{
+							Log.warn("chef", "Exception when removing assignment " + assignmentRef + " and its submissions:"
+									+ e.getMessage());
+						}
 					}
 				}
 			}
@@ -1715,7 +1728,8 @@ public class AssignmentAction extends PagedResourceActionII
 					if (updateRemoveSubmission.equals("update")
 							&& a.getProperties().getProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null
 							&& a.getProperties().getBooleanProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)
-							&& a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
+							&& a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE
+							&& isExternalAssignmentDefined)
 					{
 						if (submissionRef == null)
 						{
@@ -1748,18 +1762,19 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission aSubmission = (AssignmentSubmission) AssignmentService
 										.getSubmission(submissionRef);
 								User[] submitters = aSubmission.getSubmitters();
+								
 								g.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), StringUtil
 										.trimToNull(aSubmission.getGrade()) != null ? Double.valueOf(displayGrade(state,
 										aSubmission.getGrade())) : null);
 							}
 							catch (Exception e)
 							{
-								Log.debug("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
+								Log.warn("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
 							}
 						}
 
 					}
-					else if (updateRemoveSubmission.equals("remove"))
+					else if (updateRemoveSubmission.equals("remove") && isExternalAssignmentDefined)
 					{
 						if (submissionRef == null)
 						{
@@ -1786,14 +1801,14 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							catch (Exception e)
 							{
-								Log.debug("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
+								Log.warn("chef", "Cannot find submission " + submissionRef + ": " + e.getMessage());
 							}
 						}
 					}
 				}
 				catch (Exception e)
 				{
-					Log.debug("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
+					Log.warn("chef", "Cannot find assignment " + assignmentRef + ": " + e.getMessage());
 				}
 			} // updateRemoveSubmission != null
 		} // if gradebook exists
