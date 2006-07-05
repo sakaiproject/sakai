@@ -19,9 +19,12 @@
  *
  **********************************************************************************/
 #rwiki_container {
-  overflow: auto;
   height: 100%;
   width: 100%;
+}
+
+#guillotineFixer {
+	clear: both;
 }
 
 a.anchorpoint {
