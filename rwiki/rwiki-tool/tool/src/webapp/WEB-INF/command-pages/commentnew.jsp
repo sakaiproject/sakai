@@ -31,14 +31,6 @@
     ><![CDATA[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> ]]>
   </jsp:text>
   
-	<c:set var="permissionsBean" value="${requestScope.rsacMap.permissionsBean}"/>
-	<c:if test="${!permissionsBean.updateAllowed}">
-	<jsp:scriptlet>
-		if ( true ) {
-			throw new uk.ac.cam.caret.sakai.rwiki.service.exception.UpdatePermissionException("You are not allowed to edit this page");
-		}
-	</jsp:scriptlet>
-	</c:if>
   <c:set var="currentRWikiObject" value="${requestScope.rsacMap.currentRWikiObject}"/>
   <div class="rwiki_help_popup" >
 	    <form action="?#" method="post" >
