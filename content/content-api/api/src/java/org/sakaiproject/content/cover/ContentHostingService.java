@@ -902,5 +902,13 @@ public class ContentHostingService
 
 		return service.getGroupsWithRemovePermission(param0);
 	}
+
+	public static java.util.Collection getGroupsWithAddPermission(java.lang.String param0) 
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return null;
+
+		return service.getGroupsWithAddPermission(param0);
+	}
 	
 }

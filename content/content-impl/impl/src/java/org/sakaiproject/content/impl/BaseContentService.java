@@ -7199,7 +7199,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public Collection getInheritedGroups() 
 		{
 			Collection groups = new Vector();
-			ContentEntity next = (ContentEntity) this;
+			ContentEntity next = ((ContentEntity) this).getContainingCollection();
 			while(next != null && AccessMode.INHERITED.equals(next.getAccess()))
 			{
 				next = next.getContainingCollection();

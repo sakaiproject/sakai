@@ -2536,17 +2536,17 @@ public class ResourcesAction
 		
 		ContentCollection collection = null;
 		AccessMode inheritedAccess = AccessMode.INHERITED;
-		Collection inheritedGroups = new Vector();
+//		Collection inheritedGroups = new Vector();
 		try
 		{
 			collection = ContentHostingService.getCollection(collectionId);
 			
 			inheritedAccess = collection.getAccess();
-			inheritedGroups = collection.getGroups();
+//			inheritedGroups = collection.getGroups();
 			if(AccessMode.INHERITED == inheritedAccess)
 			{
 				inheritedAccess = collection.getInheritedAccess();
-				inheritedGroups = collection.getInheritedGroups();
+//				inheritedGroups = collection.getInheritedGroups();
 			}
 		}
 		catch(PermissionException e)
@@ -2567,9 +2567,55 @@ public class ResourcesAction
 
 		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
 		
-		Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		
+		//Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
 		boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
 		
+		Collection possibleGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+		Site site = null;
+		Collection site_groups = null;
+		try 
+		{
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		} 
+		catch (IdUnusedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(site != null)
+		{
+			site_groups = site.getGroups();
+		}
+		else
+		{
+			site_groups = new Vector();
+		}
+				
+		Collection inherited_access_groups = collection.getGroups();
+		if(inherited_access_groups == null || inherited_access_groups.isEmpty())
+		{
+			inherited_access_groups = collection.getInheritedGroups();
+		}
+		if(inherited_access_groups == null)
+		{
+			inherited_access_groups = new Vector();
+		}
+
+		Collection allowedAddGroups = null;
+		if(AccessMode.GROUPED == inheritedAccess)
+		{
+			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+		}
+		else
+		{
+			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
+		}
+		if(allowedAddGroups == null)
+		{
+			allowedAddGroups = new Vector();
+		}
+
 		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
 		{
 			EditItem item = new EditItem(itemtype);
@@ -2578,13 +2624,7 @@ public class ResourcesAction
 				item.setEncoding(encoding);
 			}
 			item.setInDropbox(isInDropbox);
-			item.setCopyrightStatus(defaultCopyrightStatus);
-			new_items.add(item);
-			item.setPossibleGroups(new Vector(possibleGroups));
-			if(inheritedGroups != null)
-			{
-				item.setInheritedGroups(inheritedGroups);
-			}
+
 			if(inheritedAccess == null || AccessMode.SITE == inheritedAccess)
 			{
 				item.setInheritedAccess(AccessMode.INHERITED.toString());
@@ -2593,6 +2633,18 @@ public class ResourcesAction
 			{
 				item.setInheritedAccess(inheritedAccess.toString());
 			}
+			item.setAllSiteGroups(site_groups);
+			item.setInheritedGroupRefs(inherited_access_groups);
+			item.setAllowedAddGroupRefs(allowedAddGroups);
+			
+
+			item.setCopyrightStatus(defaultCopyrightStatus);
+			new_items.add(item);
+			// item.setPossibleGroups(new Vector(possibleGroups));
+//			if(inheritedGroups != null)
+//			{
+//				item.setInheritedGroups(inheritedGroups);
+//			}
 			
 			if(preventPublicDisplay)
 			{
@@ -5845,31 +5897,58 @@ public class ResourcesAction
 				item.setInheritedAccess(inherited_access.toString());
 			}
 			
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Collection site_groups = site.getGroups();
+			item.setAllSiteGroups(site_groups);
+			
 			List access_groups = new Vector(((GroupAwareEntity) entity).getGroups());
-			if(access_groups != null)
-			{
-				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				Iterator it = access_groups.iterator();
-				while(it.hasNext())
-				{
-					String groupRef = (String) it.next();
-					Group group = site.getGroup(groupRef);
-					item.addGroup(group.getId());
-				}
-			}
+			item.setEntityGroupRefs(access_groups);
+//			if(access_groups != null)
+//			{
+//				
+//				Iterator it = access_groups.iterator();
+//				while(it.hasNext())
+//				{
+//					String groupRef = (String) it.next();
+//					Group group = site.getGroup(groupRef);
+//					item.addGroup(group.getId());
+//				}
+//			}
 
 			List inherited_access_groups = new Vector(((GroupAwareEntity) entity).getInheritedGroups());
-			if(inherited_access_groups != null)
+			item.setInheritedGroupRefs(inherited_access_groups);
+//			if(inherited_access_groups != null)
+//			{
+//				Iterator it = inherited_access_groups.iterator();
+//				while(it.hasNext())
+//				{
+//					String groupRef = (String) it.next();
+//					Group group = site.getGroup(groupRef);
+//					item.addInheritedGroup(group.getId());
+//				}
+//			}
+			
+			Collection allowedRemoveGroups = null;
+			if(AccessMode.GROUPED.toString().equals(inherited_access))
 			{
-				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				Iterator it = inherited_access_groups.iterator();
-				while(it.hasNext())
-				{
-					String groupRef = (String) it.next();
-					Group group = site.getGroup(groupRef);
-					item.addInheritedGroup(group.getId());
-				}
+				allowedRemoveGroups = ContentHostingService.getGroupsWithRemovePermission(collectionId);
 			}
+			else
+			{
+				allowedRemoveGroups = ContentHostingService.getGroupsWithRemovePermission(ContentHostingService.getSiteCollection(site.getId()));
+			}
+			item.setAllowedRemoveGroupRefs(allowedRemoveGroups);
+			
+			Collection allowedAddGroups = null;
+			if(AccessMode.GROUPED.toString().equals(inherited_access))
+			{
+				allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+			}
+			else
+			{
+				allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
+			}
+			item.setAllowedAddGroupRefs(allowedAddGroups);
 			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
@@ -7361,9 +7440,9 @@ public class ResourcesAction
 				
 				SortedSet inherited_groups = new TreeSet();
 				SortedSet new_groups = new TreeSet();
-				for(int gr = 0; gr < access_groups.length; gr++)
+				if(access_groups != null)
 				{
-					new_groups.add(access_groups[gr]);
+					new_groups.addAll(Arrays.asList(access_groups));
 				}
 				
 				item.clearGroups();
@@ -7426,7 +7505,7 @@ public class ResourcesAction
 			}
 		}
 
-			int noti = NotificationService.NOTI_NONE;
+		int noti = NotificationService.NOTI_NONE;
 		// %%STATE_MODE_RESOURCES%%
 		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
@@ -10787,6 +10866,14 @@ public class ResourcesAction
 		protected String m_name;
 		protected String m_id;
 		protected String m_type;
+		
+		protected List m_allSiteGroups;
+		protected SortedSet m_inheritedGroupRefs;
+		protected SortedSet m_entityGroupRefs;
+		protected SortedSet m_allowedRemoveGroupRefs;
+		protected SortedSet m_allowedAddGroupRefs;
+		protected Map m_allSiteGroupsMap;
+		
 		protected boolean m_canRead;
 		protected boolean m_canRevise;
 		protected boolean m_canDelete;
@@ -10823,8 +10910,9 @@ public class ResourcesAction
 		protected String m_access;
 		protected String m_inheritedAccess;
 		protected Collection m_groups;
-		protected Collection m_inheritedGroups;
-		protected Collection m_possibleGroups;
+		
+		protected Collection m_oldInheritedGroups;
+		protected Collection m_oldPossibleGroups;
 		protected BasicRightsAssignment m_rights;
 
 		protected boolean m_pubview;
@@ -10849,6 +10937,13 @@ public class ResourcesAction
 				seqnum = new Integer((seqnum.intValue() + 1) % 10000);
 			}
 			m_itemnum = "Item00000000".substring(0,10 - snum.toString().length()) + snum.toString();
+
+			m_allowedRemoveGroupRefs = new TreeSet();
+			m_allowedAddGroupRefs = new TreeSet();
+			m_allSiteGroups = new Vector();
+			m_entityGroupRefs = new TreeSet();
+			m_inheritedGroupRefs = new TreeSet();
+			m_allSiteGroupsMap = new Hashtable();
 
 			// set defaults
 			m_rights = new BasicRightsAssignment(m_itemnum, false);
@@ -10895,6 +10990,159 @@ public class ResourcesAction
 		public String getItemNum()
 		{
 			return m_itemnum;
+		}
+
+		public boolean isInherited(Group group)
+		{
+			return this.m_inheritedGroupRefs.contains(group.getReference());
+		}
+		
+		public boolean isLocal(Group group)
+		{
+			return this.m_entityGroupRefs.contains(group.getReference());
+		}
+		
+		public boolean isPossible(Group group)
+		{
+			boolean rv = false;
+			
+			if(AccessMode.GROUPED.toString().equals(this.m_inheritedAccess))
+			{
+				rv = this.m_inheritedGroupRefs.contains(group.getReference());
+			}
+			else
+			{
+				rv = this.m_allSiteGroupsMap.containsKey(group.getReference());
+			}
+			
+			return rv;
+		}
+		
+		public boolean allowedRemove(Group group)
+		{
+			return this.m_allowedRemoveGroupRefs.contains(group.getReference());
+		}
+		
+		public SortedSet getAllowedRemoveGroupRefs() 
+		{
+			return m_allowedRemoveGroupRefs;
+		}
+
+		public void setAllowedRemoveGroupRefs(Collection allowedRemoveGroupRefs) 
+		{
+			importGroupRefs(allowedRemoveGroupRefs, this.m_allowedRemoveGroupRefs);
+		}
+
+		public void addAllowedRemoveGroupRef(String allowedRemoveGroupRef) 
+		{
+			addGroupRefToCollection(allowedRemoveGroupRef, m_allowedRemoveGroupRefs);
+		}
+
+		public boolean allowedAdd(Group group)
+		{
+			return this.m_allowedAddGroupRefs.contains(group.getReference());
+		}
+		
+		public SortedSet getAllowedAddGroupRefs() 
+		{
+			return m_allowedAddGroupRefs;
+		}
+
+		public void setAllowedAddGroupRefs(Collection allowedAddGroupRefs) 
+		{
+			importGroupRefs(allowedAddGroupRefs, this.m_allowedAddGroupRefs);
+		}
+
+		public void addAllowedAddGroupRef(String allowedAddGroupRef) 
+		{
+			addGroupRefToCollection(allowedAddGroupRef, m_allowedAddGroupRefs);
+		}
+
+		public List getAllSiteGroups() 
+		{
+			return new Vector(m_allSiteGroups);
+		}
+
+		public void setAllSiteGroups(Collection allSiteGroups) 
+		{
+			this.m_allSiteGroups.clear();
+			this.m_allSiteGroupsMap.clear();
+			addAllSiteGroups(allSiteGroups);
+		}
+
+		public void addAllSiteGroups(Collection allSiteGroups) 
+		{
+			Iterator it = allSiteGroups.iterator();
+			while(it.hasNext())
+			{
+				Group group = (Group) it.next();
+				if(! m_allSiteGroupsMap.containsKey(group.getReference()))
+				{
+					this.m_allSiteGroups.add(group);
+					m_allSiteGroupsMap.put(group.getReference(), group);
+					m_allSiteGroupsMap.put(group.getId(), group);
+				}
+			}
+		}
+
+		public SortedSet getEntityGroupRefs() 
+		{
+			return m_entityGroupRefs;
+		}
+
+		public void setEntityGroupRefs(Collection entityGroupRefs) 
+		{
+			importGroupRefs(entityGroupRefs, this.m_entityGroupRefs);
+		}
+
+		public void addEntityGroupRef(String entityGroupRef) 
+		{
+			addGroupRefToCollection(entityGroupRef, m_entityGroupRefs);
+		}
+
+		public SortedSet getInheritedGroupRefs() 
+		{
+			return m_inheritedGroupRefs;
+		}
+
+		public void setInheritedGroupRefs(Collection inheritedGroupRefs) 
+		{
+			importGroupRefs(inheritedGroupRefs, this.m_inheritedGroupRefs);
+		}
+
+		public void addInheritedGroupRef(String inheritedGroupRef) 
+		{
+			addGroupRefToCollection(inheritedGroupRef, m_inheritedGroupRefs);
+		}
+
+		protected void importGroupRefs(Collection groupRefs, Collection collection) 
+		{
+			collection.clear();
+			Iterator it = groupRefs.iterator();
+			while(it.hasNext())
+			{
+				Object obj = it.next();
+				if(obj instanceof Group)
+				{
+					addGroupRefToCollection(((Group) obj).getReference(), collection);
+				}
+				else if(obj instanceof String)
+				{
+					addGroupRefToCollection((String) obj, collection);
+				}
+			}
+		}
+
+		protected void addGroupRefToCollection(String groupRef, Collection collection) 
+		{
+			Group group = (Group) m_allSiteGroupsMap.get(groupRef);
+			if(group != null)
+			{
+				if(! collection.contains(group.getReference()))
+				{
+					collection.add(group.getReference());
+				}
+			}
 		}
 
 		public void setIsTooBig(boolean toobig)
@@ -11480,32 +11728,59 @@ public class ResourcesAction
 		
 		public Collection getPossibleGroups()
 		{
-			return m_possibleGroups;
+			return m_oldPossibleGroups;
 		}
 		
 		public void setPossibleGroups(Collection groups)
 		{
-			m_possibleGroups = groups;
+			m_oldPossibleGroups = groups;
 		}
 		
 		public String getGroupNames()
 		{
 			String rv = "";
 			
-			Collection groups = getGroups();
-			if(groups == null || groups.isEmpty())
+			Collection groupRefs = this.m_entityGroupRefs;
+			if(groupRefs == null || groupRefs.isEmpty())
 			{
-				groups = getInheritedGroups();
+				groupRefs = this.m_inheritedGroupRefs;
 			}
-			
-			Iterator it = groups.iterator();
+			Iterator it = groupRefs.iterator();
 			while(it.hasNext())
 			{
-				Group g = (Group) it.next();
-				rv += g.getTitle();
-				if(it.hasNext())
+				String groupRef = (String) it.next();
+				Group group = (Group) this.m_allSiteGroupsMap.get(groupRef);
+				if(group != null)
 				{
-					rv += ", ";
+					if(rv.length() == 0)
+					{
+						rv += group.getTitle();
+					}
+					else
+					{
+						rv += ", " + group.getTitle();
+					}
+				}
+			}
+			
+			// TODO: After updating getBrowserItems, get rid of this part
+			if(rv.length() == 0)
+			{
+				Collection groups = getGroups();
+				if(groups == null || groups.isEmpty())
+				{
+					groups = getInheritedGroups();
+				}
+				
+				Iterator grit = groups.iterator();
+				while(grit.hasNext())
+				{
+					Group g = (Group) grit.next();
+					rv += g.getTitle();
+					if(grit.hasNext())
+					{
+						rv += ", ";
+					}
 				}
 			}
 			
@@ -11549,11 +11824,11 @@ public class ResourcesAction
 		 */
 		public List getInheritedGroups()
 		{
-			if(m_inheritedGroups == null)
+			if(m_oldInheritedGroups == null)
 			{
-				m_inheritedGroups = new Vector();
+				m_oldInheritedGroups = new Vector();
 			}
-			return new Vector(m_inheritedGroups);
+			return new Vector(m_oldInheritedGroups);
 		}
 		
 		/**
@@ -11585,12 +11860,12 @@ public class ResourcesAction
 		 */
 		public boolean inheritsGroup(String groupRef)
 		{
-			if(m_inheritedGroups == null)
+			if(m_oldInheritedGroups == null)
 			{
-				m_inheritedGroups = new Vector();
+				m_oldInheritedGroups = new Vector();
 			}
 			boolean found = false;
-			Iterator it = m_inheritedGroups.iterator();
+			Iterator it = m_oldInheritedGroups.iterator();
 			while(it.hasNext() && !found)
 			{
 				Group gr = (Group) it.next();
@@ -11640,18 +11915,18 @@ public class ResourcesAction
 			{
 				return;
 			}
-			if(m_inheritedGroups == null)
+			if(m_oldInheritedGroups == null)
 			{
-				m_inheritedGroups = new Vector();
+				m_oldInheritedGroups = new Vector();
 			}
-			m_inheritedGroups.clear();
+			m_oldInheritedGroups.clear();
 			Iterator it = groups.iterator();
 			while(it.hasNext())
 			{
 				Object obj = it.next();
 				if(obj instanceof Group && ! inheritsGroup(((Group) obj).getReference()))
 				{
-					m_inheritedGroups.add(obj);
+					m_oldInheritedGroups.add(obj);
 				}
 				else if(obj instanceof String && ! hasGroup((String) obj))
 				{
@@ -11728,9 +12003,9 @@ public class ResourcesAction
 		 */
 		public void addInheritedGroup(String groupId)
 		{
-			if(m_inheritedGroups == null)
+			if(m_oldInheritedGroups == null)
 			{
-				m_inheritedGroups = new Vector();
+				m_oldInheritedGroups = new Vector();
 			}
 			if(m_container == null)
 			{
@@ -11760,7 +12035,7 @@ public class ResourcesAction
 				{
 					if(! inheritsGroup(group.getReference()))
 					{
-						m_inheritedGroups.add(group);
+						m_oldInheritedGroups.add(group);
 					}
 					found = true;
 				}
@@ -11785,11 +12060,11 @@ public class ResourcesAction
 		 */
 		public void clearInheritedGroups()
 		{
-			if(m_inheritedGroups == null)
+			if(m_oldInheritedGroups == null)
 			{
-				m_inheritedGroups = new Vector();
+				m_oldInheritedGroups = new Vector();
 			}
-			m_inheritedGroups.clear();
+			m_oldInheritedGroups.clear();
 		}
 
 		/**
@@ -11950,7 +12225,7 @@ public class ResourcesAction
 			m_ccRightsownership = "";
 			m_ccLicense = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
-
+			
 		}
 		
 		public void setRightsowner(String ccRightsOwner)
@@ -12334,8 +12609,10 @@ public class ResourcesAction
 		
 		public boolean isGroupPossible()
 		{
-			Collection groups = getPossibleGroups();
-			return ! groups.isEmpty();
+			// Collection groups = getPossibleGroups();
+			// return ! groups.isEmpty();
+			return this.m_allowedAddGroupRefs != null && ! this.m_allowedAddGroupRefs.isEmpty();
+
 		}
 		
 		public boolean isGroupInherited()
@@ -12350,10 +12627,12 @@ public class ResourcesAction
 		public boolean isSingleGroupInherited()
 		{
 			//Collection groups = getInheritedGroups();
-			return AccessMode.INHERITED.toString().equals(this.m_access) 
-					&& AccessMode.GROUPED.toString().equals(this.m_inheritedAccess) 
-					&& this.m_inheritedGroups != null 
-					&& this.m_inheritedGroups.size() == 1;
+			return // AccessMode.INHERITED.toString().equals(this.m_access) && 
+					AccessMode.GROUPED.toString().equals(this.m_inheritedAccess) && 
+					this.m_inheritedGroupRefs != null && 
+					this.m_inheritedGroupRefs.size() == 1; 
+					// && this.m_oldInheritedGroups != null 
+					// && this.m_oldInheritedGroups.size() == 1;
 		}
 		
 		public String getSingleGroupTitle()
