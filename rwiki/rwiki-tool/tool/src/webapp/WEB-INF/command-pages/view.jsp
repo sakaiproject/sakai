@@ -96,11 +96,11 @@
 	      <jsp:element name="a">
 	      <jsp:attribute name="href"><c:out value="${viewBean.rssAccessUrl}"/></jsp:attribute>
 	      <jsp:attribute name="target">rssfeed</jsp:attribute>
+	      <jsp:attribute name="style">float: right; </jsp:attribute>
 	      <jsp:element name="img" >
 	      <jsp:attribute name="src"><c:out value="${viewBean.rssButtonUrl}"/></jsp:attribute>
 	      <jsp:attribute name="alt">RSS</jsp:attribute>
 	      <jsp:attribute name="border">0</jsp:attribute>
-	      <jsp:attribute name="align">right</jsp:attribute>
 	      </jsp:element>
 	      </jsp:element>
 	      <!-- Home Link -->
