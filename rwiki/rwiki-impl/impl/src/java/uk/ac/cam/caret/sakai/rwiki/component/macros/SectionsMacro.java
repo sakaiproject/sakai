@@ -81,17 +81,8 @@ public class SectionsMacro extends BaseMacro
 
 		String useids = params.get("useids", 0);
 
-		String siteId = ToolManager.getCurrentPlacement().getContext();
-		Site s = null;
-		try
-		{
-			s = SiteService.getSite(siteId);
-		}
-		catch (Exception ex)
-		{
-
-		}
-
+		String siteId = context.getSiteId();
+		
 		Collection groups = null;
 		Site site;
 		try
@@ -100,30 +91,30 @@ public class SectionsMacro extends BaseMacro
 		}
 		catch (IdUnusedException e)
 		{
-			throw new IllegalArgumentException("Invalid Site Id "+e.getMessage());
+			throw new IllegalArgumentException("Invalid Site Id "+ siteId + " : "+e.getMessage());
 		}
 		groups = site.getGroups();
 
 		for (Iterator is = groups.iterator(); is.hasNext();)
 		{
-			Group g = (Group) is.next();
+			Group group = (Group) is.next();
 			String pageName = "";
 
 			if ("true".equals(useids))
 			{
-				pageName = g.getId() + "/Home";
+				pageName = group.getId() + "/Home";
 			}
 			else
 			{
-				if (s != null)
+				if (site != null)
 				{
-					pageName = g.getReference() + "/";
+					pageName = group.getReference() + "/";
 				}
-				pageName += "section/" + g.getTitle() + "/Home";
+				pageName += "section/" + group.getTitle() + "/Home";
 			}
 			writer.write("\n");
 			writer.write("* [ Section: ");
-			writer.write(g.getTitle());
+			writer.write(group.getTitle());
 			writer.write("|");
 			writer.write(pageName);
 			writer.write("]");
