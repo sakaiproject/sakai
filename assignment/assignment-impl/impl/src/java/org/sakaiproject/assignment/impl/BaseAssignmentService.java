@@ -737,7 +737,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				retVal.setDropDeadTime(existingAssignment.getDropDeadTime());
 				retVal.setCloseTime(existingAssignment.getCloseTime());
 				retVal.setDraft(true);
-				((BaseResourcePropertiesEdit) retVal.getProperties()).addAll(existingAssignment.getProperties());
+				ResourcePropertiesEdit pEdit = (BaseResourcePropertiesEdit) retVal.getProperties();
+				pEdit.addAll(existingAssignment.getProperties());
+				addLiveProperties(pEdit);
 			}
 		}
 
@@ -1201,7 +1203,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				existingContent = getAssignmentContent(contentReference);
 				retVal = addAssignmentContent(context);
-				((BaseResourcePropertiesEdit) retVal.getProperties()).addAll(existingContent.getProperties());
 				retVal.setTitle(existingContent.getTitle() + " - Copy");
 				retVal.setInstructions(existingContent.getInstructions());
 				retVal.setHonorPledge(existingContent.getHonorPledge());
@@ -1246,6 +1247,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 				}
+				
+				ResourcePropertiesEdit pEdit = (BaseResourcePropertiesEdit) retVal.getPropertiesEdit();
+				pEdit.addAll(existingContent.getProperties());
+				addLiveProperties(pEdit);
 			}
 		}
 
