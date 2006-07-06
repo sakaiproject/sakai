@@ -3296,7 +3296,8 @@ public class DiscussionForumTool
               Set sendToSet = new HashSet(); 
               sendToSet.add(sendTo); 
                
-              PrivateMessage pvtMsg = messageManager.createPrivateMessage() ; 
+              PrivateMessage pvtMsg = messageManager.createPrivateMessage() ;
+              pvtMsg.setRecipientsAsText(sendTo.getDisplayName());
  
               pvtMsg.setTitle(selectedMessage.getMessage().getTitle()); 
               String msgBody = ""; 
@@ -3314,21 +3315,21 @@ public class DiscussionForumTool
               pvtMsg.setBody(msgBody); 
           	  if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
           			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-              {
-          		try
-          		{
-          		  String authorString = "";
-          		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-          		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-          		  pvtMsg.setAuthor(authorString);
-            	}
-          		catch(Exception e)
-          		{
-          		  e.printStackTrace();
-            	}
-              }
+          	  {
+          	  	try
+          	  	{
+          	  		String authorString = "";
+          	  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+          	  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+          	  		pvtMsg.setAuthor(authorString);
+          	  	}
+          	  	catch(Exception e)
+          	  	{
+          	  		e.printStackTrace();
+          	  	}
+          	  }
           	  else
-          		pvtMsg.setAuthor(getUserId()); 
+          	  	pvtMsg.setAuthor(getUserId()); 
               pvtMsg.setApproved(Boolean.TRUE); 
               pvtMsg.setModified(new Date()); 
               pvtMsg.setModifiedBy(UserDirectoryService.getCurrentUser().getId()); 
