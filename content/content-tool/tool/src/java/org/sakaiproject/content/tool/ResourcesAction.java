@@ -3210,6 +3210,9 @@ public class ResourcesAction
 						alerts.add(rb.getString("toolong") + " " + newResourceId);
 						continue outerloop;
 					}
+					
+					SortedSet groups = new TreeSet(item.getEntityGroupRefs());
+					groups.retainAll(item.getAllowedAddGroupRefs());
 
 					try
 					{
@@ -3219,7 +3222,7 @@ public class ResourcesAction
 																					MIME_TYPE_STRUCTOBJ,
 																					item.getContent(),
 																					resourceProperties,
-																					item.getGroups(),
+																					groups,
 																					item.getNotification());
 
 
@@ -3596,7 +3599,10 @@ public class ResourcesAction
 				List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
 				saveMetadata(resourceProperties, metadataGroups, item);
 
-				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, item.getGroups());
+				SortedSet groups = new TreeSet(item.getEntityGroupRefs());
+				groups.retainAll(item.getAllowedAddGroupRefs());
+
+				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, groups);
 				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
@@ -3757,6 +3763,9 @@ public class ResourcesAction
 
 
 			resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+			
+			SortedSet groups = new TreeSet(item.getEntityGroupRefs());
+			groups.retainAll(item.getAllowedAddGroupRefs());
 
 			try
 			{
@@ -3766,7 +3775,7 @@ public class ResourcesAction
 																			item.getMimeType(),
 																			item.getContent(),
 																			resourceProperties,
-																			item.getGroups(),
+																			groups,
 																			item.getNotification());
 
 				item.setAdded(true);
@@ -4686,6 +4695,9 @@ public class ResourcesAction
 			byte[] newUrl = item.getFilename().getBytes();
 			String name = Validator.escapeResourceName(item.getName());
 
+			SortedSet groups = new TreeSet(item.getEntityGroupRefs());
+			groups.retainAll(item.getAllowedAddGroupRefs());
+
 			try
 			{
 				ContentResource resource = ContentHostingService.addResource (name,
@@ -4694,7 +4706,7 @@ public class ResourcesAction
 																			item.getMimeType(),
 																			newUrl,
 																			resourceProperties, 
-																			item.getGroups(),
+																			groups,
 																			item.getNotification());
 
 				item.setAdded(true);
@@ -5929,7 +5941,16 @@ public class ResourcesAction
 //			}
 			
 			Collection allowedRemoveGroups = null;
-			if(AccessMode.GROUPED.toString().equals(inherited_access))
+			if(AccessMode.GROUPED == access)
+			{
+				allowedRemoveGroups = ContentHostingService.getGroupsWithRemovePermission(id);
+				Collection more = ContentHostingService.getGroupsWithRemovePermission(collectionId);
+				if(more != null && ! more.isEmpty())
+				{
+					allowedRemoveGroups.addAll(more);
+				}
+			}
+			else if(AccessMode.GROUPED == inherited_access)
 			{
 				allowedRemoveGroups = ContentHostingService.getGroupsWithRemovePermission(collectionId);
 			}
@@ -5940,7 +5961,16 @@ public class ResourcesAction
 			item.setAllowedRemoveGroupRefs(allowedRemoveGroups);
 			
 			Collection allowedAddGroups = null;
-			if(AccessMode.GROUPED.toString().equals(inherited_access))
+			if(AccessMode.GROUPED == access)
+			{
+				allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(id);
+				Collection more = ContentHostingService.getGroupsWithAddPermission(collectionId);
+				if(more != null && ! more.isEmpty())
+				{
+					allowedAddGroups.addAll(more);
+				}
+			}
+			else if(AccessMode.GROUPED == inherited_access)
 			{
 				allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
 			}
@@ -6921,46 +6951,33 @@ public class ResourcesAction
 			
 			String access_mode = params.getString("access_mode");
 			
-			if(access_mode == null)
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
 			{
 				// we inherit more than one group and must check whether group access changes at this item
 				String[] access_groups = params.getStrings("access_groups");
 				
-				SortedSet inherited_groups = new TreeSet();
 				SortedSet new_groups = new TreeSet();
-				for(int gr = 0; gr < access_groups.length; gr++)
+				if(access_groups != null)
 				{
-					new_groups.add(access_groups[gr]);
+					new_groups.addAll(Arrays.asList(access_groups));
 				}
+				new_groups = item.convertToRefs(new_groups);
 				
-				item.clearGroups();
-				boolean groups_are_inherited = true;
-				
-				Iterator it = item.getInheritedGroups().iterator();
-				while(it.hasNext())
-				{
-					String ref = null;
-					Group group = (Group) it.next();
-					
-					if(new_groups.contains(group.getId()))
-					{
-						item.addGroup(group);
-					}
-					else
-					{
-						groups_are_inherited = false;
-					}
-				}
+				Collection inh_grps = item.getInheritedGroupRefs();
+				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
 				
 				if(groups_are_inherited)
 				{
+					new_groups.clear();
+					item.setEntityGroupRefs(new_groups);
 					item.setAccess(AccessMode.INHERITED.toString());
-					item.clearGroups();
 				}
 				else
 				{
+					item.setEntityGroupRefs(new_groups);
 					item.setAccess(AccessMode.GROUPED.toString());
 				}
+				
 				item.setPubview(false);
 			}
 			else if(PUBLIC_ACCESS.equals(access_mode))
@@ -6969,20 +6986,6 @@ public class ResourcesAction
 				{
 					item.setPubview(true);
 					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				String[] access_groups = params.getStrings("access_groups");
-				if(access_groups != null && access_groups.length > 0)
-				{
-					item.setAccess(AccessMode.GROUPED.toString());
-					item.clearGroups();
-					for(int gr = 0; gr < access_groups.length; gr++)
-					{
-						item.addGroup(access_groups[gr]);
-					}
-					item.setPubview(false);
 				}
 			}
 			else if(AccessMode.INHERITED.toString().equals(access_mode))
@@ -7433,46 +7436,33 @@ public class ResourcesAction
 			
 			String access_mode = params.getString("access_mode" + index);
 			
-			if(access_mode == null)
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
 			{
 				// we inherit more than one group and must check whether group access changes at this item
 				String[] access_groups = params.getStrings("access_groups" + index);
 				
-				SortedSet inherited_groups = new TreeSet();
 				SortedSet new_groups = new TreeSet();
 				if(access_groups != null)
 				{
 					new_groups.addAll(Arrays.asList(access_groups));
 				}
+				new_groups = item.convertToRefs(new_groups);
 				
-				item.clearGroups();
-				boolean groups_are_inherited = true;
-				
-				Iterator it = item.getInheritedGroups().iterator();
-				while(it.hasNext())
-				{
-					String ref = null;
-					Group group = (Group) it.next();
-					
-					if(new_groups.contains(group.getId()))
-					{
-						item.addGroup(group);
-					}
-					else
-					{
-						groups_are_inherited = false;
-					}
-				}
+				Collection inh_grps = item.getInheritedGroupRefs();
+				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
 				
 				if(groups_are_inherited)
 				{
+					new_groups.clear();
+					item.setEntityGroupRefs(new_groups);
 					item.setAccess(AccessMode.INHERITED.toString());
-					item.clearGroups();
 				}
 				else
 				{
+					item.setEntityGroupRefs(new_groups);
 					item.setAccess(AccessMode.GROUPED.toString());
 				}
+				
 				item.setPubview(false);
 			}
 			else if(PUBLIC_ACCESS.equals(access_mode))
@@ -7481,20 +7471,6 @@ public class ResourcesAction
 				{
 					item.setPubview(true);
 					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				String[] access_groups = params.getStrings("access_groups" + index);
-				if(access_groups != null && access_groups.length > 0)
-				{
-					item.setAccess(AccessMode.GROUPED.toString());
-					item.clearGroups();
-					for(int gr = 0; gr < access_groups.length; gr++)
-					{
-						item.addGroup(access_groups[gr]);
-					}
-					item.setPubview(false);
 				}
 			}
 			else if(AccessMode.INHERITED.toString().equals(access_mode) )
@@ -7953,20 +7929,13 @@ public class ResourcesAction
 					{
 						gedit.clearGroupAccess();
 					}
-					else if(AccessMode.GROUPED == gedit.getAccess() && item.getGroups().isEmpty())
+					else if(AccessMode.GROUPED.toString().equals(item.getAccess()) && ! item.getEntityGroupRefs().isEmpty())
+					{
+						gedit.setGroupAccess(item.getEntityGroupRefs());
+					}
+					else
 					{
 						gedit.clearGroupAccess();
-					}
-					else if(! item.getGroups().isEmpty())
-					{
-						Collection groupRefs = new Vector();
-						Iterator it = item.getGroups().iterator();
-						while(it.hasNext())
-						{
-							Group group = (Group) it.next();
-							groupRefs.add(group.getReference());
-						}
-						gedit.setGroupAccess(groupRefs);
 					}
 				}
 				catch(InconsistentException e)
@@ -12228,6 +12197,23 @@ public class ResourcesAction
 			
 		}
 		
+		public SortedSet convertToRefs(Collection groupIds) 
+		{
+			SortedSet groupRefs = new TreeSet();
+			Iterator it = groupIds.iterator();
+			while(it.hasNext())
+			{
+				String groupId = (String) it.next();
+				Group group = (Group) this.m_allSiteGroupsMap.get(groupId);
+				if(group != null)
+				{
+					groupRefs.add(group.getReference());
+				}
+			}
+			return groupRefs;
+			
+		}
+
 		public void setRightsowner(String ccRightsOwner)
 		{
 			m_ccRightsOwner = ccRightsOwner;
@@ -12617,7 +12603,7 @@ public class ResourcesAction
 		
 		public boolean isGroupInherited()
 		{
-			return AccessMode.GROUPED.toString().equals(m_inheritedAccess);
+			return AccessMode.INHERITED.toString().equals(this.m_access) && AccessMode.GROUPED.toString().equals(m_inheritedAccess);
 		}
 		
 		/**

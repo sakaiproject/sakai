@@ -1427,7 +1427,7 @@
 							<tr>
 								<td headers="selected" style="padding-bottom:0;" style="width:2em">
 									#if($item.allowedRemove($group))
-										<input type="checkbox" name="access_groups" id="access_groups_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group)) checked="checked"#end />
+										<input type="checkbox" name="access_groups" id="access_groups_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group) || $item.isGroupInherited()) checked="checked"#end />
 									#else
 										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
 									#end

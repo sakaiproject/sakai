@@ -4797,43 +4797,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			return new Vector(rv);
 		}
-
+		
 		// use the resources realm, all container (folder) realms
 
 		rv = new Vector();
+		rv.addAll(getEntityHierarchyAuthzGroups(ref));
 				
 		try
 		{
-			// try the resource, all the folders above it (don't include /)
-			String paths[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
-			boolean container = ref.getId().endsWith(Entity.SEPARATOR);
-			if (paths.length > 1)
-			{
-				String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
-				rv.add(root);
-
-				// for (int next = 2; next < paths.length - 1; next++)
-				for (int next = 2; next < paths.length; next++)
-				{
-//					root = root + paths[next];
-//					if (next < paths.length - 1)
-//					{
-//						root = root + Entity.SEPARATOR;
-//					}
-//					else if(container)
-//					{
-//						// don't include the container itself
-//						break;
-//					}
-					root += paths[next];
-					if(next < paths.length - 1 || container)
-					{
-						root +=  Entity.SEPARATOR;
-					}
-					rv.add(root);
-				}
-			}
-
 			boolean isDropbox = false;
 			// special check for group-user : the grant's in the user's My Workspace site
 			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
@@ -4900,6 +4871,44 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set(threadLocalKey, new Vector(rv));
 
 		return rv;
+	}
+
+	protected Collection getEntityHierarchyAuthzGroups(Reference ref) 
+	{
+		Collection rv = new TreeSet();
+		
+		// try the resource, all the folders above it (don't include /)
+		String paths[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
+		boolean container = ref.getId().endsWith(Entity.SEPARATOR);
+		if (paths.length > 1)
+		{
+			String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
+			rv.add(root);
+
+			// for (int next = 2; next < paths.length - 1; next++)
+			for (int next = 2; next < paths.length; next++)
+			{
+//				root = root + paths[next];
+//				if (next < paths.length - 1)
+//				{
+//					root = root + Entity.SEPARATOR;
+//				}
+//				else if(container)
+//				{
+//					// don't include the container itself
+//					break;
+//				}
+				root += paths[next];
+				if(next < paths.length - 1 || container)
+				{
+					root +=  Entity.SEPARATOR;
+				}
+				rv.add(root);
+			}
+		}
+
+		return rv;
+		
 	}
 
 	/**
@@ -7033,14 +7042,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 				else
 				{
-					// ask the authzGroup service to filter them down based on function
-					groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(SessionManager.getCurrentSessionUserId(), function, groupRefs);
-
-					// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+					Collection hierarchy = getEntityHierarchyAuthzGroups(ref);
+					String userId = SessionManager.getCurrentSessionUserId();
+					
 					for (Iterator i = groups.iterator(); i.hasNext();)
 					{
 						Group group = (Group) i.next();
-						if (groupRefs.contains(group.getReference()))
+						Collection azGroups = new Vector(hierarchy);
+						azGroups.add(group.getReference());
+						
+						// check whether this user can take this action (function) on this resource
+						// based on membership in this group.  If so, add the group.
+						if (m_authzGroupService.isAllowed(userId, function, azGroups))
 						{
 							rv.add(group);
 						}
