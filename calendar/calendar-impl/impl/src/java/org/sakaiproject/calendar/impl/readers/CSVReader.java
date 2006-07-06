@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import java.util.Map;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * This class parses a comma (or other separator other than a double-quote) delimited
@@ -41,6 +43,8 @@ import org.sakaiproject.time.api.TimeBreakdown;
  */
 public class CSVReader extends Reader
 {
+   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   
 	private static final String COMMENT_LINE_PREFIX = "//";
 	/** 
 	 * This regular expression will split separate separated values, with optionally quoted columns.
@@ -240,14 +244,26 @@ public class CSVReader extends Reader
 			
 			if ( startTime != null )
 			{
-				startTimeBreakdown = getTimeService().newTime(startTime.getTime()).breakdownLocal();
+            // if the source time zone were known, this would be
+            // a good place to set it: startCal.setTimeZone()
+            GregorianCalendar startCal = new GregorianCalendar();
+            startCal.setTimeInMillis( startTime.getTime() );
+            startTimeBreakdown = 
+                    getTimeService().newTimeBreakdown( 0, 0, 0, 
+                       startCal.get(Calendar.HOUR_OF_DAY),
+                       startCal.get(Calendar.MINUTE),
+                       startCal.get(Calendar.SECOND),
+                        0 );
 			}
 			
 			Integer durationInMinutes = (Integer)eventProperties.get(GenericCalendarImporter.DURATION_PROPERTY_NAME);
 
 			if ( durationInMinutes == null )
 			{
-				throw new ImportException("No duration time specified on line #" + lineNumber + ". Please make the appropriate changes to your template and save it again.");
+            Integer line = new Integer(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_dur", 
+                                                        new Object[]{line});
+				throw new ImportException( msg );
 			}
 			
 			Date endTime =
@@ -259,7 +275,16 @@ public class CSVReader extends Reader
 
 			if ( endTime != null )
 			{
-				endTimeBreakdown = getTimeService().newTime(endTime.getTime()).breakdownLocal();
+            // if the source time zone were known, this would be
+            // a good place to set it: endCal.setTimeZone()
+            GregorianCalendar endCal = new GregorianCalendar();
+            endCal.setTimeInMillis( endTime.getTime() );
+            endTimeBreakdown = 
+                    getTimeService().newTimeBreakdown( 0, 0, 0, 
+                       endCal.get(Calendar.HOUR_OF_DAY),
+                       endCal.get(Calendar.MINUTE),
+                       endCal.get(Calendar.SECOND),
+                       0 );
 			}
 
 			Date startDate = (Date) eventProperties.get(GenericCalendarImporter.DATE_PROPERTY_NAME);
@@ -267,42 +292,32 @@ public class CSVReader extends Reader
 			
 			if ( startDate != null )
 			{
-				startDateBreakdown = getTimeService().newTime(startDate.getTime()).breakdownGmt();
+            // if the source time zone were known, this would be
+            // a good place to set it: endCal.setTimeZone()
+            GregorianCalendar startCal = new GregorianCalendar();
+            startCal.setTimeInMillis( startDate.getTime() );
+            
+            startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
+            startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
+            startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
+            
+            endTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
+            endTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
+            endTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
 			}
 			else
 			{
-				throw new ImportException("No start date was specified on line #" + lineNumber + ". Please make the appropriate changes to your template and save it again.");
+            Integer line = new Integer(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_start", 
+                                                        new Object[]{line});
+				throw new ImportException( msg );
 			}
 			
-			GregorianCalendar startCal =
-				getTimeService().getCalendar(
-					getTimeService().getLocalTimeZone(),
-					startDateBreakdown.getYear(),
-					startDateBreakdown.getMonth() - 1,
-					startDateBreakdown.getDay(),
-					startTimeBreakdown.getHour(),
-					startTimeBreakdown.getMin(),
-					startTimeBreakdown.getSec(),
-					0);
-
-			GregorianCalendar endCal =
-				getTimeService().getCalendar(
-					getTimeService().getLocalTimeZone(),
-					startDateBreakdown.getYear(),
-					startDateBreakdown.getMonth() - 1,
-					startDateBreakdown.getDay(),
-					endTimeBreakdown.getHour(),
-					endTimeBreakdown.getMin(),
-					endTimeBreakdown.getSec(),
-					0);
-
-					
-			// Include the start time, but not the end time.
 			eventProperties.put(
 				GenericCalendarImporter.ACTUAL_TIMERANGE,
 				getTimeService().newTimeRange(
-					getTimeService().newTime(startCal.getTimeInMillis()),
-					getTimeService().newTime(endCal.getTimeInMillis()),
+               getTimeService().newTimeLocal(startTimeBreakdown),
+               getTimeService().newTimeLocal(endTimeBreakdown),
 					true,
 					false));
 					

@@ -56,6 +56,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -130,7 +131,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 	static final DateFormat time24HourFormatterWithSeconds = new SimpleDateFormat("HH:mm:ss");
 
-	public static final DateFormat DATE_FORMATTER = new SimpleDateFormat("MM/dd/yy");
+   private ResourceLoader rb = new ResourceLoader("calendarimpl");
 
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;
@@ -583,7 +584,6 @@ public class GenericCalendarImporter implements CalendarImporterService
 	public GenericCalendarImporter()
 	{
 		super();
-		DATE_FORMATTER.setLenient(false);
 		TIME_FORMATTER.setLenient(false);
 		time24HourFormatter.setLenient(false);
 		time24HourFormatterWithSeconds.setLenient(false);
@@ -610,16 +610,20 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 		catch (InstantiationException e1)
 		{
-			throw new ImportException("Unable to create importer for " + importType);
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 		catch (IllegalAccessException e1)
 		{
-			throw new ImportException("Unable to create importer for " + importType);
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 
 		if (scheduleImport == null)
 		{
-			throw new ImportException("Unknown import type");
+			throw new ImportException(rb.getString("err_import_unknown"));
 		}
 
 		// If no column mapping has been specified, use the default.
@@ -710,17 +714,20 @@ public class GenericCalendarImporter implements CalendarImporterService
 								catch (ParseException e)
 								{
 									// Give up, we've run out of possible formats.
-									throw new ImportException("Illegal time format on row: " + column.getLineNumber()
-											+ ", column: " + column.getColumnHeader()
-											+ ". Please make the appropriate changes to your template and save it again.");
+                           String msg = (String)rb.getFormattedMessage(
+                                                   "err_time", 
+                                                   new Object[]{new Integer(column.getLineNumber()),
+                                                                column.getColumnHeader()});
+                           throw new ImportException( msg );
 								}
 							}
 						}
 						else if (DURATION_PROPERTY_NAME.equals(column.getPropertyName()))
 						{
-							String timeFormatErrorString = "Illegal time format on row: " + column.getLineNumber() + ", column: "
-									+ column.getColumnHeader()
-									+ ". Please make the appropriate changes to your template and save it again.";
+                     String timeFormatErrorString = (String)rb.getFormattedMessage(
+                                                   "err_time", 
+                                                   new Object[]{new Integer(column.getLineNumber()),
+                                                                column.getColumnHeader()});
 
 							String parts[] = value.split(":");
 
@@ -757,15 +764,18 @@ public class GenericCalendarImporter implements CalendarImporterService
 						else if (DATE_PROPERTY_NAME.equals(column.getPropertyName())
 								|| ENDS_PROPERTY_NAME.equals(column.getPropertyName()))
 						{
+                     DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, rb.getLocale() );
+                     df.setLenient(false);
 							try
 							{
-								mapCellValue = DATE_FORMATTER.parse(value);
+								mapCellValue = df.parse(value);
 							}
 							catch (ParseException e)
 							{
-								throw new ImportException("Illegal date format on row: " + column.getLineNumber() + ", column: "
-										+ column.getColumnHeader()
-										+ ". Please make the appropriate changes to your template and save it again.");
+                        String msg = (String)rb.getFormattedMessage("err_date", 
+                                                                    new Object[]{new Integer(column.getLineNumber()),
+                                                                                 column.getColumnHeader()});
+                        throw new ImportException( msg );
 							}
 						}
 						else if (INTERVAL_PROPERTY_NAME.equals(column.getPropertyName())
@@ -777,9 +787,10 @@ public class GenericCalendarImporter implements CalendarImporterService
 							}
 							catch (NumberFormatException ex)
 							{
-								throw new ImportException("Illegal interval format on row: " + column.getLineNumber()
-										+ ", column: " + column.getColumnHeader()
-										+ ". Please make the appropriate changes to your template and save it again.");
+                        String msg = (String)rb.getFormattedMessage("err_interval", 
+                                                                    new Object[]{new Integer(column.getLineNumber()),
+                                                                                 column.getColumnHeader()});
+                        throw new ImportException( msg );
 							}
 						}
 						else
@@ -836,8 +847,9 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 			if (timeRange == null)
 			{
-				throw new ImportException("A start, end time or the duration was not specified on line #" + lineNumber
-						+ ". Please make the appropriate changes to your template and save it again.");
+            String msg = (String)rb.getFormattedMessage("err_notime", 
+                                                        new Object[]{new Integer(lineNumber)});
+            throw new ImportException( msg );
 			}
 
 			// The start/end times were calculated during the import process.
@@ -863,8 +875,9 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 				if (count != null && until != null)
 				{
-					throw new ImportException("Both a count and end date cannot be specified at the same time, error on line #"
-							+ lineNumber + ". Please make the appropriate changes to your template and save it again.");
+               String msg = (String)rb.getFormattedMessage("err_datebad", 
+                                                           new Object[]{new Integer(lineNumber)});
+               throw new ImportException( msg );
 				}
 
 				if (interval == null && count == null && until == null)
@@ -889,9 +902,9 @@ public class GenericCalendarImporter implements CalendarImporterService
 				// See if we were able to successfully create a recurrence rule.
 				if (recurrenceRule == null)
 				{
-					throw new ImportException(
-							"A frequency was specified, but a recurrence rule could not be created due to missing data on line #"
-									+ lineNumber + ". Please make the appropriate changes to your template and save it again.");
+               String msg = (String)rb.getFormattedMessage("err_freqbad", 
+                                                           new Object[]{new Integer(lineNumber)});
+               throw new ImportException( msg );
 				}
 
 				prototypeEvent.setRecurrenceRule(recurrenceRule);
@@ -923,11 +936,15 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 		catch (InstantiationException e1)
 		{
-			throw new ImportException("Unable to create importer for " + importType);
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 		catch (IllegalAccessException e1)
 		{
-			throw new ImportException("Unable to create importer for " + importType);
+			String msg = (String)rb.getFormattedMessage("err_import", 
+                                                      new Object[]{importType});
+			throw new ImportException( msg );
 		}
 
 		// No map exists if we get here.

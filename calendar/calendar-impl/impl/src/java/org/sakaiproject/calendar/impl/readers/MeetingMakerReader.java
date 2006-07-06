@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,12 +35,15 @@ import java.util.Map;
 import org.sakaiproject.calendar.impl.GenericCalendarImporter;
 import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.time.api.TimeBreakdown;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * This class parses an import file from MeetingMaker.
  */
 public class MeetingMakerReader extends Reader
 {
+   private ResourceLoader rb = new ResourceLoader("calendarimpl");
+   
 	private static final String CONTACT_SECTION_HEADER = "Contacts";
 	private static final String TODO_SECTION_HEADER = "Todos";
 	private static final String EVENT_SECTION_HEADER = "Events";
@@ -230,18 +234,33 @@ public class MeetingMakerReader extends Reader
 			
 			if ( startTime != null )
 			{
-				startTimeBreakdown = getTimeService().newTime(startTime.getTime()).breakdownLocal();
+            // if the source time zone were known, this would be
+            // a good place to set it: startCal.setTimeZone()
+            GregorianCalendar startCal = new GregorianCalendar();
+            startCal.setTimeInMillis( startTime.getTime() );
+            startTimeBreakdown = 
+                    getTimeService().newTimeBreakdown( 0, 0, 0, 
+                       startCal.get(Calendar.HOUR_OF_DAY),
+                       startCal.get(Calendar.MINUTE),
+                       startCal.get(Calendar.SECOND),
+                        0 );
 			}
 			else
 			{
-				throw new ImportException("No start time specified on line #" + lineNumber);
+            Integer line = new Integer(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_stime_on", 
+                                                        new Object[]{line});
+				throw new ImportException( msg );
 			}
 			
 			Integer durationInMinutes = (Integer)eventProperties.get(GenericCalendarImporter.DURATION_PROPERTY_NAME);
 
 			if ( durationInMinutes == null )
 			{
-				throw new ImportException("No duration time specified on line #" + lineNumber);
+            Integer line = new Integer(lineNumber);
+				String msg = (String)rb.getFormattedMessage("err_no_dtime_on", 
+                                                        new Object[]{line});
+				throw new ImportException( msg );
 			}
 			
 			Date endTime =
@@ -252,45 +271,39 @@ public class MeetingMakerReader extends Reader
 
 			if ( endTime != null )
 			{
-				endTimeBreakdown = getTimeService().newTime(endTime.getTime()).breakdownLocal();
+            // if the source time zone were known, this would be
+            // a good place to set it: endCal.setTimeZone()
+            GregorianCalendar endCal = new GregorianCalendar();
+            endCal.setTimeInMillis( endTime.getTime() );
+            endTimeBreakdown = 
+                    getTimeService().newTimeBreakdown( 0, 0, 0, 
+                       endCal.get(Calendar.HOUR_OF_DAY),
+                       endCal.get(Calendar.MINUTE),
+                       endCal.get(Calendar.SECOND),
+                       0 );
 			}
 
 			Date startDate = (Date) eventProperties.get(GenericCalendarImporter.DATE_PROPERTY_NAME);
-			TimeBreakdown startDateBreakdown = null;
 			
+         // if the source time zone were known, this would be
+         // a good place to set it: startCal.setTimeZone()
+         GregorianCalendar startCal = new GregorianCalendar();
 			if ( startDate != null )
-			{
-				startDateBreakdown = getTimeService().newTime(startDate.getTime()).breakdownLocal();
-			}
+            startCal.setTimeInMillis( startDate.getTime() );
+            
+         startTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
+         startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
+         startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
+            
+         endTimeBreakdown.setYear( startCal.get(Calendar.YEAR) );
+         endTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
+         endTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
 			
-			GregorianCalendar startCal =
-				getTimeService().getCalendar(
-					getTimeService().getLocalTimeZone(),
-					startDateBreakdown.getYear(),
-					startDateBreakdown.getMonth() - 1,
-					startDateBreakdown.getDay(),
-					startTimeBreakdown.getHour(),
-					startTimeBreakdown.getMin(),
-					startTimeBreakdown.getSec(),
-					0);
-
-			GregorianCalendar endCal =
-				getTimeService().getCalendar(
-					getTimeService().getLocalTimeZone(),
-					startDateBreakdown.getYear(),
-					startDateBreakdown.getMonth() - 1,
-					startDateBreakdown.getDay(),
-					endTimeBreakdown.getHour(),
-					endTimeBreakdown.getMin(),
-					endTimeBreakdown.getSec(),
-					0);
-					
-			// Include the start time, but not the end time.
 			eventProperties.put(
 				GenericCalendarImporter.ACTUAL_TIMERANGE,
 				getTimeService().newTimeRange(
-					getTimeService().newTime(startCal.getTimeInMillis()),
-					getTimeService().newTime(endCal.getTimeInMillis()),
+                    getTimeService().newTimeLocal(startTimeBreakdown),
+                    getTimeService().newTimeLocal(endTimeBreakdown),
 					true,
 					false));
 					
