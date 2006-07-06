@@ -70,7 +70,9 @@ public class BlockMacro extends BaseMacro
 		if (cssClass == null)
 		{
 			cssClass = params.get(0);
-			if (cssClass.startsWith("id="))
+			if (cssClass == null) {
+				// do nothing
+			} else if (cssClass.startsWith("id="))
 			{
 				cssClass = null;
 			}
