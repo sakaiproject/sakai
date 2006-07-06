@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2574,6 +2575,7 @@ public class ResourcesAction
 		Collection possibleGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
 		Site site = null;
 		Collection site_groups = null;
+		
 		try 
 		{
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
@@ -10836,7 +10838,7 @@ public class ResourcesAction
 		protected String m_id;
 		protected String m_type;
 		
-		protected List m_allSiteGroups;
+		protected SortedSet m_allSiteGroups;
 		protected SortedSet m_inheritedGroupRefs;
 		protected SortedSet m_entityGroupRefs;
 		protected SortedSet m_allowedRemoveGroupRefs;
@@ -10909,7 +10911,19 @@ public class ResourcesAction
 
 			m_allowedRemoveGroupRefs = new TreeSet();
 			m_allowedAddGroupRefs = new TreeSet();
-			m_allSiteGroups = new Vector();
+			m_allSiteGroups = new TreeSet(new Comparator()
+			{
+				protected final String DELIM = "::";
+				public int compare(Object arg0, Object arg1) 
+				{
+					Group group0 = (Group) arg0;
+					Group group1 = (Group) arg1;
+					String string0 = group0.getTitle() + DELIM + group0.getId();
+					String string1 = group1.getTitle() + DELIM + group1.getId();
+					
+					return string0.compareTo(string1);
+				}
+			});
 			m_entityGroupRefs = new TreeSet();
 			m_inheritedGroupRefs = new TreeSet();
 			m_allSiteGroupsMap = new Hashtable();

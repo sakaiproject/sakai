@@ -1416,14 +1416,10 @@
 						</tr>
 						#set($theGroups = $item.allSiteGroups)
 						#foreach ($group in $!{theGroups})
-							#if($item.isPossible($group))
+							#if($item.isPossible($group) && $item.allowedAdd($group))
 								<tr>
 									<td headers="selected" style="padding-bottom:0;" style="width:2em">
-										#if($item.allowedAdd($group))
-											<input type="checkbox" name="access_groups$i" id="access_groups${i}_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group)) checked="checked"#end />
-										#else
-											<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
-										#end
+										<input type="checkbox" name="access_groups$i" id="access_groups${i}_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group)) checked="checked"#end />
 									</td>
 									<td headers="name" style="padding-bottom:0;" class="checkbox">
 										<label for="access_groups${i}_$group.Id">
