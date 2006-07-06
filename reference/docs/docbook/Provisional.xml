@@ -41,13 +41,17 @@
             which simply contains a comma-separated list of all the tool ids for stealthed tools.
             Sakai OOTB has the following tools stealthed:</para>
         <screen>
-#stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.rwiki,sakai.su,sakai.site.roster,sakai.assignment</screen>
+stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.assignment,sakai.rwiki,sakai.site.roster,
+osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sample,osp.matrix,osp.presTemplate,
+osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
+sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
+osp.presLayout,osp.style</screen>
         <para>There are some provisional tools (e.g. SU, Sakaiscript, Summary Calendar) for which
             stealthing does not apply, since they are inherently designed for admin enabling and
             deployment. These tools are not registered for <emphasis>Worksite Setup</emphasis> in
-            the first place, and so are effectively <emphasis>always</emphasis> stealthed.
+            the first place, and so are effectively always stealthed.
             Stealthing is a mechanism for obscuring tools from site creators and maintainers, not
-            admins, who can always access all the available tools.</para>
+            admins, who always have access to all the available tools.</para>
     </sect1>
     <sect1 xml:id="tool-list">
         <title>Provisional Tools in 2.2.0</title>
@@ -583,9 +587,9 @@ webservices.allowlogin=false</screen>
             <sect3>
                 <title>Overview</title>
                 <para>TwinPeaks is a capability to search external repositories while using the
-                    HTMLArea WYSIWIG editor (note: Sakai 2.2 uses FCKeditor by default). TwinPeaks was originally developed by the Indiana University
-                    Library and was extended and merged into the Sakai 2.1 release by the MIT OKI
-                    project.</para>
+                    HTMLArea WYSIWIG editor (note: Sakai 2.2 uses FCKeditor by default). TwinPeaks
+                    was originally developed by the Indiana University Library and was extended and
+                    merged into the Sakai 2.1 release by the MIT OKI project.</para>
 
                 <para>To add a repository to TwinPeaks, one must write or obtain an OKI DR OSID
                     implementation for that particular repository and then install the OSID
