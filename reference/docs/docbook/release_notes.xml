@@ -5,7 +5,7 @@
 
     <info>
         <title>2.2.0 Release Notes</title>
-        <edition>14 July 2006</edition>
+        <edition>14 July 2006 - version 2.2.0</edition>
     </info>
     <sect1 xml:id="new">
         <title>What's New</title>
@@ -13,27 +13,44 @@
             <title>New Features</title>
             <sect3 xml:id="new-function-group">
                 <title>Group Awareness</title>
-                <para>Group awareness has been extended to three additional tools:  Resources, Assignments, and Schedule.</para>
-                </sect3>
+                <para>Group awareness has been extended to three additional tools: Resources,
+                    Assignments, and Schedule.</para>
+            </sect3>
             <sect3 xml:id="new-function-eid">
                 <title>EID/UID Separation</title>
-                <para></para>
+                <para>For the last few releases we've been working to introduce the concept of
+                    "internal" and "external" identifiers in Sakai in the User records. We started
+                    with a single identifier that had to play both of these roles, and have been
+                    tweaking the code to separate these out. For 2.2, we have completed this
+                    separation, which now allows institutions to do things like altering a user's
+                    enterprise ID without losing access to their sites and materials in Sakai. For a
+                    thorough treatment of this change, see the doc
+                        <filename>architecture/sakai_id_eid.doc</filename> (or in subversion at:
+                        <link
+                        xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc"
+                        >https://source.sakaiproject.org/svn/reference/trunk/docs/architecture/sakai_id_eid.doc</link>)</para>
             </sect3>
             <sect3>
                 <title>FCKeditor</title>
-                <para></para>
+                <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
+                    it has become the default editor.</para>
             </sect3>
             <sect3>
                 <title>Included Skins</title>
-                <para></para>
+                <para>The three highest-scoring skins from the recent skins contest have been
+                    included in the distribution.</para>
             </sect3>
             <sect3>
                 <title>Updated Help Content</title>
-                <para></para>
+                <para>Help Content in 2.1 was out of date, reflecting only version 2.0 of the
+                    software. The help content has been updated for 2.2, along with some style
+                    improvements.</para>
             </sect3>
             <sect3>
                 <title>French and Japanese translations</title>
-                <para></para>
+                <para>New interface translations for French and Japanese have been included. See
+                        <filename>reference/docs/readme_i18n.txt</filename> for more information on
+                    the translations.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="new-provisional">
@@ -41,39 +58,124 @@
             <para>Sakai 2.2.0 has added four new provisional tools</para>
             <variablelist>
                 <varlistentry>
-                    <term>Message Center
-                    </term>
-                    <listitem><para>a tool combining a discussion forum with private messaging.</para></listitem>
+                    <term>Message Center </term>
+                    <listitem>
+                        <para>a tool combining a discussion forum with private messaging.</para>
+                    </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Search
-                    </term>
-                    <listitem><para>a tool providing a Google-like search of all site content.</para></listitem>
+                    <term>Search </term>
+                    <listitem>
+                        <para>a tool providing a Google-like search of all site content.</para>
+                    </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Summary Calendar
-                    </term>
-                    <listitem><para>a synoptic calendar view for the MyWorkspace that includes events from all the sites to which a user is a member.</para></listitem>
+                    <term>Summary Calendar </term>
+                    <listitem>
+                        <para>a synoptic calendar view for the MyWorkspace that includes events from
+                            all the sites to which a user is a member.</para>
+                    </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Post 'Em
-                    </term>
-                    <listitem><para>an automated reporting system that enables faculty to post grades and comments without compromising student privacy.  Post ‘Em accepts CSV files, empowering faculty to track student grades in a spreadsheet application of their choice.</para></listitem>
+                    <term>Post 'Em </term>
+                    <listitem>
+                        <para>an automated reporting system that enables faculty to post grades and
+                            comments without compromising student privacy. Post ‘Em accepts CSV
+                            files, empowering faculty to track student grades in a spreadsheet
+                            application of their choice.</para>
+                    </listitem>
                 </varlistentry>
             </variablelist>
         </sect2>
-        <sect2 xml:id="new-api">
-            <title>API Changes</title>
-            <para></para>
-        </sect2>
     </sect1>
     <sect1 xml:id="migration">
-        <title>Migration</title>
-        <para/>
-        <sect2>
-            <title>Things to be wary of</title>
-            <para/>
+        <title>Migration Issues</title>
+        <sect2 xml:id="migration-conversion">
+            <title>DB Conversion</title>
+            <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion scripts
+                to be applied - in distinct versions for MySQL and Oracle, respectively - are found
+                in the <filename>reference/docs/updating</filename> folder of the release or on
+                subversion:</para>
+            <variablelist>
+                <varlistentry>
+                    <term>MySQL</term>
+                    <listitem>
+                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</link></para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Oracle</term>
+                    <listitem>
+                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</link></para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <para>In the same directory you'll also find conversion scripts for earlier Sakai
+                versions. Migration from an earlier version will require the successive application
+                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
+                2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
+                2.1.2, and then to 2.2.0.</para>
+            <note>
+                <title>Examine before using</title>
+                <para>As a general rule, be sure to read through these conversion scripts before
+                    applying them. They do not take into account any special customizations you may
+                    have made - such as new roles, or the deployment of additional tools - and they
+                    may complicate your migration with unintended consequences if you execute the
+                    script blindly.</para>
+                <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool is one
+                    such particular example. A number of schools deployed <emphasis>Message
+                        Center</emphasis> in 2.1.x production instances, before it was yet a provisional
+                    tool. Now that <emphasis>Message Center</emphasis> is a provisional tool in
+                    2.2.0, the conversion scripts were written to alter the database to introduce
+                    them, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
+                    your instance. If it isn't, you'll want to comment out the portions of the
+                    conversion script that treat it, and instead execute the following conversions:</para>
+                <variablelist>
+                    <varlistentry>
+                        <term>MySQL</term>
+                        <listitem>
+                            <screen>
+                                ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+                                ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+                                ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
+                                ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</screen>
+                        </listitem>
+                    </varlistentry>
+                    <varlistentry>
+                        <term>Oracle</term>
+                        <listitem>
+                            <screen>
+                                ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+                                ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+                                ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
+                                ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
+                        </listitem>
+                    </varlistentry>
+                </variablelist>
+            </note>
         </sect2>
+            <sect2 xml:id="migration-api">
+                <title>API Changes and sakai.properties</title>
+                <para>The 2.2 refactoring means that many package names have changed, and
+                    these differences will mainly be encountered in <filename>sakai.properties</filename>
+                    settings which reference beans. It's best to not try to use a
+                    <filename>sakai.properties</filename> from a previous release, and instead start with the
+                    sample in <filename>reference/docs/sakai.properties</filename>.</para>
+                <para>Any custom code, such as providers, may also need revision.  See below for more discussion of providers in particular.</para>
+                </sect2>
+            <sect2 xml:id="migration-providers"><para>As mentioned above, 2.2 introduces a separation of external user identifiers from Sakai's internal user ids. Any custom
+                <filename>UserDirectoryProvider</filename> will need some alteration
+                to account for this, along with changes to its import statements and
+                declarations that stem from API changes.  Below is a list of changes that a typical provider should require:</para>
+                <orderedlist>
+                    <listitem><para>Import statements altered to reflect new package names.</para></listitem>
+                    <listitem><para>A search and replace to turn getters and setters from, e.g., 'getId' to 'getEid'.</para></listitem>
+                    <listitem><para>Revise the project.xml files in both the provider module and 'component' with the appropriate UDP location.</para></listitem>
+                    <listitem><para>Change the Spring bean declaration in component.xml.</para></listitem>
+                    <listitem><para>The UDP class may implement the DisplayAdvisor (optional), and the two additional methods this pulls in.
+                    </para></listitem>
+                </orderedlist>
+            </sect2>
     </sect1>
     <sect1 xml:id="maintenance">
         <title>Maintenance Release</title>
