@@ -199,10 +199,10 @@
                     <term>sakai.properties</term>
                     <listitem>
                         <para>The 2.2 refactoring means that many package names have changed, and
-                            these differences will mainly be encountered in sakai.properties
+                            these differences will mainly be encountered in <filename>sakai.properties</filename>
                             settings which reference beans. It's best to not try to use a
-                            sakai.properties from a previous release, and instead start with the
-                            sample in reference/docs/sakai.properties.</para>
+                            <filename>sakai.properties</filename> from a previous release, and instead start with the
+                            sample in <filename>reference/docs/sakai.properties</filename>.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -223,7 +223,7 @@
                             are now provisional with the 2.2 release. The DB conversion scripts in
                             particular assume that these new provisional tools are not represented
                             in your schema, and attempt to introduce them. If you have already
-                            deployed Message Center, Post 'Em, Search, or Summary Calendar on a
+                            deployed <emphasis>Message Center</emphasis>, <emphasis>Post 'Em</emphasis>, <emphasis>Search</emphasis>, or <emphasis>Summary Calendar</emphasis> on a
                             production system, you'll want to be sure to avoid running the portions
                             of the conversion scripts that pertain to them. Again, see the <link
                                 linkend="install-dbconfig">Database Configuration</link> section for
@@ -809,7 +809,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
         <title>Database Configuration</title>
         <sect2 xml:id="install-dbconfig-migrating">
             <title>Migrating from an Earlier Version</title>
-            <para>There are database schema changes between 2.1.2 and 2.2.0, and the update scripts
+            <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion scripts
                 to be applied - in distinct versions for MySQL and Oracle, respectively - are found
                 in the <filename>reference/docs/updating</filename> folder of the release or on
                 subversion:</para>
@@ -817,13 +817,13 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                 <varlistentry>
                     <term>MySQL</term>
                     <listitem>
-                        <para>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</para>
+                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</link></para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Oracle</term>
                     <listitem>
-                        <para>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</para>
+                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</link></para>
                     </listitem>
                 </varlistentry>
             </variablelist>
