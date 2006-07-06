@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -25,7 +25,7 @@ FCKConfig.ToolbarSets['PluginTest'] = [
 	['Table','-','TableInsertRow','TableDeleteRows','TableInsertColumn','TableDeleteColumns','TableInsertCell','TableDeleteCells','TableMergeCells','TableSplitCell'],
 	['Bold','Italic','-','OrderedList','UnorderedList','-','Link','Unlink'],
 	'/',
-	['My_BigStyle','-','About']
+	['My_BigStyle','-','Smiley','-','About']
 ] ;
 
 // Change the default plugin path.

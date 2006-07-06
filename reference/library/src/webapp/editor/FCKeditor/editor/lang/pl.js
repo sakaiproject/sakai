@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -86,8 +86,8 @@ Find				: "Znajdź",
 Replace				: "Zamień",
 SpellCheck			: "Sprawdź pisownię",
 UniversalKeyboard	: "Klawiatura Uniwersalna",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+PageBreakLbl		: "Odstęp",
+PageBreak			: "Wstaw odstęp",
 
 Form			: "Formularz",
 Checkbox		: "Checkbox",
@@ -99,8 +99,13 @@ Button			: "Przycisk",
 SelectionField	: "Lista wyboru",
 ImageButton		: "Przycisk obrazek",
 
+FitWindow		: "Maksymalizuj rozmiar edytora",
+
 // Context Menu
 EditLink			: "Edytuj hiperłącze",
+CellCM				: "Komórka",
+RowCM				: "Wiersz",
+ColumnCM			: "Kolumna",
 InsertRow			: "Wstaw wiersz",
 DeleteRows			: "Usuń wiersze",
 InsertColumn		: "Wstaw kolumnę",
@@ -109,7 +114,7 @@ InsertCell			: "Wstaw komórkę",
 DeleteCells			: "Usuń komórki",
 MergeCells			: "Połącz komórki",
 SplitCell			: "Podziel komórkę",
-TableDelete			: "Delete Table",	//MISSING
+TableDelete			: "Usuń tabelę",
 CellProperties		: "Właściwości komórki",
 TableProperties		: "Właściwości tabeli",
 ImageProperties		: "Właściwości obrazka",
@@ -138,8 +143,8 @@ UnknownCommand		: "Nieznana komenda \"%1\"",
 NotImplemented		: "Komenda niezaimplementowana",
 UnknownToolbarSet	: "Pasek narzędzi \"%1\" nie istnieje",
 NoActiveX			: "Ustawienia zabezpieczeń twojej przeglądarki mogą ograniczyć niektóre funkcje edytora. Musisz włączyć opcję \"Uruchamianie formantów Activex i dodatków plugin\". W przeciwnym wypadku mogą pojawiać się błędy.",
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+BrowseServerBlocked : "Okno menadżera plików nie może zostać otwarte. Upewnij się, że wszystkie blokady popup są wyłączone.",
+DialogBlocked		: "Nie można otworzyć okna dialogowego. Upewnij się, że wszystkie blokady popup są wyłączone.",
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -147,12 +152,12 @@ DlgBtnCancel		: "Anuluj",
 DlgBtnClose			: "Zamknij",
 DlgBtnBrowseServer	: "Przeglądaj",
 DlgAdvancedTag		: "Zaawansowane",
-DlgOpOther			: "&lt;Inny&gt;",
+DlgOpOther			: "<Inny>",
 DlgInfoTab			: "Informacje",
 DlgAlertUrl			: "Proszę podać URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;nieustawione&gt;",
+DlgGenNotSet		: "<nieustawione>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Kierunek tekstu",
 DlgGenLangDirLtr	: "Od lewej do prawej (LTR)",
@@ -216,12 +221,12 @@ DlgLnkTypeURL		: "Adres URL",
 DlgLnkTypeAnchor	: "Odnośnik wewnątrz strony",
 DlgLnkTypeEMail		: "Adres e-mail",
 DlgLnkProto			: "Protokół",
-DlgLnkProtoOther	: "&lt;inny&gt;",
+DlgLnkProtoOther	: "<inny>",
 DlgLnkURL			: "Adres URL",
 DlgLnkAnchorSel		: "Wybierz etykietę",
 DlgLnkAnchorByName	: "Wg etykiety",
 DlgLnkAnchorById	: "Wg identyfikatora elementu",
-DlgLnkNoAnchors		: "&lt;W dokumencie nie zdefiniowano żadnych etykiet&gt;",
+DlgLnkNoAnchors		: "<W dokumencie nie zdefiniowano żadnych etykiet>",
 DlgLnkEMail			: "Adres e-mail",
 DlgLnkEMailSubject	: "Temat",
 DlgLnkEMailBody		: "Treść",
@@ -229,8 +234,8 @@ DlgLnkUpload		: "Upload",
 DlgLnkBtnUpload		: "Wyślij",
 
 DlgLnkTarget		: "Cel",
-DlgLnkTargetFrame	: "&lt;ramka&gt;",
-DlgLnkTargetPopup	: "&lt;wyskakujące okno&gt;",
+DlgLnkTargetFrame	: "<ramka>",
+DlgLnkTargetPopup	: "<wyskakujące okno>",
 DlgLnkTargetBlank	: "Nowe okno (_blank)",
 DlgLnkTargetParent	: "Okno nadrzędne (_parent)",
 DlgLnkTargetSelf	: "To samo okno (_self)",
@@ -284,7 +289,7 @@ DlgTableHeight		: "Wysokość",
 DlgTableCellSpace	: "Odstęp pomiędzy komórkami",
 DlgTableCellPad		: "Margines wewnętrzny komórek",
 DlgTableCaption		: "Tytuł",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Podsumowanie",
 
 // Table Cell Dialog
 DlgCellTitle		: "Właściwości komórki",
@@ -339,7 +344,6 @@ DlgPasteMsg2	: "Proszę wkleić w poniższym polu używając klawiaturowego skr�
 DlgPasteIgnoreFont		: "Ignoruj definicje 'Font Face'",
 DlgPasteRemoveStyles	: "Usuń definicje Stylów",
 DlgPasteCleanBox		: "Wyczyść",
-
 
 // Color Picker
 ColorAutomatic	: "Automatycznie",
@@ -476,6 +480,7 @@ DlgTemplatesNoTpl	: "(Brak zdefiniowanych szablonów)",
 // About Dialog
 DlgAboutAboutTab	: "O ...",
 DlgAboutBrowserInfoTab	: "O przeglądarce",
+DlgAboutLicenseTab	: "Licencja",
 DlgAboutVersion		: "wersja",
 DlgAboutLicense		: "na licencji GNU Lesser General Public License",
 DlgAboutInfo		: "Więcej informacji uzyskasz pod adresem"

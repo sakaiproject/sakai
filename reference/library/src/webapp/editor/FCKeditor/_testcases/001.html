@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -18,39 +18,40 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
 <html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="testcases.css" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../fckeditor.js"></script>
-		<script>
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="robots" content="noindex, nofollow">
+	<link href="testcases.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../fckeditor.js"></script>
+	<script>
 
 function SubmitForm()
 {
 	document.forms[0].submit() ;
 }
 
-		</script>
-	</head>
-	<body>
-		<h1>FCKeditor - Test 001</h1>
-		<P>
-			<STRONG>Expected results</STRONG>: The editor content must be loaded and the 
-			submit button must post the editors html.<BR>
-			<STRONG>Configurations</STRONG>: Default<BR>
-			<STRONG>Steps to&nbsp;Reproduce</STRONG>:
-		</P>
-		<OL>
-			<LI>
-				Wait the editor to load.</LI>
-			<LI>
-				Hit submit button and check the posted data.</LI></OL>
-		<P>
-			<hr>
-		</P>
-		<form action="sampleposteddata.asp" method="post" target="_blank">
-			<script type="text/javascript">
+	</script>
+</head>
+<body>
+	<h1>
+		FCKeditor - Test 001</h1>
+	<p>
+		<strong>Expected results</strong>: The editor content must be loaded and the submit
+		button must post the editors html.<br>
+		<strong>Configurations</strong>: Default<br>
+		<strong>Steps to&nbsp;Reproduce</strong>:
+	</p>
+	<ol>
+		<li>Wait the editor to load.</li>
+		<li>Hit the "submit" button and check the posted data.</li>
+		<li>Hit the "submit by code" button and check the posted data.</li>
+	</ol>
+	<p>
+		<hr>
+	</p>
+	<form action="sampleposteddata.asp" method="post" target="_blank">
+		<script type="text/javascript">
 <!--
 // Automatically calculates the editor base path based on the _samples directory.
 // This is usefull only for these samples. A real application should use something like this:
@@ -62,9 +63,10 @@ oFCKeditor.BasePath	= sBasePath ;
 oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
 oFCKeditor.Create() ;
 //-->
-			</script>
-			<br>
-			<input type="submit" value="Submit"> <input type="button" value="Submit by Code" onclick="SubmitForm();">
-		</form>
-	</body>
+		</script>
+		<br>
+		<input type="submit" value="Submit">
+		<input type="button" value="Submit by Code" onclick="SubmitForm();">
+	</form>
+</body>
 </html>

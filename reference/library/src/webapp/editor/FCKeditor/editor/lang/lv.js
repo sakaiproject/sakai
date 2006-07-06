@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -15,6 +15,7 @@
  * 
  * File Authors:
  * 		Jānis Kļaviņš (janis@4id.lv)
+ * 		Slowmo (slowmo@inbox.lv)
  */
 
 var FCKLang =
@@ -38,8 +39,8 @@ Print				: "Drukāt",
 SelectAll			: "Iezīmēt visu",
 RemoveFormat		: "Noņemt stilus",
 InsertLinkLbl		: "Hipersaite",
-InsertLink			: "Ievietot/Labot Hipersaiti",
-RemoveLink			: "Noņemt Hipersaiti",
+InsertLink			: "Ievietot/Labot hipersaiti",
+RemoveLink			: "Noņemt hipersaiti",
 Anchor				: "Ievietot/Labot iezīmi",
 InsertImageLbl		: "Attēls",
 InsertImage			: "Ievietot/Labot Attēlu",
@@ -50,30 +51,30 @@ InsertTable			: "Ievietot/Labot Tabulu",
 InsertLineLbl		: "Atdalītājsvītra",
 InsertLine			: "Ievietot horizontālu Atdalītājsvītru",
 InsertSpecialCharLbl: "Īpašs simbols",
-InsertSpecialChar	: "Ievietot Īpašu simbolu",
+InsertSpecialChar	: "Ievietot speciālo simbolu",
 InsertSmileyLbl		: "Smaidiņi",
-InsertSmiley		: "Ievietot Smaidiņu",
-About				: "Īsumā par FCKeditor'u",
+InsertSmiley		: "Ievietot smaidiņu",
+About				: "Īsumā par FCKeditor",
 Bold				: "Treknu šriftu",
 Italic				: "Slīprakstā",
 Underline			: "Apakšsvītra",
 StrikeThrough		: "Pārsvītrots",
 Subscript			: "Zemrakstā",
 Superscript			: "Augšrakstā",
-LeftJustify			: "Nolīdzināt pa kreisi",
-CenterJustify		: "Nolīdzināt pret centru",
-RightJustify		: "Nolīdzināt pa labi",
-BlockJustify		: "Nolīdzināt malas",
+LeftJustify			: "Izlīdzināt pa kreisi",
+CenterJustify		: "Izlīdzināt pret centru",
+RightJustify		: "Izlīdzināt pa labi",
+BlockJustify		: "Izlīdzināt malas",
 DecreaseIndent		: "Samazināt atkāpi",
 IncreaseIndent		: "Palielināt atkāpi",
 Undo				: "Atcelt",
 Redo				: "Atkārtot",
 NumberedListLbl		: "Numurēts saraksts",
-NumberedList		: "Ievietot/Noņemt Numurēto sarakstu",
+NumberedList		: "Ievietot/Noņemt numerēto sarakstu",
 BulletedListLbl		: "Izcelts saraksts",
-BulletedList		: "Ievietot/Noņemt Izceltu sarakstu",
-ShowTableBorders	: "Parādīt Tabulas robežas",
-ShowDetails			: "Parādīt sīkāku info",
+BulletedList		: "Ievietot/Noņemt izceltu sarakstu",
+ShowTableBorders	: "Parādīt tabulas robežas",
+ShowDetails			: "Parādīt sīkāku informāciju",
 Style				: "Stils",
 FontFormat			: "Formāts",
 Font				: "Šrifts",
@@ -84,9 +85,9 @@ Source				: "HTML kods",
 Find				: "Meklēt",
 Replace				: "Nomainīt",
 SpellCheck			: "Pareizrakstības pārbaude",
-UniversalKeyboard	: "Universāla Klaviatūra",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+UniversalKeyboard	: "Universāla klaviatūra",
+PageBreakLbl		: "Lapas pārtraukums",
+PageBreak			: "Ievietot lapas pārtraukumu",
 
 Form			: "Forma",
 Checkbox		: "Atzīmēšanas kastīte",
@@ -98,8 +99,13 @@ Button			: "Poga",
 SelectionField	: "Iezīmēšanas lauks",
 ImageButton		: "Attēlpoga",
 
+FitWindow		: "Maksimizēt redaktora izmēru",
+
 // Context Menu
 EditLink			: "Labot hipersaiti",
+CellCM				: "Šūna",
+RowCM				: "Rinda",
+ColumnCM			: "Kolonna",
 InsertRow			: "Ievietot rindu",
 DeleteRows			: "Dzēst rindas",
 InsertColumn		: "Ievietot kolonnu",
@@ -108,7 +114,7 @@ InsertCell			: "Ievietot rūtiņu",
 DeleteCells			: "Dzēst rūtiņas",
 MergeCells			: "Apvienot rūtiņas",
 SplitCell			: "Sadalīt rūtiņu",
-TableDelete			: "Delete Table",	//MISSING
+TableDelete			: "Dzēst tabulu",
 CellProperties		: "Rūtiņas īpašības",
 TableProperties		: "Tabulas īpašības",
 ImageProperties		: "Attēla īpašības",
@@ -136,22 +142,22 @@ UnknownToolbarItem	: "Nezināms rīku joslas objekts \"%1\"",
 UnknownCommand		: "Nezināmas darbības nosaukums \"%1\"",
 NotImplemented		: "Darbība netika paveikta",
 UnknownToolbarSet	: "Rīku joslas komplekts \"%1\" neeksistē",
-NoActiveX			: "Interneta pārlūkprogrammas drošības uzstādījumi varētu ietekmēt dažas no editora īpašībām. Jābūt aktivizētai sadaļai \"Run ActiveX controls and plug-ins\". Savādāk ir iespējamas kļūdas darbībā un kļūdu paziņojumu parādīšanās.",
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "Interneta pārlūkprogrammas drošības uzstādījumi varētu ietekmēt dažas no redaktora īpašībām. Jābūt aktivizētai sadaļai \"Run ActiveX controls and plug-ins\". Savādāk ir iespējamas kļūdas darbībā un kļūdu paziņojumu parādīšanās.",
+BrowseServerBlocked : "Resursu pārlūks nevar tikt atvērts. Pārliecinieties, ka uznirstošo logu bloķētāji ir atslēgti.",
+DialogBlocked		: "Nav iespējams atvērt dialoglogu. Pārliecinieties, ka uznirstošo logu bloķētāji ir atslēgti.",
 
 // Dialogs
 DlgBtnOK			: "Darīts!",
 DlgBtnCancel		: "Atcelt",
 DlgBtnClose			: "Aizvērt",
 DlgBtnBrowseServer	: "Skatīt servera saturu",
-DlgAdvancedTag		: "Viedāk",
-DlgOpOther			: "&lt;Cits&gt;",
+DlgAdvancedTag		: "Izvērstais",
+DlgOpOther			: "<Cits>",
 DlgInfoTab			: "Informācija",
-DlgAlertUrl			: "Lūdzum ievietojiet Hipersaiti",
+DlgAlertUrl			: "Lūdzu, ievietojiet hipersaiti",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;nav iestatīts&gt;",
+DlgGenNotSet		: "<nav iestatīts>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Valodas lasīšanas virziens",
 DlgGenLangDirLtr	: "No kreisās uz labo (LTR)",
@@ -159,12 +165,12 @@ DlgGenLangDirRtl	: "No labās uz kreiso (RTL)",
 DlgGenLangCode		: "Valodas kods",
 DlgGenAccessKey		: "Pieejas kods",
 DlgGenName			: "Nosaukums",
-DlgGenTabIndex		: "Tab Index",
+DlgGenTabIndex		: "Ciļņu indekss",
 DlgGenLongDescr		: "Gara apraksta Hipersaite",
 DlgGenClass			: "Stilu saraksta klases",
 DlgGenTitle			: "Konsultatīvs virsraksts",
-DlgGenContType		: "Konsultatīvs Satura tips",
-DlgGenLinkCharset	: "Pievienotā resursa Charset parametrs",
+DlgGenContType		: "Konsultatīvs satura tips",
+DlgGenLinkCharset	: "Pievienotā resursa kodu tabula",
 DlgGenStyle			: "Stils",
 
 // Image Dialog
@@ -203,7 +209,7 @@ DlgFlashChkMenu		: "Atļaut Flash izvēlni",
 DlgFlashScale		: "Mainīt izmēru",
 DlgFlashScaleAll	: "Rādīt visu",
 DlgFlashScaleNoBorder	: "Bez rāmja",
-DlgFlashScaleFit	: "Exact Fit",
+DlgFlashScaleFit	: "Precīzs izmērs",
 
 // Link Dialog
 DlgLnkWindowTitle	: "Hipersaite",
@@ -215,12 +221,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Iezīme šajā lapā",
 DlgLnkTypeEMail		: "E-pasts",
 DlgLnkProto			: "Protokols",
-DlgLnkProtoOther	: "&lt;cits&gt;",
+DlgLnkProtoOther	: "<cits>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Izvēlēties iezīmi",
 DlgLnkAnchorByName	: "Pēc iezīmes nosaukuma",
 DlgLnkAnchorById	: "Pēc elementa ID",
-DlgLnkNoAnchors		: "&lt;Šajā dokumentā nav iezīmju&gt;",
+DlgLnkNoAnchors		: "<Šajā dokumentā nav iezīmju>",
 DlgLnkEMail			: "E-pasta adrese",
 DlgLnkEMailSubject	: "Ziņas tēma",
 DlgLnkEMailBody		: "Ziņas saturs",
@@ -228,15 +234,15 @@ DlgLnkUpload		: "Augšupielādēt",
 DlgLnkBtnUpload		: "Nosūtīt serverim",
 
 DlgLnkTarget		: "Mērķis",
-DlgLnkTargetFrame	: "&lt;freims&gt;",
-DlgLnkTargetPopup	: "&lt;uzlecošā logā&gt;",
+DlgLnkTargetFrame	: "<ietvars>",
+DlgLnkTargetPopup	: "<uznirstošā logā>",
 DlgLnkTargetBlank	: "Jaunā logā (_blank)",
 DlgLnkTargetParent	: "Esošajā logā (_parent)",
 DlgLnkTargetSelf	: "Tajā pašā logā (_self)",
 DlgLnkTargetTop		: "Visredzamākajā logā (_top)",
-DlgLnkTargetFrameName	: "Mērķa freima nosaukums",
-DlgLnkPopWinName	: "Izlecošā loga nosaukums",
-DlgLnkPopWinFeat	: "Izlecošā loga nosaukums īpašības",
+DlgLnkTargetFrameName	: "Mērķa ietvara nosaukums",
+DlgLnkPopWinName	: "Uznirstošā loga nosaukums",
+DlgLnkPopWinFeat	: "Uznirstošā loga nosaukums īpašības",
 DlgLnkPopResize		: "Ar maināmu izmēru",
 DlgLnkPopLocation	: "Atrašanās vietas josla",
 DlgLnkPopMenu		: "Izvēlnes josla",
@@ -261,7 +267,7 @@ DlgColorHighlight	: "Izcelt",
 DlgColorSelected	: "Iezīmētais",
 
 // Smiley Dialog
-DlgSmileyTitle		: "Ievietot Smaidiņu",
+DlgSmileyTitle		: "Ievietot smaidiņu",
 
 // Special Character Dialog
 DlgSpecialCharTitle	: "Ievietot īpašu simbolu",
@@ -283,7 +289,7 @@ DlgTableHeight		: "Augstums",
 DlgTableCellSpace	: "Rūtiņu atstatums",
 DlgTableCellPad		: "Rūtiņu nobīde",
 DlgTableCaption		: "Leģenda",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Anotācija",
 
 // Table Cell Dialog
 DlgCellTitle		: "Rūtiņas īpašības",
@@ -292,16 +298,16 @@ DlgCellWidthPx		: "pikseļi",
 DlgCellWidthPc		: "procentos",
 DlgCellHeight		: "Augstums",
 DlgCellWordWrap		: "Teksta pārnese",
-DlgCellWordWrapNotSet	: "&lt;nav norādīta&gt;",
+DlgCellWordWrapNotSet	: "<nav norādīta>",
 DlgCellWordWrapYes	: "Jā",
 DlgCellWordWrapNo	: "Nē",
 DlgCellHorAlign		: "Horizontāla novietojums",
-DlgCellHorAlignNotSet	: "&lt;Nav norādīts&gt;",
+DlgCellHorAlignNotSet	: "<Nav norādīts>",
 DlgCellHorAlignLeft	: "Pa kreisi",
 DlgCellHorAlignCenter	: "Centrēti",
 DlgCellHorAlignRight: "Pa labi",
 DlgCellVerAlign		: "Vertikālais novietojums",
-DlgCellVerAlignNotSet	: "&lt;nav norādīts&gt;",
+DlgCellVerAlignNotSet	: "<nav norādīts>",
 DlgCellVerAlignTop	: "Augša",
 DlgCellVerAlignMiddle	: "Vidus",
 DlgCellVerAlignBottom	: "Apakša",
@@ -319,9 +325,9 @@ DlgFindNotFoundMsg	: "Norādītā frāze netika atrasta.",
 
 // Replace Dialog
 DlgReplaceTitle			: "Aizvietošana",
-DlgReplaceFindLbl		: "Kas jāmeklē:",
-DlgReplaceReplaceLbl	: "Nomainīt platumu:",
-DlgReplaceCaseChk		: "Jāsakrīt",
+DlgReplaceFindLbl		: "Meklēt:",
+DlgReplaceReplaceLbl	: "Nomainīt uz:",
+DlgReplaceCaseChk		: "Reģistrjūtīgs",
 DlgReplaceReplaceBtn	: "Aizvietot",
 DlgReplaceReplAllBtn	: "Aizvietot visu",
 DlgReplaceWordChk		: "Jāsakrīt pilnībā",
@@ -338,7 +344,6 @@ DlgPasteMsg2	: "Lūdzu, ievietojiet tekstu šajā laukumā, izmantojot klaviatū
 DlgPasteIgnoreFont		: "Ignorēt iepriekš norādītos fontus",
 DlgPasteRemoveStyles	: "Noņemt norādītos stilus",
 DlgPasteCleanBox		: "Apstrādāt laukuma saturu",
-
 
 // Color Picker
 ColorAutomatic	: "Automātiska",
@@ -370,7 +375,7 @@ DlgSpellManyChanges		: "Pareizrakstības pārbaude pabeigta: %1 vārdi tika main
 IeSpellDownload			: "Pareizrakstības pārbaudītājs nav pievienots. Vai vēlaties to lejupielādēt tagad?",
 
 // Button Dialog
-DlgButtonText	: "Teksts (Vērtība)",
+DlgButtonText	: "Teksts (vērtība)",
 DlgButtonType	: "Tips",
 
 // Checkbox and Radio Button Dialogs
@@ -418,8 +423,8 @@ DlgHiddenName	: "Nosaukums",
 DlgHiddenValue	: "Vērtība",
 
 // Bulleted List Dialog
-BulletedListProp	: "Bulleted List Properties",
-NumberedListProp	: "Numbered List Properties",
+BulletedListProp	: "Aizzīmju saraksta īpašības",
+NumberedListProp	: "Numerētā saraksta īpašības",
 DlgLstType			: "Tips",
 DlgLstTypeCircle	: "Aplis",
 DlgLstTypeDisc		: "Disks",
@@ -475,6 +480,7 @@ DlgTemplatesNoTpl	: "(Nav norādītas sagataves)",
 // About Dialog
 DlgAboutAboutTab	: "Par",
 DlgAboutBrowserInfoTab	: "Informācija par pārlūkprogrammu",
+DlgAboutLicenseTab	: "Licence",
 DlgAboutVersion		: "versija",
 DlgAboutLicense		: "Programmatūra lietojama saskaņā ar GNU Lesser General Public License",
 DlgAboutInfo		: "Papildus informācija ir pieejama"

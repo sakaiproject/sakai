@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -98,8 +98,13 @@ Button			: "Кнопка",
 SelectionField	: "Список",
 ImageButton		: "Кнопка із зображенням",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Вставити посилання",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Вставити строку",
 DeleteRows			: "Видалити строки",
 InsertColumn		: "Вставити колонку",
@@ -136,7 +141,7 @@ UnknownToolbarItem	: "Невідомий елемент панелі інстр�
 UnknownCommand		: "Невідоме ім'я команди \"%1\"",
 NotImplemented		: "Команда не реалізована",
 UnknownToolbarSet	: "Панель інструментів \"%1\" не існує",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Скасувати",
 DlgBtnClose			: "Зачинити",
 DlgBtnBrowseServer	: "Передивитися на сервері",
 DlgAdvancedTag		: "Розширений",
-DlgOpOther			: "&lt;Інше&gt;",
+DlgOpOther			: "<Інше>",
 DlgInfoTab			: "Інфо",
 DlgAlertUrl			: "Вставте, будь-ласка, URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;не визначено&gt;",
+DlgGenNotSet		: "<не визначено>",
 DlgGenId			: "Ідентифікатор",
 DlgGenLangDir		: "Напрямок мови",
 DlgGenLangDirLtr	: "Зліва на право (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Якір на цю сторінку",
 DlgLnkTypeEMail		: "Эл. пошта",
 DlgLnkProto			: "Протокол",
-DlgLnkProtoOther	: "&lt;інше&gt;",
+DlgLnkProtoOther	: "<інше>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Оберіть якір",
 DlgLnkAnchorByName	: "За ім'ям якоря",
 DlgLnkAnchorById	: "За ідентифікатором елемента",
-DlgLnkNoAnchors		: "&lt;Немає якорів доступних в цьому документі&gt;",
+DlgLnkNoAnchors		: "<Немає якорів доступних в цьому документі>",
 DlgLnkEMail			: "Адреса ел. пошти",
 DlgLnkEMailSubject	: "Тема листа",
 DlgLnkEMailBody		: "Тіло повідомлення",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Закачати",
 DlgLnkBtnUpload		: "Переслати на сервер",
 
 DlgLnkTarget		: "Ціль",
-DlgLnkTargetFrame	: "&lt;фрейм&gt;",
-DlgLnkTargetPopup	: "&lt;спливаюче вікно&gt;",
+DlgLnkTargetFrame	: "<фрейм>",
+DlgLnkTargetPopup	: "<спливаюче вікно>",
 DlgLnkTargetBlank	: "Нове вікно (_blank)",
 DlgLnkTargetParent	: "Батьківське вікно (_parent)",
 DlgLnkTargetSelf	: "Теж вікно (_self)",
@@ -282,7 +287,7 @@ DlgTableWidthPc		: "відсотків",
 DlgTableHeight		: "Висота",
 DlgTableCellSpace	: "Проміжок (spacing)",
 DlgTableCellPad		: "Відступ (padding)",
-DlgTableCaption		: "Заголовок",
+DlgTableCaption		: "Заголовок (Caption)",
 DlgTableSummary		: "Summary",	//MISSING
 
 // Table Cell Dialog
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Будь-ласка, вставте з буфера обміну
 DlgPasteIgnoreFont		: "Ігнорувати налаштування шрифтів",
 DlgPasteRemoveStyles	: "Видалити налаштування стилів",
 DlgPasteCleanBox		: "Очистити область",
-
 
 // Color Picker
 ColorAutomatic	: "Автоматичний",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(Не визначено жодного шаблону)",
 // About Dialog
 DlgAboutAboutTab	: "Про програму",
 DlgAboutBrowserInfoTab	: "Інформація браузера",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "Версія",
 DlgAboutLicense		: "Ліцензовано згідно умовам GNU Lesser General Public License",
 DlgAboutInfo		: "Додаткову інформацію дивіться на "

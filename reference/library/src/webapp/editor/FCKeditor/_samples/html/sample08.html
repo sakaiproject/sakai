@@ -1,6 +1,7 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -16,15 +17,14 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="../sample.css" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="../../fckeditor.js"></script>
-		<script type="text/javascript">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<link href="../sample.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../../fckeditor.js"></script>
+	<script type="text/javascript">
 
 // FCKeditor_OnComplete is a special function that is called when an editor
 // instance is loaded ad available to the API. It must be named exactly in
@@ -133,15 +133,19 @@ function ResetIsDirty()
 	alert( 'The "IsDirty" status has been reset' ) ;
 }
 
-		</script>
-	</head>
-	<body>
-		<h1>FCKeditor - Javascript - Sample 8</h1>
-		This sample shows how to use the FCKeditor Javascript API to interact with the
-		editor at runtime.
-		<hr>
-		<form action="sampleposteddata.asp" method="post" target="_blank">
-			<script type="text/javascript">
+	</script>
+</head>
+<body>
+	<h1>
+		FCKeditor - JavaScript - Sample 8
+	</h1>
+	<div>
+		This sample shows how to use the FCKeditor JavaScript API to interact with the editor
+		at runtime.
+	</div>
+	<hr />
+	<form action="sampleposteddata.asp" method="post" target="_blank">
+		<script type="text/javascript">
 <!--
 // Automatically calculates the editor base path based on the _samples directory.
 // This is usefull only for these samples. A real application should use something like this:
@@ -153,30 +157,36 @@ oFCKeditor.BasePath	= sBasePath ;
 oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
 oFCKeditor.Create() ;
 //-->
-			</script>
-			<br>
-			<input type="submit" value="Submit">
-		</form>
-		<div>&nbsp;</div>
-		<hr>
-		<div id="eMessage">&nbsp;</div>
-		<div>&nbsp;</div>
-		<div id="eButtons" style="VISIBILITY: hidden">
-			<input type="button" value="Insert HTML" onclick="InsertHTML();">
-			<input type="button" value="Set Editor Contents" onclick="SetContents();">
-			<input type="button" value="Get Editor Contents (XHTML)" onclick="GetContents();">
-			<br>
-			<br>
-			<input type="button" value='Execute "Bold" Command' onclick="ExecuteCommand('Bold');">
-			<input type="button" value='Execute "Link" Command' onclick="ExecuteCommand('Link');">
-			<br>
-			<br>
-			<input type="button" value="Interact with the Editor Area DOM" onclick="GetLength();">
-			<input type="button" value="Get innerHTML" onclick="GetInnerHTML();">
-			<br>
-			<br>
-			<input type="button" value="Check IsDirty()" onclick="CheckIsDirty();">
-			<input type="button" value="Reset IsDirty()" onclick="ResetIsDirty();">
-		</div>
-	</body>
+		</script>
+		<br />
+		<input type="submit" value="Submit" />
+	</form>
+	<div>
+		&nbsp;
+	</div>
+	<hr />
+	<div id="eMessage">
+		&nbsp;
+	</div>
+	<div>
+		&nbsp;
+	</div>
+	<div id="eButtons" style="visibility: hidden">
+		<input type="button" value="Insert HTML" onclick="InsertHTML();" />
+		<input type="button" value="Set Editor Contents" onclick="SetContents();" />
+		<input type="button" value="Get Editor Contents (XHTML)" onclick="GetContents();" />
+		<br />
+		<br />
+		<input type="button" value='Execute "Bold" Command' onclick="ExecuteCommand('Bold');" />
+		<input type="button" value='Execute "Link" Command' onclick="ExecuteCommand('Link');" />
+		<br />
+		<br />
+		<input type="button" value="Interact with the Editor Area DOM" onclick="GetLength();" />
+		<input type="button" value="Get innerHTML" onclick="GetInnerHTML();" />
+		<br />
+		<br />
+		<input type="button" value="Check IsDirty()" onclick="CheckIsDirty();" />
+		<input type="button" value="Reset IsDirty()" onclick="ResetIsDirty();" />
+	</div>
+</body>
 </html>

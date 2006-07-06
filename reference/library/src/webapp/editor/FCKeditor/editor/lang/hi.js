@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -98,8 +98,13 @@ Button			: "बटन",
 SelectionField	: "चुनाव फ़ील्ड",
 ImageButton		: "तस्वीर बटन",
 
+FitWindow		: "एडिटर साइज़ को चरम सीमा तक बढ़ायें",
+
 // Context Menu
 EditLink			: "लिंक संपादन",
+CellCM				: "खाना",
+RowCM				: "पंक्ति",
+ColumnCM			: "कालम",
 InsertRow			: "पंक्ति इन्सर्ट करें",
 DeleteRows			: "पंक्तियाँ डिलीट करें",
 InsertColumn		: "कॉलम इन्सर्ट करें",
@@ -339,7 +344,6 @@ DlgPasteIgnoreFont		: "फ़ॉन्ट परिभाषा निकाले�
 DlgPasteRemoveStyles	: "स्टाइल परिभाषा निकालें",
 DlgPasteCleanBox		: "बॉक्स साफ़ करें",
 
-
 // Color Picker
 ColorAutomatic	: "ऑटोमैटिक",
 ColorMoreColors	: "और रंग...",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(कोई टॅम्प्लेट डिफ़ाइन �
 // About Dialog
 DlgAboutAboutTab	: "FCKEditor के बारे में",
 DlgAboutBrowserInfoTab	: "ब्राउज़र के बारे में",
+DlgAboutLicenseTab	: "लाइसैन्स",
 DlgAboutVersion		: "वर्ज़न",
 DlgAboutLicense		: "लाइसेंस :GNU LGPL",
 DlgAboutInfo		: "अधिक जानकारी के लिये यहाँ जायें:"

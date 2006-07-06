@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -56,7 +56,7 @@ FCKRegexLib.HeadCloser		= /<\/head\s*>/i ;
 FCKRegexLib.TableBorderClass = /\s*FCK__ShowTableBorders\s*/ ;
 
 // Validate element names.
-FCKRegexLib.ElementName = /^[A-Za-z_:][\w.\-:]*$/ ;
+FCKRegexLib.ElementName = /(^[A-Za-z_:][\w.\-:]*\w$)|(^[A-Za-z_]$)/ ;
 
 // Used in conjuction with the FCKConfig.ForceSimpleAmpersand configuration option.
 FCKRegexLib.ForceSimpleAmpersand = /___FCKAmp___/g ;
@@ -96,3 +96,5 @@ FCKRegexLib.ProtectUrlsANoApo	= /(<a\s.*?href=)([^"'][^ >]+)/gi ;
 
 FCKRegexLib.ProtectUrlsImgApo	= /(<img\s.*?src=)("|')(.+?)\2/gi ;
 FCKRegexLib.ProtectUrlsImgNoApo	= /(<img\s.*?src=)([^"'][^ >]+)/gi ;
+
+FCKRegexLib.Html4DocType		= /HTML 4\.0 Transitional/i ;

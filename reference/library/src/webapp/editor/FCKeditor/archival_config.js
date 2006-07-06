@@ -52,11 +52,11 @@ FCKConfig.FormatOutput		= true ;
 FCKConfig.FormatIndentator	= '    ' ;
 
 FCKConfig.ToolbarSets["Default"] = [
-        ['Source','DocProps','-','Templates'],
-        ['Cut','Copy','Paste','PasteText','PasteWord','-','SelectAll','RemoveFormat','-','SpellCheck'],
+        ['Source','DocProps','Templates'],
+        ['Cut','Copy','Paste','PasteText','PasteWord','SelectAll','RemoveFormat','SpellCheck'],
         ['Undo','Redo','-','Find','Replace'],
-        ['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
-        ['OrderedList','UnorderedList','-','Outdent','Indent'],
+        ['Bold','Italic','Underline','StrikeThrough','Subscript','Superscript'],
+        ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
         ['TextColor','BGColor'],
         ['Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],

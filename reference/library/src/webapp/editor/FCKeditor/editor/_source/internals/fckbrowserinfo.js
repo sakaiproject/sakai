@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -11,22 +11,27 @@
  * "Support Open Source software. What about a donation today?"
  * 
  * File Name: fckbrowserinfo.js
- * 	Defines the FCKBrowserInfo object that hold some browser informations.
+ * 	Contains browser detection information.
  * 
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
-var FCKBrowserInfo ;
+var s = navigator.userAgent.toLowerCase() ;
 
-if ( !( FCKBrowserInfo = NS.FCKBrowserInfo ) )
+var FCKBrowserInfo = 
 {
-	FCKBrowserInfo = NS.FCKBrowserInfo = new Object() ;
+	IsIE		: s.Contains('msie'),
+	IsIE7		: s.Contains('msie 7'),
+	IsGecko		: s.Contains('gecko/'),
+	IsSafari	: s.Contains('safari'),
+	IsOpera		: s.Contains('opera')
+}
 
-	var sAgent = navigator.userAgent.toLowerCase() ;
+FCKBrowserInfo.IsGeckoLike = FCKBrowserInfo.IsGecko || FCKBrowserInfo.IsSafari || FCKBrowserInfo.IsOpera ;
 
-	FCKBrowserInfo.IsIE			= ( sAgent.indexOf("msie") != -1 ) ;
-	FCKBrowserInfo.IsGecko		= !FCKBrowserInfo.IsIE ;
-	FCKBrowserInfo.IsSafari		= ( sAgent.indexOf("safari") != -1 ) ;
-	FCKBrowserInfo.IsNetscape	= ( sAgent.indexOf("netscape") != -1 ) ;
+if ( FCKBrowserInfo.IsGecko )
+{
+	var sGeckoVersion = s.match( /gecko\/(\d+)/ )[1] ;
+	FCKBrowserInfo.IsGecko10 = sGeckoVersion < 20051111 ;	// Actually "10" refers to versions before Firefox 1.5, where Gecko 20051111 has been released.
 }

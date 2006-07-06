@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -98,8 +98,13 @@ Button			: "Botón",
 SelectionField	: "Campo de Selección",
 ImageButton		: "Botón de Imaxe",
 
+FitWindow		: "Maximizar o tamaño do editor",
+
 // Context Menu
 EditLink			: "Editar Ligazón",
+CellCM				: "Cela",
+RowCM				: "Fila",
+ColumnCM			: "Columna",
 InsertRow			: "Inserir Fila",
 DeleteRows			: "Borrar Filas",
 InsertColumn		: "Inserir Columna",
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Cancelar",
 DlgBtnClose			: "Pechar",
 DlgBtnBrowseServer	: "Navegar no Servidor",
 DlgAdvancedTag		: "Advanzado",
-DlgOpOther			: "&lt;Outro&gt;",
+DlgOpOther			: "<Outro>",
 DlgInfoTab			: "Info",
 DlgAlertUrl			: "Por favor, insira a URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;non definido&gt;",
+DlgGenNotSet		: "<non definido>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Orientación do Idioma",
 DlgGenLangDirLtr	: "Esquerda a Dereita (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Referencia nesta páxina",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Protocolo",
-DlgLnkProtoOther	: "&lt;outro&gt;",
+DlgLnkProtoOther	: "<outro>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Seleccionar unha Referencia",
 DlgLnkAnchorByName	: "Por Nome de Referencia",
 DlgLnkAnchorById	: "Por Element Id",
-DlgLnkNoAnchors		: "&lt;Non hai referencias disponibles no documento&gt;",
+DlgLnkNoAnchors		: "<Non hai referencias disponibles no documento>",
 DlgLnkEMail			: "Enderezo de E-Mail",
 DlgLnkEMailSubject	: "Asunto do Mensaxe",
 DlgLnkEMailBody		: "Corpo do Mensaxe",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Carregar",
 DlgLnkBtnUpload		: "Enviar ó servidor",
 
 DlgLnkTarget		: "Destino",
-DlgLnkTargetFrame	: "&lt;frame&gt;",
-DlgLnkTargetPopup	: "&lt;Xanela Emerxente&gt;",
+DlgLnkTargetFrame	: "<frame>",
+DlgLnkTargetPopup	: "<Xanela Emerxente>",
 DlgLnkTargetBlank	: "Nova Xanela (_blank)",
 DlgLnkTargetParent	: "Xanela Pai (_parent)",
 DlgLnkTargetSelf	: "Mesma Xanela (_self)",
@@ -292,16 +297,16 @@ DlgCellWidthPx		: "pixels",
 DlgCellWidthPc		: "percent",
 DlgCellHeight		: "Altura",
 DlgCellWordWrap		: "Axustar Liñas",
-DlgCellWordWrapNotSet	: "&lt;Non Definido&gt;",
+DlgCellWordWrapNotSet	: "<Non Definido>",
 DlgCellWordWrapYes	: "Si",
 DlgCellWordWrapNo	: "Non",
 DlgCellHorAlign		: "Aliñamento Horizontal",
-DlgCellHorAlignNotSet	: "&lt;Non definido&gt;",
+DlgCellHorAlignNotSet	: "<Non definido>",
 DlgCellHorAlignLeft	: "Esquerda",
 DlgCellHorAlignCenter	: "Centro",
 DlgCellHorAlignRight: "Dereita",
 DlgCellVerAlign		: "Aliñamento Vertical",
-DlgCellVerAlignNotSet	: "&lt;Non definido&gt;",
+DlgCellVerAlignNotSet	: "<Non definido>",
 DlgCellVerAlignTop	: "Arriba",
 DlgCellVerAlignMiddle	: "Medio",
 DlgCellVerAlignBottom	: "Abaixo",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Por favor, pegue dentro do seguinte cadro usando o teclado (<STR
 DlgPasteIgnoreFont		: "Ignorar as definicións de Tipografía",
 DlgPasteRemoveStyles	: "Eliminar as definicións de Estilos",
 DlgPasteCleanBox		: "Limpar o Cadro",
-
 
 // Color Picker
 ColorAutomatic	: "Automático",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(Non hai plantillas definidas)",
 // About Dialog
 DlgAboutAboutTab	: "Acerca de",
 DlgAboutBrowserInfoTab	: "Información do Navegador",
+DlgAboutLicenseTab	: "Licencia",
 DlgAboutVersion		: "versión",
 DlgAboutLicense		: "Licencia concedida baixo os termos da GNU Lesser General Public License",
 DlgAboutInfo		: "Para máis información visitar:"

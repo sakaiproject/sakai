@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -23,6 +23,10 @@ FCKXHtml.CurrentJobNum = 0 ;
 
 FCKXHtml.GetXHTML = function( node, includeNode, format )
 {
+	FCKXHtmlEntities.Initialize() ;
+	
+	this._CreateNode = FCKConfig.ForceStrongEm ? FCKXHtml_CreateNode_StrongEm : FCKXHtml_CreateNode_Normal ;
+
 	// Special blocks are blocks of content that remain untouched during the
 	// process. It is used for SCRIPTs and STYLEs.
 	FCKXHtml.SpecialBlocks = new Array() ;
@@ -125,6 +129,9 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 	{
 		// Element Node.
 		case 1 :
+
+			// Here we found an element that is not the real element, but a 
+			// fake one (like the Flash placeholder image), so we must get the real one.
 			if ( htmlNode.getAttribute('_fckfakelement') )
 				return FCKXHtml._AppendNode( xmlNode, FCK.GetRealElement( htmlNode ) ) ;
 		
@@ -132,6 +139,8 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 			if ( FCKBrowserInfo.IsGecko && htmlNode.hasAttribute('_moz_editor_bogus_node') )
 				return false ;
 			
+			// This is for elements that are instrumental for FCKeditor and 
+			// should be removed from the final HTML.
 			if ( htmlNode.getAttribute('_fckdelete') )
 				return false ;
 
@@ -170,7 +179,7 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 
 			if ( oTagProcessor )
 			{
-				oNode = oTagProcessor( oNode, htmlNode ) ;
+				oNode = oTagProcessor( oNode, htmlNode, xmlNode ) ;
 				if ( !oNode ) break ;
 			}
 			else
@@ -199,34 +208,29 @@ FCKXHtml._AppendNode = function( xmlNode, htmlNode )
 	return true ;
 }
 
-if ( FCKConfig.ForceStrongEm )
+function FCKXHtml_CreateNode_StrongEm( nodeName )
 {
-	FCKXHtml._CreateNode = function( nodeName )
+	switch ( nodeName )
 	{
-		switch ( nodeName )
-		{
-			case 'b' :
-				nodeName = 'strong' ;
-				break ;
-			case 'i' :
-				nodeName = 'em' ;
-				break ;
-		}
-		return this.XML.createElement( nodeName ) ;
+		case 'b' :
+			nodeName = 'strong' ;
+			break ;
+		case 'i' :
+			nodeName = 'em' ;
+			break ;
 	}
+	return this.XML.createElement( nodeName ) ;
 }
-else
+
+function FCKXHtml_CreateNode_Normal( nodeName )
 {
-	FCKXHtml._CreateNode = function( nodeName )
-	{
-		return this.XML.createElement( nodeName ) ;
-	}
+	return this.XML.createElement( nodeName ) ;
 }
 
 // Append an item to the SpecialBlocks array and returns the tag to be used.
 FCKXHtml._AppendSpecialItem = function( item )
 {
-	return '___FCKsi___' + FCKXHtml.SpecialBlocks.addItem( item ) ;
+	return '___FCKsi___' + FCKXHtml.SpecialBlocks.AddItem( item ) ;
 }
 
 //if ( FCKConfig.ProcessHTMLEntities )
@@ -366,6 +370,29 @@ FCKXHtml.TagProcessors['table'] = function( node, htmlNode )
 	}
 
 	FCKXHtml._AppendChildNodes( node, htmlNode, false ) ;
+
+	return node ;
+}
+
+// Fix nested <ul> and <ol>.
+FCKXHtml.TagProcessors['ol'] = FCKXHtml.TagProcessors['ul'] = function( node, htmlNode, targetNode )
+{
+	if ( htmlNode.innerHTML.trim().length == 0 )
+		return ;
+
+	var ePSibling = targetNode.lastChild ;
+	
+	if ( ePSibling && ePSibling.nodeType == 3 )
+		ePSibling = ePSibling.previousSibling ;
+	
+	if ( ePSibling && ePSibling.nodeName.toUpperCase() == 'LI' )
+	{
+		htmlNode._fckxhtmljob = null ;
+		FCKXHtml._AppendNode( ePSibling, htmlNode ) ;
+		return ;
+	}
+
+	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
 	return node ;
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -18,7 +18,21 @@
  */
 
 // Constant for the Gecko Bogus Node.
-var GECKO_BOGUS = '<br _moz_editor_bogus_node="TRUE">' ;
+var GECKO_BOGUS = FCKBrowserInfo.IsGecko ? '<br _moz_editor_bogus_node="TRUE">' : '' ;
+
+FCKTools.CancelEvent = function( e )
+{
+	if ( e )
+		e.preventDefault() ;
+}
+
+FCKTools.DisableSelection = function( element )
+{
+	if ( FCKBrowserInfo.IsGecko )
+		element.style.MozUserSelect	= 'none' ;	// Gecko only.	
+	else
+		element.style.userSelect	= 'none' ;	// CSS3 (not supported yet).
+}
 
 // Appends a CSS file to a document.
 FCKTools.AppendStyleSheet = function( documentElement, cssFileUrl )
@@ -91,10 +105,77 @@ FCKTools.CreateXmlObject = function( object )
 	return null ;
 }
 
-FCKTools.DisableSelection = function( element )
+FCKTools.GetScrollPosition = function( relativeWindow )
 {
-	element.style.MozUserSelect	= 'none' ;	// Gecko only.
-	// element.style.userSelect	= 'none' ;	// CSS3 (not supported yet).
+	return { X : relativeWindow.pageXOffset, Y : relativeWindow.pageYOffset } ;
+}
+
+FCKTools.AddEventListener = function( sourceObject, eventName, listener )
+{
+	sourceObject.addEventListener( eventName, listener, false ) ;
+}
+
+FCKTools.RemoveEventListener = function( sourceObject, eventName, listener )
+{
+	sourceObject.removeEventListener( eventName, listener, false ) ;
+}
+
+// Listeners attached with this function cannot be detached.
+FCKTools.AddEventListenerEx = function( sourceObject, eventName, listener, paramsArray )
+{
+	sourceObject.addEventListener( 
+		eventName, 
+		function( e )
+		{
+			listener.apply( sourceObject, [ e ].concat( paramsArray || [] ) ) ;
+		},
+		false 
+	) ;
+}
+
+// Returns and object with the "Width" and "Height" properties.
+FCKTools.GetViewPaneSize = function( win )
+{
+	return { Width : win.innerWidth, Height : win.innerHeight } ;
+}
+
+FCKTools.SaveStyles = function( element )
+{
+	var oSavedStyles = new Object() ;
+	
+	if ( element.className.length > 0 )
+	{
+		oSavedStyles.Class = element.className ;
+		element.className = '' ;
+	}
+
+	var sInlineStyle = element.getAttribute( 'style' ) ;
+
+	if ( sInlineStyle && sInlineStyle.length > 0 )
+	{
+		oSavedStyles.Inline = sInlineStyle ;
+		element.setAttribute( 'style', '', 0 ) ;	// 0 : Case Insensitive
+	}
+
+	return oSavedStyles ;
+}
+
+FCKTools.RestoreStyles = function( element, savedStyles )
+{
+	element.className = savedStyles.Class || '' ;
+
+	if ( savedStyles.Inline )
+		element.setAttribute( 'style', savedStyles.Inline, 0 ) ;	// 0 : Case Insensitive
+	else
+		element.removeAttribute( 'style', 0 ) ;
+}
+
+FCKTools.RegisterDollarFunction = function( targetWindow )
+{
+	targetWindow.$ = function( id ) 
+	{ 
+		return this.document.getElementById( id ) ;
+	} ;
 }
 
 // START iCM Modifications

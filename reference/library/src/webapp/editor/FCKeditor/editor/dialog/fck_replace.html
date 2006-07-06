@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -20,8 +20,8 @@
 -->
 <html>
 	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta content="noindex, nofollow" name="robots">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta content="noindex, nofollow" name="robots" />
 		<script type="text/javascript">
 
 var oEditor = window.parent.InnerDialogLoaded() ;
@@ -86,13 +86,15 @@ function GetCase()
 function Replace()
 {
 	var oRegex = new RegExp( GetRegexExpr(), GetCase() ) ;
-	ReplaceTextNodes( oEditor.FCK.EditorDocument.body, oRegex, document.getElementById('txtReplace').value, false, false ) ;
+	if ( !ReplaceTextNodes( oEditor.FCK.EditorDocument.body, oRegex, document.getElementById('txtReplace').value, false, false ) )
+		alert( oEditor.FCKLang.DlgFindNotFoundMsg ) ;
 }
 
 function ReplaceAll()
 {
 	var oRegex = new RegExp( GetRegexExpr(), GetCase() + 'g' ) ;
-	ReplaceTextNodes( oEditor.FCK.EditorDocument.body, oRegex, document.getElementById('txtReplace').value, true, false ) ;
+	if ( !ReplaceTextNodes( oEditor.FCK.EditorDocument.body, oRegex, document.getElementById('txtReplace').value, true, false ) )
+		alert( oEditor.FCKLang.DlgFindNotFoundMsg ) ;
 	window.parent.Cancel() ;
 }
 		</script>

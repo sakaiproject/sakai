@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -98,8 +98,13 @@ Button			: "Butono",
 SelectionField	: "Elekta Kampo",
 ImageButton		: "Bildbutono",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Modifier Ligilon",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Enmeti Linion",
 DeleteRows			: "Forigi Liniojn",
 InsertColumn		: "Enmeti Kolumnon",
@@ -136,7 +141,7 @@ UnknownToolbarItem	: "Ilobretero nekonata \"%1\"",
 UnknownCommand		: "Komandonomo nekonata \"%1\"",
 NotImplemented		: "Komando ne ankoraŭ realigita",
 UnknownToolbarSet	: "La ilobreto \"%1\" ne ekzistas",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Rezigni",
 DlgBtnClose			: "Fermi",
 DlgBtnBrowseServer	: "Foliumi en la Servilo",
 DlgAdvancedTag		: "Speciala",
-DlgOpOther			: "&lt;Alia&gt;",
+DlgOpOther			: "<Alia>",
 DlgInfoTab			: "Info",	//MISSING
 DlgAlertUrl			: "Please insert the URL",	//MISSING
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;Defaŭlta&gt;",
+DlgGenNotSet		: "<Defaŭlta>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Skribdirekto",
 DlgGenLangDirLtr	: "De maldekstro dekstren (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Ankri en tiu ĉi paĝo",
 DlgLnkTypeEMail		: "Retpoŝto",
 DlgLnkProto			: "Protokolo",
-DlgLnkProtoOther	: "&lt;alia&gt;",
+DlgLnkProtoOther	: "<alia>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Elekti Ankron",
 DlgLnkAnchorByName	: "Per Ankronomo",
 DlgLnkAnchorById	: "Per Elementidentigilo",
-DlgLnkNoAnchors		: "&lt;Ne disponeblas ankroj en la dokumento&gt;",
+DlgLnkNoAnchors		: "<Ne disponeblas ankroj en la dokumento>",
 DlgLnkEMail			: "Retadreso",
 DlgLnkEMailSubject	: "Temlinio",
 DlgLnkEMailBody		: "Mesaĝa korpo",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Alŝuti",
 DlgLnkBtnUpload		: "Sendi al Servilo",
 
 DlgLnkTarget		: "Celo",
-DlgLnkTargetFrame	: "&lt;kadro&gt;",
-DlgLnkTargetPopup	: "&lt;ŝprucfenestro&gt;",
+DlgLnkTargetFrame	: "<kadro>",
+DlgLnkTargetPopup	: "<ŝprucfenestro>",
 DlgLnkTargetBlank	: "Nova Fenestro (_blank)",
 DlgLnkTargetParent	: "Gepatra Fenestro (_parent)",
 DlgLnkTargetSelf	: "Sama Fenestro (_self)",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRON
 DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
 DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
 DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
 
 // Color Picker
 ColorAutomatic	: "Aŭtomata",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
 // About Dialog
 DlgAboutAboutTab	: "Pri",
 DlgAboutBrowserInfoTab	: "Informoj pri TTT-legilo",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "versio",
 DlgAboutLicense		: "Disdonata laŭ la GNU Lesser General Public License",
 DlgAboutInfo		: "Por pli da informoj, vizitu"

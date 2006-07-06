@@ -1,6 +1,6 @@
 #####
 #  FCKeditor - The text editor for internet
-#  Copyright (C) 2003-2005 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2006 Frederico Caldeira Knabben
 #  
 #  Licensed under the terms of the GNU Lesser General Public License:
 #  		http://www.opensource.org/licenses/lgpl-license.php
@@ -30,7 +30,7 @@ sub FCKeditor
 
 	local($instanceName) = @_;
 	$InstanceName	= $instanceName;
-	$BasePath		= '/FCKeditor/';
+	$BasePath		= '/fckeditor/';
 	$Width			= '100%';
 	$Height			= '200';
 	$ToolbarSet		= 'Default';
@@ -75,7 +75,7 @@ sub CreateHtml
 
 		#// Render the editor IFRAME.
 		$wk = $InstanceName."___Frame";
-		$Html .= "<iframe id=\"$wk\" src=\"$Link\" width=\"$Width\" height=\"$Height\" frameborder=\"no\" scrolling=\"no\"></iframe>";
+		$Html .= "<iframe id=\"$wk\" src=\"$Link\" width=\"$Width\" height=\"$Height\" frameborder=\"0\" scrolling=\"no\"></iframe>";
 	} else {
 		if($Width =~ /\%/g){
 			$WidthCSS = $Width;

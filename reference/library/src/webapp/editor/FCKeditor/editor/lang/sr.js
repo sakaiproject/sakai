@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -80,7 +80,7 @@ Font				: "Фонт",
 FontSize			: "Величина фонта",
 TextColor			: "Боја текста",
 BGColor				: "Боја позадине",
-Source				: "K&ocirc;д",
+Source				: "Kôд",
 Find				: "Претрага",
 Replace				: "Замена",
 SpellCheck			: "Провери спеловање",
@@ -98,8 +98,13 @@ Button			: "Дугме",
 SelectionField	: "Изборно поље",
 ImageButton		: "Дугме са сликом",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Промени линк",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Унеси ред",
 DeleteRows			: "Обриши редове",
 InsertColumn		: "Унеси колону",
@@ -136,7 +141,7 @@ UnknownToolbarItem	: "Непозната ставка toolbara \"%1\"",
 UnknownCommand		: "Непозната наредба \"%1\"",
 NotImplemented		: "Наредба није имплементирана",
 UnknownToolbarSet	: "Toolbar \"%1\" не постоји",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -146,17 +151,17 @@ DlgBtnCancel		: "Oткажи",
 DlgBtnClose			: "Затвори",
 DlgBtnBrowseServer	: "Претражи сервер",
 DlgAdvancedTag		: "Напредни тагови",
-DlgOpOther			: "&lt;Остали&gt;",
+DlgOpOther			: "<Остали>",
 DlgInfoTab			: "Инфо",
 DlgAlertUrl			: "Молимо Вас, унесите УРЛ",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;није постављено&gt;",
+DlgGenNotSet		: "<није постављено>",
 DlgGenId			: "Ид",
 DlgGenLangDir		: "Смер језика",
 DlgGenLangDirLtr	: "С лева на десно (LTR)",
 DlgGenLangDirRtl	: "С десна на лево (RTL)",
-DlgGenLangCode		: "K&ocirc;д језика",
+DlgGenLangCode		: "Kôд језика",
 DlgGenAccessKey		: "Приступни тастер",
 DlgGenName			: "Назив",
 DlgGenTabIndex		: "Таб индекс",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Сидро на овој страници",
 DlgLnkTypeEMail		: "Eлектронска пошта",
 DlgLnkProto			: "Протокол",
-DlgLnkProtoOther	: "&lt;друго&gt;",
+DlgLnkProtoOther	: "<друго>",
 DlgLnkURL			: "УРЛ",
 DlgLnkAnchorSel		: "Одабери сидро",
 DlgLnkAnchorByName	: "По називу сидра",
 DlgLnkAnchorById	: "Пo Ид-jу елемента",
-DlgLnkNoAnchors		: "&lt;Нема доступних сидра&gt;",
+DlgLnkNoAnchors		: "<Нема доступних сидра>",
 DlgLnkEMail			: "Адреса електронске поште",
 DlgLnkEMailSubject	: "Наслов",
 DlgLnkEMailBody		: "Садржај поруке",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Пошаљи",
 DlgLnkBtnUpload		: "Пошаљи на сервер",
 
 DlgLnkTarget		: "Meтa",
-DlgLnkTargetFrame	: "&lt;оквир&gt;",
-DlgLnkTargetPopup	: "&lt;искачући прозор&gt;",
+DlgLnkTargetFrame	: "<оквир>",
+DlgLnkTargetPopup	: "<искачући прозор>",
 DlgLnkTargetBlank	: "Нови прозор (_blank)",
 DlgLnkTargetParent	: "Родитељски прозор (_parent)",
 DlgLnkTargetSelf	: "Исти прозор (_self)",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Молимо Вас да залепите унутар доње 
 DlgPasteIgnoreFont		: "Игнориши Font Face дефиниције",
 DlgPasteRemoveStyles	: "Уклони дефиниције стилова",
 DlgPasteCleanBox		: "Обриши све",
-
 
 // Color Picker
 ColorAutomatic	: "Аутоматски",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(Нема дефинисаних образаца)",
 // About Dialog
 DlgAboutAboutTab	: "О едитору",
 DlgAboutBrowserInfoTab	: "Информације о претраживачу",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "верзија",
 DlgAboutLicense		: "Лиценцирано под условима GNU Lesser General Public License",
 DlgAboutInfo		: "За више информација посетите"

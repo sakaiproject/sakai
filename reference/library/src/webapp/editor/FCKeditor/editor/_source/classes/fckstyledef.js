@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -11,7 +11,7 @@
  * "Support Open Source software. What about a donation today?"
  * 
  * File Name: fckstyledef.js
- * 	FCKStyleDef Class: represents a single stylke definition.
+ * 	FCKStyleDef Class: represents a single style definition.
  * 
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
@@ -49,7 +49,7 @@ FCKStyleDef.prototype.GetCloserTag = function()
 FCKStyleDef.prototype.RemoveFromSelection = function()
 {
 	if ( FCKSelection.GetType() == 'Control' )
-		this._RemoveMe( FCKSelection.GetSelectedElement() ) ;
+		this._RemoveMe( FCK.ToolbarSet.CurrentInstance.Selection.GetSelectedElement() ) ;
 	else
-		this._RemoveMe( FCKSelection.GetParentElement() ) ;
+		this._RemoveMe( FCK.ToolbarSet.CurrentInstance.Selection.GetParentElement() ) ;
 }

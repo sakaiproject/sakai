@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -16,10 +16,6 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
-
-// Certifies that the "PluginsPath" configuration ends with a slash.
-if ( !FCKConfig.PluginsPath.endsWith('/') )
-	FCKConfig.PluginsPath += '/' ;
 
 var FCKPlugin = function( name, availableLangs, basePath )
 {
@@ -48,9 +44,9 @@ FCKPlugin.prototype.Load = function()
 			sLang = this.AvailableLangs[0] ;
 		
 		// Add the main plugin script.
-		FCKScriptLoader.AddScript( this.Path + 'lang/' + sLang + '.js' ) ;		
+		LoadScript( this.Path + 'lang/' + sLang + '.js' ) ;		
 	}
 		
 	// Add the main plugin script.
-	FCKScriptLoader.AddScript( this.Path + 'fckplugin.js' ) ;
+	LoadScript( this.Path + 'fckplugin.js' ) ;
 }

@@ -2,7 +2,7 @@
 <% Option Explicit %>
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -81,7 +81,7 @@ Set oFCKeditor = New FCKeditor
 oFCKeditor.BasePath = sBasePath
 
 If Request.QueryString("Skin") <> "" Then
-	oFCKeditor.Config("SkinPath") = sBasePath + "editor/skins/" & Request.QueryString("Skin") + "/"
+	oFCKeditor.Config("SkinPath") = sBasePath + "editor/skins/" & Server.HTMLEncode( Request.QueryString("Skin") ) + "/"
 End If
 
 oFCKeditor.Value = "This is some <strong>sample text</strong>. You are using <a href=""http://www.fckeditor.net/"">FCKeditor</a>."

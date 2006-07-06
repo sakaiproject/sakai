@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -85,8 +85,8 @@ Find				: "Rasti",
 Replace				: "Pakeisti",
 SpellCheck			: "Rašybos tikrinimas",
 UniversalKeyboard	: "Universali klaviatūra",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+PageBreakLbl		: "Puslapių skirtukas",
+PageBreak			: "Įterpti puslapių skirtuką",
 
 Form			: "Forma",
 Checkbox		: "Žymimasis langelis",
@@ -98,8 +98,13 @@ Button			: "Mygtukas",
 SelectionField	: "Atrankos laukas",
 ImageButton		: "Vaizdinis mygtukas",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Taisyti nuorodą",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Įterpti eilutę",
 DeleteRows			: "Šalinti eilutes",
 InsertColumn		: "Įterpti stulpelį",
@@ -108,7 +113,7 @@ InsertCell			: "Įterpti langelį",
 DeleteCells			: "Šalinti langelius",
 MergeCells			: "Sujungti langelius",
 SplitCell			: "Skaidyti langelius",
-TableDelete			: "Delete Table",	//MISSING
+TableDelete			: "Šalinti lentelę",
 CellProperties		: "Langelio savybės",
 TableProperties		: "Lentelės savybės",
 ImageProperties		: "Vaizdo savybės",
@@ -136,9 +141,9 @@ UnknownToolbarItem	: "Nežinomas mygtukų juosta elementas \"%1\"",
 UnknownCommand		: "Nežinomas komandos vardas \"%1\"",
 NotImplemented		: "Komanda nėra įgyvendinta",
 UnknownToolbarSet	: "Mygtukų juostos rinkinys \"%1\" neegzistuoja",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "Jūsų naršyklės saugumo nuostatos gali riboti kai kurias redaktoriaus savybes. Jūs turite aktyvuoti opciją \"Run ActiveX controls and plug-ins\". Kitu atveju Jums bus pranešama apie klaidas ir trūkstamas savybes.",
+BrowseServerBlocked : "Neįmanoma atidaryti naujo naršyklės lango. Įsitikinkite, kad iškylančių langų blokavimo programos neveiksnios.",
+DialogBlocked		: "Neįmanoma atidaryti dialogo lango. Įsitikinkite, kad iškylančių langų blokavimo programos neveiksnios.",
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Nutraukti",
 DlgBtnClose			: "Uždaryti",
 DlgBtnBrowseServer	: "Naršyti po serverį",
 DlgAdvancedTag		: "Papildomas",
-DlgOpOther			: "&lt;Kita&gt;",
+DlgOpOther			: "<Kita>",
 DlgInfoTab			: "Informacija",
 DlgAlertUrl			: "Prašome įrašyti URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;nėra nustatyta&gt;",
+DlgGenNotSet		: "<nėra nustatyta>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Teksto kryptis",
 DlgGenLangDirLtr	: "Iš kairės į dešinę (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Žymė šiame puslapyje",
 DlgLnkTypeEMail		: "El.paštas",
 DlgLnkProto			: "Protokolas",
-DlgLnkProtoOther	: "&lt;kitas&gt;",
+DlgLnkProtoOther	: "<kitas>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Pasirinkite žymę",
 DlgLnkAnchorByName	: "Pagal žymės vardą",
 DlgLnkAnchorById	: "Pagal žymės Id",
-DlgLnkNoAnchors		: "&lt;Šiame dokumente žymių nėra&gt;",
+DlgLnkNoAnchors		: "<Šiame dokumente žymių nėra>",
 DlgLnkEMail			: "El.pašto adresas",
 DlgLnkEMailSubject	: "Žinutės tema",
 DlgLnkEMailBody		: "Žinutės turinys",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Siųsti",
 DlgLnkBtnUpload		: "Siųsti į serverį",
 
 DlgLnkTarget		: "Paskirties vieta",
-DlgLnkTargetFrame	: "&lt;kadras&gt;",
-DlgLnkTargetPopup	: "&lt;išskleidžiamas langas&gt;",
+DlgLnkTargetFrame	: "<kadras>",
+DlgLnkTargetPopup	: "<išskleidžiamas langas>",
 DlgLnkTargetBlank	: "Naujas langas (_blank)",
 DlgLnkTargetParent	: "Pirminis langas (_parent)",
 DlgLnkTargetSelf	: "Tas pats langas (_self)",
@@ -283,7 +288,7 @@ DlgTableHeight		: "Aukštis",
 DlgTableCellSpace	: "Tarpas tarp langelių",
 DlgTableCellPad		: "Trapas nuo langelio rėmo iki teksto",
 DlgTableCaption		: "Antraštė",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Santrauka",
 
 // Table Cell Dialog
 DlgCellTitle		: "Langelio savybės",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Žemiau esančiame įvedimo lauke įdėkite tekstą, naudodami k
 DlgPasteIgnoreFont		: "Ignoruoti šriftų nustatymus",
 DlgPasteRemoveStyles	: "Pašalinti stilių nustatymus",
 DlgPasteCleanBox		: "Trinti įvedimo lauką",
-
 
 // Color Picker
 ColorAutomatic	: "Automatinis",
@@ -422,7 +426,7 @@ BulletedListProp	: "Suženklinto sąrašo savybės",
 NumberedListProp	: "Numeruoto sąrašo savybės",
 DlgLstType			: "Tipas",
 DlgLstTypeCircle	: "Apskritimas",
-DlgLstTypeDisc		: "Disc",	//MISSING
+DlgLstTypeDisc		: "Diskas",
 DlgLstTypeSquare	: "Kvadratas",
 DlgLstTypeNumbers	: "Skaičiai (1, 2, 3)",
 DlgLstTypeLCase		: "Mažosios raidės (a, b, c)",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(Šablonų sąrašas tuščias)",
 // About Dialog
 DlgAboutAboutTab	: "Apie",
 DlgAboutBrowserInfoTab	: "Naršyklės informacija",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "versija",
 DlgAboutLicense		: "Licencijuota pagal GNU mažesnės atsakomybės pagrindinės viešos licencijos sąlygas",
 DlgAboutInfo		: "Papildomą informaciją galima gauti"

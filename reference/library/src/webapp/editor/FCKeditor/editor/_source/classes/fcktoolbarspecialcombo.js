@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -16,7 +16,7 @@
  * 	
  * 	The following properties and methods must be implemented when inheriting from
  * 	this class:
- * 		- Property:	Command								[ The command to be executed ]
+ * 		- Property:	CommandName							[ The command name to be executed ]
  * 		- Method:	GetLabel()							[ Returns the label ]
  * 		-			CreateItems( targetSpecialCombo )	[ Add all items in the special combo ]
  * 
@@ -30,14 +30,15 @@ var FCKToolbarSpecialCombo = function()
 	this.ContextSensitive	= true ;
 }
 
+
 function FCKToolbarSpecialCombo_OnSelect( itemId, item )
 {
-	this.Command.Execute( itemId, item ) ;
+	FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( this.CommandName ).Execute( itemId, item ) ;
 }
 
-FCKToolbarSpecialCombo.prototype.CreateInstance = function( parentToolbar )
+FCKToolbarSpecialCombo.prototype.Create = function( targetElement )
 {
-	this._Combo = new FCKSpecialCombo( this.GetLabel(), this.FieldWidth, this.PanelWidth, this.PanelMaxHeight ) ;
+	this._Combo = new FCKSpecialCombo( this.GetLabel(), this.FieldWidth, this.PanelWidth, this.PanelMaxHeight, FCKBrowserInfo.IsIE ? window : FCKTools.GetElementWindow( targetElement ).parent ) ;
 	
 	/*
 	this._Combo.FieldWidth		= this.FieldWidth		!= null ? this.FieldWidth		: 100 ;
@@ -52,9 +53,9 @@ FCKToolbarSpecialCombo.prototype.CreateInstance = function( parentToolbar )
 	
 	this.CreateItems( this._Combo ) ;
 
-	this._Combo.Create( parentToolbar.DOMRow.insertCell(-1) ) ;
+	this._Combo.Create( targetElement ) ;
 
-	this._Combo.Command = this.Command ;
+	this._Combo.CommandName = this.CommandName ;
 	
 	this._Combo.OnSelect = FCKToolbarSpecialCombo_OnSelect ;
 }
@@ -75,7 +76,9 @@ FCKToolbarSpecialCombo.prototype.RefreshState = function()
 //		eState = FCK_TRISTATE_DISABLED ;
 //	else
 //	{
-		var sValue = this.Command.GetState() ;
+		var sValue = FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( this.CommandName ).GetState() ;
+
+//		FCKDebug.Output( 'RefreshState of Special Combo "' + this.TypeOf + '" - State: ' + sValue ) ;
 
 		if ( sValue != FCK_TRISTATE_DISABLED )
 		{
@@ -85,12 +88,11 @@ FCKToolbarSpecialCombo.prototype.RefreshState = function()
 				this.RefreshActiveItems( this._Combo, sValue ) ;
 			else
 			{
-				if ( this._LastValue == sValue )
-					return ;
-	
-				this._LastValue = sValue ;
-
-				FCKToolbarSpecialCombo_RefreshActiveItems( this._Combo, sValue ) ;
+				if ( this._LastValue != sValue )
+				{
+					this._LastValue = sValue ;
+					FCKToolbarSpecialCombo_RefreshActiveItems( this._Combo, sValue ) ;
+				}
 			}
 		}
 		else

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -41,6 +41,9 @@ var FCKeditor = function( instanceName, width, height, toolbarSet, value )
 	// Events
 	this.OnError		= null ;	// function( source, errorNumber, errorDescription )
 }
+
+FCKeditor.prototype.Version			= '2.3' ;
+FCKeditor.prototype.VersionBuild	= '1054' ;
 
 FCKeditor.prototype.Create = function()
 {
@@ -128,7 +131,7 @@ FCKeditor.prototype._GetIFrameHtml = function()
 	var sLink = this.BasePath + 'editor/' + sFile + '?InstanceName=' + this.InstanceName ;
 	if (this.ToolbarSet) sLink += '&Toolbar=' + this.ToolbarSet ;
 
-	return '<iframe id="' + this.InstanceName + '___Frame" src="' + sLink + '" width="' + this.Width + '" height="' + this.Height + '" frameborder="no" scrolling="no"></iframe>' ;
+	return '<iframe id="' + this.InstanceName + '___Frame" src="' + sLink + '" width="' + this.Width + '" height="' + this.Height + '" frameborder="0" scrolling="no"></iframe>' ;
 }
 
 FCKeditor.prototype._IsCompatibleBrowser = function()

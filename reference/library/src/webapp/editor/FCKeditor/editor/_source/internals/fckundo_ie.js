@@ -1,4 +1,23 @@
-﻿var FCKUndo = new Object() ;
+﻿/*
+ * FCKeditor - The text editor for internet
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * 
+ * Licensed under the terms of the GNU Lesser General Public License:
+ * 		http://www.opensource.org/licenses/lgpl-license.php
+ * 
+ * For further information visit:
+ * 		http://www.fckeditor.net/
+ * 
+ * "Support Open Source software. What about a donation today?"
+ * 
+ * File Name: fckundo_ie.js
+ * 	IE specific implementation for the Undo/Redo system.
+ * 
+ * File Authors:
+ * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ */
+
+var FCKUndo = new Object() ;
 
 FCKUndo.SavedData = new Array() ;
 FCKUndo.CurrentIndex = -1 ;
@@ -7,6 +26,9 @@ FCKUndo.Typing = false ;
 
 FCKUndo.SaveUndoStep = function()
 {
+	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG )
+		return ;
+
 	// Shrink the array to the current level.
 	FCKUndo.SavedData = FCKUndo.SavedData.slice( 0, FCKUndo.CurrentIndex + 1 ) ;
 

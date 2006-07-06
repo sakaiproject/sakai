@@ -11,7 +11,7 @@ DEFINE CLASS fckeditor AS custom
 	FUNCTION fckeditor( tcInstanceName )
 		LOCAL lnLoop,lnLoop2
 		THIS.cInstanceName	= tcInstanceName
-		THIS.BasePath	= '../../../FCKeditor/'
+		THIS.BasePath	= '../../'
 		THIS.cWIDTH		= '100%'
 		THIS.cHEIGHT	= '200'
 		THIS.ToolbarSet	= 'Default'
@@ -52,7 +52,7 @@ DEFINE CLASS fckeditor AS custom
 			html = html + [<input type="hidden" id="]+THIS.cInstanceName +[___Config" value="]+THIS.GetConfigFieldString() + [">] +CHR(13)+CHR(10)
 
 && Render the EDITOR IFRAME.
-			html = html + [<iframe id="]+THIS.cInstanceName +[___Frame" src="]+lcLink+[" width="]+THIS.cWIDTH+[" height="]+THIS.cHEIGHT+[" frameborder="no" scrolling="no"></iframe>]
+			html = html + [<iframe id="]+THIS.cInstanceName +[___Frame" src="]+lcLink+[" width="]+THIS.cWIDTH+[" height="]+THIS.cHEIGHT+[" frameborder="0" scrolling="no"></iframe>]
 		ELSE
 			IF ( AT("%", THIS.cWIDTH)=0 )
 				WidthCSS = THIS.cWIDTH + 'px'

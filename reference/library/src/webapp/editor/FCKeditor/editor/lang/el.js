@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -83,7 +83,7 @@ BGColor				: "Χρώμα Υποβάθρου",
 Source				: "HTML κώδικας",
 Find				: "Αναζήτηση",
 Replace				: "Αντικατάσταση",
-SpellCheck			: "Check Spell",	//MISSING
+SpellCheck			: "Check Spelling",	//MISSING
 UniversalKeyboard	: "Universal Keyboard",	//MISSING
 PageBreakLbl		: "Page Break",	//MISSING
 PageBreak			: "Insert Page Break",	//MISSING
@@ -98,8 +98,13 @@ Button			: "Button",	//MISSING
 SelectionField	: "Selection Field",	//MISSING
 ImageButton		: "Image Button",	//MISSING
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Μεταβολή Συνδέσμου (Link)",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Εισαγωγή Γραμμής",
 DeleteRows			: "Διαγραφή Γραμμών",
 InsertColumn		: "Εισαγωγή Κολώνας",
@@ -136,7 +141,7 @@ UnknownToolbarItem	: "Άγνωστο αντικείμενο της μπάρας 
 UnknownCommand		: "Άγνωστή εντολή \"%1\"",
 NotImplemented		: "Η εντολή δεν έχει ενεργοποιηθεί",
 UnknownToolbarSet	: "Η μπάρα εργαλείων \"%1\" δεν υπάρχει",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Ακύρωση",
 DlgBtnClose			: "Κλείσιμο",
 DlgBtnBrowseServer	: "Browse Server",	//MISSING
 DlgAdvancedTag		: "Για προχωρημένους",
-DlgOpOther			: "&lt;Other&gt;",	//MISSING
+DlgOpOther			: "<Other>",	//MISSING
 DlgInfoTab			: "Info",	//MISSING
 DlgAlertUrl			: "Please insert the URL",	//MISSING
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;χωρίς&gt;",
+DlgGenNotSet		: "<χωρίς>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Κατεύθυνση κειμένου",
 DlgGenLangDirLtr	: "Αριστερά προς Δεξιά (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Anchor in this page",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Protocol",
-DlgLnkProtoOther	: "&lt;άλλο&gt;",
+DlgLnkProtoOther	: "<άλλο>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Επιλέξτε ένα Anchor",
 DlgLnkAnchorByName	: "Βάσει του Ονόματος (Name)του Anchor",
 DlgLnkAnchorById	: "Βάσει του Element Id",
-DlgLnkNoAnchors		: "&lt;Δεν υπάρχουν Anchors στο κείμενο&gt;",
+DlgLnkNoAnchors		: "<Δεν υπάρχουν Anchors στο κείμενο>",
 DlgLnkEMail			: "Διεύθυνση Ηλεκτρονικού Ταχυδρομείου",
 DlgLnkEMailSubject	: "Θέμα Μηνύματος",
 DlgLnkEMailBody		: "Κείμενο Μηνύματος",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Αποστολή",
 DlgLnkBtnUpload		: "Αποστολή στον Διακομιστή",
 
 DlgLnkTarget		: "Παράθυρο Στόχος (Target)",
-DlgLnkTargetFrame	: "&lt;frame&gt;",
-DlgLnkTargetPopup	: "&lt;popup window&gt;",
+DlgLnkTargetFrame	: "<frame>",
+DlgLnkTargetPopup	: "<popup window>",
 DlgLnkTargetBlank	: "Νέο Παράθυρο (_blank)",
 DlgLnkTargetParent	: "Γονικό Παράθυρο (_parent)",
 DlgLnkTargetSelf	: "Ίδιο Παράθυρο (_self)",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRON
 DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
 DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
 DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
 
 // Color Picker
 ColorAutomatic	: "Αυτόματο",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(No templates defined)",	//MISSING
 // About Dialog
 DlgAboutAboutTab	: "About",	//MISSING
 DlgAboutBrowserInfoTab	: "Browser Info",	//MISSING
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "έκδοση",
 DlgAboutLicense		: "Άδεια χρήσης υπό τους όρους της GNU Lesser General Public License",
 DlgAboutInfo		: "Για περισσότερες πληροφορίες"

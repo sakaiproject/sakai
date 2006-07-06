@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -99,8 +99,13 @@ Button			: "Seta inn knapp",
 SelectionField	: "Seta inn Valteig",
 ImageButton		: "Seta inn Myndaknapp",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Broyt leinkju",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Seta inn rekkju",
 DeleteRows			: "Sletta rekkjur",
 InsertColumn		: "Seta inn søjlur",
@@ -137,7 +142,7 @@ UnknownToolbarItem	: "Ókendur lutur í amboðalinju \"%1\"",
 UnknownCommand		: "Kenni ikki ordra \"%1\"",
 NotImplemented		: "Ordrin er ikki gjørdur virkin",
 UnknownToolbarSet	: "Amboðalinjan \"%1\" finst ikki",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -147,12 +152,12 @@ DlgBtnCancel		: "Angra",
 DlgBtnClose			: "Lukka",
 DlgBtnBrowseServer	: "Hyggja á servara",
 DlgAdvancedTag		: "Útvíðka",
-DlgOpOther			: "&lt;Annað&gt;",
+DlgOpOther			: "<Annað>",
 DlgInfoTab			: "Info",	//MISSING
 DlgAlertUrl			: "Please insert the URL",	//MISSING
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;ikki sett&gt;",
+DlgGenNotSet		: "<ikki sett>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Tekstakós",
 DlgGenLangDirLtr	: "Vinstri móti høgri (LTR)",
@@ -216,12 +221,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Akker á hesari síðuni",
 DlgLnkTypeEMail		: "Teldupostur",
 DlgLnkProto			: "Protokoll",
-DlgLnkProtoOther	: "&lt;onnur&gt;",
+DlgLnkProtoOther	: "<onnur>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "VEl eitt akker",
 DlgLnkAnchorByName	: "Eftir akker navni",
 DlgLnkAnchorById	: "Eftir element Id",
-DlgLnkNoAnchors		: "&lt;Tað eru ongi akker tøk í hesum dokumentinum;",
+DlgLnkNoAnchors		: "<Tað eru ongi akker tøk í hesum dokumentinum;",
 DlgLnkEMail			: "Teldupost Adresse",
 DlgLnkEMailSubject	: "Evni",
 DlgLnkEMailBody		: "Boð",
@@ -229,8 +234,8 @@ DlgLnkUpload		: "Upload",
 DlgLnkBtnUpload		: "Send til servaran",
 
 DlgLnkTarget		: "Mál",
-DlgLnkTargetFrame	: "&lt;ramma&gt;",
-DlgLnkTargetPopup	: "&lt;popup vindeyga&gt;",
+DlgLnkTargetFrame	: "<ramma>",
+DlgLnkTargetPopup	: "<popup vindeyga>",
 DlgLnkTargetBlank	: "Nytt vindeyga (_blank)",
 DlgLnkTargetParent	: "Omaná liggjandi vindeyga (_parent)",
 DlgLnkTargetSelf	: "Sama vindeyga (_self)",
@@ -339,7 +344,6 @@ DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRON
 DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
 DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
 DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
 
 // Color Picker
 ColorAutomatic	: "Automatisk",
@@ -476,6 +480,7 @@ DlgTemplatesNoTpl	: "(Ongin frymil er valdur)",
 // About Dialog
 DlgAboutAboutTab	: "Um",
 DlgAboutBrowserInfoTab	: "Browsara upplýsingar",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "versión",
 DlgAboutLicense		: "Loyvi undir treytum fyri GNU Lesser General Public License",
 DlgAboutInfo		: "Fleiri upplýsingar, far til"

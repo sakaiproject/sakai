@@ -1,6 +1,7 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -16,18 +17,17 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<link href="browser.css" type="text/css" rel="stylesheet" />
 		<script type="text/javascript" src="js/common.js"></script>
-		<script language="javascript">
+		<script type="text/javascript">
 
 function SetCurrentFolder( resourceType, folderPath )
 {
-	var sUrl = oConnector.ConnectorUrl +'Command=FileUpload' ;
+	var sUrl = oConnector.ConnectorUrl + 'Command=FileUpload' ;
 	sUrl += '&Type=' + resourceType ;
-	sUrl += '&CurrentFolder=' + folderPath ;
+	sUrl += '&CurrentFolder=' + escape( folderPath ) ;
 	
 	document.getElementById('frmUpload').action = sUrl ;
 }
@@ -50,7 +50,7 @@ function OnSubmit()
 function OnUploadCompleted( errorNumber, data )
 {
 	// Reset the Upload Worker Frame.
-	window.parent.frames['frmUploadWorker'].location = '../../../fckblank.html' ;
+	window.parent.frames['frmUploadWorker'].location = '../../../../../fckblank.html' ;
 	
 	// Reset the upload form (On IE we must do a little trick to avout problems).
 	if ( document.all )
@@ -89,16 +89,16 @@ window.onload = function()
 }
 		</script>
 	</head>
-	<body bottomMargin="0" topMargin="0">
+	<body bottommargin="0" topmargin="0">
 		<form id="frmUpload" action="" target="frmUploadWorker" method="post" enctype="multipart/form-data" onsubmit="return OnSubmit();">
-			<table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+			<table height="100%" cellspacing="0" cellpadding="0" width="100%" border="0">
 				<tr>
-					<td nowrap>
+					<td nowrap="nowrap">
 						<span id="eUploadMessage">Upload a new file in this folder</span><br>
-						<table cellSpacing="0" cellPadding="0" width="100%" border="0">
+						<table cellspacing="0" cellpadding="0" width="100%" border="0">
 							<tr>
 								<td width="100%"><input id="NewFile" name="NewFile" style="WIDTH: 100%" type="file"></td>
-								<td nowrap>&nbsp;<input id="btnUpload" type="submit" value="Upload"></td>
+								<td nowrap="nowrap">&nbsp;<input id="btnUpload" type="submit" value="Upload"></td>
 							</tr>
 						</table>
 					</td>

@@ -1,7 +1,7 @@
 [//lasso
 /*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -47,7 +47,7 @@
 	$ServerPath == '' ? $ServerPath = $config->find('UserFilesPath');
 		
 	var('currentFolderURL' = $ServerPath 
-		+ action_param('Type') 
+		+ $config->find('Subdirectories')->find(action_param('Type'))
 		+ action_param('CurrentFolder')
 	);
 

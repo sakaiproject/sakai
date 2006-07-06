@@ -1,6 +1,6 @@
 <!---
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -32,7 +32,7 @@
 	config.deniedExtensions = StructNew();
 	
 	config.allowedExtensions["File"] = "";
-	config.deniedExtensions["File"] = "php,asp,aspx,ascx,jsp,cfm,cfc,pl,bat,exe,com,dll,vbs,js,reg";
+	config.deniedExtensions["File"] = "php,php2,php3,php4,php5,phtml,pwml,inc,asp,aspx,ascx,jsp,cfm,cfc,pl,bat,exe,com,dll,vbs,js,reg,cgi";
 	
 	config.allowedExtensions["Image"] = "png,gif,jpg,jpeg,bmp";
 	config.deniedExtensions["Image"] = "";

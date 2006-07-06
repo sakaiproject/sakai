@@ -1,6 +1,6 @@
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -82,9 +82,11 @@ function OnUploadCompleted( errorNumber, fileUrl, fileName, customMsg )
 						<tr>
 							<td nowrap>
 								Select the "File Uploader" to use:<br>
-								<select id="cmbUploaderUrl" name="Select1">
+								<select id="cmbUploaderUrl">
 									<option selected value="asp/upload.asp">ASP</option>
 									<option value="aspx/upload.aspx">ASP.Net</option>
+									<option value="cfm/upload.cfm">ColdFusion</option>
+									<option value="lasso/upload.lasso">Lasso</option>
 									<option value="php/upload.php">PHP</option>
 									<option value="">(Custom)</option>
 								</select>

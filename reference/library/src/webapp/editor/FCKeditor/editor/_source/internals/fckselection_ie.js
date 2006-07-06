@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -53,17 +53,32 @@ FCKSelection.SelectNode = function( node )
 {
 	FCK.Focus() ;
 	FCK.EditorDocument.selection.empty() ;
-	var oRange = FCK.EditorDocument.selection.createRange() ;
-	oRange.moveToElementText( node ) ;
+
+	try 
+	{
+		// Try to select the node as a control.
+		var oRange = FCK.EditorDocument.body.createControlRange() ;
+		oRange.addElement( node ) ;
+	} 
+	catch(e) 
+	{
+		// If failed, select it as a text range.
+		var oRange = FCK.EditorDocument.selection.createRange() ;
+		oRange.moveToElementText( node ) ;
+	}
+
 	oRange.select() ;
 }
 
 FCKSelection.Collapse = function( toStart )
 {
 	FCK.Focus() ;
-	var oRange = FCK.EditorDocument.selection.createRange() ;
-	oRange.collapse( toStart == null || toStart === true ) ;
-	oRange.select() ;
+	if ( this.GetType() == 'Text' )
+	{
+		var oRange = FCK.EditorDocument.selection.createRange() ;
+		oRange.collapse( toStart == null || toStart === true ) ;
+		oRange.select() ;
+	}
 }
 
 // The "nodeTagName" parameter must be Upper Case.

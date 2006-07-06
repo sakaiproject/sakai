@@ -2,7 +2,7 @@
 
 #####
 #  FCKeditor - The text editor for internet
-#  Copyright (C) 2003-2005 Frederico Caldeira Knabben
+#  Copyright (C) 2003-2006 Frederico Caldeira Knabben
 #  
 #  Licensed under the terms of the GNU Lesser General Public License:
 #  		http://www.opensource.org/licenses/lgpl-license.php
@@ -74,7 +74,7 @@ _HTML_TAG_
 
 	#// Automatically calculates the editor base path based on the _samples directory.
 	#// This is usefull only for these samples. A real application should use something like this:
-	#// $oFCKeditor->BasePath = '/FCKeditor/' ;	// '/FCKeditor/' is the default value.
+	#// $oFCKeditor->BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
 
 	$sBasePath = $ServerPath;
 	$sBasePath = substr($sBasePath,0,index($sBasePath,"_samples"));

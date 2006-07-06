@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -103,7 +103,7 @@ FCKTableHandler.InsertColumn = function()
 		oCell = oRow.cells[iIndex-1].cloneNode(false) ;
 		
 		if ( FCKBrowserInfo.IsGecko )
-			oCell.innerHTML = FCKBrowserInfo.IsGecko ? GECKO_BOGUS : '' ;
+			oCell.innerHTML = GECKO_BOGUS ;
 		
 		// Get the cell that is placed in the new cell place.
 		var oBaseCell = oRow.cells[iIndex] ;
@@ -218,21 +218,40 @@ FCKTableHandler.MergeCells = function()
 	var iColSpan = isNaN( aCells[0].colSpan ) ? 1 : aCells[0].colSpan ;
 
 	var sHtml = '' ;
+	var oCellsContents = FCK.EditorDocument.createDocumentFragment() ;
 	
-	for ( var i = aCells.length - 1 ; i > 0  ; i-- )
+	for ( var i = aCells.length - 1 ; i >= 0 ; i-- )
 	{
-		iColSpan += isNaN( aCells[i].colSpan ) ? 1 : aCells[i].colSpan ;
+		var eCell = aCells[i] ;
 		
-		// Append the HTML of each cell.
-		sHtml = aCells[i].innerHTML + sHtml ;
+		// Move its contents to the document fragment.
+		for ( var c = eCell.childNodes.length - 1 ; c >= 0 ; c-- )
+		{
+			var eChild = eCell.removeChild( eCell.childNodes[c] ) ;
+	
+			if ( ( eChild.hasAttribute && eChild.hasAttribute('_moz_editor_bogus_node') ) || ( eChild.getAttribute && eChild.getAttribute( 'type', 2 ) == '_moz' ) )
+				continue ;
+			
+				oCellsContents.insertBefore( eChild, oCellsContents.firstChild ) ;
+		}
 		
-		// Delete the cell.
-		FCKTableHandler.DeleteCell( aCells[i] ) ;
+		if ( i > 0 )
+		{
+			// Accumulate the colspan of the cell.
+			iColSpan += isNaN( eCell.colSpan ) ? 1 : eCell.colSpan ;
+
+			// Delete the cell.
+			FCKTableHandler.DeleteCell( eCell ) ;
+		}
 	}
 	
 	// Set the innerHTML of the remaining cell (the first one).
 	aCells[0].colSpan = iColSpan ;
-	aCells[0].innerHTML += sHtml ;
+	
+	if ( FCKBrowserInfo.IsGecko && oCellsContents.childNodes.length == 0 )
+		aCells[0].innerHTML = GECKO_BOGUS ;
+	else
+		aCells[0].appendChild( oCellsContents ) ;
 }
 
 FCKTableHandler.SplitCell = function()

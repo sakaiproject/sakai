@@ -1,7 +1,7 @@
 <cfcomponent output="false" displayname="FCKeditor" hint="Create an instance of the FCKeditor.">
 <!---
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -162,7 +162,7 @@
 	<div>
 	<input type="hidden" id="#this.instanceName#" name="#this.instanceName#" value="#HTMLEditFormat(this.value)#" style="display:none" />
 	<input type="hidden" id="#this.instanceName#___Config" value="#GetConfigFieldString()#" style="display:none" />
-	<iframe id="#this.instanceName#___Frame" src="#sURL#" width="#this.width#" height="#this.height#" frameborder="no" scrolling="no"></iframe>
+	<iframe id="#this.instanceName#___Frame" src="#sURL#" width="#this.width#" height="#this.height#" frameborder="0" scrolling="no"></iframe>
 	</div>
 	</cfoutput>
 

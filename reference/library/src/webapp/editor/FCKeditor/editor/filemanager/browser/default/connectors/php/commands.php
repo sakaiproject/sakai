@@ -1,7 +1,7 @@
 <?php 
 /*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -151,6 +151,8 @@ function FileUpload( $resourceType, $currentFolder )
 
 	if ( isset( $_FILES['NewFile'] ) && !is_null( $_FILES['NewFile']['tmp_name'] ) )
 	{
+		global $Config ;
+
 		$oFile = $_FILES['NewFile'] ;
 
 		// Map the virtual path to the local server path.
@@ -158,11 +160,16 @@ function FileUpload( $resourceType, $currentFolder )
 
 		// Get the uploaded file name.
 		$sFileName = $oFile['name'] ;
+		
+		// Replace dots in the name with underscores (only one dot can be there... security issue).
+		if ( $Config['ForceSingleExtension'] )
+			$sFileName = preg_replace( '/\\.(?![^.]*$)/', '_', $sFileName ) ;
+
 		$sOriginalFileName = $sFileName ;
+
+		// Get the extension.
 		$sExtension = substr( $sFileName, ( strrpos($sFileName, '.') + 1 ) ) ;
 		$sExtension = strtolower( $sExtension ) ;
-
-		global $Config ;
 
 		$arAllowed	= $Config['AllowedExtensions'][$resourceType] ;
 		$arDenied	= $Config['DeniedExtensions'][$resourceType] ;

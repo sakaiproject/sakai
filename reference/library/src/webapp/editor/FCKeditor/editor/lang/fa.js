@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -98,8 +98,13 @@ Button			: "دکمه",
 SelectionField	: "فيلد انتخابی",
 ImageButton		: "دکمه تصويری",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "ويرايش لينک",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "درج سطر",
 DeleteRows			: "حذف سطرها",
 InsertColumn		: "درج ستون",
@@ -136,7 +141,7 @@ UnknownToolbarItem	: "فقره منوابزار ناشناخته \"%1\"",
 UnknownCommand		: "نام دستور ناشناخته \"%1\"",
 NotImplemented		: "دستور اجرا نشد",
 UnknownToolbarSet	: "مجموعه منوابزار \"%1\" وجود ندارد",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
+NoActiveX			: "Your browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
 BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
 DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
 
@@ -146,12 +151,12 @@ DlgBtnCancel		: "انصراف",
 DlgBtnClose			: "بستن",
 DlgBtnBrowseServer	: "فهرست نمايی سرور",
 DlgAdvancedTag		: "پيشرفته",
-DlgOpOther			: "&lt;غيره&gt;",
+DlgOpOther			: "<غيره>",
 DlgInfoTab			: "Info",	//MISSING
 DlgAlertUrl			: "Please insert the URL",	//MISSING
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;تعين نشده&gt;",
+DlgGenNotSet		: "<تعين نشده>",
 DlgGenId			: "کد",
 DlgGenLangDir		: "جهت نمای زبان",
 DlgGenLangDirLtr	: "چپ به راست (LTR)",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "پيوند در صفحه جاری",
 DlgLnkTypeEMail		: "پست الکترونيکی",
 DlgLnkProto			: "پروتکل",
-DlgLnkProtoOther	: "&lt;غيره&gt;",
+DlgLnkProtoOther	: "<غيره>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "يک پيوند انتخاب کنيد",
 DlgLnkAnchorByName	: "با نام پيوند",
 DlgLnkAnchorById	: "با کد المان",
-DlgLnkNoAnchors		: "&lt;در اين سند پيوندی موجود نيست&gt;",
+DlgLnkNoAnchors		: "<در اين سند پيوندی موجود نيست>",
 DlgLnkEMail			: "آدرس پست الکترونيکی",
 DlgLnkEMailSubject	: "موضوع پيام",
 DlgLnkEMailBody		: "متن پيام",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "انتقال به سرور",
 DlgLnkBtnUpload		: "به سرور ارسال کن",
 
 DlgLnkTarget		: "مقصد",
-DlgLnkTargetFrame	: "&lt;فريم&gt;",
-DlgLnkTargetPopup	: "&lt;پنجره پاپاپ&gt;",
+DlgLnkTargetFrame	: "<فريم>",
+DlgLnkTargetPopup	: "<پنجره پاپاپ>",
 DlgLnkTargetBlank	: "پنجره جديد (_blank)",
 DlgLnkTargetParent	: "پنجره والد (_parent)",
 DlgLnkTargetSelf	: "همان پنجره (_self)",
@@ -292,16 +297,16 @@ DlgCellWidthPx		: "پيکسل",
 DlgCellWidthPc		: "درصد",
 DlgCellHeight		: "درازا",
 DlgCellWordWrap		: "شکستن کلمات",
-DlgCellWordWrapNotSet	: "&lt;تعين نشده&gt;",
+DlgCellWordWrapNotSet	: "<تعين نشده>",
 DlgCellWordWrapYes	: "بله",
 DlgCellWordWrapNo	: "خير",
 DlgCellHorAlign		: "چينش افقی",
-DlgCellHorAlignNotSet	: "&lt;تعين نشده&gt;",
+DlgCellHorAlignNotSet	: "<تعين نشده>",
 DlgCellHorAlignLeft	: "چپ",
 DlgCellHorAlignCenter	: "وسط",
 DlgCellHorAlignRight: "راست",
 DlgCellVerAlign		: "چينش عمودی",
-DlgCellVerAlignNotSet	: "&lt;تعين نشده&gt;",
+DlgCellVerAlignNotSet	: "<تعين نشده>",
 DlgCellVerAlignTop	: "بالا",
 DlgCellVerAlignMiddle	: "ميان",
 DlgCellVerAlignBottom	: "پائين",
@@ -338,7 +343,6 @@ DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRON
 DlgPasteIgnoreFont		: "Ignore Font Face definitions",	//MISSING
 DlgPasteRemoveStyles	: "Remove Styles definitions",	//MISSING
 DlgPasteCleanBox		: "Clean Up Box",	//MISSING
-
 
 // Color Picker
 ColorAutomatic	: "خودکار",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(الگوئی تعريف نشده است)",
 // About Dialog
 DlgAboutAboutTab	: "درباره",
 DlgAboutBrowserInfoTab	: "اطلاعات مرورگر",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "نگارش",
 DlgAboutLicense		: "ليسانس تحت توافقنامه GNU Lesser General Public License",
 DlgAboutInfo		: "برای اطلاعات بيشتر به آدرس زير برويد"

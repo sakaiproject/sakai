@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -21,10 +21,10 @@ FCKStyleDef.prototype.ApplyToSelection = function()
 {
 	if ( FCKSelection.GetType() == 'Text' && !this.IsObjectElement )
 	{
-		var oSelection = FCK.EditorWindow.getSelection() ;
+		var oSelection = FCK.ToolbarSet.CurrentInstance.EditorWindow.getSelection() ;
 		
 		// Create the main element.
-		var e = FCK.EditorDocument.createElement( this.Element ) ;
+		var e = FCK.ToolbarSet.CurrentInstance.EditorDocument.createElement( this.Element ) ;
 		
 		for ( var i = 0 ; i < oSelection.rangeCount ; i++ )
 		{
@@ -42,7 +42,7 @@ FCKStyleDef.prototype.ApplyToSelection = function()
 	}
 	else
 	{
-		var oControl = FCKSelection.GetSelectedElement() ;
+		var oControl = FCK.ToolbarSet.CurrentInstance.Selection.GetSelectedElement() ;
 		if ( oControl.tagName == this.Element )
 			this._AddAttributes( oControl ) ;
 	}
@@ -51,7 +51,16 @@ FCKStyleDef.prototype.ApplyToSelection = function()
 FCKStyleDef.prototype._AddAttributes = function( targetElement )
 {
 	for ( var a in this.Attributes )
-		targetElement.setAttribute( a, this.Attributes[a], 0 ) ;
+	{
+		switch ( a.toLowerCase() )
+		{
+			case 'src' :
+				targetElement.setAttribute( '_fcksavedurl', this.Attributes[a], 0 ) ;
+			
+			default :
+				targetElement.setAttribute( a, this.Attributes[a], 0 ) ;
+		}
+	}
 }
 
 FCKStyleDef.prototype._RemoveDuplicates = function( parent )

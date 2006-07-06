@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -25,43 +25,25 @@ var FCKTextColorCommand = function( type )
 	this.Name = type == 'ForeColor' ? 'TextColor' : 'BGColor' ;
 	this.Type = type ;
 
-	/*	BEGIN ###
-		The panel should be created in the "Execute" method for best
-		memory use, but it not works in Gecko in that way.
-	*/
+	var oWindow ;
+	
+	if ( FCKBrowserInfo.IsIE )
+		oWindow = window ;
+	else if ( FCK.ToolbarSet._IFrame )
+		oWindow = FCKTools.GetElementWindow( FCK.ToolbarSet._IFrame ) ;
+	else
+		oWindow = window.parent ;
 
-	this._Panel = new FCKPanel() ;
-	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_contextmenu.css' ) ;
-//	this._Panel.StyleSheet = FCKConfig.SkinPath + 'fck_contextmenu.css' ;
-//	this._Panel.Create() ;
-
-	this._CreatePanelBody( this._Panel.Document, this._Panel.PanelDiv ) ;
+	this._Panel = new FCKPanel( oWindow, true ) ;
+	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
+	this._Panel.MainNode.className = 'FCK_Panel' ;
+	this._CreatePanelBody( this._Panel.Document, this._Panel.MainNode ) ;
 	
 	FCKTools.DisableSelection( this._Panel.Document.body ) ;
-	
-	//	END ###
 }
 
 FCKTextColorCommand.prototype.Execute = function( panelX, panelY, relElement )
 {
-	/*
-		BEGIN ###
-		This is the right code to create the panel, but it is not
-		working well with Gecko, so it has been moved to the 
-		class contructor.
-	
-	// Create the Color Panel if needed.
-	if ( ! this._Panel )
-	{
-		this._Panel = new FCKPanel() ;
-		this._Panel.StyleSheet = FCKConfig.SkinPath + 'fck_contextmenu.css' ;
-		this._Panel.Create() ;
-
-		this._CreatePanelBody( this._Panel.Document, this._Panel.PanelDiv ) ;
-	}
-		END ###
-	*/
-
 	// We must "cache" the actual panel type to be used in the SetColor method.
 	FCK._ActiveColorPanelType = this.Type ;
 
@@ -73,8 +55,16 @@ FCKTextColorCommand.prototype.SetColor = function( color )
 {
 	if ( FCK._ActiveColorPanelType == 'ForeColor' )
 		FCK.ExecuteNamedCommand( 'ForeColor', color ) ;
-	else if ( FCKBrowserInfo.IsGecko )
+	else if ( FCKBrowserInfo.IsGeckoLike )
+	{
+		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
+			FCK.EditorDocument.execCommand( 'useCSS', false, false ) ;
+			
 		FCK.ExecuteNamedCommand( 'hilitecolor', color ) ;
+
+		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
+			FCK.EditorDocument.execCommand( 'useCSS', false, true ) ;
+	}
 	else
 		FCK.ExecuteNamedCommand( 'BackColor', color ) ;
 	

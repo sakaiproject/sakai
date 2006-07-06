@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -21,27 +21,36 @@
 
 FCK.Description = "FCKeditor for Internet Explorer 5.5+" ;
 
-// The behaviors should be pointed using the FullBasePath to avoid security
-// errors when using a differente BaseHref.
-FCK._BehaviorsStyle =
-	'<style type="text/css" _fcktemp="true"> \
-		INPUT { behavior: url(' + FCKConfig.FullBasePath + 'css/behaviors/hiddenfield.htc) ; } ' ;
+FCK._GetBehaviorsStyle = function()
+{
+	if ( !FCK._BehaviorsStyle )
+	{
+		var sBasePath = FCKConfig.FullBasePath ;
+		var sStyle ;
+		
+		// The behaviors should be pointed using the FullBasePath to avoid security
+		// errors when using a differente BaseHref.
+		sStyle =
+			'<style type="text/css" _fcktemp="true">' +
+			'INPUT { behavior: url(' + sBasePath + 'css/behaviors/hiddenfield.htc) ; }' ;
 
-if ( FCKConfig.ShowBorders )
-	FCK._BehaviorsStyle += 'TABLE { behavior: url(' + FCKConfig.FullBasePath + 'css/behaviors/showtableborders.htc) ; }' ;
+		if ( FCKConfig.ShowBorders )
+			sStyle += 'TABLE { behavior: url(' + sBasePath + 'css/behaviors/showtableborders.htc) ; }' ;
 
-// Disable resize handlers.
-var sNoHandlers = 'INPUT, TEXTAREA, SELECT, .FCK__Anchor, .FCK__PageBreak' ;
+		// Disable resize handlers.
+		sStyle += 'INPUT,TEXTAREA,SELECT,.FCK__Anchor,.FCK__PageBreak' ;
 
-if ( FCKConfig.DisableImageHandles )
-	sNoHandlers += ', IMG' ;
+		if ( FCKConfig.DisableObjectResizing )
+			sStyle += ',IMG,TABLE' ;
 
-if ( FCKConfig.DisableTableHandles )
-	sNoHandlers += ', TABLE' ;
+		sStyle += ' { behavior: url(' + sBasePath + 'css/behaviors/disablehandles.htc) ; }' ;
 
-FCK._BehaviorsStyle += sNoHandlers + ' { behavior: url(' + FCKConfig.FullBasePath + 'css/behaviors/disablehandles.htc) ; }' ;
-
-FCK._BehaviorsStyle += '</style>' ;
+		sStyle += '</style>' ;
+		FCK._BehaviorsStyle = sStyle ;
+	}
+	
+	return FCK._BehaviorsStyle ;
+}
 
 function Doc_OnMouseUp()
 {
@@ -61,6 +70,7 @@ function Doc_OnPaste()
 		return false ;
 }
 
+/*
 function Doc_OnContextMenu()
 {
 	var e = FCK.EditorWindow.event ;
@@ -68,6 +78,7 @@ function Doc_OnContextMenu()
 	FCK.ShowContextMenu( e.screenX, e.screenY ) ;
 	return false ;
 }
+*/
 
 function Doc_OnKeyDown()
 {
@@ -176,8 +187,8 @@ FCK.InitializeBehaviors = function( dontReturn )
 	// Intercept pasting operations
 	this.EditorDocument.body.attachEvent( 'onpaste', Doc_OnPaste ) ;
 
-	// Disable Right-Click and shows the context menu.
-	this.EditorDocument.attachEvent('oncontextmenu', Doc_OnContextMenu ) ;
+	// Reset the context menu.
+	FCK.ContextMenu._InnerContextMenu.AttachToElement( FCK.EditorDocument.body ) ;
 
 	// Build the "TAB" key replacement (if necessary).
 	if ( FCKConfig.TabSpaces > 0 )
@@ -197,71 +208,6 @@ FCK.InitializeBehaviors = function( dontReturn )
 //	this.EditorDocument.body.contentEditable = true ;
 }
 
-FCK.Focus = function()
-{
-	try
-	{
-		if ( FCK.EditMode == FCK_EDITMODE_WYSIWYG )
-			FCK.EditorDocument.body.focus() ;
-		else
-			document.getElementById('eSourceField').focus() ;
-	}
-	catch(e) {}
-}
-
-FCK.SetHTML = function( html, forceWYSIWYG )
-{
-	if ( forceWYSIWYG || FCK.EditMode == FCK_EDITMODE_WYSIWYG )
-	{
-		html = FCKConfig.ProtectedSource.Protect( html ) ;
-		html = FCK.ProtectUrls( html ) ;
-
-		var sHtml ;
-
-		if ( FCKConfig.FullPage )
-		{
-			var sHtml =
-				FCK._BehaviorsStyle +
-				'<link href="' + FCKConfig.FullBasePath + 'css/fck_internal.css' + '" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
-
-			if ( FCK.TempBaseTag.length > 0 && !FCKRegexLib.HasBaseTag.test( html ) )
-				sHtml += FCK.TempBaseTag ;
-
-			sHtml = html.replace( FCKRegexLib.HeadOpener, '$&' + sHtml ) ;
-		}
-		else
-		{
-			sHtml =
-				FCKConfig.DocType +
-				'<html dir="' + FCKConfig.ContentLangDirection + '"' ;
-			
-			if ( FCKConfig.IEForceVScroll )
-				sHtml += ' style="overflow-y: scroll"' ;
-			
-			sHtml +=
-				'><head><title></title>' +
-				'<link href="' + FCKConfig.EditorAreaCSS + '" rel="stylesheet" type="text/css" />' +
-				'<link href="' + FCKConfig.FullBasePath + 'css/fck_internal.css' + '" rel="stylesheet" type="text/css" _fcktemp="true" />' ;
-
-			sHtml += FCK._BehaviorsStyle ;
-			sHtml += FCK.TempBaseTag ;
-			sHtml += '</head><body>' + html  + '</body></html>' ;
-		}
-
-//		this.EditorDocument.open( '', '_self', '', true ) ;		// This one opens popups in IE 5.5 - BUG 1204220 (I was not able to reproduce the problem).
-		this.EditorDocument.open( '', 'replace' ) ;
-		this.EditorDocument.write( sHtml ) ;
-		this.EditorDocument.close() ;
-
-		this.InitializeBehaviors() ;
-		this.EditorDocument.body.contentEditable = true ;
-
-		FCK.OnAfterSetHTML() ;
-	}
-	else
-		document.getElementById('eSourceField').value = html ;
-}
-
 FCK.InsertHtml = function( html )
 {
 	html = FCKConfig.ProtectedSource.Protect( html ) ;
@@ -275,7 +221,7 @@ FCK.InsertHtml = function( html )
 	var oSel = FCK.EditorDocument.selection ;
 
 	// Deletes the actual selection contents.
-	if ( oSel.type.toLowerCase() != "none" )
+	if ( oSel.type.toLowerCase() == 'control' )
 		oSel.clear() ;
 
 	// Insert the HTML.
@@ -289,4 +235,51 @@ FCK.SetInnerHtml = function( html )		// IE Only
 	// be preserved.
 	oDoc.body.innerHTML = '<div id="__fakeFCKRemove__">&nbsp;</div>' + html ;
 	oDoc.getElementById('__fakeFCKRemove__').removeNode( true ) ;
+}
+
+var FCK_PreloadImages_Count = 0 ;
+var FCK_PreloadImages_Images = new Array() ;
+
+function FCK_PreloadImages()
+{
+	// Get the images to preload.
+	var aImages = FCKConfig.PreloadImages || [] ;
+	
+	if ( typeof( aImages ) == 'string' )
+		aImages = aImages.split( ';' ) ;
+
+	// Add the skin icons strip.
+	aImages.push( FCKConfig.SkinPath + 'fck_strip.gif' ) ;
+	
+	FCK_PreloadImages_Count = aImages.length ;
+
+	var aImageElements = new Array() ;
+	
+	for ( var i = 0 ; i < aImages.length ; i++ )
+	{
+		var eImg = document.createElement( 'img' ) ;
+		eImg.onload = eImg.onerror = FCK_PreloadImages_OnImage ;
+		eImg.src = aImages[i] ;
+		
+		FCK_PreloadImages_Images[i] = eImg ;
+	}
+}
+
+function FCK_PreloadImages_OnImage()
+{
+	if ( (--FCK_PreloadImages_Count) == 0 )
+		FCKTools.RunFunction( LoadToolbarSetup ) ;
+}
+
+// Disable the context menu in the editor (outside the editing area).
+function Document_OnContextMenu()
+{
+	return ( event.srcElement._FCKShowContextMenu == true ) ;
+}
+document.oncontextmenu = Document_OnContextMenu ;
+
+function FCK_Cleanup()
+{
+	this.EditorWindow = null ;
+	this.EditorDocument = null ;
 }

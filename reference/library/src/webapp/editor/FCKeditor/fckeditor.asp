@@ -1,6 +1,6 @@
 ﻿<!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -32,7 +32,7 @@ Class FCKeditor
 	private oConfig
 
 	Private Sub Class_Initialize()
-		sBasePath		= "/FCKeditor/"
+		sBasePath		= "/fckeditor/"
 		sWidth			= "100%"
 		sHeight			= "200"
 		sToolbarSet		= "Default"
@@ -100,7 +100,7 @@ Class FCKeditor
 			Response.Write "<input type=""hidden"" id=""" & instanceName & "___Config"" value=""" & GetConfigFieldString() & """ style=""display:none"" />"
 
 			' Render the editor IFRAME.
-			Response.Write "<iframe id=""" & instanceName & "___Frame"" src=""" & sLink & """ width=""" & sWidth & """ height=""" & sHeight & """ frameborder=""no"" scrolling=""no""></iframe>"
+			Response.Write "<iframe id=""" & instanceName & "___Frame"" src=""" & sLink & """ width=""" & sWidth & """ height=""" & sHeight & """ frameborder=""0"" scrolling=""no""></iframe>"
 
 		Else
 

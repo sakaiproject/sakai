@@ -1,7 +1,7 @@
 <?php 
 /*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -35,7 +35,7 @@ class FCKeditor
 	function __construct( $instanceName )
  	{
 		$this->InstanceName	= $instanceName ;
-		$this->BasePath		= '/FCKeditor/' ;
+		$this->BasePath		= '/fckeditor/' ;
 		$this->Width		= '100%' ;
 		$this->Height		= '200' ;
 		$this->ToolbarSet	= 'Default' ;
@@ -80,7 +80,7 @@ class FCKeditor
 			$Html .= "<input type=\"hidden\" id=\"{$this->InstanceName}___Config\" value=\"" . $this->GetConfigFieldString() . "\" style=\"display:none\" />" ;
 
 			// Render the editor IFRAME.
-			$Html .= "<iframe id=\"{$this->InstanceName}___Frame\" src=\"{$Link}\" width=\"{$this->Width}\" height=\"{$this->Height}\" frameborder=\"no\" scrolling=\"no\"></iframe>" ;
+			$Html .= "<iframe id=\"{$this->InstanceName}___Frame\" src=\"{$Link}\" width=\"{$this->Width}\" height=\"{$this->Height}\" frameborder=\"0\" scrolling=\"no\"></iframe>" ;
 		}
 		else
 		{

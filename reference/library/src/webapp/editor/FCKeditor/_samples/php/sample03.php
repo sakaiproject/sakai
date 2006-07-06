@@ -1,7 +1,7 @@
 <?php 
 /*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -65,7 +65,7 @@ function ChangeToolbar( toolbarName )
 <?php
 // Automatically calculates the editor base path based on the _samples directory.
 // This is usefull only for these samples. A real application should use something like this:
-// $oFCKeditor->BasePath = '/FCKeditor/' ;	// '/FCKeditor/' is the default value.
+// $oFCKeditor->BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
 $sBasePath = $_SERVER['PHP_SELF'] ;
 $sBasePath = substr( $sBasePath, 0, strpos( $sBasePath, "_samples" ) ) ;
 
@@ -73,7 +73,7 @@ $oFCKeditor = new FCKeditor('FCKeditor1') ;
 $oFCKeditor->BasePath = $sBasePath ;
 
 if ( isset($_GET['Toolbar']) )
-	$oFCKeditor->ToolbarSet = $_GET['Toolbar'] ;
+	$oFCKeditor->ToolbarSet = htmlspecialchars($_GET['Toolbar']);
 
 $oFCKeditor->Value = 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
 $oFCKeditor->Create() ;

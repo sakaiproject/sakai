@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -115,8 +115,20 @@ function OpenFileBrowser( url, width, height )
 		// http://support.microsoft.com/default.aspx?scid=kb;en-us;831678
 		// by Simone Chiaretta.
 		var oWindow = oEditor.window.open( url, 'FCKBrowseWindow', sOptions ) ;
+		
 		if ( oWindow )
-			oWindow.opener = window ;
+		{
+			// Detect Yahoo popup blocker.
+			try
+			{
+				var sTest = oWindow.name ; // Yahoo returns "something", but we can't access it, so detect that and avoid strange errors for the user.
+				oWindow.opener = window ;
+			}
+			catch(e)
+			{
+				alert( oEditor.FCKLang.BrowseServerBlocked ) ;
+			}
+		}
 		else
 			alert( oEditor.FCKLang.BrowseServerBlocked ) ;
     }

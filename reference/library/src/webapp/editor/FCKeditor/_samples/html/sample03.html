@@ -1,6 +1,7 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -16,29 +17,45 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
 -->
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="../sample.css" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="../../fckeditor.js"></script>
-			<script type="text/javascript">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<link href="../sample.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../../fckeditor.js"></script>
+	<script type="text/javascript">
+
+var bIsLoaded = false ;
 
 function FCKeditor_OnComplete( editorInstance )
 {
-	var iCounter = 0 ;
+	if ( bIsLoaded )
+		return ;
+
 	var oCombo = document.getElementById( 'cmbLanguages' ) ;
+	
+	var aLanguages = new Array() ;
+	
 	for ( code in editorInstance.Language.AvailableLanguages )
-	{
-		AddComboOption( oCombo, editorInstance.Language.AvailableLanguages[code] + ' (' + code + ')', code ) ;
-		iCounter++ ;
-	}
+		aLanguages.push( { Code : code, Name : editorInstance.Language.AvailableLanguages[code] } ) ;
+
+	aLanguages.sort( SortLanguage ) ;
+
+	for ( var i = 0 ; i < aLanguages.length ; i++ )
+		AddComboOption( oCombo, aLanguages[i].Name + ' (' + aLanguages[i].Code + ')', aLanguages[i].Code ) ;
+	
 	oCombo.value = editorInstance.Language.ActiveLanguage.Code ;
 	
-	document.getElementById('eNumLangs').innerHTML = '(' + iCounter + ' languages available!)' ;
-}	
+	document.getElementById('eNumLangs').innerHTML = '(' + aLanguages.length + ' languages available!)' ;
+	
+	bIsLoaded = true ;
+}
+
+function SortLanguage( langA, langB )
+{
+	return ( langA.Name < langB.Name ? -1 : langA.Name > langB.Name ? 1 : 0 ) ;
+}
 
 function AddComboOption(combo, optionText, optionValue)
 {
@@ -56,34 +73,37 @@ function ChangeLanguage( languageCode )
 {
 	window.location.href = window.location.pathname + "?" + languageCode ;
 }
-			</script>
-	</head>
-	<body>
-		<h1>FCKeditor - Javascript - Sample 3</h1>
+	</script>
+</head>
+<body>
+	<h1>
+		FCKeditor - JavaScript - Sample 3</h1>
+	<div>
 		This sample shows the editor in all its available languages.
-		<hr>
-		<table cellpadding="0" cellspacing="0" border="0">
-			<tr>
-				<td>
-					Select a language:&nbsp;
-				</td>
-				<td>
-					<select id="cmbLanguages" onchange="ChangeLanguage(this.value);">
-					</select>
-				</td>
-				<td>
-					&nbsp;<span id="eNumLangs"></span>
-				</td>
-			</tr>
-		</table>
-		<br>
-		<form action="sampleposteddata.asp" method="post" target="_blank">
-			<script type="text/javascript">
+	</div>
+	<hr />
+	<table cellpadding="0" cellspacing="0" border="0">
+		<tr>
+			<td>
+				Select a language:&nbsp;
+			</td>
+			<td>
+				<select id="cmbLanguages" onchange="ChangeLanguage(this.value);">
+				</select>
+			</td>
+			<td>
+				&nbsp;<span id="eNumLangs"></span>
+			</td>
+		</tr>
+	</table>
+	<br />
+	<form action="sampleposteddata.asp" method="post" target="_blank">
+		<script type="text/javascript">
 <!--
 // Automatically calculates the editor base path based on the _samples directory.
 // This is usefull only for these samples. A real application should use something like this:
 // oFCKeditor.BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.
-var sBasePath = document.location.pathname.substring(0,document.location.pathname.lastIndexOf('/_samples/')+1) ;
+var sBasePath = document.location.pathname.substring(0,document.location.pathname.lastIndexOf('_samples')) ;
 
 var sLang ;
 if ( document.location.search.length > 1 )
@@ -104,9 +124,9 @@ else
 oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
 oFCKeditor.Create() ;
 //-->
-			</script>
-			<br>
-			<input type="submit" value="Submit">
-		</form>
-	</body>
+		</script>
+		<br />
+		<input type="submit" value="Submit" />
+	</form>
+</body>
 </html>

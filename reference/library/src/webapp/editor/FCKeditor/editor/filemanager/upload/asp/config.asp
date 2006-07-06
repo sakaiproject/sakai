@@ -1,6 +1,6 @@
 ﻿<!--
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -32,7 +32,7 @@ Set ConfigAllowedExtensions	= CreateObject( "Scripting.Dictionary" )
 Set ConfigDeniedExtensions	= CreateObject( "Scripting.Dictionary" )
 
 ConfigAllowedExtensions.Add	"File", ""
-ConfigDeniedExtensions.Add	"File", "php|php3|php5|phtml|asp|aspx|ascx|jsp|cfm|cfc|pl|bat|exe|dll|reg|cgi"
+ConfigDeniedExtensions.Add	"File", "php|php2|php3|php4|php5|phtml|pwml|inc|asp|aspx|ascx|jsp|cfm|cfc|pl|bat|exe|com|dll|vbs|js|reg|cgi"
 
 ConfigAllowedExtensions.Add	"Image", "jpg|gif|jpeg|png|bmp"
 ConfigDeniedExtensions.Add	"Image", ""

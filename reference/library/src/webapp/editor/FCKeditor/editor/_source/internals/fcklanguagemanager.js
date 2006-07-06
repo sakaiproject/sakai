@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -17,6 +17,63 @@
  * File Authors:
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
+var FCKLanguageManager = FCK.Language = new Object() ;
+
+FCKLanguageManager.AvailableLanguages = 
+{
+	'ar'		: 'Arabic',
+	'bg'		: 'Bulgarian',
+	'bn'		: 'Bengali/Bangla',
+	'bs'		: 'Bosnian',
+	'ca'		: 'Catalan',
+	'cs'		: 'Czech',
+	'da'		: 'Danish',
+	'de'		: 'German',
+	'el'		: 'Greek',
+	'en'		: 'English',
+	'en-au'		: 'English (Australia)',
+	'en-ca'		: 'English (Canadian)',
+	'en-uk'		: 'English (United Kingdom)',
+	'eo'		: 'Esperanto',
+	'es'		: 'Spanish',
+	'et'		: 'Estonian',
+	'eu'		: 'Basque',
+	'fa'		: 'Persian',
+	'fi'		: 'Finnish',
+	'fo'		: 'Faroese',
+	'fr'		: 'French',
+	'gl'		: 'Galician',
+	'he'		: 'Hebrew',
+	'hi'		: 'Hindi',
+	'hr'		: 'Croatian',
+	'hu'		: 'Hungarian',
+	'it'		: 'Italian',
+	'ja'		: 'Japanese',
+	'km'		: 'Khmer',
+	'ko'		: 'Korean',
+	'lt'		: 'Lithuanian',
+	'lv'		: 'Latvian',
+	'mn'		: 'Mongolian',
+	'ms'		: 'Malay',
+	'nl'		: 'Dutch',
+	'no'		: 'Norwegian',
+	'pl'		: 'Polish',
+	'pt'		: 'Portuguese (Portugal)',
+	'pt-br'		: 'Portuguese (Brazil)',
+	'ro'		: 'Romanian',
+	'ru'		: 'Russian',
+	'sk'		: 'Slovak',
+	'sl'		: 'Slovenian',
+	'sr'		: 'Serbian (Cyrillic)',
+	'sr-latn'	: 'Serbian (Latin)',
+	'sv'		: 'Swedish',
+	'th'		: 'Thai',
+	'tr'		: 'Turkish',
+	'uk'		: 'Ukrainian',
+	'vi'		: 'Vietnamese',
+	'zh'		: 'Chinese Traditional',
+	'zh-cn'		: 'Chinese Simplified'
+}
 
 FCKLanguageManager.GetActiveLanguage = function()
 {
@@ -55,19 +112,20 @@ FCKLanguageManager.GetActiveLanguage = function()
 	return this.DefaultLanguage ;
 }
 
-FCKLanguageManager.TranslateElements = function( targetDocument, tag, propertyToSet )
+FCKLanguageManager.TranslateElements = function( targetDocument, tag, propertyToSet, encode )
 {
 	var e = targetDocument.getElementsByTagName(tag) ;
-
+	var sKey, s ;
 	for ( var i = 0 ; i < e.length ; i++ )
 	{
-		var sKey = e[i].getAttribute( 'fckLang' ) ;
-		
-		if ( sKey )
+		if ( sKey = e[i].getAttribute( 'fckLang' ) )
 		{
-			var s = FCKLang[ sKey ] ;
-			if ( s ) 
+			if ( s = FCKLang[ sKey ] )
+			{
+				if ( encode )
+					s = FCKTools.HTMLEncode( s ) ;
 				eval( 'e[i].' + propertyToSet + ' = s' ) ;
+			}
 		}
 	}
 }
@@ -77,19 +135,17 @@ FCKLanguageManager.TranslatePage = function( targetDocument )
 	this.TranslateElements( targetDocument, 'INPUT', 'value' ) ;
 	this.TranslateElements( targetDocument, 'SPAN', 'innerHTML' ) ;
 	this.TranslateElements( targetDocument, 'LABEL', 'innerHTML' ) ;
-	this.TranslateElements( targetDocument, 'OPTION', 'innerHTML' ) ;
+	this.TranslateElements( targetDocument, 'OPTION', 'innerHTML', true ) ;
 }
 
-if ( FCKLanguageManager.AvailableLanguages[ FCKConfig.DefaultLanguage ] )
-	FCKLanguageManager.DefaultLanguage = FCKConfig.DefaultLanguage ;
-else
-	FCKLanguageManager.DefaultLanguage = 'en' ;
+FCKLanguageManager.Initialize = function()
+{
+	if ( this.AvailableLanguages[ FCKConfig.DefaultLanguage ] )
+		this.DefaultLanguage = FCKConfig.DefaultLanguage ;
+	else
+		this.DefaultLanguage = 'en' ;
 
-FCKLanguageManager.ActiveLanguage = new Object() ;
-FCKLanguageManager.ActiveLanguage.Code = FCKLanguageManager.GetActiveLanguage() ;
-FCKLanguageManager.ActiveLanguage.Name = FCKLanguageManager.AvailableLanguages[ FCKLanguageManager.ActiveLanguage.Code ] ;
-
-FCK.Language = FCKLanguageManager ;
-
-// Load the language file and start the editor.
-LoadLanguageFile() ;
+	this.ActiveLanguage = new Object() ;
+	this.ActiveLanguage.Code = this.GetActiveLanguage() ;
+	this.ActiveLanguage.Name = this.AvailableLanguages[ this.ActiveLanguage.Code ] ;
+}

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -23,6 +23,7 @@ FCKCommands.RegisterCommand( 'Placeholder', new FCKDialogCommand( 'Placeholder',
 // Create the "Plaholder" toolbar button.
 var oPlaceholderItem = new FCKToolbarButton( 'Placeholder', FCKLang.PlaceholderBtn ) ;
 oPlaceholderItem.IconPath = FCKPlugins.Items['placeholder'].Path + 'placeholder.gif' ;
+
 FCKToolbarItems.RegisterItem( 'Placeholder', oPlaceholderItem ) ;
 
 
@@ -161,9 +162,6 @@ else
 }
 
 FCK.Events.AttachEvent( 'OnAfterSetHTML', FCKPlaceholders.Redraw ) ;
-
-// The "Redraw" method must be called on startup.
-FCKPlaceholders.Redraw() ;
 
 // We must process the SPAN tags to replace then with the real resulting value of the placeholder.
 FCKXHtml.TagProcessors['span'] = function( node, htmlNode )

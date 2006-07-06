@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -99,8 +99,13 @@ Button			: "Botoia",
 SelectionField	: "Hautespen Eremua",
 ImageButton		: "Irudi Botoia",
 
+FitWindow		: "Maximizatu editorearen tamaina",
+
 // Context Menu
 EditLink			: "Aldatu Esteka",
+CellCM				: "Gelaxka",
+RowCM				: "Errenkada",
+ColumnCM			: "Zutabea",
 InsertRow			: "Txertatu Errenkada",
 DeleteRows			: "Ezabatu Errenkadak",
 InsertColumn		: "Txertatu Zutabea",
@@ -147,12 +152,12 @@ DlgBtnCancel		: "Utzi",
 DlgBtnClose			: "Itxi",
 DlgBtnBrowseServer	: "Zerbitzaria arakatu",
 DlgAdvancedTag		: "Aurreratua",
-DlgOpOther			: "&lt;Bestelakoak&gt;",
+DlgOpOther			: "<Bestelakoak>",
 DlgInfoTab			: "Informazioa",
 DlgAlertUrl			: "Mesedez URLa idatzi ezazu",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;Ezarri gabe&gt;",
+DlgGenNotSet		: "<Ezarri gabe>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Hizkuntzaren Norabidea",
 DlgGenLangDirLtr	: "Ezkerretik Eskumara(LTR)",
@@ -216,12 +221,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Aingura horrialde honentan",
 DlgLnkTypeEMail		: "ePosta",
 DlgLnkProto			: "Protokoloa",
-DlgLnkProtoOther	: "&lt;Beste batzuk&gt;",
+DlgLnkProtoOther	: "<Beste batzuk>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Aingura bat hautatu",
 DlgLnkAnchorByName	: "Aingura izenagatik",
 DlgLnkAnchorById	: "Elementuaren ID-gatik",
-DlgLnkNoAnchors		: "&lt;Ez daude aingurak eskuragarri dokumentuan&gt;",
+DlgLnkNoAnchors		: "<Ez daude aingurak eskuragarri dokumentuan>",
 DlgLnkEMail			: "ePosta Helbidea",
 DlgLnkEMailSubject	: "Mezuaren Gaia",
 DlgLnkEMailBody		: "Mezuaren Gorputza",
@@ -229,8 +234,8 @@ DlgLnkUpload		: "Gora kargatu",
 DlgLnkBtnUpload		: "Zerbitzarira bidali",
 
 DlgLnkTarget		: "Target (Helburua)",
-DlgLnkTargetFrame	: "&lt;marko&gt;",
-DlgLnkTargetPopup	: "&lt;popup lehioa&gt;",
+DlgLnkTargetFrame	: "<marko>",
+DlgLnkTargetPopup	: "<popup lehioa>",
 DlgLnkTargetBlank	: "Lehio Berria (_blank)",
 DlgLnkTargetParent	: "Lehio Gurasoa (_parent)",
 DlgLnkTargetSelf	: "Lehio Berdina (_self)",
@@ -293,16 +298,16 @@ DlgCellWidthPx		: "pixel",
 DlgCellWidthPc		: "ehuneko",
 DlgCellHeight		: "Altuera",
 DlgCellWordWrap		: "Itzulbira",
-DlgCellWordWrapNotSet	: "&lt;Ezarri gabe&gt;",
+DlgCellWordWrapNotSet	: "<Ezarri gabe>",
 DlgCellWordWrapYes	: "Bai",
 DlgCellWordWrapNo	: "Ez",
 DlgCellHorAlign		: "Horizontal Alignment",
-DlgCellHorAlignNotSet	: "&lt;Ezarri gabe&gt;",
+DlgCellHorAlignNotSet	: "<Ezarri gabe>",
 DlgCellHorAlignLeft	: "Ezkerrean",
 DlgCellHorAlignCenter	: "Erdian",
 DlgCellHorAlignRight: "Eskuman",
 DlgCellVerAlign		: "Lerrokatu Bertikalki",
-DlgCellVerAlignNotSet	: "&lt;Ezarri gabe&gt;",
+DlgCellVerAlignNotSet	: "<Ezarri gabe>",
 DlgCellVerAlignTop	: "Goian",
 DlgCellVerAlignMiddle	: "Erdian",
 DlgCellVerAlignBottom	: "Behean",
@@ -339,7 +344,6 @@ DlgPasteMsg2	: "Mesedez teklatua erabilita (<STRONG>Ctrl+V</STRONG>) ondorego er
 DlgPasteIgnoreFont		: "Letra Motaren definizioa ezikusi",
 DlgPasteRemoveStyles	: "Estilo definizioak kendu",
 DlgPasteCleanBox		: "Testu-eremua Garbitu",
-
 
 // Color Picker
 ColorAutomatic	: "Automatikoa",
@@ -476,6 +480,7 @@ DlgTemplatesNoTpl	: "(Ez dago definitutako txantiloirik)",
 // About Dialog
 DlgAboutAboutTab	: "Honi buruz",
 DlgAboutBrowserInfoTab	: "Nabigatzailearen Informazioa",
+DlgAboutLicenseTab	: "Lizentzia",
 DlgAboutVersion		: "bertsioa",
 DlgAboutLicense		: "GNU Lesser General Public License Lizentziapean",
 DlgAboutInfo		: "Informazio gehiago eskuratzeko hona joan"

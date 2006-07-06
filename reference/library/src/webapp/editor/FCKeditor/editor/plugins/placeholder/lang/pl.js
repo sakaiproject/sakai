@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -17,7 +17,7 @@
  * 		Marcin Pietrzak (fck@iworks.pl)
  */
 FCKLang.PlaceholderBtn			= 'Wstaw/Edytuj nagłówek' ;
-FCKLang.PlaceholderDlgTitle		= 'Właśności nagłóweka' ;
-FCKLang.PlaceholderDlgName		= 'Nazwa nagłóweka ;
+FCKLang.PlaceholderDlgTitle		= 'Właśności nagłówka' ;
+FCKLang.PlaceholderDlgName		= 'Nazwa nagłówka' ;
 FCKLang.PlaceholderErrNoName	= 'Proszę wprowadzić nazwę nagłówka' ;
 FCKLang.PlaceholderErrNameInUse	= 'Podana nazwa jest już w użyciu' ;

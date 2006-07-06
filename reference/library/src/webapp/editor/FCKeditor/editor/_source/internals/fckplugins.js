@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -19,26 +19,24 @@
 
 var FCKPlugins = FCK.Plugins = new Object() ;
 FCKPlugins.ItemsCount = 0 ;
-FCKPlugins.Loaded = false ;
 FCKPlugins.Items = new Object() ;
-
-// Set the defined plugins scripts paths.
-for ( var i = 0 ; i < FCKConfig.Plugins.Items.length ; i++ )
-{
-	var oItem = FCKConfig.Plugins.Items[i] ;
-	FCKPlugins.Items[ oItem[0] ] = new FCKPlugin( oItem[0], oItem[1], oItem[2] ) ;
-	FCKPlugins.ItemsCount++ ;
-}
 	
 FCKPlugins.Load = function()
 {
-	// Load all items.
-	for ( var s in this.Items )
-		this.Items[s].Load() ;
-	
-	// Mark as loaded.
-	this.Loaded = true ;
-	
+	var oItems = FCKPlugins.Items ;
+
+	// build the plugins collection.
+	for ( var i = 0 ; i < FCKConfig.Plugins.Items.length ; i++ )
+	{
+		var oItem = FCKConfig.Plugins.Items[i] ;
+		var oPlugin = oItems[ oItem[0] ] = new FCKPlugin( oItem[0], oItem[1], oItem[2] ) ;
+		FCKPlugins.ItemsCount++ ;
+	}
+
+	// Load all items in the plugins collection.
+	for ( var s in oItems )
+		oItems[s].Load() ;
+
 	// This is a self destroyable function (must be called once).
 	FCKPlugins.Load = null ;
 }

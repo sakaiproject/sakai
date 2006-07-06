@@ -1,6 +1,6 @@
 """
 FCKeditor - The text editor for internet
-Copyright (C) 2003-2005 Frederico Caldeira Knabben
+Copyright (C) 2003-2006 Frederico Caldeira Knabben
 
 Licensed under the terms of the GNU Lesser General Public License:
 		http://www.opensource.org/licenses/lgpl-license.php
@@ -39,7 +39,7 @@ def escape(text, replace=string.replace):
 class FCKeditor(object):
 	def __init__(self, instanceName):
 		self.InstanceName = instanceName
-		self.BasePath = '/FCKeditor/'
+		self.BasePath = '/fckeditor/'
 		self.Width = '100%'
 		self.Height = '200'
 		self.ToolbarSet = 'Default'
@@ -78,7 +78,7 @@ class FCKeditor(object):
 					)
 
 			# Render the editor iframe
-			Html += "<iframe id=\"%s\__Frame\" src=\"%s\" width=\"%s\" height=\"%s\" frameborder=\"no\" scrolling=\"no\"></iframe>" % (
+			Html += "<iframe id=\"%s\__Frame\" src=\"%s\" width=\"%s\" height=\"%s\" frameborder=\"0\" scrolling=\"no\"></iframe>" % (
 					self.InstanceName,
 					Link,
 					self.Width,

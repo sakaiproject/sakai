@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -19,7 +19,7 @@
 
 var FCKToolbarFontsCombo = function( tooltip, style )
 {
-	this.Command	= FCKCommands.GetCommand( 'FontName' ) ;
+	this.CommandName	= 'FontName' ;
 	this.Label		= this.GetLabel() ;
 	this.Tooltip	= tooltip ? tooltip : this.Label ;
 	this.Style		= style ? style : FCK_TOOLBARITEM_ICONTEXT ;
@@ -27,6 +27,7 @@ var FCKToolbarFontsCombo = function( tooltip, style )
 
 // Inherit from FCKToolbarSpecialCombo.
 FCKToolbarFontsCombo.prototype = new FCKToolbarSpecialCombo ;
+
 
 FCKToolbarFontsCombo.prototype.GetLabel = function()
 {

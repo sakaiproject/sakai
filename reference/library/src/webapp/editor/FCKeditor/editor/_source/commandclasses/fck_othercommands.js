@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -197,7 +197,7 @@ var FCKSourceCommand = function()
 
 FCKSourceCommand.prototype.Execute = function()
 {
-	if ( FCKBrowserInfo.IsGecko )
+	if ( FCKConfig.SourcePopup )	// Until v2.2, it was mandatory for FCKBrowserInfo.IsGecko.
 	{
 		var iWidth	= FCKConfig.ScreenWidth * 0.65 ;
 		var iHeight	= FCKConfig.ScreenHeight * 0.65 ;
@@ -273,11 +273,37 @@ FCKPageBreakCommand.prototype.Execute = function()
 	e.style.pageBreakAfter = 'always' ;
 	e.innerHTML = '<span style="DISPLAY:none">&nbsp;</span>' ;
 	
-	var oFakeImage = FCKDocumentProcessors_CreateFakeImage( 'FCK__PageBreak', e ) ;
+	var oFakeImage = FCKDocumentProcessor_CreateFakeImage( 'FCK__PageBreak', e ) ;
 	oFakeImage	= FCK.InsertElement( oFakeImage ) ;
 }
 
 FCKPageBreakCommand.prototype.GetState = function()
 {
 	return 0 ; // FCK_TRISTATE_OFF
+}
+
+// FCKUnlinkCommand - by Johnny Egeland (johnny@coretrek.com)
+var FCKUnlinkCommand = function()
+{
+	this.Name = 'Unlink' ;
+}
+
+FCKUnlinkCommand.prototype.Execute = function()
+{
+	if ( FCKBrowserInfo.IsGecko )
+	{
+		var oLink = FCK.Selection.MoveToAncestorNode( 'A' ) ;
+		if ( oLink ) 
+			FCK.Selection.SelectNode( oLink ) ;
+	}
+	
+	FCK.ExecuteNamedCommand( this.Name ) ;
+
+	if ( FCKBrowserInfo.IsGecko )
+		FCK.Selection.Collapse( true ) ;
+}
+
+FCKUnlinkCommand.prototype.GetState = function()
+{
+	return FCK.GetNamedCommandState( this.Name ) ;
 }

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -46,7 +46,7 @@ InsertImage			: "Vložiť/zmeniť obrazok",
 InsertFlashLbl		: "Flash",
 InsertFlash			: "Vložiť/zmeniť Flash",
 InsertTableLbl		: "Tabuľka",
-InsertTable			: "Vložiť/zmeniť tabulku",
+InsertTable			: "Vložiť/zmeniť tabuľku",
 InsertLineLbl		: "Čiara",
 InsertLine			: "Vložiť vodorovnú čiara",
 InsertSpecialCharLbl: "Speciálne znaky",
@@ -85,8 +85,8 @@ Find				: "Hľadať",
 Replace				: "Nahradiť",
 SpellCheck			: "Kontrola pravopisu",
 UniversalKeyboard	: "Univerzálna klávesnica",
-PageBreakLbl		: "Page Break",	//MISSING
-PageBreak			: "Insert Page Break",	//MISSING
+PageBreakLbl		: "Oddeľovač stránky",
+PageBreak			: "Vložiť oddeľovač stránky",
 
 Form			: "Formulár",
 Checkbox		: "Zaškrtávacie políčko",
@@ -98,8 +98,13 @@ Button			: "Tlačítko",
 SelectionField	: "Rozbaľovací zoznam",
 ImageButton		: "Obrázkové tlačítko",
 
+FitWindow		: "Maximize the editor size",	//MISSING
+
 // Context Menu
 EditLink			: "Zmeniť odkaz",
+CellCM				: "Cell",	//MISSING
+RowCM				: "Row",	//MISSING
+ColumnCM			: "Column",	//MISSING
 InsertRow			: "Vložiť riadok",
 DeleteRows			: "Zmazať riadok",
 InsertColumn		: "Vložiť stĺpec",
@@ -108,10 +113,10 @@ InsertCell			: "Vložiť bunku",
 DeleteCells			: "Zmazať bunky",
 MergeCells			: "Zlúčiť bunky",
 SplitCell			: "Rozdeliť bunku",
-TableDelete			: "Delete Table",	//MISSING
+TableDelete			: "Zmazať tabuľku",
 CellProperties		: "Vlastnosti bunky",
-TableProperties		: "Vlastnosti tabulky",
-ImageProperties		: "Vlastnosti obrázka",
+TableProperties		: "Vlastnosti tabuľky",
+ImageProperties		: "Vlastnosti obrázku",
 FlashProperties		: "Vlastnosti Flashu",
 
 AnchorProp			: "Vlastnosti kotvy",
@@ -125,10 +130,10 @@ SelectionFieldProp	: "Vlastnosti rozbaľovacieho zoznamu",
 TextareaProp		: "Vlastnosti textové oblasti",
 FormProp			: "Vlastnosti formulára",
 
-FontFormats			: "Normálny;Formátovaný;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6",
+FontFormats			: "Normálny;Formátovaný;Adresa;Nadpis 1;Nadpis 2;Nadpis 3;Nadpis 4;Nadpis 5;Nadpis 6;Odsek (DIV)",
 
 // Alerts and Messages
-ProcessingXHTML		: "Prebieha spracovanie XHTML. Prosím čakejte...",
+ProcessingXHTML		: "Prebieha spracovanie XHTML. Čakejte prosím...",
 Done				: "Dokončené.",
 PasteWordConfirm	: "Vyzerá to tak, že vkladaný text je kopírovaný z Wordu. Chcete ho pred vložením vyčistiť?",
 NotCompatiblePaste	: "Tento príkaz je dostupný len v prehliadači Internet Explorer verzie 5.5 alebo vyššej. Chcete vložiť text bez vyčistenia?",
@@ -136,9 +141,9 @@ UnknownToolbarItem	: "Neznáma položka panela nástrojov \"%1\"",
 UnknownCommand		: "Neznámy príkaz \"%1\"",
 NotImplemented		: "Príkaz nie je implementovaný",
 UnknownToolbarSet	: "Panel nástrojov \"%1\" neexistuje",
-NoActiveX			: "You browser's security settings could limit some features of the editor. You must enable the option \"Run ActiveX controls and plug-ins\". You may experience errors and notice missing features.",	//MISSING
-BrowseServerBlocked : "The resources browser could not be opened. Make sure that all popup blockers are disabled.",	//MISSING
-DialogBlocked		: "It was not possible to open the dialog window. Make sure all popup blockers are disabled.",	//MISSING
+NoActiveX			: "Bezpečnostné nastavenia Vašeho prehliadača môžu obmedzovať niektoré funkcie editora. Pre ich plnú funkčnosť musíte zapnúť voľbu \"Spúšťať ActiveX moduly a zásuvné moduly\", inak sa môžete stretnúť s chybami a nefunkčnosťou niektorých funkcií.",
+BrowseServerBlocked : "Prehliadač zdrojových prvkov nebolo možné otvoriť. Uistite sa, že máte vypnuté všetky blokovače vyskakujúcich okien.",
+DialogBlocked		: "Dialógové okno nebolo možné otvoriť. Uistite sa, že máte vypnuté všetky blokovače vyskakujúcich okien.",
 
 // Dialogs
 DlgBtnOK			: "OK",
@@ -146,12 +151,12 @@ DlgBtnCancel		: "Zrušiť",
 DlgBtnClose			: "Zavrieť",
 DlgBtnBrowseServer	: "Prechádzať server",
 DlgAdvancedTag		: "Rozšírené",
-DlgOpOther			: "&lt;Ďalšie&gt;",
+DlgOpOther			: "<Ďalšie>",
 DlgInfoTab			: "Info",
 DlgAlertUrl			: "Prosím vložte URL",
 
 // General Dialogs Labels
-DlgGenNotSet		: "&lt;nenastavené&gt;",
+DlgGenNotSet		: "<nenastavené>",
 DlgGenId			: "Id",
 DlgGenLangDir		: "Orientácia jazyka",
 DlgGenLangDirLtr	: "Zľava doprava (LTR)",
@@ -182,7 +187,7 @@ DlgImgBorder		: "Okraje",
 DlgImgHSpace		: "H-medzera",
 DlgImgVSpace		: "V-medzera",
 DlgImgAlign			: "Zarovnanie",
-DlgImgAlignLeft		: "Vľevo",
+DlgImgAlignLeft		: "Vľavo",
 DlgImgAlignAbsBottom: "Úplne dole",
 DlgImgAlignAbsMiddle: "Do stredu",
 DlgImgAlignBaseline	: "Na základňu",
@@ -215,12 +220,12 @@ DlgLnkTypeURL		: "URL",
 DlgLnkTypeAnchor	: "Kotva v tejto stránke",
 DlgLnkTypeEMail		: "E-Mail",
 DlgLnkProto			: "Protokol",
-DlgLnkProtoOther	: "&lt;iný&gt;",
+DlgLnkProtoOther	: "<iný>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Vybrať kotvu",
 DlgLnkAnchorByName	: "Podľa mena kotvy",
 DlgLnkAnchorById	: "Podľa Id objektu",
-DlgLnkNoAnchors		: "&lt;V stránke žiadna kotva nie je definovaná&gt;",
+DlgLnkNoAnchors		: "<V stránke nie je definovaná žiadna kotva>",
 DlgLnkEMail			: "E-Mailová adresa",
 DlgLnkEMailSubject	: "Predmet správy",
 DlgLnkEMailBody		: "Telo správy",
@@ -228,8 +233,8 @@ DlgLnkUpload		: "Odoslať",
 DlgLnkBtnUpload		: "Odoslať na server",
 
 DlgLnkTarget		: "Cieľ",
-DlgLnkTargetFrame	: "&lt;rámec&gt;",
-DlgLnkTargetPopup	: "&lt;vyskakovacie okno&gt;",
+DlgLnkTargetFrame	: "<rámec>",
+DlgLnkTargetPopup	: "<vyskakovacie okno>",
 DlgLnkTargetBlank	: "Nové okno (_blank)",
 DlgLnkTargetParent	: "Rodičovské okno (_parent)",
 DlgLnkTargetSelf	: "Rovnaké okno (_self)",
@@ -237,8 +242,8 @@ DlgLnkTargetTop		: "Hlavné okno (_top)",
 DlgLnkTargetFrameName	: "Meno rámu cieľa",
 DlgLnkPopWinName	: "Názov vyskakovacieho okna",
 DlgLnkPopWinFeat	: "Vlastnosti vyskakovacieho okna",
-DlgLnkPopResize		: "Měnitelná velikost",
-DlgLnkPopLocation	: "Panel umístění",
+DlgLnkPopResize		: "Meniteľná veľkosť",
+DlgLnkPopLocation	: "Panel umiestnenia",
 DlgLnkPopMenu		: "Panel ponuky",
 DlgLnkPopScroll		: "Posuvníky",
 DlgLnkPopStatus		: "Stavový riadok",
@@ -283,7 +288,7 @@ DlgTableHeight		: "Výška",
 DlgTableCellSpace	: "Vzdialenosť buniek",
 DlgTableCellPad		: "Odsadenie obsahu",
 DlgTableCaption		: "Popis",
-DlgTableSummary		: "Summary",	//MISSING
+DlgTableSummary		: "Prehľad",
 
 // Table Cell Dialog
 DlgCellTitle		: "Vlastnosti bunky",
@@ -292,7 +297,7 @@ DlgCellWidthPx		: "bodov",
 DlgCellWidthPc		: "percent",
 DlgCellHeight		: "Výška",
 DlgCellWordWrap		: "Zalamovannie",
-DlgCellWordWrapNotSet	: "<nenanstavené>",
+DlgCellWordWrapNotSet	: "<nenastavené>",
 DlgCellWordWrapYes	: "Áno",
 DlgCellWordWrapNo	: "Nie",
 DlgCellHorAlign		: "Vodorovné zarovnanie",
@@ -334,11 +339,10 @@ PasteErrorCopy	: "Bezpečnostné nastavenie Vášho prohehliadača nedovoľujú 
 PasteAsText		: "Vložiť ako čistý text",
 PasteFromWord	: "Vložiť text z Wordu",
 
-DlgPasteMsg2	: "Please paste inside the following box using the keyboard (<STRONG>Ctrl+V</STRONG>) and hit <STRONG>OK</STRONG>.",
+DlgPasteMsg2	: "Do nasledujúceho boxu vložte obsah schránky použitím klávesnice (<STRONG>Ctrl+V</STRONG>) a stlačte <STRONG>OK</STRONG>.",
 DlgPasteIgnoreFont		: "Ignorovať nastavenia typu písma",
 DlgPasteRemoveStyles	: "Odstrániť formátovanie",
 DlgPasteCleanBox		: "Vyčistiť schránku",
-
 
 // Color Picker
 ColorAutomatic	: "Automaticky",
@@ -422,7 +426,7 @@ BulletedListProp	: "Vlastnosti odrážok",
 NumberedListProp	: "Vlastnosti číslovania",
 DlgLstType			: "Typ",
 DlgLstTypeCircle	: "Krúžok",
-DlgLstTypeDisc		: "Disc",	//MISSING
+DlgLstTypeDisc		: "Disk",
 DlgLstTypeSquare	: "Štvorec",
 DlgLstTypeNumbers	: "Číslovanie (1, 2, 3)",
 DlgLstTypeLCase		: "Malé písmená (a, b, c)",
@@ -438,7 +442,7 @@ DlgDocMetaTab		: "Meta Data",
 
 DlgDocPageTitle		: "Titulok",
 DlgDocLangDir		: "Orientácie jazyka",
-DlgDocLangDirLTR	: "Zľeva doprava (LTR)",
+DlgDocLangDirLTR	: "Zľava doprava (LTR)",
 DlgDocLangDirRTL	: "Zprava doľava (RTL)",
 DlgDocLangCode		: "Kód jazyka",
 DlgDocCharSet		: "Kódová stránka",
@@ -475,6 +479,7 @@ DlgTemplatesNoTpl	: "(žiadne šablóny nenájdené)",
 // About Dialog
 DlgAboutAboutTab	: "O aplikáci",
 DlgAboutBrowserInfoTab	: "Informácie o prehliadači",
+DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "verzie",
 DlgAboutLicense		: "Licencované pod pravidlami GNU Lesser General Public License",
 DlgAboutInfo		: "Viac informácií získate na"

@@ -1,6 +1,6 @@
 ﻿/*
  * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2005 Frederico Caldeira Knabben
+ * Copyright (C) 2003-2006 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
@@ -129,7 +129,7 @@ function Ok()
 	
 	if ( !oFakeImage )
 	{
-		oFakeImage	= oEditor.FCKDocumentProcessors_CreateFakeImage( 'FCK__Flash', oEmbed ) ;
+		oFakeImage	= oEditor.FCKDocumentProcessor_CreateFakeImage( 'FCK__Flash', oEmbed ) ;
 		oFakeImage.setAttribute( '_fckflash', 'true', 0 ) ;
 		oFakeImage	= FCK.InsertElementAndGetIt( oFakeImage ) ;
 	}
