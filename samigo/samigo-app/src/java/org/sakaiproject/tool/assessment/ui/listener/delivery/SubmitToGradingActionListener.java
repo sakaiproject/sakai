@@ -341,13 +341,16 @@ public class SubmitToGradingActionListener implements ActionListener
       ItemGradingIfc oldItem = (ItemGradingIfc)map.get(newItem.getItemGradingId());
       if (oldItem != null){ 
         // itemGrading exists and value has been change, then need update
+        Boolean oldReview = oldItem.getReview();
+        Boolean newReview = newItem.getReview();
         Long oldAnswerId = oldItem.getPublishedAnswerId(); 
         Long newAnswerId = newItem.getPublishedAnswerId(); 
         String oldRationale = oldItem.getRationale();
         String newRationale = newItem.getRationale();
         String oldAnswerText = oldItem.getAnswerText();
         String newAnswerText = newItem.getAnswerText();
-        if ((oldAnswerId!=null && !oldAnswerId.equals(newAnswerId))
+        if ((oldReview!=null && !oldReview.equals(newReview))
+            || (oldAnswerId!=null && !oldAnswerId.equals(newAnswerId))
             || (newAnswerId!=null && !newAnswerId.equals(oldAnswerId))
             || (oldRationale!=null && !oldRationale.equals(newRationale))
             || (newRationale!=null && !newRationale.equals(newRationale))
@@ -355,6 +358,7 @@ public class SubmitToGradingActionListener implements ActionListener
             || (newAnswerText!=null && !newAnswerText.equals(newAnswerText))
             || fibMap.get(oldItem.getPublishedItemId())!=null
             || mcmrMap.get(oldItem.getPublishedItemId())!=null){
+          oldItem.setReview(newItem.getReview());
           oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
           oldItem.setRationale(newItem.getRationale());
           oldItem.setAnswerText(newItem.getAnswerText());
