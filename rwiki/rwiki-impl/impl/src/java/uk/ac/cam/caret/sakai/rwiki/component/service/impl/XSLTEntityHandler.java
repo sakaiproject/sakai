@@ -442,11 +442,12 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		
 		
 		
-		String cdataEscapedRendered = renderedPage.replaceAll("]]>","]]>]]&gt;<![CDATA[");
+		String cdataEscapedRendered = renderedPage.replaceAll("]]>", "]]>]]&gt;<![CDATA[");
+		String cdataContentDigest = contentDigest.replaceAll("]]>", "]]>]]&gt;<![CDATA[");
 		
 		renderedPage = "<content><rendered>" + renderedPage
-				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered  + "]]></rendered-cdata><contentdigest>" + contentDigest
-				+ "</contentdigest></content>";
+				+ "</rendered><rendered-cdata><![CDATA[" + cdataEscapedRendered  + "]]></rendered-cdata><contentdigest><![CDATA[" + cdataContentDigest
+				+ "]]></contentdigest></content>";
 		
 		try {
 			parseToSAX(renderedPage, ch);			
