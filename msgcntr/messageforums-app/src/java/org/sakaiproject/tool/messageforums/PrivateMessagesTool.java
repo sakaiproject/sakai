@@ -863,7 +863,8 @@ public class PrivateMessagesTool
     sortType = SORT_DATE_DESC;    
     
     //get external parameter
-    selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
+    //selectedTopicTitle = getExternalParameterByKey("pvtMsgTopicTitle") ;
+    selectedTopicTitle = forumManager.getTopicByUuid(getExternalParameterByKey("pvtMsgTopicId")).getTitle();
     setSelectedTopicId(getExternalParameterByKey("pvtMsgTopicId")) ;
     msgNavMode=getSelectedTopicTitle();
 
@@ -2151,7 +2152,8 @@ public class PrivateMessagesTool
   //navigated from header pagecome from Header page 
   public String processPvtMsgFolderSettings() {
     LOG.debug("processPvtMsgFolderSettings()");
-    String topicTitle= getExternalParameterByKey("pvtMsgTopicTitle");
+    //String topicTitle= getExternalParameterByKey("pvtMsgTopicTitle");
+    String topicTitle = forumManager.getTopicByUuid(getExternalParameterByKey("pvtMsgTopicId")).getTitle();
     setSelectedTopicTitle(topicTitle) ;
     String topicId=getExternalParameterByKey("pvtMsgTopicId") ;
     setSelectedTopicId(topicId);

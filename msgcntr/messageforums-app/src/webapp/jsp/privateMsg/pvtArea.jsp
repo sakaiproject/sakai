@@ -34,7 +34,7 @@
     			<h:graphicImage url="/images/fldclosed.gif" />
     			<h:outputText value="  " />    
     			<h:outputText value="#{topic.topic.title}" /> 
-    			<f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
+<%--    			<f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/> --%>
     			<f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
     		</h:commandLink>
     		<h:outputText value=" (#{topic.totalNoMessages} messages"/>
@@ -48,7 +48,7 @@
 					 <h:graphicImage url="/images/fldclosed.gif" />
     			 <h:outputText value="  " /> 
 					 <h:outputText value="#{topic.topic.title}" /> 
-	    			 <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
+<%--	    			 <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>--%>
 	    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 	    				</h:commandLink>
 	    		 <h:outputText value=" (#{topic.totalNoMessages} messages"/>
@@ -59,7 +59,7 @@
 				<h:column rendered="#{topic.topic.mutable}">
 									 <f:verbatim><div class="rightAlign"></f:verbatim>
 									 <h:commandLink action="#{PrivateMessagesTool.processPvtMsgFolderSettings}"  value="#{msgs.pvt_foldersettings}">
-									   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>
+<%--									   <f:param value="#{topic.topic.title}" name="pvtMsgTopicTitle"/>--%>
 					    			 <f:param value="#{topic.topic.uuid}" name="pvtMsgTopicId"/>
 									 </h:commandLink>
 									 <f:verbatim></div></f:verbatim>
