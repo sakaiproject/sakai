@@ -8,19 +8,19 @@
 		<h:form id="pvtMsgFolderRevise">
 		
 
-<h2>Private Messages- Folder Settings</h2>
+<h2>Rename Private Messages Folder</h2>
   <sakai:group_box>
   	<h:outputText value="Required items marked with "/>
     <h:outputText value="*" style="color: red"/>
   </sakai:group_box> 
 
- 	<sakai:group_box>
+<%-- 	<sakai:group_box>
  		<h:outputText value="Folder :"/>
  		<h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />
- 	</sakai:group_box> 
+ 	</sakai:group_box> --%>
  	<sakai:group_box>
- 		<h4><h:outputText value="Folder Title"/></h4>
- 		<h:outputText value="*" style="color: red"/><h:outputText value="Revise Folder :"/>
+<%-- 		<h4><h:outputText value="Title"/></h4>--%>
+ 		<h:outputText value="*" style="color: red"/><h:outputText value="Title :"/>
  		<h:inputText value="#{PrivateMessagesTool.selectedNewTopicTitle}" />
  	</sakai:group_box> 
  	

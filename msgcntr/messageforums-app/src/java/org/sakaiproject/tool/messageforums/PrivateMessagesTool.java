@@ -2169,6 +2169,7 @@ public class PrivateMessagesTool
       return null;
     }else 
     {
+    	selectedNewTopicTitle = selectedTopicTitle;
       return "pvtMsgFolderRevise" ;
     }    
   }
