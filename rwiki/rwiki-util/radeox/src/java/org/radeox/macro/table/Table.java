@@ -26,8 +26,11 @@ package org.radeox.macro.table;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.radeox.macro.Repository;
 
@@ -50,15 +53,30 @@ public class Table
 
 	private List currentRow;
 
+	private String currentCell;
+
 	private List functionOccurences;
 
 	private Repository functions;
+
+	private HashMap tableAttributes = new HashMap();
 
 	public Table()
 	{
 		rows = new ArrayList(10);
 		currentRow = new ArrayList(10);
+		currentCell = "";
 		functions = FunctionRepository.getInstance();
+		tableAttributes.put("border", "0");
+		tableAttributes.put("cellspacing", "0");
+		tableAttributes.put("cellpadding", "0");
+		tableAttributes.put("class", "wiki-table");
+
+	}
+	
+	public void setAttribute(String attributeName, String attributeValue) {
+		//FIXME do some checks here
+		tableAttributes.put(attributeName, attributeValue);
 	}
 
 	private void addFunction(Function function)
@@ -85,8 +103,17 @@ public class Table
 	 */
 	public void addCell(String content)
 	{
-		content = content.trim();
-		if (content.startsWith("="))
+		if (!currentCell.equals(""))
+		{
+			newCell();
+		}
+		addText(content);
+	}
+
+	public void newCell()
+	{
+		currentCell = currentCell.trim();
+		if (currentCell.startsWith("="))
 		{
 			// Logger.debug("Table.addCell: function found.");
 			if (null == functionOccurences)
@@ -96,8 +123,15 @@ public class Table
 			functionOccurences.add(new int[] { indexCol, indexRow });
 			// function
 		}
-		currentRow.add(content);
+		currentRow.add(currentCell);
 		indexCol++;
+
+		currentCell = "";
+	}
+
+	public void addText(String content)
+	{
+		currentCell += content;
 	}
 
 	/**
@@ -105,6 +139,7 @@ public class Table
 	 */
 	public void newRow()
 	{
+		newCell();
 		rows.add(currentRow);
 		indexRow++;
 		// create new row with number of cells of
@@ -182,8 +217,30 @@ public class Table
 	 */
 	public Writer appendTo(Writer writer) throws IOException
 	{
-		writer
-				.write("<table class=\"wiki-table\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">");
+		writer.write("<table");// class=\"wiki-table\" cellpadding=\"0\"
+								// cellspacing=\"0\" border=\"0\">");
+		Set keySet = tableAttributes.keySet();
+		String[] toSort = new String[keySet.size()];
+		{
+			int i = 0;
+			for (Iterator it = keySet.iterator(); it.hasNext(); i++)
+			{
+				toSort[i] = (String) it.next();
+			}
+		}
+		Arrays.sort(toSort);
+
+		for (int i = 0; i < toSort.length; i++)
+		{
+			String key = toSort[i];
+			writer.write(' ');
+			writer.write(key);
+			writer.write("=\"");
+			writer.write((String) tableAttributes.get(key));
+			writer.write("\"");
+		}
+
+		writer.write(">");
 		List[] outputRows = (List[]) rows.toArray(new List[0]);
 		int rowSize = outputRows.length;
 		boolean odd = true;

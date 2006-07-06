@@ -34,34 +34,108 @@ import java.util.StringTokenizer;
 
 public class TableBuilder
 {
+	private static final String BAR = "|";
+	private static final String NL = "\n";
+	private static final String OPEN_LINK = "[";
+	private static final String CLOSE_LINK = "]";
+	private static final String TOKENS_STRING = BAR + NL + OPEN_LINK + CLOSE_LINK;
+	
+	private Table table = new Table();
+	private StringTokenizer tokenizer;
+	private String[] token;
+
+	private TableBuilder(String content) {
+		tokenizer = new StringTokenizer(content, TOKENS_STRING, true);
+		
+		token = new String[5];
+		for (int i = 0; i <token.length; i++) {
+			token[i] = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : null;
+		}
+
+	}
+	
 	public static Table build(String content)
 	{
-		Table table = new Table();
-		StringTokenizer tokenizer = new StringTokenizer(content, "|\n", true);
+		TableBuilder builder = new TableBuilder(content);
+		builder.build();
+		return builder.getTable();
+	}
+
+	
+	public void build() {
 		String lastToken = null;
-		while (tokenizer.hasMoreTokens())
+		while (token[0] != null)
 		{
-			String token = tokenizer.nextToken();
-			if ("\n".equals(token))
+			if ("\n".equals(token[0]))
 			{
-				// Handles "\n" - "|\n"
-				if (null == lastToken || "|".equals(lastToken))
-				{
-					table.addCell(" ");
+				if (null != lastToken) {
+					table.newRow();
 				}
-				table.newRow();
+				
 			}
-			else if (!"|".equals(token))
+			else if ("|".equals(token[0])) {
+				table.newCell();
+			}
+			else if ("[".equals(token[0])) {
+				if (isText(token[1]) && isBar(token[2]) && isText(token[3]) && isCloseLink(token[4])) {
+					for (int i = 0; i < 4; i++) {
+						table.addText(token[0]);
+						step();
+					}
+					table.addText(token[0]);
+				} else {
+					table.addText(token[0]);
+				}
+			}
+			else 
 			{
-				table.addCell(token);
+				table.addText(token[0]);
+				//table.addCell(token);
 			}
-			else if (null == lastToken || "|".equals(lastToken) || "\n".equals(lastToken))
-			{
-				// Handles "|" "||"
-				table.addCell(" ");
-			}
-			lastToken = token;
+			lastToken = token[0];
+			step();
 		}
+		if (!"\n".equals(lastToken)) {
+			table.newRow();
+		}
+		
+	}
+
+	private void step() {
+		for (int i = 1; i < token.length; i++) {
+			token[i - 1] = token[i]; 
+		}
+		token[token.length - 1] = tokenizer.hasMoreTokens() ? tokenizer.nextToken() : null;
+	}
+	
+	private static boolean isBar(String token) {
+		return BAR.equals(token);
+	}
+	
+	private static boolean isOpenLink(String token) {
+		return OPEN_LINK.equals(token);
+	}
+
+	private static boolean isCloseLink(String token) {
+		return CLOSE_LINK.equals(token);
+	}
+
+	private static boolean isNewLine(String token) {
+		return NL.equals(token);
+	}
+	
+	private static boolean isText(String token) {
+		for (int i = 0 ; i < TOKENS_STRING.length(); i++) {
+			if (("" + TOKENS_STRING.charAt(i)).equals(token)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	
+	public Table getTable() {
 		return table;
 	}
+	
 }
