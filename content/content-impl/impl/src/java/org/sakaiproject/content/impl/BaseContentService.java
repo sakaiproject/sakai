@@ -4335,16 +4335,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean isRootCollection(String id)
 	{
+		boolean rv = false;
+
 		// test for the root local id
-		if (id.equals(Entity.SEPARATOR)) return true;
+		if (id.equals("/"))
+		{
+			rv = true;
+		}
 
 		// test for the root reference
-		if (id.equals(getReference(Entity.SEPARATOR))) return true;
+		else if (id.equals(getAccessPoint(true) + "/"))
+		{
+			rv = true;
+		}
 
 		// test for the root URL
-		if (id.equals(getUrl(Entity.SEPARATOR))) return true;
+		else if (id.equals(getAccessPoint(false) + "/"))
+		{
+			rv = true;
+		}
 
-		return false;
+		// if (M_log.isDebugEnabled()) M_log.debug("isRootCollection: id: " + id + " rv: " + rv);
+
+		return rv;
 
 	} // isRootCollection
 	
@@ -4870,12 +4883,23 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// cache in the thread
 		ThreadLocalManager.set(threadLocalKey, new Vector(rv));
 
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("getEntityAuthzGroups for: ref: " + ref.getReference() + " user: " + userId);
+			for (Iterator i = rv.iterator(); i.hasNext();)
+			{
+				M_log.debug("** -- " + i.next());
+			}
+		}
 		return rv;
 	}
 
 	protected Collection getEntityHierarchyAuthzGroups(Reference ref) 
 	{
 		Collection rv = new TreeSet();
+		
+		// add the root
+		rv.add(getReference("/"));
 		
 		// try the resource, all the folders above it (don't include /)
 		String paths[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
@@ -4885,21 +4909,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String root = getReference(Entity.SEPARATOR + paths[1] + Entity.SEPARATOR);
 			rv.add(root);
 
-			// for (int next = 2; next < paths.length - 1; next++)
 			for (int next = 2; next < paths.length; next++)
 			{
-//				root = root + paths[next];
-//				if (next < paths.length - 1)
-//				{
-//					root = root + Entity.SEPARATOR;
-//				}
-//				else if(container)
-//				{
-//					// don't include the container itself
-//					break;
-//				}
 				root += paths[next];
-				if(next < paths.length - 1 || container)
+				if ((next < paths.length - 1) || container)
 				{
 					root +=  Entity.SEPARATOR;
 				}
@@ -4908,7 +4921,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		return rv;
-		
 	}
 
 	/**
