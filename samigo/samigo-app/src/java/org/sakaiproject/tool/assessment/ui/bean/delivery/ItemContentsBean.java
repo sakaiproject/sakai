@@ -825,7 +825,7 @@ log.debug("setReview():  setreview at the end = " + preview);
       }
     }
     catch(Exception e){
-      log.warn("**duration recorded is not an integer value="+e.getMessage());
+      log.log("**duration recorded is not an integer value="+e.getMessage());
     }
   }
 
