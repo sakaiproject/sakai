@@ -248,6 +248,25 @@ public class DeliveryBeanie
     return feedbackDate;
   }
 
+  public String getFeedbackDateString()
+  {
+    String dateString = "";
+    if (feedbackDate== null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace();
+    }
+    return dateString;
+  }
+
   public void setFeedbackDate(java.util.Date feedbackDate)
   {
     this.feedbackDate = feedbackDate;
