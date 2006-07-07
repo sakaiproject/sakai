@@ -616,9 +616,4 @@ public class ViewBean
 		return ServerConfigurationService.getAccessUrl()
 				+ RWikiObjectService.REFERENCE_ROOT + getPageSpace() + "/.20.rss";
  	}
-	public String getRssButtonUrl()
-	{
-		return "/sakai-rwiki-tool/images/rss.gif";
-
-	}
 }

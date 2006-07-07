@@ -29,6 +29,26 @@
 
 #rssLink {
 	float: right;
+	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
+}
+
+#rssLink img {
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+#printerFriendlyLink img {
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+
+
+#printerFriendlyLink {
+	float: right;
+	background: url(/sakai-rwiki-tool/images/printer.png) center right no-repeat;
 }
 
 a.anchorpoint {

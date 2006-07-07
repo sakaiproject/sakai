@@ -98,11 +98,21 @@
 	      <jsp:attribute name="target">rssfeed</jsp:attribute>
 	      <jsp:attribute name="id">rssLink</jsp:attribute>
 	      <jsp:element name="img" >
-	      <jsp:attribute name="src"><c:out value="${viewBean.rssButtonUrl}"/></jsp:attribute>
+	      <jsp:attribute name="src"><c:out value="/library/image/transparent.gif"/></jsp:attribute>
 	      <jsp:attribute name="alt">RSS</jsp:attribute>
 	      <jsp:attribute name="border">0</jsp:attribute>
 	      </jsp:element>
+   	      </jsp:element>
+	      <jsp:element name="a">
+	      <jsp:attribute name="href"><c:out value="${viewBean.publicViewUrl}"/></jsp:attribute>
+	      <jsp:attribute name="target">_blank</jsp:attribute>
+	      <jsp:attribute name="id">printerFriendlyLink</jsp:attribute>
+	      <jsp:element name="img" >
+	      <jsp:attribute name="src"><c:out value="/library/image/transparent.gif"/></jsp:attribute>
+	      <jsp:attribute name="alt">Printer Friendly</jsp:attribute>
+	      <jsp:attribute name="border">0</jsp:attribute>
 	      </jsp:element>
+		  </jsp:element>
 	      <!-- Home Link -->
 	      <jsp:element name="a"><jsp:attribute name="href"><c:out value="${homeBean.homeLinkUrl}"/></jsp:attribute><c:out value="${homeBean.homeLinkValue}"/></jsp:element>
 	      <!-- View Link -->
