@@ -9495,7 +9495,7 @@ public class ResourcesAction
 
 		String previousCollectionId = "";
 		Vector pathitems = new Vector();
-		while(currentCollectionId != null && ! currentCollectionId.equals(navRoot) && ! currentCollectionId.equals(previousCollectionId))
+		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
 		{
 			pathitems.add(currentCollectionId);
 			previousCollectionId = currentCollectionId;
