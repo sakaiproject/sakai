@@ -21,8 +21,15 @@
 
 package org.sakaiproject.web.tool;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.Collections;
 
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -32,16 +39,21 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>
@@ -58,6 +70,8 @@ import org.sakaiproject.util.StringUtil;
  */
 public class IFrameAction extends VelocityPortletPaneledAction
 {
+
+
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("iframe");
 
@@ -76,6 +90,12 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	/** The special attribute, in state, config and context. */
 	protected final static String SPECIAL = "special";
 
+	/** Support an external url defined in sakai.properties, in state, config and context. */
+	protected final static String SAKAI_PROPERTIES_URL_KEY = "sakai.properties.url.key";
+	
+	/** If set, always hide the OPTIONS button */
+	protected final static String HIDE_OPTIONS = "hide.options";
+	
 	/** Special value for site. */
 	protected final static String SPECIAL_SITE = "site";
 
@@ -84,6 +104,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 	/** Special value for worksite. */
 	protected final static String SPECIAL_WORKSITE = "worksite";
+	
 
 	/** The title, in state and context. */
 	protected final static String TITLE = "title";
@@ -93,7 +114,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	 */
 	private final static String PASS_PID = "passthroughPID";
 
-	/** Valid digits for custom height from user input * */
+	
+	
+	/** Valid digits for custom height from user input **/
 	protected static final String VALID_DIGITS = "0123456789";
 
 	/** Choices of pixels displayed in the customization page */
@@ -106,6 +129,40 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	private static final String FORM_TOOL_TITLE = "title-of-tool";
 
+	
+
+	/**
+	 * Expand macros to insert session information into the URL?
+	 */
+	private final static String MACRO_EXPANSION       = "expandMacros";
+
+	/** Macro name: Site id (GUID) */
+	protected static final String MACRO_SITE_ID             = "${SITE_ID}";
+	/** Macro name: User id */
+	protected static final String MACRO_USER_ID             = "${USER_ID}";
+	/** Macro name: First name */
+	protected static final String MACRO_USER_FIRST_NAME     = "${USER_FIRST_NAME}";
+	/** Macro name: Last name */
+	protected static final String MACRO_USER_LAST_NAME      = "${USER_LAST_NAME}";
+	/** Macro name: Role */
+	protected static final String MACRO_USER_ROLE           = "${USER_ROLE}";
+
+	private static final String MACRO_CLASS_SITE_PROP = "SITE_PROP:";
+	
+	private static final String IFRAME_ALLOWED_MACROS_PROPERTY = "iframe.allowed.macros";
+	
+	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
+	
+	private static ArrayList allowedMacrosList = new ArrayList();
+	
+	static {
+		
+	    String allowedMacros = ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
+		
+		Collections.addAll(allowedMacrosList, allowedMacros.split(","));
+		
+	}
+	
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -127,8 +184,23 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			passPid = true;
 		}
 
+		// Assume macro expansion (disable on request)
+		boolean macroExpansion = true;
+		String macroExpansionStr = config.getProperty(MACRO_EXPANSION, "true");
+
+		state.removeAttribute(MACRO_EXPANSION);
+		if ("false".equalsIgnoreCase(macroExpansionStr))
+		{
+			state.setAttribute(MACRO_EXPANSION, Boolean.FALSE);
+			macroExpansion = false;
+		}
+
 		// set the special setting
 		String special = config.getProperty(SPECIAL);
+		
+		final String sakaiPropertiesUrlKey = config.getProperty(SAKAI_PROPERTIES_URL_KEY);
+		
+		final String hideOptions = config.getProperty(HIDE_OPTIONS);
 
 		// check for an older way the ChefWebPagePortlet took parameters, converting to our "special" values
 		if (special == null)
@@ -152,6 +224,13 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		{
 			state.setAttribute(SPECIAL, special);
 		}
+		
+		
+		state.removeAttribute(HIDE_OPTIONS);
+		if ((hideOptions != null) && (hideOptions.trim().length() > 0))
+		{
+			state.setAttribute(HIDE_OPTIONS, hideOptions);
+		}
 
 		// set the source url setting
 		String source = StringUtil.trimToNull(config.getProperty(SOURCE));
@@ -170,7 +249,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		}
 
 		// compute working URL, modified from the configuration URL if special
-		String url = sourceUrl(special, source, placement.getContext(), passPid, placement.getId());
+		String url = sourceUrl(special, source, placement.getContext(), macroExpansion, passPid, placement.getId(), sakaiPropertiesUrlKey);
 		state.setAttribute(URL, url);
 
 		// set the height
@@ -184,6 +263,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			SitePage p = SiteService.findPage(getCurrentSitePageId());
 			state.setAttribute(STATE_PAGE_TITLE, p.getTitle());
 		}
+		
 	}
 	
 	/**
@@ -202,14 +282,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				return tool.getPageId();
 			}
 		}
-
+		
 		return null;
 	}
 
 	/**
 	 * Compute the actual URL we will used, based on the configuration special and source URLs
 	 */
-	protected String sourceUrl(String special, String source, String context, boolean passPid, String pid)
+	protected String sourceUrl(String special, String source, String context, boolean macroExpansion, boolean passPid, String pid, String sakaiPropertiesUrlKey)
 	{
 		String rv = StringUtil.trimToNull(source);
 
@@ -247,7 +327,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			catch (Exception any)
 			{
 			}
+		} 
+		
+		else if (sakaiPropertiesUrlKey != null && sakaiPropertiesUrlKey.length() > 1)
+		{
+			// set the url to a string defined in sakai.properties
+			rv = StringUtil.trimToNull(ServerConfigurationService.getString(sakaiPropertiesUrlKey));
 		}
+		
 
 		// if it's not special, and we have no value yet, set it to the webcontent instruction page, as configured
 		if (rv == null)
@@ -274,6 +361,11 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 				rv = rv + "pid=" + pid;
 			}
+
+			if (macroExpansion)
+			{
+				rv = doMacroExpansion(rv);
+			}
 		}
 
 		return rv;
@@ -292,6 +384,201 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// return the reference's url
 		return ref.getUrl();
+	}
+
+	/**
+	 * Get the current user id
+	 * @throws SessionDataException
+	 * @return User id
+	 */
+	private String getUserId() throws SessionDataException
+	{
+		Session session = SessionManager.getCurrentSession();
+
+		if (session == null)
+		{
+			throw new SessionDataException("No current user session");
+		}
+		return session.getUserId();
+	}
+
+	/**
+	 * Get current User information
+	 * @throws IdUnusedException, SessionDataException
+	 * @return {@link User} data
+	 * @throws UserNotDefinedException 
+	 */
+	private User getUser() throws IdUnusedException, SessionDataException, UserNotDefinedException
+	{
+		
+		return UserDirectoryService.getUser(this.getUserId());
+	}
+
+	/**
+	 * Get the current site id
+	 * @throws SessionDataException
+	 * @return Site id (GUID)
+	 */
+	private String getSiteId() throws SessionDataException
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+
+		if (placement == null)
+		{
+			throw new SessionDataException("No current tool placement");
+		}
+		return placement.getContext();
+	}
+
+	/**
+	 * Fetch the user role in the current site
+	 * @throws IdUnusedException, SessionDataException
+	 * @return Role
+	 * @throws GroupNotDefinedException 
+	 */
+	private String getUserRole() throws IdUnusedException, SessionDataException, GroupNotDefinedException
+	{
+		AuthzGroup 	group;
+		Role 				role;
+
+		group = AuthzGroupService.getAuthzGroup("/site/" + getSiteId());
+		if (group == null)
+		{
+			throw new SessionDataException("No current group");
+		}
+
+		role = group.getUserRole(this.getUserId());
+		if (role == null)
+		{
+			throw new SessionDataException("No current role");
+		}
+		return role.getId();
+	}
+
+	/**
+	 * Get a site property by name
+	 *
+	 * @param name Property name
+	 * @throws IdUnusedException, SessionDataException
+	 * @return The property value (null if none)
+	 */
+	private String getSiteProperty(String name) throws IdUnusedException, SessionDataException
+	{
+		Site site;
+
+		site = SiteService.getSite(getSiteId());
+		return site.getProperties().getProperty(name);
+	}
+
+	/**
+	 * Lookup value for requested macro name
+	 */
+	private String getMacroValue(String macroName)
+	{
+		try
+		{
+			if (macroName.equals(MACRO_USER_ID))
+			{
+				return this.getUserId();
+			}
+			if (macroName.equals(MACRO_USER_FIRST_NAME))
+			{
+				return this.getUser().getFirstName();
+			}
+			if (macroName.equals(MACRO_USER_LAST_NAME))
+			{
+				return this.getUser().getLastName();
+			}
+
+			if (macroName.equals(MACRO_SITE_ID))
+			{
+				return getSiteId();
+			}
+			if (macroName.equals(MACRO_USER_ROLE))
+			{
+				return this.getUserRole();
+			}
+
+			if (macroName.contains(MACRO_CLASS_SITE_PROP)) 
+			{
+				macroName = macroName.replace("${","");
+				macroName = macroName.replace("}","");
+				
+				String[] sitePropertyKey = macroName.split(":");
+				
+				if (sitePropertyKey.length > 1) {	
+				
+					String sitePropertyValue = getSiteProperty(sitePropertyKey[1]);
+	
+					return (sitePropertyValue == null) ? "" : sitePropertyValue;
+				
+				}
+			}
+		}
+		catch (Throwable throwable)
+		{
+			return "";
+		}
+		/*
+		 * An unsupported macro: use the original text "as is"
+		 */
+		return macroName;
+	}
+
+	/**
+	 * Expand one macro reference
+	 * @param text Expand macros found in this text
+	 * @param macroName Macro name
+	 */
+	private void expand(StringBuffer sb, String macroName)
+	{
+		int index;
+
+		/*
+		 * Replace every occurance of the macro in the parameter list
+		 */
+		index = sb.indexOf(macroName);
+		while (index != -1)
+		{
+			String  macroValue = getMacroValue(macroName);
+
+			sb.replace(index, (index + macroName.length()), macroValue);
+			index = sb.indexOf(macroName, (index + macroValue.length()));
+		}
+	}
+
+	/**
+	 * Expand macros, inserting session and site information
+	 * @param originalText Expand macros found in this text
+	 * @return [possibly] Updated text
+	 */
+	private String doMacroExpansion(String originalText)
+	{
+		StringBuffer  sb;
+
+		/*
+		 * Quit now if no macros are embedded in the text
+		 */
+		if (originalText.indexOf("${") == -1)
+		{
+			return originalText;
+		}
+		/*
+		 * Expand each macro
+		 */
+		sb = new StringBuffer(originalText);
+
+		Iterator i = allowedMacrosList.iterator();
+		
+		while(i.hasNext()) {
+			
+			String macro = (String) i.next();
+		
+			expand(sb, macro);
+			
+		}
+
+		return sb.toString();
 	}
 
 	/**
@@ -315,10 +602,19 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 
 		// setup for the options menu if needed
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		
+		String hideOptions = (String) state.getAttribute(HIDE_OPTIONS);
+		
+		
+		if (hideOptions != null && "true".equalsIgnoreCase(hideOptions)) 
+		{
+			// always hide Options menu if hide.options is specified
+		} else if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+				
 		{
 			context.put("options_title", ToolManager.getCurrentPlacement().getTitle() + " " + rb.getString("gen.options"));
 		}
+	
 
 		return (String) getContext(rundata).get("template");
 	}
@@ -609,5 +905,16 @@ public class IFrameAction extends VelocityPortletPaneledAction
 			if (VALID_DIGITS.indexOf(height.charAt(i)) == -1) return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Note a "local" problem (we failed to get session or site data)
+	 */
+	private static class SessionDataException extends Exception
+	{
+		public SessionDataException(String text)
+		{
+			super(text);
+		}
 	}
 }
