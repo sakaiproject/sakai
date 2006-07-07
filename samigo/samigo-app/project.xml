@@ -593,8 +593,8 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring</artifactId>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <properties>
         <war.bundle>standalone</war.bundle>

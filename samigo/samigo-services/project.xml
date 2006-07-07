@@ -359,8 +359,8 @@
       <version>1.2-RC1</version>
     </dependency>
     <dependency>
-      <groupId>springframework</groupId>
-      <artifactId>spring</artifactId>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
     <dependency>
