@@ -14,17 +14,17 @@
             <sect3 xml:id="new-function-group">
                 <title>Group Awareness</title>
                 <para>Group awareness has been extended to three additional tools: Resources,
-                    Assignments, and Schedule.</para>
+                    Assignments, and Schedule.  That is to say, the contents of each of those tools can have their access restricted to specific groups, as they are defined by site maintainers in the <emphasis>Site Info</emphasis> tool.</para>
             </sect3>
             <sect3 xml:id="new-function-eid">
                 <title>EID/UID Separation</title>
                 <para>For the last few releases we've been working to introduce the concept of
                     "internal" and "external" identifiers in Sakai in the User records. We started
                     with a single identifier that had to play both of these roles, and have been
-                    tweaking the code to separate these out. For 2.2, we have completed this
-                    separation, which now allows institutions to do things like altering a user's
-                    enterprise ID without losing access to their sites and materials in Sakai. For a
-                    thorough treatment of this change, see the doc
+                    tweaking the code to separate these out. For 2.2 we have completed this
+                    separation.  It is now possible for an institution to, for example, alter the
+                    enterprise IDs of their users without losing access to their sites and materials in Sakai. For a
+                    thorough discussion of these changes, see the doc
                         <filename>architecture/sakai_id_eid.doc</filename> (or in subversion at:
                         <link
                         xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc"
@@ -33,12 +33,21 @@
             <sect3>
                 <title>FCKeditor</title>
                 <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
-                    it has become the default editor.</para>
+                    it has become the default editor.  HTMLArea is still included, however, and the default editor may be overridden in <filename>sakai.properties</filename> by altering the following setting:</para>
+                <screen>
+# specify the wysiwyg editor 
+wysiwyg.editor=FCKeditor</screen>
             </sect3>
             <sect3>
                 <title>Included Skins</title>
                 <para>The three highest-scoring skins from the recent skins contest have been
-                    included in the distribution.</para>
+                    included in the distribution.  You can make any of these your default skin by using the following property in <filename>sakai.properties</filename> (other possible values are commented out):</para>
+                <screen>
+# The default skin for sites without a skin setting
+# skin.default=gen-u
+# skin.default=examp-u
+# skin.default=some-u
+skin.default=default</screen>
             </sect3>
             <sect3>
                 <title>Updated Help Content</title>
@@ -72,7 +81,7 @@
                 <varlistentry>
                     <term>Summary Calendar </term>
                     <listitem>
-                        <para>a synoptic calendar view for the MyWorkspace that includes events from
+                        <para>a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that includes events from
                             all the sites to which a user is a member.</para>
                     </listitem>
                 </varlistentry>
@@ -86,27 +95,36 @@
                     </listitem>
                 </varlistentry>
             </variablelist>
+            <para>You can find more details about these and all other provisional tools on the <link xl:href="http://source.sakaiproject.org/2.2.0/provisional.html">provisional tools</link> page.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="migration">
         <title>Migration Issues</title>
         <sect2 xml:id="migration-conversion">
             <title>DB Conversion</title>
-            <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion scripts
-                to be applied - in distinct versions for MySQL and Oracle, respectively - are found
-                in the <filename>reference/docs/updating</filename> folder of the release or on
-                subversion:</para>
+            <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
+                scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
+                are found in the <filename>reference/docs/updating</filename> folder of the release
+                or on subversion:</para>
             <variablelist>
                 <varlistentry>
                     <term>MySQL</term>
                     <listitem>
-                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</link></para>
+                        <para>
+                            <link
+                                xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql"
+                                >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</link>
+                        </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
                     <term>Oracle</term>
                     <listitem>
-                        <para><link xl:href="https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql">https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</link></para>
+                        <para>
+                            <link
+                                xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql"
+                                >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</link>
+                        </para>
                     </listitem>
                 </varlistentry>
             </variablelist>
@@ -124,7 +142,7 @@
                     script blindly.</para>
                 <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool is one
                     such particular example. A number of schools deployed <emphasis>Message
-                        Center</emphasis> in 2.1.x production instances, before it was yet a provisional
+                    Center</emphasis> in 2.1.x production instances, before it was yet a provisional
                     tool. Now that <emphasis>Message Center</emphasis> is a provisional tool in
                     2.2.0, the conversion scripts were written to alter the database to introduce
                     them, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
@@ -135,51 +153,73 @@
                         <term>MySQL</term>
                         <listitem>
                             <screen>
-                                ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-                                ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
-                                ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
-                                ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</screen>
+ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
+ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</screen>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
                         <term>Oracle</term>
                         <listitem>
                             <screen>
-                                ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-                                ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
-                                ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
-                                ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
+ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
+ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                         </listitem>
                     </varlistentry>
                 </variablelist>
             </note>
         </sect2>
-            <sect2 xml:id="migration-api">
-                <title>API Changes and sakai.properties</title>
-                <para>The 2.2 refactoring means that many package names have changed, and
-                    these differences will mainly be encountered in <filename>sakai.properties</filename>
-                    settings which reference beans. It's best to not try to use a
-                    <filename>sakai.properties</filename> from a previous release, and instead start with the
-                    sample in <filename>reference/docs/sakai.properties</filename>.</para>
-                <para>Any custom code, such as providers, may also need revision.  See below for more discussion of providers in particular.</para>
-                </sect2>
-            <sect2 xml:id="migration-providers"><para>As mentioned above, 2.2 introduces a separation of external user identifiers from Sakai's internal user ids. Any custom
-                <filename>UserDirectoryProvider</filename> will need some alteration
-                to account for this, along with changes to its import statements and
-                declarations that stem from API changes.  Below is a list of changes that a typical provider should require:</para>
-                <orderedlist>
-                    <listitem><para>Import statements altered to reflect new package names.</para></listitem>
-                    <listitem><para>A search and replace to turn getters and setters from, e.g., 'getId' to 'getEid'.</para></listitem>
-                    <listitem><para>Revise the project.xml files in both the provider module and 'component' with the appropriate UDP location.</para></listitem>
-                    <listitem><para>Change the Spring bean declaration in component.xml.</para></listitem>
-                    <listitem><para>The UDP class may implement the DisplayAdvisor (optional), and the two additional methods this pulls in.
-                    </para></listitem>
-                </orderedlist>
-            </sect2>
+        <sect2 xml:id="migration-api">
+            <title>API Changes and sakai.properties</title>
+            <para>The 2.2 refactoring means that many package names have changed, and these
+                differences will mainly be encountered in <filename>sakai.properties</filename>
+                settings which reference beans. It's best to not try to use a
+                    <filename>sakai.properties</filename> from a previous release, and instead start
+                with the sample in <filename>reference/docs/sakai.properties</filename>.</para>
+            <para>Any custom code, such as providers, may also need revision. See below for more
+                discussion of providers in particular.</para>
+        </sect2>
+        <sect2 xml:id="migration-providers">
+            <title>Provider Changes</title>
+            <para>As mentioned above, 2.2 introduces a separation of external user identifiers from
+                Sakai's internal user ids. Any custom <filename>UserDirectoryProvider</filename>
+                will need some alteration to account for this, along with changes to its import
+                statements and declarations that stem from API changes. Below is a list of changes
+                that a typical provider should require:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Import statements altered to reflect new package names.</para>
+                </listitem>
+                <listitem>
+                    <para>A search and replace to turn getters and setters from, e.g., 'getId' to
+                        'getEid'.</para>
+                </listitem>
+                <listitem>
+                    <para>Revise the project.xml files in both the provider module and 'component'
+                        with the appropriate UDP location.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the Spring bean declaration in component.xml.</para>
+                </listitem>
+                <listitem>
+                    <para>The UDP class may implement the DisplayAdvisor (optional), and the two
+                        additional methods this pulls in. </para>
+                </listitem>
+            </orderedlist>
+        </sect2>
+        <sect2>
+            <title>Skin Changes</title>
+            <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt them to 2.2.  These changes - including conversion steps - are thoroughly documented in the appendices of the skin document available in reference/docs/architecture, or in subversion at:  <link xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</link></para>
+        </sect2>
     </sect1>
     <sect1 xml:id="maintenance">
-        <title>Maintenance Release</title>
-        <para/>
+        <title>Maintenance Branch</title>
+        <para>The code of each release has a corresponding maintenance branch, which is patched with fixes in an ongoing way by a branch manager - effectively until there is no longer sufficient interest in it for a branch manager to volunteer.  Maintenance branches therefore represent the latest stable snapshot of any given Sakai version.</para>
+        <para>These maintenance branches may be checked out through subversion, they are labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.  You can check out the 2.2 maintenance branch with the following command: </para>
+        <para><command>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command></para>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
