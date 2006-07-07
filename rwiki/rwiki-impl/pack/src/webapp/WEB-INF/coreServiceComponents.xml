@@ -143,7 +143,7 @@
     <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
-    <property name="feedFormat"><value>&lt;a href="{0}html" target="feeds"&gt;&lt;img src="/library/image/sakai/html.gif" border="0"  alt="Html" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}html" target="feeds"&gt;&lt;img src="/library/image/sakai/html.gif" border="0"  alt="Html" /&gt; Public View &lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/html; charset=UTF-8</value></entry>
@@ -186,7 +186,7 @@
     <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
-    <property name="feedFormat"><value>&lt;a href="{0}pdf" target="feeds"&gt;&lt;img src="/library/image/sakai/pdf.gif" border="0"  alt="PDF" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}pdf" target="feeds"&gt;&lt;img src="/library/image/sakai/pdf.gif" border="0"  alt="PDF" /&gt;PDF&lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>application/pdf</value></entry>
