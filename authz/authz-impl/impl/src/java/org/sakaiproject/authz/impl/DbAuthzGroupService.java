@@ -1209,6 +1209,17 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			if (realms == null || realms.size() < 1)
 			{
 				M_log.warn("iallowed(): called with no realms l:" + lock + "u:" + userId);
+				if (M_log.isDebugEnabled())
+				{
+					try
+					{
+						throw new Exception();
+					}
+					catch (Exception e)
+					{
+						M_log.debug("iallowed:", e);
+					}
+				}
 				return false;
 			}
 
