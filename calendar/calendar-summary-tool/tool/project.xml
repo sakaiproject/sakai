@@ -73,8 +73,8 @@
         
 		<!-- Spring Framework -->
  		<dependency>
-			<groupId>springframework</groupId>
-			<artifactId>spring</artifactId>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
 			<version>${sakai.spring.version}</version>
 		</dependency>
 		
