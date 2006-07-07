@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -57,6 +58,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ContentsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FibBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
@@ -158,8 +160,17 @@ public class DeliveryActionListener
                 delivery.setAssessmentGrading(ag);
 	      }
               setDisplayByAssessment(delivery);
-              setDeliveryFeedbackOnforEvaluation(delivery);
-              setGraderComment(delivery);
+              //setDeliveryFeedbackOnforEvaluation(delivery);
+              //setGraderComment(delivery);
+              FeedbackComponent component = new FeedbackComponent();
+              AssessmentFeedbackIfc info =  (AssessmentFeedbackIfc) publishedAssessment.getAssessmentFeedback();
+              if ( info != null) {
+		  component.setAssessmentFeedback(info);
+              }
+              delivery.setFeedbackComponent(component);
+              AssessmentGradingData agData = service.getLastAssessmentGradingByAgentId(id, agent);
+              log.debug("GraderComments: getComments()" + agData.getComments());
+              delivery.setGraderComment(agData.getComments());
               break;
  
       case 4: // Grade assessment
