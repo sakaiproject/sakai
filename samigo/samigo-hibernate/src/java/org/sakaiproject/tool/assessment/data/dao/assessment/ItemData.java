@@ -473,7 +473,8 @@ public class ItemData
       for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
         ItemFeedback itemFeedback = (ItemFeedback) i.next();
         if (itemFeedback.getTypeId().equals(typeId)) {
-          this.itemFeedbackSet.remove(itemFeedback);
+          //this.itemFeedbackSet.remove(itemFeedback);
+          i.remove();
         }
       }
     }
