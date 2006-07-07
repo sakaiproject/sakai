@@ -550,21 +550,10 @@ public class QuestionPoolFacadeQueries
    */
   public void deletePool(final Long poolId, String agent, Tree tree) {
     try {
-
- 
         QuestionPoolData questionPool = (QuestionPoolData) getHibernateTemplate().load(QuestionPoolData.class, poolId);
-
-// are the following  still valid comments? - lydial
-
-      // I decided not to load the questionpool and delete things that associate with it
-      // because question is associated with it as ItemImpl not AssetBeanie. To delete
-      // AssetBeanie, I would still need to do it manually. I cannot find a way to take advantage of the
-      // Hibernate cascade feature, can you ? - daisyf
 
       // #1. delete all questions which mean AssetBeanie (not ItemImpl) 'cos AssetBeanie
       // is the one that is associated with the DB
-
-
       // lydial:  getting list of items that only belong to this pool and not linked to any assessments. 
       List itemList = getAllItemsInThisPoolOnlyAndDetachFromAssessment(poolId);
 
@@ -594,8 +583,8 @@ public class QuestionPoolFacadeQueries
           };
           List list = getHibernateTemplate().executeFind(hcb);
 
-          // a. delete item and pool association in SAM_ITEMMETADATA_T - info is kept in
-          // multiple places - maybe for convenience reason? -daisyf
+          // a. delete item and pool association in SAM_ITEMMETADATA_T - this is the primary
+          // pool that item is attached to
           ArrayList metaList = new ArrayList();
           for (int j=0; j<list.size(); j++){
             String itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
@@ -631,9 +620,10 @@ public class QuestionPoolFacadeQueries
         }
       }
 
-
       // #3. Pool is owned by one but can be shared by multiple agents. So need to
       // delete all QuestionPoolAccessData record first. This seems to be missing in Navigo, nope? - daisyf
+      // Actually, I don't think we have ever implemented sharing between agents. So we may wnat to
+      // clean up this bit of code - daisyf 07/07/06
       final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
           Query q = session.createQuery("select qpa from QuestionPoolAccessData as qpa where qpa.questionPoolId= ?");
