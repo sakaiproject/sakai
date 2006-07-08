@@ -55,7 +55,7 @@ public abstract class PagedResourceHelperAction extends VelocityPortletPaneledAc
 	/** state attribute names. */
 	protected static final String STATE_VIEW_ID = "prha.view-id";
 
-	protected static final String STATE_TOP_PAGE_MESSAGE_ID = "prha.msg-top";
+	protected static final String STATE_TOP_PAGE_MESSAGE_ID = "prha.msg-top-id";
 
 	protected static final String STATE_PAGESIZE = "prha.page-size";
 
