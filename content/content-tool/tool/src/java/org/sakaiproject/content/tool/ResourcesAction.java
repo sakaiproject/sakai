@@ -8929,7 +8929,7 @@ public class ResourcesAction
 			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
 		}
 
-		// state.setAttribute(STATE_TOP_PAGE_MESSAGE, "");
+		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
 
 		state.setAttribute (STATE_CONTENT_SERVICE, ContentHostingService.getInstance());
 		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ContentTypeImageService.getInstance());
@@ -13616,7 +13616,7 @@ public class ResourcesAction
 		}
 		
 		String messageIdAtTheTopOfThePage = null;
-		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE);
+		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
 		if(topMsgId == null)
 		{
 			// do nothing
@@ -13722,7 +13722,7 @@ public class ResourcesAction
 
 		// save which message is at the top of the page
 		BrowseItem itemAtTheTopOfThePage = (BrowseItem) allMessages.get(posStart);
-		state.setAttribute(STATE_TOP_PAGE_MESSAGE, itemAtTheTopOfThePage.getId());
+		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
 		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
 
 
