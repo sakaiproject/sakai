@@ -9,12 +9,14 @@
     </info>
     <sect1 xml:id="new">
         <title>What's New</title>
-        <sect2 xml:id="new-function">
-            <title>New Features</title>
+        <sect2 xml:id="new-enhance">
+            <title>Enhancements</title>
             <sect3 xml:id="new-function-group">
                 <title>Group Awareness</title>
                 <para>Group awareness has been extended to three additional tools: Resources,
-                    Assignments, and Schedule.  That is to say, the contents of each of those tools can have their access restricted to specific groups, as they are defined by site maintainers in the <emphasis>Site Info</emphasis> tool.</para>
+                    Assignments, and Schedule. That is to say, the contents of each of those tools
+                    can have their access restricted to specific groups, as they are defined by site
+                    maintainers in the <emphasis>Site Info</emphasis> tool.</para>
             </sect3>
             <sect3 xml:id="new-function-eid">
                 <title>EID/UID Separation</title>
@@ -22,9 +24,9 @@
                     "internal" and "external" identifiers in Sakai in the User records. We started
                     with a single identifier that had to play both of these roles, and have been
                     tweaking the code to separate these out. For 2.2 we have completed this
-                    separation.  It is now possible for an institution to, for example, alter the
-                    enterprise IDs of their users without losing access to their sites and materials in Sakai. For a
-                    thorough discussion of these changes, see the doc
+                    separation. It is now possible for an institution to, for example, alter the
+                    enterprise IDs of their users without losing access to their sites and materials
+                    in Sakai. For a thorough discussion of these changes, see the doc
                         <filename>architecture/sakai_id_eid.doc</filename> (or in subversion at:
                         <link
                         xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc"
@@ -33,7 +35,9 @@
             <sect3>
                 <title>FCKeditor</title>
                 <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
-                    it has become the default editor.  HTMLArea is still included, however, and the default editor may be overridden in <filename>sakai.properties</filename> by altering the following setting:</para>
+                    it has become the default editor. HTMLArea is still included, however, and the
+                    default editor may be overridden in <filename>sakai.properties</filename> by
+                    altering the following setting:</para>
                 <screen>
 # specify the wysiwyg editor 
 wysiwyg.editor=FCKeditor</screen>
@@ -41,7 +45,9 @@ wysiwyg.editor=FCKeditor</screen>
             <sect3>
                 <title>Included Skins</title>
                 <para>The three highest-scoring skins from the recent skins contest have been
-                    included in the distribution.  You can make any of these your default skin by using the following property in <filename>sakai.properties</filename> (other possible values are commented out):</para>
+                    included in the distribution. You can make any of these your default skin by
+                    using the following property in <filename>sakai.properties</filename> (other
+                    possible values are commented out):</para>
                 <screen>
 # The default skin for sites without a skin setting
 # skin.default=gen-u
@@ -62,8 +68,8 @@ skin.default=default</screen>
                     the translations.</para>
             </sect3>
         </sect2>
-        <sect2 xml:id="new-provisional">
-            <title>New Provisional Tools</title>
+        <sect2 xml:id="new-tools">
+            <title>New Tools</title>
             <para>Sakai 2.2.0 has added four new provisional tools</para>
             <variablelist>
                 <varlistentry>
@@ -81,8 +87,8 @@ skin.default=default</screen>
                 <varlistentry>
                     <term>Summary Calendar </term>
                     <listitem>
-                        <para>a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that includes events from
-                            all the sites to which a user is a member.</para>
+                        <para>a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that
+                            includes events from all the sites to which a user is a member.</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
@@ -95,7 +101,9 @@ skin.default=default</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>You can find more details about these and all other provisional tools on the <link xl:href="http://source.sakaiproject.org/2.2.0/provisional.html">provisional tools</link> page.</para>
+            <para>You can find more details about these and all other provisional tools on the <link
+                    xl:href="http://source.sakaiproject.org/2.2.0/provisional.html">provisional
+                    tools</link> page.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="migration">
@@ -140,14 +148,13 @@ skin.default=default</screen>
                     have made - such as new roles, or the deployment of additional tools - and they
                     may complicate your migration with unintended consequences if you execute the
                     script blindly.</para>
-                <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool is one
+                <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool offers one
                     such particular example. A number of schools deployed <emphasis>Message
-                    Center</emphasis> in 2.1.x production instances, before it was yet a provisional
-                    tool. Now that <emphasis>Message Center</emphasis> is a provisional tool in
-                    2.2.0, the conversion scripts were written to alter the database to introduce
-                    them, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
-                    your instance. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead execute the following conversions:</para>
+                        Center</emphasis> in 2.1.x production, before it was yet a provisional
+                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
+                    your deployment. If it isn't, you'll want to comment out the portions of the
+                    conversion script that treat it, and instead perform the following conversions:</para>
                 <variablelist>
                     <varlistentry>
                         <term>MySQL</term>
@@ -173,7 +180,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             </note>
         </sect2>
         <sect2 xml:id="migration-api">
-            <title>API Changes and sakai.properties</title>
+            <title>Framework Changes</title>
             <para>The 2.2 refactoring means that many package names have changed, and these
                 differences will mainly be encountered in <filename>sakai.properties</filename>
                 settings which reference beans. It's best to not try to use a
@@ -212,14 +219,27 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         </sect2>
         <sect2>
             <title>Skin Changes</title>
-            <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt them to 2.2.  These changes - including conversion steps - are thoroughly documented in the appendices of the skin document available in reference/docs/architecture, or in subversion at:  <link xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</link></para>
+            <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
+                them to 2.2. These changes - including conversion steps - are thoroughly documented
+                in the appendices of the skin document available in reference/docs/architecture, or
+                in subversion at: <link
+                    xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc"
+                    >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</link></para>
         </sect2>
     </sect1>
     <sect1 xml:id="maintenance">
         <title>Maintenance Branch</title>
-        <para>The code of each release has a corresponding maintenance branch, which is patched with fixes in an ongoing way by a branch manager - effectively until there is no longer sufficient interest in it for a branch manager to volunteer.  Maintenance branches therefore represent the latest stable snapshot of any given Sakai version.</para>
-        <para>These maintenance branches may be checked out through subversion, they are labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.  You can check out the 2.2 maintenance branch with the following command: </para>
-        <para><command>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command></para>
+        <para>The code of each release has a corresponding maintenance branch, which is patched with
+            fixes in an ongoing way by a branch manager - effectively until there is no longer
+            sufficient interest in it for a branch manager to volunteer. Maintenance branches
+            therefore represent the latest stable snapshot of any given Sakai version.</para>
+        <para>These maintenance branches may be checked out through subversion, they are labeled
+            with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
+            2.2 maintenance branch with the following command: </para>
+        <para>
+            <command>svn co
+            https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command>
+        </para>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
