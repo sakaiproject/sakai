@@ -840,24 +840,23 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
             </variablelist>
             <para>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
-                2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
+                of all intermediate scripts. You cannot, for example, move from 2.1.1 to
+                2.2.0 by applying a single script. You will need to move first from 2.1.1 to
                 2.1.2, and then to 2.2.0.</para>
             <note>
                 <title>Examine before using</title>
                 <para>As a general rule, be sure to read through these conversion scripts before
                     applying them. They do not take into account any special customizations you may
                     have made - such as new roles, or the deployment of additional tools - and they
-                    may complicate your migration with unintended consequences if you execute the
-                    script blindly.</para>
-                <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool is one
+                    may complicate your migration with unintended consequences if you execute them
+                     blindly.</para>
+                <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool offers one
                     such particular example. A number of schools deployed <emphasis>Message
-                    Center</emphasis> in 2.1.x production instances, before it was yet a provisional
-                    tool. Now that <emphasis>Message Center</emphasis> is a provisional tool in
-                    2.2.0, the conversion scripts were written to alter the database to introduce
-                    them, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
-                    your instance. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead execute the following conversions:</para>
+                    Center</emphasis> in 2.1.x production, before it was yet a provisional
+                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
+                    your deployment. If it isn't, you'll want to comment out the portions of the
+                    conversion script that treat it, and instead perform the following conversions:</para>
                 <variablelist>
                     <varlistentry>
                         <term>MySQL</term>
@@ -884,8 +883,8 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         </sect2>
         <sect2 xml:id="install-dbconfig-drivers">
             <title>Deploy Drivers</title>
-            <para>The supported production-grade databases include MySQL 4.1+ and Oracle 9i+. The
-                version of the JDBC driver (or connector) is also important. For MySQL the 3.1.12
+            <para>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has not yet been adequately tested for it to be recommended for production) and Oracle 9i+. The
+                version of the JDBC driver (or connector) is also important: for MySQL a 3.1.12+
                 connector should be used, while for Oracle the 10g driver must be used, even if the
                 database is Oracle 9i. These drivers should be copied into your
                     <filename>$CATALINA_HOME/common/lib</filename> directory, and they are available
@@ -915,13 +914,12 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                 <title>Driver Versions</title>
                 <para>Database driver versions are a common source of problems. It's worth
                     emphasizing again that the Oracle 10g driver must be used for Sakai
-                    installations running against Oracle, even when Oracle 9i is the database
-                    version.</para>
+                    installations running against Oracle, even when the database is Oracle 9i.</para>
 
                 <para>Problems have been reported for both the 3.1.10 and 3.1.11 MySQL drivers.
                     3.1.12 is the recommended version since it has the greatest weight of production
                     experience behind hit, however early testing of 3.1.13 has not yet revealed any
-                    problems.</para>
+                    significant issues.</para>
             </note>
         </sect2>
         <sect2 xml:id="install-dbconfig-create">
