@@ -147,29 +147,26 @@ JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
                 testing and development, but will hardly be adequate for serving large numbers of
-                concurrent users. A more suitable production environment on a 32-bit machine might
+                concurrent users. A more suitable production environment on a 32-bit machine with multiple processors might
                 use a set of options like:</p>
             <pre class="screen">
 JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m
--XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails"</pre>
+                -XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"</pre>
             <p>This is better: a larger heap size is set for smoother performance (we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
                 are set to be the same values), and garbage collection messages are turned on.
-                Another important consideration is the ratio of NewSize to the size of the heap. We
-                want as large a NewSize as we can fit in the total heap, while keeping the total
-                heap significantly bigger than NewSize in order for Java to properly garbage
-                collect.</p>
+                Another important consideration is the ratio of <span class="emphasis"><em>NewSize</em></span> to the size of the heap. We
+                want as large a <span class="emphasis"><em>NewSize</em></span> as we can fit in the total heap, while keeping the total
+                heap significantly bigger than <span class="emphasis"><em>NewSize</em></span> in order for Java to properly garbage
+                collect.  The last two arguments above can produce a performance improvement if you have two or more processors on your machine, however your performance will be better if you don't include them for single-processor machines.</p>
             <p>As you can see, there's a lot to think about here, and in practice each
                 implementing institution uses their own particular <span><strong class="command">JAVA_OPTS</strong></span> that
                 they've settled on for their deployment and hardware, and they often use more option
                 arguments than we've shown here. This discussion is meant only as a head start, and
                 there is no replacement for doing your own testing.</p>
-            <p>In any event, once you set <span><strong class="command">JAVA_OPTS</strong></span> Tomcat will see this
+            <p>Once you set <span><strong class="command">JAVA_OPTS</strong></span> Tomcat will see this
                 environment variable upon startup and use it. Instead of putting this in an
-                environment variable, you might modify the
-                <code class="filename">$CATALINA_HOME/bin/catalina.bat</code> or the
-                    <code class="filename">$CATALINA_HOME/bin/catalina.sh</code> file to automatically set
-                these values during startup.</p>
+                environment variable you might create your own startup script to do so.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">JVM Tuning in Windows XP</h3>
 

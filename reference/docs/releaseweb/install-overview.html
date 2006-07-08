@@ -24,11 +24,8 @@
 </div>
 <div class="article" lang="en">
 <div class="titlepage">
-<div>
-<div><h1 class="title">
-<a name="id1857237"></a>Installation Guide</h1></div>
-<div><div class="author"><h3 class="author">Clay Fenlason</h3></div></div>
-</div>
+<div><div><h1 class="title">
+<a name="id1858956"></a>Installation Guide</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -73,6 +70,10 @@
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-properties">5.4. Database Properties</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-tshoot.html">6. Troubleshooting</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-build">6.1. Build Issues</a></span></dt>
+<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-startup">6.2. Tomcat Startup Issues</a></span></dt>
+</dl></dd>
 </dl>
 </div>
 
@@ -291,7 +292,7 @@
 
             <p>Since there have been a number of changes in tools, DB schema, and APIs, migrating
                 to 2.2 from a previous release requires close attention to detail. Be sure to go
-                over the release notes carefully, and a few potential stumbling points are
+                over the <a href="release-notes.html" target="_top">release notes</a> carefully, and a few potential stumbling points are
                 identified below:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -300,11 +301,13 @@
 <td>
 <span class="term">sakai.properties</span></td>
 <td>
-                        <p>The 2.2 refactoring means that many package names have changed, and
-                            these differences will mainly be encountered in sakai.properties
-                            settings which reference beans. It's best to not try to use a
-                            sakai.properties from a previous release, and instead start with the
-                            sample in reference/docs/sakai.properties.</p>
+                        <p>The 2.2 framework refactoring means that many package names have changed, and
+                            these differences will mainly be encountered in
+                                <code class="filename">sakai.properties</code> settings which reference
+                            beans. It's best to not try to use a
+                            <code class="filename">sakai.properties</code> from a previous release, and
+                            instead start with the sample in
+                                <code class="filename">reference/docs/sakai.properties</code>.</p>
                     </td>
 </tr>
 <tr>
@@ -321,27 +324,29 @@
 </tr>
 <tr>
 <td>
-<span class="term">provisional tools</span></td>
+<span class="term">Provisional tools</span></td>
 <td>
                         <p>A few contrib tools that schools may have already put into production
                             are now provisional with the 2.2 release. The DB conversion scripts in
                             particular assume that these new provisional tools are not represented
                             in your schema, and attempt to introduce them. If you have already
-                            deployed Message Center, Post 'Em, Search, or Summary Calendar on a
-                            production system, you'll want to be sure to avoid running the portions
-                            of the conversion scripts that pertain to them. Again, see the <a href="install-dbconfig.html" title="5. Database Configuration">Database Configuration</a> section for
-                            more details.</p>
+                            deployed <span class="emphasis"><em>Message Center</em></span>, <span class="emphasis"><em>Post
+                            'Em</em></span>, <span class="emphasis"><em>Search</em></span>, or <span class="emphasis"><em>Summary
+                                Calendar</em></span> on a production system, you'll want to be sure
+                            to avoid running the portions of the conversion scripts that pertain to
+                            them. Again, see the <a href="install-dbconfig.html" title="5. Database Configuration">Database
+                                Configuration</a> section for more details.</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">providers</span></td>
+<span class="term">Providers</span></td>
 <td>
                         <p>Among the changes that 2.2 introduces is a separation of external user
                             identifiers from Sakai's internal user ids. Any custom
                                 <code class="filename">UserDirectoryProvider</code> will need some alteration
                             to account for this, along with changes to its import statements and
-                            declarations that stem from API changes. See the <a href="release_notes.html" target="_top">release notes</a> for more
+                            declarations that stem from API changes. See the <a href="release-notes.html" target="_top">release notes</a> for more
                         details.</p>
                     </td>
 </tr>

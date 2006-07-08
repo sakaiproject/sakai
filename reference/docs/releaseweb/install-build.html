@@ -85,7 +85,12 @@
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Maven and Memory</h3>
 
-                <p>You may find that your machine runs out of memory while it is building Sakai.  As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts up, and so if your build output complains of "Out of Memory" errors you'll need to set an additional environment variable, namely, <span><strong class="command">MAVEN_OPTS</strong></span>.  The value in the sample Unix command below should be more than enough:</p>
+                <p>You may find that your machine runs out of memory while it is building Sakai.
+                    As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts
+                    up, and so if your build output complains of "Out of Memory" errors you'll need
+                    to set an additional environment variable, namely,
+                    <span><strong class="command">MAVEN_OPTS</strong></span>. The value in the sample Unix command below should
+                    be more than enough:</p>
                 <pre class="screen">
 export MAVEN_OPTS="-Xmx512m -XX:PermSize=64m -XX:MaxPermSize=128m"</pre>
             </div>

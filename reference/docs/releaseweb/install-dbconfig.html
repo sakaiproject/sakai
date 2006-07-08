@@ -33,10 +33,10 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-dbconfig-migrating"></a>5.1. Migrating from an Earlier Version</h3></div></div></div>
 
-            <p>There are database schema changes between 2.1.2 and 2.2.0, and the update scripts
-                to be applied - in distinct versions for MySQL and Oracle, respectively - are found
-                in the <code class="filename">reference/docs/updating</code> folder of the release or on
-                subversion:</p>
+            <p>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
+                scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
+                are found in the <code class="filename">reference/docs/updating</code> folder of the release
+                or on subversion:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -44,22 +44,26 @@
 <td>
 <span class="term">MySQL</span></td>
 <td>
-                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_mysql_conversion.sql</p>
+                        <p>
+                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
+                        </p>
                     </td>
 </tr>
 <tr>
 <td>
 <span class="term">Oracle</span></td>
 <td>
-                        <p>https://source.sakaiproject.org/svn/tags/sakai_2-2-0/docs/updating/sakai_2_1_2-2_2_0_oracle_conversion.sql</p>
+                        <p>
+                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
+                        </p>
                     </td>
 </tr>
 </tbody>
 </table></div>
             <p>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
-                2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
+                of all intermediate scripts. You cannot, for example, move from 2.1.1 to
+                2.2.0 by applying a single script. You will need to move first from 2.1.1 to
                 2.1.2, and then to 2.2.0.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Examine before using</h3>
@@ -67,16 +71,15 @@
                 <p>As a general rule, be sure to read through these conversion scripts before
                     applying them. They do not take into account any special customizations you may
                     have made - such as new roles, or the deployment of additional tools - and they
-                    may complicate your migration with unintended consequences if you execute the
-                    script blindly.</p>
-                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool is one
+                    may complicate your migration with unintended consequences if you execute them
+                     blindly.</p>
+                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool offers one
                     such particular example. A number of schools deployed <span class="emphasis"><em>Message
-                    Center</em></span> in 2.1.x production instances, before it was yet a provisional
-                    tool. Now that <span class="emphasis"><em>Message Center</em></span> is a provisional tool in
-                    2.2.0, the conversion scripts were written to alter the database to introduce
-                    them, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new tool for
-                    your instance. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead execute the following conversions:</p>
+                    Center</em></span> in 2.1.x production, before it was yet a provisional
+                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new tool for
+                    your deployment. If it isn't, you'll want to comment out the portions of the
+                    conversion script that treat it, and instead perform the following conversions:</p>
                 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -110,8 +113,8 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-dbconfig-drivers"></a>5.2. Deploy Drivers</h3></div></div></div>
 
-            <p>The supported production-grade databases include MySQL 4.1+ and Oracle 9i+. The
-                version of the JDBC driver (or connector) is also important. For MySQL the 3.1.12
+            <p>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has not yet been adequately tested for it to be recommended for production) and Oracle 9i+. The
+                version of the JDBC driver (or connector) is also important: for MySQL a 3.1.12+
                 connector should be used, while for Oracle the 10g driver must be used, even if the
                 database is Oracle 9i. These drivers should be copied into your
                     <code class="filename">$CATALINA_HOME/common/lib</code> directory, and they are available
@@ -144,13 +147,12 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 
                 <p>Database driver versions are a common source of problems. It's worth
                     emphasizing again that the Oracle 10g driver must be used for Sakai
-                    installations running against Oracle, even when Oracle 9i is the database
-                    version.</p>
+                    installations running against Oracle, even when the database is Oracle 9i.</p>
 
                 <p>Problems have been reported for both the 3.1.10 and 3.1.11 MySQL drivers.
                     3.1.12 is the recommended version since it has the greatest weight of production
                     experience behind hit, however early testing of 3.1.13 has not yet revealed any
-                    problems.</p>
+                    significant issues.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
