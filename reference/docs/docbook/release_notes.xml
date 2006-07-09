@@ -21,16 +21,16 @@
             <sect3 xml:id="new-function-eid">
                 <title>EID/UID Separation</title>
                 <para>For the last few releases we've been working to introduce the concept of
-                    "internal" and "external" identifiers in Sakai in the User records. We started
+                    "internal" and "external" identifiers in Sakai in the user records. We started
                     with a single identifier that had to play both of these roles, and have been
                     tweaking the code to separate these out. For 2.2 we have completed this
                     separation. It is now possible for an institution to, for example, alter the
                     enterprise IDs of their users without losing access to their sites and materials
                     in Sakai. For a thorough discussion of these changes, see the doc
-                        <filename>architecture/sakai_id_eid.doc</filename> (or in subversion at:
+                        <filename>reference/docs/architecture/sakai_id_eid.doc</filename> (or in subversion at:
                         <link
                         xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc"
-                        >https://source.sakaiproject.org/svn/reference/trunk/docs/architecture/sakai_id_eid.doc</link>)</para>
+                            >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc</link>)</para>
             </sect3>
             <sect3>
                 <title>FCKeditor</title>
@@ -47,7 +47,7 @@ wysiwyg.editor=FCKeditor</screen>
                 <para>The three highest-scoring skins from the recent skins contest have been
                     included in the distribution. You can make any of these your default skin by
                     using the following property in <filename>sakai.properties</filename> (other
-                    possible values are commented out):</para>
+                    possible values are commented out in the example below):</para>
                 <screen>
 # The default skin for sites without a skin setting
 # skin.default=gen-u
@@ -57,9 +57,10 @@ skin.default=default</screen>
             </sect3>
             <sect3>
                 <title>Updated Help Content</title>
-                <para>Help Content in 2.1 was out of date, reflecting only version 2.0 of the
+                <para>Help content in 2.1 was out of date, reflecting only version 2.0 of the
                     software. The help content has been updated for 2.2, along with some style
-                    improvements.</para>
+                    improvements.  To see the ongoing work of the Help project, visit their space in Confluence:</para>
+                <para><link xl:href="http://bugs.sakaiproject.org/confluence/display/HELP/Home">http://bugs.sakaiproject.org/confluence/display/HELP/Home</link></para>
             </sect3>
             <sect3>
                 <title>French and Japanese translations</title>
@@ -109,10 +110,10 @@ skin.default=default</screen>
     <sect1 xml:id="migration">
         <title>Migration Issues</title>
         <sect2 xml:id="migration-conversion">
-            <title>DB Conversion</title>
+            <title>Database Conversion</title>
             <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
                 scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
-                are found in the <filename>reference/docs/updating</filename> folder of the release
+                are found in the <filename>reference/docs/conversion</filename> folder of the release
                 or on subversion:</para>
             <variablelist>
                 <varlistentry>
@@ -138,7 +139,7 @@ skin.default=default</screen>
             </variablelist>
             <para>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
+                of all intermediate conversion scripts. You cannot, for example, move from 2.1.1 to
                 2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
                 2.1.2, and then to 2.2.0.</para>
             <note>
@@ -150,11 +151,12 @@ skin.default=default</screen>
                     script blindly.</para>
                 <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool offers one
                     such particular example. A number of schools deployed <emphasis>Message
-                        Center</emphasis> in 2.1.x production, before it was yet a provisional
-                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
-                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
-                    your deployment. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead perform the following conversions:</para>
+                    Center</emphasis> in 2.1.x production, before it was yet a provisional tool. Now
+                    that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new
+                    tool for your deployment. If it isn't, you'll want to comment out the portions
+                    of the conversion script that treat it, and instead perform the following
+                    conversions:</para>
                 <variablelist>
                     <varlistentry>
                         <term>MySQL</term>
@@ -183,7 +185,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             <title>Framework Changes</title>
             <para>The 2.2 refactoring means that many package names have changed, and these
                 differences will mainly be encountered in <filename>sakai.properties</filename>
-                settings which reference beans. It's best to not try to use a
+                settings with bean references. It's best to not try to use a
                     <filename>sakai.properties</filename> from a previous release, and instead start
                 with the sample in <filename>reference/docs/sakai.properties</filename>.</para>
             <para>Any custom code, such as providers, may also need revision. See below for more
@@ -212,10 +214,12 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                     <para>Change the Spring bean declaration in component.xml.</para>
                 </listitem>
                 <listitem>
-                    <para>The UDP class may implement the DisplayAdvisor (optional), and the two
+                    <para>The UDP class may implement the DisplayAdvisorUDP interface (optional), and the two
                         additional methods this pulls in. </para>
                 </listitem>
             </orderedlist>
+            <para>Be sure to review the SampleUserDirectoryProvider, and compare it against the same sample for previous releases:</para>
+            <para><link xl:href="https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java">https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</link></para>
         </sect2>
         <sect2>
             <title>Skin Changes</title>
