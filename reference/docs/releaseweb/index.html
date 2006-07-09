@@ -74,7 +74,7 @@ functional/architectural units, paving the way for multiple focused teams to wor
 </tr>
 <tr>
 	<th>Demo</th>
-	<td>The Sakai Demo is a pre-built Sakai with Tomcat 5.5 and a demo
+	<td>The Sakai Demo is a pre-built Sakai with Tomcat 5.5.17 and a simple
 configuration, perfect for a quick and easy demo of Sakai.&nbsp;
                   <br />
 				  <i>NOTE:</i> The demo version is not intended for large scale
@@ -98,8 +98,8 @@ small pilot implementations on single servers.
 <tr>
 	<th>Binary
 	</th>
-	<td>The Sakai Binary is a pre-built Sakai without the Tomcat or configuration.
-				Download the Binary release if you want to just drop Sakai into a
+	<td>The Sakai Binary is a pre-built Sakai without the Tomcat or extra configuration files.
+				Download the Binary release if you want to just drop the Sakai bundle into a
 				pre-existing Tomcat environment.
 	</td>
 	<td><a href="sakai_2-2-0/sakai-bin_2-2-0.zip">
@@ -116,7 +116,7 @@ small pilot implementations on single servers.
 <tr>
 	<th>Source</th>
 	<td>The Sakai Source is all the Sakai source code from this release.&nbsp;
-				   Start from Source if you plan to customize your Sakai system.
+				   Start from Source if you expect to make any code-level changes to your Sakai system.
 	</td>
 	<td><a href="sakai_2-2-0/sakai-src_2-2-0.zip">sakai-src_2-2-0.zip</a><br />
 				(9.8M) <br/>
@@ -130,8 +130,8 @@ small pilot implementations on single servers.
 <tr>
 	<th>Mini</th>
 	<td>A minimal install designed for developers, which will build and start up relatively quickly. It includes the Sakai Framework Technologies, the developer's Sakai
-Mercury portal, and a few of the commonly needed applications.  It's not available as an archive for download, but you can check it out of subversion, add your application
-code, and any further dependencies that your application needs.  You can check it out from <a href="https://source.sakaiproject.org/svn/sakai/branches/sakai_mini/">https://source.sakaiproject.org/svn/sakai/branches/sakai_mini</a>
+Mercury portal, and a few of the basic applications.  It's not available as an archive for download, but you can check it out of subversion, then just add your application
+code and any further dependencies that your application needs.  You can check it out from the following location: <a href="https://source.sakaiproject.org/svn/sakai/branches/sakai_mini/">https://source.sakaiproject.org/svn/sakai/branches/sakai_mini</a>
 
 
 	</td>
@@ -230,12 +230,12 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
              <tr>
               <td  class="top"><p>Tomcat</p></td>
               <td  class="top">
-			             <p>5.5.17+ and the Compatibility patch</p>
+			             <p>5.5.17+</p> <p>and the</p> <p>JDK 1.4 compatibility package</p>
            </td>
              <td><p>Although Tomcat is not the only available web container, it is highly recommended, and the documentation assumes Tomcat use.  Sakai QA was conducted on Tomcat 5.5.17, so this is the recommended version, but the latest stable release of 5.5 will likely not present problems.</p>
              <p><em class="note">** NOTE: Problems with CAS integration were discovered with Tomcat 5.5.16, so this version is not recommended.</em></p>
 			  <p>
-			Tomcat 5.5 requires a compatibility patch in order to run with Java 1.4, and some Sakai dependencies will require this, even if you are using Java 1.5 to build and run it. This compatibility patch is also available from the <a href="http://tomcat.apache.org/download-55.cgi">Tomcat download page</a>.</p>
+			Tomcat 5.5 requires a compatibility package in order to run with Java 1.4, and some Sakai dependencies will require this, even if you are using Java 1.5 to build and run it. This compatibility package is also available from the <a href="http://tomcat.apache.org/download-55.cgi">Tomcat download page</a>.</p>
 			</td>
          </tr>
 		 <tr><td colspan="4" class="line">&nbsp;</td></tr>
@@ -265,7 +265,7 @@ Sakai is Java-based, and will therefore run on a wide variety of platforms. &nbs
 		level of production deployment. &nbsp;Both
 		MySQL 4.1.12+  and Oracle 9i+ are currently supported by Sakai 2.2, but setting them up to serve as Sakai's back end will require additional configuration
 		(see the <a href="install-overview.html">Installation Guide</a>).</p>
-		<p><em class="note">** NOTE: Sakai has not been adequately tested against MySQL 5.0, and it is therefore not yet recommended for running Sakai in production, however it's been used in development without trouble.  There is an issue with publishing assessments for MySQL versions 4.1.11 or less (see <a href="http://bugs.sakaiproject.org/jira/browse/SAK-4416">SAK-4416</a>), and so MySQL 4.1.12 or greater is recommended.</em></p>
+		<p><em class="note">** NOTE: Sakai has not yet been tested adequately against MySQL 5.0, and it is therefore not yet recommended for production, although it has been used successfully in development. <br/>** NOTE: There is an issue with publishing assessments for MySQL versions 4.1.11 or less (see <a href="http://bugs.sakaiproject.org/jira/browse/SAK-4416">SAK-4416</a>), and so MySQL 4.1.12 or greater is recommended.</em></p>
 		<p>It's important to note that Oracle requires the 10g driver even if Oracle 9i is used for the database.  The recommended driver for MySQL is 3.1.12, since there is a greater weight of production success behind it; although early testing has revealed no significant problems with the 3.1.13 driver, it should be used advisedly.</p>
 		</td>
       </tr>
@@ -288,11 +288,11 @@ involve clustered application servers.
    <tbody>
    <tr>
           <th><p>Release Notes</p></th>
-           <td>
+           <td><p>
             <ul>
              <li><a href="release-notes.html">2.2.0 Release Notes</a></li>
              <li><a class="red" href="important_issues.html">2.2.0 Open Issues</span></a></li>
-            </ul>
+            </ul></p>
             </td>
        </tr>
 	   <tr><td colspan="2" class="line">&nbsp;</td></tr>
@@ -309,7 +309,7 @@ involve clustered application servers.
        <tr>
          <th><p>Reference Articles</p></th>
          <td><p>Some of the most authoritative technical documentation on Sakai code and services is found in the form of .doc files in the <b>reference</b> module of Sakai, which can be directly reached through subversion (and is also included in release archives).  The articles for the 2.2.0 release can be found at: <br/>
-           <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/</a></p>
+           <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/</a></p><br/>
         </td>
       </tr>
 	  <tr><td colspan="2" class="line">&nbsp;</td></tr>
@@ -345,14 +345,13 @@ involve clustered application servers.
 
 <a name="latest"></a>
 <h3>Getting the Latest Source Code</h3>
-Sakai is using Subversion for its source control, and has maintenance branches for its most current releases. You can check out the maintenance branch for Sakai 2.2 with a subversion client:
-<br />
-<em>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/ </em>
-<p></p>
-The Sakai development trunk is located here:
-<br />
-<a href="https://source.sakaiproject.org/svn/sakai/trunk">
-https://source.sakaiproject.org/svn/sakai/trunk</a>
+<p>Sakai is using Subversion for its source control, and has maintenance branches for its most current releases. You can check out the maintenance branch for Sakai 2.2 with a subversion client:<p>
+
+<p><b>svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/ </b></p>
+<p>
+The Sakai development trunk can be checked out from here:
+</p>
+<p><b>svn co https://source.sakaiproject.org/svn/sakai/trunk</b>
 <p>
 &nbsp;</p>
 
@@ -370,7 +369,8 @@ Sakai Jira </a>
 
  <p>The Sakai community interacts mainly in two electronic fora.  The first is through the email archives attached to the sites on <a href="http://collab.sakaiproject.org">Sakai Collab</a>.  "Collab" is a Sakai-based service run by the Sakai Foundation to support
 the collaboration of its community.  Of the available collab sites, <b>sakai-dev</b> is most active and it is where most of the technical discussion goes on.   To participate, create an account from the gateway page, and then log in and use the "Membership" tool to join the <b>DG: Development</b> site. By joining this site you are automatically added to the
-<a href="mailto:sakai-dev@collab.sakaiproject.org">sakai-dev@collab.sakaiproject.org</a> mailing list. We encourage you to create an account, join any appropriate groups on the collab server, and participate.  To "unsubscribe" from any of the lists, simply use the same Membership tool to unjoin the sites.  <em class="note"> ** NOTE: This is not technically a listserv - sending an "unsubscribe" email will accomplish nothing.</em></p>
+<a href="mailto:sakai-dev@collab.sakaiproject.org">sakai-dev@collab.sakaiproject.org</a> mailing list. We encourage you to create an account, join any appropriate groups on the collab server, and participate.</p>
+<p>To "unsubscribe" from any of the lists, simply use the same Membership tool to unjoin the sites.  <em class="note"> ** NOTE: This is not technically a listserv - sending an "unsubscribe" email will accomplish nothing.</em></p>
 
  <p>The second forum is <a href="http://bugs.sakaiproject.org/confluence">Confluence</a>, the wiki web used by the project.  Confluence is used for a wide variety of purposes: the collaborative forging of documentation, project management reporting, and the sharing of notes.  You can browse its pages there anonymously, but if you want to comment or otherwise participate you're encouraged to create an account there as well.</p>
 <p>&nbsp;</p>
