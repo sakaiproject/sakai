@@ -13,14 +13,12 @@
         <para>A provisional tool is one which is considered to be mature enough to be included in
             the release distribution, but is not (yet) considered to be an official part of the
             enterprise bundle, and which does not come enabled by default. Additional steps are
-            required to enable these additional tools, per the discretion of the deploying
-            institutions or individuals.</para>
+            required to enable these extra tools.</para>
         <para>However, a provisional tool may meet a need that the standard tools do not. Since one
             of the criteria for provisional status is that the tool must already have seen
             successful production use at more than one member institution, and since provisional
-            tools are included in the code QA'ed before release, you should be able to deploy a
-            provisional tool in production with some confidence, provided the proper configuration
-            is done in advance.</para>
+            tools are included in the code QA'ed for a release, you should be able to deploy a
+            provisional tool in production with some confidence.</para>
         <para>The basic idea of a provisional tools is to allow sites to have ready access to
             blossoming tools for testing and evaluation. If they meet needs and broad success is
             reported in production, they may be included as a standard part of the bundle in future
@@ -38,7 +36,7 @@
                 <emphasis>Edit Tools</emphasis> lists - they effectively require the intervention of
             an admin in order to be added to a site.</para>
         <para>Tools can be stealthed through a setting in <filename>sakai.properties</filename>,
-            which simply contains a comma-separated list of all the tool ids for stealthed tools.
+            which simply contains a comma-separated list of all the tool ids for those tools that will be stealthed.
             Sakai OOTB has the following tools stealthed:</para>
         <screen>
 stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.assignment,sakai.rwiki,sakai.site.roster,
@@ -46,15 +44,16 @@ osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sam
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
 sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
 osp.presLayout,osp.style</screen>
-        <para>There are some provisional tools (e.g. SU, Sakaiscript, Summary Calendar) for which
+        <para>There are some provisional tools (e.g. <emphasis>SU</emphasis>, <emphasis>Sakaiscript</emphasis>, <emphasis>Summary Calendar</emphasis>) for which
             stealthing does not apply, since they are inherently designed for admin enabling and
             deployment. These tools are not registered for <emphasis>Worksite Setup</emphasis> in
-            the first place, and so are effectively always stealthed.
-            Stealthing is a mechanism for obscuring tools from site creators and maintainers, not
-            admins, who always have access to all the available tools.</para>
+            the first place, and so are effectively always stealthed. Stealthing is a mechanism for
+            obscuring tools from site creators and maintainers, not admins, who have access
+            to all the available tools through their admin functions.</para>
     </sect1>
     <sect1 xml:id="tool-list">
         <title>Provisional Tools in 2.2.0</title>
+        <para>A brief overview of each provisional tool is provided below.  For more detailed information, visit the Confluence links provided, or send your questions to the listed contact.</para>
         <sect2 xml:id="samigo">
             <title>Tests&amp;Quizzes</title>
             <variablelist>
@@ -106,7 +105,7 @@ osp.presLayout,osp.style</screen>
                     <varlistentry>
                         <term>Organizing and Publishing</term>
                         <listitem>
-                            <para>with options for specifying release date, due date, and/or retract
+                            <para>Options for specifying release date, due date, and/or retract
                                 date, late handling, number of submissions, grading options,
                                 feedback settings, and layout...etc Auto and manual grading;
                                 Managing question pool</para>
@@ -115,9 +114,9 @@ osp.presLayout,osp.style</screen>
                     <varlistentry>
                         <term>Managing assessment-taking</term>
                         <listitem>
-                            <para>such as randomized tests, random draw from question pool, timed
+                            <para>Options for managing assessment delivery, such as randomized tests, random draw from question pool, timed
                                 assessment with auto submit, high security assessments with
-                                restricted IP and secondary password, as well as option to send
+                                restricted IP and secondary password, as well as the option to send
                                 grades to Sakai's Gradebook tool.</para>
                         </listitem>
                     </varlistentry>
@@ -216,7 +215,7 @@ mc.default.Instructor=Owner</screen>
             </sect3>
         </sect2>
         <sect2 xml:id="osp">
-            <title>OSP (several related tools)</title>
+            <title>OSP</title>
             <variablelist>
                 <varlistentry>
                     <term>Tool ID</term>
@@ -240,11 +239,13 @@ mc.default.Instructor=Owner</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>The several OSP tools support the use of online portfolios, and are designed to
-                work in concert. The number of tools and purposes is too great to take on here, so
+            <sect3>
+                <title>Overview</title>
+                <para>The Open Source Portfolio (OSP) has been a significant standalone product in its own right, and it is bundled in Sakai 2.2 as a suite of several tools designed to work in concert for portfolio-based assessment. The number of tools and purposes is too great to take on here, so
                 please visit <link xl:href="http://www.osportfolio.org"
                 >http://www.osportfolio.org</link> for more information on the Open Source Portfolio
                 (OSP).</para>
+            </sect3>
         </sect2>
         <sect2 xml:id="search">
             <title>Search</title>
@@ -274,7 +275,7 @@ mc.default.Instructor=Owner</screen>
             </variablelist>
             <sect3>
                 <title>Overview</title>
-                <para>The search tool aims to provide a tool that allows a Google like search all
+                <para>The search tool aims to provide a tool that allows a Google-like search of all
                     content in a Sakai instance.</para>
             </sect3>
             <sect3>
@@ -287,8 +288,8 @@ indexStorageName@org.sakaiproject.search.index.IndexStorage = db
 recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
 location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</screen>
 
-                <para>The <command>indexStorageName</command> is the name of the configured class
-                    that is used for index storage.</para>
+                <para>The first of the three settings, <command>indexStorageName</command>, is the name of the configured class
+                    that is used for index storage.  The three possible values for this setting are described below:</para>
                 <variablelist>
                     <varlistentry>
                         <term>filesystem</term>
@@ -315,13 +316,13 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
                     </varlistentry>
                 </variablelist>
 
-                <para><command>recoverCorruptedIndex</command> controls what happens if the index is
+                <para>The next setting, <command>recoverCorruptedIndex</command>, controls what happens if the index is
                     found to be corrupt. If true, the index can be automatically deleted and
                     restarted, but it will have no content. The content can be re-initialised by
                     admin rebuilding the index of the whole instance. If false a corrupted index
                     will cause an exception to be reported to the end user.</para>
 
-                <para><command>location</command> is the location of the index. If the driver is a
+                <para>The final value to be set, <command>location</command>, is the location of the index. If the driver is a
                     database driver, the location will be a database table. If the driver is a
                     filesystem it will be a directory where the index files are stored.</para>
             </sect3>
@@ -411,7 +412,7 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
                 <title>Overview</title>
                 <para>Sakaiscript is essentially a logical web service wrapper to the Sakai API,
                     opening up a number of common admin functions to easy scripting from other
-                    languages.</para>
+                    languages.  You'll find HTML documentation for it, including sample scripts from Python, in <filename>reference/docs/webservices/html/index.html</filename>.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
@@ -503,24 +504,19 @@ webservices.allowlogin=false</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <para>
-                <link
-                    xl:href="http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary"
-                    >Confluence Space</link>
-            </para>
             <sect3>
                 <title>Overview</title>
-                <para>Calendar Summary is a synoptic tool for Sakai 2.1.x and 2.2.x that presents a
+                <para>Calendar Summary is a synoptic tool that presents a
                     visual monthly view of schedule events in the Home page of My Workspace or other
-                    course/project site. If placed on My Workspace sites, it aggregates schedule
-                    events of all active sites the user is member of (except if user is admin). If
-                    placed on course/project sites, it presents only events of that site.</para>
+                    course/project sites. If placed in My Workspace sites, it aggregates schedule
+                    events of all active sites the user is member of (unless the user is an admin). If
+                    placed in course/project sites, it displays only events for that site.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
                 <para>This tool may be unstealthed to allow it to be added by site maintainers -
-                    just as with most other provisional tools, but it may also be particularly
-                    appropriate to add it to all new MyWorkspaces by default, and this can be done
+                    just as with most other provisional tools - but it may also be particularly
+                    appropriate to add it to all new My Workspaces by default, and this can be done
                     by editing the appropriate site template: <command>!user</command> for My
                     Workspace sites; <command>!worksite</command> for course/project sites. </para>
             </sect3>
@@ -557,8 +553,7 @@ webservices.allowlogin=false</screen>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>The tool simply needs to be unstealthed, and requires no special
-                    configuration.</para>
+                <para>The tool simply needs to be unstealthed.  It requires no special configuration, but some extra work may need to be done to provide photos for it from campus systems.</para>
             </sect3>
         </sect2>
 
