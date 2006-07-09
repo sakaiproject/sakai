@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id1997442"></a>2.2.0 Release Notes</h1></div></div>
+<a name="id2241432"></a>2.2.0 Release Notes</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -19,15 +19,15 @@
 <dl>
 <dt><span class="sect1"><a href="#new">1. What's New</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="#new-function">1.1. New Features</a></span></dt>
-<dt><span class="sect2"><a href="#new-provisional">1.2. New Provisional Tools</a></span></dt>
+<dt><span class="sect2"><a href="#new-enhance">1.1. Enhancements</a></span></dt>
+<dt><span class="sect2"><a href="#new-tools">1.2. New Tools</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="#migration">2. Migration Issues</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="#migration-conversion">2.1. DB Conversion</a></span></dt>
-<dt><span class="sect2"><a href="#migration-api">2.2. API Changes and sakai.properties</a></span></dt>
+<dt><span class="sect2"><a href="#migration-conversion">2.1. Database Conversion</a></span></dt>
+<dt><span class="sect2"><a href="#migration-api">2.2. Framework Changes</a></span></dt>
 <dt><span class="sect2"><a href="#migration-providers">2.3. Provider Changes</a></span></dt>
-<dt><span class="sect2"><a href="#id1998043">2.4. Skin Changes</a></span></dt>
+<dt><span class="sect2"><a href="#id2242328">2.4. Skin Changes</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="#maintenance">3. Maintenance Branch</a></span></dt>
 <dt><span class="sect1"><a href="#resolved">4. Fixes Included in this Release</a></span></dt>
@@ -42,45 +42,51 @@
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="new-function"></a>1.1.&nbsp;New Features</h3></div></div></div>
+<a name="new-enhance"></a>1.1.&nbsp;Enhancements</h3></div></div></div>
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="new-function-group"></a>1.1.1.&nbsp;Group Awareness</h4></div></div></div>
 
                 <p>Group awareness has been extended to three additional tools: Resources,
-                    Assignments, and Schedule.  That is to say, the contents of each of those tools can have their access restricted to specific groups, as they are defined by site maintainers in the <span class="emphasis"><em>Site Info</em></span> tool.</p>
+                    Assignments, and Schedule. That is to say, the contents of each of those tools
+                    can have their access restricted to specific groups, as they are defined by site
+                    maintainers in the <span class="emphasis"><em>Site Info</em></span> tool.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
 <a name="new-function-eid"></a>1.1.2.&nbsp;EID/UID Separation</h4></div></div></div>
 
                 <p>For the last few releases we've been working to introduce the concept of
-                    "internal" and "external" identifiers in Sakai in the User records. We started
+                    "internal" and "external" identifiers in Sakai in the user records. We started
                     with a single identifier that had to play both of these roles, and have been
                     tweaking the code to separate these out. For 2.2 we have completed this
-                    separation.  It is now possible for an institution to, for example, alter the
-                    enterprise IDs of their users without losing access to their sites and materials in Sakai. For a
-                    thorough discussion of these changes, see the doc
-                        <code class="filename">architecture/sakai_id_eid.doc</code> (or in subversion at:
-                        <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc" target="_top">https://source.sakaiproject.org/svn/reference/trunk/docs/architecture/sakai_id_eid.doc</a>)</p>
+                    separation. It is now possible for an institution to, for example, alter the
+                    enterprise IDs of their users without losing access to their sites and materials
+                    in Sakai. For a thorough discussion of these changes, see the doc
+                        <code class="filename">reference/docs/architecture/sakai_id_eid.doc</code> (or in subversion at:
+                        <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc</a>)</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1997062"></a>1.1.3.&nbsp;FCKeditor</h4></div></div></div>
+<a name="id2241484"></a>1.1.3.&nbsp;FCKeditor</h4></div></div></div>
 
                 <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
-                    it has become the default editor.  HTMLArea is still included, however, and the default editor may be overridden in <code class="filename">sakai.properties</code> by altering the following setting:</p>
+                    it has become the default editor. HTMLArea is still included, however, and the
+                    default editor may be overridden in <code class="filename">sakai.properties</code> by
+                    altering the following setting:</p>
                 <pre class="screen">
 # specify the wysiwyg editor
 wysiwyg.editor=FCKeditor</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1997083"></a>1.1.4.&nbsp;Included Skins</h4></div></div></div>
+<a name="id2241506"></a>1.1.4.&nbsp;Included Skins</h4></div></div></div>
 
                 <p>The three highest-scoring skins from the recent skins contest have been
-                    included in the distribution.  You can make any of these your default skin by using the following property in <code class="filename">sakai.properties</code> (other possible values are commented out):</p>
+                    included in the distribution. You can make any of these your default skin by
+                    using the following property in <code class="filename">sakai.properties</code> (other
+                    possible values are commented out in the example below):</p>
                 <pre class="screen">
 # The default skin for sites without a skin setting
 # skin.default=gen-u
@@ -90,15 +96,16 @@ skin.default=default</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1997108"></a>1.1.5.&nbsp;Updated Help Content</h4></div></div></div>
+<a name="id2241527"></a>1.1.5.&nbsp;Updated Help Content</h4></div></div></div>
 
-                <p>Help Content in 2.1 was out of date, reflecting only version 2.0 of the
+                <p>Help content in 2.1 was out of date, reflecting only version 2.0 of the
                     software. The help content has been updated for 2.2, along with some style
-                    improvements.</p>
+                    improvements.  To see the ongoing work of the Help project, visit their space in Confluence:</p>
+                <p><a href="http://bugs.sakaiproject.org/confluence/display/HELP/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/HELP/Home</a></p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1997125"></a>1.1.6.&nbsp;French and Japanese translations</h4></div></div></div>
+<a name="id2241550"></a>1.1.6.&nbsp;French and Japanese translations</h4></div></div></div>
 
                 <p>New interface translations for French and Japanese have been included. See
                         <code class="filename">reference/docs/readme_i18n.txt</code> for more information on
@@ -107,7 +114,7 @@ skin.default=default</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="new-provisional"></a>1.2.&nbsp;New Provisional Tools</h3></div></div></div>
+<a name="new-tools"></a>1.2.&nbsp;New Tools</h3></div></div></div>
 
             <p>Sakai 2.2.0 has added four new provisional tools</p>
             <div class="variablelist"><table border="0">
@@ -131,8 +138,8 @@ skin.default=default</pre>
 <td>
 <span class="term">Summary Calendar </span></td>
 <td>
-                        <p>a synoptic calendar view for the <span class="emphasis"><em>MyWorkspace</em></span> that includes events from
-                            all the sites to which a user is a member.</p>
+                        <p>a synoptic calendar view for the <span class="emphasis"><em>MyWorkspace</em></span> that
+                            includes events from all the sites to which a user is a member.</p>
                     </td>
 </tr>
 <tr>
@@ -147,7 +154,8 @@ skin.default=default</pre>
 </tr>
 </tbody>
 </table></div>
-            <p>You can find more details about these and all other provisional tools on the <a href="http://source.sakaiproject.org/2.2.0/provisional.html" target="_top">provisional tools</a> page.</p>
+            <p>You can find more details about these and all other provisional tools on the <a href="http://source.sakaiproject.org/2.2.0/provisional.html" target="_top">provisional
+                    tools</a> page.</p>
         </div>
     </div>
     <div class="sect1" lang="en">
@@ -156,11 +164,11 @@ skin.default=default</pre>
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="migration-conversion"></a>2.1.&nbsp;DB Conversion</h3></div></div></div>
+<a name="migration-conversion"></a>2.1.&nbsp;Database Conversion</h3></div></div></div>
 
             <p>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
                 scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
-                are found in the <code class="filename">reference/docs/updating</code> folder of the release
+                are found in the <code class="filename">reference/docs/conversion</code> folder of the release
                 or on subversion:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -187,7 +195,7 @@ skin.default=default</pre>
 </table></div>
             <p>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate update scripts. You cannot, for example, move from 2.1.1 to
+                of all intermediate conversion scripts. You cannot, for example, move from 2.1.1 to
                 2.2.0 by applying a single DB script. You will need to move first from 2.1.1 to
                 2.1.2, and then to 2.2.0.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
@@ -198,14 +206,14 @@ skin.default=default</pre>
                     have made - such as new roles, or the deployment of additional tools - and they
                     may complicate your migration with unintended consequences if you execute the
                     script blindly.</p>
-                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool is one
+                <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool offers one
                     such particular example. A number of schools deployed <span class="emphasis"><em>Message
-                    Center</em></span> in 2.1.x production instances, before it was yet a provisional
-                    tool. Now that <span class="emphasis"><em>Message Center</em></span> is a provisional tool in
-                    2.2.0, the conversion scripts were written to alter the database to introduce
-                    them, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new tool for
-                    your instance. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead execute the following conversions:</p>
+                    Center</em></span> in 2.1.x production, before it was yet a provisional tool. Now
+                    that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new
+                    tool for your deployment. If it isn't, you'll want to comment out the portions
+                    of the conversion script that treat it, and instead perform the following
+                    conversions:</p>
                 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -237,11 +245,11 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="migration-api"></a>2.2.&nbsp;API Changes and sakai.properties</h3></div></div></div>
+<a name="migration-api"></a>2.2.&nbsp;Framework Changes</h3></div></div></div>
 
             <p>The 2.2 refactoring means that many package names have changed, and these
                 differences will mainly be encountered in <code class="filename">sakai.properties</code>
-                settings which reference beans. It's best to not try to use a
+                settings with bean references. It's best to not try to use a
                     <code class="filename">sakai.properties</code> from a previous release, and instead start
                 with the sample in <code class="filename">reference/docs/sakai.properties</code>.</p>
             <p>Any custom code, such as providers, may also need revision. See below for more
@@ -272,25 +280,38 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
                     <p>Change the Spring bean declaration in component.xml.</p>
                 </li>
 <li>
-                    <p>The UDP class may implement the DisplayAdvisor (optional), and the two
+                    <p>The UDP class may implement the DisplayAdvisorUDP interface (optional), and the two
                         additional methods this pulls in. </p>
                 </li>
 </ol></div>
+            <p>Be sure to review the SampleUserDirectoryProvider, and compare it against the same sample for previous releases:</p>
+            <p><a href="https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java" target="_top">https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</a></p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id1998043"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
+<a name="id2242328"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
 
-            <p>A number of CSS changes will need to be made to any 2.1 skins in order to adapt them to 2.2.  These changes - including conversion steps - are thoroughly documented in the appendices of the skin document available in reference/docs/architecture, or in subversion at:  <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</a></p>
+            <p>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
+                them to 2.2. These changes - including conversion steps - are thoroughly documented
+                in the appendices of the skin document available in reference/docs/architecture, or
+                in subversion at: <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</a></p>
         </div>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
 <a name="maintenance"></a>3.&nbsp;Maintenance Branch</h2></div></div></div>
 
-        <p>The code of each release has a corresponding maintenance branch, which is patched with fixes in an ongoing way by a branch manager - effectively until there is no longer sufficient interest in it for a branch manager to volunteer.  Maintenance branches therefore represent the latest stable snapshot of any given Sakai version.</p>
-        <p>These maintenance branches may be checked out through subversion, they are labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.  You can check out the 2.2 maintenance branch with the following command: </p>
-        <p><span><strong class="command">svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</strong></span></p>
+        <p>The code of each release has a corresponding maintenance branch, which is patched with
+            fixes in an ongoing way by a branch manager - effectively until there is no longer
+            sufficient interest in it for a branch manager to volunteer. Maintenance branches
+            therefore represent the latest stable snapshot of any given Sakai version.</p>
+        <p>These maintenance branches may be checked out through subversion, they are labeled
+            with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
+            2.2 maintenance branch with the following command: </p>
+        <p>
+            <span><strong class="command">svn co
+            https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</strong></span>
+        </p>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
@@ -305,7 +326,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         <p></p>
     </div>
 </div>
-<br clear="all"></div>
+<br clear="all"/></div>
 </body>
 </html>
 
