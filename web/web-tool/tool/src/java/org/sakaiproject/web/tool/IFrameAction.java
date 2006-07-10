@@ -153,15 +153,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	private static final String MACRO_DEFAULT_ALLOWED = "${USER_ID},${USER_FIRST_NAME},${USER_LAST_NAME},${SITE_ID},${USER_ROLE}";
 	
-	private static ArrayList allowedMacrosList = new ArrayList();
-	
-	static {
-		
-	    String allowedMacros = ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
-		
-		Collections.addAll(allowedMacrosList, allowedMacros.split(","));
-		
-	}
+	private static ArrayList allowedMacrosList;
 	
 	/**
 	 * Populate the state with configuration settings
@@ -197,6 +189,28 @@ public class IFrameAction extends VelocityPortletPaneledAction
 
 		// set the special setting
 		String special = config.getProperty(SPECIAL);
+		
+		// initialize list of approved macros for replacement within URL
+		if (allowedMacrosList == null) {
+		
+			allowedMacrosList = new ArrayList();
+		
+			final String allowedMacros = 
+				ServerConfigurationService.getString(IFRAME_ALLOWED_MACROS_PROPERTY, MACRO_DEFAULT_ALLOWED);
+				
+			String parts[] = allowedMacros.split(",");
+			
+			if(parts != null) {
+			
+				for(int i = 0; i < parts.length; i++) {
+				
+					allowedMacrosList.add(parts[i]);
+				
+				}
+			
+			}
+			
+		}
 		
 		final String sakaiPropertiesUrlKey = config.getProperty(SAKAI_PROPERTIES_URL_KEY);
 		
@@ -499,14 +513,16 @@ public class IFrameAction extends VelocityPortletPaneledAction
 				return this.getUserRole();
 			}
 
-			if (macroName.contains(MACRO_CLASS_SITE_PROP)) 
+			if (macroName.startsWith("${"+MACRO_CLASS_SITE_PROP)) 
 			{
-				macroName = macroName.replace("${","");
-				macroName = macroName.replace("}","");
+				macroName = macroName.substring(2); // Remove leading "${"
+				macroName = macroName.substring(0, macroName.length()-1); // Remove trailing "}" 
 				
+				// at this point we have "SITE_PROP:some-property-name"
+				// separate the property name from the prefix then return the property value
 				String[] sitePropertyKey = macroName.split(":");
 				
-				if (sitePropertyKey.length > 1) {	
+				if (sitePropertyKey != null && sitePropertyKey.length > 1) {	
 				
 					String sitePropertyValue = getSiteProperty(sitePropertyKey[1]);
 	
