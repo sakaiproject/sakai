@@ -105,7 +105,7 @@ public class PodcastServiceImpl implements PodcastService
 
 			resourcesList = collection.getMemberResources();
 			
-			PodcastComparator podcastComparator = new PodcastComparator(ResourceProperties.PROP_CREATION_DATE, false);
+			PodcastComparator podcastComparator = new PodcastComparator(DISPLAY_DATE, false);
 			
 			Collections.sort(resourcesList, podcastComparator);
 
@@ -199,7 +199,7 @@ public class PodcastServiceImpl implements PodcastService
 			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString() );
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
 			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-			resourceProperties.addProperty(ResourceProperties.PROP_CREATION_DATE, displayDate.toString());
+			resourceProperties.addProperty(DISPLAY_DATE, displayDate.toString());
 			resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
 			resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
 			
@@ -234,26 +234,13 @@ public class PodcastServiceImpl implements PodcastService
 	 * 
 	 * @param id
 	 */
-	public void removePodcast(String resourceId) {
+	public void removePodcast(String resourceId) 
+		throws IdUnusedException, InUseException, TypeException, PermissionException {
+
 		ContentResourceEdit edit = null;
 		
-		try {
-			edit = contentHostingService.editResource(resourceId);
-			
-			contentHostingService.removeResource(edit);
-		}
-		catch (IdUnusedException e) {
-			
-		}
-		catch (InUseException e) {
-			
-		}
-		catch (TypeException e) {
-			
-		}
-		catch (PermissionException e) {
-			
-		}
+		edit = contentHostingService.editResource(resourceId);
+		contentHostingService.removeResource(edit);
 	}
 	
 	/**
@@ -306,12 +293,6 @@ public class PodcastServiceImpl implements PodcastService
 			catch (IdUsedException e) {
 			}
 		}
-//		catch (TypeException e) {
-//		}
-//		catch (PermissionException e) {
-//		}
-//		catch (InUseException e) {
-//		}
 
 		return podcastCollection;
 	}
@@ -352,6 +333,65 @@ public class PodcastServiceImpl implements PodcastService
 
 	public void setPodcastComparator(PodcastComparator podcastComparator) {
 		this.podcastComparator = podcastComparator;
+	}
+	
+	public void revisePodcast(String resourceId, String title, String displayDate, String description, byte[] body, 
+            String filename) {
+		
+		try {
+			// get Resource to modify
+			ContentResourceEdit podcastEditable = null;
+		
+			podcastEditable = contentHostingService.editResource(resourceId);
+			ResourcePropertiesEdit podcastResourceEditable = podcastEditable.getPropertiesEdit();
+
+			if (! title.equals(podcastResourceEditable.getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
+			
+			}
+
+			if (! description.equals(podcastResourceEditable.getProperty(ResourceProperties.PROP_DESCRIPTION))) {
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DESCRIPTION);
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+		
+			}
+			
+			if (displayDate != null) {
+				podcastResourceEditable.removeProperty(DISPLAY_DATE);
+				podcastResourceEditable.addProperty(DISPLAY_DATE, displayDate);
+		
+			}
+			
+			if (! filename.equals(podcastResourceEditable.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME))) {
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
+			}
+
+			contentHostingService.commitResource(podcastEditable);
+
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OverQuotaException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -30,10 +30,14 @@
     <br />
 
     <div class="indnt1">  <!-- Choose a file -->
+      <h:outputText value="#{msgs.current_file}" />
+      <b><h:outputText value="#{podHomeBean.selectedPodcast.filename}" styleClass="indnt2" /></b>
+      <br />
+      
       <span class="reqStarInline">*</span>
  	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
- 	  <sakai:inputFileUpload id="podfile" value="#{podcastBean.filename}"
- 	     valueChangeListener="#{podcastBean.processFileUpload}" 
+ 	  <sakai:inputFileUpload id="podfile" value="#{podHomeBean.filename}"
+ 	     valueChangeListener="#{podHomeBean.processFileUpload}" 
  	     styleClass="indnt1" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage" />
@@ -41,10 +45,14 @@
     <br />
 
     <div class="indnt1">  <!-- Date -->
-      <span class="reqStarInline">*</span>
+     <h:outputText value="#{msgs.current_date}" />
+     <b><h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="indnt2" /></b>
+     <br />
+     
+     <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
 
-     <sakai:input_date id="poddate" value="#{podcastBean.date}" showDate="true" rendered="true" />
+     <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
      
       <h:message for="poddate" styleClass="alertMessage" />
     </div>
@@ -53,7 +61,7 @@
     <div class="indnt1">  <!-- Title -->
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podcastBean.title}" styleClass="indnt3" size="35" />
+ 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt3" size="35" />
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
@@ -62,23 +70,23 @@
     <div class="indnt1"> <!-- Description -->
       <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
       <br />
-      <h:inputTextarea value="#{podcastBean.description}" rows="6" cols="80" />
+      <h:inputTextarea value="#{podHomeBean.selectedPodcast.description}" rows="6" cols="80" />
     </div>
     <br />
 
     <div class="indnt1"> <!-- Email Notification -->
       <h:outputText value="#{msgs.email_prompt}" />
-      <h:selectOneMenu value="#{podcastBean.email}">
-          <f:selectItems value="#{podcastBean.emailItems}" />
+      <h:selectOneMenu value="#{podHomeBean.email}">
+          <f:selectItems value="#{podHomeBean.emailItems}" />
       </h:selectOneMenu>
       
     </div>
     <br />
 
     <sakai:button_bar>  <!-- Save Changes and Cancel buttons -->
-      <sakai:button_bar_item action="#{podcastBean.processRevisePodcast}" value="#{msgs.change_submit}" 
+      <sakai:button_bar_item action="#{podHomeBean.processRevisePodcast}" value="#{msgs.change_submit}" 
           accesskey="s" title="Save changes to Podcasts" styleClass="active" />
-      <sakai:button_bar_item action="#{podcastBean.processCancelRevise}" value="#{msgs.cancel}" 
+      <sakai:button_bar_item action="#{podHomeBean.processCancelRevise}" value="#{msgs.cancel}" 
           accesskey="c" title="Cancel Changes" />
     </sakai:button_bar>
    </h:form>

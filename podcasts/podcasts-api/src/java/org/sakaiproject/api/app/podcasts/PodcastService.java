@@ -25,7 +25,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolManager;
 
 // import org.sakaiproject.entity.api.EntityProducer;
@@ -47,6 +51,9 @@ public interface PodcastService // extends EntityProducer
 	/** Service name (class w/ package prefix) for podcast service **/
 	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
 
+	/** This string is the name of the property used when displaying and sorting the podcasts **/
+	public static final String DISPLAY_DATE = "displayDate";
+	
 	/**
 	 * Does the actual adding of podcast to Resources
 	 * 
@@ -78,7 +85,8 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @param resourceId resourceId of the podcast to be deleted
 	 */
-	public void removePodcast(String resourceId);
+	public void removePodcast(String resourceId)
+		throws IdUnusedException, InUseException, TypeException, PermissionException; 
 	
 	/**
 	 * Returns SiteId for the site this tool is a part of
@@ -115,5 +123,20 @@ public interface PodcastService // extends EntityProducer
 	 * @return true if there are actual podcasts, false otherwise
 	 */
 	public boolean checkForActualPodcasts();
+
+	/**
+	 * Returns an editable resource if ID exists.
+	 * 
+	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 */
+	public ContentResourceEdit getAResource(String resourceId);
+	
+	/**
+	 * Returns an editable resource if ID exists.
+	 * 
+	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 */
+	public void revisePodcast(String resourceId, String title, String displayDate, String description, byte[] body, 
+            String filename);
 
 }

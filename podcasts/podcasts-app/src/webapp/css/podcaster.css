@@ -1,5 +1,6 @@
 .reqPrompt {
     position : relative;
+    top : 4px;
     left : 2px;
 }
 
@@ -58,4 +59,26 @@ span.active {
 	position: relative;
 	top: 13px;
 	font-size: 8pt;
+}
+
+.podDelDateFormat {
+	position: relative;
+	top: 10px;
+	font-size: 13pt;
+}
+
+.podDelTitleFormat {
+	position: relative;
+	top: 12px;
+	font-size: 11pt;
+}
+
+.podDelDescPosition {
+	position: relative;
+	top: 12px;
+}
+
+.podDelButtonsPosition {
+	position: relative;
+	top: 30px;
 }

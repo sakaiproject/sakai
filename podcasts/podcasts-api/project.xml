@@ -33,12 +33,12 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		
-<!--		<dependency>
+		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
+			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		<dependency>
+<!--			<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-util</artifactId>
 			<version>${sakai.version}</version>
@@ -55,6 +55,7 @@
 			<artifactId>sakai-util-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>-->
+
 
 <!--		<dependency>
 			<groupId>commons-logging</groupId>

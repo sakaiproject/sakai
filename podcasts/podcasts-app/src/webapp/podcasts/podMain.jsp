@@ -65,13 +65,13 @@
               <!--  go to Revise page -->
               <h:outputText value=") | " />
               <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" >
-                <f:param name="title" value="#{eachPodcast.title}" />
+                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
               <!--  go to Delete page --> 
               <h:outputText value=" | " />
               <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" >
-                <f:param name="title" value="#{eachPodcast.title}" />
+                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
               <f:verbatim></div><br /></f:verbatim>
 
