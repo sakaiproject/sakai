@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -79,7 +81,26 @@ public class PrivateMessagesTool
   private static final String MESSAGECENTER_PRIVACY_TEXT = "messagecenter.privacy.text";
 
   
-
+  /**
+   * List individual private messages details
+   */
+  private static final String REPLY_SUBJECT_PREFIX = "pvt_reply_prefix";
+  private static final String ALERT = "pvt_alert";
+  private static final String NO_MATCH_FOUND = "pvt_no_match_found";
+  private static final String MISSING_BEG_END_DATE = "pvt_missing_date_range";
+  private static final String CREATE_DIFF_FOLDER_NAME = "pvt_create_diff_folder_name";
+  private static final String FOLDER_NAME_BLANK = "pvt_folder_name_blank";
+  private static final String ENTER_FOLDER_NAME = "pvt_enter_new_folder_name";
+  private static final String CONFIRM_FOLDER_DELETE = "pvt_delete_folder_confirm";
+  private static final String CANNOT_DEL_REVISE_FOLDER = "pvt_no_delete_revise_folder";
+  private static final String PROVIDE_VALID_EMAIL = "pvt_provide_email_addr";
+  private static final String CONFIRM_PERM_MSG_DELETE = "pvt_confirm_perm_msg_delete";
+  private static final String SELECT_MSGS_TO_DELETE = "pvt_select_msgs_to_delete";
+  private static final String SELECT_RECIPIENT_LIST_FOR_REPLY = "pvt_select_reply_recipients_list";
+  private static final String MISSING_SUBJECT = "pvt_missing_subject";
+  private static final String SELECT_MSG_RECIPIENT = "pvt_select_msg_recipient";
+  private static final String CONFIRM_MSG_DELETE = "pvt_confirm_msg_delete";
+  private static final String ENTER_SEARCH_TEXT = "pvt_enter_search_text";
   /**
    *Dependency Injected 
    */
@@ -99,10 +120,18 @@ public class PrivateMessagesTool
   public static final String SELECTED_MESSAGE_PG="pvtMsgDetail";
   public static final String COMPOSE_MSG_PG="compose";
   public static final String MESSAGE_SETTING_PG="pvtMsgSettings";
+  public static final String MESSAGE_FOLDER_SETTING_PG="pvtMsgFolderSettings";
   public static final String SEARCH_RESULT_MESSAGES_PG="pvtMsgEx";
   public static final String DELETE_MESSAGES_PG="pvtMsgDelete";
   public static final String DELETE_FOLDER_PG="pvtMsgFolderDelete";
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
+  public static final String MESSAGE_HOME_PG="pvtMsgHpView";
+  public static final String MESSAGE_REPLY_PG="pvtMsgReply";
+  public static final String DELETE_MESSAGE_PG="pvtMsgDelete";
+  public static final String REVISE_FOLDER_PG="pvtMsgFolderRevise";
+  public static final String MOVE_MESSAGE_PG="pvtMsgMove";
+  public static final String ADD_FOLDER_IN_FOLDER_PG="pvtMsgFolderInFolderAdd";
+  public static final String ADD_MESSAGE_FOLDER_PG="pvtMsgFolderAdd";
   
   /** portlet configuration parameter values**/
   public static final String PVTMSG_MODE_RECEIVED = "Received";
@@ -140,7 +169,7 @@ public class PrivateMessagesTool
   private List selectedComposeToList = new ArrayList();
   private String composeSendAsPvtMsg=SET_AS_YES; // currently set as Default as change by user is allowed
   private String composeSubject ;
-  private String composeBody ;
+  private String composeBody;
   private String selectedLabel="Normal" ;   //defautl set
   private List totalComposeToList;
   private List totalComposeToListRecipients;
@@ -150,7 +179,7 @@ public class PrivateMessagesTool
   private List totalDisplayItems=new ArrayList() ;
   
   //reply to 
-  private String replyToBody ;
+  private String replyToBody;
   private String replyToSubject;
   //Setting Screen
   private String activatePvtMsg=SET_AS_NO; 
@@ -252,8 +281,8 @@ public class PrivateMessagesTool
       pvtTopics = pf.getTopics();
       Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
       forum=pf;           
-      activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? "yes" : "no";
-      forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? "yes" : "no";
+      activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
+      forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsgEmail = pf.getAutoForwardEmail();      
     } 
   }
@@ -842,18 +871,18 @@ public class PrivateMessagesTool
   {
     LOG.debug("processActionHome()");
     msgNavMode = "privateMessages";
-    return  "main";
+    return  MAIN_PG;
   }  
   public String processActionPrivateMessages()
   {
     LOG.debug("processActionPrivateMessages()");                    
     msgNavMode = "privateMessages";            
-    return  "pvtMsgHpView";
+    return  MESSAGE_HOME_PG;
   }        
   public String processDisplayForum()
   {
     LOG.debug("processDisplayForum()");
-    return "pvtMsg" ;
+    return DISPLAY_MESSAGES_PG;
   }
   public String processPvtMsgTopic()
   {
@@ -871,7 +900,7 @@ public class PrivateMessagesTool
     //set prev/next topic details
     setPrevNextTopicDetails(msgNavMode);
     
-    return "pvtMsg";
+    return DISPLAY_MESSAGES_PG;
   }
     
   /**
@@ -880,12 +909,12 @@ public class PrivateMessagesTool
    */  
   public String processPvtMsgCancel() {
     LOG.debug("processPvtMsgCancel()");
-    return "main";     
+    return MAIN_PG;     
   }
   
   public String processPvtMsgDetailCancel()
   {
-  	return "pvtMsg";
+  	return DISPLAY_MESSAGES_PG;
   }
 
   /**
@@ -945,7 +974,7 @@ public class PrivateMessagesTool
     }
     //default setting for moveTo
     moveToTopic=selectedTopicId;
-    return "pvtMsgDetail";
+    return SELECTED_MESSAGE_PG;
   }
 
   /**
@@ -967,7 +996,7 @@ public class PrivateMessagesTool
     //set Dafult Subject
     if(getDetailMsg() != null)
     {
-      replyToSubject="Re: " +getDetailMsg().getMsg().getTitle();
+      replyToSubject=getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
     }
     
     //from message detail screen
@@ -978,7 +1007,7 @@ public class PrivateMessagesTool
 //    this.setTotalComposeToList(getTotalComposeToList()) ;
 //    this.setSelectedComposeToList(getSelectedComposeToList()) ;
     
-    return "pvtMsgReply";
+    return MESSAGE_REPLY_PG;
   }
   
   /**
@@ -989,12 +1018,12 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgDeleteConfirm()");
     
     this.setDeleteConfirm(true);
-    setErrorMessage("Are you sure you want to delete this message? If yes, click Delete to delete the message.");
+    setErrorMessage(getResourceBundleString(CONFIRM_MSG_DELETE));
     /*
      * same action is used for delete..however if user presses some other action after first
      * delete then 'deleteConfirm' boolean is reset
      */
-    return "pvtMsgDetail" ;
+    return SELECTED_MESSAGE_PG ;
   }
   
   /**
@@ -1008,7 +1037,7 @@ public class PrivateMessagesTool
     {      
       prtMsgManager.deletePrivateMessage(getDetailMsg().getMsg(), getPrivateMessageTypeFromContext(msgNavMode));      
     }
-    return "main" ;
+    return MAIN_PG ;
   }
   
   //RESET form variable - required as the bean is in session and some attributes are used as helper for navigation
@@ -1038,11 +1067,11 @@ public class PrivateMessagesTool
     resetComposeContents();
     if(("privateMessages").equals(getMsgNavMode()))
     {
-      return "main" ; // if navigation is from main page
+      return MAIN_PG ; // if navigation is from main page
     }
     else
     {
-      return "pvtMsg";
+      return DISPLAY_MESSAGES_PG;
     } 
   }
   
@@ -1069,7 +1098,7 @@ public class PrivateMessagesTool
     
     if(!hasValue(getComposeSubject()))
     {
-      setErrorMessage("You must enter a subject before you may send this message.");
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
     }
 //    if(!hasValue(getComposeBody()) )
@@ -1079,7 +1108,7 @@ public class PrivateMessagesTool
 //    }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("You must select a recipient before you may send this message.");
+      setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
       return null ;
     }
     
@@ -1096,7 +1125,7 @@ public class PrivateMessagesTool
     //reset contents
     resetComposeContents();
     
-    return "main";    
+    return MAIN_PG;    
   }
      
   /**
@@ -1107,7 +1136,7 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSaveDraft()");
     if(!hasValue(getComposeSubject()))
     {
-      setErrorMessage("You must enter a subject before you may send this message.");
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
     }
 //    if(!hasValue(getComposeBody()) )
@@ -1117,7 +1146,7 @@ public class PrivateMessagesTool
 //    }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("You must select a recipient before you may send this message.");
+      setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
       return null ;
     }
     
@@ -1134,11 +1163,11 @@ public class PrivateMessagesTool
     
     if(getMsgNavMode().equals(""))
     {
-      return "main" ; // if navigation is from main page
+      return MAIN_PG ; // if navigation is from main page
     }
     else
     {
-      return "pvtMsg";
+      return DISPLAY_MESSAGES_PG;
     } 
   }
   // created separate method as to be used with processPvtMsgSend() and processPvtMsgSaveDraft()
@@ -1513,9 +1542,9 @@ public class PrivateMessagesTool
     else
     {
       LOG.debug("processDisplayMsgById() - Error");
-      return "pvtMsg";
+      return DISPLAY_MESSAGES_PG;
     }
-    return "pvtMsgDetail";
+    return SELECTED_MESSAGE_PG;
   }
   
   //////////////////////REPLY SEND  /////////////////
@@ -1540,13 +1569,13 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      setErrorMessage("You must enter a subject before you may send this message.");
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
     }
 
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipients list for this reply message.");
+      setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
       return null ;
     }
         
@@ -1609,7 +1638,7 @@ public class PrivateMessagesTool
     //reset contents
     resetComposeContents();
     
-    return "main" ;
+    return MAIN_PG ;
 
   }
  
@@ -1622,7 +1651,7 @@ public class PrivateMessagesTool
     
     if(!hasValue(getReplyToSubject()))
     {
-      setErrorMessage("You must enter a subject before you may send this message.");
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
     }
 //    if(!hasValue(getReplyToBody()) )
@@ -1632,7 +1661,7 @@ public class PrivateMessagesTool
 //    }
     if(getSelectedComposeToList().size()<1)
     {
-      setErrorMessage("Please select recipients list for this reply message.");
+      setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
       return null ;
     }
     
@@ -1681,7 +1710,7 @@ public class PrivateMessagesTool
     //reset contents
     resetComposeContents();
     
-    return "pvtMsg" ;    
+    return DISPLAY_MESSAGES_PG ;    
   }
   
   ////////////////////////////////////////////////////////////////  
@@ -1701,11 +1730,11 @@ public class PrivateMessagesTool
     this.setSelectedDeleteItems(delSelLs);
     if(delSelLs.size()<1)
     {
-      setErrorMessage("Please select list of messages to be deleted.");
+      setErrorMessage(getResourceBundleString(SELECT_MSGS_TO_DELETE));
       return null;  //stay in the same page if nothing is selected for delete
     }else {
-      setErrorMessage("Are you sure you want to permanently delete the following message(s)?");
-      return "pvtMsgDelete";
+      setErrorMessage(getResourceBundleString(CONFIRM_PERM_MSG_DELETE));
+      return DELETE_MESSAGE_PG;
     }
   }
   
@@ -1722,7 +1751,7 @@ public class PrivateMessagesTool
         prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
       }      
     }
-    return "main" ;
+    return MAIN_PG ;
   }
 
   
@@ -1994,7 +2023,7 @@ public class PrivateMessagesTool
     
     removeAttachId = null;
     prepareRemoveAttach.clear();
-    return "compose";
+    return COMPOSE_MSG_PG;
     
   }
   
@@ -2004,7 +2033,7 @@ public class PrivateMessagesTool
     
     removeAttachId = null;
     prepareRemoveAttach.clear();
-    return "compose" ;
+    return COMPOSE_MSG_PG ;
   }
   
 
@@ -2068,7 +2097,7 @@ public class PrivateMessagesTool
   public String processPvtMsgSettings()
   {
     LOG.debug("processPvtMsgSettings()");    
-    return "pvtMsgSettings";
+    return MESSAGE_SETTING_PG;
   }
     
   public void processPvtMsgSettingsRevise(ValueChangeEvent event)
@@ -2076,10 +2105,10 @@ public class PrivateMessagesTool
     LOG.debug("processPvtMsgSettingsRevise()");   
     
     /** block executes when changing value to "no" */
-    if ("yes".equals(forwardPvtMsg)){
+    if (SET_AS_YES.equals(forwardPvtMsg)){
       setForwardPvtMsgEmail(null);      
     }       
-    if ("no".equals(forwardPvtMsg)){
+    if (SET_AS_NO.equals(forwardPvtMsg)){
       setValidEmail(true);
     }
   }
@@ -2093,18 +2122,18 @@ public class PrivateMessagesTool
     String forward=getForwardPvtMsg() ;
     if (email != null && (!SET_AS_NO.equals(forward)) && (!email.matches(".+@.+\\..+"))){
       setValidEmail(false);
-      setErrorMessage("Please provide a valid email address");
-      setActivatePvtMsg("yes");
-      return "pvtMsgSettings";
+      setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
+      setActivatePvtMsg(activate);
+      return MESSAGE_SETTING_PG;
     }
     else
     {
       Area area = prtMsgManager.getPrivateMessageArea();            
       
-      Boolean formAreaEnabledValue = ("yes".equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
+      Boolean formAreaEnabledValue = (SET_AS_YES.equals(activate)) ? Boolean.TRUE : Boolean.FALSE;
       area.setEnabled(formAreaEnabledValue);
       
-      Boolean formAutoForward = ("yes".equals(forward)) ? Boolean.TRUE : Boolean.FALSE;            
+      Boolean formAutoForward = (SET_AS_YES.equals(forward)) ? Boolean.TRUE : Boolean.FALSE;            
       forum.setAutoForward(formAutoForward);
       if (Boolean.TRUE.equals(formAutoForward)){
         forum.setAutoForwardEmail(email);  
@@ -2114,7 +2143,7 @@ public class PrivateMessagesTool
       }
              
       prtMsgManager.saveAreaAndForumSettings(area, forum);
-      return "main";
+      return MAIN_PG;
     }
     
   }
@@ -2158,7 +2187,7 @@ public class PrivateMessagesTool
     String topicId=getExternalParameterByKey("pvtMsgTopicId") ;
     setSelectedTopicId(topicId);
     
-    return "pvtMsgFolderSettings" ;
+    return MESSAGE_FOLDER_SETTING_PG;
   }
 
   public String processPvtMsgFolderSettingRevise() {
@@ -2169,14 +2198,14 @@ public class PrivateMessagesTool
       return null;
     }else 
     {
-    	selectedNewTopicTitle = selectedTopicTitle;
-      return "pvtMsgFolderRevise" ;
+      selectedNewTopicTitle = selectedTopicTitle;
+      return REVISE_FOLDER_PG ;
     }    
   }
   
   public String processPvtMsgFolderSettingAdd() {
     LOG.debug("processPvtMsgFolderSettingAdd()");    
-    return "pvtMsgFolderAdd" ;
+    return ADD_MESSAGE_FOLDER_PG ;
   }
   public String processPvtMsgFolderSettingDelete() {
     LOG.debug("processPvtMsgFolderSettingDelete()");
@@ -2187,11 +2216,11 @@ public class PrivateMessagesTool
     
     if(ismutable)
     {
-      setErrorMessage("You cann't Revise or Delete this folder.");
+      setErrorMessage(getResourceBundleString(CANNOT_DEL_REVISE_FOLDER));
       return null;
     }else {
-      setErrorMessage("The folder contains messages that will also be deleted! Are you sure you want to delete the following folder and its contents?");
-      return "pvtMsgFolderDelete" ;
+      setErrorMessage(getResourceBundleString(CONFIRM_FOLDER_DELETE));
+      return DELETE_FOLDER_PG;
     }    
   }
   
@@ -2199,7 +2228,7 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgFolderSettingCancel()");
     
-    return "main" ;
+    return MAIN_PG ;
   }
   
   //Create a folder within a forum
@@ -2210,20 +2239,20 @@ public class PrivateMessagesTool
     String createFolder=getAddFolder() ;
     if(createFolder == null)
     {
-      setErrorMessage("Please enter name of folder,which you want to create.");
+      setErrorMessage(getResourceBundleString(ENTER_FOLDER_NAME));
       return null ;
     } else {
       if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
           PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
       {
-        setErrorMessage("Please create a different folder name.");
+        setErrorMessage(getResourceBundleString(CREATE_DIFF_FOLDER_NAME));
       } else 
       {
         prtMsgManager.createTopicFolderInForum(forum, createFolder);
       //create a typeUUID in commons
       String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
       }
-      return "main" ;
+      return MAIN_PG ;
     }
   }
   
@@ -2249,7 +2278,8 @@ public class PrivateMessagesTool
     
     if(!hasValue(newTopicTitle))
     {
-      setErrorMessage("Folder name shouldn't be blank.");
+      setErrorMessage(getResourceBundleString(FOLDER_NAME_BLANK));
+      return REVISE_FOLDER_PG;
     }
     else {
       prtMsgManager.renameTopicFolder(forum, selectedTopicId,  newTopicTitle);
@@ -2258,7 +2288,7 @@ public class PrivateMessagesTool
       typeManager.renameCustomTopicType(selectedTopicTitle, newTopicTitle);
     }
     
-    return "main" ;
+    return MAIN_PG ;
   }
   
   //Delete
@@ -2277,20 +2307,20 @@ public class PrivateMessagesTool
       PrivateMessage element = (PrivateMessage) iter.next();
       prtMsgManager.deletePrivateMessage(element, typeUuid);
     }
-    return "main";
+    return MAIN_PG;
   }
   public String processPvtMsgFldAddCancel() 
   {
     LOG.debug("processPvtMsgFldAddCancel()");
     
-    return "main";
+    return MAIN_PG;
   }
   
   //create folder within folder
   public String processPvtMsgFolderInFolderAdd()
   {
     LOG.debug("processPvtMsgFolderSettingAdd()");    
-    return "pvtMsgFolderInFolderAdd" ;
+    return ADD_FOLDER_IN_FOLDER_PG ;
   }
   //create folder within Folder
   //TODO - add parent fodler id for this 
@@ -2303,20 +2333,20 @@ public class PrivateMessagesTool
     String createFolder=getAddFolder() ;
     if(createFolder == null)
     {
-      setErrorMessage("Please enter name of folder,which you want to create.");
+      setErrorMessage(ENTER_FOLDER_NAME);
       return null ;
     } else {
       if(PVTMSG_MODE_RECEIVED.equals(createFolder) || PVTMSG_MODE_SENT.equals(createFolder)|| 
           PVTMSG_MODE_DELETE.equals(createFolder) || PVTMSG_MODE_DRAFT.equals(createFolder))
       {
-        setErrorMessage("Please create a different folder name.");
+        setErrorMessage(CREATE_DIFF_FOLDER_NAME);
       } else 
       {
         prtMsgManager.createTopicFolderInTopic(forum, parentTopic, createFolder);
       //create a typeUUID in commons
       String newTypeUuid= typeManager.getCustomTopicType(createFolder); 
       }
-      return "main" ;
+      return MAIN_PG ;
     }
   }
   ///////////////////// MOVE    //////////////////////
@@ -2342,7 +2372,7 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgMove() {
     LOG.debug("processPvtMsgMove()");
-    return "pvtMsgMove";
+    return MOVE_MESSAGE_PG;
   }
   
   public void processPvtMsgParentFolderMove(ValueChangeEvent event)
@@ -2368,7 +2398,7 @@ public class PrivateMessagesTool
     moveToTopic="";
     moveToNewTopic="";
     
-    return "main" ;
+    return MAIN_PG ;
   }
   
   /**
@@ -2379,7 +2409,7 @@ public class PrivateMessagesTool
   {
     LOG.debug("processPvtMsgMoveCancel()");
     
-    return "pvtMsgDetail" ;
+    return SELECTED_MESSAGE_PG ;
   }
   
   ///////////////   SEARCH      ///////////////////////
@@ -2439,7 +2469,7 @@ public class PrivateMessagesTool
     {
       if((searchFromDate == null) && (searchToDate==null))
       {
-        setErrorMessage("Please enter from and to dates for search");
+        setErrorMessage(getResourceBundleString(MISSING_BEG_END_DATE));
       }
       
       if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
@@ -2527,7 +2557,7 @@ public class PrivateMessagesTool
     else {
       if(!hasValue(searchText))
       {
-        setErrorMessage("Please enter text for search.");
+        setErrorMessage(getResourceBundleString(ENTER_SEARCH_TEXT));
       }
       if(searchOnSubject && searchOnAuthor && searchOnBody && searchOnLabel)
       {
@@ -2638,11 +2668,11 @@ public class PrivateMessagesTool
     if(newls.size()>0)
     {
       this.setSearchPvtMsgs(newls) ;
-      return "pvtMsgEx" ;
+      return SEARCH_RESULT_MESSAGES_PG ;
     }
     else 
       {
-        setErrorMessage("No matching result found");
+        setErrorMessage(getResourceBundleString(NO_MATCH_FOUND));
         return null;
       }    
   }
@@ -2667,7 +2697,7 @@ public class PrivateMessagesTool
     searchFromDate=null;
     searchToDate=null;
     
-    return "pvtMsg";
+    return DISPLAY_MESSAGES_PG;
   }
   
   public boolean searchOnBody=false ;
@@ -2922,17 +2952,17 @@ public class PrivateMessagesTool
   //////// GETTER AND SETTER  ///////////////////  
   public String processUpload(ValueChangeEvent event)
   {
-    return "pvtMsg" ; 
+    return DISPLAY_MESSAGES_PG ; 
   }
   
   public String processUploadConfirm()
   {
-    return "pvtMsg";
+    return DISPLAY_MESSAGES_PG;
   }
   
   public String processUploadCancel()
   {
-    return "pvtMsg" ;
+    return DISPLAY_MESSAGES_PG ;
   }
 
 
@@ -2981,7 +3011,7 @@ public class PrivateMessagesTool
   {
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage("Alert: " + errorMsg));
+        new FacesMessage(getResourceBundleString(ALERT) + ' ' + errorMsg));
   }
   
   /**
@@ -3037,6 +3067,14 @@ public class PrivateMessagesTool
 	public void setSortType(String sortType) {
 		this.sortType = sortType;
 	}
+	
+    public static String getResourceBundleString(String key) 
+    {
+        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+        return rb.getString(key);
+    }
 
 
 

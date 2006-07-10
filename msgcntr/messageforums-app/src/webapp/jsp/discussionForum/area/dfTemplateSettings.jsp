@@ -7,20 +7,28 @@
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 
 <f:view>
-   <sakai:view>
-      <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />                 
+   <sakai:view title="#{msgs.cdfm_default_template_settings}">           
       <h:form id="revise">
         <sakai:tool_bar_message value="#{msgs.cdfm_default_template_settings}" />
- 		<div class="instruction">
-  		  <h:outputText id="instruction"  value="#{msgs.cdfm_default_template_settings_instruction}"/>
-		</div>
+		 		<div class="instruction">
+		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
+				</div>
 		 <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-        <p class="act">
-          <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" value="#{msgs.cdfm_button_bar_revise}" rendered="#{not ForumTool.editMode}"/>            
-          <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" onclick="form.submit;" value="#{msgs.cdfm_button_bar_save_setting}" rendered="#{ForumTool.editMode}"/>
+        <div class="act">
+          <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" 
+                           value="#{msgs.cdfm_button_bar_revise}" 
+                           rendered="#{not ForumTool.editMode}"
+                           accesskey="r"/>            
+          <h:commandButton action="#{ForumTool.processActionSaveTemplateSettings}" 
+                           onclick="form.submit;" value="#{msgs.cdfm_button_bar_save_setting}" 
+                           rendered="#{ForumTool.editMode}"
+                           accesskey="s" />
 <%--          <h:commandButton action="#{ForumTool.processActionRestoreDefaultTemplate}" value="Restore Defaults" rendered="#{ForumTool.editMode}"/>--%>
-          <h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
-       </p>
+          <h:commandButton immediate="true" 
+                           action="#{ForumTool.processActionHome}" 
+                           value="#{msgs.cdfm_button_bar_cancel}"
+                           accesskey="c" />
+       </div>
 	  </h:form>
     </sakai:view>
 </f:view>

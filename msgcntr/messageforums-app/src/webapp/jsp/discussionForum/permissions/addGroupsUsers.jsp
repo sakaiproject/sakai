@@ -6,38 +6,35 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-  <sakai:view_container title="#{msgs.cdfm_container_title}">
-    <sakai:view_content>
-      <h:form id="addGroupsUsers"> 
+
+  <sakai:view title="#{msgs.cdfm_container_title}">
+    <h:form id="addGroupsUsers"> 
                 
-        <sakai:tool_bar_message value="Add Individuals/Groups" />
-        <sakai:instruction_message value="To add Individuals or Groups to the permissions list, select one or more users from the list and click Add, then click Save."/>
-        
-        <div style="margin:1em; display:inline">
-          <h:selectManyListbox id="list1" size="10" style="width:150px;">
+      <sakai:tool_bar_message value="#{msgs.cdfm_button_bar_add_groups_users}" />
+      <sakai:instruction_message value="#{msgs.cdfm_add_users}" />
+      
+      <h:panelGrid summary="" columns="3">
+        <h:panelGroup>
+          <h:selectManyListbox id="list1" size="10" styleClass="selectGroupsUsers">
             <f:selectItems value="#{ForumTool.totalGroupsUsersList}"/>
-          </h:selectManyListbox>    
-        </div>
-                
-        <div class="act" style="display:inline; vertical-align:middle">
-          <table style="display:inline">
-            <tr><td>
-            <h:commandButton value="      #{msgs.cdfm_add_button}     "/>
-            <tr><td>
-            <h:commandButton value="#{msgs.cdfm_remove_button}"/>
-          </table>        
-        </div>        
-        
-        <div style="margin:1em; display:inline">
-          <h:selectManyListbox id="list2" size="10" style="width:150px;"/>        
-        </div>
-          			        	    		        
-        <sakai:button_bar>
-          <sakai:button_bar_item action="#{ForumTool.processAddGroupsUsersSubmit}" value="Submit" />
-          <sakai:button_bar_item action="#{ForumTool.processAddGroupsUsersCancel}" value="Cancel" />
-        </sakai:button_bar>
-      </h:form>     
-    </sakai:view_content>
-  </sakai:view_container>
+          </h:selectManyListbox>
+        </h:panelGroup>
+        <h:panelGroup>    
+          <h:commandButton value="     #{msgs.cdfm_add_button}    " accesskey="a" />
+          <f:verbatim><br /></f:verbatim>
+          <h:commandButton value="#{msgs.cdfm_remove_button}" accesskey="r" />
+        </h:panelGroup>
+        <h:panelGroup>   
+           <h:selectManyListbox id="list2" size="10" styleClass="selectGroupsUsers" />        
+        </h:panelGroup>
+      </h:panelGrid>
+     
+  			        	    		        
+      <sakai:button_bar>
+        <sakai:button_bar_item action="#{ForumTool.processAddGroupsUsersSubmit}" accesskey="s" value="Submit" />
+        <sakai:button_bar_item action="#{ForumTool.processAddGroupsUsersCancel}" accesskey="c" value="Cancel" />
+      </sakai:button_bar>
+    </h:form>     
+  </sakai:view>
 </f:view> 
 

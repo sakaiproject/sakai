@@ -6,18 +6,20 @@
 <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-	<sakai:view_container title="Received Private Messages">
-	<sakai:view_content>
+	<sakai:view title="#{msgs.pvt_rcvd_msgs}">
+
 		<h:form id="prefs_form_search">
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
-			<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" /> /
-  		<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" /> /
-			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" /> /
-			<h:outputText value="#{msgs.pvt_search}" />	
+			
+			<div class="breadCrumb">
+				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
+	  		  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_forums}"/> /
+				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}"/> /
+				<h:outputText value="#{msgs.pvt_search}" />	
+		  </div>
 
 			<h:messages styleClass="alertMessage" id="errorMessages" />
 			<%@include file="msgHeader.jsp"%>
-			<br><br><br>
 <%--
 	  <h:dataTable styleClass="listHier" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" >   
 		  <h:column>
@@ -69,22 +71,23 @@
 	  	rendered="#{PrivateMessagesTool.selectView != 'threaded'}">   
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
- 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" />
+ 					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
+ 					               rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" title="#{msgs.cdfm_checkall}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
 <%--		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>--%>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif"/>								
+					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}"/>								
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}"/>			 
+				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
 			</h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
-		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
+		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true" title=" #{rcvdItems.msg.title}">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
             <h:outputText style="font-weight:bold" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
@@ -102,7 +105,7 @@
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}" />
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>	
 		  	  
 		  <h:column rendered="#{PrivateMessagesTool.selectView != 'threaded'}">
@@ -112,7 +115,7 @@
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
     		     <f:convertDateTime pattern="#{msgs.date_format}" />
     		 </h:outputText>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
 		         <f:convertDateTime pattern="#{msgs.date_format}" />
 		     </h:outputText>
 		  </h:column>
@@ -136,18 +139,18 @@
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
 				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif"/>								
+					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />								
 				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}"/>			 
+				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
 			</h:column>
 			<h:column id="_msg_subject"
 				rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
 		    </f:facet>
-		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true">
+		      <h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" immediate="true" title=" #{rcvdItems.msg.title}">
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
-            <h:outputText style="font-weight:bold" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
+            <h:outputText styleClass="unreadMsg" value=" #{rcvdItems.msg.title}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
 		  </h:column>			
@@ -156,14 +159,14 @@
 		       <h:outputText value="#{msgs.pvt_authby}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.msg.author}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.author}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>
 		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded' && PrivateMessagesTool.msgNavMode == 'Sent'}">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_to}"/>
 		    </f:facet>		     		    
 		     <h:outputText value="#{rcvdItems.sendToStringDecorated}" rendered="#{rcvdItems.hasRead}"/>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.sendToStringDecorated}" rendered="#{!rcvdItems.hasRead}"/>
 		  </h:column>		  
 		  <h:column rendered="#{PrivateMessagesTool.selectView == 'threaded'}">
 		    <f:facet name="header">
@@ -172,7 +175,7 @@
 		     <h:outputText value="#{rcvdItems.msg.created}" rendered="#{rcvdItems.hasRead}">
 		         <f:convertDateTime pattern="#{msgs.date_format}" />
 		     </h:outputText>
-		     <h:outputText style="font-weight:bold" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
+		     <h:outputText styleClass="unreadMsg" value="#{rcvdItems.msg.created}" rendered="#{!rcvdItems.hasRead}">
 		         <f:convertDateTime pattern="#{msgs.date_format}" />
 		     </h:outputText>
 		  </h:column>
@@ -186,6 +189,6 @@
 		
 		
 		</h:form>
-	</sakai:view_content>
-	</sakai:view_container>
+
+	</sakai:view>
 </f:view>

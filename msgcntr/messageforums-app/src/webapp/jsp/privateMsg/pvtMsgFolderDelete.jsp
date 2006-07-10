@@ -3,34 +3,40 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 
 <f:view>
-	<sakai:view_container title="Private Messages">
-	<sakai:view_content>
+  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs" />
+  <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
+	<sakai:view title="#{msgs.pvt_delcon}">
+
 		<h:form id="pvtMsgFolderDelete">
-			<sakai:tool_bar_message value="Private Messages- Delete Confirmation" /> 
+			<sakai:tool_bar_message value="#{msgs.pvt_delcon}" /> 
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  
- 			<h4><h:outputText value="Folder Title"/></h4>
-			
-			<sakai:group_box>
-        <table width="80%" align="left">            
-          <tr>
-            <td align="left" width="20%">
-              <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}"/>
-            </td>
-            <td align="left" >
-            	<h:outputText value=" ( #{PrivateMessagesTool.totalMsgInFolder} )messages"/>
-            </td>                      
-          </tr>                                              
-        </table>
-      </sakai:group_box>
-      
+ 			<table width="100%">
+ 			  <tr class="msgHeadings">
+ 			    <td>
+ 			      <h:outputText value="#{msgs.pvt_folder_title}" />
+ 			    </td>
+ 			    <td>
+ 			      <h:outputText value="#{msgs.pvt_num_messages}" />
+ 			    </td>
+ 			  </tr>
+ 			  <tr>
+ 			    <td>
+ 			      <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />
+ 			    </td>
+ 			    <td>
+ 			      <h:outputText value=" #{PrivateMessagesTool.totalMsgInFolder} #{msgs.pvt_lowercase_msgs} " />
+ 			    </td>
+ 			  </tr>
+ 			</table>
+          
 			<sakai:button_bar>
-		  	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="Delete" />
-		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="Cancel" />
+        <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldDelete}" value="#{msgs.pvt_delete}" accesskey="x" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFldAddCancel}" value="#{msgs.pvt_cancel}" accesskey="c" />
 		  </sakai:button_bar>   
            
 		 </h:form>
-	</sakai:view_content>
-	</sakai:view_container>
+
+	</sakai:view>
 </f:view>
 

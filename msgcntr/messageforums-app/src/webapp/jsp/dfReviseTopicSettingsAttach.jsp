@@ -5,62 +5,63 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
+<link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
 
 <f:view>
-   <sakai:view>
-      <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
-      <h:form id="revise">
-        <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
- 			 <div class="instruction">
-  			    <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}  #{msgs.cdfm_info_required_sign}"/>
-			 </div>
-			 <h:messages styleClass="alertMessage" id="errorMessages" /> 
-        <p class="shorttext">
-			<h:panelGrid columns="3">
-				<h:panelGroup><h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" style="color: red"/>	</h:panelGroup>
-				<h:panelGroup><h:outputLabel id="outputLabel" for="topic_title"  value="#{msgs.cdfm_topic_title}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}"/></h:panelGroup>
+  <sakai:view title="#{msgs.cdfm_discussion_topic_settings}">
 
-				<h:panelGroup/>
-				<h:panelGroup><h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}"/>	</h:panelGroup>
-				<h:panelGroup><h:inputTextarea rows="3" cols="45" id="topic_shortDescription"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/></h:panelGroup>
+    <h:form id="revise">
+      <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
+ 			<div class="instruction">
+  			  <h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
+			 	<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
+			</div>
+			<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
-				<h:panelGroup/>
-				<h:panelGroup><h:outputLabel id="outputLabel2"   value="#{msgs.cdfm_fullDescription}"/>	</h:panelGroup>
-				<h:panelGroup><sakai:rich_text_area rows="10" columns="70"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/></h:panelGroup>
-      		</h:panelGrid>
-		</p>
+		  <h:panelGrid styleClass="shorttext" columns="3">
+				<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"/>	
+				<h:outputLabel id="outputLabel" for="topic_title"  value="#{msgs.cdfm_topic_title}"/>	
+				<h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}"/>
 
-   		<sakai:group_box>
-	      <table width="100%" align="center">
-	        <tr>
-	          <td align="center" style="font-weight:bold;background-color:#DDDFE4;color: #000;padding:.3em;margin:-.3em -2.2em;text-align:left;font-size: .9em;line-height:1.3em">
-	            <h:outputText value="Attachments"/>
-	          </td>
-	        </tr>
-	      </table>
+				<h:outputText value="" />
+				<h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}"/>
+				<h:inputTextarea rows="3" cols="45" id="topic_shortDescription"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/>
+
+				<h:outputText value="" />
+				<h:outputLabel id="outputLabel2"   value="#{msgs.cdfm_fullDescription}"/>
+				<sakai:rich_text_area rows="10" columns="70"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/>
+     	</h:panelGrid>
+
+
+   		<sakai:panel_titled title="">
+	      <div class="msgHeadings">
+	        <h:outputText value="#{msgs.cdfm_att}"/>
+	      </div>
 	      <sakai:doc_section>
 	        <sakai:button_bar>
-	        	<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" immediate="true"/>
+	        	<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
+	        	                       value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
+	        	                       immediate="true"
+	        	                       accesskey="a" />
 	        </sakai:button_bar>
 	      </sakai:doc_section>
    		
 	      <sakai:doc_section>	        
-		      <h:outputText value="No Attachments Yet" rendered="#{empty ForumTool.attachments}"/>
+		      <h:outputText value="#{msgs.cdfm_no_attachments}" rendered="#{empty ForumTool.attachments}"/>
 	      </sakai:doc_section>
 	        
 				<h:dataTable styleClass="listHier" id="attmsg" width="100%" value="#{ForumTool.attachments}" var="eachAttach" >
 				  <h:column rendered="#{!empty ForumTool.attachments}">
 						<f:facet name="header">
-							<h:outputText value="Title"/>
+							<h:outputText value="#{msgs.cdfm_title}"/>
 						</f:facet>
 						<sakai:doc_section>
-							<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}"/>
-							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}"/>
-							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}"/>
-							<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}"/>
-							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}"/>
-							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}"/>
+							<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+							<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachmentType == 'text/html'}" alt="" />
+							<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachmentType == 'application/pdf'}" alt="" />
+							<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+							<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachmentType == 'text/plain'}" alt="" />
+							<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachmentType == 'application/msword'}" alt="" />
 						
 							<h:outputText value="#{eachAttach.attachmentName}"/>
 						</sakai:doc_section>
@@ -68,8 +69,9 @@
 					  <sakai:doc_section>
 							<h:commandLink action="#{ForumTool.processDeleteAttachSetting}" 
 								immediate="true"
-								onfocus="document.forms[0].onsubmit();">
-							<h:outputText value="     Remove"/>
+								onfocus="document.forms[0].onsubmit();"
+								title="#{msgs.cdfm_remove}">
+							<h:outputText value="#{msgs.cdfm_remove}"/>
 								<f:param value="#{eachAttach.attachmentId}" name="dfmsg_current_attach"/>
 							</h:commandLink>
 						</sakai:doc_section>
@@ -77,31 +79,33 @@
 				  </h:column>
 					<h:column rendered="#{!empty ForumTool.attachments}">
 						<f:facet name="header">
-							<h:outputText value="Size" />
+							<h:outputText value="#{msgs.cdfm_attsize}" />
 						</f:facet>
 						<h:outputText value="#{eachAttach.attachmentSize}"/>
 					</h:column>
 					<h:column rendered="#{!empty ForumTool.attachments}">
 						<f:facet name="header">
-		  			  <h:outputText value="Type" />
+		  			  <h:outputText value="#{msgs.cdfm_atttype}" />
 						</f:facet>
 						<h:outputText value="#{eachAttach.attachmentType}"/>
 					</h:column>
 					</h:dataTable>   
-			</sakai:group_box>   
+			</sakai:panel_titled>   
 
-       <h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4>
-        <p class="shorttext">
+       <div class="msgHeadings><h:outputText  value="#{msgs.cdfm_topic_posting}"/></div>
+
 			<h:panelGrid columns="2">
-				<h:panelGroup><h:outputLabel id="outputLabel3" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	</h:panelGroup>
-				<h:panelGroup>
+				<h:panelGroup styleClass="shorttext">
+				  <h:outputLabel id="outputLabel3" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	
+				</h:panelGroup>
+				<h:panelGroup styleClass="checkbox inlineForm">
 					<h:selectOneRadio layout="pageDirection"  id="topic_posting"  value="#{ForumTool.selectedTopic.locked}">
-    					<f:selectItem itemValue="true" itemLabel="Yes"/>
-    					<f:selectItem itemValue="false" itemLabel="No"/>
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
-		</p>
+
 		<%--
 		   <h4><h:outputText  value="Confidential Responses"/></h4>
 		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_allow_anonymous_postings}"  value="false" />
@@ -207,21 +211,21 @@
       </mf:forumHideDivision>
       --%>
       
-      <p class="act">
-          <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}"> 
+      <div class="act">
+          <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"> 
     	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>    
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}">
+          <h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="d">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}">
+          <h:commandButton action="#{ForumTool.processActionSaveTopicAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
-          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" />
-       </p>
+          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
+       </div>
        
 	 </h:form>
     </sakai:view>

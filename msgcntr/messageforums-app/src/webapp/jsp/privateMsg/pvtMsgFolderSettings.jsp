@@ -6,40 +6,40 @@
 
 
 <f:view>
-	<sakai:view_container title="Received Private Messages">
-	<sakai:view_content>
+	<sakai:view title="#{msgs.pvt_msgs_label} #{msgs.pvt_foldersettings}">
+
 		<h:form id="pvtMsgFolderSettings">
-		<sakai:tool_bar_message value="Private message- Folder Settings" /> 
-			<h:messages styleClass="alertMessage" id="errorMessages" /> 
+		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_foldersettings}" /> 
+	    <h:messages styleClass="alertMessage" id="errorMessages" /> 
 
-  <h4><h:outputText value="Folder Title"/></h4>
- 
+      <div class="msgHeadings">
+        <h:outputText value="#{msgs.pvt_folder_title}"/>
+      </div>
 
- <h:outputText value="Folder Title:"/>
- <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />
- 
- <br><br>
- <%--
- <p>
-    <h:commandButton rendered="#{PrivateMessagesTool.ismutable}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Revise" />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}" value="Add" />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <h:commandButton rendered="#{PrivateMessagesTool.ismutable}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingDelete}" value="Delete" />
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
- </p>
- --%>    
-				
-	<sakai:button_bar>
-  	<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Rename Folder" />
-    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderInFolderAdd}" value="Add" />
-    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingDelete}" value="Delete" />
-    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
-  </sakai:button_bar>   
+		 <h:outputText value="#{msgs.pvt_folder_title} #{msgs.pvt_colon}"/>
+		 <h:outputText value="#{PrivateMessagesTool.selectedTopicTitle}" />
+		 
+		 <%--
+		 <p>
+		    <h:commandButton rendered="#{PrivateMessagesTool.ismutable}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="Revise" />
+		    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingAdd}" value="Add" />
+		    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    <h:commandButton rendered="#{PrivateMessagesTool.ismutable}" action="#{PrivateMessagesTool.processPvtMsgFolderSettingDelete}" value="Delete" />
+		    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		    <h:commandButton action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="Cancel" />
+		 </p>
+		 --%>    
+						
+			<sakai:button_bar>
+		  	  <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingRevise}" value="#{msgs.pvt_rename_folder_button}" accesskey="r" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderInFolderAdd}" value="#{msgs.pvt_add}" accesskey="a" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingDelete}" value="#{msgs.pvt_delete}" accesskey="x" />
+		    <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgFolderSettingCancel}" value="#{msgs.pvt_cancel}" accesskey="c" />
+		  </sakai:button_bar>   
           
 		 </h:form>
-	</sakai:view_content>
-	</sakai:view_container>
+
+	</sakai:view>
 </f:view>
 

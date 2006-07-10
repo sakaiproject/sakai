@@ -38,8 +38,8 @@ import java.util.List;
  */
 public class HideDivisionRenderer extends Renderer
 {
-  private static final String BARSTYLE = "";
-  private static final String BARTAG = "h4";
+  private static final String BARSTYLE = "msgMainHeadings";
+  private static final String BARTAG = "div";
   private static final String RESOURCE_PATH;
   private static final String FOLD_IMG_HIDE;
   private static final String FOLD_IMG_SHOW;
@@ -108,15 +108,15 @@ public class HideDivisionRenderer extends Renderer
     boolean foldDiv = tmpFoldStr != null && tmpFoldStr.equals("true");
     String foldImage = foldDiv ? FOLD_IMG_HIDE : FOLD_IMG_SHOW;
     writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-    writer.write("<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\">");
-    writer.write("<tr><td nowrap=\"nowrap\" align=\"left\">");
+    writer.write("<table style=\"width: 100%;\">");
+    writer.write("<tr><td class=\"breadCrumb\">");
     writer.write("  <img id=\"" + id + "__img_hide_division_" + "\" alt=\"" +
         title + "\"" + " onclick=\"javascript:showHideDivBlock('" + id +
         "', '" +  RESOURCE_PATH + "');\"");
-    writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" >");
-    writer.write("  <b>" + title + "</b>");
-    writer.write("</td><td width=\"100%\">&nbsp;</td>");
-    writer.write("<td nowrap=\"nowrap\" align=\"right\">");
+    writer.write("    src=\""   + foldImage + "\" style=\"" + CURSOR + "\" />");
+    writer.write(" " + title);
+    writer.write("</td><td>&nbsp;</td>");
+    writer.write("<td style=\"text-align: right;\">");
     List childrenList = component.getChildren();
     for(int i=0; i<childrenList.size(); i++)
     {

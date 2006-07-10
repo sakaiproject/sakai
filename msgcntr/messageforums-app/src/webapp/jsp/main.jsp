@@ -17,7 +17,7 @@
 <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
 
 <f:view>
-  <sakai:view>
+  <sakai:view title="#{msgs.cdfm_message_forums}">
     <link href='/sakai-messageforums-tool/css/msgForums.css' rel='stylesheet' type='text/css' />
        <h:form id="msgForum">
 				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
@@ -34,7 +34,7 @@
   }
 
 %>
-<script language="javascript">
+<script type="text/javascript">
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script> 
           <%@include file="privateMsg/pvtArea.jsp"%>

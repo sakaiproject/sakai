@@ -12,10 +12,17 @@
 
 <mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="true" >
 
-  <h:selectOneListbox size="4" style="width: 300px" id="role" value ="#{ForumTool.selectedRole}" onchange="javascript:displayRelevantBlock();">
-    <f:selectItems value="#{ForumTool.siteRoles}"/>
-  </h:selectOneListbox>
-  
+  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="">
+	  <h:panelGroup>
+	    <h:outputLabel for="role"><h:outputText value="#{msgs.perm_role_label}" /></h:outputLabel>
+	    <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+	  </h:panelGroup>
+	  <h:panelGroup>
+	    <h:selectOneListbox size="4" id="role" value ="#{ForumTool.selectedRole}" onchange="javascript:displayRelevantBlock();">
+	      <f:selectItems value="#{ForumTool.siteRoles}"/>
+	    </h:selectOneListbox>
+	  </h:panelGroup>
+	</h:panelGrid>
   <%--
   <f:verbatim><p class="act"></f:verbatim>
     <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
@@ -29,74 +36,106 @@
   }
 
 %>
-<script language="javascript">
+<script type="text/javascript">
   setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 </script>   
 
-  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
+  <h:dataTable id="perm" value="#{ForumTool.permissions}" var="permission">
     <h:column>
-      <h:panelGroup id="permissionSet" style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px">
-        <f:verbatim>	<table style="border-collapse:collapse; border-width: 0px none; border:0px; margin: 0px; padding: 0px; border-spacing:0px"><tr><td colspan="2"></f:verbatim>
-        <h:outputText value="#{msgs.perm_level}" style="font-weight:bold"/>
-        <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);"  disabled="#{not ForumTool.editMode}">
-          <f:selectItems value="#{ForumTool.levels}"/>
-        </h:selectOneMenu>
-        <f:verbatim>	</td></tr><tr><td> </f:verbatim>
-        <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode != 'template'}"/>
-        <h:outputText value="#{msgs.perm_new_forum}"/>
-        <f:verbatim></td><td></f:verbatim>
-        <h:selectBooleanCheckbox id="changeSetting" value="#{permission.changeSettings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_change_settings}"/>
-		<f:verbatim></td></tr><tr><td></f:verbatim>
-	    <h:selectBooleanCheckbox id="newTopic" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newTopic}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode == 'topic'}"/>
-        <h:outputText value="#{msgs.perm_new_topic}" />
-		<f:verbatim></td><td></f:verbatim>
-		<h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
-     	<h:outputText value="#{msgs.perm_read}" />    	
-		<f:verbatim></td></tr><tr><td></f:verbatim>
-		<h:selectBooleanCheckbox  id="newR" value="#{permission.newResponse}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
-        <h:outputText value="#{msgs.perm_new_response}" />
-		<f:verbatim></td><td></f:verbatim>
-		<h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
-        <h:outputText value="#{msgs.perm_post_to_gradebook}" />
-		<f:verbatim></td></tr><tr><td></f:verbatim>
-		<h:selectBooleanCheckbox id="newRtoR"  value="#{permission.responseToResponse}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_response_to_response}" />
-		<f:verbatim></td><td></f:verbatim>	
-		<h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
-		<h:outputText value="#{msgs.perm_mark_as_read}" /> 	
-		<f:verbatim></td></tr><tr><td></f:verbatim>
+      <h:panelGrid id="permissionSet" styleClass="jsfFormTable" columns="2" summary="">   
+    
+        <h:panelGroup>
+          <h:outputLabel for="level"><h:outputText value="#{msgs.perm_level}" /></h:outputLabel>
+        </h:panelGroup> 
+        <h:panelGroup> 
+          <h:selectOneMenu id="level" value="#{permission.selectedLevel}" onchange="javascript:setCorrespondingCheckboxes(this.id);"  disabled="#{not ForumTool.editMode}">
+            <f:selectItems value="#{ForumTool.levels}"/>
+          </h:selectOneMenu>
+        </h:panelGroup>
+                
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode != 'template'}"/>
+          <h:outputLabel for="newForum"><h:outputText  value="#{msgs.perm_new_forum}" /></h:outputLabel>    
+        </h:panelGroup>
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="changeSetting" value="#{permission.changeSettings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="changeSetting"><h:outputText value="#{msgs.perm_change_settings}" /></h:outputLabel>
+        </h:panelGroup>
+        
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="newTopic" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newTopic}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode == 'topic'}"/>
+          <h:outputLabel for="newTopic"><h:outputText value="#{msgs.perm_new_topic}" /></h:outputLabel>
+        </h:panelGroup>        
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="read" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.read}"  disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="read"><h:outputText value="#{msgs.perm_read}" /></h:outputLabel>
+        </h:panelGroup>
+
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox  id="newR" value="#{permission.newResponse}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="newR"><h:outputText value="#{msgs.perm_new_response}" /></h:outputLabel>
+        </h:panelGroup>
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="postGrades" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.postToGradebook}" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="postGrades"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></h:outputLabel>
+        </h:panelGroup>        
+ 
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="newRtoR"  value="#{permission.responseToResponse}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="newRtoR"><h:outputText value="#{msgs.perm_response_to_response}" /></h:outputLabel>
+        </h:panelGroup>        
+        <h:panelGroup styleClass="checkbox">
+          <h:selectBooleanCheckbox id="markAsRead" value="#{permission.markAsRead}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="markAsRead"><h:outputText value="#{msgs.perm_mark_as_read}" /></h:outputLabel>
+        </h:panelGroup>
+        
+        <h:panelGroup>
+          <h:outputLabel for="revisePostings"><h:outputText value="#{msgs.perm_revise_postings}" /></h:outputLabel>
+        </h:panelGroup>       
+        <h:panelGroup styleClass="checkbox">
+          <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
+		        <f:selectItems   value="#{ForumTool.postingOptions}" />
+		      </h:selectOneRadio>
+        </h:panelGroup>        
+        
+      </h:panelGrid>
+         
+
 		<%--<h:selectBooleanCheckbox id="movePosting" value="#{permission.movePosting}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_move_postings}" />
 		--%>
-		<f:verbatim></td><td></f:verbatim>
+
 		<%--<h:selectBooleanCheckbox id="moderatePostings"  value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_moderate_postings}" />
 		--%>
-		<f:verbatim></td></tr><tr><td></f:verbatim>
-		<h:outputText value="#{msgs.perm_revise_postings}" style="font-weight:bold" />
-		<f:verbatim></td><td></f:verbatim>
-		<%--<h:outputText value="#{msgs.perm_delete_postings}" style="font-weight:bold" />--%>
-		<f:verbatim></td></tr><tr><td></f:verbatim>
-        <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
-		  <f:selectItems   value="#{ForumTool.postingOptions}" />
-		</h:selectOneRadio>
-		<f:verbatim></td><td></f:verbatim>				
+
+		<%--<h:outputText value="#{msgs.perm_delete_postings}" styleClass="emphasize" />--%>
+			
     	<%--<h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
 		  <f:selectItems   value="#{ForumTool.postingOptions}" />
 		</h:selectOneRadio>
 		--%>
-		<f:verbatim></td></tr></table></f:verbatim>
-      </h:panelGroup>
+
     </h:column>
   </h:dataTable>
   
-    <f:verbatim><b>Gradebook Assignment:&nbsp;&nbsp;</b></f:verbatim>    
-  	<h:selectOneMenu value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
-   	  <f:selectItems value="#{ForumTool.assignments}" />
-    </h:selectOneMenu>
-  	<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
-   	  <f:selectItems value="#{ForumTool.assignments}" />
-  	</h:selectOneMenu>
+  <h:panelGrid styleClass="jsfFormTable" columns="1" summary="">
+    <h:panelGroup>
+      <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum'}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
+      <f:verbatim><h:outputText value=" " /></f:verbatim>
+  	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
+   	    <f:selectItems value="#{ForumTool.assignments}" />
+      </h:selectOneMenu>
+    </h:panelGroup>
+    
+    <h:panelGroup>  	
+  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel> 
+  	    <f:verbatim><h:outputText value=" " /></f:verbatim>
+  	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
+   	    <f:selectItems value="#{ForumTool.assignments}" />
+  	    </h:selectOneMenu>
+  	  </h:panelGroup>
+  	</h:panelGrid>
+  	
   <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_footer.js"/>	 	
 </mf:forumHideDivision>
