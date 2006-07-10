@@ -1686,6 +1686,11 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
+		
+		if(AccessMode.GROUPED == edit.getAccess())
+		{
+			verifyGroups(edit, edit.getGroups());
+		}
 
 //		boolean allowed = true;
 //		try
@@ -1775,6 +1780,124 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		ThreadLocalManager.set("findCollection@" + ref, null);
 		
 	} // commitCollection
+
+	/**
+	 * Recursively traverse the heirarchy of ContentEntity objects contained within a collection and remove access groups if they 
+	 * are not included in the set defined for the initial collection.  The branching stops whenever we verify a ContentCollection 
+	 * with "grouped" access or a ContentResource. 
+	 * @param collection 
+	 * @param groups
+	 */
+	protected void verifyGroups(ContentCollection collection, Collection groups) 
+	{
+		Collection members = collection.getMemberResources();
+		if(members == null || members.isEmpty())
+		{
+			return;
+		}
+		Iterator memberIt = members.iterator();
+		while(memberIt.hasNext())
+		{
+			ContentEntity member = (ContentEntity) memberIt.next();
+			if(AccessMode.GROUPED == member.getAccess())
+			{
+				adjustGroups(member, groups);
+			}
+			
+			if(member instanceof ContentCollection)
+			{
+				// recursive call
+				verifyGroups((ContentCollectionEdit) member, groups);
+			}
+		}
+		
+	}
+
+	protected void adjustGroups(ContentEntity member, Collection groups) 
+	{
+		// check groups and then return
+		Collection subgroups = member.getGroups();
+		if(groups.containsAll(subgroups))
+		{
+			// this entity's groups are OK, so do nothing
+		}
+		else
+		{
+			Collection newgroups = new Vector();
+			Iterator groupIt = subgroups.iterator();
+			while(groupIt.hasNext())
+			{
+				String groupRef = (String) groupIt.next();
+				if(groups.contains(groupRef))
+				{
+					newgroups.add(groupRef);
+				}
+			}
+			if(member instanceof ContentResource)
+			{
+				ContentResourceEdit edit = m_storage.editResource(member.getId());
+				try 
+				{
+					if(newgroups.isEmpty())
+					{
+						edit.clearGroupAccess();
+					}
+					else
+					{
+						edit.setGroupAccess(newgroups);
+					}
+					// addLiveUpdateResourceProperties(edit);
+					m_storage.commitResource(edit);
+				} 
+				catch (InconsistentException e) 
+				{
+					// If change of groups is consistent in superfolder, this should not occur here
+					m_storage.cancelResource(edit);
+					M_log.warn("verifyGroups(): ", e);
+				} 
+				catch (PermissionException e) 
+				{
+					// If user has permission to change groups in superfolder, this should not occur here
+					m_storage.cancelResource(edit);
+					M_log.warn("verifyGroups(): ", e);
+				} 
+				catch (ServerOverloadException e) 
+				{
+					M_log.warn("verifyGroups(): ", e);
+				}
+			}
+			else
+			{
+				ContentCollectionEdit edit = m_storage.editCollection(member.getId());
+				try 
+				{
+					if(newgroups.isEmpty())
+					{
+						edit.clearGroupAccess();
+					}
+					else
+					{
+						edit.setGroupAccess(newgroups);
+					}
+					// addLiveUpdateCollectionProperties(edit);
+					m_storage.commitCollection(edit);
+				} 
+				catch (InconsistentException e) 
+				{
+					// If change of groups is consistent in superfolder, this should not occur here
+					m_storage.cancelCollection(edit);
+					M_log.warn("verifyGroups(): ", e);
+				} 
+				catch (PermissionException e) 
+				{
+					// If user has permission to change groups in superfolder, this should not occur here
+					m_storage.cancelCollection(edit);
+					M_log.warn("verifyGroups(): ", e);
+				}
+			}
+		}
+		
+	}
 
 	/**
 	 * Cancel the changes made object, and release the lock. The Object is disabled, and not to be used after this call.
