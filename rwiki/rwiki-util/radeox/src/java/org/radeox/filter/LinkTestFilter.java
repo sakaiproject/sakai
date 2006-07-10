@@ -25,6 +25,8 @@ package org.radeox.filter;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,25 +97,22 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					return;
 				}
 
-				// trim the name and unescape it
-				name = Encoder.unescape(name.trim());
-
 				// Is there an alias like [alias|link] ?
 				int pipeIndex = name.indexOf('|');
 				String alias = "";
 				if (-1 != pipeIndex)
 				{
-					alias = name.substring(0, pipeIndex);
-					name = name.substring(pipeIndex + 1);
+					alias = Encoder.unescape(name.substring(0, pipeIndex).trim());
+					name = name.substring(pipeIndex + 1).trim();
 				}
 
-				int hashIndex = name.lastIndexOf('#');
-
+				Pattern p = Pattern.compile("(.*)(?<!\\&)\\#(.*)");
+				Matcher m = p.matcher(name);
 				String hash = "";
-				if (-1 != hashIndex && hashIndex != name.length() - 1)
-				{
-					char[] hashChars = name.substring(hashIndex + 1)
-							.toCharArray();
+				
+				if (m.matches()) {
+					hash = Encoder.unescape(m.group(2));
+					char[] hashChars =  hash.toCharArray();
 					int end = 0;
 					for (int i = 0; i < hashChars.length; i++)
 					{
@@ -126,10 +125,10 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					{
 						hash = new String(hashChars, 0, end);
 					}
-
-					name = name.substring(0, hashIndex);
+					
+					name = m.group(1);
 				}
-
+				
 				int colonIndex = name.indexOf(':');
 				// typed link ?
 				if (-1 != colonIndex)
@@ -142,21 +141,30 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 				// InterWiki link ?
 				if (-1 != atIndex)
 				{
-					String extSpace = name.substring(atIndex + 1);
-					// known extarnal space ?
+					String extSpace = Encoder.unescape(name.substring(atIndex + 1));
+					// known external space ?
 					InterWiki interWiki = InterWiki.getInstance();
 					if (interWiki.contains(extSpace))
 					{
-						String view = name;
+
+						name = Encoder.unescape(name.substring(0, atIndex));
+						String view;
 						if (-1 != pipeIndex)
 						{
 							view = alias;
+						} 
+						else {
+							view = name + "@" + extSpace;
 						}
 
-						name = name.substring(0, atIndex);
+
 						try
 						{
-							if (-1 != hashIndex)
+							if (name.indexOf('@') > -1) 
+							{
+								addAtSignError(buffer);
+							} 
+							else if (hash.length() > 0)
 							{
 								interWiki.expand(writer, extSpace, name, view,
 										hash);
@@ -182,7 +190,12 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 				{
 					// internal link
 
-					if (wikiEngine.exists(name))
+					name = Encoder.unescape(name);
+					if (name.indexOf('@') > -1) 
+					{
+						addAtSignError(buffer);
+					} 
+					else if (wikiEngine.exists(name))
 					{
 						String view = getWikiView(name, hash);
 						if (-1 != pipeIndex)
@@ -191,7 +204,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 						}
 
 						// Do not add hash if an alias was given
-						if (-1 != hashIndex)
+						if (hash.length() > 0)
 						{
 							wikiEngine.appendLink(buffer, name, view, hash);
 						}
@@ -216,7 +229,7 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 					else
 					{
 						// cannot display/create wiki, so just display the text
-						buffer.append(name);
+						buffer.append(Encoder.escape(name));
 					}
 				}
 			}
@@ -227,6 +240,13 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 		}
 	}
 
+	private void addAtSignError(StringBuffer buffer) {
+		buffer.append("<span class=\"error\">");
+		// XXX internationalise
+		buffer.append("Page names cannot contain \"@\" currently");
+		buffer.append("</span>");
+	}
+	
 	/**
 	 * Returns the view of the wiki name that is shown to the user. Overwrite to
 	 * support other views for example transform "WikiLinking" to "Wiki
