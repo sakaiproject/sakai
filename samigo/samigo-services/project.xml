@@ -2,7 +2,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <extend>../../master/project.xml</extend>
-  <name>Sakai Samigo Components</name>
+  <name>Sakai Samigo Services</name>
   <shortDescription>Test and Quizzes component.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-services</id>
