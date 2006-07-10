@@ -34,7 +34,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -818,10 +817,10 @@ public class ResourcesAction
 				// context.put("movedItems", movedItems);
 			}
 
-			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			
-			ContentCollection coll = contentService.getCollection(collectionId);
-			expandedCollections.put(collectionId, coll);
+			//ContentCollection coll = contentService.getCollection(collectionId);
+			expandedCollections.add(collectionId);
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
@@ -1700,9 +1699,8 @@ public class ResourcesAction
 				throw ex;
 			}
 		
-			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			ContentCollection coll = contentService.getCollection(collectionId);
-			expandedCollections.put(collectionId, coll);
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			expandedCollections.add(collectionId);
 
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
@@ -1730,7 +1728,7 @@ public class ResourcesAction
 						try
 						{
 							ContentCollection db = ContentHostingService.getCollection(dbId);
-							expandedCollections.put(dbId, db);
+							expandedCollections.add(dbId);
 							List dbox = getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
 							if(dbox != null && dbox.size() > 0)
 							{
@@ -1752,7 +1750,7 @@ public class ResourcesAction
 					try
 					{
 						ContentCollection db = ContentHostingService.getCollection(dropboxId);
-						expandedCollections.put(dropboxId, db);
+						expandedCollections.add(dropboxId);
 						List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (BrowseItem) null, false, state);
 						if(dbox != null && dbox.size() > 0)
 						{
@@ -2423,7 +2421,7 @@ public class ResourcesAction
 			addObservingPattern(collectionId, state);
 
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, new HashMap());
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
 		}
 
 	}	// doNavigate
@@ -3317,30 +3315,18 @@ public class ResourcesAction
 					alerts.add(rb.getString("failed"));
 				}
 
-				HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				if(currentMap == null)
 				{
-					// do nothing
+					currentMap = new TreeSet();
 				}
-				else if(!currentMap.containsKey(collectionId))
+				if(!currentMap.contains(collectionId))
 				{
-					try
-					{
-						currentMap.put (collectionId,ContentHostingService.getCollection (collectionId));
-						state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+					currentMap.add (collectionId);
+					//state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
-						// add this folder id into the set to be event-observed
-						addObservingPattern(collectionId, state);
-					}
-					catch (IdUnusedException ignore)
-					{
-					}
-					catch (TypeException ignore)
-					{
-					}
-					catch (PermissionException ignore)
-					{
-					}
+					// add this folder id into the set to be event-observed
+					addObservingPattern(collectionId, state);
 				}
 				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 			}
@@ -3636,26 +3622,14 @@ public class ResourcesAction
 			}	// try-catch
 		}
 
-		HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(!currentMap.containsKey(collectionId))
+		SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(!currentMap.contains(collectionId))
 		{
-			try
-			{
-				currentMap.put (collectionId,ContentHostingService.getCollection (collectionId));
-				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+			currentMap.add(collectionId);
+			//state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
-				// add this folder id into the set to be event-observed
-				addObservingPattern(collectionId, state);
-			}
-			catch (IdUnusedException ignore)
-			{
-			}
-			catch (TypeException ignore)
-			{
-			}
-			catch (PermissionException ignore)
-			{
-			}
+			// add this folder id into the set to be event-observed
+			addObservingPattern(collectionId, state);
 		}
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
@@ -3873,35 +3847,17 @@ public class ResourcesAction
 			}
 
 		}
-		HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(currentMap == null)
 		{
-			// do nothing
+			currentMap = new TreeSet();
 		}
-		else
-		{
-			if(!currentMap.containsKey(collectionId))
-			{
-				try
-				{
-					currentMap.put (collectionId,ContentHostingService.getCollection (collectionId));
-					state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+		currentMap.add(collectionId);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
-					// add this folder id into the set to be event-observed
-					addObservingPattern(collectionId, state);
-				}
-				catch (IdUnusedException ignore)
-				{
-				}
-				catch (TypeException ignore)
-				{
-				}
-				catch (PermissionException ignore)
-				{
-				}
-			}
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
-		}
+		// add this folder id into the set to be event-observed
+		addObservingPattern(collectionId, state);
+		
 		state.setAttribute(STATE_CREATE_ALERTS, alerts);
 
 	}	// createFiles
@@ -4805,26 +4761,13 @@ public class ResourcesAction
 			}
 		}
 
-		HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(!currentMap.containsKey(collectionId))
+		SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(!currentMap.contains(collectionId))
 		{
-			try
-			{
-				currentMap.put (collectionId,ContentHostingService.getCollection (collectionId));
-				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+			currentMap.add (collectionId);
 
-				// add this folder id into the set to be event-observed
-				addObservingPattern(collectionId, state);
-			}
-			catch (IdUnusedException ignore)
-			{
-			}
-			catch (TypeException ignore)
-			{
-			}
-			catch (PermissionException ignore)
-			{
-			}
+			// add this folder id into the set to be event-observed
+			addObservingPattern(collectionId, state);
 		}
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
 
@@ -5588,17 +5531,16 @@ public class ResourcesAction
 			}
 
 			// try to expand the collection
-			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			if(! expandedCollections.containsKey(collectionId))
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(expandedCollections == null)
 			{
-				org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-				try
-				{
-					ContentCollection coll = contentService.getCollection(collectionId);
-					expandedCollections.put(collectionId, coll);
-				}
-				catch(Exception ignore){}
+				expandedCollections = new TreeSet();
 			}
+			if(! expandedCollections.contains(collectionId))
+			{
+				expandedCollections.add(collectionId);
+			}
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		}
 
 	}	// doHandlepaste
@@ -8056,33 +7998,6 @@ public class ResourcesAction
 					preventPublicDisplay = Boolean.FALSE;
 					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 				}
-				
-				// need to refresh collection containing current edit item make changes show up
-				String containerId = ContentHostingService.getContainingCollectionId(item.getId());
-				Map expandedCollections = (Map) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				Object old = expandedCollections.remove(containerId);
-				if (old != null)
-				{
-					try
-					{
-						ContentCollection container = ContentHostingService.getCollection(containerId);
-						expandedCollections.put(containerId, container);
-					}
-					catch (Throwable ignore){}
-				}
-				if(item.isFolder())
-				{
-					old = expandedCollections.remove(item.getId());
-					if (old != null)
-					{
-						try
-						{
-							ContentCollection folder = ContentHostingService.getCollection(item.getId());
-							expandedCollections.put(item.getId(), folder);
-						}
-						catch (Throwable ignore){}
-					}
-				}
 			}
 			catch (TypeException e)
 			{
@@ -8837,7 +8752,7 @@ public class ResourcesAction
 		}
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new HashMap());
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
 		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
@@ -9046,7 +8961,7 @@ public class ResourcesAction
 			state.setAttribute(STATE_SITE_TITLE, title);
 		}
 
-		HashMap expandedCollections = new HashMap();
+		SortedSet expandedCollections = new TreeSet();
 		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		
@@ -9384,7 +9299,11 @@ public class ResourcesAction
 	public static void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+		}
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -9399,9 +9318,9 @@ public class ResourcesAction
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		String id = params.getString("collectionId");
-		currentMap.put (id,ContentHostingService.getCollection (id));
+		expandedItems.add(id);
 
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
 
 		// add this folder id into the set to be event-observed
 		addObservingPattern(id, state);
@@ -9414,7 +9333,11 @@ public class ResourcesAction
 	static public void doCollapse_collection(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		HashMap currentMap = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+		}
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -9429,8 +9352,8 @@ public class ResourcesAction
 		}
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
-		HashMap newSet = new HashMap();
-		Iterator l = currentMap.keySet().iterator ();
+		SortedSet newSet = new TreeSet();
+		Iterator l = expandedItems.iterator();
 		while (l.hasNext ())
 		{
 			// remove the collection id and all of the subcollections
@@ -9441,7 +9364,7 @@ public class ResourcesAction
 			if (id.indexOf (collectionId)==-1)
 			{
 	//			newSet.put(id,collection);
-				newSet.put(id,currentMap.get(id));
+				newSet.add(id);
 			}
 		}
 
@@ -9570,7 +9493,7 @@ public class ResourcesAction
 	 * @param state - The session state
 	 * @return a List of BrowseItem objects
 	 */
-	protected static List getBrowseItems(String collectionId, HashMap expandedCollections, Set highlightedItems, String sortedBy, String sortedAsc, BrowseItem parent, boolean isLocal, SessionState state)
+	protected static List getBrowseItems(String collectionId, SortedSet expandedCollections, Set highlightedItems, String sortedBy, String sortedAsc, BrowseItem parent, boolean isLocal, SessionState state)
 	{
 		boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
@@ -9585,18 +9508,11 @@ public class ResourcesAction
 			ContentCollection collection = null;
 
 			// get the collection
-			if (expandedCollections.containsKey(collectionId))
+			collection = ContentHostingService.getCollection(collectionId);
+			if(need_to_expand_all)
 			{
-				collection = (ContentCollection) expandedCollections.get(collectionId);
-			}
-			else
-			{
-				collection = ContentHostingService.getCollection(collectionId);
-				if(need_to_expand_all)
-				{
-					expandedCollections.put(collectionId, collection);
-					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-				}
+				expandedCollections.add(collectionId);
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 			}
 
 			String dummyId = collectionId.trim();
@@ -9828,7 +9744,7 @@ public class ResourcesAction
 			folder.setDepth(depth);
 			newItems.add(folder);
 
-			if(need_to_expand_all || expandedCollections.containsKey (collectionId))
+			if(need_to_expand_all || expandedCollections.contains(collectionId))
 			{
 				// Get the collection members from the 'new' collection
 				List newMembers = collection.getMemberResources ();
@@ -10212,16 +10128,10 @@ public class ResourcesAction
 				}
 
 				// try to expand the collection
-				HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(! expandedCollections.containsKey(collectionId))
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(! expandedCollections.contains(collectionId))
 				{
-					org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-					try
-					{
-						ContentCollection coll = contentService.getCollection(collectionId);
-						expandedCollections.put(collectionId, coll);
-					}
-					catch(Exception ignore){}
+					expandedCollections.add(collectionId);
 				}
 
 				// reset the copy flag
@@ -10335,16 +10245,10 @@ public class ResourcesAction
 				}
 
 				// try to expand the collection
-				HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(! expandedCollections.containsKey(collectionId))
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(! expandedCollections.contains(collectionId))
 				{
-					org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-					try
-					{
-						ContentCollection coll = contentService.getCollection(collectionId);
-						expandedCollections.put(collectionId, coll);
-					}
-					catch(Exception ignore){}
+					expandedCollections.add(collectionId);
 				}
 
 				// reset the copy flag
@@ -10462,16 +10366,10 @@ public class ResourcesAction
 			}
 
 			// try to expand the collection
-			HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			if(! expandedCollections.containsKey(collectionId))
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(! expandedCollections.contains(collectionId))
 			{
-				org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-				try
-				{
-					ContentCollection coll = contentService.getCollection(collectionId);
-					expandedCollections.put(collectionId, coll);
-				}
-				catch(Exception ignore){}
+				expandedCollections.add(collectionId);
 			}
 
 			// reset the copy flag
@@ -13499,7 +13397,7 @@ public class ResourcesAction
 		{
 			collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		}
-		HashMap expandedCollections = (HashMap) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);

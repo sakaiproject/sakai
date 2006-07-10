@@ -222,7 +222,7 @@
 										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
 									#elseif($root.isTooBig())
 										<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-									#elseif (!$expandedCollections.containsKey($root.Id))
+									#elseif (!$expandedCollections.contains($root.Id))
 										<a href="#"
 											onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 											onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
@@ -445,7 +445,7 @@
 												<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
 											#elseif($member.isTooBig())
 												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-											#elseif (!$expandedCollections.containsKey($member.Id))
+											#elseif (!$expandedCollections.contains($member.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 													onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
@@ -718,7 +718,7 @@
 												<img src = "#imageLink("sakai/dir_closed.gif")" border="0"  alt="folder" />
 											#elseif($root.isTooBig())
 												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-											#elseif (!$expandedCollections.containsKey($root.Id))
+											#elseif (!$expandedCollections.contains($root.Id))
 												<a href="#"
 													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
 													onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$root.Id';document.getElementById('showForm').submit();"
@@ -926,7 +926,7 @@
 														<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="folder" />
 													#elseif($member.isTooBig())
 														<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
-													#elseif(!$expandedCollections.containsKey($member.Id))
+													#elseif(!$expandedCollections.contains($member.Id))
 														<a href="#"
 															onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
 															onkeypress="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$member.Id';document.getElementById('showForm').submit();"
