@@ -1383,7 +1383,7 @@
 							</p>
 						#end
 						<p class="checkbox">
-							<input type="radio" name="access_mode$i" id="access_mode${i}_$INHERTED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
+							<input type="radio" name="access_mode$i" id="access_mode${i}_$INHERITED_ACCESS" value="$INHERITED_ACCESS" #if(!$item.isPubview() && ("$!item.access" == "$SITE_ACCESS" || "$!item.access" == "$INHERITED_ACCESS")) checked="checked"#end  style="border:none" onclick="javascript:document.getElementById('groupTable$i').style.display='none';" onkeypress="javascript:document.getElementById('groupTable$i').style.display='none';" />
 							<label for="access_mode${i}_site">$tlang.getString("edit.access3")</label>
 						</p>
 						
@@ -1401,16 +1401,16 @@
 					</div>
 				#end
 				#if($item.isGroupPossible())
-					<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
+					<table id="groupTable${i}" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
 						<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 						<tr>
-							<th id="selectAllGroups" style="width:2em;padding-left:.4em">
-								<input type="checkbox" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')" onkeypress="javascript:toggleSelectAll(this, 'access_groups')" />
+							<th id="selectAllGroups${i}" style="width:2em;padding-left:.4em">
+								<input type="checkbox" id="selectall${i}" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups${i}')" onkeypress="javascript:toggleSelectAll(this, 'access_groups${i}')" />
 							</th>
-							<th id="groupname">
+							<th id="groupname${i}">
 								$tlang.getString("edit.group1")
 							</th>
-							<th id ="groupdescription">
+							<th id ="groupdescription${i}">
 								$tlang.getString("edit.group2")
 							</th>
 						</tr>
@@ -1419,7 +1419,7 @@
 							#if($item.isPossible($group) && $item.allowedAdd($group))
 								<tr>
 									<td headers="selected" style="padding-bottom:0;" style="width:2em">
-										<input type="checkbox" name="access_groups$i" id="access_groups${i}_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group)) checked="checked"#end />
+										<input type="checkbox" name="access_groups${i}" id="access_groups${i}_$group.Id" title="$group.title" value="$group.Id" #if($item.isLocal($group)) checked="checked"#end />
 									</td>
 									<td headers="name" style="padding-bottom:0;" class="checkbox">
 										<label for="access_groups${i}_$group.Id">
@@ -1438,46 +1438,6 @@
 						#end
 					</table>
 				#end
-				#*
-				<table id="groupTable$i" style="width:80%;display:$listDisplay" class="listHier lines labelindnt" border="0" cellspacing="0" summary="$tlang.getString("edit.group3")">
-					<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
-					<tr>
-						<th id="selectAllGroups" style="width:2em;padding-left:.4em">
-							<input type="checkbox" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups$i')" onkeypress="javascript:toggleSelectAll(this, 'access_groups$i')" />
-						</th>
-						<th id="groupname">
-							$tlang.getString("edit.group1")
-						</th>
-						<th id ="groupdescription">
-							$tlang.getString("edit.group2")
-						</th>
-					</tr>
-					#set($theGroups = $item.possibleGroups)
-					#foreach ($group in $!{theGroups})
-						<tr>
-							<td headers="selected" style="padding-bottom:0;" style="width:2em">
-								#set($selected=false)
-								#if($item.hasGroup("$!group.reference"))
-									#set($selected=true)
-								#end
-								<input type="checkbox" name="access_groups$i" id="access_groups${i}_$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
-							</td>
-							<td headers="name" style="padding-bottom:0;" class="checkbox">
-								<label for="access_groups${i}_$group.Id">
-									$group.Title
-								</label>	
-							</td>
-							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-								#set($description = "")
-								#if($group.Description)
-									#set($description = $group.Description)
-								#end
-								$!description
-							</td>
-						</tr>
-					#end
-				</table>
-				*#
 			#end
 			########## end access section ###########
 			#if($setQuota)
