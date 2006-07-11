@@ -29,8 +29,8 @@
                     in Sakai. For a thorough discussion of these changes, see the doc
                         <filename>reference/docs/architecture/sakai_id_eid.doc</filename> (or in subversion at:
                         <link
-                        xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc"
-                            >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc</link>)</para>
+                        xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc"
+                            >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc</link>)</para>
             </sect3>
             <sect3>
                 <title>FCKeditor</title>
@@ -121,8 +121,8 @@ skin.default=default</screen>
                     <listitem>
                         <para>
                             <link
-                                xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql"
-                                >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</link>
+                                xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql"
+                                >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</link>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -131,8 +131,8 @@ skin.default=default</screen>
                     <listitem>
                         <para>
                             <link
-                                xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql"
-                                >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</link>
+                                xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql"
+                                >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</link>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -219,7 +219,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                 </listitem>
             </orderedlist>
             <para>Be sure to review the SampleUserDirectoryProvider, and compare it against the same sample for previous releases:</para>
-            <para><link xl:href="https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java">https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</link></para>
+            <para><link xl:href="https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java">https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</link></para>
         </sect2>
         <sect2>
             <title>Skin Changes</title>
@@ -227,8 +227,8 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                 them to 2.2. These changes - including conversion steps - are thoroughly documented
                 in the appendices of the skin document available in reference/docs/architecture, or
                 in subversion at: <link
-                    xl:href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc"
-                    >https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</link></para>
+                    xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc"
+                    >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</link></para>
         </sect2>
     </sect1>
     <sect1 xml:id="maintenance">
