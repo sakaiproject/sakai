@@ -84,11 +84,11 @@
 				<sakai:button_bar>
             	<sakai:button_bar_item
 			    	action="#{PostemTool.processCreate}"
-					value="#{msgs.bar_create}" 
+					value="#{msgs.bar_post}" 
 					rendered="#{PostemTool.editable}"/>
 			  	<sakai:button_bar_item
 			    	action="#{PostemTool.processCancelNew}"
-					value="#{msgs.bar_cancel}" 
+					value="#{msgs.cancel}" 
 					rendered="#{PostemTool.editable}"/>
    	    </sakai:button_bar>
 				
