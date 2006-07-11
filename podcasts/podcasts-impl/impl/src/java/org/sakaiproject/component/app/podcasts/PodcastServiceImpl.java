@@ -21,6 +21,7 @@
 
 package org.sakaiproject.component.app.podcasts;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -199,7 +200,8 @@ public class PodcastServiceImpl implements PodcastService
 			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString() );
 			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
 			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-			resourceProperties.addProperty(DISPLAY_DATE, displayDate.toString());
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			resourceProperties.addProperty(DISPLAY_DATE, formatter.format(displayDate));
 			resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
 			resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
 			
@@ -335,10 +337,19 @@ public class PodcastServiceImpl implements PodcastService
 		this.podcastComparator = podcastComparator;
 	}
 	
-	public void revisePodcast(String resourceId, String title, String displayDate, String description, byte[] body, 
+	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
             String filename) {
 		
 		try {
+			/* try2: just remove and add
+			if (body == null) {
+				// the file contents are not what have changed, so get them
+
+			}
+			removePodcast(resourceId);
+			
+			addPodcast(title, date, description, body, filename);
+*/
 			// get Resource to modify
 			ContentResourceEdit podcastEditable = null;
 		
@@ -356,10 +367,11 @@ public class PodcastServiceImpl implements PodcastService
 				podcastResourceEditable.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
 		
 			}
-			
-			if (displayDate != null) {
+
+			if (date != null) {
 				podcastResourceEditable.removeProperty(DISPLAY_DATE);
-				podcastResourceEditable.addProperty(DISPLAY_DATE, displayDate);
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter.format(date));
 		
 			}
 			
@@ -391,7 +403,7 @@ public class PodcastServiceImpl implements PodcastService
 		} catch (ServerOverloadException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 	}
 
 }

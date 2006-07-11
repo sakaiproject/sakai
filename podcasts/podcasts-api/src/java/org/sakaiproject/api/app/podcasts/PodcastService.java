@@ -136,7 +136,7 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return ContentResourceEdit object if ID valid, null otherwise
 	 */
-	public void revisePodcast(String resourceId, String title, String displayDate, String description, byte[] body, 
+	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
             String filename);
 
 }
