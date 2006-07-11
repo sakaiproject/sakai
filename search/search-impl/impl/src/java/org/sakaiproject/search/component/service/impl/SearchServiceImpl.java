@@ -311,14 +311,16 @@ public class SearchServiceImpl implements SearchService
 
 			try
 			{
+				reloadStart = System.currentTimeMillis();
 				runningIndexSearcher = indexStorage.getIndexSearcher();
+				reloadEnd = System.currentTimeMillis();
 			}
 			catch (IOException e)
 			{
+				reloadStart = reloadEnd;
 			}
 		}
 		return runningIndexSearcher;
-
 	}
 
 	public void refreshInstance()
@@ -389,9 +391,16 @@ public class SearchServiceImpl implements SearchService
 
 	public SearchStatus getSearchStatus()
 	{
-		final String lastLoad = (new Date(reloadEnd)).toString();
-		final String loadTime = String
+		String ll = "not loaded";
+		String lt = "";
+		if ( reloadEnd != 0 ) 
+		{
+			ll = (new Date(reloadEnd)).toString();
+			lt = String
 				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+		}
+		final String lastLoad = ll; 
+		final String loadTime = lt; 
 		final SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
 		final List lockNodes = searchIndexBuilder.getNodeStatus();
 		final String pdocs = String.valueOf(getPendingDocs());

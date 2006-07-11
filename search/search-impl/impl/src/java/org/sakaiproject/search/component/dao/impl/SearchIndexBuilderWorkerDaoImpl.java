@@ -901,7 +901,12 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 					sbi.setName(resourceName);
 					sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
 					sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-					String context = ecp.getSiteId(resourceName);
+					String context = null;
+					try {
+						context = ecp.getSiteId(resourceName);
+					} catch ( Exception ex ) {
+						log.info("No context for resource "+resourceName+" defaulting to none");
+					}
 					if ( context == null || context.length() == 0 ) {
 						context = "none";
 					}
