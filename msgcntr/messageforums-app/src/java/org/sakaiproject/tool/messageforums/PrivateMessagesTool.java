@@ -1197,16 +1197,26 @@ public class PrivateMessagesTool
   	  {
   	    try
   	    {
-  		  authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-  		  authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  	      if((UserDirectoryService.getUser(getUserId()).getLastName() == null || 
+  	      		UserDirectoryService.getUser(getUserId()).getLastName().length() < 1) 
+  	      		&& (UserDirectoryService.getUser(getUserId()).getFirstName() == null ||
+  	      				UserDirectoryService.getUser(getUserId()).getFirstName().length() < 1))
+  	      {
+  	      	authorString = UserDirectoryService.getUserEid(UserDirectoryService.getCurrentUser().getId());
+  	      }
+  	      else
+  	      {
+  	      	authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
+  	      	authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
+  	      }
   	    }
   	    catch(Exception e)
   	    {
-  	      e.printStackTrace();
+  	    	e.printStackTrace();
   	    }
   	  }
       else
-    	authorString = getUserId();
+      	authorString = getUserId();
       aMsg.setAuthor(authorString);
       aMsg.setDraft(Boolean.FALSE);      
       aMsg.setApproved(Boolean.FALSE);     
