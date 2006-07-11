@@ -817,7 +817,6 @@ public class QuestionPoolFacadeQueries
       }
       while (retryCount > 0){
         try {
-          getHibernateTemplate().clear();
           getHibernateTemplate().saveOrUpdate(qpp);
           retryCount = 0;
         }
