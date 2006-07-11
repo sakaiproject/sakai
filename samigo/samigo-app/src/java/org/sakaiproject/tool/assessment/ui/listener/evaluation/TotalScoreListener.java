@@ -485,7 +485,8 @@ public class TotalScoreListener
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)
         dueDate = ac.getDueDate();
-      if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
+      if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   // SAK-5504
+      //if (dueDate == null || gdata.getSubmittedDate().before(dueDate)) {
         results.setIsLate(new Boolean(false));
         if (gdata.getItemGradingSet().size()==graded)
           results.setStatus(new Integer(2));
