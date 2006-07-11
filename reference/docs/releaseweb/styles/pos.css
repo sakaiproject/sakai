@@ -20,19 +20,21 @@
 		border-style:solid;
 		border-width:1px;
 		border-color:#999;
-		}	
+		}
+		
+	#bar {
+			width:210px;
+			padding-top:5px;
+			vertical-align: middle;
+			background:#b0bbcc;
+		}
 	
 	.navheader {
 		background:#fff
 		}
 		
 		
-	#bar {
-		width:210px;
-		padding-top:5px;
-		vertical-align: middle;
-		background:#b0bbcc;
-		}
+	
 		
 	
 
@@ -55,14 +57,6 @@
 		    border-color:#fcc;
 			}
 			
-	.pad2 {
-			float: left;
-			padding-top: 10px;
-			padding-left: 10px;
-			padding-right: 10px;
-			line-height: 1.4;
-			}
-			
 	.article {
 		float: left;
 		width: 100%;
@@ -73,16 +67,6 @@
 		/* border-style:solid; */
 		border-width:1px;
 		border-color:#ccf;
-		}
-	
-	#contentright {
-		width:175px;
-		padding:0px;
-		float:left;
-		background:#fff;
-		border-style:solid;
-		border-width:1px;
-		border-color:#cfc;
 		}
 	
 		
