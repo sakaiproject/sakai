@@ -43,9 +43,13 @@
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{msg.edit_p}"/></title>
+
+<%@ include file="/js/delivery.js" %>
+
 <script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
+<%@ include file="/js/authoring.js" %>
 //-->
 </script>
       </head>
@@ -170,15 +174,17 @@
   </h:commandButton>
 
 <!-- for importing questions from pool to authoring -->
+<!-- disable copy button once clicked.  show processing... -->
 
   <h:commandButton accesskey="#{msg.a_copy}" id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
+   onclick="disableImport(); showNotif('submitnotif',this.name,'editform');" onkeypress="disableImport(); showNotif('submitnotif',this.name,'editform');"
         value="#{msg.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
 
-
  <h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
+<h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
  </div>
 
 </h:form>
