@@ -7,7 +7,15 @@
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="next" href="install-env.html" title="2. Set up Environment">
+
+<!-- Hacky fix to IE float problem -->
+<!--[if IE]>
+						 <style type="text/css">
+						  .note {float: right;}
+						 </style>
+<![endif]-->
 </head>
+
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
 <div class="navheader">
@@ -137,6 +145,7 @@
 <li>
                     <p>Verify Java Installation and Environment Variables (see <a href="install-env.html" title="2. Set up Environment">Set up Environment</a>).</p>
                     <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+
 <h3 class="title">Tuning the JVM</h3>
 
                         <p>The default JVM is not sufficient to run Sakai out of the box, and
