@@ -1,0 +1,211 @@
+                              2.2.0 Release Notes
+
+   --------------------------------------------------------------------------
+
+   Table of Contents
+
+   1. What's New
+                1.1. Enhancements
+                1.2. New Tools
+
+   2. Migration Issues
+                2.1. Database Conversion
+                2.2. Framework Changes
+                2.3. Provider Changes
+                2.4. Skin Changes
+
+   3. Maintenance Branch
+
+   4. Fixes Included in this Release
+
+   5. Open Issues
+
+
+1. What's New
+
+  1.1. Enhancements
+
+    1.1.1. Group Awareness
+
+   Group awareness has been extended to three additional tools: Resources,
+   Assignments, and Schedule. That is to say, the contents of each of those
+   tools can have their access restricted to specific groups, as they are
+   defined by site maintainers in the Site Info tool.
+
+    1.1.2. EID/UID Separation
+
+   For the last few releases we've been working to introduce the concept of
+   "internal" and "external" identifiers in Sakai in the user records. We
+   started with a single identifier that had to play both of these roles, and
+   have been tweaking the code to separate these out. For 2.2 we have
+   completed this separation. It is now possible for an institution to, for
+   example, alter the enterprise IDs of their users without losing access to
+   their sites and materials in Sakai. For a thorough discussion of these
+   changes, see the doc reference/docs/architecture/sakai_id_eid.doc (or in
+   subversion at:
+   https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc)
+
+    1.1.3. FCKeditor
+
+   The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In
+   2.2 it has become the default editor. HTMLArea is still included, however,
+   and the default editor may be overridden in sakai.properties by altering
+   the following setting:
+
+ # specify the wysiwyg editor
+ wysiwyg.editor=FCKeditor
+
+    1.1.4. Included Skins
+
+   The three highest-scoring skins from the recent skins contest have been
+   included in the distribution. You can make any of these your default skin
+   by using the following property in sakai.properties (other possible values
+   are commented out in the example below):
+
+ # The default skin for sites without a skin setting
+ # skin.default=gen-u
+ # skin.default=examp-u
+ # skin.default=some-u
+ skin.default=default
+
+    1.1.5. Updated Help Content
+
+   Help content in 2.1 was out of date, reflecting only version 2.0 of the
+   software. The help content has been updated for 2.2, along with some style
+   improvements. To see the ongoing work of the Help project, visit their
+   space in Confluence:
+
+   http://bugs.sakaiproject.org/confluence/display/HELP/Home
+
+    1.1.6. French and Japanese translations
+
+   New interface translations for French and Japanese have been included. See
+   reference/docs/readme_i18n.txt for more information on the translations.
+
+  1.2. New Tools
+
+   Sakai 2.2.0 has added four new provisional tools
+
+   Message Center   a tool combining a discussion forum with private
+                    messaging.
+   Search           a tool providing a Google-like search of all site
+                    content.
+   Summary Calendar a synoptic calendar view for the MyWorkspace that
+                    includes events from all the sites to which a user is a
+                    member.
+   Post 'Em         an automated reporting system that enables faculty to
+                    post grades and comments without compromising student
+                    privacy. Post `Em accepts CSV files, empowering faculty
+                    to track student grades in a spreadsheet application of
+                    their choice.
+
+   You can find more details about these and all other provisional tools on
+   the provisional tools page.
+
+2. Migration Issues
+
+  2.1. Database Conversion
+
+   There are database schema changes between 2.1.2 and 2.2.0, and the
+   conversion scripts to be applied - in distinct versions for MySQL and
+   Oracle, respectively - are found in the reference/docs/conversion folder
+   of the release or on subversion:
+
+MySQL:  https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql
+Oracle: https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql
+
+   In the same directory you'll also find conversion scripts for earlier
+   Sakai versions. Migration from an earlier version will require the
+   successive application of all intermediate conversion scripts. You cannot,
+   for example, move from 2.1.1 to 2.2.0 by applying a single DB script. You
+   will need to move first from 2.1.1 to 2.1.2, and then to 2.2.0.
+
+  Examine before using
+
+   As a general rule, be sure to read through these conversion scripts before
+   applying them. They do not take into account any special customizations
+   you may have made - such as new roles, or the deployment of additional
+   tools - and they may complicate your migration with unintended
+   consequences if you execute the script blindly.
+
+   For the 2.2.0 release, the Message Center tool offers one such particular
+   example. A number of schools deployed Message Center in 2.1.x production,
+   before it was yet a provisional tool. Now that it is a provisional tool,
+   the conversion scripts were written to introduce its tables, and thus
+   assume that Message Center is a new tool for your deployment. If it isn't,
+   you'll want to comment out the portions of the conversion script that
+   treat it, and instead perform the following conversions:
+
+   MySQL:  ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+          ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR(255);
+          ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR(255);
+          ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);
+          
+   Oracle: ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+          ALTER TABLE MFR_OPEN_FORUM_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
+          ALTER TABLE MFR_MESSAGE_T ADD GRADEASSIGNMENTNAME VARCHAR2(255) NULL;
+          ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;
+
+  2.2. Framework Changes
+
+   The 2.2 refactoring means that many package names have changed, and these
+   differences will mainly be encountered in sakai.properties settings with
+   bean references. It's best to not try to use a sakai.properties from a
+   previous release, and instead start with the sample in
+   reference/docs/sakai.properties.
+
+   Any custom code, such as providers, may also need revision. See below for
+   more discussion of providers in particular.
+
+  2.3. Provider Changes
+
+   As mentioned above, 2.2 introduces a separation of external user
+   identifiers from Sakai's internal user ids. Any custom
+   UserDirectoryProvider will need some alteration to account for this, along
+   with changes to its import statements and declarations that stem from API
+   changes. Below is a list of changes that a typical provider should
+   require:
+
+    1. Import statements altered to reflect new package names.
+
+    2. A search and replace to turn getters and setters from, e.g., 'getId'
+       to 'getEid'.
+
+    3. Revise the project.xml files in both the provider module and
+       'component' with the appropriate UDP location.
+
+    4. Change the Spring bean declaration in component.xml.
+
+    5. The UDP class may implement the DisplayAdvisorUDP interface
+       (optional), and the two additional methods this pulls in.
+
+   Be sure to review the SampleUserDirectoryProvider, and compare it against
+   the same sample for previous releases:
+
+   https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java
+
+  2.4. Skin Changes
+
+   A number of CSS changes will need to be made to any 2.1 skins in order to
+   adapt them to 2.2. These changes - including conversion steps - are
+   thoroughly documented in the appendices of the skin document available in
+   reference/docs/architecture, or in subversion at:
+   https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc
+
+3. Maintenance Branch
+
+   The code of each release has a corresponding maintenance branch, which is
+   patched with fixes in an ongoing way by a branch manager - effectively
+   until there is no longer sufficient interest in it for a branch manager to
+   volunteer. Maintenance branches therefore represent the latest stable
+   snapshot of any given Sakai version.
+
+   These maintenance branches may be checked out through subversion, they are
+   labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.
+   You can check out the 2.2 maintenance branch with the following command:
+
+   svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/
+
+4. Fixes Included in this Release
+
+5. Open Issues
