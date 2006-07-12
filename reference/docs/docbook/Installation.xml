@@ -557,7 +557,7 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                 <title>Getting the Code from Subversion</title>
                 <para>Alternatively, you may check out the source code from subversion with the
                     command:</para>
-                <screen>svn co https://source.sakaiproject.org/svn/tags/sakai_2-2-0</screen>
+                <screen>svn export https://source.sakaiproject.org/svn/tags/sakai_2-2-0</screen>
                 <para>In which case you could skip the unpacking step below, and your root directory
                     would be sakai_2-2-0 instead of sakai-src.</para>
             </note>

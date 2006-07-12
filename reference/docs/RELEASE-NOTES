@@ -204,7 +204,7 @@ Oracle: https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/
    labeled with an 'x' replacing their minor version number, e.g. '2-2-x'.
    You can check out the 2.2 maintenance branch with the following command:
 
-   svn co https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/
+   svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/
 
 4. Fixes Included in this Release
 

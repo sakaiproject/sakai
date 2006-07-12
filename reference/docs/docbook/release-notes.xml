@@ -78,26 +78,31 @@ skin.default=default</screen>
             <para>Sakai 2.2.0 has added four new provisional tools</para>
             <itemizedlist>
                 <listitem>
-                    <para><emphasis>Message Center:</emphasis> a tool combining a discussion forum with private messaging.</para>
-                    </listitem>
+                    <para><emphasis>Message Center:</emphasis> a tool combining a discussion forum
+                        with private messaging.</para>
+                </listitem>
 
-                <listitem><para><emphasis>Search:</emphasis> a tool providing a Google-like search of all site content.</para>
-                    </listitem>
+                <listitem>
+                    <para><emphasis>Search:</emphasis> a tool providing a Google-like search of all
+                        site content.</para>
+                </listitem>
 
-                <listitem><para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that
-                            includes events from all the sites to which a user is a member.</para>
-                    </listitem>
+                <listitem>
+                    <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view for the
+                            <emphasis>MyWorkspace</emphasis> that includes events from all the sites
+                        to which a user is a member.</para>
+                </listitem>
 
-                <listitem><para><emphasis>Post 'Em:</emphasis> an automated reporting system that enables faculty to post grades and
-                            comments without compromising student privacy. Post ‘Em accepts CSV
-                            files, empowering faculty to track student grades in a spreadsheet
-                            application of their choice.</para>
-                    </listitem>
+                <listitem>
+                    <para><emphasis>Post 'Em:</emphasis> an automated reporting system that enables
+                        faculty to post grades and comments without compromising student privacy.
+                        Post ‘Em accepts CSV files, empowering faculty to track student grades in a
+                        spreadsheet application of their choice.</para>
+                </listitem>
 
             </itemizedlist>
             <para>You can find more details about these and all other provisional tools on the <link
-                    xl:href="provisional.html">provisional
-                    tools</link> page.</para>
+                    xl:href="provisional.html">provisional tools</link> page.</para>
         </sect2>
     </sect1>
     <sect1 xml:id="migration">
@@ -200,18 +205,20 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                         'getEid'.</para>
                 </listitem>
                 <listitem>
-                    <para>Revise the <filename>project.xml</filename> files in both the provider module and 'component'
-                        with the appropriate UDP location.</para>
+                    <para>Revise the <filename>project.xml</filename> files in both the provider
+                        module and 'component' with the appropriate UDP location.</para>
                 </listitem>
                 <listitem>
-                    <para>Change the Spring bean declaration in <filename>component.xml</filename>.</para>
+                    <para>Change the Spring bean declaration in
+                    <filename>component.xml</filename>.</para>
                 </listitem>
                 <listitem>
-                    <para>The UDP class may implement the <filename>DisplayAdvisorUDP</filename> interface (optional),
-                        and the two additional methods this pulls in. </para>
+                    <para>The UDP class may implement the <filename>DisplayAdvisorUDP</filename>
+                        interface (optional), and the two additional methods this pulls in. </para>
                 </listitem>
             </orderedlist>
-            <para>Be sure to review the <filename>SampleUserDirectoryProvider</filename>, and compare it against the sample for previous releases:</para>
+            <para>Be sure to review the <filename>SampleUserDirectoryProvider</filename>, and
+                compare it against the sample for previous releases:</para>
             <para>
                 <link
                     xl:href="https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java"
@@ -238,7 +245,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
             2.2 maintenance branch with the following command: </para>
         <para>
-            <command>svn co
+            <command>svn export
             https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command>
         </para>
     </sect1>

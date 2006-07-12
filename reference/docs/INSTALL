@@ -429,7 +429,7 @@
    Alternatively, you may check out the source code from subversion with the
    command:
 
- svn co https://source.sakaiproject.org/svn/tags/sakai_2-2-0
+ svn export https://source.sakaiproject.org/svn/tags/sakai_2-2-0
 
    In which case you could skip the unpacking step below, and your root
    directory would be sakai_2-2-0 instead of sakai-src.
