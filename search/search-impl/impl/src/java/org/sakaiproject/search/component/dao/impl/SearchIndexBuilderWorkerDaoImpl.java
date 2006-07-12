@@ -890,6 +890,10 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 			for (Iterator ci = contentList.iterator(); ci.hasNext();)
 			{
 				String resourceName = (String) ci.next();
+				if ( resourceName == null || resourceName.length() > 255 ) {
+					log.warn("Entity Reference Longer than 255 characters, ignored: Reference="+resourceName);
+					continue;
+				}
 				List lx = session.createQuery(
 						" from " + SearchBuilderItemImpl.class.getName()
 								+ " where name = ?  ").setParameter(0,

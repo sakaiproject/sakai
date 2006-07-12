@@ -94,6 +94,10 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 */
 	public SearchBuilderItem findByName(final String resourceName)
 	{
+		if ( resourceName != null && resourceName.length() > 255 ) {
+			dlog.warn("Entity Reference longer than 255 characters :"+resourceName);
+			return null;
+		}
 		HibernateCallback callback = new HibernateCallback()
 		{
 			public Object doInHibernate(Session session)

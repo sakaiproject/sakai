@@ -114,6 +114,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			// default if null
 			resourceName = "";
 		}
+		if ( resourceName.length() > 255 ) {
+			log.warn("Entity Reference is longer than 255 characters, not indexing. Reference="+resourceName);
+			return;
+		}
 		EntityContentProducer ecp = newEntityContentProducer(event);
 		if ( ecp.getSiteId(resourceName) == null ) {
 			log.debug("Not indexing "+resourceName+" as it has no context");
