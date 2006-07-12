@@ -594,14 +594,11 @@ public class QuestionPoolFacadeQueries
             List m = getHibernateTemplate().find(query);
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
-              ItemDataIfc item = meta.getItem();
-              item.removeMetaDataByType(ItemMetaDataIfc.POOLID);
-              meta.setItem(null);
-              metaList.add(meta);
+              meta.setEntry(null);
 	    }
           }
           try{
-            getHibernateTemplate().deleteAll(metaList);
+            getHibernateTemplate().saveOrUpdateAll(metaList);
             retryCount = 0;
 	  }
           catch (Exception e) {
