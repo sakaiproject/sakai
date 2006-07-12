@@ -47,7 +47,6 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.search.index.ClusterFilesystem;
 
 /**
