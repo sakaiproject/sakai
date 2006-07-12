@@ -6,16 +6,14 @@
 <link rel="stylesheet" href="styles/styles.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
-<link rel="next" href="install-env.html" title="2. Set up Environment">
-
+<link rel="next" href="install-env.html" title="2. Set up Environment">
 <!-- Hacky fix to IE float problem -->
 <!--[if IE]>
-						 <style type="text/css">
-						  .note {float: right;}
-						 </style>
+             <style type="text/css">
+              .note {float: right;}
+             </style>
 <![endif]-->
 </head>
-
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
 <div class="navheader">
@@ -33,7 +31,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id1858956"></a>Installation Guide</h1></div></div>
+<a name="id1859604"></a>Installation Guide</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -101,7 +99,7 @@
 <tbody>
 <tr>
 <td>
-<span class="term">Demo</span></td>
+<span class="term">Demo:</span></td>
 <td>
                             <p>This archive provides the quickest and easiest way to try out
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
@@ -111,7 +109,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Binary</span></td>
+<span class="term">Binary:</span></td>
 <td>
                             <p>This archive is a kind of Tomcat overlay. If you have a working
                                 Tomcat appropriately configured, the binary installation provides a
@@ -122,7 +120,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Source</span></td>
+<span class="term">Source:</span></td>
 <td>
                             <p>This archive includes only the source code to build Sakai, and
                                 therefore calls for separate, preparatory installations of Tomcat
@@ -145,7 +143,6 @@
 <li>
                     <p>Verify Java Installation and Environment Variables (see <a href="install-env.html" title="2. Set up Environment">Set up Environment</a>).</p>
                     <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-
 <h3 class="title">Tuning the JVM</h3>
 
                         <p>The default JVM is not sufficient to run Sakai out of the box, and
@@ -175,7 +172,7 @@
 <tbody>
 <tr>
 <td>
-<span class="term">Windows</span></td>
+<span class="term">Windows:</span></td>
 <td>
                                 <p>
                                     <span><strong class="command">start-sakai.bat</strong></span>
@@ -184,7 +181,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Mac/*nix</span></td>
+<span class="term">Mac/*nix:</span></td>
 <td>
                                 <p>
                                     <span><strong class="command">start-sakai.sh</strong></span>
@@ -207,7 +204,7 @@
 <tbody>
 <tr>
 <td>
-<span class="term">Windows</span></td>
+<span class="term">Windows:</span></td>
 <td>
                         <p>
                             <span><strong class="command">stop-sakai.bat</strong></span>
@@ -216,7 +213,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Mac/*nix</span></td>
+<span class="term">Mac/*nix:</span></td>
 <td>
                         <p>
                             <span><strong class="command">stop-sakai.sh</strong></span>
@@ -233,7 +230,7 @@
 <tbody>
 <tr>
 <td>
-<span class="term">Data storage</span></td>
+<span class="term">Data storage:</span></td>
 <td>
                             <p>The data for a demo installation is stored in a HypersonicSQL
                                 database (HSQLDB) which is stored in memory and then written out to
@@ -243,7 +240,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Email not configured</span></td>
+<span class="term">Email not configured:</span></td>
 <td>
                             <p>The Sakai demo is configured to neither send nor receive
                             email.</p>
@@ -301,17 +298,17 @@
 
             <p>Since there have been a number of changes in tools, DB schema, and APIs, migrating
                 to 2.2 from a previous release requires close attention to detail. Be sure to go
-                over the <a href="release-notes.html" target="_top">release notes</a> carefully, and a few potential stumbling points are
-                identified below:</p>
+                over the <a href="release-notes.html" target="_top">release notes</a> carefully, and a
+                few potential stumbling points are identified below:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td>
-<span class="term">sakai.properties</span></td>
+<span class="term">sakai.properties:</span></td>
 <td>
-                        <p>The 2.2 framework refactoring means that many package names have changed, and
-                            these differences will mainly be encountered in
+                        <p>The 2.2 framework refactoring means that many package names have
+                            changed, and these differences will mainly be encountered in
                                 <code class="filename">sakai.properties</code> settings which reference
                             beans. It's best to not try to use a
                             <code class="filename">sakai.properties</code> from a previous release, and
@@ -321,7 +318,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">DB conversion scripts</span></td>
+<span class="term">DB conversion scripts:</span></td>
 <td>
                         <p>Every release has DB conversion scripts, and 2.2 is no exception. Be
                             sure, however, to read these scripts over carefully before executing
@@ -333,7 +330,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Provisional tools</span></td>
+<span class="term">Provisional tools:</span></td>
 <td>
                         <p>A few contrib tools that schools may have already put into production
                             are now provisional with the 2.2 release. The DB conversion scripts in
@@ -349,7 +346,7 @@
 </tr>
 <tr>
 <td>
-<span class="term">Providers</span></td>
+<span class="term">Providers:</span></td>
 <td>
                         <p>Among the changes that 2.2 introduces is a separation of external user
                             identifiers from Sakai's internal user ids. Any custom

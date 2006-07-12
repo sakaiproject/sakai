@@ -147,26 +147,29 @@ JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
                 testing and development, but will hardly be adequate for serving large numbers of
-                concurrent users. A more suitable production environment on a 32-bit machine with multiple processors might
-                use a set of options like:</p>
+                concurrent users. A more suitable production environment on a 32-bit machine with
+                multiple processors might use a set of options like:</p>
             <pre class="screen">
 JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m
-                -XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"</pre>
+-XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"</pre>
             <p>This is better: a larger heap size is set for smoother performance (we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
                 are set to be the same values), and garbage collection messages are turned on.
-                Another important consideration is the ratio of <span class="emphasis"><em>NewSize</em></span> to the size of the heap. We
-                want as large a <span class="emphasis"><em>NewSize</em></span> as we can fit in the total heap, while keeping the total
-                heap significantly bigger than <span class="emphasis"><em>NewSize</em></span> in order for Java to properly garbage
-                collect.  The last two arguments above can produce a performance improvement if you have two or more processors on your machine, however your performance will be better if you don't include them for single-processor machines.</p>
+                Another important consideration is the ratio of <span class="emphasis"><em>NewSize</em></span> to the
+                size of the heap. We want as large a <span class="emphasis"><em>NewSize</em></span> as we can fit in
+                the total heap, while keeping the total heap significantly bigger than
+                    <span class="emphasis"><em>NewSize</em></span> in order for Java to properly garbage collect. The
+                last two arguments above can produce a performance improvement if you have two or
+                more processors on your machine, however your performance will be better if you
+                don't include them for single-processor machines.</p>
             <p>As you can see, there's a lot to think about here, and in practice each
                 implementing institution uses their own particular <span><strong class="command">JAVA_OPTS</strong></span> that
                 they've settled on for their deployment and hardware, and they often use more option
                 arguments than we've shown here. This discussion is meant only as a head start, and
                 there is no replacement for doing your own testing.</p>
-            <p>Once you set <span><strong class="command">JAVA_OPTS</strong></span> Tomcat will see this
-                environment variable upon startup and use it. Instead of putting this in an
-                environment variable you might create your own startup script to do so.</p>
+            <p>Once you set <span><strong class="command">JAVA_OPTS</strong></span> Tomcat will see this environment
+                variable upon startup and use it. Instead of putting this in an environment variable
+                you might create your own startup script to do so.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">JVM Tuning in Windows XP</h3>
 
@@ -197,7 +200,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 <tbody>
 <tr>
 <td>
-<span class="term">Windows</span></td>
+<span class="term">Windows:</span></td>
 <td>
                         <p>
                             <span><strong class="command">bin/startup.bat</strong></span>
@@ -206,7 +209,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 </tr>
 <tr>
 <td>
-<span class="term">Mac/*nix</span></td>
+<span class="term">Mac/*nix:</span></td>
 <td>
                         <p>
                             <span><strong class="command">bin/startup.sh</strong></span>
@@ -227,7 +230,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 <tbody>
 <tr>
 <td>
-<span class="term">Windows</span></td>
+<span class="term">Windows:</span></td>
 <td>
                         <p>
                             <span><strong class="command">bin/shutdown.bat</strong></span>
@@ -236,7 +239,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 </tr>
 <tr>
 <td>
-<span class="term">Mac/*nix</span></td>
+<span class="term">Mac/*nix:</span></td>
 <td>
                         <p>
                             <span><strong class="command">bin/shutdown.sh</strong></span>

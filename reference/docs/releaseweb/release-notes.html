@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2241432"></a>2.2.0 Release Notes</h1></div></div>
+<a name="id2264034"></a>2.2.0 Release Notes</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -27,7 +27,7 @@
 <dt><span class="sect2"><a href="#migration-conversion">2.1. Database Conversion</a></span></dt>
 <dt><span class="sect2"><a href="#migration-api">2.2. Framework Changes</a></span></dt>
 <dt><span class="sect2"><a href="#migration-providers">2.3. Provider Changes</a></span></dt>
-<dt><span class="sect2"><a href="#id2242328">2.4. Skin Changes</a></span></dt>
+<dt><span class="sect2"><a href="#id2264961">2.4. Skin Changes</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="#maintenance">3. Maintenance Branch</a></span></dt>
 <dt><span class="sect1"><a href="#resolved">4. Fixes Included in this Release</a></span></dt>
@@ -64,12 +64,12 @@
                     separation. It is now possible for an institution to, for example, alter the
                     enterprise IDs of their users without losing access to their sites and materials
                     in Sakai. For a thorough discussion of these changes, see the doc
-                        <code class="filename">reference/docs/architecture/sakai_id_eid.doc</code> (or in subversion at:
-                        <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_id_eid.doc</a>)</p>
+                        <code class="filename">reference/docs/architecture/sakai_id_eid.doc</code> (or in
+                    subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc</a>)</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2241484"></a>1.1.3.&nbsp;FCKeditor</h4></div></div></div>
+<a name="id2264732"></a>1.1.3.&nbsp;FCKeditor</h4></div></div></div>
 
                 <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
                     it has become the default editor. HTMLArea is still included, however, and the
@@ -81,7 +81,7 @@ wysiwyg.editor=FCKeditor</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2241506"></a>1.1.4.&nbsp;Included Skins</h4></div></div></div>
+<a name="id2264071"></a>1.1.4.&nbsp;Included Skins</h4></div></div></div>
 
                 <p>The three highest-scoring skins from the recent skins contest have been
                     included in the distribution. You can make any of these your default skin by
@@ -96,16 +96,19 @@ skin.default=default</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2241527"></a>1.1.5.&nbsp;Updated Help Content</h4></div></div></div>
+<a name="id2264092"></a>1.1.5.&nbsp;Updated Help Content</h4></div></div></div>
 
                 <p>Help content in 2.1 was out of date, reflecting only version 2.0 of the
                     software. The help content has been updated for 2.2, along with some style
-                    improvements.  To see the ongoing work of the Help project, visit their space in Confluence:</p>
-                <p><a href="http://bugs.sakaiproject.org/confluence/display/HELP/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/HELP/Home</a></p>
+                    improvements. To see the ongoing work of the Help project, visit their space in
+                    Confluence:</p>
+                <p>
+                    <a href="http://bugs.sakaiproject.org/confluence/display/HELP/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/HELP/Home</a>
+                </p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2241550"></a>1.1.6.&nbsp;French and Japanese translations</h4></div></div></div>
+<a name="id2264118"></a>1.1.6.&nbsp;French and Japanese translations</h4></div></div></div>
 
                 <p>New interface translations for French and Japanese have been included. See
                         <code class="filename">reference/docs/readme_i18n.txt</code> for more information on
@@ -117,43 +120,24 @@ skin.default=default</pre>
 <a name="new-tools"></a>1.2.&nbsp;New Tools</h3></div></div></div>
 
             <p>Sakai 2.2.0 has added four new provisional tools</p>
-            <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">Message Center </span></td>
-<td>
-                        <p>a tool combining a discussion forum with private messaging.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Search </span></td>
-<td>
-                        <p>a tool providing a Google-like search of all site content.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Summary Calendar </span></td>
-<td>
-                        <p>a synoptic calendar view for the <span class="emphasis"><em>MyWorkspace</em></span> that
+            <div class="itemizedlist"><ul>
+<li>
+                    <p><span class="emphasis"><em>Message Center:</em></span> a tool combining a discussion forum with private messaging.</p>
+                    </li>
+<li>
+<p><span class="emphasis"><em>Search:</em></span> a tool providing a Google-like search of all site content.</p>
+                    </li>
+<li>
+<p><span class="emphasis"><em>Summary Calendar:</em></span> a synoptic calendar view for the <span class="emphasis"><em>MyWorkspace</em></span> that
                             includes events from all the sites to which a user is a member.</p>
-                    </td>
-</tr>
-<tr>
-<td>
-<span class="term">Post 'Em </span></td>
-<td>
-                        <p>an automated reporting system that enables faculty to post grades and
+                    </li>
+<li>
+<p><span class="emphasis"><em>Post 'Em:</em></span> an automated reporting system that enables faculty to post grades and
                             comments without compromising student privacy. Post &lsquo;Em accepts CSV
                             files, empowering faculty to track student grades in a spreadsheet
                             application of their choice.</p>
-                    </td>
-</tr>
-</tbody>
-</table></div>
+                    </li>
+</ul></div>
             <p>You can find more details about these and all other provisional tools on the <a href="http://source.sakaiproject.org/2.2.0/provisional.html" target="_top">provisional
                     tools</a> page.</p>
         </div>
@@ -168,26 +152,26 @@ skin.default=default</pre>
 
             <p>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
                 scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
-                are found in the <code class="filename">reference/docs/conversion</code> folder of the release
-                or on subversion:</p>
+                are found in the <code class="filename">reference/docs/conversion</code> folder of the
+                release or on subversion:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
                         </p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
                         </p>
                     </td>
 </tr>
@@ -219,7 +203,7 @@ skin.default=default</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                             <pre class="screen">
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
@@ -230,7 +214,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                             <pre class="screen">
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
@@ -273,28 +257,30 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
                         'getEid'.</p>
                 </li>
 <li>
-                    <p>Revise the project.xml files in both the provider module and 'component'
+                    <p>Revise the <code class="filename">project.xml</code> files in both the provider module and 'component'
                         with the appropriate UDP location.</p>
                 </li>
 <li>
-                    <p>Change the Spring bean declaration in component.xml.</p>
+                    <p>Change the Spring bean declaration in <code class="filename">component.xml</code>.</p>
                 </li>
 <li>
-                    <p>The UDP class may implement the DisplayAdvisorUDP interface (optional), and the two
-                        additional methods this pulls in. </p>
+                    <p>The UDP class may implement the <code class="filename">DisplayAdvisorUDP</code> interface (optional),
+                        and the two additional methods this pulls in. </p>
                 </li>
 </ol></div>
-            <p>Be sure to review the SampleUserDirectoryProvider, and compare it against the same sample for previous releases:</p>
-            <p><a href="https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java" target="_top">https://source.sakaiproject.org/svn/providers/branches/sakai_2-2-x/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</a></p>
+            <p>Be sure to review the <code class="filename">SampleUserDirectoryProvider</code>, and compare it against the sample for previous releases:</p>
+            <p>
+                <a href="https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java" target="_top">https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</a>
+            </p>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2242328"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
+<a name="id2264961"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
 
             <p>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
                 them to 2.2. These changes - including conversion steps - are thoroughly documented
                 in the appendices of the skin document available in reference/docs/architecture, or
-                in subversion at: <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/architecture/sakai_skin.doc</a></p>
+                in subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</a></p>
         </div>
     </div>
     <div class="sect1" lang="en">
@@ -304,7 +290,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         <p>The code of each release has a corresponding maintenance branch, which is patched with
             fixes in an ongoing way by a branch manager - effectively until there is no longer
             sufficient interest in it for a branch manager to volunteer. Maintenance branches
-            therefore represent the latest stable snapshot of any given Sakai version.</p>
+            therefore represent the latest stable snapshot of fixes for any given Sakai version.</p>
         <p>These maintenance branches may be checked out through subversion, they are labeled
             with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
             2.2 maintenance branch with the following command: </p>
@@ -326,7 +312,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         <p></p>
     </div>
 </div>
-<br clear="all"/></div>
+<br clear="all"></div>
 </body>
 </html>
 

@@ -27,20 +27,36 @@
 <div class="titlepage"><div><div><h2 class="title">
 <a name="install-tshoot"></a>6. Troubleshooting</h2></div></div></div>
 
-        <p>Below are a number of common issues encountered while building and starting up Sakai, but you may also benefit from the expert opinions that reside on the sakai-dev list.  To join, visit collab.sakaiproject.org, create a new account, log in to your <span class="emphasis"><em>MyWorkspace</em></span>, and then use the <span class="emphasis"><em>Membership</em></span> tool to join the group named <span class="emphasis"><em>DG: Development</em></span>.  Then you can begin to send emails to (and receive them from) sakai-dev@collab.sakaiproject.org.  To later unsubscribe, you can simply use the same <span class="emphasis"><em>Membership</em></span> tool to unjoin the site.</p>
+        <p>Below are a number of common issues encountered while building and starting up Sakai,
+            but you may also benefit from the expert opinions that reside on the sakai-dev list. To
+            join, visit collab.sakaiproject.org, create a new account, log in to your
+                <span class="emphasis"><em>MyWorkspace</em></span>, and then use the <span class="emphasis"><em>Membership</em></span>
+            tool to join the group named <span class="emphasis"><em>DG: Development</em></span>. Then you can begin to
+            send emails to (and receive them from) sakai-dev@collab.sakaiproject.org. To later
+            unsubscribe, you can simply use the same <span class="emphasis"><em>Membership</em></span> tool to unjoin
+            the site.</p>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-tshoot-build"></a>6.1. Build Issues</h3></div></div></div>
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1981920"></a>6.1.1. JAR download failures</h4></div></div></div>
+<a name="id1983169"></a>6.1.1. JAR download failures</h4></div></div></div>
 
-                <p>A first build of Maven on a fresh installation may warn of numerous jar download failures if you include the <span class="emphasis"><em>clean</em></span> phase. This is a nuisance, but not otherwise a problem. Even when doing a clean maven tries to download all dependencies, including those that may not be built until the later <span class="emphasis"><em>build</em></span> phase. Once they are built and placed into the repository, maven is perfectly happy for the next "clean build" cycle.  The upshot is that you may see these errors for your first build, but you shouldn't see them for subsequent builds.  It also means that you're better off not including the <span class="emphasis"><em>clean</em></span> phase during your first build of a new version of the code.</p>
+                <p>A first build of Maven on a fresh installation may warn of numerous jar
+                    download failures if you include the <span class="emphasis"><em>clean</em></span> phase. This is a
+                    nuisance, but not otherwise a problem. Even when doing a clean maven tries to
+                    download all dependencies, including those that may not be built until the later
+                        <span class="emphasis"><em>build</em></span> phase. Once they are built and placed into the
+                    repository, maven is perfectly happy for the next "clean build" cycle. The
+                    upshot is that you may see these errors for your first build, but you shouldn't
+                    see them for subsequent builds. It also means that you're better off not
+                    including the <span class="emphasis"><em>clean</em></span> phase during your first build of a new
+                    version of the code.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1981957"></a>6.1.2. Out of Memory errors</h4></div></div></div>
+<a name="id1983204"></a>6.1.2. Out of Memory errors</h4></div></div></div>
 
                 <p>You may find that your machine runs out of memory while it is building Sakai.
                     As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts
@@ -48,23 +64,34 @@
                     to set an additional environment variable, namely,
                     <span><strong class="command">MAVEN_OPTS</strong></span>. The value in the sample Unix command below should
                     be more than enough:</p>
-                    <pre class="screen">
+                <pre class="screen">
 export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1981990"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
+<a name="id1983236"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
 
-                <p>If you need more detailed output to track down a build error, maven can be run in debug mode by adding the -x argument, e.g. <span><strong class="command">maven -x</strong></span>.</p>
+                <p>If you need more detailed output to track down a build error, maven can be run
+                    in debug mode by adding the -x argument, e.g. <span><strong class="command">maven
+                -x</strong></span>.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1982010"></a>6.1.4. Building only a single module</h4></div></div></div>
+<a name="id1983258"></a>6.1.4. Building only a single module</h4></div></div></div>
 
-                <p>If you'd like to have the Sakai build targets and goals available for building only a single module (i.e. instead of rebuilding the entire source tree again to accomplish this), then you'll want to have the maven plugin for Sakai installed.  Installing the plugin makes it available whenever you use maven, not just for those projects that declare a dependency on the plugin. You will need to do this once each time you upgrade a minor point version of sakai.</p>
+                <p>If you'd like to have the Sakai build targets and goals available for building
+                    only a single module (i.e. instead of rebuilding the entire source tree again to
+                    accomplish this), then you'll want to have the maven plugin for Sakai installed.
+                    Installing the plugin makes it available whenever you use maven, not just for
+                    those projects that declare a dependency on the plugin. You will need to do this
+                    once each time you upgrade a minor point version of sakai.</p>
                 <pre class="screen">
 maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</pre>
-                <p>Note that the version you should use in the above command is the one found as the value of the <span><strong class="command">sakai.plugin.version</strong></span> property in the <code class="filename">sakai/master/project.properties</code> file.  It is not necessarily (and in fact often isn't) the same as the version of Sakai you're using.</p>
+                <p>Note that the version you should use in the above command is the one found as
+                    the value of the <span><strong class="command">sakai.plugin.version</strong></span> property in the
+                        <code class="filename">sakai/master/project.properties</code> file. It is not
+                    necessarily (and in fact often isn't) the same as the version of Sakai you're
+                    using.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -73,51 +100,89 @@ maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</p
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1982055"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
+<a name="id1983304"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
 
-                <p>Once you have Sakai installed, configured and started, you can monitor Sakai by watching the logs. The log level for the standard Sakai source code and the demo is set to show <span class="emphasis"><em>info</em></span> and <span class="emphasis"><em>warnings</em></span> only.  Watch for the WARN: messages. There are going to be some "normal" ones at startup, and some will likely slip by at runtime, but any warning is potentially something you might want to check out.</p>
+                <p>Once you have Sakai installed, configured and started, you can monitor Sakai
+                    by watching the logs. The log level for the standard Sakai source code and the
+                    demo is set to show <span class="emphasis"><em>info</em></span> and <span class="emphasis"><em>warnings</em></span>
+                    only. Watch for the WARN: messages. There are going to be some "normal" ones at
+                    startup, and some will likely slip by at runtime, but any warning is potentially
+                    something you might want to check out.</p>
                 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Changing the Log Configuration</h3>
 
-                    <p>To change the logging for Sakai, you need to change Sakai source code and re-deploy sakai. The file you need to change is <code class="filename">sakai-src/kernel/log-configure/src/conf/log4j.properties</code>, and the relevant property is:</p>
+                    <p>To change the logging for Sakai, you need to change Sakai source code and
+                        re-deploy sakai. The file you need to change is
+                            <code class="filename">sakai-src/kernel/log-configure/src/conf/log4j.properties</code>,
+                        and the relevant property is:</p>
                     <pre class="screen">
 log4j.logger.org.sakaiproject=INFO</pre>
-                    <p>To turn on debug logging for all of Sakai, change that value from INFO to DEBUG.  In order to turn on debug logging for just a single component of Sakai, add a line such as in the following example, which will leave most of Sakai at INFO, but generate DEBUG level messages for the SQL service:</p>
+                    <p>To turn on debug logging for all of Sakai, change that value from INFO to
+                        DEBUG. In order to turn on debug logging for just a single component of
+                        Sakai, add a line such as in the following example, which will leave most of
+                        Sakai at INFO, but generate DEBUG level messages for the SQL service:</p>
                     <pre class="screen">
 log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</pre>
-                    <p>As you can see, Sakai uses log4j for logging: see official log4j documentation for more information about how to configure it.</p>
+                    <p>As you can see, Sakai uses log4j for logging: see official log4j
+                        documentation for more information about how to configure it.</p>
                 </div>
-                <p>For Mac and *nix systems, the most important log is found in <code class="filename">logs/catalina.out</code> of Tomcat.  It can be instructive to watch this log as Tomcat is starting up, by using a startup command like the  following:</p>
+                <p>For Mac and *nix systems, the most important log is found in
+                        <code class="filename">logs/catalina.out</code> of Tomcat. It can be instructive to
+                    watch this log as Tomcat is starting up, by using a startup command like the
+                    following:</p>
                 <pre class="screen">
 bin/startup.sh; tail -f logs/catalina.out</pre>
-                <p>Tomcat on Windows tends to be a little more puzzling about its logs, and it includes more of them, but its default behavior is to open catalina.out in a new window as soon as you start Tomcat.  If you need more information about the logs in Windows, we'll refer you to the official Tomcat documentation.</p>
+                <p>Tomcat on Windows tends to be a little more puzzling about its logs, and it
+                    includes more of them, but its default behavior is to open catalina.out in a new
+                    window as soon as you start Tomcat. If you need more information about the logs
+                    in Windows, we'll refer you to the official Tomcat documentation.</p>
                 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Other Logs</h3>
 
-                    <p>The SMTP server logs from Sakai will be written to the $CATALINA_HOME/sakai/logs directory.</p>
+                    <p>The SMTP server logs from Sakai will be written to the
+                        $CATALINA_HOME/sakai/logs directory.</p>
                 </div>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1982173"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
+<a name="id1983429"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
 
-                <p>If you see those <span class="emphasis"><em>destroy</em></span> messages, that's the end of it.  Tomcat is not coming up, and you'll need to go back and change something before it will.</p>
-                <p>Unfortunately, there are quite a number of reasons this might have happened.  The simplest such cause is that you have not added the Tomcat compatibility package to your installation (see <a href="install-env.html#install-env-tinstall" title="2.3. Install Tomcat">Set up Build Environment</a>).  All the other cases involve some problem with your code or platform; these problems are more subtle, and the associated <code class="filename">catalina.out</code> messages are usually not very helpful in tracking them down.</p>
-                <p>To aid in debugging these problems, Josh Holtzman of Berkeley has created what he calls a "Noisy Spring" jar.  You can find a full explanation and a link to the jar in the <span class="emphasis"><em>Sakaipedia</em></span> at <a href="http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR" target="_top">http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR</a>.  Deploying this jar will produce a more Shakespearian death in its verbosity.</p>
+                <p>If you see those <span class="emphasis"><em>destroy</em></span> messages, that's the end of it.
+                    Tomcat is not coming up, and you'll need to go back and change something before
+                    it will.</p>
+                <p>Unfortunately, there are quite a number of reasons this might have happened.
+                    The simplest such cause is that you have not added the Tomcat compatibility
+                    package to your installation (see <a href="install-env.html#install-env-tinstall" title="2.3. Install Tomcat">Set up
+                        Build Environment</a>). All the other cases involve some problem with
+                    your code or platform; these problems are more subtle, and the associated
+                        <code class="filename">catalina.out</code> messages are usually not very helpful in
+                    tracking them down.</p>
+                <p>To aid in debugging these problems, Josh Holtzman of Berkeley has created what
+                    he calls a "Noisy Spring" jar. You can find a full explanation and a link to the
+                    jar in the <span class="emphasis"><em>Sakaipedia</em></span> at <a href="http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR" target="_top">http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR</a>.
+                    Deploying this jar will produce a more Shakespearian death in its
+                verbosity.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1982239"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
+<a name="id1983501"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
 
-                <p>If this message appears in catalina.out during startup, it means that you've built Sakai for Java 1.5, but your JRE is 1.4.  Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and double-check your Java version and environment variables.</p>
+                <p>If this message appears in catalina.out during startup, it means that you've
+                    built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and
+                    double-check your Java version and environment variables.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1982264"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
+<a name="id1983525"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
 
-                <p>If this message appears in catalina.out during startup, it means that some other application is already running on the port you've assigned for this Tomcat instance.  It's most likely another Tomcat.  It may be that you didn't stop Tomcat from a previous run, or you may already have Tomcat running on that machine.</p>
-                <p>If you need to run more than one Tomcat on the same machine, see Tomcat documentation for instructions on how to configure to run Tomcat on a different port.</p>
+                <p>If this message appears in catalina.out during startup, it means that some
+                    other application is already running on the port you've assigned for this Tomcat
+                    instance. It's most likely another Tomcat. It may be that you didn't stop Tomcat
+                    from a previous run, or you may already have Tomcat running on that machine.</p>
+                <p>If you need to run more than one Tomcat on the same machine, see Tomcat
+                    documentation for instructions on how to configure to run Tomcat on a different
+                    port.</p>
             </div>
         </div>
     </div>

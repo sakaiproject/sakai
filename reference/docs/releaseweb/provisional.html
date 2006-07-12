@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id1703789"></a>Provisional Tools</h1></div></div>
+<a name="id2004481"></a>Provisional Tools</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -68,26 +68,29 @@
                 <span class="emphasis"><em>Edit Tools</em></span> lists - they effectively require the intervention of
             an admin in order to be added to a site.</p>
         <p>Tools can be stealthed through a setting in <code class="filename">sakai.properties</code>,
-            which simply contains a comma-separated list of all the tool ids for those tools that will be stealthed.
-            Sakai OOTB has the following tools stealthed:</p>
+            which simply contains a comma-separated list of all the tool ids for those tools that
+            will be stealthed. Sakai OOTB has the following tools stealthed:</p>
         <pre class="screen">
 stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.assignment,sakai.rwiki,sakai.site.roster,
 osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sample,osp.matrix,osp.presTemplate,
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
 sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
 osp.presLayout,osp.style</pre>
-        <p>There are some provisional tools (e.g. <span class="emphasis"><em>SU</em></span>, <span class="emphasis"><em>Sakaiscript</em></span>, <span class="emphasis"><em>Summary Calendar</em></span>) for which
+        <p>There are some provisional tools (e.g. <span class="emphasis"><em>SU</em></span>,
+            <span class="emphasis"><em>Sakaiscript</em></span>, <span class="emphasis"><em>Summary Calendar</em></span>) for which
             stealthing does not apply, since they are inherently designed for admin enabling and
             deployment. These tools are not registered for <span class="emphasis"><em>Worksite Setup</em></span> in
             the first place, and so are effectively always stealthed. Stealthing is a mechanism for
-            obscuring tools from site creators and maintainers, not admins, who have access
-            to all the available tools through their admin functions.</p>
+            obscuring tools from site creators and maintainers, not admins, who have access to all
+            the available tools through their admin functions.</p>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
 <a name="tool-list"></a>3.&nbsp;Provisional Tools in 2.2.0</h2></div></div></div>
 
-        <p>A brief overview of each provisional tool is provided below.  For more detailed information, visit the Confluence links provided, or send your questions to the listed contact.</p>
+        <p>A brief overview of each provisional tool is provided below. For more detailed
+            information, visit the Confluence links provided, or send your questions to the listed
+            contact.</p>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="samigo"></a>3.1.&nbsp;Tests&amp;Quizzes</h3></div></div></div>
@@ -97,14 +100,14 @@ osp.presLayout,osp.style</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.samigo</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/SAM/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/SAM/Home</a>
@@ -113,7 +116,7 @@ osp.presLayout,osp.style</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Lydia Li (lydial@stanford.edu)</p>
                     </td>
@@ -122,7 +125,7 @@ osp.presLayout,osp.style</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1703543"></a>3.1.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2004662"></a>3.1.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Samigo is the historical project name for the tool that appears in Sakai as
                         <span class="emphasis"><em>Tests&amp;Quizzes</em></span> (the terms are often used
@@ -130,54 +133,48 @@ osp.presLayout,osp.style</pre>
                     learning, in both formative assessments and summative assessments.</p>
 
                 <p>Its key features are:</p>
-                <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">Creating Assessments</span></td>
-<td>
-                            <p>It supports rich text editing of a variety of question types such
-                                as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in
-                                the Blank, File Upload...etc.</p>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">Importing/Exporting</span></td>
-<td>
-                            <p>Assessments can be exported/imported via IMS QTI xml format</p>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">Organizing and Publishing</span></td>
-<td>
-                            <p>Options for specifying release date, due date, and/or retract
-                                date, late handling, number of submissions, grading options,
-                                feedback settings, and layout...etc Auto and manual grading;
-                                Managing question pool</p>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">Managing assessment-taking</span></td>
-<td>
-                            <p>Options for managing assessment delivery, such as randomized tests, random draw from question pool, timed
-                                assessment with auto submit, high security assessments with
-                                restricted IP and secondary password, as well as the option to send
-                                grades to Sakai's Gradebook tool.</p>
-                        </td>
-</tr>
-</tbody>
-</table></div>
+                <div class="itemizedlist"><ul>
+<li>
+<p><span class="emphasis"><em>Creating Assessments:</em></span> It supports rich text editing of a variety of question types such as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in the Blank, File Upload, and Audio Recording.  It also allows importing individual questions from question pools, as well as random ones drawn from question pools.</p>
+                        </li>
+<li>
+<p><span class="emphasis"><em>Importing/Exporting:</em></span> Assessments can be exported/imported via IMS QTI xml format. It currently supports QTI 1.2.</p>
+                        </li>
+<li>
+<p><span class="emphasis"><em>Organizing and Publishing:</em></span> It allows instructors to specify release date, due date, and/or retract date, late handling, number of submissions, grading options, feedback settings, security settings, and layout...etc.  It supports automatic and manual grading;  It also provides management for question pools.</p>
+                        </li>
+<li>
+<p><span class="emphasis"><em>Managing assessment-taking:</em></span> It delivers assessments based on a rich set of settings configured during authoring,  such as randomized questions and answers, timed assessment with auto submit, high security assessments with restricted IP and secondary password, feedback settings, as well as the option to automatically send grades to Sakai's Gradebook tool.</p>
+                        </li>
+</ul></div>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704141"></a>3.1.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2004738"></a>3.1.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>Simply unstealth the tool to begin using it in sites. It requires no special
-                    configuration.</p>
+                <p>For File Upload questions in Samigo, answers are saved to DB as a blob by default.  If you want to save answers to files, you can override this default by adding the following in your sakai.properties file.</p>
+
+<pre class="screen">
+# ** Samigo File Upload question type settings **
+# the following default settings
+# com.corejsf.UploadFilter.repositoryPath,
+# com.corejsf.UploadFilter.sizeThreshold,
+# com.corejsf.UploadFilter.sizeMax and
+# com.corejsf.UploadFilter.saveMediaToDb in Samigo web.xml
+# can be overidden with the following settings in sakai.properties
+samigo.answerUploadRepositoryPath=/tmp/
+samigo.sizeThreshold=512
+samigo.sizeMax=20480
+samigo.saveMediaToDb=false</pre>
+
+
+                    <p>When <span><strong class="command">saveMediaToDB</strong></span> is true, <span><strong class="command">SAM_MEDIA_T.MEDIA</strong></span> must be a blob or equivalent to work.  If you're running Oracle and using <span><strong class="command">auto.ddl</strong></span> to create tables, you should check the data type of the "MEDIA" column in the <span><strong class="command">SAM_MEDIA_T</strong></span> table. Hibernate tries to choose the right data type for this field, but has a habit of choosing the wrong one for Oracle. The correct types for each database are:</p>
+
+                    <div class="itemizedlist"><ul>
+<li><p>HSQLDB --&gt; varbinary</p></li>
+<li><p>Oracle --&gt; blob</p></li>
+<li><p>MySQL --&gt; longblob</p></li>
+</ul></div>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -189,14 +186,14 @@ osp.presLayout,osp.style</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.rwiki</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/RWIKI/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/RWIKI/Home</a>
@@ -205,7 +202,7 @@ osp.presLayout,osp.style</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Ian Boston (ian@caret.cam.ac.uk)</p>
                     </td>
@@ -214,7 +211,7 @@ osp.presLayout,osp.style</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704235"></a>3.2.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005231"></a>3.2.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>RWiki is an open-source Wiki tool for Sakai that gives worksite members the
                     ability to create and update wiki pages within the worksite. RWiki is designed
@@ -223,7 +220,7 @@ osp.presLayout,osp.style</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704248"></a>3.2.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005244"></a>3.2.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>No special configuration required.</p>
             </div>
@@ -237,14 +234,14 @@ osp.presLayout,osp.style</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.messagecenter</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/MFT/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/MFT/Home</a>
@@ -253,7 +250,7 @@ osp.presLayout,osp.style</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Kristol Hancock (khancock@iupui.edu)</p>
                     </td>
@@ -262,7 +259,7 @@ osp.presLayout,osp.style</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704343"></a>3.3.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005339"></a>3.3.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Message Center is Indiana University&rsquo;s solution for discussion and private
                     messaging, facilitating one-on-one and group communication. Through private
@@ -274,7 +271,7 @@ osp.presLayout,osp.style</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704356"></a>3.3.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005352"></a>3.3.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>System administrators need to set the role-to-permission-level mapping in
                         <code class="filename">sakai.properties</code>. OOTB generic roles are set to the
@@ -296,14 +293,14 @@ mc.default.Instructor=Owner</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>osp.*</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/OSP/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/OSP/Home</a>
@@ -312,7 +309,7 @@ mc.default.Instructor=Owner</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Chris Coppola (chris.coppola@rsmart.com)</p>
                     </td>
@@ -321,11 +318,13 @@ mc.default.Instructor=Owner</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704474"></a>3.4.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005471"></a>3.4.1.&nbsp;Overview</h4></div></div></div>
 
-                <p>The Open Source Portfolio (OSP) has been a significant standalone product in its own right, and it is bundled in Sakai 2.2 as a suite of several tools designed to work in concert for portfolio-based assessment. The number of tools and purposes is too great to take on here, so
-                please visit <a href="http://www.osportfolio.org" target="_top">http://www.osportfolio.org</a> for more information on the Open Source Portfolio
-                (OSP).</p>
+                <p>The Open Source Portfolio (OSP) has been a significant standalone product in
+                    its own right, and it is bundled in Sakai 2.2 as a suite of several tools
+                    designed to work in concert for portfolio-based assessment. The number of tools
+                    and purposes is too great to take on here, so please visit <a href="http://www.osportfolio.org" target="_top">http://www.osportfolio.org</a> for
+                    more information on the Open Source Portfolio (OSP).</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -337,14 +336,14 @@ mc.default.Instructor=Owner</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.search</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/SEARCH/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/SEARCH/Home</a>
@@ -353,7 +352,7 @@ mc.default.Instructor=Owner</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Ian Boston (ian@caret.cam.ac.uk)</p>
                     </td>
@@ -362,66 +361,18 @@ mc.default.Instructor=Owner</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704580"></a>3.5.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005572"></a>3.5.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>The search tool aims to provide a tool that allows a Google-like search of all
                     content in a Sakai instance.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704593"></a>3.5.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005585"></a>3.5.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>You may change the following settings in sakai.properties:</p>
+                <p>To turn on search, add the following to <code class="filename">sakai.properties</code>:</p>
                 <pre class="screen">
-#indexStorageName@org.sakaiproject.search.index.IndexStorage = filesystem
-#indexStorageName@org.sakaiproject.search.index.IndexStorage = cluster
-indexStorageName@org.sakaiproject.search.index.IndexStorage = db
-recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
-location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</pre>
-
-                <p>The first of the three settings, <span><strong class="command">indexStorageName</strong></span>, is the name of the configured class
-                    that is used for index storage.  The three possible values for this setting are described below:</p>
-                <div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td>
-<span class="term">filesystem</span></td>
-<td>
-                            <p>stores the file on the localfilesystem and assumes the system is
-                                being run either as a single node, or with a shared
-                            filesystem.</p>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">db</span></td>
-<td>
-                            <p>stores the index in the sakai database</p>
-                        </td>
-</tr>
-<tr>
-<td>
-<span class="term">cluster</span></td>
-<td>
-                            <p>stores the index on local filesystems but performs clusterwide
-                                updates as the index is updated. This mechanism relies on a unix
-                                shell script to perform the synchronisation, so will need local
-                                configuration.</p>
-                        </td>
-</tr>
-</tbody>
-</table></div>
-
-                <p>The next setting, <span><strong class="command">recoverCorruptedIndex</strong></span>, controls what happens if the index is
-                    found to be corrupt. If true, the index can be automatically deleted and
-                    restarted, but it will have no content. The content can be re-initialised by
-                    admin rebuilding the index of the whole instance. If false a corrupted index
-                    will cause an exception to be reported to the end user.</p>
-
-                <p>The final value to be set, <span><strong class="command">location</strong></span>, is the location of the index. If the driver is a
-                    database driver, the location will be a database table. If the driver is a
-                    filesystem it will be a directory where the index files are stored.</p>
+search.experimental=true</pre>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -433,21 +384,21 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.su</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>None</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Zach Thomas (zach.thomas@txstate.edu)</p>
                     </td>
@@ -456,7 +407,7 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704774"></a>3.6.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005677"></a>3.6.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>SU is a tool for administrators to use to log in as another user. It is code
                     developed at Texas State University for their local brand of Sakai called
@@ -470,7 +421,7 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704795"></a>3.6.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005701"></a>3.6.2.&nbsp;Configuration</h4></div></div></div>
 
 
                 <p>In order to use the tool, edit the <span class="emphasis"><em>!admin</em></span> site (i.e. the
@@ -489,7 +440,7 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704850"></a>3.6.3.&nbsp;Security</h4></div></div></div>
+<a name="id2005753"></a>3.6.3.&nbsp;Security</h4></div></div></div>
 
                 <p>The SU tool is hard-coded only to work for users with administrative
                     privileges. Naturally you should take care whom you give these privileges to.
@@ -506,21 +457,21 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>NA</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>None</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Steve Githens (s-githens@northwestern.edu)</p>
                     </td>
@@ -529,15 +480,17 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704933"></a>3.7.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005837"></a>3.7.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Sakaiscript is essentially a logical web service wrapper to the Sakai API,
                     opening up a number of common admin functions to easy scripting from other
-                    languages.  You'll find HTML documentation for it, including sample scripts from Python, in <code class="filename">reference/docs/webservices/html/index.html</code>.</p>
+                    languages. You'll find HTML documentation for it, including sample scripts from
+                    Python, in
+                <code class="filename">reference/docs/webservices/html/index.html</code>.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704950"></a>3.7.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005854"></a>3.7.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>Sakai web services and SakaiScript are included in the release and need to be
                     turned on using a property in the Sakai Properties file:</p>
@@ -546,17 +499,22 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 webservices.allowlogin=false</pre>
                 <p>This parameter is set to false so as to make sure that no one can robot-guess
                     Sakai passwords using web services out of the box. If you want to support the
-                    login and session-establishment, you must set this proprty to true in your Sakai
+                    login, you must set this property to true in your Sakai
                     instance.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1704978"></a>3.7.3.&nbsp;Security</h4></div></div></div>
+<a name="id2005881"></a>3.7.3.&nbsp;Security</h4></div></div></div>
 
+                <p>While it's true that
+                    you have to enable the above property to log in via webservices, webservices are always "on".  In other words you could, in principle, always navigate to the Axis page to view the SOAP methods, and use SakaiScript
+                    as long as you have a SessionID (you could just copy it from your
+                    browser cookie).</p>
                 <p>Any site enabling web-services should understand the security implications of
                     Sakai web services. Web services should be run over HTTPS in any production
                     environment as IDs, Passwords, and Sakai Session Keys are passed back and forth
                     in plain text using SOAP.</p>
+                <p></p>
             </div>
         </div>
 
@@ -571,14 +529,14 @@ webservices.allowlogin=false</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.postem</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/PEM/Home" target="_top">http://bugs.sakaiproject.org/confluence/display/PEM/Home</a>
@@ -587,7 +545,7 @@ webservices.allowlogin=false</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Kristol Hancock (khancock@iupui.edu)</p>
                     </td>
@@ -596,7 +554,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705078"></a>3.8.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005988"></a>3.8.1.&nbsp;Overview</h4></div></div></div>
 
                 <p><span class="emphasis"><em>Post &lsquo;Em</em></span> is an automated reporting system that enables
                     faculty to post grades and comments without compromising student privacy.
@@ -608,7 +566,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705104"></a>3.8.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006011"></a>3.8.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>The tool simply needs to be unstealthed, and requires no special
                     configuration.</p>
@@ -623,14 +581,14 @@ webservices.allowlogin=false</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.summary.calendar</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>
                             <a href="http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary" target="_top">http://bugs.sakaiproject.org/confluence/display/CALSUM/Calendar+Summary</a>
@@ -639,7 +597,7 @@ webservices.allowlogin=false</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Nuno Fernandes (nuno@ufp.pt)</p>
                     </td>
@@ -648,17 +606,17 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705200"></a>3.9.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006106"></a>3.9.1.&nbsp;Overview</h4></div></div></div>
 
-                <p>Calendar Summary is a synoptic tool that presents a
-                    visual monthly view of schedule events in the Home page of My Workspace or other
-                    course/project sites. If placed in My Workspace sites, it aggregates schedule
-                    events of all active sites the user is member of (unless the user is an admin). If
-                    placed in course/project sites, it displays only events for that site.</p>
+                <p>Calendar Summary is a synoptic tool that presents a visual monthly view of
+                    schedule events in the Home page of My Workspace or other course/project sites.
+                    If placed in My Workspace sites, it aggregates schedule events of all active
+                    sites the user is member of (unless the user is an admin). If placed in
+                    course/project sites, it displays only events for that site.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705220"></a>3.9.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006126"></a>3.9.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>This tool may be unstealthed to allow it to be added by site maintainers -
                     just as with most other provisional tools - but it may also be particularly
@@ -676,21 +634,21 @@ webservices.allowlogin=false</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>sakai.site.roster</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>None</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Kristol Hancock (khancock@iupui.edu)</p>
                     </td>
@@ -699,7 +657,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705319"></a>3.10.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006225"></a>3.10.1.&nbsp;Overview</h4></div></div></div>
 
                 <p><span class="emphasis"><em>Roster</em></span> allows users to view the names, photos and
                     profiles of site participants who have made their information accessible through
@@ -709,9 +667,11 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705348"></a>3.10.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006254"></a>3.10.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>The tool simply needs to be unstealthed.  It requires no special configuration, but some extra work may need to be done to provide photos for it from campus systems.</p>
+                <p>The tool simply needs to be unstealthed. It requires no special configuration,
+                    but some extra work may need to be done to provide photos for it from campus
+                    systems.</p>
             </div>
         </div>
 
@@ -724,21 +684,21 @@ webservices.allowlogin=false</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">Tool ID</span></td>
+<span class="term">Tool ID:</span></td>
 <td>
                         <p>None</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Confluence Space</span></td>
+<span class="term">Confluence Space:</span></td>
 <td>
                         <p>None</p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Contact</span></td>
+<span class="term">Contact:</span></td>
 <td>
                         <p>Jim Eng (jimeng@umich.edu)</p>
                     </td>
@@ -747,7 +707,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705433"></a>3.11.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006343"></a>3.11.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>TwinPeaks is a capability to search external repositories while using the
                     HTMLArea WYSIWIG editor (note: Sakai 2.2 uses FCKeditor by default). TwinPeaks
@@ -766,7 +726,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1705460"></a>3.11.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006375"></a>3.11.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>TwinPeaks can be enabled by changing the following sakai.properties setting to
                     true.</p>
@@ -779,7 +739,7 @@ wysiwyg.twinpeaks=false</pre>
         </div>
     </div>
 </div>
-<br clear="all"/></div>
+<br clear="all"></div>
 </body>
 </html>
 

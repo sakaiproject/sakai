@@ -42,19 +42,19 @@
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_mysql_conversion.sql</a>
                         </p>
                     </td>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                         <p>
-                            <a href="https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/branches/sakai_2-2-x/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
+                            <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conversion/sakai_2_1_2-2_2_0_oracle_conversion.sql</a>
                         </p>
                     </td>
 </tr>
@@ -62,9 +62,9 @@
 </table></div>
             <p>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate scripts. You cannot, for example, move from 2.1.1 to
-                2.2.0 by applying a single script. You will need to move first from 2.1.1 to
-                2.1.2, and then to 2.2.0.</p>
+                of all intermediate scripts. You cannot, for example, move from 2.1.1 to 2.2.0 by
+                applying a single script. You will need to move first from 2.1.1 to 2.1.2, and then
+                to 2.2.0.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Examine before using</h3>
 
@@ -72,20 +72,21 @@
                     applying them. They do not take into account any special customizations you may
                     have made - such as new roles, or the deployment of additional tools - and they
                     may complicate your migration with unintended consequences if you execute them
-                     blindly.</p>
+                    blindly.</p>
                 <p>For the 2.2.0 release, the <span class="emphasis"><em>Message Center</em></span> tool offers one
                     such particular example. A number of schools deployed <span class="emphasis"><em>Message
-                    Center</em></span> in 2.1.x production, before it was yet a provisional
-                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
-                    its tables, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new tool for
-                    your deployment. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead perform the following conversions:</p>
+                    Center</em></span> in 2.1.x production, before it was yet a provisional tool. Now
+                    that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <span class="emphasis"><em>Message Center</em></span> is a new
+                    tool for your deployment. If it isn't, you'll want to comment out the portions
+                    of the conversion script that treat it, and instead perform the following
+                    conversions:</p>
                 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                             <pre class="screen">
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
@@ -96,7 +97,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                             <pre class="screen">
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
@@ -113,10 +114,11 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-dbconfig-drivers"></a>5.2. Deploy Drivers</h3></div></div></div>
 
-            <p>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has not yet been adequately tested for it to be recommended for production) and Oracle 9i+. The
-                version of the JDBC driver (or connector) is also important: for MySQL a 3.1.12+
-                connector should be used, while for Oracle the 10g driver must be used, even if the
-                database is Oracle 9i. These drivers should be copied into your
+            <p>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has
+                not yet been adequately tested for it to be recommended for production) and Oracle
+                9i+. The version of the JDBC driver (or connector) is also important: for MySQL a
+                3.1.12+ connector should be used, while for Oracle the 10g driver must be used, even
+                if the database is Oracle 9i. These drivers should be copied into your
                     <code class="filename">$CATALINA_HOME/common/lib</code> directory, and they are available
                 from the official sites:</p>
             <div class="variablelist"><table border="0">
@@ -124,7 +126,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                         <p>
                             <a href="http://dev.mysql.com/downloads/connector/j/3.1.html" target="_top">http://dev.mysql.com/downloads/connector/j/3.1.html</a>
@@ -133,7 +135,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                         <p>
                             <a href="http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html" target="_top">http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html</a>
@@ -215,7 +217,7 @@ AL32UTF8</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                         <pre class="screen">
 hibernate.dialect=org.hibernate.dialect.MySQLDialect
@@ -230,7 +232,7 @@ defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMM
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                         <pre class="screen">
 hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
@@ -274,21 +276,21 @@ testOnBorrow@javax.sql.BaseDataSource=false</pre>
 <tbody>
 <tr>
 <td>
-<span class="term">HSQL</span></td>
+<span class="term">HSQL:</span></td>
 <td>
                             <p>varbinary</p>
                         </td>
 </tr>
 <tr>
 <td>
-<span class="term">MySQL</span></td>
+<span class="term">MySQL:</span></td>
 <td>
                             <p>longblob</p>
                         </td>
 </tr>
 <tr>
 <td>
-<span class="term">Oracle</span></td>
+<span class="term">Oracle:</span></td>
 <td>
                             <p>blob</p>
                         </td>
