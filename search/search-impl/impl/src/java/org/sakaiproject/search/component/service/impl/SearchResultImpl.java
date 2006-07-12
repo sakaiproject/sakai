@@ -154,9 +154,11 @@ public class SearchResultImpl implements SearchResult
 			StringBuffer sb = new StringBuffer();
 			// contents no longer contains the digested contents, so we need to
 			String[] contents = doc.getValues(SearchService.FIELD_CONTENTS);
-			for (int i = 0; i < contents.length; i++)
-			{
-				sb.append(contents[i]);
+			if ( contents != null ) {
+				for (int i = 0; i < contents.length; i++)
+				{
+					sb.append(contents[i]);
+				}
 			}
 			String text = sb.toString();
 			TokenStream tokenStream = analyzer.tokenStream(

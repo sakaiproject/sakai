@@ -37,9 +37,15 @@ public class DefaultContentDigester implements ContentDigester
 {
 	private static final Log log = LogFactory
 			.getLog(DefaultContentDigester.class);
+	
+	private int maxDigestSize = 1024 * 1024 * 5; // 5M
 
 	public String getContent(ContentResource contentResource)
 	{
+		if ( contentResource != null && 
+				contentResource.getContentLength() > maxDigestSize ) {
+			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
+		}
 		try
 		{
 			char[] content = (new String(contentResource.getContent()))
@@ -68,7 +74,7 @@ public class DefaultContentDigester implements ContentDigester
 		{
 			contentStream = contentResource.streamContent();
 			FilterStreamReader filterReader = new FilterStreamReader(
-					contentStream);
+					contentStream, maxDigestSize);
 			return filterReader;
 		}
 		catch (Exception e)
@@ -87,6 +93,8 @@ public class DefaultContentDigester implements ContentDigester
 	{
 
 		private InputStream inputStream = null;
+		private int maxDigestSize;
+		private int nread = 0;
 
 		/*
 		 * (non-Javadoc)
@@ -95,7 +103,11 @@ public class DefaultContentDigester implements ContentDigester
 		 */
 		public int read() throws IOException
 		{
+			if  ( nread  > maxDigestSize ) {
+				return -1;
+			}
 			char i = (char) super.read();
+			nread++;
 			if (Character.isLetterOrDigit(i)) return i;
 			return ' ';
 		}
@@ -107,7 +119,11 @@ public class DefaultContentDigester implements ContentDigester
 		 */
 		public int read(char[] buffer, int start, int end) throws IOException
 		{
+			if  ( nread  > maxDigestSize ) {
+				return -1;
+			}
 			int size = super.read(buffer, start, end);
+			nread += size;
 			int last = start + size;
 			for (int i = size; i < last; i++)
 			{
@@ -125,10 +141,11 @@ public class DefaultContentDigester implements ContentDigester
 			super(arg0);
 		}
 
-		public FilterStreamReader(InputStream stream)
+		public FilterStreamReader(InputStream stream, int maxDigestSize)
 		{
 			super(new InputStreamReader(stream));
 			inputStream = stream;
+			this.maxDigestSize = maxDigestSize;
 		}
 
 		/* (non-Javadoc)
@@ -148,6 +165,22 @@ public class DefaultContentDigester implements ContentDigester
 			inputStream = null;
 		}
 
+	}
+
+	/**
+	 * @return Returns the maxDigestSize.
+	 */
+	public int getMaxDigestSize()
+	{
+		return maxDigestSize;
+	}
+
+	/**
+	 * @param maxDigestSize The maxDigestSize to set.
+	 */
+	public void setMaxDigestSize(int maxDigestSize)
+	{
+		this.maxDigestSize = maxDigestSize;
 	}
 
 }

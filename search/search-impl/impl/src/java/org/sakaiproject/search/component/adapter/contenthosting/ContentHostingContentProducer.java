@@ -91,7 +91,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	private ContentDigester defaultDigester;
 
-	private int readerSizeLimit = 1024 * 1024 * 200; // (200K)
+	private int readerSizeLimit = 1024 * 200; // (200K)
+	
+	private int digesterSizeLimit = 1024 * 1024 * 2; // (2M)
 
 	public void init()
 	{
@@ -182,7 +184,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		if ( contentResource.getContentLength() <= 0 ) {
 			return new StringReader("");
-		}
+		}		
+		
 		ContentDigester digester = getDigester(contentResource);
 		Reader reader = null;
 		try
@@ -270,6 +273,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public ContentDigester getDigester(ContentResource cr)
 	{
+		if ( cr.getContentLength() > digesterSizeLimit ) {
+			return defaultDigester;
+		}
 		String mimeType = cr.getContentType();
 		for (Iterator i = digesters.iterator(); i.hasNext();)
 		{
@@ -453,6 +459,22 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	public String getCustomRDF()
 	{
 		return null;
+	}
+
+	/**
+	 * @return Returns the digesterSizeLimit.
+	 */
+	public int getDigesterSizeLimit()
+	{
+		return digesterSizeLimit;
+	}
+
+	/**
+	 * @param digesterSizeLimit The digesterSizeLimit to set.
+	 */
+	public void setDigesterSizeLimit(int digesterSizeLimit)
+	{
+		this.digesterSizeLimit = digesterSizeLimit;
 	}
 
 

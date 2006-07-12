@@ -41,14 +41,20 @@ public class PDFContentDigester extends BaseContentDigester
 
 	public String getContent(ContentResource contentResource)
 	{
+		if ( contentResource != null && 
+				contentResource.getContentLength() > maxDigestSize  ) {
+			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
+		}
+
 		InputStream contentStream = null;
 		StringWriter sw = null;
+		PDDocument pddoc = null;
 		try
 		{
 			contentStream = contentResource.streamContent();
 			PDFTextStripper stripper = new PDFTextStripper();
 			sw = new StringWriter();
-			PDDocument pddoc = PDDocument.load(contentStream);
+			pddoc = PDDocument.load(contentStream);
 			stripper.writeText(pddoc, sw);
 			pddoc.close();
 			return sw.toString();
@@ -78,6 +84,11 @@ public class PDFContentDigester extends BaseContentDigester
 				catch (IOException e)
 				{
 				}
+			}
+			try {
+				pddoc.close();
+			} catch ( Exception ex) {
+				
 			}
 		}
 	}

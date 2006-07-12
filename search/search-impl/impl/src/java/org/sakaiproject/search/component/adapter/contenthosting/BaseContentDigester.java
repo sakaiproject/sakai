@@ -36,6 +36,9 @@ public abstract class BaseContentDigester implements ContentDigester
 	private static Log log = LogFactory.getLog(BaseContentDigester.class);
 
 	private ContentHostingContentProducer contentProducer = null;
+	
+	protected int maxDigestSize = 1024 * 1024 * 5; // 5M
+
 
 	public void init()
 	{
@@ -112,6 +115,22 @@ public abstract class BaseContentDigester implements ContentDigester
 	public void setContentProducer(ContentHostingContentProducer contentProducer)
 	{
 		this.contentProducer = contentProducer;
+	}
+
+	/**
+	 * @return Returns the maxDigestSize.
+	 */
+	public int getMaxDigestSize()
+	{
+		return maxDigestSize;
+	}
+
+	/**
+	 * @param maxDigestSize The maxDigestSize to set.
+	 */
+	public void setMaxDigestSize(int maxDigestSize)
+	{
+		this.maxDigestSize = maxDigestSize;
 	}
 
 }
