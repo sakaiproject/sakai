@@ -8384,7 +8384,7 @@ public class SiteAction extends PagedResourceActionII
 		
 											List pageToolList = page.getTools();
 											String toolId = ((ToolConfiguration)pageToolList.get(0)).getTool().getId();
-											transferCopyEntities(toolId, oSiteId, nSiteId);
+											transferCopyEntities(toolId, ContentHostingService.getSiteCollection(oSiteId), ContentHostingService.getSiteCollection(nSiteId));
 										}
 									}
 								} 
