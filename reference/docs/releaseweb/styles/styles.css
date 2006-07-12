@@ -32,14 +32,19 @@ padding: 0px;
 	vertical-align: top;
 	}
 
-td, tr {	
-padding: 5px;
+td {	
  	font-family:  Arial, Helvetica, sans-serif;
 	font-size: 12px;
 	color: #000;
    	line-height: 1.4;
 	text-align: left;
-	vertical-align: middle;
+	vertical-align: top;
+	}
+	
+tr {
+	border-style: solid;
+	border-width: 1;
+	border-color: black;
 	}
 	
 pre {
@@ -125,7 +130,7 @@ h2 		{
 		color: #337766;
  		font-family: Verdana, Arial, Helvetica, sans-serif;
 		font-size: 20px;
-		margin-top: 20px;
+		margin-top: 30px;
  		margin-bottom: 10px;
 		padding-bottom: 0;
 		margin-left: 0px;
@@ -136,14 +141,14 @@ h3 		{
  		font-family: Arial, Helvetica, sans-serif;
 		font-size: 16px;
  		margin-bottom: 10px;
- 		margin-top: 20px;
+ 		margin-top: 30px;
 		}
 		
 h4 		{
 		color:#333;
  		font-family: Verdana, Arial, Helvetica, sans-serif;
 		font-size: 12px;
-		margin-top: 5px;
+		margin-top: 20px;
 		margin-left: 5px;
 		padding-left: 5px;
  		margin-bottom: 5px;
