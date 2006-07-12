@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.radeox.macro.BaseMacro;
 import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.util.Encoder;
 
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderEngine;
@@ -43,6 +44,7 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
+import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
  * FIXME needs localisation
@@ -161,9 +163,12 @@ public class RecentChangesMacro extends BaseMacro
 				{
 					// SAK-2671 We should localize against the renderspace not
 					// the object's realm!
-					writer.write("\n* ["
-							+ NameHelper.localizeName(object.getName(),
-									localRenderSpace) + "]");
+					// XXX this is the wrong place for this link. We shouldn't be rendering the links as []
+					String linkName = escapeForLink(NameHelper.localizeName(object.getName(),
+							localRenderSpace)); 
+					
+					writer.write("\n* [:"
+							+ linkName + "]");
 
 					writer.write(" was last modified "
 							+ dateFormat.format(object.getVersion()));
@@ -188,6 +193,39 @@ public class RecentChangesMacro extends BaseMacro
 		return;
 	}
 
+	private String escapeForLink(String toEscape) {
+		char[] chars = toEscape.toCharArray();
+		StringBuffer buffer = new StringBuffer();
+		String specialChars = "&[]<>|#:";
+		
+		
+		int head;
+		int tail = 0;
+		for (head = 0; head < chars.length; head++) {
+			if (specialChars.indexOf(chars[head]) > -1) {
+				if (head != tail) {
+					buffer.append(chars,tail, head - tail);
+				}
+				buffer.append(toEntity(chars[head]));
+				tail = head + 1;
+			}
+		}
+		
+		if (tail == 0) {
+			return toEscape;
+		}
+		
+		if (tail != head) {
+			buffer.append(chars, tail, head - tail);
+		}
+		
+		return buffer.toString();
+	}
+	
+	private String toEntity(char c) {
+		return "&#" + ((int)c) + ";";
+	}
+	
 }
 
 /*******************************************************************************

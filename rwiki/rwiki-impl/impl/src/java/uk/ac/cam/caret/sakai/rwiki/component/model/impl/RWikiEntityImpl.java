@@ -22,6 +22,7 @@
 package uk.ac.cam.caret.sakai.rwiki.component.model.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Stack;
 
@@ -138,13 +139,32 @@ public class RWikiEntityImpl implements RWikiEntity
 	public String getUrl()
 	{
 		if (rwo == null)
+		{
 			return ServerConfigurationService.getAccessUrl()
-					+ RWikiObjectService.REFERENCE_ROOT + reference.getId().replaceAll(" ","%20")
+					+ RWikiObjectService.REFERENCE_ROOT + encode(reference.getId())
 					+ ".";
-		return ServerConfigurationService.getAccessUrl()
-				+ RWikiObjectService.REFERENCE_ROOT + rwo.getName().replaceAll(" ","%20") + ".";
+		} 
+		else {
+			return ServerConfigurationService.getAccessUrl()
+				+ RWikiObjectService.REFERENCE_ROOT + encode(rwo.getName()) + ".";
+		}
 	}
 
+	private String encode(String toEncode) {
+		try
+		{		
+			String encoded = URLEncoder.encode(toEncode, "UTF-8");
+			encoded = encoded.replaceAll("\\+", "%20").replaceAll("%2F", "/");
+			
+			return encoded; 
+
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new IllegalStateException("UTF-8 Encoding is not supported when encoding: "  + toEncode + ": " + e.getMessage());
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -192,6 +212,7 @@ public class RWikiEntityImpl implements RWikiEntity
 		catch (UnsupportedEncodingException usex)
 		{
 			// if UTF-8 isnt available, we are in big trouble !
+			throw new IllegalStateException("Cannot find Encoding UTF-8");
 		}
 		stack.pop();
 

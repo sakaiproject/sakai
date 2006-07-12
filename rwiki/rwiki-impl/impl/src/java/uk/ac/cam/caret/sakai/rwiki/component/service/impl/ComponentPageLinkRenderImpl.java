@@ -21,6 +21,8 @@
 
 package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.MessageFormat;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
@@ -211,6 +213,18 @@ public class ComponentPageLinkRenderImpl implements PageLinkRenderer
 	 */
 	public static String encode(String toEncode)
 	{
-		return toEncode.replaceAll(" ","%20");
+		try
+		{		
+			String encoded = URLEncoder.encode(toEncode, "UTF-8");
+			encoded = encoded.replaceAll("\\+", "%20").replaceAll("%2F", "/");
+			
+			return encoded; 
+
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new IllegalStateException("UTF-8 Encoding is not supported when encoding: "  + toEncode + ": " + e.getMessage());
+		}
+		
 	}
 }
