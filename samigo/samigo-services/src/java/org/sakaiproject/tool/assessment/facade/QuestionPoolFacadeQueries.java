@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.osid.OsidException;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolAccessData;
@@ -593,6 +594,8 @@ public class QuestionPoolFacadeQueries
             List m = getHibernateTemplate().find(query);
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
+              ItemDataIfc item = meta.getItem();
+              item.removeMetaDataByType(ItemMetaDataIfc.POOLID);
               meta.setItem(null);
               metaList.add(meta);
 	    }

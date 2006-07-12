@@ -146,6 +146,8 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   void removeFeedbackByType(String typeId);
 
+  void removeMetaDataByType(String typeId);
+
   public Boolean getIsTrue();
 
   public String getText();
