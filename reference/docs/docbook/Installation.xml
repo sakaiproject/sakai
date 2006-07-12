@@ -1174,6 +1174,31 @@ log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</screen>
                     <para>As you can see, Sakai uses log4j for logging: see official log4j
                         documentation for more information about how to configure it.</para>
+                    <para>The logging controls are part of the new LogConfigurationManager, implemented as a component, the <filename>Log4jConfigurationManager</filename>, in the util module.  It can be disabled, if we really don't want it to do anything, with an entry in <filename>sakai.properties</filename>:</para>
+                    
+                    <screen>
+enabled@org.sakaiproject.log.api.LogConfigurationManager = false</screen>
+                  
+<para>Logging levels are first established in the log4j configuration file we deploy from Sakai. The source for this file is in: <filename>sakai/util/util-impl/log/src/conf/log4j.properties</filename>.  This is made into a jar and deployed to common (this is a requirement of log4j configuration in Tomcat). We can set logging levels in this file. For example:</para>
+                    
+<screen>
+# Application logging options
+log4j.logger.org.sakaiproject=INFO
+                    
+# Ignore erroneous MyFaces variable resolver warnings
+log4j.logger.org.apache.myfaces.el.VariableResolverImpl=ERROR</screen>
+                    
+                    <para>This sets any logger with "org.sakaiproject.*" to INFO level, and the "org.apache.myfaces.el.VariableResolverImpl" to ERROR level.  The problem with this approach, however, is that it requires a change to the source, and a redeploy.  Hardly convenient.</para>
+                    <para>Happily, logging levels can now also be specified in <filename>sakai.properties</filename>. This augments and overrides the levels set in the default config file. Example:</para>
+                    
+                    <screen>
+log.config.count=3
+log.config.1 = ALL.org.sakaiproject.log.impl
+log.config.2 = OFF.org.sakaiproject
+log.config.3 = DEBUG.org.sakaiproject.db.impl</screen>
+                    
+                    <para>This uses the established (but awkward) method of having a name.count followed by name.1, name,2, etc. to form an array of strings for the value "name". In this case, the name is "log.config".  The values are of the form <command>LEVEL.logger</command>, and the possible levels are: OFF TRACE DEBUG INFO WARN ERROR FATAL ALL.</para>
+                    <para>As you can see, Sakai uses log4j for logging. See the official log4j documentation for more information about how to configure it if you have questions.</para>
                 </note>
                 <para>For Mac and *nix systems, the most important log is found in
                         <filename>logs/catalina.out</filename> of Tomcat. It can be instructive to
