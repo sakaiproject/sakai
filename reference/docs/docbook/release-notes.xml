@@ -27,10 +27,10 @@
                     separation. It is now possible for an institution to, for example, alter the
                     enterprise IDs of their users without losing access to their sites and materials
                     in Sakai. For a thorough discussion of these changes, see the doc
-                        <filename>reference/docs/architecture/sakai_id_eid.doc</filename> (or in subversion at:
-                        <link
+                        <filename>reference/docs/architecture/sakai_id_eid.doc</filename> (or in
+                    subversion at: <link
                         xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc"
-                            >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc</link>)</para>
+                        >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc</link>)</para>
             </sect3>
             <sect3>
                 <title>FCKeditor</title>
@@ -59,8 +59,12 @@ skin.default=default</screen>
                 <title>Updated Help Content</title>
                 <para>Help content in 2.1 was out of date, reflecting only version 2.0 of the
                     software. The help content has been updated for 2.2, along with some style
-                    improvements.  To see the ongoing work of the Help project, visit their space in Confluence:</para>
-                <para><link xl:href="http://bugs.sakaiproject.org/confluence/display/HELP/Home">http://bugs.sakaiproject.org/confluence/display/HELP/Home</link></para>
+                    improvements. To see the ongoing work of the Help project, visit their space in
+                    Confluence:</para>
+                <para>
+                    <link xl:href="http://bugs.sakaiproject.org/confluence/display/HELP/Home"
+                        >http://bugs.sakaiproject.org/confluence/display/HELP/Home</link>
+                </para>
             </sect3>
             <sect3>
                 <title>French and Japanese translations</title>
@@ -72,38 +76,27 @@ skin.default=default</screen>
         <sect2 xml:id="new-tools">
             <title>New Tools</title>
             <para>Sakai 2.2.0 has added four new provisional tools</para>
-            <variablelist>
-                <varlistentry>
-                    <term>Message Center </term>
-                    <listitem>
-                        <para>a tool combining a discussion forum with private messaging.</para>
+            <itemizedlist>
+                <listitem>
+                    <para><emphasis>Message Center:</emphasis> a tool combining a discussion forum with private messaging.</para>
                     </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Search </term>
-                    <listitem>
-                        <para>a tool providing a Google-like search of all site content.</para>
+
+                <listitem><para><emphasis>Search:</emphasis> a tool providing a Google-like search of all site content.</para>
                     </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Summary Calendar </term>
-                    <listitem>
-                        <para>a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that
+
+                <listitem><para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view for the <emphasis>MyWorkspace</emphasis> that
                             includes events from all the sites to which a user is a member.</para>
                     </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Post 'Em </term>
-                    <listitem>
-                        <para>an automated reporting system that enables faculty to post grades and
+
+                <listitem><para><emphasis>Post 'Em:</emphasis> an automated reporting system that enables faculty to post grades and
                             comments without compromising student privacy. Post ‘Em accepts CSV
                             files, empowering faculty to track student grades in a spreadsheet
                             application of their choice.</para>
                     </listitem>
-                </varlistentry>
-            </variablelist>
+
+            </itemizedlist>
             <para>You can find more details about these and all other provisional tools on the <link
-                    xl:href="http://source.sakaiproject.org/2.2.0/provisional.html">provisional
+                    xl:href="provisional.html">provisional
                     tools</link> page.</para>
         </sect2>
     </sect1>
@@ -113,11 +106,11 @@ skin.default=default</screen>
             <title>Database Conversion</title>
             <para>There are database schema changes between 2.1.2 and 2.2.0, and the conversion
                 scripts to be applied - in distinct versions for MySQL and Oracle, respectively -
-                are found in the <filename>reference/docs/conversion</filename> folder of the release
-                or on subversion:</para>
+                are found in the <filename>reference/docs/conversion</filename> folder of the
+                release or on subversion:</para>
             <variablelist>
                 <varlistentry>
-                    <term>MySQL</term>
+                    <term>MySQL:</term>
                     <listitem>
                         <para>
                             <link
@@ -127,7 +120,7 @@ skin.default=default</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Oracle</term>
+                    <term>Oracle:</term>
                     <listitem>
                         <para>
                             <link
@@ -159,7 +152,7 @@ skin.default=default</screen>
                     conversions:</para>
                 <variablelist>
                     <varlistentry>
-                        <term>MySQL</term>
+                        <term>MySQL:</term>
                         <listitem>
                             <screen>
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
@@ -169,7 +162,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</screen>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Oracle</term>
+                        <term>Oracle:</term>
                         <listitem>
                             <screen>
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
@@ -207,19 +200,23 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                         'getEid'.</para>
                 </listitem>
                 <listitem>
-                    <para>Revise the project.xml files in both the provider module and 'component'
+                    <para>Revise the <filename>project.xml</filename> files in both the provider module and 'component'
                         with the appropriate UDP location.</para>
                 </listitem>
                 <listitem>
-                    <para>Change the Spring bean declaration in component.xml.</para>
+                    <para>Change the Spring bean declaration in <filename>component.xml</filename>.</para>
                 </listitem>
                 <listitem>
-                    <para>The UDP class may implement the DisplayAdvisorUDP interface (optional), and the two
-                        additional methods this pulls in. </para>
+                    <para>The UDP class may implement the <filename>DisplayAdvisorUDP</filename> interface (optional),
+                        and the two additional methods this pulls in. </para>
                 </listitem>
             </orderedlist>
-            <para>Be sure to review the SampleUserDirectoryProvider, and compare it against the same sample for previous releases:</para>
-            <para><link xl:href="https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java">https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</link></para>
+            <para>Be sure to review the <filename>SampleUserDirectoryProvider</filename>, and compare it against the sample for previous releases:</para>
+            <para>
+                <link
+                    xl:href="https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java"
+                    >https://source.sakaiproject.org/svn/providers/tags/sakai_2-2-0/sample/src/java/org/sakaiproject/provider/user/SampleUserDirectoryProvider.java</link>
+            </para>
         </sect2>
         <sect2>
             <title>Skin Changes</title>
@@ -236,7 +233,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         <para>The code of each release has a corresponding maintenance branch, which is patched with
             fixes in an ongoing way by a branch manager - effectively until there is no longer
             sufficient interest in it for a branch manager to volunteer. Maintenance branches
-            therefore represent the latest stable snapshot of any given Sakai version.</para>
+            therefore represent the latest stable snapshot of fixes for any given Sakai version.</para>
         <para>These maintenance branches may be checked out through subversion, they are labeled
             with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
             2.2 maintenance branch with the following command: </para>
