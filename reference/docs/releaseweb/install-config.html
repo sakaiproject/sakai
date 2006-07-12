@@ -1,25 +1,25 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>4. Post-Installation Configuration</title>
+<title>4. Post-Installation Configuration</title>
 <link rel="stylesheet" href="styles/pos.css" type="text/css">
 <link rel="stylesheet" href="styles/styles.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="up" href="install-overview.html" title="Installation Guide">
-<link rel="prev" href="install-build.html" title="3. Build and Deploy">
-<link rel="next" href="install-dbconfig.html" title="5. Database Configuration">
+<link rel="prev" href="install-build.html" title="3. Build and Deploy">
+<link rel="next" href="install-dbconfig.html" title="5. Database Configuration">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">4. Post-Installation Configuration</th></tr>
+<tr><th colspan="3" align="center">4. Post-Installation Configuration</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="install-build.html">Prev</a> </td>
-<th width="60%" align="center"> </th>
-<td width="20%" align="right"> <a accesskey="n" href="install-dbconfig.html">Next</a>
+<a accesskey="p" href="install-build.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="install-dbconfig.html">Next</a>
 </td>
 </tr>
 </table>
@@ -27,11 +27,11 @@
 </div>
 <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="install-config"></a>4. Post-Installation Configuration</h2></div></div></div>
+<a name="install-config"></a>4. Post-Installation Configuration</h2></div></div></div>
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-config-folder"></a>4.1. Create folder for properties file</h3></div></div></div>
+<a name="install-config-folder"></a>4.1. Create folder for properties file</h3></div></div></div>
 
             <p>Sakai runs with a default set of configuration properties for its various
                 components. To override them you'll want to specify them in a
@@ -55,7 +55,7 @@
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-config-skprop"></a>4.2. The sakai.properties file</h3></div></div></div>
+<a name="install-config-skprop"></a>4.2. The sakai.properties file</h3></div></div></div>
 
             <p>The main configuration file for Sakai is called
                 <code class="filename">sakai.properties</code>, and you can either create it from scratch or
@@ -83,7 +83,7 @@
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-config-email"></a>4.3. Email configuration</h3></div></div></div>
+<a name="install-config-email"></a>4.3. Email configuration</h3></div></div></div>
 
             <p>Sakai needs to be set up for two email functions: receiving email sent to Sakai
                 sites, and sending out email notifications. For sending mail Sakai needs the address
@@ -116,7 +116,7 @@ smtp.enabled = true</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-config-jvm"></a>4.4. JVM Tuning</h3></div></div></div>
+<a name="install-config-jvm"></a>4.4. JVM Tuning</h3></div></div></div>
 
             <p>The default Java virtual machine is not adequate to run an application of Sakai's
                 size, and several JVM parameters must be increased to a certain threshold for Sakai
@@ -185,7 +185,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-config-test"></a>4.5. Test Sakai</h3></div></div></div>
+<a name="install-config-test"></a>4.5. Test Sakai</h3></div></div></div>
 
             <p>At this stage your installation of Sakai has not yet been configured to use your
                 preferred database (it will use its own HSQLDB by default), but you should now be
@@ -193,7 +193,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                 can be helpful at this point to know if any problems exist before you try to connect
                 it to another database. Tomcat will take a minute or so to start up, depending on
                 the speed of your machine, and it's a good idea to watch the Tomcat log as it comes
-                up to catch any errors (see <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>).</p>
+                up to catch any errors (see <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>).</p>
             <p>From <span><strong class="command">$CATALINA_HOME</strong></span> you can start up Tomcat with the command:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -220,7 +220,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 </table></div>
             <p>Once Tomcat has loaded the Sakai application (again, this can take a minute or so)
                 point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. If the gateway page does not come up,
-                check the Tomcat logs (see the <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>
+                check the Tomcat logs (see the <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a>
                 section) for any errors and stack traces. If the gateway page does come up, log in
                 with the default admin account (the username and password are both 'admin'). If you
                 can log in without errors you should be able to stop Tomcat and proceed with
@@ -255,15 +255,15 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="install-build.html">Prev</a> </td>
-<td width="20%" align="center"> </td>
-<td width="40%" align="right"> <a accesskey="n" href="install-dbconfig.html">Next</a>
+<a accesskey="p" href="install-build.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="install-dbconfig.html">Next</a>
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">3. Build and Deploy </td>
+<td width="40%" align="left" valign="top">3. Build and Deploy </td>
 <td width="20%" align="center"><a accesskey="h" href="install-overview.html">Home</a></td>
-<td width="40%" align="right" valign="top"> 5. Database Configuration</td>
+<td width="40%" align="right" valign="top"> 5. Database Configuration</td>
 </tr>
 </table>
 </div>

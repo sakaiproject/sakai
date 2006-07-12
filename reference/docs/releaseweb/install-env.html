@@ -1,25 +1,25 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>2. Set up Environment</title>
+<title>2. Set up Environment</title>
 <link rel="stylesheet" href="styles/pos.css" type="text/css">
 <link rel="stylesheet" href="styles/styles.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="up" href="install-overview.html" title="Installation Guide">
 <link rel="prev" href="install-overview.html" title="Installation Guide">
-<link rel="next" href="install-build.html" title="3. Build and Deploy">
+<link rel="next" href="install-build.html" title="3. Build and Deploy">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">2. Set up Environment</th></tr>
+<tr><th colspan="3" align="center">2. Set up Environment</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="install-overview.html">Prev</a> </td>
-<th width="60%" align="center"> </th>
-<td width="20%" align="right"> <a accesskey="n" href="install-build.html">Next</a>
+<a accesskey="p" href="install-overview.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> <a accesskey="n" href="install-build.html">Next</a>
 </td>
 </tr>
 </table>
@@ -27,11 +27,11 @@
 </div>
 <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="install-env"></a>2. Set up Environment</h2></div></div></div>
+<a name="install-env"></a>2. Set up Environment</h2></div></div></div>
 
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-jinstall"></a>2.1. Verify Java Installation</h3></div></div></div>
+<a name="install-env-jinstall"></a>2.1. Verify Java Installation</h3></div></div></div>
 
             <p>Check to see if you have Java (version 1.4.2 or higher) installed on your system
                 by running the following command (sample output from a *nix system):</p>
@@ -63,7 +63,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-jenv"></a>2.2. Verify Java Environment Variables</h3></div></div></div>
+<a name="install-env-jenv"></a>2.2. Verify Java Environment Variables</h3></div></div></div>
 
             <p>There are three Java environment variables you'll want to set for everything to
                 function as it should, and though some of them may have already been set by your
@@ -165,7 +165,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 
                 <p>The above <span><strong class="command">JAVA_OPTS</strong></span> settings are, it must be emphasized
                     once again, minimal. For settings more suitable for production servers, see the
-                        <a href="install-config.html#install-config-jvm" title="4.4. JVM Tuning">JVM Tuning</a> section of
+                        <a href="install-config.html#install-config-jvm" title="4.4. JVM Tuning">JVM Tuning</a> section of
                     Post-Installation Configuration.</p>
             </div>
             <p>You should test that these variables are set correctly. In both Windows XP and
@@ -174,7 +174,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-tinstall"></a>2.3. Install Tomcat</h3></div></div></div>
+<a name="install-env-tinstall"></a>2.3. Install Tomcat</h3></div></div></div>
 
             <p>Sakai 2.2.0 was QA'ed with Tomcat 5.5.17, and so that's the version we recommend,
                 although the latest stable version will most likely not present problems. Tomcat can
@@ -205,7 +205,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-tconfig"></a>2.4. Configure Tomcat</h3></div></div></div>
+<a name="install-env-tconfig"></a>2.4. Configure Tomcat</h3></div></div></div>
 
             <p>Sakai supports UTF-8, allowing for non-Roman characters, but this requires that
                 Tomcat be configured to accept UTF-8 URLs since it ships with ISO-8859-1 as the
@@ -245,7 +245,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-minstall"></a>2.5. Install Maven</h3></div></div></div>
+<a name="install-env-minstall"></a>2.5. Install Maven</h3></div></div></div>
 
             <p>Maven is the build tool used by Sakai, and the latest stable release (currently
                 1.0.2) can be downloaded from <a href="http://maven.apache.org/start/download.html" target="_top">
@@ -262,7 +262,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-env-mconfig"></a>2.6. Configure Maven</h3></div></div></div>
+<a name="install-env-mconfig"></a>2.6. Configure Maven</h3></div></div></div>
 
             <p>To use Maven you'll need to set two more environment variables and then create a
                 local repository using a script provided by Maven. Just as with the Java variables,
@@ -361,15 +361,15 @@ maven.tomcat.home=/usr/local/tomcat/</pre>
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="install-overview.html">Prev</a> </td>
-<td width="20%" align="center"> </td>
-<td width="40%" align="right"> <a accesskey="n" href="install-build.html">Next</a>
+<a accesskey="p" href="install-overview.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> <a accesskey="n" href="install-build.html">Next</a>
 </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">Installation Guide </td>
+<td width="40%" align="left" valign="top">Installation Guide </td>
 <td width="20%" align="center"><a accesskey="h" href="install-overview.html">Home</a></td>
-<td width="40%" align="right" valign="top"> 3. Build and Deploy</td>
+<td width="40%" align="right" valign="top"> 3. Build and Deploy</td>
 </tr>
 </table>
 </div>

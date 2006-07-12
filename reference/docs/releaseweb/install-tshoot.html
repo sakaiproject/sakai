@@ -1,31 +1,31 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>6. Troubleshooting</title>
+<title>6. Troubleshooting</title>
 <link rel="stylesheet" href="styles/pos.css" type="text/css">
 <link rel="stylesheet" href="styles/styles.css" type="text/css">
 <meta name="generator" content="DocBook XSL Stylesheets V1.70.0">
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="up" href="install-overview.html" title="Installation Guide">
-<link rel="prev" href="install-dbconfig.html" title="5. Database Configuration">
+<link rel="prev" href="install-dbconfig.html" title="5. Database Configuration">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
 <div class="navheader">
 <table width="100%" summary="Navigation header">
-<tr><th colspan="3" align="center">6. Troubleshooting</th></tr>
+<tr><th colspan="3" align="center">6. Troubleshooting</th></tr>
 <tr>
 <td width="20%" align="left">
-<a accesskey="p" href="install-dbconfig.html">Prev</a> </td>
-<th width="60%" align="center"> </th>
-<td width="20%" align="right"> </td>
+<a accesskey="p" href="install-dbconfig.html">Prev</a> </td>
+<th width="60%" align="center"> </th>
+<td width="20%" align="right"> </td>
 </tr>
 </table>
 <hr>
 </div>
 <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
-<a name="install-tshoot"></a>6. Troubleshooting</h2></div></div></div>
+<a name="install-tshoot"></a>6. Troubleshooting</h2></div></div></div>
 
         <p>Below are a number of common issues encountered while building and starting up Sakai,
             but you may also benefit from the expert opinions that reside on the sakai-dev list. To
@@ -37,11 +37,11 @@
             the site.</p>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-tshoot-build"></a>6.1. Build Issues</h3></div></div></div>
+<a name="install-tshoot-build"></a>6.1. Build Issues</h3></div></div></div>
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983169"></a>6.1.1. JAR download failures</h4></div></div></div>
+<a name="id1983169"></a>6.1.1. JAR download failures</h4></div></div></div>
 
                 <p>A first build of Maven on a fresh installation may warn of numerous jar
                     download failures if you include the <span class="emphasis"><em>clean</em></span> phase. This is a
@@ -56,7 +56,7 @@
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983204"></a>6.1.2. Out of Memory errors</h4></div></div></div>
+<a name="id1983204"></a>6.1.2. Out of Memory errors</h4></div></div></div>
 
                 <p>You may find that your machine runs out of memory while it is building Sakai.
                     As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts
@@ -69,7 +69,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983236"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
+<a name="id1983236"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
 
                 <p>If you need more detailed output to track down a build error, maven can be run
                     in debug mode by adding the -x argument, e.g. <span><strong class="command">maven
@@ -77,7 +77,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983258"></a>6.1.4. Building only a single module</h4></div></div></div>
+<a name="id1983258"></a>6.1.4. Building only a single module</h4></div></div></div>
 
                 <p>If you'd like to have the Sakai build targets and goals available for building
                     only a single module (i.e. instead of rebuilding the entire source tree again to
@@ -96,11 +96,11 @@ maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</p
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="install-tshoot-startup"></a>6.2. Tomcat Startup Issues</h3></div></div></div>
+<a name="install-tshoot-startup"></a>6.2. Tomcat Startup Issues</h3></div></div></div>
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983304"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
+<a name="id1983304"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
 
                 <p>Once you have Sakai installed, configured and started, you can monitor Sakai
                     by watching the logs. The log level for the standard Sakai source code and the
@@ -146,14 +146,14 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983429"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
+<a name="id1983429"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
 
                 <p>If you see those <span class="emphasis"><em>destroy</em></span> messages, that's the end of it.
                     Tomcat is not coming up, and you'll need to go back and change something before
                     it will.</p>
                 <p>Unfortunately, there are quite a number of reasons this might have happened.
                     The simplest such cause is that you have not added the Tomcat compatibility
-                    package to your installation (see <a href="install-env.html#install-env-tinstall" title="2.3. Install Tomcat">Set up
+                    package to your installation (see <a href="install-env.html#install-env-tinstall" title="2.3. Install Tomcat">Set up
                         Build Environment</a>). All the other cases involve some problem with
                     your code or platform; these problems are more subtle, and the associated
                         <code class="filename">catalina.out</code> messages are usually not very helpful in
@@ -166,15 +166,15 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983501"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
+<a name="id1983501"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that you've
-                    built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and
+                    built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and
                     double-check your Java version and environment variables.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983525"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
+<a name="id1983525"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that some
                     other application is already running on the port you've assigned for this Tomcat
@@ -191,14 +191,14 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
 <table width="100%" summary="Navigation footer">
 <tr>
 <td width="40%" align="left">
-<a accesskey="p" href="install-dbconfig.html">Prev</a> </td>
-<td width="20%" align="center"> </td>
-<td width="40%" align="right"> </td>
+<a accesskey="p" href="install-dbconfig.html">Prev</a> </td>
+<td width="20%" align="center"> </td>
+<td width="40%" align="right"> </td>
 </tr>
 <tr>
-<td width="40%" align="left" valign="top">5. Database Configuration </td>
+<td width="40%" align="left" valign="top">5. Database Configuration </td>
 <td width="20%" align="center"><a accesskey="h" href="install-overview.html">Home</a></td>
-<td width="40%" align="right" valign="top"> </td>
+<td width="40%" align="right" valign="top"> </td>
 </tr>
 </table>
 </div>
