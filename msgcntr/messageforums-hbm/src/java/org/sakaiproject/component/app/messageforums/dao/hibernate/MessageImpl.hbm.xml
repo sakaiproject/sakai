@@ -227,7 +227,7 @@
     ]]>    
   </query>
 
-  <query name="findPvtMsgsBySearchText">
+<!--  <query name="findPvtMsgsBySearchText">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join fetch message.recipients recipient
              where  ((1 = :searchByAuthor and message.author like :searchText) or 
@@ -239,8 +239,22 @@
                     and recipient.userId = :userId
                     and recipient.contextId = :contextId
     ]]>    
-  </query>
+  </query>-->
       
+  <query name="findPvtMsgsBySearchText">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where  (
+             				((1 = :searchByAuthor and message.author like :searchText) or (1 != :searchByAuthor))and 
+                    ((1 = :searchByText and message.title like :searchText) or (1 != :searchByText))and
+                    ((1 = :searchByBody and message.body like :searchText) or (1 != :searchByBody))and
+                    ((1 = :searchByLabel and message.label like :searchText) or (1 != :searchByLabel))and
+                    ((1 = :searchByDate and message.created between :searchFromDate and :searchToDate) or (1 != :searchByDate)))
+                    and recipient.typeUuid = :typeUuid
+                    and recipient.userId = :userId
+                    and recipient.contextId = :contextId
+    ]]>    
+  </query>
 
 </hibernate-mapping>
 
