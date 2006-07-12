@@ -92,7 +92,7 @@ public class MessageContentProducer implements EntityContentProducer
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
 		if ("true".equals(ServerConfigurationService.getString(
-				"search.experimental", "true")))
+				"search.experimental", "false")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{

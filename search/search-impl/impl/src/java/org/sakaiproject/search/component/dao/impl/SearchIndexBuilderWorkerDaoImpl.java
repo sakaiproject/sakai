@@ -110,7 +110,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),false);
 
 		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.experimental", "true"));
+				"search.experimental", "false"));
 		try
 		{
 			if (searchIndexBuilder == null)

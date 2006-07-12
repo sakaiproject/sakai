@@ -232,7 +232,7 @@ public class SearchBeanImpl implements SearchBean
 
 	public boolean isEnabled()
 	{
-		return ("true".equals(ServerConfigurationService.getString("search.experimental", "true")));
+		return ("true".equals(ServerConfigurationService.getString("search.experimental", "false")));
 
 	}
 
