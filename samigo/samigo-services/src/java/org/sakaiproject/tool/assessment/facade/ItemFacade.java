@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.ItemImpl;
@@ -974,6 +975,24 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.triesAllowed = triesAllowed;
     this.data.setTriesAllowed(triesAllowed);
   }
+
+    public void removeMetaDataByType(String label) {
+	try {
+	    if (itemMetaDataSet!= null) {
+		for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+		    ItemMetaDataIfc itemMetaData= (ItemMetaDataIfc) i.next();
+		    if (itemMetaData.getLabel().equals(label)) {
+			//this.itemMetaDataSet.remove(itemMetaData);
+			i.remove();
+		    }
+		}
+	    }
+	}
+	catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
 
   /**
    * This method return the answerKey for a matching question
