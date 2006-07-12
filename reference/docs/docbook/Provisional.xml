@@ -5,7 +5,7 @@
 
     <info>
         <title>Provisional Tools</title>
-        <edition>14 July 2006 – Document version 2.2</edition>
+        <edition>14 July 2006 - Document version 2.2</edition>
     </info>
 
     <sect1 xml:id="provisional">
@@ -36,35 +36,38 @@
                 <emphasis>Edit Tools</emphasis> lists - they effectively require the intervention of
             an admin in order to be added to a site.</para>
         <para>Tools can be stealthed through a setting in <filename>sakai.properties</filename>,
-            which simply contains a comma-separated list of all the tool ids for those tools that will be stealthed.
-            Sakai OOTB has the following tools stealthed:</para>
+            which simply contains a comma-separated list of all the tool ids for those tools that
+            will be stealthed. Sakai OOTB has the following tools stealthed:</para>
         <screen>
 stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.assignment,sakai.rwiki,sakai.site.roster,
 osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sample,osp.matrix,osp.presTemplate,
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
 sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
 osp.presLayout,osp.style</screen>
-        <para>There are some provisional tools (e.g. <emphasis>SU</emphasis>, <emphasis>Sakaiscript</emphasis>, <emphasis>Summary Calendar</emphasis>) for which
+        <para>There are some provisional tools (e.g. <emphasis>SU</emphasis>,
+            <emphasis>Sakaiscript</emphasis>, <emphasis>Summary Calendar</emphasis>) for which
             stealthing does not apply, since they are inherently designed for admin enabling and
             deployment. These tools are not registered for <emphasis>Worksite Setup</emphasis> in
             the first place, and so are effectively always stealthed. Stealthing is a mechanism for
-            obscuring tools from site creators and maintainers, not admins, who have access
-            to all the available tools through their admin functions.</para>
+            obscuring tools from site creators and maintainers, not admins, who have access to all
+            the available tools through their admin functions.</para>
     </sect1>
     <sect1 xml:id="tool-list">
         <title>Provisional Tools in 2.2.0</title>
-        <para>A brief overview of each provisional tool is provided below.  For more detailed information, visit the Confluence links provided, or send your questions to the listed contact.</para>
+        <para>A brief overview of each provisional tool is provided below. For more detailed
+            information, visit the Confluence links provided, or send your questions to the listed
+            contact.</para>
         <sect2 xml:id="samigo">
             <title>Tests&amp;Quizzes</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.samigo</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/Home"
@@ -73,7 +76,7 @@ osp.presLayout,osp.style</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Lydia Li (lydial@stanford.edu)</para>
                     </listitem>
@@ -87,58 +90,55 @@ osp.presLayout,osp.style</screen>
                     learning, in both formative assessments and summative assessments.</para>
 
                 <para>Its key features are:</para>
-                <variablelist>
-                    <varlistentry>
-                        <term>Creating Assessments</term>
-                        <listitem>
-                            <para>It supports rich text editing of a variety of question types such
-                                as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in
-                                the Blank, File Upload...etc.</para>
+                <itemizedlist>
+                        <listitem><para><emphasis>Creating Assessments:</emphasis> It supports rich text editing of a variety of question types such as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in the Blank, File Upload, and Audio Recording.  It also allows importing individual questions from question pools, as well as random ones drawn from question pools.</para>
                         </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Importing/Exporting</term>
-                        <listitem>
-                            <para>Assessments can be exported/imported via IMS QTI xml format</para>
+                    <listitem><para><emphasis>Importing/Exporting:</emphasis> Assessments can be exported/imported via IMS QTI xml format. It currently supports QTI 1.2.</para>
                         </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Organizing and Publishing</term>
-                        <listitem>
-                            <para>Options for specifying release date, due date, and/or retract
-                                date, late handling, number of submissions, grading options,
-                                feedback settings, and layout...etc Auto and manual grading;
-                                Managing question pool</para>
+                    <listitem><para><emphasis>Organizing and Publishing:</emphasis> It allows instructors to specify release date, due date, and/or retract date, late handling, number of submissions, grading options, feedback settings, security settings, and layout...etc.  It supports automatic and manual grading;  It also provides management for question pools.</para>
                         </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>Managing assessment-taking</term>
-                        <listitem>
-                            <para>Options for managing assessment delivery, such as randomized tests, random draw from question pool, timed
-                                assessment with auto submit, high security assessments with
-                                restricted IP and secondary password, as well as the option to send
-                                grades to Sakai's Gradebook tool.</para>
+                    <listitem><para><emphasis>Managing assessment-taking:</emphasis> It delivers assessments based on a rich set of settings configured during authoring,  such as randomized questions and answers, timed assessment with auto submit, high security assessments with restricted IP and secondary password, feedback settings, as well as the option to automatically send grades to Sakai's Gradebook tool.</para>
                         </listitem>
-                    </varlistentry>
-                </variablelist>
+                </itemizedlist>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>Simply unstealth the tool to begin using it in sites. It requires no special
-                    configuration.</para>
+                <para>For File Upload questions in Samigo, answers are saved to DB as a blob by default.  If you want to save answers to files, you can override this default by adding the following in your sakai.properties file.</para> 
+                    
+<screen>
+# ** Samigo File Upload question type settings **
+# the following default settings
+# com.corejsf.UploadFilter.repositoryPath,
+# com.corejsf.UploadFilter.sizeThreshold,
+# com.corejsf.UploadFilter.sizeMax and
+# com.corejsf.UploadFilter.saveMediaToDb in Samigo web.xml
+# can be overidden with the following settings in sakai.properties
+samigo.answerUploadRepositoryPath=/tmp/
+samigo.sizeThreshold=512
+samigo.sizeMax=20480
+samigo.saveMediaToDb=false</screen>
+                    
+                    
+                    <para>When <command>saveMediaToDB</command> is true, <command>SAM_MEDIA_T.MEDIA</command> must be a blob or equivalent to work.  If you're running Oracle and using <command>auto.ddl</command> to create tables, you should check the data type of the "MEDIA" column in the <command>SAM_MEDIA_T</command> table. Hibernate tries to choose the right data type for this field, but has a habit of choosing the wrong one for Oracle. The correct types for each database are:</para>
+                    
+                    <itemizedlist>
+                        <listitem><para>HSQLDB --> varbinary</para></listitem>
+                        <listitem><para>Oracle --> blob</para></listitem>
+                        <listitem><para>MySQL --> longblob</para></listitem>
+                         </itemizedlist>
             </sect3>
         </sect2>
         <sect2 xml:id="rwiki">
             <title>Rwiki</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.rwiki</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link
@@ -148,7 +148,7 @@ osp.presLayout,osp.style</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Ian Boston (ian@caret.cam.ac.uk)</para>
                     </listitem>
@@ -170,13 +170,13 @@ osp.presLayout,osp.style</screen>
             <title>Message Center</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.messagecenter</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link xl:href="http://bugs.sakaiproject.org/confluence/display/MFT/Home"
@@ -185,7 +185,7 @@ osp.presLayout,osp.style</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Kristol Hancock (khancock@iupui.edu)</para>
                     </listitem>
@@ -218,13 +218,13 @@ mc.default.Instructor=Owner</screen>
             <title>OSP</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>osp.*</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link xl:href="http://bugs.sakaiproject.org/confluence/display/OSP/Home"
@@ -233,7 +233,7 @@ mc.default.Instructor=Owner</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Chris Coppola (chris.coppola@rsmart.com)</para>
                     </listitem>
@@ -241,23 +241,25 @@ mc.default.Instructor=Owner</screen>
             </variablelist>
             <sect3>
                 <title>Overview</title>
-                <para>The Open Source Portfolio (OSP) has been a significant standalone product in its own right, and it is bundled in Sakai 2.2 as a suite of several tools designed to work in concert for portfolio-based assessment. The number of tools and purposes is too great to take on here, so
-                please visit <link xl:href="http://www.osportfolio.org"
-                >http://www.osportfolio.org</link> for more information on the Open Source Portfolio
-                (OSP).</para>
+                <para>The Open Source Portfolio (OSP) has been a significant standalone product in
+                    its own right, and it is bundled in Sakai 2.2 as a suite of several tools
+                    designed to work in concert for portfolio-based assessment. The number of tools
+                    and purposes is too great to take on here, so please visit <link
+                        xl:href="http://www.osportfolio.org">http://www.osportfolio.org</link> for
+                    more information on the Open Source Portfolio (OSP).</para>
             </sect3>
         </sect2>
         <sect2 xml:id="search">
             <title>Search</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.search</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link
@@ -267,7 +269,7 @@ mc.default.Instructor=Owner</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Ian Boston (ian@caret.cam.ac.uk)</para>
                     </listitem>
@@ -280,70 +282,28 @@ mc.default.Instructor=Owner</screen>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>You may change the following settings in sakai.properties:</para>
+                <para>To turn on search, add the following to <filename>sakai.properties</filename>:</para>
                 <screen>
-#indexStorageName@org.sakaiproject.search.index.IndexStorage = filesystem
-#indexStorageName@org.sakaiproject.search.index.IndexStorage = cluster
-indexStorageName@org.sakaiproject.search.index.IndexStorage = db
-recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
-location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</screen>
-
-                <para>The first of the three settings, <command>indexStorageName</command>, is the name of the configured class
-                    that is used for index storage.  The three possible values for this setting are described below:</para>
-                <variablelist>
-                    <varlistentry>
-                        <term>filesystem</term>
-                        <listitem>
-                            <para>stores the file on the localfilesystem and assumes the system is
-                                being run either as a single node, or with a shared
-                            filesystem.</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>db</term>
-                        <listitem>
-                            <para>stores the index in the sakai database</para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term>cluster</term>
-                        <listitem>
-                            <para>stores the index on local filesystems but performs clusterwide
-                                updates as the index is updated. This mechanism relies on a unix
-                                shell script to perform the synchronisation, so will need local
-                                configuration.</para>
-                        </listitem>
-                    </varlistentry>
-                </variablelist>
-
-                <para>The next setting, <command>recoverCorruptedIndex</command>, controls what happens if the index is
-                    found to be corrupt. If true, the index can be automatically deleted and
-                    restarted, but it will have no content. The content can be re-initialised by
-                    admin rebuilding the index of the whole instance. If false a corrupted index
-                    will cause an exception to be reported to the end user.</para>
-
-                <para>The final value to be set, <command>location</command>, is the location of the index. If the driver is a
-                    database driver, the location will be a database table. If the driver is a
-                    filesystem it will be a directory where the index files are stored.</para>
+search.experimental=true</screen>
             </sect3>
         </sect2>
         <sect2 xml:id="su">
             <title>SU</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.su</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>None</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Zach Thomas (zach.thomas@txstate.edu)</para>
                     </listitem>
@@ -390,19 +350,19 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
             <title>Sakaiscript</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>NA</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>None</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Steve Githens (s-githens@northwestern.edu)</para>
                     </listitem>
@@ -412,7 +372,9 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
                 <title>Overview</title>
                 <para>Sakaiscript is essentially a logical web service wrapper to the Sakai API,
                     opening up a number of common admin functions to easy scripting from other
-                    languages.  You'll find HTML documentation for it, including sample scripts from Python, in <filename>reference/docs/webservices/html/index.html</filename>.</para>
+                    languages. You'll find HTML documentation for it, including sample scripts from
+                    Python, in
+                <filename>reference/docs/webservices/html/index.html</filename>.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
@@ -423,15 +385,20 @@ location@org.sakaiproject.search.index.IndexStorage = tableName|localDirectory</
 webservices.allowlogin=false</screen>
                 <para>This parameter is set to false so as to make sure that no one can robot-guess
                     Sakai passwords using web services out of the box. If you want to support the
-                    login and session-establishment, you must set this proprty to true in your Sakai
+                    login, you must set this property to true in your Sakai
                     instance.</para>
             </sect3>
             <sect3>
                 <title>Security</title>
+                <para>While it's true that
+                    you have to enable the above property to log in via webservices, webservices are always "on".  In other words you could, in principle, always navigate to the Axis page to view the SOAP methods, and use SakaiScript
+                    as long as you have a SessionID (you could just copy it from your
+                    browser cookie).</para>
                 <para>Any site enabling web-services should understand the security implications of
                     Sakai web services. Web services should be run over HTTPS in any production
                     environment as IDs, Passwords, and Sakai Session Keys are passed back and forth
                     in plain text using SOAP.</para>
+                <para></para>
             </sect3>
         </sect2>
 
@@ -441,13 +408,13 @@ webservices.allowlogin=false</screen>
             <title>Post 'Em</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.postem</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link xl:href="http://bugs.sakaiproject.org/confluence/display/PEM/Home"
@@ -456,7 +423,7 @@ webservices.allowlogin=false</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Kristol Hancock (khancock@iupui.edu)</para>
                     </listitem>
@@ -482,13 +449,13 @@ webservices.allowlogin=false</screen>
             <title>Summary Calendar</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.summary.calendar</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>
                             <link
@@ -498,7 +465,7 @@ webservices.allowlogin=false</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Nuno Fernandes (nuno@ufp.pt)</para>
                     </listitem>
@@ -506,11 +473,11 @@ webservices.allowlogin=false</screen>
             </variablelist>
             <sect3>
                 <title>Overview</title>
-                <para>Calendar Summary is a synoptic tool that presents a
-                    visual monthly view of schedule events in the Home page of My Workspace or other
-                    course/project sites. If placed in My Workspace sites, it aggregates schedule
-                    events of all active sites the user is member of (unless the user is an admin). If
-                    placed in course/project sites, it displays only events for that site.</para>
+                <para>Calendar Summary is a synoptic tool that presents a visual monthly view of
+                    schedule events in the Home page of My Workspace or other course/project sites.
+                    If placed in My Workspace sites, it aggregates schedule events of all active
+                    sites the user is member of (unless the user is an admin). If placed in
+                    course/project sites, it displays only events for that site.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
@@ -525,19 +492,19 @@ webservices.allowlogin=false</screen>
             <title>Roster</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>sakai.site.roster</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>None</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Kristol Hancock (khancock@iupui.edu)</para>
                     </listitem>
@@ -553,7 +520,9 @@ webservices.allowlogin=false</screen>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>The tool simply needs to be unstealthed.  It requires no special configuration, but some extra work may need to be done to provide photos for it from campus systems.</para>
+                <para>The tool simply needs to be unstealthed. It requires no special configuration,
+                    but some extra work may need to be done to provide photos for it from campus
+                    systems.</para>
             </sect3>
         </sect2>
 
@@ -561,19 +530,19 @@ webservices.allowlogin=false</screen>
             <title>TwinPeaks</title>
             <variablelist>
                 <varlistentry>
-                    <term>Tool ID</term>
+                    <term>Tool ID:</term>
                     <listitem>
                         <para>None</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Confluence Space</term>
+                    <term>Confluence Space:</term>
                     <listitem>
                         <para>None</para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Contact</term>
+                    <term>Contact:</term>
                     <listitem>
                         <para>Jim Eng (jimeng@umich.edu)</para>
                     </listitem>
