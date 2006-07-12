@@ -1603,14 +1603,13 @@ public class AssignmentAction extends PagedResourceActionII
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
 		// exception are indication that the assessment is already in the Gradebook or there is nothing
 		// to remove.
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 		boolean gradebookExists = isGradebookDefined();
-		boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, assignmentRef);
 
 		if (gradebookExists)
 		{
+			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			boolean isExternalAssignmentDefined=g.isExternalAssignmentDefined(gradebookUid, assignmentRef);
 
 			if (addUpdateRemoveAssignment != null)
 			{
