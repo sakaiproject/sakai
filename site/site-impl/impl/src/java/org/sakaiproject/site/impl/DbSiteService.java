@@ -1150,7 +1150,7 @@ public abstract class DbSiteService extends BaseSiteService
 		 */
 		public SitePage findPage(final String id)
 		{
-			String sql = "select PAGE_ID, SAKAI_SITE_PAGE.TITLE, LAYOUT, SAKAI_SITE_PAGE.SITE_ID, SKIN, PUBLISHED, POPUP"
+			String sql = "select PAGE_ID, SAKAI_SITE_PAGE.TITLE, LAYOUT, SAKAI_SITE_PAGE.SITE_ID, SKIN, PUBLISHED, POPUP "
 					+ "from SAKAI_SITE_PAGE, SAKAI_SITE where SAKAI_SITE_PAGE.SITE_ID = SAKAI_SITE.SITE_ID " + "and PAGE_ID = ?";
 
 			Object fields[] = new Object[1];
