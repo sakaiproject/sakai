@@ -76,7 +76,7 @@ Not in the demo
 
 This requires providing Sakai with an SMTP server to use. If you want to do this, you can edit the sakai.properties found in sakai-demo/sakai and add:
 
-	smtp@org.sakaiproject.service.framework.email.EmailService=<SMTP>
+	smtp@org.sakaiproject.email.api.EmailService=<SMTP>
 
 where <SMTP> is replaced with the name or ip address of an SMPT server that will accept mail from your Sakai app server.
 
