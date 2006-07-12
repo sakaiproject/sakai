@@ -5,7 +5,7 @@
 
     <info>
         <title>Installation Guide</title>
-        <edition>14 July 2006 – Document version 2.2</edition>
+        <edition>14 July 2006 - Document version 2.2</edition>
     </info>
 
     <sect1 xml:id="install-overview">
@@ -14,7 +14,7 @@
             <title>Choose an Install Type</title>
             <para>Sakai is available for three different installation methods: <variablelist>
                     <varlistentry>
-                        <term>Demo</term>
+                        <term>Demo:</term>
                         <listitem>
                             <para>This archive provides the quickest and easiest way to try out
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
@@ -23,7 +23,7 @@
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Binary</term>
+                        <term>Binary:</term>
                         <listitem>
                             <para>This archive is a kind of Tomcat overlay. If you have a working
                                 Tomcat appropriately configured, the binary installation provides a
@@ -33,7 +33,7 @@
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Source</term>
+                        <term>Source:</term>
                         <listitem>
                             <para>This archive includes only the source code to build Sakai, and
                                 therefore calls for separate, preparatory installations of Tomcat
@@ -83,7 +83,7 @@
                     <para>Start Tomcat with the following commands from the root Tomcat directory:</para>
                     <variablelist>
                         <varlistentry>
-                            <term>Windows</term>
+                            <term>Windows:</term>
                             <listitem>
                                 <para>
                                     <command>start-sakai.bat</command>
@@ -91,7 +91,7 @@
                             </listitem>
                         </varlistentry>
                         <varlistentry>
-                            <term>Mac/*nix</term>
+                            <term>Mac/*nix:</term>
                             <listitem>
                                 <para>
                                     <command>start-sakai.sh</command>
@@ -111,7 +111,7 @@
             <para>To stop the demo:</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para>
                             <command>stop-sakai.bat</command>
@@ -119,7 +119,7 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>stop-sakai.sh</command>
@@ -131,7 +131,7 @@
                 <title>Special notes about the Demo installation</title>
                 <variablelist>
                     <varlistentry>
-                        <term>Data storage</term>
+                        <term>Data storage:</term>
                         <listitem>
                             <para>The data for a demo installation is stored in a HypersonicSQL
                                 database (HSQLDB) which is stored in memory and then written out to
@@ -140,7 +140,7 @@
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Email not configured</term>
+                        <term>Email not configured:</term>
                         <listitem>
                             <para>The Sakai demo is configured to neither send nor receive
                             email.</para>
@@ -192,14 +192,14 @@
             <title>Migrating from a Previous Release</title>
             <para>Since there have been a number of changes in tools, DB schema, and APIs, migrating
                 to 2.2 from a previous release requires close attention to detail. Be sure to go
-                over the <link xl:href="release-notes.html">release notes</link> carefully, and a few potential stumbling points are
-                identified below:</para>
+                over the <link xl:href="release-notes.html">release notes</link> carefully, and a
+                few potential stumbling points are identified below:</para>
             <variablelist>
                 <varlistentry>
-                    <term>sakai.properties</term>
+                    <term>sakai.properties:</term>
                     <listitem>
-                        <para>The 2.2 framework refactoring means that many package names have changed, and
-                            these differences will mainly be encountered in
+                        <para>The 2.2 framework refactoring means that many package names have
+                            changed, and these differences will mainly be encountered in
                                 <filename>sakai.properties</filename> settings which reference
                             beans. It's best to not try to use a
                             <filename>sakai.properties</filename> from a previous release, and
@@ -208,7 +208,7 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>DB conversion scripts</term>
+                    <term>DB conversion scripts:</term>
                     <listitem>
                         <para>Every release has DB conversion scripts, and 2.2 is no exception. Be
                             sure, however, to read these scripts over carefully before executing
@@ -219,7 +219,7 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Provisional tools</term>
+                    <term>Provisional tools:</term>
                     <listitem>
                         <para>A few contrib tools that schools may have already put into production
                             are now provisional with the 2.2 release. The DB conversion scripts in
@@ -234,7 +234,7 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Providers</term>
+                    <term>Providers:</term>
                     <listitem>
                         <para>Among the changes that 2.2 introduces is a separation of external user
                             identifiers from Sakai's internal user ids. Any custom
@@ -296,7 +296,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 correct locations through the text fields of the GUI (samples below):</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para> Set the (or create a new) environment variable
                             <command>JAVA_HOME</command> to <command>C:\jdk1.5.0_06</command>.
@@ -304,7 +304,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>export JAVA_HOME=/usr/java/java-current</command>
@@ -315,20 +315,20 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             <para>Next you'll want to append to the PATH variable the location of Java commands:</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para> Append the string <command>;C:\jdk1.5.0_06\bin</command> to the end
                             of the system variable named Path. </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac</term>
+                    <term>Mac:</term>
                     <listitem>
                         <para> Not necessary. </para>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>*nix</term>
+                    <term>*nix:</term>
                     <listitem>
                         <para>
                             <command>export PATH=$PATH:$JAVA_HOME/bin/</command>
@@ -343,7 +343,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 developers or demo installations.</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para> Create a new environment variable <command>JAVA_OPTS</command> to
                             hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m
@@ -352,7 +352,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
@@ -463,7 +463,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                 should be added to the Path:</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para> Create a new <command>MAVEN_HOME</command> environment variable to
                                 <command>C:\maven-1.0.2</command>. Then append to the PATH variable
@@ -472,7 +472,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>export MAVEN_HOME=/usr/local/maven; export
@@ -485,7 +485,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                 running the following command:</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para>
                             <command>install_repo.bat
@@ -494,7 +494,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>install_repo.sh $HOME/.maven/repository</command>
@@ -717,26 +717,29 @@ JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for
                 testing and development, but will hardly be adequate for serving large numbers of
-                concurrent users. A more suitable production environment on a 32-bit machine with multiple processors might
-                use a set of options like:</para>
+                concurrent users. A more suitable production environment on a 32-bit machine with
+                multiple processors might use a set of options like:</para>
             <screen>
 JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:PermSize=128m 
-                -XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"</screen>
+-XX:MaxPermSize=196m -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintGCDetails -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"</screen>
             <para>This is better: a larger heap size is set for smoother performance (we have found
                 the best results when the min and max memory settings - Xms and Xmx, respectively -
                 are set to be the same values), and garbage collection messages are turned on.
-                Another important consideration is the ratio of <emphasis>NewSize</emphasis> to the size of the heap. We
-                want as large a <emphasis>NewSize</emphasis> as we can fit in the total heap, while keeping the total
-                heap significantly bigger than <emphasis>NewSize</emphasis> in order for Java to properly garbage
-                collect.  The last two arguments above can produce a performance improvement if you have two or more processors on your machine, however your performance will be better if you don't include them for single-processor machines.</para>
+                Another important consideration is the ratio of <emphasis>NewSize</emphasis> to the
+                size of the heap. We want as large a <emphasis>NewSize</emphasis> as we can fit in
+                the total heap, while keeping the total heap significantly bigger than
+                    <emphasis>NewSize</emphasis> in order for Java to properly garbage collect. The
+                last two arguments above can produce a performance improvement if you have two or
+                more processors on your machine, however your performance will be better if you
+                don't include them for single-processor machines.</para>
             <para>As you can see, there's a lot to think about here, and in practice each
                 implementing institution uses their own particular <command>JAVA_OPTS</command> that
                 they've settled on for their deployment and hardware, and they often use more option
                 arguments than we've shown here. This discussion is meant only as a head start, and
                 there is no replacement for doing your own testing.</para>
-            <para>Once you set <command>JAVA_OPTS</command> Tomcat will see this
-                environment variable upon startup and use it. Instead of putting this in an
-                environment variable you might create your own startup script to do so.</para>
+            <para>Once you set <command>JAVA_OPTS</command> Tomcat will see this environment
+                variable upon startup and use it. Instead of putting this in an environment variable
+                you might create your own startup script to do so.</para>
             <note>
                 <title>JVM Tuning in Windows XP</title>
                 <para>Windows users that have installed Tomcat as a service may set Java options in
@@ -761,7 +764,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
             <para>From <command>$CATALINA_HOME</command> you can start up Tomcat with the command:</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para>
                             <command>bin/startup.bat</command>
@@ -769,7 +772,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>bin/startup.sh</command>
@@ -787,7 +790,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                 Database configuration, if needed.</para>
             <variablelist>
                 <varlistentry>
-                    <term>Windows</term>
+                    <term>Windows:</term>
                     <listitem>
                         <para>
                             <command>bin/shutdown.bat</command>
@@ -795,7 +798,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Mac/*nix</term>
+                    <term>Mac/*nix:</term>
                     <listitem>
                         <para>
                             <command>bin/shutdown.sh</command>
@@ -815,7 +818,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                 or on subversion:</para>
             <variablelist>
                 <varlistentry>
-                    <term>MySQL</term>
+                    <term>MySQL:</term>
                     <listitem>
                         <para>
                             <link
@@ -825,7 +828,7 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Oracle</term>
+                    <term>Oracle:</term>
                     <listitem>
                         <para>
                             <link
@@ -837,26 +840,27 @@ JAVA_OPTS="-server -Xms1500m -Xmx1500m -XX:NewSize=400m -XX:MaxNewSize=400m -XX:
             </variablelist>
             <para>In the same directory you'll also find conversion scripts for earlier Sakai
                 versions. Migration from an earlier version will require the successive application
-                of all intermediate scripts. You cannot, for example, move from 2.1.1 to
-                2.2.0 by applying a single script. You will need to move first from 2.1.1 to
-                2.1.2, and then to 2.2.0.</para>
+                of all intermediate scripts. You cannot, for example, move from 2.1.1 to 2.2.0 by
+                applying a single script. You will need to move first from 2.1.1 to 2.1.2, and then
+                to 2.2.0.</para>
             <note>
                 <title>Examine before using</title>
                 <para>As a general rule, be sure to read through these conversion scripts before
                     applying them. They do not take into account any special customizations you may
                     have made - such as new roles, or the deployment of additional tools - and they
                     may complicate your migration with unintended consequences if you execute them
-                     blindly.</para>
+                    blindly.</para>
                 <para>For the 2.2.0 release, the <emphasis>Message Center</emphasis> tool offers one
                     such particular example. A number of schools deployed <emphasis>Message
-                    Center</emphasis> in 2.1.x production, before it was yet a provisional
-                    tool. Now that it is a provisional tool, the conversion scripts were written to introduce
-                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new tool for
-                    your deployment. If it isn't, you'll want to comment out the portions of the
-                    conversion script that treat it, and instead perform the following conversions:</para>
+                    Center</emphasis> in 2.1.x production, before it was yet a provisional tool. Now
+                    that it is a provisional tool, the conversion scripts were written to introduce
+                    its tables, and thus assume that <emphasis>Message Center</emphasis> is a new
+                    tool for your deployment. If it isn't, you'll want to comment out the portions
+                    of the conversion script that treat it, and instead perform the following
+                    conversions:</para>
                 <variablelist>
                     <varlistentry>
-                        <term>MySQL</term>
+                        <term>MySQL:</term>
                         <listitem>
                             <screen>
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR(255);
@@ -866,7 +870,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR(255);</screen>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Oracle</term>
+                        <term>Oracle:</term>
                         <listitem>
                             <screen>
 ALTER TABLE MFR_TOPIC_T ADD DEFAULTASSIGNNAME VARCHAR2(255) NULL;
@@ -880,15 +884,16 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         </sect2>
         <sect2 xml:id="install-dbconfig-drivers">
             <title>Deploy Drivers</title>
-            <para>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has not yet been adequately tested for it to be recommended for production) and Oracle 9i+. The
-                version of the JDBC driver (or connector) is also important: for MySQL a 3.1.12+
-                connector should be used, while for Oracle the 10g driver must be used, even if the
-                database is Oracle 9i. These drivers should be copied into your
+            <para>The supported production-grade databases include MySQL 4.1.12+ (but MySQL 5.0 has
+                not yet been adequately tested for it to be recommended for production) and Oracle
+                9i+. The version of the JDBC driver (or connector) is also important: for MySQL a
+                3.1.12+ connector should be used, while for Oracle the 10g driver must be used, even
+                if the database is Oracle 9i. These drivers should be copied into your
                     <filename>$CATALINA_HOME/common/lib</filename> directory, and they are available
                 from the official sites:</para>
             <variablelist>
                 <varlistentry>
-                    <term>MySQL</term>
+                    <term>MySQL:</term>
                     <listitem>
                         <para>
                             <link xl:href="http://dev.mysql.com/downloads/connector/j/3.1.html"
@@ -897,7 +902,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Oracle</term>
+                    <term>Oracle:</term>
                     <listitem>
                         <para>
                             <link
@@ -971,7 +976,7 @@ AL32UTF8</screen>
                 will of course need to be altered appropriately for your installation):</para>
             <variablelist>
                 <varlistentry>
-                    <term>MySQL</term>
+                    <term>MySQL:</term>
                     <listitem>
                         <screen>
 hibernate.dialect=org.hibernate.dialect.MySQLDialect
@@ -985,7 +990,7 @@ defaultTransactionIsolationString@javax.sql.BaseDataSource=TRANSACTION_READ_COMM
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term>Oracle</term>
+                    <term>Oracle:</term>
                     <listitem>
                         <screen>
 hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
@@ -1023,19 +1028,19 @@ testOnBorrow@javax.sql.BaseDataSource=false</screen>
                     choosing the wrong one for Oracle. The correct types for each database are:</para>
                 <variablelist>
                     <varlistentry>
-                        <term>HSQL</term>
+                        <term>HSQL:</term>
                         <listitem>
                             <para>varbinary</para>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>MySQL</term>
+                        <term>MySQL:</term>
                         <listitem>
                             <para>longblob</para>
                         </listitem>
                     </varlistentry>
                     <varlistentry>
-                        <term>Oracle</term>
+                        <term>Oracle:</term>
                         <listitem>
                             <para>blob</para>
                         </listitem>
@@ -1085,12 +1090,28 @@ Commit complete.</screen>
     </sect1>
     <sect1 xml:id="install-tshoot">
         <title>Troubleshooting</title>
-        <para>Below are a number of common issues encountered while building and starting up Sakai, but you may also benefit from the expert opinions that reside on the sakai-dev list.  To join, visit collab.sakaiproject.org, create a new account, log in to your <emphasis>MyWorkspace</emphasis>, and then use the <emphasis>Membership</emphasis> tool to join the group named <emphasis>DG: Development</emphasis>.  Then you can begin to send emails to (and receive them from) sakai-dev@collab.sakaiproject.org.  To later unsubscribe, you can simply use the same <emphasis>Membership</emphasis> tool to unjoin the site.</para>
+        <para>Below are a number of common issues encountered while building and starting up Sakai,
+            but you may also benefit from the expert opinions that reside on the sakai-dev list. To
+            join, visit collab.sakaiproject.org, create a new account, log in to your
+                <emphasis>MyWorkspace</emphasis>, and then use the <emphasis>Membership</emphasis>
+            tool to join the group named <emphasis>DG: Development</emphasis>. Then you can begin to
+            send emails to (and receive them from) sakai-dev@collab.sakaiproject.org. To later
+            unsubscribe, you can simply use the same <emphasis>Membership</emphasis> tool to unjoin
+            the site.</para>
         <sect2 xml:id="install-tshoot-build">
             <title>Build Issues</title>
             <sect3>
                 <title>JAR download failures</title>
-                <para>A first build of Maven on a fresh installation may warn of numerous jar download failures if you include the <emphasis>clean</emphasis> phase. This is a nuisance, but not otherwise a problem. Even when doing a clean maven tries to download all dependencies, including those that may not be built until the later <emphasis>build</emphasis> phase. Once they are built and placed into the repository, maven is perfectly happy for the next "clean build" cycle.  The upshot is that you may see these errors for your first build, but you shouldn't see them for subsequent builds.  It also means that you're better off not including the <emphasis>clean</emphasis> phase during your first build of a new version of the code.</para>
+                <para>A first build of Maven on a fresh installation may warn of numerous jar
+                    download failures if you include the <emphasis>clean</emphasis> phase. This is a
+                    nuisance, but not otherwise a problem. Even when doing a clean maven tries to
+                    download all dependencies, including those that may not be built until the later
+                        <emphasis>build</emphasis> phase. Once they are built and placed into the
+                    repository, maven is perfectly happy for the next "clean build" cycle. The
+                    upshot is that you may see these errors for your first build, but you shouldn't
+                    see them for subsequent builds. It also means that you're better off not
+                    including the <emphasis>clean</emphasis> phase during your first build of a new
+                    version of the code.</para>
             </sect3>
             <sect3>
                 <title>Out of Memory errors</title>
@@ -1100,60 +1121,112 @@ Commit complete.</screen>
                     to set an additional environment variable, namely,
                     <command>MAVEN_OPTS</command>. The value in the sample Unix command below should
                     be more than enough:</para>
-                    <screen>
+                <screen>
 export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</screen>
             </sect3>
             <sect3>
                 <title>Uninformative failure messages</title>
-                <para>If you need more detailed output to track down a build error, maven can be run in debug mode by adding the -x argument, e.g. <command>maven -x</command>.</para>
+                <para>If you need more detailed output to track down a build error, maven can be run
+                    in debug mode by adding the -x argument, e.g. <command>maven
+                -x</command>.</para>
             </sect3>
             <sect3>
                 <title>Building only a single module</title>
-                <para>If you'd like to have the Sakai build targets and goals available for building only a single module (i.e. instead of rebuilding the entire source tree again to accomplish this), then you'll want to have the maven plugin for Sakai installed.  Installing the plugin makes it available whenever you use maven, not just for those projects that declare a dependency on the plugin. You will need to do this once each time you upgrade a minor point version of sakai.</para>
+                <para>If you'd like to have the Sakai build targets and goals available for building
+                    only a single module (i.e. instead of rebuilding the entire source tree again to
+                    accomplish this), then you'll want to have the maven plugin for Sakai installed.
+                    Installing the plugin makes it available whenever you use maven, not just for
+                    those projects that declare a dependency on the plugin. You will need to do this
+                    once each time you upgrade a minor point version of sakai.</para>
                 <screen>
 maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</screen>
-                <para>Note that the version you should use in the above command is the one found as the value of the <command>sakai.plugin.version</command> property in the <filename>sakai/master/project.properties</filename> file.  It is not necessarily (and in fact often isn't) the same as the version of Sakai you're using.</para>
+                <para>Note that the version you should use in the above command is the one found as
+                    the value of the <command>sakai.plugin.version</command> property in the
+                        <filename>sakai/master/project.properties</filename> file. It is not
+                    necessarily (and in fact often isn't) the same as the version of Sakai you're
+                    using.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="install-tshoot-startup">
             <title>Tomcat Startup Issues</title>
             <sect3>
                 <title>Finding the Tomcat logs</title>
-                <para>Once you have Sakai installed, configured and started, you can monitor Sakai by watching the logs. The log level for the standard Sakai source code and the demo is set to show <emphasis>info</emphasis> and <emphasis>warnings</emphasis> only.  Watch for the WARN: messages. There are going to be some "normal" ones at startup, and some will likely slip by at runtime, but any warning is potentially something you might want to check out.</para>
+                <para>Once you have Sakai installed, configured and started, you can monitor Sakai
+                    by watching the logs. The log level for the standard Sakai source code and the
+                    demo is set to show <emphasis>info</emphasis> and <emphasis>warnings</emphasis>
+                    only. Watch for the WARN: messages. There are going to be some "normal" ones at
+                    startup, and some will likely slip by at runtime, but any warning is potentially
+                    something you might want to check out.</para>
                 <note>
                     <title>Changing the Log Configuration</title>
-                    <para>To change the logging for Sakai, you need to change Sakai source code and re-deploy sakai. The file you need to change is <filename>sakai-src/kernel/log-configure/src/conf/log4j.properties</filename>, and the relevant property is:</para>
+                    <para>To change the logging for Sakai, you need to change Sakai source code and
+                        re-deploy sakai. The file you need to change is
+                            <filename>sakai-src/kernel/log-configure/src/conf/log4j.properties</filename>,
+                        and the relevant property is:</para>
                     <screen>
 log4j.logger.org.sakaiproject=INFO</screen>
-                    <para>To turn on debug logging for all of Sakai, change that value from INFO to DEBUG.  In order to turn on debug logging for just a single component of Sakai, add a line such as in the following example, which will leave most of Sakai at INFO, but generate DEBUG level messages for the SQL service:</para>
+                    <para>To turn on debug logging for all of Sakai, change that value from INFO to
+                        DEBUG. In order to turn on debug logging for just a single component of
+                        Sakai, add a line such as in the following example, which will leave most of
+                        Sakai at INFO, but generate DEBUG level messages for the SQL service:</para>
                     <screen>
 log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</screen>
-                    <para>As you can see, Sakai uses log4j for logging: see official log4j documentation for more information about how to configure it.</para> 
+                    <para>As you can see, Sakai uses log4j for logging: see official log4j
+                        documentation for more information about how to configure it.</para>
                 </note>
-                <para>For Mac and *nix systems, the most important log is found in <filename>logs/catalina.out</filename> of Tomcat.  It can be instructive to watch this log as Tomcat is starting up, by using a startup command like the  following:</para>
+                <para>For Mac and *nix systems, the most important log is found in
+                        <filename>logs/catalina.out</filename> of Tomcat. It can be instructive to
+                    watch this log as Tomcat is starting up, by using a startup command like the
+                    following:</para>
                 <screen>
 bin/startup.sh; tail -f logs/catalina.out</screen>
-                <para>Tomcat on Windows tends to be a little more puzzling about its logs, and it includes more of them, but its default behavior is to open catalina.out in a new window as soon as you start Tomcat.  If you need more information about the logs in Windows, we'll refer you to the official Tomcat documentation.</para>
+                <para>Tomcat on Windows tends to be a little more puzzling about its logs, and it
+                    includes more of them, but its default behavior is to open catalina.out in a new
+                    window as soon as you start Tomcat. If you need more information about the logs
+                    in Windows, we'll refer you to the official Tomcat documentation.</para>
                 <note>
                     <title>Other Logs</title>
-                    <para>The SMTP server logs from Sakai will be written to the $CATALINA_HOME/sakai/logs directory.</para>
+                    <para>The SMTP server logs from Sakai will be written to the
+                        $CATALINA_HOME/sakai/logs directory.</para>
                 </note>
             </sect3>
             <sect3>
                 <title>Startup halts with <emphasis>destroy</emphasis> messages</title>
-                <para>If you see those <emphasis>destroy</emphasis> messages, that's the end of it.  Tomcat is not coming up, and you'll need to go back and change something before it will.</para>
-                <para>Unfortunately, there are quite a number of reasons this might have happened.  The simplest such cause is that you have not added the Tomcat compatibility package to your installation (see <link linkend="install-env-tinstall">Set up Build Environment</link>).  All the other cases involve some problem with your code or platform; these problems are more subtle, and the associated <filename>catalina.out</filename> messages are usually not very helpful in tracking them down.</para>
-                <para>To aid in debugging these problems, Josh Holtzman of Berkeley has created what he calls a "Noisy Spring" jar.  You can find a full explanation and a link to the jar in the <emphasis>Sakaipedia</emphasis> at <link xl:href="http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR">http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR</link>.  Deploying this jar will produce a more Shakespearian death in its verbosity.</para>
+                <para>If you see those <emphasis>destroy</emphasis> messages, that's the end of it.
+                    Tomcat is not coming up, and you'll need to go back and change something before
+                    it will.</para>
+                <para>Unfortunately, there are quite a number of reasons this might have happened.
+                    The simplest such cause is that you have not added the Tomcat compatibility
+                    package to your installation (see <link linkend="install-env-tinstall">Set up
+                        Build Environment</link>). All the other cases involve some problem with
+                    your code or platform; these problems are more subtle, and the associated
+                        <filename>catalina.out</filename> messages are usually not very helpful in
+                    tracking them down.</para>
+                <para>To aid in debugging these problems, Josh Holtzman of Berkeley has created what
+                    he calls a "Noisy Spring" jar. You can find a full explanation and a link to the
+                    jar in the <emphasis>Sakaipedia</emphasis> at <link
+                        xl:href="http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR"
+                        >http://bugs.sakaiproject.org/confluence/display/ENC/Noisy+Spring+JAR</link>.
+                    Deploying this jar will produce a more Shakespearian death in its
+                verbosity.</para>
             </sect3>
             <sect3>
                 <title>"Unsupported major.minor version 49.0"</title>
-                <para>If this message appears in catalina.out during startup, it means that you've built Sakai for Java 1.5, but your JRE is 1.4.  Go back to the <link linkend="install-env-jenv">Set up Build Environment</link> section and double-check your Java version and environment variables.</para>
+                <para>If this message appears in catalina.out during startup, it means that you've
+                    built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <link
+                        linkend="install-env-jenv">Set up Build Environment</link> section and
+                    double-check your Java version and environment variables.</para>
             </sect3>
             <sect3>
                 <title>"java.net.BindException: Address already in use"</title>
-                <para>If this message appears in catalina.out during startup, it means that some other application is already running on the port you've assigned for this Tomcat instance.  It's most likely another Tomcat.  It may be that you didn't stop Tomcat from a previous run, or you may already have Tomcat running on that machine.</para>
-                <para>If you need to run more than one Tomcat on the same machine, see Tomcat documentation for instructions on how to configure to run Tomcat on a different port.</para>
+                <para>If this message appears in catalina.out during startup, it means that some
+                    other application is already running on the port you've assigned for this Tomcat
+                    instance. It's most likely another Tomcat. It may be that you didn't stop Tomcat
+                    from a previous run, or you may already have Tomcat running on that machine.</para>
+                <para>If you need to run more than one Tomcat on the same machine, see Tomcat
+                    documentation for instructions on how to configure to run Tomcat on a different
+                    port.</para>
             </sect3>
         </sect2>
     </sect1>
