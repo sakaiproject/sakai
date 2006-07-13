@@ -20,6 +20,7 @@
 
    5. Open Issues
 
+
 1. What's New
 
   1.1. Enhancements
@@ -224,4 +225,15 @@ Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conv
 
 4. Fixes Included in this Release
 
+   Sakai 2.2 fixes the following issues from previous releases:
+
+   http://source.sakaiproject.org/release/2.2.0/fixed-issues.html
+
 5. Open Issues
+
+   The list of known issues with Sakai 2.2.0 at the time of release is found
+   at:
+
+   http://source.sakaiproject.org/release/2.2.0/open-issues.html
+
+   See in particular the "Important Issues" noted at the top of the list.

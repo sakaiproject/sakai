@@ -257,10 +257,13 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
-        <para/>
+        <para>Sakai 2.2 fixes the following issues from previous releases:</para>
+        <para><link xl:href="fixed-issues.html">http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</link></para>
     </sect1>
     <sect1 xml:id="open-issues">
         <title>Open Issues</title>
-        <para/>
+        <para>The list of known issues with Sakai 2.2.0 at the time of release is found at:</para>
+        <para><link xl:href="open-issues.html">http://source.sakaiproject.org/release/2.2.0/open-issues.html</link></para>
+        <para>See in particular the "Important Issues" noted at the top of the list.</para>
     </sect1>
 </article>
