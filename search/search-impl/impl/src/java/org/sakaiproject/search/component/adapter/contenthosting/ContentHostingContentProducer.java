@@ -23,7 +23,7 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

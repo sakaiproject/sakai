@@ -299,6 +299,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 														+ sbi);
 									}
 
+									log.info("Indexing "+ref.getReference());
 									
 									try
 									{

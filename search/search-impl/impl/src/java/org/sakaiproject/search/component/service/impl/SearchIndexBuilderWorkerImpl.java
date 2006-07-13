@@ -304,7 +304,17 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					
 
 						// should this node consider taking the lock ?
-						if ((System.currentTimeMillis() - lastLock) > 60000L)
+						long lastLockInterval = (System.currentTimeMillis() - lastLock);
+						long lastLockMetric = lastLockInterval*totalDocs;
+						
+						// if we have 1000 docs, then indexing should happen after 10 seconds break
+						// 1000*10000 10000000
+						// 500 docs/ 20 seconds
+						//
+						
+						
+						
+						if (lastLockMetric > 10000000L || lastLockInterval > 60000L)
 						{
 						if (process && getLockTransaction())
 						{
@@ -538,7 +548,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				catch (SQLException e)
 				{
 
-					log.warn("Retrying Delete ", e);
+					log.info("Retrying Delete Due to  "+e.getMessage());
+					log.debug("Detailed Traceback  ",e);
 					try
 					{
 						resultSet.close();
