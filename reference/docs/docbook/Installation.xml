@@ -597,7 +597,7 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                     <command>MAVEN_OPTS</command>. The value in the sample Unix command below should
                     be more than enough:</para>
                 <screen>
-export MAVEN_OPTS="-Xmx512m -XX:PermSize=64m -XX:MaxPermSize=128m"</screen>
+                    export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</screen>
             </note>
             <para>You will probably be able to start up Tomcat and run Sakai with the default
                 configuration at this point, but it would be better to take care of some basic
@@ -1173,8 +1173,6 @@ log4j.logger.org.sakaiproject=INFO</screen>
                     <screen>
 log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</screen>
-                    <para>As you can see, Sakai uses log4j for logging: see official log4j
-                        documentation for more information about how to configure it.</para>
                     <para>The logging controls are part of the new LogConfigurationManager,
                         implemented as a component, the
                         <filename>Log4jConfigurationManager</filename>, in the util module. It can
