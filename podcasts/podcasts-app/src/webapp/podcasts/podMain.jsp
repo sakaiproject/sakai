@@ -54,7 +54,18 @@
             
             <!--  Download link -->
             <f:verbatim><div class="podLinksPosition" ></f:verbatim>
-              <h:commandLink action="#{podHomeBean.downloadFileFilter}" value="#{msgs.download}" styleClass="active" />
+
+            <!--  7/13/06 Hack to fix if spaces in name. TODO: redo correctly -->
+            <!--  Below is correct JSP. Problem is when rendering what's sent from bean -->
+<!--             <h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" >
+                <h:outputText value="#{msgs.download}" />
+            </h:outputLink> -->
+ 
+              <f:verbatim><a  class="active" href="</f:verbatim>
+                  <h:outputText value="#{eachPodcast.fileURL}"  />
+              <f:verbatim> "> </f:verbatim>
+				<h:outputText value="#{msgs.download}" />
+			  <f:verbatim></a></f:verbatim>
 
               <h:outputText value=" (" />
               <h:outputText value="#{eachPodcast.size}" />

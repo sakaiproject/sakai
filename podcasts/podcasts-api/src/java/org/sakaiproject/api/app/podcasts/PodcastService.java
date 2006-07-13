@@ -155,4 +155,13 @@ public interface PodcastService // extends EntityProducer
 	 * @param rp The ResourceProperties of the podcast to set 
 	 */
 	public void setDISPLAY_DATE(ResourceProperties rp);
+	
+	/**
+	 * Returns the full URL of the file from ContentHostingService
+	 * 
+	 * @param resourceId The ID for the file whose URL is wanted
+	 * 
+	 * @return String The full URL for the file
+	 */
+	public String getPodcastFileURL(String resourceId);
 }

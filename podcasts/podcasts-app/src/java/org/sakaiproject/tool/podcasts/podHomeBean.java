@@ -43,16 +43,11 @@ import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
@@ -80,6 +75,7 @@ public class podHomeBean {
 		private String postedTime;
 		private String postedDate;
 		private String author;
+		private String fileURL;
 		
 		public DecoratedPodcastBean() {
 			
@@ -171,6 +167,21 @@ public class podHomeBean {
 
 		public void setFileSize(long fileSize) {
 			this.fileSize = fileSize;
+		}
+
+		/**
+		 * @return Returns the fileURL.
+		 */
+		public String getFileURL() {
+			String temp = podcastService.getPodcastFileURL(resourceId);
+			return temp;
+		}
+
+		/**
+		 * @param fileURL The fileURL to set.
+		 */
+		public void setFileURL(String fileURL) {
+			this.fileURL = fileURL;
 		}
 
 	}
@@ -513,7 +524,9 @@ public class podHomeBean {
 	}
 	
 	public void setDate(Date date) {
-	    this.date = date;
+		// hack needed since ends up passing in date 1 day earlier
+		// than actual
+	    this.date = new Date(date.getTime() + (24 * 60 * 60 * 1000));
 	}
 
 	public String getTitle() {
@@ -717,4 +730,5 @@ public class podHomeBean {
 		selectedPodcast = null;
 		return "cancel";
 	}
+	
 }

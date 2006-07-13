@@ -383,7 +383,7 @@ public class PodcastServiceImpl implements PodcastService
 			
 			if (! filename.equals(podcastResourceEditable.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME))) {
 				podcastResourceEditable.removeProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
-				podcastResourceEditable.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, Validator.escapeResourceName(filename) );
 
 				podcastResourceEditable.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
 				podcastResourceEditable.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
@@ -450,6 +450,24 @@ public class PodcastServiceImpl implements PodcastService
 		
 		rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
 
+	}
+	
+	public String getPodcastFileURL(String resourceId) {
+		try {
+				return (contentHostingService.getResource(resourceId)).getUrl();
+
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 }
 
