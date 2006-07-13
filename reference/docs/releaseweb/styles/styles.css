@@ -96,6 +96,10 @@ td p, ul p {
 	margin-top: 0px;
 	margin-bottom: 0px;
 }
+
+em {
+	font-weight: bold;
+}
 		
 ol   	{
 		margin-left: 20px;
