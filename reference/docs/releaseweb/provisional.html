@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2004481"></a>Provisional Tools</h1></div></div>
+<a name="id2005327"></a>Provisional Tools</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -51,7 +51,7 @@
             successful production use at more than one member institution, and since provisional
             tools are included in the code QA'ed for a release, you should be able to deploy a
             provisional tool in production with some confidence.</p>
-        <p>The basic idea of a provisional tools is to allow sites to have ready access to
+        <p>The basic idea of provisional tools is to allow implementors to have ready access to
             blossoming tools for testing and evaluation. If they meet needs and broad success is
             reported in production, they may be included as a standard part of the bundle in future
             releases. Your feedback on the suitability of these tools for inclusion in an upcoming
@@ -76,20 +76,21 @@ osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sam
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
 sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
 osp.presLayout,osp.style</pre>
+        <p>To unstealth a tool, simply remove it from this list in <code class="filename">sakai.properties</code>.</p>
         <p>There are some provisional tools (e.g. <span class="emphasis"><em>SU</em></span>,
             <span class="emphasis"><em>Sakaiscript</em></span>, <span class="emphasis"><em>Summary Calendar</em></span>) for which
-            stealthing does not apply, since they are inherently designed for admin enabling and
+            stealthing is not an issue, since they are inherently designed for admin enabling and
             deployment. These tools are not registered for <span class="emphasis"><em>Worksite Setup</em></span> in
             the first place, and so are effectively always stealthed. Stealthing is a mechanism for
             obscuring tools from site creators and maintainers, not admins, who have access to all
-            the available tools through their admin functions.</p>
+            the available tools through their admin site functions.</p>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
 <a name="tool-list"></a>3.&nbsp;Provisional Tools in 2.2.0</h2></div></div></div>
 
         <p>A brief overview of each provisional tool is provided below. For more detailed
-            information, visit the Confluence links provided, or send your questions to the listed
+            information visit the Confluence links provided, or send your questions to the listed
             contact.</p>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
@@ -125,7 +126,7 @@ osp.presLayout,osp.style</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2004662"></a>3.1.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005124"></a>3.1.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Samigo is the historical project name for the tool that appears in Sakai as
                         <span class="emphasis"><em>Tests&amp;Quizzes</em></span> (the terms are often used
@@ -135,26 +136,43 @@ osp.presLayout,osp.style</pre>
                 <p>Its key features are:</p>
                 <div class="itemizedlist"><ul>
 <li>
-<p><span class="emphasis"><em>Creating Assessments:</em></span> It supports rich text editing of a variety of question types such as Multiple Choice, Survey, Short Answer/Essay, True/False, Fill in the Blank, File Upload, and Audio Recording.  It also allows importing individual questions from question pools, as well as random ones drawn from question pools.</p>
-                        </li>
+                        <p><span class="emphasis"><em>Creating Assessments:</em></span> It supports rich text
+                            editing of a variety of question types such as Multiple Choice, Survey,
+                            Short Answer/Essay, True/False, Fill in the Blank, File Upload, and
+                            Audio Recording. It also allows importing individual questions from
+                            question pools, as well as random ones drawn from question pools.</p>
+                    </li>
 <li>
-<p><span class="emphasis"><em>Importing/Exporting:</em></span> Assessments can be exported/imported via IMS QTI xml format. It currently supports QTI 1.2.</p>
-                        </li>
+                        <p><span class="emphasis"><em>Importing/Exporting:</em></span> Assessments can be
+                            exported/imported via IMS QTI xml format. It currently supports QTI
+                        1.2.</p>
+                    </li>
 <li>
-<p><span class="emphasis"><em>Organizing and Publishing:</em></span> It allows instructors to specify release date, due date, and/or retract date, late handling, number of submissions, grading options, feedback settings, security settings, and layout...etc.  It supports automatic and manual grading;  It also provides management for question pools.</p>
-                        </li>
+                        <p><span class="emphasis"><em>Organizing and Publishing:</em></span> It allows instructors
+                            to specify release date, due date, and/or retract date, late handling,
+                            number of submissions, grading options, feedback settings, security
+                            settings, and layout...etc. It supports automatic and manual grading; It
+                            also provides management for question pools.</p>
+                    </li>
 <li>
-<p><span class="emphasis"><em>Managing assessment-taking:</em></span> It delivers assessments based on a rich set of settings configured during authoring,  such as randomized questions and answers, timed assessment with auto submit, high security assessments with restricted IP and secondary password, feedback settings, as well as the option to automatically send grades to Sakai's Gradebook tool.</p>
-                        </li>
+                        <p><span class="emphasis"><em>Managing assessment-taking:</em></span> It delivers
+                            assessments based on a rich set of settings configured during authoring,
+                            such as randomized questions and answers, timed assessment with auto
+                            submit, high security assessments with restricted IP and secondary
+                            password, feedback settings, as well as the option to automatically send
+                            grades to Sakai's Gradebook tool.</p>
+                    </li>
 </ul></div>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2004738"></a>3.1.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005694"></a>3.1.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>For File Upload questions in Samigo, answers are saved to DB as a blob by default.  If you want to save answers to files, you can override this default by adding the following in your sakai.properties file.</p>
+                <p>For File Upload questions in Samigo, answers are saved to DB as a blob by
+                    default. If you want to save answers to files, you can override this default by
+                    adding the following in your sakai.properties file.</p>
 
-<pre class="screen">
+                <pre class="screen">
 # ** Samigo File Upload question type settings **
 # the following default settings
 # com.corejsf.UploadFilter.repositoryPath,
@@ -168,13 +186,36 @@ samigo.sizeMax=20480
 samigo.saveMediaToDb=false</pre>
 
 
-                    <p>When <span><strong class="command">saveMediaToDB</strong></span> is true, <span><strong class="command">SAM_MEDIA_T.MEDIA</strong></span> must be a blob or equivalent to work.  If you're running Oracle and using <span><strong class="command">auto.ddl</strong></span> to create tables, you should check the data type of the "MEDIA" column in the <span><strong class="command">SAM_MEDIA_T</strong></span> table. Hibernate tries to choose the right data type for this field, but has a habit of choosing the wrong one for Oracle. The correct types for each database are:</p>
+                <p>When <span><strong class="command">saveMediaToDB</strong></span> is true,
+                    <span><strong class="command">SAM_MEDIA_T.MEDIA</strong></span> must be a blob or equivalent to work. If
+                    you're running Oracle and using <span><strong class="command">auto.ddl</strong></span> to create tables,
+                    you should check the data type of the "MEDIA" column in the
+                    <span><strong class="command">SAM_MEDIA_T</strong></span> table. Hibernate tries to choose the right data
+                    type for this field, but has a habit of choosing the wrong one for Oracle. The
+                    correct types for each database are:</p>
 
-                    <div class="itemizedlist"><ul>
-<li><p>HSQLDB --&gt; varbinary</p></li>
-<li><p>Oracle --&gt; blob</p></li>
-<li><p>MySQL --&gt; longblob</p></li>
+                <div class="itemizedlist"><ul>
+<li>
+                        <p>HSQLDB --&gt; varbinary</p>
+                    </li>
+<li>
+                        <p>Oracle --&gt; blob</p>
+                    </li>
+<li>
+                        <p>MySQL --&gt; longblob</p>
+                    </li>
 </ul></div>
+                <p>Audio recording questions are turned on by default in 2.2.  You can turn it
+                    off by modifying <code class="filename">sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</code>, and
+                    changing the showAudio to false, then redeploying.
+</p>
+<pre class="screen">
+&lt;managed-property&gt;
+    &lt;property-name&gt;showAudio&lt;/property-name&gt;
+    &lt;value&gt;false&lt;/value&gt;
+&lt;/managed-property&gt;</pre>
+<p>
+                </p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -211,18 +252,27 @@ samigo.saveMediaToDb=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005231"></a>3.2.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2005871"></a>3.2.1.&nbsp;Overview</h4></div></div></div>
 
-                <p>RWiki is an open-source Wiki tool for Sakai that gives worksite members the
-                    ability to create and update wiki pages within the worksite. RWiki is designed
-                    and developed at the Centre for Applied Research into Educational Technology
-                    (CARET) at Cambridge Univeristy.</p>
+                <p>The Wiki tool is a fully integrated Sakai Tool that enables users of Sakai to create content, share and manage in a Wiki Environment. Where functionality is provided by other tools within Sakai, the wiki deligates responsibility to those tools (e.g. resources).</p>
+
+
+
+                    <p>Additional functionality includes:</p>
+                    <div class="itemizedlist"><ul>
+<li><p>Linking between worksite spaces</p></li>
+<li><p>Adding content from the Resources tool (e.g. images)</p></li>
+<li><p>Creating subspaces within worksite spaces</p></li>
+<li><p>Controlling permissions</p></li>
+<li><p>Exporting content in various formats (e.g. pdf, rtf)</p></li>
+<li><p>Watching for notifications (e.g. rss and/or email)</p></li>
+</ul></div>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005244"></a>3.2.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2005928"></a>3.2.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>No special configuration required.</p>
+                <p>Once unstealthed, the tool is added to worksites just like any other tool. Once added, a Wiki space dedicated to that worksite is created with a number of default pages. Members of the worksite may edit the content and create new pages simply by placing Wiki links on the existing pages.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -259,7 +309,7 @@ samigo.saveMediaToDb=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005339"></a>3.3.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006024"></a>3.3.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Message Center is Indiana University&rsquo;s solution for discussion and private
                     messaging, facilitating one-on-one and group communication. Through private
@@ -271,14 +321,15 @@ samigo.saveMediaToDb=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005352"></a>3.3.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006037"></a>3.3.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>System administrators need to set the role-to-permission-level mapping in
                         <code class="filename">sakai.properties</code>. OOTB generic roles are set to the
                     following:</p>
                 <pre class="screen">
 mc.default.Student=Contributor
-mc.default.Instructor=Owner</pre>
+mc.default.Instructor=Owner
+mc.default.Teaching\ Assisant=Contributor</pre>
                 <p>Note: If you add a role to <code class="filename">sakai.properties</code> that has a
                     space, you must escape it with a backslash (e.g., <span><strong class="command">mc.default.project\
                         owner=Owner</strong></span>).</p>
@@ -318,7 +369,7 @@ mc.default.Instructor=Owner</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005471"></a>3.4.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006158"></a>3.4.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>The Open Source Portfolio (OSP) has been a significant standalone product in
                     its own right, and it is bundled in Sakai 2.2 as a suite of several tools
@@ -361,18 +412,19 @@ mc.default.Instructor=Owner</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005572"></a>3.5.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006258"></a>3.5.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>The search tool aims to provide a tool that allows a Google-like search of all
-                    content in a Sakai instance.</p>
+                    content in a Sakai instance.  It also provides a service component that can be used by other tools to provide search functionality.  When search is turned on, an indexer runs in the background that treats content as it is added to the system, </p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005585"></a>3.5.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006271"></a>3.5.2.&nbsp;Configuration</h4></div></div></div>
 
-                <p>To turn on search, add the following to <code class="filename">sakai.properties</code>:</p>
+                <p>To turn on search indexing, add the following to <code class="filename">sakai.properties</code>: </p>
                 <pre class="screen">
 search.experimental=true</pre>
+<p>To make the tool available, unstealth the tool id <span><strong class="command">sakai.search</strong></span>.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -407,7 +459,7 @@ search.experimental=true</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005677"></a>3.6.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006374"></a>3.6.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>SU is a tool for administrators to use to log in as another user. It is code
                     developed at Texas State University for their local brand of Sakai called
@@ -421,7 +473,7 @@ search.experimental=true</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005701"></a>3.6.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006396"></a>3.6.2.&nbsp;Configuration</h4></div></div></div>
 
 
                 <p>In order to use the tool, edit the <span class="emphasis"><em>!admin</em></span> site (i.e. the
@@ -440,7 +492,7 @@ search.experimental=true</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005753"></a>3.6.3.&nbsp;Security</h4></div></div></div>
+<a name="id2006450"></a>3.6.3.&nbsp;Security</h4></div></div></div>
 
                 <p>The SU tool is hard-coded only to work for users with administrative
                     privileges. Naturally you should take care whom you give these privileges to.
@@ -480,7 +532,7 @@ search.experimental=true</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005837"></a>3.7.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006533"></a>3.7.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Sakaiscript is essentially a logical web service wrapper to the Sakai API,
                     opening up a number of common admin functions to easy scripting from other
@@ -490,7 +542,7 @@ search.experimental=true</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005854"></a>3.7.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006550"></a>3.7.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>Sakai web services and SakaiScript are included in the release and need to be
                     turned on using a property in the Sakai Properties file:</p>
@@ -499,16 +551,16 @@ search.experimental=true</pre>
 webservices.allowlogin=false</pre>
                 <p>This parameter is set to false so as to make sure that no one can robot-guess
                     Sakai passwords using web services out of the box. If you want to support the
-                    login, you must set this property to true in your Sakai
-                    instance.</p>
+                    login, you must set this property to true in your Sakai instance.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005881"></a>3.7.3.&nbsp;Security</h4></div></div></div>
+<a name="id2006577"></a>3.7.3.&nbsp;Security</h4></div></div></div>
 
-                <p>While it's true that
-                    you have to enable the above property to log in via webservices, webservices are always "on".  In other words you could, in principle, always navigate to the Axis page to view the SOAP methods, and use SakaiScript
-                    as long as you have a SessionID (you could just copy it from your
+                <p>While it's true that you have to enable the above property to log in via
+                    webservices, webservices are always "on". In other words you could, in
+                    principle, always navigate to the Axis page to view the SOAP methods, and use
+                    SakaiScript as long as you have a SessionID (you could just copy it from your
                     browser cookie).</p>
                 <p>Any site enabling web-services should understand the security implications of
                     Sakai web services. Web services should be run over HTTPS in any production
@@ -554,7 +606,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2005988"></a>3.8.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006691"></a>3.8.1.&nbsp;Overview</h4></div></div></div>
 
                 <p><span class="emphasis"><em>Post &lsquo;Em</em></span> is an automated reporting system that enables
                     faculty to post grades and comments without compromising student privacy.
@@ -566,7 +618,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006011"></a>3.8.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006714"></a>3.8.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>The tool simply needs to be unstealthed, and requires no special
                     configuration.</p>
@@ -606,7 +658,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006106"></a>3.9.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006810"></a>3.9.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>Calendar Summary is a synoptic tool that presents a visual monthly view of
                     schedule events in the Home page of My Workspace or other course/project sites.
@@ -616,7 +668,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006126"></a>3.9.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006831"></a>3.9.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>This tool may be unstealthed to allow it to be added by site maintainers -
                     just as with most other provisional tools - but it may also be particularly
@@ -657,7 +709,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006225"></a>3.10.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2006930"></a>3.10.1.&nbsp;Overview</h4></div></div></div>
 
                 <p><span class="emphasis"><em>Roster</em></span> allows users to view the names, photos and
                     profiles of site participants who have made their information accessible through
@@ -667,7 +719,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006254"></a>3.10.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2006959"></a>3.10.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>The tool simply needs to be unstealthed. It requires no special configuration,
                     but some extra work may need to be done to provide photos for it from campus
@@ -707,7 +759,7 @@ webservices.allowlogin=false</pre>
 </table></div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006343"></a>3.11.1.&nbsp;Overview</h4></div></div></div>
+<a name="id2007048"></a>3.11.1.&nbsp;Overview</h4></div></div></div>
 
                 <p>TwinPeaks is a capability to search external repositories while using the
                     HTMLArea WYSIWIG editor (note: Sakai 2.2 uses FCKeditor by default). TwinPeaks
@@ -726,7 +778,7 @@ webservices.allowlogin=false</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id2006375"></a>3.11.2.&nbsp;Configuration</h4></div></div></div>
+<a name="id2007080"></a>3.11.2.&nbsp;Configuration</h4></div></div></div>
 
                 <p>TwinPeaks can be enabled by changing the following sakai.properties setting to
                     true.</p>
