@@ -41,22 +41,23 @@
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983169"></a>6.1.1. JAR download failures</h4></div></div></div>
+<a name="id1983179"></a>6.1.1. JAR download failures</h4></div></div></div>
 
                 <p>A first build of Maven on a fresh installation may warn of numerous jar
                     download failures if you include the <span class="emphasis"><em>clean</em></span> phase. This is a
                     nuisance, but not otherwise a problem. Even when doing a clean maven tries to
-                    download all dependencies, including those that may not be built until the later
+                    download all dependencies, including those Sakai jars that may not be built until the later
                         <span class="emphasis"><em>build</em></span> phase. Once they are built and placed into the
                     repository, maven is perfectly happy for the next "clean build" cycle. The
                     upshot is that you may see these errors for your first build, but you shouldn't
                     see them for subsequent builds. It also means that you're better off not
                     including the <span class="emphasis"><em>clean</em></span> phase during your first build of a new
                     version of the code.</p>
+                    <p>If this does not account for the download failures you're seeing, then you may want to double-check your <span><strong class="command">maven.remote.repo</strong></span> setting.  See the <a href="install-env.html#install-env-mconfig" title="2.6. Configure Maven">Maven Configuration</a> section, and follow it precisely.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983204"></a>6.1.2. Out of Memory errors</h4></div></div></div>
+<a name="id1983233"></a>6.1.2. Out of Memory errors</h4></div></div></div>
 
                 <p>You may find that your machine runs out of memory while it is building Sakai.
                     As it turns out, maven does not read <span><strong class="command">JAVA_OPTS</strong></span> when it starts
@@ -69,7 +70,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983236"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
+<a name="id1983266"></a>6.1.3. Uninformative failure messages</h4></div></div></div>
 
                 <p>If you need more detailed output to track down a build error, maven can be run
                     in debug mode by adding the -x argument, e.g. <span><strong class="command">maven
@@ -77,7 +78,7 @@ export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983258"></a>6.1.4. Building only a single module</h4></div></div></div>
+<a name="id1983286"></a>6.1.4. Building only a single module</h4></div></div></div>
 
                 <p>If you'd like to have the Sakai build targets and goals available for building
                     only a single module (i.e. instead of rebuilding the entire source tree again to
@@ -100,7 +101,7 @@ maven plugin:download -DgroupId=sakaiproject -DartifactId=sakai -Dversion=2.2</p
 
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983304"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
+<a name="id1983331"></a>6.2.1. Finding the Tomcat logs</h4></div></div></div>
 
                 <p>Once you have Sakai installed, configured and started, you can monitor Sakai
                     by watching the logs. The log level for the standard Sakai source code and the
@@ -124,8 +125,51 @@ log4j.logger.org.sakaiproject=INFO</pre>
                     <pre class="screen">
 log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</pre>
-                    <p>As you can see, Sakai uses log4j for logging: see official log4j
-                        documentation for more information about how to configure it.</p>
+                    <p>The logging controls are part of the new LogConfigurationManager,
+                        implemented as a component, the
+                        <code class="filename">Log4jConfigurationManager</code>, in the util module. It can
+                        be disabled, if we really don't want it to do anything, with an entry in
+                            <code class="filename">sakai.properties</code>:</p>
+
+                    <pre class="screen">
+enabled@org.sakaiproject.log.api.LogConfigurationManager = false</pre>
+
+                    <p>Logging levels are first established in the log4j configuration file we
+                        deploy from Sakai. The source for this file is in:
+                            <code class="filename">sakai/util/util-impl/log/src/conf/log4j.properties</code>.
+                        This is made into a jar and deployed to common (this is a requirement of
+                        log4j configuration in Tomcat). We can set logging levels in this file. For
+                        example:</p>
+
+                    <pre class="screen">
+# Application logging options
+log4j.logger.org.sakaiproject=INFO
+
+# Ignore erroneous MyFaces variable resolver warnings
+log4j.logger.org.apache.myfaces.el.VariableResolverImpl=ERROR</pre>
+
+                    <p>This sets any logger with "org.sakaiproject.*" to INFO level, and the
+                        "org.apache.myfaces.el.VariableResolverImpl" to ERROR level. The problem
+                        with this approach, however, is that it requires a change to the source, and
+                        a redeploy. Hardly convenient.</p>
+                    <p>Happily, logging levels can now also be specified in
+                            <code class="filename">sakai.properties</code>. This augments and overrides the
+                        levels set in the default config file. Example:</p>
+
+                    <pre class="screen">
+log.config.count=3
+log.config.1 = ALL.org.sakaiproject.log.impl
+log.config.2 = OFF.org.sakaiproject
+log.config.3 = DEBUG.org.sakaiproject.db.impl</pre>
+
+                    <p>This uses the established (but awkward) method of having a name.count
+                        followed by name.1, name,2, etc. to form an array of strings for the value
+                        "name". In this case, the name is "log.config". The values are of the form
+                            <span><strong class="command">LEVEL.logger</strong></span>, and the possible levels are: OFF TRACE
+                        DEBUG INFO WARN ERROR FATAL ALL.</p>
+                    <p>As you can see, Sakai uses log4j for logging. See the official log4j
+                        documentation for more information about how to configure it if you have
+                        questions.</p>
                 </div>
                 <p>For Mac and *nix systems, the most important log is found in
                         <code class="filename">logs/catalina.out</code> of Tomcat. It can be instructive to
@@ -134,19 +178,19 @@ log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</pre
                 <pre class="screen">
 bin/startup.sh; tail -f logs/catalina.out</pre>
                 <p>Tomcat on Windows tends to be a little more puzzling about its logs, and it
-                    includes more of them, but its default behavior is to open catalina.out in a new
+                    includes more of them, but its default behavior is to open <code class="filename">catalina.out</code> in a new
                     window as soon as you start Tomcat. If you need more information about the logs
                     in Windows, we'll refer you to the official Tomcat documentation.</p>
                 <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Other Logs</h3>
 
                     <p>The SMTP server logs from Sakai will be written to the
-                        $CATALINA_HOME/sakai/logs directory.</p>
+                        <code class="filename">$CATALINA_HOME/sakai/logs</code> directory.</p>
                 </div>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983429"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
+<a name="id1983548"></a>6.2.2. Startup halts with <span class="emphasis"><em>destroy</em></span> messages</h4></div></div></div>
 
                 <p>If you see those <span class="emphasis"><em>destroy</em></span> messages, that's the end of it.
                     Tomcat is not coming up, and you'll need to go back and change something before
@@ -166,7 +210,7 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983501"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
+<a name="id1983621"></a>6.2.3. "Unsupported major.minor version 49.0"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that you've
                     built Sakai for Java 1.5, but your JRE is 1.4. Go back to the <a href="install-env.html#install-env-jenv" title="2.2. Verify Java Environment Variables">Set up Build Environment</a> section and
@@ -174,7 +218,7 @@ bin/startup.sh; tail -f logs/catalina.out</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="id1983525"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
+<a name="id1983644"></a>6.2.4. "java.net.BindException: Address already in use"</h4></div></div></div>
 
                 <p>If this message appears in catalina.out during startup, it means that some
                     other application is already running on the port you've assigned for this Tomcat
