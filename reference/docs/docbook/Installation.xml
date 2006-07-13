@@ -167,7 +167,7 @@
             <para>The Demo and Binary installs described above provide quick ways to get up and
                 running, but assume that no code-level changes are called for. The remainder of this
                 installation guide devotes itself to the more rigorous and customizable Source
-                installation, the steps of which may be organized into the following phases:</para>
+                installation, although some of its details (e.g. the post-installation configuration) may also be pertinent for more sophisticated uses of the demo and binary installs.  The full set of steps for a Source installation may be organized into the following phases:</para>
             <orderedlist>
                 <listitem>
                     <para><link linkend="install-env">Set up Environment</link>, including Java,
@@ -193,7 +193,7 @@
             <para>Since there have been a number of changes in tools, DB schema, and APIs, migrating
                 to 2.2 from a previous release requires close attention to detail. Be sure to go
                 over the <link xl:href="release-notes.html">release notes</link> carefully, and a
-                few potential stumbling points are identified below:</para>
+                few key hurdles are identified below:</para>
             <variablelist>
                 <varlistentry>
                     <term>sakai.properties:</term>
@@ -965,7 +965,7 @@ VALUE
 AL32UTF8</screen>
 
                 <para>Converting a database from one character set to another is non-trivial,
-                    particularly if it's a large production database.</para>
+                    particularly if it's a large production database, and so it's strongly recommended that you verify this aspect of your database creation before deploying Sakai.</para>
             </note>
         </sect2>
         <sect2 xml:id="install-dbconfig-properties">
@@ -1105,13 +1105,14 @@ Commit complete.</screen>
                 <para>A first build of Maven on a fresh installation may warn of numerous jar
                     download failures if you include the <emphasis>clean</emphasis> phase. This is a
                     nuisance, but not otherwise a problem. Even when doing a clean maven tries to
-                    download all dependencies, including those that may not be built until the later
+                    download all dependencies, including those Sakai jars that may not be built until the later
                         <emphasis>build</emphasis> phase. Once they are built and placed into the
                     repository, maven is perfectly happy for the next "clean build" cycle. The
                     upshot is that you may see these errors for your first build, but you shouldn't
                     see them for subsequent builds. It also means that you're better off not
                     including the <emphasis>clean</emphasis> phase during your first build of a new
                     version of the code.</para>
+                    <para>If this does not account for the download failures you're seeing, then you may want to double-check your <command>maven.remote.repo</command> setting.  See the <link linkend="install-env-mconfig">Maven Configuration</link> section, and follow it precisely.</para>
             </sect3>
             <sect3>
                 <title>Out of Memory errors</title>
@@ -1174,31 +1175,51 @@ log4j.logger.org.sakaiproject=INFO
 log4j.logger.org.sakaiproject.component.framework.sql.BasicSqlService=DEBUG</screen>
                     <para>As you can see, Sakai uses log4j for logging: see official log4j
                         documentation for more information about how to configure it.</para>
-                    <para>The logging controls are part of the new LogConfigurationManager, implemented as a component, the <filename>Log4jConfigurationManager</filename>, in the util module.  It can be disabled, if we really don't want it to do anything, with an entry in <filename>sakai.properties</filename>:</para>
-                    
+                    <para>The logging controls are part of the new LogConfigurationManager,
+                        implemented as a component, the
+                        <filename>Log4jConfigurationManager</filename>, in the util module. It can
+                        be disabled, if we really don't want it to do anything, with an entry in
+                            <filename>sakai.properties</filename>:</para>
+
                     <screen>
 enabled@org.sakaiproject.log.api.LogConfigurationManager = false</screen>
-                  
-<para>Logging levels are first established in the log4j configuration file we deploy from Sakai. The source for this file is in: <filename>sakai/util/util-impl/log/src/conf/log4j.properties</filename>.  This is made into a jar and deployed to common (this is a requirement of log4j configuration in Tomcat). We can set logging levels in this file. For example:</para>
-                    
-<screen>
+
+                    <para>Logging levels are first established in the log4j configuration file we
+                        deploy from Sakai. The source for this file is in:
+                            <filename>sakai/util/util-impl/log/src/conf/log4j.properties</filename>.
+                        This is made into a jar and deployed to common (this is a requirement of
+                        log4j configuration in Tomcat). We can set logging levels in this file. For
+                        example:</para>
+
+                    <screen>
 # Application logging options
 log4j.logger.org.sakaiproject=INFO
                     
 # Ignore erroneous MyFaces variable resolver warnings
 log4j.logger.org.apache.myfaces.el.VariableResolverImpl=ERROR</screen>
-                    
-                    <para>This sets any logger with "org.sakaiproject.*" to INFO level, and the "org.apache.myfaces.el.VariableResolverImpl" to ERROR level.  The problem with this approach, however, is that it requires a change to the source, and a redeploy.  Hardly convenient.</para>
-                    <para>Happily, logging levels can now also be specified in <filename>sakai.properties</filename>. This augments and overrides the levels set in the default config file. Example:</para>
-                    
+
+                    <para>This sets any logger with "org.sakaiproject.*" to INFO level, and the
+                        "org.apache.myfaces.el.VariableResolverImpl" to ERROR level. The problem
+                        with this approach, however, is that it requires a change to the source, and
+                        a redeploy. Hardly convenient.</para>
+                    <para>Happily, logging levels can now also be specified in
+                            <filename>sakai.properties</filename>. This augments and overrides the
+                        levels set in the default config file. Example:</para>
+
                     <screen>
 log.config.count=3
 log.config.1 = ALL.org.sakaiproject.log.impl
 log.config.2 = OFF.org.sakaiproject
 log.config.3 = DEBUG.org.sakaiproject.db.impl</screen>
-                    
-                    <para>This uses the established (but awkward) method of having a name.count followed by name.1, name,2, etc. to form an array of strings for the value "name". In this case, the name is "log.config".  The values are of the form <command>LEVEL.logger</command>, and the possible levels are: OFF TRACE DEBUG INFO WARN ERROR FATAL ALL.</para>
-                    <para>As you can see, Sakai uses log4j for logging. See the official log4j documentation for more information about how to configure it if you have questions.</para>
+
+                    <para>This uses the established (but awkward) method of having a name.count
+                        followed by name.1, name,2, etc. to form an array of strings for the value
+                        "name". In this case, the name is "log.config". The values are of the form
+                            <command>LEVEL.logger</command>, and the possible levels are: OFF TRACE
+                        DEBUG INFO WARN ERROR FATAL ALL.</para>
+                    <para>As you can see, Sakai uses log4j for logging. See the official log4j
+                        documentation for more information about how to configure it if you have
+                        questions.</para>
                 </note>
                 <para>For Mac and *nix systems, the most important log is found in
                         <filename>logs/catalina.out</filename> of Tomcat. It can be instructive to
@@ -1207,13 +1228,13 @@ log.config.3 = DEBUG.org.sakaiproject.db.impl</screen>
                 <screen>
 bin/startup.sh; tail -f logs/catalina.out</screen>
                 <para>Tomcat on Windows tends to be a little more puzzling about its logs, and it
-                    includes more of them, but its default behavior is to open catalina.out in a new
+                    includes more of them, but its default behavior is to open <filename>catalina.out</filename> in a new
                     window as soon as you start Tomcat. If you need more information about the logs
                     in Windows, we'll refer you to the official Tomcat documentation.</para>
                 <note>
                     <title>Other Logs</title>
                     <para>The SMTP server logs from Sakai will be written to the
-                        $CATALINA_HOME/sakai/logs directory.</para>
+                        <filename>$CATALINA_HOME/sakai/logs</filename> directory.</para>
                 </note>
             </sect3>
             <sect3>

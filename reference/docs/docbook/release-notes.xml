@@ -11,14 +11,19 @@
         <title>What's New</title>
         <sect2 xml:id="new-enhance">
             <title>Enhancements</title>
-            <sect3 xml:id="new-function-group">
+            <sect3 xml:id="new-enhance-framework">
+                <title>Framework Refactoring</title>
+                <para>The 2.2 release marks the culmination of a significant effort to restructure the framework into more logical functional/architectural units, paving the way for multiple, focused teams to work in parallel on moving the framework and legacy code forward.</para>
+                <para>These changes in themselves do not have a direct functional impact, but they are echoed by a change in the organization of Sakai's subversion repository, and many services and packages have different names from those in 2.1.  To see more discussion of migration issues that may result, see below.</para>
+            </sect3>
+            <sect3 xml:id="new-enhance-group">
                 <title>Group Awareness</title>
                 <para>Group awareness has been extended to three additional tools: Resources,
                     Assignments, and Schedule. That is to say, the contents of each of those tools
                     can have their access restricted to specific groups, as they are defined by site
                     maintainers in the <emphasis>Site Info</emphasis> tool.</para>
             </sect3>
-            <sect3 xml:id="new-function-eid">
+            <sect3 xml:id="new-enhance-eid">
                 <title>EID/UID Separation</title>
                 <para>For the last few releases we've been working to introduce the concept of
                     "internal" and "external" identifiers in Sakai in the user records. We started
@@ -32,7 +37,7 @@
                         xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc"
                         >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_id_eid.doc</link>)</para>
             </sect3>
-            <sect3>
+            <sect3 xml:id="new-enhance-fck">
                 <title>FCKeditor</title>
                 <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
                     it has become the default editor. HTMLArea is still included, however, and the
@@ -42,7 +47,7 @@
 # specify the wysiwyg editor 
 wysiwyg.editor=FCKeditor</screen>
             </sect3>
-            <sect3>
+            <sect3 xml:id="new-enhance-skins">
                 <title>Included Skins</title>
                 <para>The three highest-scoring skins from the recent skins contest have been
                     included in the distribution. You can make any of these your default skin by
@@ -55,7 +60,7 @@ wysiwyg.editor=FCKeditor</screen>
 # skin.default=some-u
 skin.default=default</screen>
             </sect3>
-            <sect3>
+            <sect3 xml:id="new-enhance-help">
                 <title>Updated Help Content</title>
                 <para>Help content in 2.1 was out of date, reflecting only version 2.0 of the
                     software. The help content has been updated for 2.2, along with some style
@@ -66,7 +71,7 @@ skin.default=default</screen>
                         >http://bugs.sakaiproject.org/confluence/display/HELP/Home</link>
                 </para>
             </sect3>
-            <sect3>
+            <sect3 xml:id="new-enhance-translate">
                 <title>French and Japanese translations</title>
                 <para>New interface translations for French and Japanese have been included. See
                         <filename>reference/docs/readme_i18n.txt</filename> for more information on
@@ -229,7 +234,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             <title>Skin Changes</title>
             <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
                 them to 2.2. These changes - including conversion steps - are thoroughly documented
-                in the appendices of the skin document available in reference/docs/architecture, or
+                in the appendices of the skin document available in <filename>reference/docs/architecture/sakai_skin.doc</filename>, or
                 in subversion at: <link
                     xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc"
                     >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</link></para>
@@ -240,14 +245,15 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         <para>The code of each release has a corresponding maintenance branch, which is patched with
             fixes in an ongoing way by a branch manager - effectively until there is no longer
             sufficient interest in it for a branch manager to volunteer. Maintenance branches
-            therefore represent the latest stable snapshot of fixes for any given Sakai version.</para>
-        <para>These maintenance branches may be checked out through subversion, they are labeled
+            therefore represent the latest snapshot of fixes for any given Sakai version.</para>
+        <para>These maintenance branches may be checked out through subversion; they are labeled
             with an 'x' replacing their minor version number, e.g. '2-2-x'. You can check out the
             2.2 maintenance branch with the following command: </para>
         <para>
             <command>svn export
             https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command>
         </para>
+        <para>If you come upon an important fix that you believe should be included in the branch (and perhaps isn't yet), feel free to bring it to the attention of the branch manager, Lance Speelmon (lance@indiana.edu).</para>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
