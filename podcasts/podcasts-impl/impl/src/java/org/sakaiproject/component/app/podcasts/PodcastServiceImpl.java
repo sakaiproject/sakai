@@ -24,6 +24,7 @@ package org.sakaiproject.component.app.podcasts;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -32,8 +33,11 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -105,6 +109,8 @@ public class PodcastServiceImpl implements PodcastService
 			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
 
 			resourcesList = collection.getMemberResources();
+			
+			checkDISPLAY_DATE(resourcesList);
 			
 			PodcastComparator podcastComparator = new PodcastComparator(DISPLAY_DATE, false);
 			
@@ -406,4 +412,44 @@ public class PodcastServiceImpl implements PodcastService
 		} 
 	}
 
+	public List checkDISPLAY_DATE(List resourcesList) {
+		
+		//loop to check if DISPLAY_DATE has been set. If not, set it
+		Iterator podcastIter = resourcesList.iterator();
+		
+		// for each bean
+		while (podcastIter.hasNext() ) {
+			// get its properties from ContentHosting
+			ContentResource aResource = (ContentResource) podcastIter.next();
+			ResourceProperties itsProperties = aResource.getProperties();
+			
+			try {
+				itsProperties.getTimeProperty(DISPLAY_DATE);
+			}
+			catch (Exception e) {
+				// does not exit, set CREATION_DATE to DISPLAY_DATE
+				setDISPLAY_DATE(itsProperties);
+			}
+		}
+
+		return resourcesList;
+	}
+	
+	public void setDISPLAY_DATE(ResourceProperties rp) {
+		SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		Date tempDate = null;
+		try {
+			tempDate = new Date(rp.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+		} catch (EntityPropertyNotDefinedException epnde) {
+			// TODO Auto-generated catch block
+			epnde.printStackTrace();
+		} catch (EntityPropertyTypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
+
+	}
 }
+

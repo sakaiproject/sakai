@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -139,4 +140,19 @@ public interface PodcastService // extends EntityProducer
 	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
             String filename);
 
+	/**
+	 * Will check if any podcasts were added in Resources and do not have their DISPLAY_DATE property set.
+	 * 
+	 * @param resourcesList The List of podcasts to check
+	 * 
+	 * @return List of updated podcasts
+	 */
+	public List checkDISPLAY_DATE(List resourcesList);
+	
+	/**
+	 * Sets the DISPLAY_DATE property of a podcast to CREATION_DATE
+	 * 
+	 * @param rp The ResourceProperties of the podcast to set 
+	 */
+	public void setDISPLAY_DATE(ResourceProperties rp);
 }

@@ -117,7 +117,7 @@
 		</dependency>		
 		
 	  	<dependency>
-  			<groupId>springframework</groupId>
+  			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>			
   		</dependency>-->
@@ -221,7 +221,7 @@
   		</dependency>
   		
 	  	<dependency>
-  			<groupId>springframework</groupId>
+  			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>			
   		</dependency>
