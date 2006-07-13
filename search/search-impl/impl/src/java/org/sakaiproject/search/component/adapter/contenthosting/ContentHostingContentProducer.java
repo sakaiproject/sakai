@@ -91,9 +91,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	private ContentDigester defaultDigester;
 
-	private int readerSizeLimit = 1024 * 200; // (200K)
+	private int readerSizeLimit = 1024 * 1024 * 2; // (2M)
 	
-	private int digesterSizeLimit = 1024 * 1024 * 2; // (2M)
+	private int digesterSizeLimit = 1024 * 1024 * 5; // (5M)
 
 	public void init()
 	{

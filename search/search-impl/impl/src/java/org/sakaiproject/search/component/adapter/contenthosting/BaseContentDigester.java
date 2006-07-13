@@ -37,7 +37,7 @@ public abstract class BaseContentDigester implements ContentDigester
 
 	private ContentHostingContentProducer contentProducer = null;
 	
-	protected int maxDigestSize = 1024 * 1024 * 5; // 5M
+	protected int maxDigestSize = 1024 * 1024 * 5; // 10M
 
 
 	public void init()
