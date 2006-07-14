@@ -588,8 +588,6 @@ hr.itemSeparator{
 }
 .shorttext{
 	clear:both;
-	height:100%;
-	overflow:hidden
 }
 .shorttext label{
 	margin-right: 1em;
