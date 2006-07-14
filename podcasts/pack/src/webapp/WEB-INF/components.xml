@@ -15,6 +15,15 @@
  			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		</property>
 		
+		<!-- needed to get current user object -->
+		<property name="userDirectoryService">
+		    <ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		
+		<!-- needed to get current user's permissions -->
+		<property name="securityService">
+		    <ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
 	</bean>
 
 </beans>

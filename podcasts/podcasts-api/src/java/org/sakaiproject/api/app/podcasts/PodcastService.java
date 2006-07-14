@@ -49,53 +49,15 @@ public interface PodcastService // extends EntityProducer
 	/** This string gives description for podcasts folder **/
 	public static final String COLLECTION_PODCASTS_DESCRIPTION = "Common Folder for All Site Podcasts";
 
-	/** Service name (class w/ package prefix) for podcast service **/
+	/** This string gives the Service name (class w/ package prefix) for podcast service **/
 	public static final String PODCASTS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.PodcastService";
 
 	/** This string is the name of the property used when displaying and sorting the podcasts **/
 	public static final String DISPLAY_DATE = "displayDate";
 	
-	/**
-	 * Does the actual adding of podcast to Resources
-	 * 
-	 * @param title User specified title for the podcast
-	 * @param displayDate Date when podcast will be available for viewing
-	 * @param description User specified description for the podcast
-	 * @param body The actual contents of the podcast
-	 * @param filename The filename of the podcast being saved
-	 */
-	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
-			               String filename);
-	
-	/**
-	 * Returns a list of the podcasts stored in site/podcasts folder
-	 * 
-	 * @return List of podcasts
-	 */
-	public List getPodcasts();
+	/** This string gives the update function (permission) string for checking permissions **/
+	public static final String UPDATE_PERMISSIONS = "/site.upd";
 
-	/**
-	 * Returns the requested podcast
-	 * 
-	 * @return ContentResource of the podcast wanted
-	 */
-//	public ContentResource getAPodcast(String Id);
-
-	/**
-	 * Removes a podcast from site/podcasts folder
-	 * 
-	 * @param resourceId resourceId of the podcast to be deleted
-	 */
-	public void removePodcast(String resourceId)
-		throws IdUnusedException, InUseException, TypeException, PermissionException; 
-	
-	/**
-	 * Returns SiteId for the site this tool is a part of
-	 * 
-	 * @return String of the site id
-	 */
-	public String getSiteId();
-	
 	/**
 	 * Determines if podcast folder is part of Resources of site.
 	 * If not, creates it.
@@ -103,6 +65,22 @@ public interface PodcastService // extends EntityProducer
 	 * @return true if folder exists/created, false otherwise.
 	 */
 	public boolean checkPodcastFolder ();
+
+	/**
+	 * Will check if any podcasts were added in Resources and do not have their DISPLAY_DATE property set.
+	 * 
+	 * @param resourcesList The List of podcasts to check
+	 * 
+	 * @return List of updated podcasts
+	 */
+	public List checkDISPLAY_DATE(List resourcesList);
+
+	/**
+	 * Determines if there are actual podcasts in the folder
+	 * 
+	 * @return true if there are actual podcasts, false otherwise
+	 */
+	public boolean checkForActualPodcasts();
 
 	/**
 	 * Used to inject the ContentHostingService
@@ -117,44 +95,27 @@ public interface PodcastService // extends EntityProducer
 	 * @param tm The application's ToolManager
 	 */
 	public void setToolManager(ToolManager tm);
-
-	/**
-	 * Determines if there are actual podcasts in the folder
-	 * 
-	 * @return true if there are actual podcasts, false otherwise
-	 */
-	public boolean checkForActualPodcasts();
-
-	/**
-	 * Returns an editable resource if ID exists.
-	 * 
-	 * @return ContentResourceEdit object if ID valid, null otherwise
-	 */
-	public ContentResourceEdit getAResource(String resourceId);
 	
 	/**
-	 * Returns an editable resource if ID exists.
+	 * Returns a list of the podcasts stored in site/podcasts folder
 	 * 
-	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 * @return List of podcasts
 	 */
-	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
-            String filename);
-
-	/**
-	 * Will check if any podcasts were added in Resources and do not have their DISPLAY_DATE property set.
-	 * 
-	 * @param resourcesList The List of podcasts to check
-	 * 
-	 * @return List of updated podcasts
-	 */
-	public List checkDISPLAY_DATE(List resourcesList);
+	public List getPodcasts();
 	
 	/**
-	 * Sets the DISPLAY_DATE property of a podcast to CREATION_DATE
+	 * Returns SiteId for the site this tool is a part of
 	 * 
-	 * @param rp The ResourceProperties of the podcast to set 
+	 * @return String of the site id
 	 */
-	public void setDISPLAY_DATE(ResourceProperties rp);
+	public String getSiteId();
+	
+	/**
+	 * Returns UserId for the current user
+	 * 
+	 * @return String of the user ID
+	 */
+	public String getUserId();
 	
 	/**
 	 * Returns the full URL of the file from ContentHostingService
@@ -164,4 +125,53 @@ public interface PodcastService // extends EntityProducer
 	 * @return String The full URL for the file
 	 */
 	public String getPodcastFileURL(String resourceId);
+
+	/**
+	 * Returns an editable resource if ID exists.
+	 * 
+	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 */
+	public ContentResourceEdit getAResource(String resourceId);
+
+	/**
+	 * Sets the DISPLAY_DATE property of a podcast to CREATION_DATE
+	 * 
+	 * @param rp The ResourceProperties of the podcast to set 
+	 */
+	public void setDISPLAY_DATE(ResourceProperties rp);
+
+	/**
+	 * Does the actual adding of podcast to Resources
+	 * 
+	 * @param title User specified title for the podcast
+	 * @param displayDate Date when podcast will be available for viewing
+	 * @param description User specified description for the podcast
+	 * @param body The actual contents of the podcast
+	 * @param filename The filename of the podcast being saved
+	 */
+	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
+			               String filename);
+	
+	/**
+	 * Removes a podcast from site/podcasts folder
+	 * 
+	 * @param resourceId resourceId of the podcast to be deleted
+	 */
+	public void removePodcast(String resourceId)
+		throws IdUnusedException, InUseException, TypeException, PermissionException; 
+	
+	/**
+	 * Returns an editable resource if ID exists.
+	 * 
+	 * @return ContentResourceEdit object if ID valid, null otherwise
+	 */
+	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
+            String filename);
+	
+	/**
+	 * Determines if user can modify the site.
+	 * 
+	 * @return boolean true if user can modify, false otherwise
+	 */
+	public boolean canUpdateSite();
 }

@@ -12,9 +12,9 @@
         <script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
     <h:form>
       <sakai:tool_bar>
-          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists}" />
-          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.resourceToolExists}" />
-          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" rendered="#{podHomeBean.resourceToolExists}" />
+          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
+          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
+          <sakai:tool_bar_item action="podcastPermissions" value="#{msgs.permissions}" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" />
       </sakai:tool_bar>
 
  	  <div>
@@ -57,9 +57,9 @@
 
             <!--  7/13/06 Hack to fix if spaces in name. TODO: redo correctly -->
             <!--  Below is correct JSP. Problem is when rendering what's sent from bean -->
-<!--             <h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" >
-                <h:outputText value="#{msgs.download}" />
-            </h:outputLink> -->
+<!--             h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
+                 h:outputText value="#{msgs.download}" 
+                 h:outputLink -->
  
               <f:verbatim><a  class="active" href="</f:verbatim>
                   <h:outputText value="#{eachPodcast.fileURL}"  />
@@ -75,13 +75,13 @@
 
               <!--  go to Revise page -->
               <h:outputText value=") | " />
-              <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" >
+              <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" rendered="#{podHomeBean.canUpdateSite}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
               <!--  go to Delete page --> 
               <h:outputText value=" | " />
-              <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" >
+              <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" rendered="#{podHomeBean.canUpdateSite}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
               <f:verbatim></div><br /></f:verbatim>

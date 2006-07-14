@@ -53,7 +53,6 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 
-
 public class podHomeBean {
 	
 	/**
@@ -64,6 +63,8 @@ public class podHomeBean {
 	 *
 	 */
 	public class DecoratedPodcastBean {
+		private static final String SLASH = "/";
+		
 		private String resourceId;
 		private String filename;
 		private long fileSize;
@@ -174,7 +175,9 @@ public class podHomeBean {
 		 */
 		public String getFileURL() {
 			String temp = podcastService.getPodcastFileURL(resourceId);
-			return temp;
+			temp = temp.substring(0, temp.lastIndexOf(SLASH));
+
+			return temp + SLASH + getFilename();
 		}
 
 		/**
@@ -191,12 +194,18 @@ public class podHomeBean {
 	private static final String NO_RESOURCES_ERR_MSG = "To use the Podcasts tool, you must first add the Resources tool.";
 	private static final String RESOURCEID = "resourceId";
 	
-	// podHomeBean member variables
+	// podHomeBean member variables, to detemine how main/home page should be rendered
 	private boolean resourceToolExists;
 	private boolean podcastFolderExists;
 	private boolean actPodcastsExist;
 	private boolean podcastResourceCheckFirstTry;
+	private boolean canUpdateSite;
+	private boolean canUpdateSiteFirstTry;
+
+	// inject the podcast services for its help
 	private PodcastService podcastService;
+
+	// variables to hold miscellanous information
 	private List contents;
 	private String URL;
 	private DecoratedPodcastBean selectedPodcast;
@@ -221,6 +230,8 @@ public class podHomeBean {
 		podcastFolderExists = false;
 		actPodcastsExist = false;
 		podcastResourceCheckFirstTry=true;
+		canUpdateSite = false;
+		canUpdateSiteFirstTry=true;
 	}
 
 	/**
@@ -729,6 +740,27 @@ public class podHomeBean {
 	public String processCancelDelete() {
 		selectedPodcast = null;
 		return "cancel";
+	}
+
+	/**
+	 * Returns boolean if user can update podcasts. Used to display modification options on
+	 * main page.
+	 * 
+	 * @return true if user can modify, false otherwise.
+	 */
+	public boolean getCanUpdateSite() {
+		if (canUpdateSiteFirstTry) {
+			canUpdateSite = podcastService.canUpdateSite();
+		}
+
+		return canUpdateSite;
+	}
+
+	/**
+	 * @param canUpdateSite The canUpdateSite to set.
+	 */
+	public void setCanUpdateSite(boolean canUpdateSite) {
+		this.canUpdateSite = canUpdateSite;
 	}
 	
 }

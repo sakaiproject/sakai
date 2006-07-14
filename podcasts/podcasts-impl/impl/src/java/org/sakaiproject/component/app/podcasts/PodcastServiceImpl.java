@@ -29,7 +29,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -54,8 +56,9 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
-
 
 public class PodcastServiceImpl implements PodcastService
 {
@@ -65,6 +68,8 @@ public class PodcastServiceImpl implements PodcastService
 	private Reference siteRef;
 	private boolean podcastCollection;
 	private PodcastComparator podcastComparator;
+	private SecurityService securityService;
+	private UserDirectoryService userDirectoryService;
 	
 	PodcastServiceImpl() {
 	}
@@ -78,12 +83,30 @@ public class PodcastServiceImpl implements PodcastService
 	}
 
 	/**
+	 * @param securityService The securityService to set.
+	 */
+	public void setSecurityService(SecurityService ss) {
+		securityService = ss;
+	}
+
+	/**
+	 * @param userDirectoryService The userDirectoryService to set.
+	 */
+	public void setUserDirectoryService(UserDirectoryService uds) {
+		userDirectoryService = uds;
+	}
+
+	/**
 	 * Retrieve the site id
 	 */
 	public String getSiteId() {
 		return toolManager.getCurrentPlacement().getContext();
 	}
 	
+	public String getUserId() {
+		return SessionManager.getCurrentSessionUserId();
+	}
+
 	/**
 	 * Returns the site URL as a string
 	 * 
@@ -468,6 +491,10 @@ public class PodcastServiceImpl implements PodcastService
 		}
 		
 		return null;
+	}
+	
+	public boolean canUpdateSite() {
+		return securityService.unlock(userDirectoryService.getCurrentUser(), UPDATE_PERMISSIONS, getSiteId());
 	}
 }
 
