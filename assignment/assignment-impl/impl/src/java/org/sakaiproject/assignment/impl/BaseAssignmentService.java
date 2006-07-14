@@ -693,6 +693,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		((BaseAssignmentEdit) assignment).setEvent(EVENT_ADD_ASSIGNMENT);
 
+		ResourcePropertiesEdit propertyEdit = (BaseResourcePropertiesEdit)assignment.getProperties();
+		try
+		{
+			Time createTime = propertyEdit.getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+		}
+		catch(EntityPropertyNotDefinedException epnde)
+		{
+			String now = TimeService.newTime().toString();
+			propertyEdit.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
+		}
+		catch(EntityPropertyTypeException epte)
+		{
+			M_log.error(epte);
+		}
+
 		return assignment;
 	}
 
