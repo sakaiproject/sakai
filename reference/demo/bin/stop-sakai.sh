@@ -1,6 +1,9 @@
 #!/bin/sh
 
-export JAVA_OPTS="-server -Xmx768m -XX:MaxNewSize=128m -XX:MaxPermSize=128m"
-export CATALINA_OPTS="-server -Xmx768m -XX:MaxNewSize=128m -XX:MaxPermSize=128m"
+JAVA_OPTS="-server -Xmx1024m -XX:MaxNewSize=256m -XX:MaxPermSize=256m"
+export JAVA_OPTS
+
+CATALINA_OPTS="-server -Xmx1024m -XX:MaxNewSize=256m -XX:MaxPermSize=256m"
+export CATALINA_OPTS
 
 bin/shutdown.sh
