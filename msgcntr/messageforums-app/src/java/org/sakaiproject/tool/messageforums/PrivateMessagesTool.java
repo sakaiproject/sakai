@@ -996,7 +996,10 @@ public class PrivateMessagesTool
     //set Dafult Subject
     if(getDetailMsg() != null)
     {
-      replyToSubject=getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
+    	if(getDetailMsg().getMsg().getTitle() != null && !getDetailMsg().getMsg().getTitle().startsWith(getResourceBundleString(REPLY_SUBJECT_PREFIX)))
+    		replyToSubject = getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
+    	else
+    		replyToSubject = getDetailMsg().getMsg().getTitle();
     }
     
     //from message detail screen
