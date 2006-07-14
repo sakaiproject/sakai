@@ -167,7 +167,10 @@
             <para>The Demo and Binary installs described above provide quick ways to get up and
                 running, but assume that no code-level changes are called for. The remainder of this
                 installation guide devotes itself to the more rigorous and customizable Source
-                installation, although some of its details (e.g. the post-installation configuration) may also be pertinent for more sophisticated uses of the demo and binary installs.  The full set of steps for a Source installation may be organized into the following phases:</para>
+                installation, although some of its details (e.g. the post-installation
+                configuration) may also be pertinent for more sophisticated uses of the demo and
+                binary installs. The full set of steps for a Source installation may be organized
+                into the following phases:</para>
             <orderedlist>
                 <listitem>
                     <para><link linkend="install-env">Set up Environment</link>, including Java,
@@ -312,6 +315,10 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     </listitem>
                 </varlistentry>
             </variablelist>
+            <note>
+                <title>JRE_HOME</title>
+                <para>If your machine has already set JRE_HOME for any reason, or if you want to point to a particular JRE that is located outside the JAVA_HOME location, then you'll need to set this additional JRE_HOME variable as well.  If JRE_HOME is not set, it simply defaults to JAVA_HOME.</para>
+            </note>
             <para>Next you'll want to append to the PATH variable the location of Java commands:</para>
             <variablelist>
                 <varlistentry>
@@ -965,7 +972,9 @@ VALUE
 AL32UTF8</screen>
 
                 <para>Converting a database from one character set to another is non-trivial,
-                    particularly if it's a large production database, and so it's strongly recommended that you verify this aspect of your database creation before deploying Sakai.</para>
+                    particularly if it's a large production database, and so it's strongly
+                    recommended that you verify this aspect of your database creation before
+                    deploying Sakai.</para>
             </note>
         </sect2>
         <sect2 xml:id="install-dbconfig-properties">
@@ -1105,14 +1114,17 @@ Commit complete.</screen>
                 <para>A first build of Maven on a fresh installation may warn of numerous jar
                     download failures if you include the <emphasis>clean</emphasis> phase. This is a
                     nuisance, but not otherwise a problem. Even when doing a clean maven tries to
-                    download all dependencies, including those Sakai jars that may not be built until the later
-                        <emphasis>build</emphasis> phase. Once they are built and placed into the
-                    repository, maven is perfectly happy for the next "clean build" cycle. The
-                    upshot is that you may see these errors for your first build, but you shouldn't
-                    see them for subsequent builds. It also means that you're better off not
-                    including the <emphasis>clean</emphasis> phase during your first build of a new
-                    version of the code.</para>
-                    <para>If this does not account for the download failures you're seeing, then you may want to double-check your <command>maven.remote.repo</command> setting.  See the <link linkend="install-env-mconfig">Maven Configuration</link> section, and follow it precisely.</para>
+                    download all dependencies, including those Sakai jars that may not be built
+                    until the later <emphasis>build</emphasis> phase. Once they are built and placed
+                    into the repository, maven is perfectly happy for the next "clean build" cycle.
+                    The upshot is that you may see these errors for your first build, but you
+                    shouldn't see them for subsequent builds. It also means that you're better off
+                    not including the <emphasis>clean</emphasis> phase during your first build of a
+                    new version of the code.</para>
+                <para>If this does not account for the download failures you're seeing, then you may
+                    want to double-check your <command>maven.remote.repo</command> setting. See the
+                        <link linkend="install-env-mconfig">Maven Configuration</link> section, and
+                    follow it precisely.</para>
             </sect3>
             <sect3>
                 <title>Out of Memory errors</title>
@@ -1226,13 +1238,14 @@ log.config.3 = DEBUG.org.sakaiproject.db.impl</screen>
                 <screen>
 bin/startup.sh; tail -f logs/catalina.out</screen>
                 <para>Tomcat on Windows tends to be a little more puzzling about its logs, and it
-                    includes more of them, but its default behavior is to open <filename>catalina.out</filename> in a new
-                    window as soon as you start Tomcat. If you need more information about the logs
-                    in Windows, we'll refer you to the official Tomcat documentation.</para>
+                    includes more of them, but its default behavior is to open
+                        <filename>catalina.out</filename> in a new window as soon as you start
+                    Tomcat. If you need more information about the logs in Windows, we'll refer you
+                    to the official Tomcat documentation.</para>
                 <note>
                     <title>Other Logs</title>
                     <para>The SMTP server logs from Sakai will be written to the
-                        <filename>$CATALINA_HOME/sakai/logs</filename> directory.</para>
+                            <filename>$CATALINA_HOME/sakai/logs</filename> directory.</para>
                 </note>
             </sect3>
             <sect3>
