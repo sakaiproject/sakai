@@ -7139,22 +7139,32 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		Collection groupRefs = new TreeSet();
 		if(this.m_allowGroupResources)
 		{
-			ContentCollection container;
+			ContentEntity entity;
 			try
 			{
 				Reference ref = m_entityManager.newReference(refString);
 				Site site = m_siteService.getSite(ref.getContext());
 				
-				container = findCollection(ref.getId());
-				if(AccessMode.INHERITED == container.getAccess())
+				if(ref.getId().endsWith(Entity.SEPARATOR))
 				{
-					groups.addAll(container.getInheritedGroupObjects());
-					groupRefs.addAll(container.getInheritedGroups());
+					entity = findCollection(ref.getId());
 				}
 				else
 				{
-					groups.addAll(container.getGroupObjects());
-					groupRefs.addAll(container.getGroups());
+					entity = findResource(ref.getId());
+				}
+				if(entity != null)
+				{
+					if(AccessMode.INHERITED == entity.getAccess())
+					{
+						groups.addAll(entity.getInheritedGroupObjects());
+						groupRefs.addAll(entity.getInheritedGroups());
+					}
+					else
+					{
+						groups.addAll(entity.getGroupObjects());
+						groupRefs.addAll(entity.getGroups());
+					}
 				}
 
 				if(groups.isEmpty())
@@ -7171,7 +7181,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					rv.addAll(groups);
 				}
-				else if(SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, container.getId()))
+				else if(SecurityService.unlock(EVENT_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, entity.getId()))
 				{
 					rv.addAll(groups);
 				}
