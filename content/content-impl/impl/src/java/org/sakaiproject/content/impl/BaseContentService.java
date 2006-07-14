@@ -6415,7 +6415,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// if not, can we make it
 				if (collection == null)
 				{
-					ContentCollectionEdit edit = addCollection(id);
+					ContentCollectionEdit edit = addValidPermittedCollection(id);
 					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, parts[i]);
 					commitCollection(edit);
 				}
@@ -6424,6 +6424,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// if we cannot, give up
 		catch (Exception any)
 		{
+			M_log.warn("generateCollections: " + any.getMessage());
 		}
 
 	} // generateCollections
