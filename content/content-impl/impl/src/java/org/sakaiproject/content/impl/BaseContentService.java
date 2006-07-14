@@ -6967,11 +6967,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			if (findCollection(dropbox) == null)
 			{
-				return;
+				try
+				{
+					ContentCollectionEdit edit = addValidPermittedCollection(dropbox);
+					commitCollection(edit);
+				}
+				catch(IdUsedException e)
+				{
+					// hmmmm ... couldn't find it, but it's already in use???  let's bail out.
+					return;
+				}
+				catch(InconsistentException e)
+				{
+					return;
+				}
 			}
 			
-			User user = UserDirectoryService.getCurrentUser();
 
+			User user = UserDirectoryService.getCurrentUser();
+			
 			// the folder id for this user's dropbox in this group
 			String userFolder = dropbox + user.getId() + "/";
 
