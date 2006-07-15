@@ -13,8 +13,14 @@
             <title>Enhancements</title>
             <sect3 xml:id="new-enhance-framework">
                 <title>Framework Refactoring</title>
-                <para>The 2.2 release marks the culmination of a significant effort to restructure the framework into more logical functional/architectural units, paving the way for multiple, focused teams to work in parallel on moving the framework and legacy code forward.</para>
-                <para>These changes in themselves do not have a direct functional impact, but they are echoed by a change in the organization of Sakai's subversion repository, and many services and packages have different names from those in 2.1.  To see more discussion of migration issues that may result, see below.</para>
+                <para>The 2.2 release marks the culmination of a significant effort to restructure
+                    the framework into more logical functional/architectural units, paving the way
+                    for multiple, focused teams to work in parallel on moving the framework and
+                    legacy code forward.</para>
+                <para>These changes in themselves do not have a direct functional impact, but they
+                    are echoed by a change in the organization of Sakai's subversion repository, and
+                    many services and packages have different names from those in 2.1. To see more
+                    discussion of migration issues that may result, see below.</para>
             </sect3>
             <sect3 xml:id="new-enhance-group">
                 <title>Group Awareness</title>
@@ -93,9 +99,8 @@ skin.default=default</screen>
                 </listitem>
 
                 <listitem>
-                    <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view for the
-                            <emphasis>MyWorkspace</emphasis> that includes events from all the sites
-                        to which a user is a member.</para>
+                    <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view that may be used in either the <emphasis>MyWorkspace</emphasis> or the Home page of course/project sites, including an event summary from either all the sites
+                        to which a user is a member (if in MyWorkspace) or the events of a particular site (if in that site).</para>
                 </listitem>
 
                 <listitem>
@@ -234,8 +239,9 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             <title>Skin Changes</title>
             <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
                 them to 2.2. These changes - including conversion steps - are thoroughly documented
-                in the appendices of the skin document available in <filename>reference/docs/architecture/sakai_skin.doc</filename>, or
-                in subversion at: <link
+                in the appendices of the skin document available in
+                    <filename>reference/docs/architecture/sakai_skin.doc</filename>, or in
+                subversion at: <link
                     xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc"
                     >https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</link></para>
         </sect2>
@@ -253,17 +259,25 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
             <command>svn export
             https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</command>
         </para>
-        <para>If you come upon an important fix that you believe should be included in the branch (and perhaps isn't yet), feel free to bring it to the attention of the branch manager, Lance Speelmon (lance@indiana.edu).</para>
+        <para>If you come upon an important fix that you believe should be included in the branch
+            (and perhaps isn't yet), feel free to bring it to the attention of the branch manager,
+            Lance Speelmon (lance@indiana.edu).</para>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
         <para>Sakai 2.2 fixes the following issues from previous releases:</para>
-        <para><link xl:href="fixed-issues.html">http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</link></para>
+        <para>
+            <link xl:href="fixed-issues.html"
+                >http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</link>
+        </para>
     </sect1>
     <sect1 xml:id="open-issues">
         <title>Open Issues</title>
         <para>The list of known issues with Sakai 2.2.0 at the time of release is found at:</para>
-        <para><link xl:href="open-issues.html">http://source.sakaiproject.org/release/2.2.0/open-issues.html</link></para>
+        <para>
+            <link xl:href="open-issues.html"
+                >http://source.sakaiproject.org/release/2.2.0/open-issues.html</link>
+        </para>
         <para>See in particular the "Important Issues" noted at the top of the list.</para>
     </sect1>
 </article>

@@ -44,7 +44,8 @@ osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sam
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
 sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
 osp.presLayout,osp.style</screen>
-        <para>To unstealth a tool, simply remove it from this list in <filename>sakai.properties</filename>.</para>
+        <para>To unstealth a tool, simply remove it from this list in
+            <filename>sakai.properties</filename>.</para>
         <para>There are some provisional tools (e.g. <emphasis>SU</emphasis>,
             <emphasis>Sakaiscript</emphasis>, <emphasis>Summary Calendar</emphasis>) for which
             stealthing is not an issue, since they are inherently designed for admin enabling and
@@ -160,10 +161,11 @@ samigo.saveMediaToDb=false</screen>
                         <para>MySQL --> longblob</para>
                     </listitem>
                 </itemizedlist>
-                <para>Audio recording questions are turned on by default in 2.2.  You can turn it
-                    off by modifying <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
-                    changing the showAudio to false, then redeploying.
-<screen>
+                <para>Audio recording questions are turned on by default in 2.2. You can turn it off
+                    by modifying
+                    <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
+                    changing the showAudio to false, then
+                    redeploying.<screen>
 &lt;managed-property&gt;
     &lt;property-name&gt;showAudio&lt;/property-name&gt;
     &lt;value&gt;false&lt;/value&gt;
@@ -199,22 +201,41 @@ samigo.saveMediaToDb=false</screen>
             </variablelist>
             <sect3>
                 <title>Overview</title>
-                <para>The Wiki tool is a fully integrated Sakai Tool that enables users of Sakai to create content, share and manage in a Wiki Environment. Where functionality is provided by other tools within Sakai, the wiki deligates responsibility to those tools (e.g. resources).</para>
-                    
-                    
-                    
-                    <para>Additional functionality includes:</para>
-                    <itemizedlist>
-                    <listitem><para>Linking between worksite spaces</para></listitem>
-                    <listitem><para>Adding content from the Resources tool (e.g. images)</para></listitem>
-                    <listitem><para>Creating subspaces within worksite spaces</para></listitem>
-                    <listitem><para>Controlling permissions</para></listitem>
-                    <listitem><para>Exporting content in various formats (e.g. pdf, rtf)</para></listitem>
-                        <listitem><para>Watching for notifications (e.g. rss and/or email)</para></listitem></itemizedlist>
+                <para>The Wiki tool is a fully integrated Sakai Tool that enables users of Sakai to
+                    create content, share and manage in a Wiki Environment. Where functionality is
+                    provided by other tools within Sakai, the wiki deligates responsibility to those
+                    tools (e.g. resources).</para>
+
+
+
+                <para>Additional functionality includes:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para>Linking between worksite spaces</para>
+                    </listitem>
+                    <listitem>
+                        <para>Adding content from the Resources tool (e.g. images)</para>
+                    </listitem>
+                    <listitem>
+                        <para>Creating subspaces within worksite spaces</para>
+                    </listitem>
+                    <listitem>
+                        <para>Controlling permissions</para>
+                    </listitem>
+                    <listitem>
+                        <para>Exporting content in various formats (e.g. pdf, rtf)</para>
+                    </listitem>
+                    <listitem>
+                        <para>Watching for notifications (e.g. rss and/or email)</para>
+                    </listitem>
+                </itemizedlist>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>Once unstealthed, the tool is added to worksites just like any other tool. Once added, a Wiki space dedicated to that worksite is created with a number of default pages. Members of the worksite may edit the content and create new pages simply by placing Wiki links on the existing pages.</para>
+                <para>Once unstealthed, the tool is added to worksites just like any other tool.
+                    Once added, a Wiki space dedicated to that worksite is created with a number of
+                    default pages. Members of the worksite may edit the content and create new pages
+                    simply by placing Wiki links on the existing pages.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="messagecenter">
@@ -330,14 +351,19 @@ mc.default.Teaching\ Assisant=Contributor</screen>
             <sect3>
                 <title>Overview</title>
                 <para>The search tool aims to provide a tool that allows a Google-like search of all
-                    content in a Sakai instance.  It also provides a service component that can be used by other tools to provide search functionality.  When search is turned on, an indexer runs in the background that treats content as it is added to the system, </para>
+                    content in a Sakai instance. It also provides a service component that can be
+                    used by other tools to provide search functionality. When search is turned on,
+                    an indexer runs in the background that treats content as it is added to the
+                    system, </para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
-                <para>To turn on search indexing, add the following to <filename>sakai.properties</filename>: </para>
+                <para>To turn on search indexing, add the following to
+                    <filename>sakai.properties</filename>: </para>
                 <screen>
 search.experimental=true</screen>
-<para>To make the tool available, unstealth the tool id <command>sakai.search</command>.</para>
+                <para>To make the tool available, unstealth the tool id
+                    <command>sakai.search</command>.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="su">
@@ -535,10 +561,7 @@ webservices.allowlogin=false</screen>
             <sect3>
                 <title>Configuration</title>
                 <para>This tool may be unstealthed to allow it to be added by site maintainers -
-                    just as with most other provisional tools - but it may also be particularly
-                    appropriate to add it to all new My Workspaces by default, and this can be done
-                    by editing the appropriate site template: <command>!user</command> for My
-                    Workspace sites; <command>!worksite</command> for course/project sites. </para>
+                    just as with most other provisional tools - but it's especially appropriate to add it to site templates.  To add it to new My Workspaces by default, for example, edit the <command>!user</command> template.  To add it to the Home page of course/project sites, edit the Home page of the <command>!worksite</command> template.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="roster">
