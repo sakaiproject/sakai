@@ -52,7 +52,7 @@ pre {
 	line-height: 16px;
 	font-family: courier new, verdana, arial, helvetica, sans-serif;
 	color:#552200;
-	margin: 5px 0px 5px 30px;
+	margin: 10px 0px 5px 30px;
 	padding: 0px 0px 5px 15px;
 	border-left: dotted 1px #552200;
 	}
@@ -71,8 +71,8 @@ pre {
 	margin-left: 20px;
 	padding-right: 5px;
 	padding-bottom: 5px;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	margin-top: 0px;
+	margin-bottom: 20px;
 	}
 
 .term {
@@ -85,7 +85,7 @@ p {
 	padding-top: 0px;
 	padding-bottom: 0px;  
 	margin-top: 12px;
-	margin-bottom: 0px;
+	margin-bottom: 5px;
 	padding-left: 5px;
 	margin-left: 5px;
 		}
