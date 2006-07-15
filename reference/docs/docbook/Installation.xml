@@ -12,7 +12,7 @@
         <title>Overview</title>
         <sect2 xml:id="install-overview-choose">
             <title>Choose an Install Type</title>
-            <para>Sakai is available for three different installation methods: <variablelist>
+            <para>Sakai 2.2.0 downloads are available for three different installation methods: <variablelist>
                     <varlistentry>
                         <term>Demo:</term>
                         <listitem>
@@ -50,15 +50,8 @@
             <para>A demo installation is brief and straightforward. The steps are as follows:</para>
             <procedure>
                 <step>
-                    <para>Verify Java Installation and Environment Variables (see <link
+                    <para>Verify Java Installation and Environment Variables (see the first two sections of <link
                             linkend="install-env">Set up Environment</link>).</para>
-                    <note>
-                        <title>Tuning the JVM</title>
-                        <para>The default JVM is not sufficient to run Sakai out of the box, and
-                            some of its settings will need to be adjusted by setting a new
-                            environment variable called JAVA_OPTS. See the <link
-                                linkend="install-env">Set up Environment</link> section.</para>
-                    </note>
                 </step>
                 <step>
                     <para>Download and unpack the Demo archive</para>
@@ -270,12 +263,11 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 <para>If you're unfamiliar with the Java world, you may find the acronyms for
                     various Java environments a little mysterious. The JRE is simply the "runtime
                     environment" which allows you to execute compiled Java bytecode, and for many
-                    platforms this is all you usually get - for the very good reason that the
-                    average user just wants to run programs, and doesn't need to be building code.
-                    For this latter purpose you'll need the JDK, which stands for "Java Developer's
-                    Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the
-                    JDK and the JRE - this is the one you want in order to complete the source
-                    installation.</para>
+                    platforms this is all you usually get by default - for the very good reason that the
+                    average user just wants to run programs, and doesn't need to be building code.  The JRE is what Tomcat needs to start up, and if all you're installing is the Sakai demo or binary, then the JRE will suffice for you.</para>
+                    <para>
+                    To build the Sakai source, however, you'll need the JDK, which stands for "Java Developer's
+                    Kit." To both build and run Sakai you'll therefore need a combination of both the JDK and the JRE, and, happily, Sun makes this available as a unit: the J2SE (the "Java 2 Standard Edition").</para>
                 <para>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -317,7 +309,10 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             </variablelist>
             <note>
                 <title>JRE_HOME</title>
-                <para>If your machine has already set JRE_HOME for any reason, or if you want to point to a particular JRE that is located outside the JAVA_HOME location, then you'll need to set this additional JRE_HOME variable as well.  If JRE_HOME is not set, it simply defaults to JAVA_HOME.</para>
+                <para>If your machine has already set JRE_HOME for any reason, or if you want to
+                    be sure to be using a particular JRE - in the event that you have more than one JRE installed on your machine - then
+                    you'll want to set the JRE_HOME variable as well. JRE_HOME is what Tomcat uses when it starts up, but it defaults to use JAVA_HOME if JRE_HOME is not
+                    set.  For most people, then, setting JAVA_HOME will cover both cases sufficiently.</para>
             </note>
             <para>Next you'll want to append to the PATH variable the location of Java commands:</para>
             <variablelist>
@@ -354,7 +349,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <listitem>
                         <para> Create a new environment variable <command>JAVA_OPTS</command> to
                             hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=256m
+                                -XX:MaxPermSize=196m -XX:NewSize=192m
                             -XX:MaxNewSize=384m</command>". </para>
                     </listitem>
                 </varlistentry>
@@ -363,7 +358,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <listitem>
                         <para>
                             <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</command>
+                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</command>
                         </para>
                     </listitem>
                 </varlistentry>
@@ -389,7 +384,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                 the one labeled <emphasis>Core</emphasis>, along with the <emphasis>JDK 1.4
                     Compatibility Package</emphasis> (even if you're using Java 1.5, some portions
                 of the Sakai code will require the compatibility package, and Sakai won't start up
-                without it).</para>
+                without it).  The Tomcat 5.5 instructions will tell you that Java 1.5 is required, but it's not, so long as you have the 1.4 Compatibility package.</para>
             <note>
                 <title>Tomcat on Windows</title>
                 <para>Windows users have the option of either downloading an .exe Tomcat installer
@@ -403,7 +398,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
             </note>
             <para>Unpack the Tomcat archive at your desired location, and unpack the compatibility
                 package directly on top of it. From this point forward these instructions will refer
-                to the top-level Tomcat directory (e.g. <filename>apache-tomcat-5.5.17</filename>)
+                to the top-level Tomcat directory (e.g. <filename>/usr/local/apache-tomcat-5.5.17</filename>)
                 as <command>$CATALINA_HOME</command>. You may set this as an environment variable
                 for convenience's sake, but this is not required. Make sure that you have write
                 permissions to the Tomcat files and directories before proceeding, or you may later
@@ -981,8 +976,7 @@ AL32UTF8</screen>
             <title>Database Properties</title>
             <para>There are settings in sakai.properties that also define the database technology
                 and connection information. Appropriate <filename>sakai.properties</filename>
-                settings for Oracle and MySQL, respectively, are listed below (although some pieces
-                will of course need to be altered appropriately for your installation):</para>
+                settings for Oracle and MySQL, respectively, are listed below, and you need only modify them with your local particulars:</para>
             <variablelist>
                 <varlistentry>
                     <term>MySQL:</term>
@@ -1029,6 +1023,7 @@ testOnBorrow@javax.sql.BaseDataSource=false</screen>
                     validating the connection on each transaction caused problems in at least one
                     large production environment (University of Michigan).</para>
             </note>
+            <para>Once you've configured the database appropriately, you need only stop and restart Tomcat.  As Tomcat is coming up you can watch its log to see if there are any database connection errors (see the <link linkend="install-tshoot-startup">Troubleshooting</link> section).</para>
             <note>
                 <title>Oracle and Tests&amp;Quizzes</title>
                 <para>If you're running Oracle you should check the datatype of the
@@ -1097,12 +1092,57 @@ Commit complete.</screen>
             </note>
         </sect2>
     </sect1>
+    <sect1 xml:id="install-software">
+        <title>Getting Started with the Software</title>
+        <para>You should now have a working Sakai installation ... what now?  You probably want to get started with adding users, creating work sites, and playing around with the tools.  We won't try to present a full user's guide here, but we can offer some pointers to get you started on your way, and link you to more exhaustive sources of information.</para>
+        <sect2 xml:id="install-software-gateway">
+            <title>The Gateway Page</title>
+            <para>When Tomcat has come up successfully, you should be able to direct your browser to its gateway page at <link xl:href="http://localhost:8080/portal">http://localhost:8080/portal</link> (or replace 'localhost' with the name of the server where it's installed).  From the gateway page you can create new accounts (by default) or browse for public site content.  Nothing there yet, of course, so the first step is to log in as an admin.  As an admin you'll be able to customize the content and appearance of the gateway page, as well as add new users and sites.  Out-of-the-box Sakai includes an account named 'admin' (with password 'admin'), so use those to log in.</para>
+        </sect2>
+        <sect2>
+            <title>My Workspace</title>
+            <para>Every user on the system - including the admin - has a private site called <emphasis>My Workspace</emphasis>. It's the landing spot upon logging in, and it's the first site tab visible at the upper left.  Running vertically along the left-hand side of the screen are links to the various different tool pages, and the admin has a different set of such options here than most.  Each type of account can be configured to have a different set of tools in its <emphasis>My Workspace</emphasis>.</para> 
+        </sect2>
+        <sect2>
+            <title>Admin Tools</title>
+            <sect3>
+                <title>Creating Users</title>
+                <para>The first thing you may want to do is to change the admin password to something secure, and to start creating a few sample users on your system.  You can do both of those tasks through the <emphasis>Users</emphasis> tool.  This same <emphasis>Users</emphasis> tool will also allow you to create users, by clicking on the <emphasis>New User</emphasis> action link at the top of the tool page.</para>
+            </sect3>
+            <sect3>
+                <title>Creating Sites</title>
+                <para>If you're itching to create your first worksite, you may be tempted to dive directly into the <emphasis>Sites</emphasis> tool.  That would probably be a mistake.  The <emphasis>Sites</emphasis> tool is a powerful way to construct an entire site from the ground up, with fine-grained control over its every configuration detail.  But this flexible power also makes for an intimidating interface and epic workflow.  The <emphasis>Sites</emphasis> tool is therefore best used as a way to tweak an existing site after the fact, once the standard pieces are already in place.</para>
+                <para>An easier way to start creating sites is to use the <emphasis>Worksite Setup</emphasis> tool, which is a much more streamlined way to create a basic site.  Click on the <emphasis>New</emphasis> link at the top of the tool page, and then, for simplicity's sake, choose the <emphasis>Project</emphasis> site type, which will allow you to avoid issues of academic term, etc., that are probably premature if you just want to start playing with the tools.  A project site has all the tools available to it that a course site does.</para>
+                <para>Step through the remaining site configuration options, making your preferred selections.  Be sure to click the <emphasis>Create Site</emphasis> button at the end, or the site won't be created at all.  After doing so, you should see the site title visible as a new tab along the top of the screen.</para>
+            </sect3>
+            <sect3>
+                <title>Adding Users to Sites</title>
+                <para>Since you set this site up as an admin, the admin is technically the owner of this site, and its only member.  If you want to add other sample users to this site in different roles, you can do so through the <emphasis>Site Info</emphasis> tool of the site itself.</para>
+                <para>Click on the tab for the site to enter it, and then click on the <emphasis>Site Info</emphasis> tool page along the lefthand side.  That tool page has a number of site maintainer functions available as action links across the top, and <emphasis>Add Participants</emphasis> is the one that will allow you to connect other users to the site.  These users will of course need to exist first.</para>
+                <para>If you want to add or remove other tools, use the <emphasis>Edit Tools</emphasis> link.</para>
+            </sect3>
+        </sect2>
+        <sect2>
+            <title>Where to Learn More</title>
+            <para>Sakai information has been unfortunately a little fragmented to date.  Attempts are underway to consolidate and present this information in a more uniform way, but in the interim a tourist's guide of the  landmarks may be in order.</para>
+            <sect3>
+                <title>About Technical Matters</title>
+                <para>Reference materials for various technical issues are best found in Sakai's subversion repository (where these installation documents are also stored) or in the project's Confluence wiki.  The docs in subversion can be found in the reference module, e.g. <link xl:href="https://source.sakaiproject.org/svn/reference">https://source.sakaiproject.org/svn/reference</link>.  See in particular the <filename>docs/architecture</filename> folder for a wide-ranging collection of technical white papers.</para>
+                <para>The Confluence wiki is a more informal source of information, but also valuable.  New developers in particular should visit the <link xl:href="http://bugs.sakaiproject.org/confluence/display/BOOT/Home">Programmer's Cafe</link>, while the <link xl:href="http://bugs.sakaiproject.org/confluence/display/ENC/Home">Sakaipedia</link> provides nuggets of insight on a wide array of issues.  You're encourage to create an account here and participate.</para>
+                <para>But often the most incisive information comes from direct interaction with Sakai community members.  The community hosts its own Sakai installation to serve up collaboration sites for its various sub-groups.  You can create an account there by visiting <link xl:href="http://collab.sakaiproject.org">http://collab.sakaiproject.org</link> and clicking on the "New Account" button.  Once your account is created you can log in, and with the <emphasis>Membership</emphasis> tool you may join any worksites that may seem appropriate.  For technical questions the best (and most active) such group is <emphasis>DG: Development</emphasis>, also commonly referred to by its alias, "sakai-dev."  Joining a site automatically adds you to its email list, and unjoining a worksite similarly removes you (while, it should be noted, sending an "unsubscribe" email will not).</para>
+            </sect3>
+            <sect3>
+                <title>About the Project</title>
+                <para>The <link xl:href="http://sakaiproject.org">sakaiproject.org</link> site offers the best background and orientation to the project, but chances are you've already seen it.  For more particular information on the progress and roadmaps of certain tools or other initiatives, see the Confluence space named <link xl:href="http://bugs.sakaiproject.org/confluence/display/MGT/Sakai+Project+Management+and+Coordination">Management/Project Coordination</link>.  That coordinating page will also link you out to Confluence spaces for particular tools, and documentation about them.</para>
+            </sect3>
+        </sect2>
+    </sect1>
     <sect1 xml:id="install-tshoot">
         <title>Troubleshooting</title>
         <para>Below are a number of common issues encountered while building and starting up Sakai,
             but you may also benefit from the expert opinions that reside on the sakai-dev list. To
             join, visit collab.sakaiproject.org, create a new account, log in to your
-                <emphasis>MyWorkspace</emphasis>, and then use the <emphasis>Membership</emphasis>
+                <emphasis>My Workspace</emphasis>, and then use the <emphasis>Membership</emphasis>
             tool to join the group named <emphasis>DG: Development</emphasis>. Then you can begin to
             send emails to (and receive them from) sakai-dev@collab.sakaiproject.org. To later
             unsubscribe, you can simply use the same <emphasis>Membership</emphasis> tool to unjoin
