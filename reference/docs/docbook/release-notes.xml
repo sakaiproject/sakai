@@ -13,7 +13,7 @@
             <title>Enhancements</title>
             <sect3 xml:id="new-enhance-framework">
                 <title>Framework Refactoring</title>
-                <para>The 2.2 release marks the culmination of a significant effort to restructure
+                <para>The 2.2.0 release marks the culmination of a significant effort to restructure
                     the framework into more logical functional/architectural units, paving the way
                     for multiple, focused teams to work in parallel on moving the framework and
                     legacy code forward.</para>
@@ -34,7 +34,7 @@
                 <para>For the last few releases we've been working to introduce the concept of
                     "internal" and "external" identifiers in Sakai in the user records. We started
                     with a single identifier that had to play both of these roles, and have been
-                    tweaking the code to separate these out. For 2.2 we have completed this
+                    tweaking the code to separate these out. For 2.2.0 we have completed this
                     separation. It is now possible for an institution to, for example, alter the
                     enterprise IDs of their users without losing access to their sites and materials
                     in Sakai. For a thorough discussion of these changes, see the doc
@@ -45,7 +45,7 @@
             </sect3>
             <sect3 xml:id="new-enhance-fck">
                 <title>FCKeditor</title>
-                <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
+                <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2.0
                     it has become the default editor. HTMLArea is still included, however, and the
                     default editor may be overridden in <filename>sakai.properties</filename> by
                     altering the following setting:</para>
@@ -69,7 +69,7 @@ skin.default=default</screen>
             <sect3 xml:id="new-enhance-help">
                 <title>Updated Help Content</title>
                 <para>Help content in 2.1 was out of date, reflecting only version 2.0 of the
-                    software. The help content has been updated for 2.2, along with some style
+                    software. The help content has been updated for 2.2.0, along with some style
                     improvements. To see the ongoing work of the Help project, visit their space in
                     Confluence:</para>
                 <para>
@@ -99,8 +99,11 @@ skin.default=default</screen>
                 </listitem>
 
                 <listitem>
-                    <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view that may be used in either the <emphasis>MyWorkspace</emphasis> or the Home page of course/project sites, including an event summary from either all the sites
-                        to which a user is a member (if in MyWorkspace) or the events of a particular site (if in that site).</para>
+                    <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view that may
+                        be used in either the <emphasis>My Workspace</emphasis> or the Home page of
+                        course/project sites, including an event summary from either all the sites
+                        to which a user is a member (if in <emphasis>My Workspace</emphasis>) or the events of a
+                        particular site (if in that site).</para>
                 </listitem>
 
                 <listitem>
@@ -201,7 +204,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         </sect2>
         <sect2 xml:id="migration-providers">
             <title>Provider Changes</title>
-            <para>As mentioned above, 2.2 introduces a separation of external user identifiers from
+            <para>As mentioned above, 2.2.0 introduces a separation of external user identifiers from
                 Sakai's internal user ids. Any custom <filename>UserDirectoryProvider</filename>
                 will need some alteration to account for this, along with changes to its import
                 statements and declarations that stem from API changes. Below is a list of changes
@@ -238,7 +241,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         <sect2>
             <title>Skin Changes</title>
             <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
-                them to 2.2. These changes - including conversion steps - are thoroughly documented
+                them to 2.2.0. These changes - including conversion steps - are thoroughly documented
                 in the appendices of the skin document available in
                     <filename>reference/docs/architecture/sakai_skin.doc</filename>, or in
                 subversion at: <link
@@ -265,7 +268,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
     </sect1>
     <sect1 xml:id="resolved">
         <title>Fixes Included in this Release</title>
-        <para>Sakai 2.2 fixes the following issues from previous releases:</para>
+        <para>Sakai 2.2.0 fixes the following issues from previous releases:</para>
         <para>
             <link xl:href="fixed-issues.html"
                 >http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</link>

@@ -561,7 +561,11 @@ webservices.allowlogin=false</screen>
             <sect3>
                 <title>Configuration</title>
                 <para>This tool may be unstealthed to allow it to be added by site maintainers -
-                    just as with most other provisional tools - but it's especially appropriate to add it to site templates.  To add it to new My Workspaces by default, for example, edit the <command>!user</command> template.  To add it to the Home page of course/project sites, edit the Home page of the <command>!worksite</command> template.</para>
+                    just as with most other provisional tools - but it's especially appropriate to
+                    add it to site templates. To add it to new My Workspaces by default, for
+                    example, edit the <command>!user</command> template. To add it to the Home page
+                    of course/project sites, edit the Home page of the <command>!worksite</command>
+                    template.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="roster">
