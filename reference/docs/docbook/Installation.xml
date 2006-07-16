@@ -47,7 +47,7 @@
         </sect2>
         <sect2 xml:id="install-overview-demo">
             <title>Demo Installation</title>
-            <para>A demo installation is brief and straightforward. The steps are as follows:</para>
+            <para>A demo installation is brief and straightforward. The most technically challenging aspect of a demo install is making sure that your Java environment is squared away in advance.  The steps are as follows:</para>
             <procedure>
                 <step>
                     <para>Verify Java Installation and Environment Variables (see the first two
@@ -96,7 +96,7 @@
             </procedure>
             <para>Once Tomcat is started up, you can point your browser to <link
                     xl:href="http://localhost:8080/portal">http://localhost:8080/portal</link>. This
-                will bring you to the Sakai gateway site, and for some orienting tips on use, skip ahead to <link linkend="install-software">Getting Started with the Software</link>.</para>
+                will bring you to the Sakai gateway site, from which you can create new accounts and log in to the syste.  For more orienting tips on how to begin using Sakai, skip ahead to <link linkend="install-software">Getting Started with the Software</link>.</para>
             <para>To stop the demo:</para>
             <variablelist>
                 <varlistentry>
