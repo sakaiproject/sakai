@@ -59,120 +59,7 @@ osp.presLayout,osp.style</screen>
         <para>A brief overview of each provisional tool is provided below. For more detailed
             information visit the Confluence links provided, or send your questions to the listed
             contact.</para>
-        <sect2 xml:id="samigo">
-            <title>Tests&amp;Quizzes</title>
-            <variablelist>
-                <varlistentry>
-                    <term>Tool ID:</term>
-                    <listitem>
-                        <para>sakai.samigo</para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Confluence Space:</term>
-                    <listitem>
-                        <para>
-                            <link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/Home"
-                                >http://bugs.sakaiproject.org/confluence/display/SAM/Home</link>
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term>Contact:</term>
-                    <listitem>
-                        <para>Lydia Li (lydial@stanford.edu)</para>
-                    </listitem>
-                </varlistentry>
-            </variablelist>
-            <sect3>
-                <title>Overview</title>
-                <para>Samigo is the historical project name for the tool that appears in Sakai as
-                        <emphasis>Tests&amp;Quizzes</emphasis> (the terms are often used
-                    interchangeably). It is an online assessment tool that supports teaching and
-                    learning, in both formative assessments and summative assessments.</para>
-
-                <para>Its key features are:</para>
-                <itemizedlist>
-                    <listitem>
-                        <para><emphasis>Creating Assessments:</emphasis> It supports rich text
-                            editing of a variety of question types such as Multiple Choice, Survey,
-                            Short Answer/Essay, True/False, Fill in the Blank, File Upload, and
-                            Audio Recording. It also allows importing individual questions from
-                            question pools, as well as random ones drawn from question pools.</para>
-                    </listitem>
-                    <listitem>
-                        <para><emphasis>Importing/Exporting:</emphasis> Assessments can be
-                            exported/imported via IMS QTI xml format. It currently supports QTI
-                        1.2.</para>
-                    </listitem>
-                    <listitem>
-                        <para><emphasis>Organizing and Publishing:</emphasis> It allows instructors
-                            to specify release date, due date, and/or retract date, late handling,
-                            number of submissions, grading options, feedback settings, security
-                            settings, and layout...etc. It supports automatic and manual grading; It
-                            also provides management for question pools.</para>
-                    </listitem>
-                    <listitem>
-                        <para><emphasis>Managing assessment-taking:</emphasis> It delivers
-                            assessments based on a rich set of settings configured during authoring,
-                            such as randomized questions and answers, timed assessment with auto
-                            submit, high security assessments with restricted IP and secondary
-                            password, feedback settings, as well as the option to automatically send
-                            grades to Sakai's Gradebook tool.</para>
-                    </listitem>
-                </itemizedlist>
-            </sect3>
-            <sect3>
-                <title>Configuration</title>
-                <para>For File Upload questions in Samigo, answers are saved to DB as a blob by
-                    default. If you want to save answers to files, you can override this default by
-                    adding the following in your sakai.properties file.</para>
-
-                <screen>
-# ** Samigo File Upload question type settings **
-# the following default settings
-# com.corejsf.UploadFilter.repositoryPath,
-# com.corejsf.UploadFilter.sizeThreshold,
-# com.corejsf.UploadFilter.sizeMax and
-# com.corejsf.UploadFilter.saveMediaToDb in Samigo web.xml
-# can be overidden with the following settings in sakai.properties
-samigo.answerUploadRepositoryPath=/tmp/
-samigo.sizeThreshold=512
-samigo.sizeMax=20480
-samigo.saveMediaToDb=false</screen>
-
-
-                <para>When <command>saveMediaToDB</command> is true,
-                    <command>SAM_MEDIA_T.MEDIA</command> must be a blob or equivalent to work. If
-                    you're running Oracle and using <command>auto.ddl</command> to create tables,
-                    you should check the data type of the "MEDIA" column in the
-                    <command>SAM_MEDIA_T</command> table. Hibernate tries to choose the right data
-                    type for this field, but has a habit of choosing the wrong one for Oracle. The
-                    correct types for each database are:</para>
-
-                <itemizedlist>
-                    <listitem>
-                        <para>HSQLDB --> varbinary</para>
-                    </listitem>
-                    <listitem>
-                        <para>Oracle --> blob</para>
-                    </listitem>
-                    <listitem>
-                        <para>MySQL --> longblob</para>
-                    </listitem>
-                </itemizedlist>
-                <para>Audio recording questions are turned on by default in 2.2. You can turn it off
-                    by modifying
-                    <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
-                    changing the showAudio to false, then
-                    redeploying.<screen>
-&lt;managed-property&gt;
-    &lt;property-name&gt;showAudio&lt;/property-name&gt;
-    &lt;value&gt;false&lt;/value&gt;
-&lt;/managed-property&gt;</screen>
-                </para>
-            </sect3>
-        </sect2>
+        
         <sect2 xml:id="rwiki">
             <title>Rwiki</title>
             <variablelist>
@@ -566,6 +453,132 @@ webservices.allowlogin=false</screen>
                     example, edit the <command>!user</command> template. To add it to the Home page
                     of course/project sites, edit the Home page of the <command>!worksite</command>
                     template.</para>
+            </sect3>
+        </sect2>
+        <sect2 xml:id="samigo">
+            <title>Tests&amp;Quizzes</title>
+            <variablelist>
+                <varlistentry>
+                    <term>Tool ID:</term>
+                    <listitem>
+                        <para>sakai.samigo</para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Confluence Space:</term>
+                    <listitem>
+                        <para>
+                            <link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/Home"
+                                >http://bugs.sakaiproject.org/confluence/display/SAM/Home</link>
+                        </para>
+                    </listitem>
+                </varlistentry>
+                <varlistentry>
+                    <term>Contact:</term>
+                    <listitem>
+                        <para>Lydia Li (lydial@stanford.edu)</para>
+                    </listitem>
+                </varlistentry>
+            </variablelist>
+            <sect3>
+                <title>Overview</title>
+                <para>Samigo is the historical project name for the tool that appears in Sakai as
+                    <emphasis>Tests&amp;Quizzes</emphasis> (the terms are often used
+                    interchangeably). It is an online assessment tool that supports teaching and
+                    learning, in both formative assessments and summative assessments.</para>
+                
+                <para>Its key features are:</para>
+                <itemizedlist>
+                    <listitem>
+                        <para><emphasis>Creating Assessments:</emphasis> It supports rich text
+                            editing of a variety of question types such as Multiple Choice, Survey,
+                            Short Answer/Essay, True/False, Fill in the Blank, File Upload, and
+                            Audio Recording. It also allows importing individual questions from
+                            question pools, as well as random ones drawn from question pools.</para>
+                    </listitem>
+                    <listitem>
+                        <para><emphasis>Importing/Exporting:</emphasis> Assessments can be
+                            exported/imported via IMS QTI xml format. It currently supports QTI
+                            1.2.</para>
+                    </listitem>
+                    <listitem>
+                        <para><emphasis>Organizing and Publishing:</emphasis> It allows instructors
+                            to specify release date, due date, and/or retract date, late handling,
+                            number of submissions, grading options, feedback settings, security
+                            settings, and layout...etc. It supports automatic and manual grading; It
+                            also provides management for question pools.</para>
+                    </listitem>
+                    <listitem>
+                        <para><emphasis>Managing assessment-taking:</emphasis> It delivers
+                            assessments based on a rich set of settings configured during authoring,
+                            such as randomized questions and answers, timed assessment with auto
+                            submit, high security assessments with restricted IP and secondary
+                            password, feedback settings, as well as the option to automatically send
+                            grades to Sakai's Gradebook tool.</para>
+                    </listitem>
+                </itemizedlist>
+            </sect3>
+            <sect3>
+                <title>Configuration</title>
+                <para>For File Upload questions in Samigo, answers are saved to DB as a blob by
+                    default. If you want to save answers to files, you can override this default by
+                    adding the following in your sakai.properties file.</para>
+                
+                <screen>
+# ** Samigo File Upload question type settings **
+# the following default settings
+# com.corejsf.UploadFilter.repositoryPath,
+# com.corejsf.UploadFilter.sizeThreshold,
+# com.corejsf.UploadFilter.sizeMax and
+# com.corejsf.UploadFilter.saveMediaToDb in Samigo web.xml
+# can be overidden with the following settings in sakai.properties
+samigo.answerUploadRepositoryPath=/tmp/
+samigo.sizeThreshold=512
+samigo.sizeMax=20480
+samigo.saveMediaToDb=false</screen>
+                
+                
+                <para>When <command>saveMediaToDB</command> is true,
+                    <command>SAM_MEDIA_T.MEDIA</command> must be a blob or equivalent to work. If
+                    you're running Oracle and using <command>auto.ddl</command> to create tables,
+                    you should check the data type of the "MEDIA" column in the
+                    <command>SAM_MEDIA_T</command> table. Hibernate tries to choose the right data
+                    type for this field, but has a habit of choosing the wrong one for Oracle. The
+                    correct types for each database are:</para>
+                
+                <itemizedlist>
+                    <listitem>
+                        <para>HSQLDB --> varbinary</para>
+                    </listitem>
+                    <listitem>
+                        <para>Oracle --> blob</para>
+                    </listitem>
+                    <listitem>
+                        <para>MySQL --> longblob</para>
+                    </listitem>
+                </itemizedlist>
+                <para>Audio recording questions are turned on by default in 2.2. You can turn it off
+                    by modifying
+                    <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
+                    changing the showAudio to false, then
+                    redeploying.</para>
+                    <screen>
+&lt;managed-property&gt;
+    &lt;property-name&gt;showAudio&lt;/property-name&gt;
+    &lt;value&gt;false&lt;/value&gt;
+&lt;/managed-property&gt;</screen>
+                <para>Audio recording questions uses an Audio Recording Applet (Based on Sun's Java Sound API) to record.  Because the default JRE installation doesn't allow Java to record audio from your computer's sound card, you may have to modify your java.policy file and add the following permissions:</para>
+                
+                <screen>
+permission javax.sound.sampled.AudioPermission "record";
+permission java.io.FilePermission "&lt;&lt;ALL FILES&gt;&gt;", "read, write";
+permission java.util.PropertyPermission "user.dir", "read";</screen>
+                
+                <para>Audio recording uses the same storage configuration as File Upload questions, so they can be configured to be stored either in DB or files.</para> 
+                
+                <para>Currently, by default QTI Assessment Import also uses the <command>com.corejsf.UploadFilter.repositoryPath</command> parameter in <filename>web.xml</filename> as the location to store a temporary file.  These temporary files are removed after the import is completed.  <command>com.corejsf.UploadFilter.repositoryPath</command> is set to <filename>/tmp</filename> by default.  This again can be overridden in <filename>sakai.properties</filename> the same way as in File Upload/Audio recording questions.   Please make sure that Sakai has write privilege to this directory.  For example, </para>
+                
+                <screen>samigo.answerUploadRepositoryPath=/sakaitmp/</screen>
             </sect3>
         </sect2>
         <sect2 xml:id="roster">
