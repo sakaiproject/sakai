@@ -29,12 +29,6 @@ import org.sakaiproject.search.model.SearchWriterLock;
 public interface SearchIndexBuilderWorker
 {
 
-	/**
-	 * update the node lock for the current Worker Object on the current thread.
-	 * This MUST only be used by a worker thread
-	 * @throws SQLException
-	 */
-	void updateNodeLock() throws SQLException;
 
 	/**
 	 * Check running, and ping the thread if in a wait state
@@ -92,5 +86,62 @@ public interface SearchIndexBuilderWorker
 	 * @return
 	 */
 	long getLastEventTime();
+
+	/**
+	 * 
+	 * @param lifetime
+	 * @return
+	 */
+	boolean getLockTransaction(long lifetime);
+
+	/**
+	 * 
+	 * @param l
+	 * @throws SQLException
+	 */
+	void updateNodeLock(long l) throws SQLException;
+
+	/**
+	 * 
+	 * @param l
+	 */
+	void setLastIndex(long l);
+
+	/**
+	 * 
+	 * @param startDocIndex
+	 */
+	void setStartDocIndex(long startDocIndex);
+
+	/**
+	 * 
+	 * @param reference
+	 */
+	void setNowIndexing(String reference);
+	
+	/**
+	 * 
+	 * @return
+	 */
+	long getLastIndex();
+	/**
+	 * 
+	 * @return
+	 */
+	String getNowIndexing();
+	/**
+	 * 
+	 * @return
+	 */
+	long getStartDocIndex();
+
+        String getLastDocument();
+
+        String getLastElapsed();
+
+        String getCurrentDocument();
+
+        String getCurrentElapsed();
+
 
 }

@@ -139,6 +139,14 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private long lastEvent = System.currentTimeMillis();
 
+	private long lastIndex;
+
+	private long startDocIndex;
+
+	private String nowIndexing;
+
+	private String lastIndexing;
+
 	private static HashMap nodeIDList = new HashMap();;
 
 	private static String lockedTo = null;
@@ -312,11 +320,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						// 500 docs/ 20 seconds
 						//
 						
-						
+						// make certain that we are alive
 						
 						if (lastLockMetric > 10000000L || lastLockInterval > 60000L)
 						{
-						if (process && getLockTransaction())
+						if (process && getLockTransaction(2L*60L*1000L))
 						{
 
 								log.debug("===" + nodeID
@@ -354,6 +362,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						}
 						else
 						{
+							// make certain the node updates hearbeat
+							updateNodeLock(2L*60L*1000L);
 							log.debug("Not taking Lock, too much activity");
 							break;
 						}
@@ -427,7 +437,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * 
 	 * @see org.sakaiproject.search.component.service.impl.SearchIndexBuilderWorkerAPI#updateNodeLock(java.sql.Connection)
 	 */
-	public void updateNodeLock() throws SQLException
+	public void updateNodeLock(long lifeLeft) throws SQLException
 	{
 
 		Connection connection = null;
@@ -448,7 +458,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		// is dead
 		// the admin can then force the
 		Timestamp nodeExpired = new Timestamp(now.getTime()
-				+ (2L * 60L * 1000L));
+				+ lifeLeft);
 		try
 		{
 			connection = dataSource.getConnection();
@@ -516,6 +526,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				log.error("Failed to update node lock, will try next time ");
 			}
+			else 
+			{
+				log.debug("Updated Node Lock on "+nodeID+ " to Expire at"+nodeExpired);
+			}
 			
 			
 
@@ -535,9 +549,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						String id = resultSet.getString(1);
 						deleteExpiredNodeLock.clearParameters();
 						deleteExpiredNodeLock.setString(1, id);
-						log.debug(threadID+" Doing "+DELETE_LOCKNODE_SQL+":{"+id+"}");
 						deleteExpiredNodeLock.execute();
-						log.debug(threadID+" Doing Commit");
 						connection.commit();
 					}
 					log.debug(threadID+" Doing Commit");
@@ -660,7 +672,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * @return
 	 * @throws HibernateException
 	 */
-	private boolean getLockTransaction()
+	public boolean getLockTransaction(long nodeLifetime)
 	{
 		String nodeID = getNodeID();
 		Connection connection = null;
@@ -682,7 +694,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			// I need to go direct to JDBC since its just too awful to
 			// try and do this in Hibernate.
 
-			updateNodeLock();
+			updateNodeLock(nodeLifetime);
 
 			connection = dataSource.getConnection();
 			autoCommit = connection.getAutoCommit();
@@ -918,7 +930,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		{
 			connection = dataSource.getConnection();
 
-			updateNodeLock();
 
 			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
 			clearLock.clearParameters();
@@ -1439,5 +1450,81 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		activity++;
 		lastEvent = System.currentTimeMillis();
 	}
+
+	public void setLastIndex(long l)
+	{
+		this.lastIndex = l;
+		
+	}
+
+	public void setStartDocIndex(long startDocIndex)
+	{
+		this.startDocIndex = startDocIndex;		
+	}
+
+	public void setNowIndexing(String reference)
+	{
+		this.lastIndexing = this.nowIndexing;
+		this.nowIndexing = reference;
+	}
+
+	/**
+	 * @return Returns the lastIndex.
+	 */
+	public long getLastIndex()
+	{
+		return lastIndex;
+	}
+
+	/**
+	 * @return Returns the nowIndexing.
+	 */
+	public String getNowIndexing()
+	{
+		return nowIndexing;
+	}
+
+	/**
+	 * @return Returns the startDocIndex.
+	 */
+	public long getStartDocIndex()
+	{
+		return startDocIndex;
+	}
+
+   	public String getLastDocument()
+	{
+		return lastIndexing;
+	}
+
+        public String getLastElapsed()
+	{
+		long l = lastIndex;
+		long h = l/3600000L;
+		l = l-(3600000L*h);
+		long m = l/600000L;;
+		l = l-(60000L*m);
+		long s = l/1000;
+		l = l-(1000L*s);
+		return ""+h+"h"+m+"m"+s+"."+l+"s";
+	}
+
+        public String getCurrentDocument()
+	{
+		return nowIndexing;
+	}
+
+        public String getCurrentElapsed()
+	{
+		long l = System.currentTimeMillis()-startDocIndex;
+		long h = l/3600000L;
+		l = l-(3600000L*h);
+		long m = l/60000L;
+		l = l-(60000L*m);
+		long s = l/1000L;
+		l = l-(1000L*s);
+		return ""+h+"h"+m+"m"+s+"."+l+"s";
+	}
+
 
 }

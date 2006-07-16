@@ -47,17 +47,15 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 
 		InputStream contentStream = null;
-		StringWriter sw = null;
 		PDDocument pddoc = null;
 		try
 		{
 			contentStream = contentResource.streamContent();
 			PDFTextStripper stripper = new PDFTextStripper();
-			sw = new StringWriter();
 			pddoc = PDDocument.load(contentStream);
-			stripper.writeText(pddoc, sw);
+			String text = stripper.getText(pddoc);
 			pddoc.close();
-			return sw.toString();
+			return text;
 		}
 		catch (Exception ex)
 		{
@@ -65,16 +63,6 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 		finally
 		{
-			if (sw != null)
-			{
-				try
-				{
-					sw.close();
-				}
-				catch (IOException e)
-				{
-				}
-			}
 			if (contentStream != null)
 			{
 				try

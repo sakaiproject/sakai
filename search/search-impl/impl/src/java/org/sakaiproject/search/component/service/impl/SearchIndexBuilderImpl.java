@@ -155,7 +155,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		}
 		catch (Throwable t)
 		{
-			log.warn("In trying to register resource " + resourceName + " in search engine this resource will"
+			log.debug("In trying to register resource " + resourceName + " in search engine this resource will"
 					+ " not be indexed untill it is modified");
 		}
 		searchIndexBuilderWorker.incrementActivity();
@@ -442,6 +442,26 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public boolean removeWorkerLock()
 	{
 		return searchIndexBuilderWorker.removeWorkerLock();
+	}
+
+	public String getLastDocument()
+	{
+		return searchIndexBuilderWorker.getLastDocument();
+	}
+
+	public String getLastElapsed()
+	{
+		return searchIndexBuilderWorker.getLastElapsed();
+	}
+
+	public String getCurrentDocument()
+	{
+		return searchIndexBuilderWorker.getCurrentDocument();
+	}
+
+	public String getCurrentElapsed()
+	{
+		return searchIndexBuilderWorker.getCurrentElapsed();
 	}
 
 }

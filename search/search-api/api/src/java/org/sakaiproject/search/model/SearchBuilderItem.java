@@ -163,13 +163,13 @@ public interface SearchBuilderItem
 	public static final String SITE_MASTER_PATTERN = SearchBuilderItem.INDEX_MASTER+"_%";
 
 	public static final String[] states = new String[] {
-		"Update",
+		"Unknown",
 		"Pending",
 		"Complete",
 		"Pending2"
 	};
 	public static final String[] actions = new String[] {
-		"Update",
+		"Unknown",
 		"Add",
 		"Delete",
 		"-",

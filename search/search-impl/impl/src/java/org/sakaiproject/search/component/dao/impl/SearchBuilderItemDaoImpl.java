@@ -21,15 +21,17 @@
 
 package org.sakaiproject.search.component.dao.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
-import org.hibernate.type.Type;
 import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
@@ -119,37 +121,50 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		}
 
 	}
-
-	public int countPending()
+	private int countPending(Connection connection)
 	{
 
+		PreparedStatement pst = null;
+		ResultSet rst = null;
+		try
+		{
+			pst = connection.prepareStatement("select count(*) from searchbuilderitem where searchstate = ? and searchaction <> ?");
+			pst.clearParameters();
+			pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
+			pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
+			rst = pst.executeQuery();
+			if (rst.next())
+			{
+				return rst.getInt(1);
+			}
+			return 0;
+		}
+		catch (SQLException sqlex)
+		{
+			return 0;
+		}
+		finally
+		{
+			try
+			{
+				pst.close();
+			}
+			catch (Exception ex)
+			{
+			};
+		}
+
+	}
+	public int countPending()
+	{
+		
+		
 		HibernateCallback callback = new HibernateCallback()
 		{
 			public Object doInHibernate(Session session)
 					throws HibernateException
 			{
-				// first try and get and lock the writer mutex
-
-				List l = session
-						.createQuery(
-								"select count(*) from "
-										+ SearchBuilderItemImpl.class.getName()
-										+ " where searchstate = ? and searchaction <> ?")
-						.setParameters(
-								new Object[] { SearchBuilderItem.STATE_PENDING,
-										SearchBuilderItem.ACTION_UNKNOWN },
-								new Type[] { Hibernate.INTEGER,
-										Hibernate.INTEGER }).list();
-				if (l == null || l.size() == 0)
-				{
-					return new Integer(0);
-				}
-				else
-				{
-					dlog.debug("Found " + l.get(0) + " Pending Documents ");
-					return l.get(0);
-				}
-
+				return new Integer(countPending(session.connection()));
 			}
 		};
 

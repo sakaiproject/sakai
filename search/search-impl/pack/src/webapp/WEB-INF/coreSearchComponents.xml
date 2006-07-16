@@ -37,7 +37,7 @@
       </map>
     </property>
   </bean> 
-    
+     
   <bean id="org.sakaiproject.search.api.SearchIndexBuilder"
     class="org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl" 
     init-method="init" >
@@ -51,7 +51,10 @@
     <property name="dataSource">
       <ref bean="javax.sql.DataSource"/>      
     </property>
+    <property name="searchIndexBuilderWorkerDao"><ref bean="searchIndexBuilderWorkerDaoJdbcImpl" /></property>
+<!--
     <property name="searchIndexBuilderWorkerDao"><ref bean="searchIndexBuilderWorkerDao" /></property>
+-->
   </bean>
 
  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.search"
@@ -101,10 +104,21 @@
     <property name="target"><ref bean="searchIndexBuilderWorkerDaoImpl"/></property>
   </bean>
   
+  <!-- Hibernate version -->
   <bean id="searchIndexBuilderWorkerDaoImpl"
     class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoImpl" 
     init-method="init" >
     <property name="sessionFactory" ><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" /></property>
+    <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
+  </bean>
+  
+  <!-- JDBC Version -->
+  <bean id="searchIndexBuilderWorkerDaoJdbcImpl"
+    class="org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDaoJdbcImpl" 
+    init-method="init" >
+    <property name="dataSource">
+      <ref bean="javax.sql.DataSource"/>      
+    </property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
   </bean>
   

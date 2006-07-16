@@ -299,6 +299,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 														+ sbi);
 									}
 
+									long startDocIndex = System.currentTimeMillis();
 									log.info("Indexing "+ref.getReference());
 									
 									try
@@ -468,10 +469,18 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 												.debug(" Failed to index document cause: "
 														+ e1.getMessage());
 									}
+									long endDocIndex = System.currentTimeMillis();
+									if ( (endDocIndex - startDocIndex) > 60000L) {
+										log.warn("Slow index operation "+String.valueOf((endDocIndex-startDocIndex)/1000)+" seconds to index "+ref.getReference());
+									}
 									// update this node lock to indicate its
 									// still alove, no document should
 									// take more than 2 mins to process
-									worker.updateNodeLock();
+									// refresh the lock
+									if ( !worker.getLockTransaction(15L * 60L * 1000L) ) {
+										throw new HibernateException("Transaction Lock Expired while indexing "+ref.getReference());
+									}
+
 								}
 								finally
 								{

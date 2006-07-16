@@ -47,8 +47,7 @@
 	</table>
 	<table summary="A list of index workers on the current node" >
 	<tr><th colspan="3">Indexer Workers</th></tr>
-	<tr><td>Worker Thread</td><td>Last Update</td><td>Status</td></tr>
-	
+	<tr><td>Worker Thread</td><td>Due Before</td><td>Status</td></tr>
 	<%= searchAdminBean.getWorkers(workerRowFormat) %>
 	</table>
     </div>

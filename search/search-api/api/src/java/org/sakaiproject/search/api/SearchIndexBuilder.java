@@ -153,6 +153,14 @@ public interface SearchIndexBuilder
 	 */
 	boolean removeWorkerLock();
 
+	String getLastDocument();
+
+	String getLastElapsed();
+
+	String getCurrentDocument();
+
+	String getCurrentElapsed();
+
 
 
 	

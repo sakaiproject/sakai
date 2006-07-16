@@ -21,7 +21,6 @@
 
 package org.sakaiproject.search.api;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,7 +57,7 @@ public interface SearchStatus
 	 * 
 	 * @return
 	 */
-	Date getCurrentWorkerETC();
+	String getCurrentWorkerETC();
 
 	/**
 	 * A list of all worker nodes in the cluster

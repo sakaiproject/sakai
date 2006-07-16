@@ -137,5 +137,18 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 		this.context = context;
 		
 	}
+	public String toString() {
+		
+		String action = "invalid";
+		if ( searchaction != null && searchaction.intValue() >= 0 && searchaction.intValue() < SearchBuilderItem.actions.length ) {
+			action = SearchBuilderItem.actions[searchaction.intValue()];
+		} 
+		String state = "invalid";
+		if ( searchstate != null && searchstate.intValue() >= 0 && searchstate.intValue() < SearchBuilderItem.states.length ) {
+			state =  SearchBuilderItem.states[searchstate.intValue()];
+		}
+		
+		return "Action:"+action+" State:"+state+" Resource:"+name;
+	}
 	
 }
