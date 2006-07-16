@@ -49,12 +49,14 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
                 <p>If you're unfamiliar with the Java world, you may find the acronyms for
                     various Java environments a little mysterious. The JRE is simply the "runtime
                     environment" which allows you to execute compiled Java bytecode, and for many
-                    platforms this is all you usually get - for the very good reason that the
-                    average user just wants to run programs, and doesn't need to be building code.
-                    For this latter purpose you'll need the JDK, which stands for "Java Developer's
-                    Kit." The J2SE (the "Java 2 Standard Edition") is simply the combination of the
-                    JDK and the JRE - this is the one you want in order to complete the source
-                    installation.</p>
+                    platforms this is all you usually get by default - for the very good reason that
+                    the average user just wants to run programs, and doesn't need to be building
+                    code. The JRE is what Tomcat needs to start up, and if all you're installing is
+                    the Sakai demo or binary, then the JRE will suffice for you.</p>
+                <p> To build the Sakai source, however, you'll need the JDK, which stands for
+                    "Java Developer's Kit." To both build and run Sakai you'll therefore need a
+                    combination of both the JDK and the JRE, and, happily, Sun makes this available
+                    as a unit: the J2SE (the "Java 2 Standard Edition").</p>
                 <p>If you go to the Sun site for a download, you may also run across the J2EE
                     (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
                     trouble yourself with these, unless you know of a particular reason why you may
@@ -100,6 +102,16 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 </tr>
 </tbody>
 </table></div>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
+<h3 class="title">JRE_HOME</h3>
+
+                <p>If your machine has already set JRE_HOME for any reason, or if you want to be
+                    sure to be using a particular JRE - in the event that you have more than one JRE
+                    installed on your machine - then you'll want to set the JRE_HOME variable as
+                    well. JRE_HOME is what Tomcat uses when it starts up, but it defaults to use
+                    JAVA_HOME if JRE_HOME is not set. For most people, then, setting JAVA_HOME will
+                    cover both cases sufficiently.</p>
+            </div>
             <p>Next you'll want to append to the PATH variable the location of Java commands:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -144,7 +156,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <td>
                         <p> Create a new environment variable <span><strong class="command">JAVA_OPTS</strong></span> to
                             hold the value "<span><strong class="command">-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=256m
+                                -XX:MaxPermSize=196m -XX:NewSize=192m
                             -XX:MaxNewSize=384m</strong></span>". </p>
                     </td>
 </tr>
@@ -154,7 +166,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
 <td>
                         <p>
                             <span><strong class="command">export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
-                                -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"</strong></span>
+                                -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</strong></span>
                         </p>
                     </td>
 </tr>
@@ -182,7 +194,8 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
                 the one labeled <span class="emphasis"><em>Core</em></span>, along with the <span class="emphasis"><em>JDK 1.4
                     Compatibility Package</em></span> (even if you're using Java 1.5, some portions
                 of the Sakai code will require the compatibility package, and Sakai won't start up
-                without it).</p>
+                without it). The Tomcat 5.5 instructions will tell you that Java 1.5 is required,
+                but it's not, so long as you have the 1.4 Compatibility package.</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Tomcat on Windows</h3>
 
@@ -197,9 +210,10 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</pre>
             </div>
             <p>Unpack the Tomcat archive at your desired location, and unpack the compatibility
                 package directly on top of it. From this point forward these instructions will refer
-                to the top-level Tomcat directory (e.g. <code class="filename">apache-tomcat-5.5.17</code>)
-                as <span><strong class="command">$CATALINA_HOME</strong></span>. You may set this as an environment variable
-                for convenience's sake, but this is not required. Make sure that you have write
+                to the top-level Tomcat directory (e.g.
+                <code class="filename">/usr/local/apache-tomcat-5.5.17</code>) as
+                <span><strong class="command">$CATALINA_HOME</strong></span>. You may set this as an environment variable for
+                convenience's sake, but this is not required. Make sure that you have write
                 permissions to the Tomcat files and directories before proceeding, or you may later
                 run into errors during the build phase.</p>
         </div>
@@ -254,7 +268,7 @@ connectionTimeout="20000" disableUploadTimeout="true" URIEncoding="UTF-8"/&gt;</
 <h3 class="title">Newer versions of Maven</h3>
 
                 <p>It's important that Maven 1.0.2 be used. There are betas for Maven 1.1 and
-                    Maven 2.0 currently available, but neither will work for Sakai 2.1. Many plugins
+                    Maven 2.0 currently available, but neither will work for Sakai 2.2. Many plugins
                     have not yet been adapted for the new Maven architecture.</p>
             </div>
             <p>Choose a location for Maven, and unpack the archive there. You will have a

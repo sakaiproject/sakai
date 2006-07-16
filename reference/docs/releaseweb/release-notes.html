@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2022766"></a>2.2.0 Release Notes</h1></div></div>
+<a name="id2279596"></a>2.2.0 Release Notes</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -27,7 +27,7 @@
 <dt><span class="sect2"><a href="#migration-conversion">2.1. Database Conversion</a></span></dt>
 <dt><span class="sect2"><a href="#migration-api">2.2. Framework Changes</a></span></dt>
 <dt><span class="sect2"><a href="#migration-providers">2.3. Provider Changes</a></span></dt>
-<dt><span class="sect2"><a href="#id2023981">2.4. Skin Changes</a></span></dt>
+<dt><span class="sect2"><a href="#id2280553">2.4. Skin Changes</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="#maintenance">3. Maintenance Branch</a></span></dt>
 <dt><span class="sect1"><a href="#resolved">4. Fixes Included in this Release</a></span></dt>
@@ -48,8 +48,14 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="new-enhance-framework"></a>1.1.1.&nbsp;Framework Refactoring</h4></div></div></div>
 
-                <p>The 2.2 release marks the culmination of a significant effort to restructure the framework into more logical functional/architectural units, paving the way for multiple, focused teams to work in parallel on moving the framework and legacy code forward.</p>
-                <p>These changes in themselves do not have a direct functional impact, but they are echoed by a change in the organization of Sakai's subversion repository, and many services and packages have different names from those in 2.1.  To see more discussion of migration issues that may result, see below.</p>
+                <p>The 2.2.0 release marks the culmination of a significant effort to restructure
+                    the framework into more logical functional/architectural units, paving the way
+                    for multiple, focused teams to work in parallel on moving the framework and
+                    legacy code forward.</p>
+                <p>These changes in themselves do not have a direct functional impact, but they
+                    are echoed by a change in the organization of Sakai's subversion repository, and
+                    many services and packages have different names from those in 2.1. To see more
+                    discussion of migration issues that may result, see below.</p>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
@@ -67,7 +73,7 @@
                 <p>For the last few releases we've been working to introduce the concept of
                     "internal" and "external" identifiers in Sakai in the user records. We started
                     with a single identifier that had to play both of these roles, and have been
-                    tweaking the code to separate these out. For 2.2 we have completed this
+                    tweaking the code to separate these out. For 2.2.0 we have completed this
                     separation. It is now possible for an institution to, for example, alter the
                     enterprise IDs of their users without losing access to their sites and materials
                     in Sakai. For a thorough discussion of these changes, see the doc
@@ -78,7 +84,7 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="new-enhance-fck"></a>1.1.4.&nbsp;FCKeditor</h4></div></div></div>
 
-                <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2
+                <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2.0
                     it has become the default editor. HTMLArea is still included, however, and the
                     default editor may be overridden in <code class="filename">sakai.properties</code> by
                     altering the following setting:</p>
@@ -106,7 +112,7 @@ skin.default=default</pre>
 <a name="new-enhance-help"></a>1.1.6.&nbsp;Updated Help Content</h4></div></div></div>
 
                 <p>Help content in 2.1 was out of date, reflecting only version 2.0 of the
-                    software. The help content has been updated for 2.2, along with some style
+                    software. The help content has been updated for 2.2.0, along with some style
                     improvements. To see the ongoing work of the Help project, visit their space in
                     Confluence:</p>
                 <p>
@@ -137,9 +143,11 @@ skin.default=default</pre>
                         site content.</p>
                 </li>
 <li>
-                    <p><span class="emphasis"><em>Summary Calendar:</em></span> a synoptic calendar view for the
-                            <span class="emphasis"><em>MyWorkspace</em></span> that includes events from all the sites
-                        to which a user is a member.</p>
+                    <p><span class="emphasis"><em>Summary Calendar:</em></span> a synoptic calendar view that may
+                        be used in either the <span class="emphasis"><em>My Workspace</em></span> or the Home page of
+                        course/project sites, including an event summary from either all the sites
+                        to which a user is a member (if in <span class="emphasis"><em>My Workspace</em></span>) or the events of a
+                        particular site (if in that site).</p>
                 </li>
 <li>
                     <p><span class="emphasis"><em>Post 'Em:</em></span> an automated reporting system that enables
@@ -252,7 +260,7 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <div class="titlepage"><div><div><h3 class="title">
 <a name="migration-providers"></a>2.3.&nbsp;Provider Changes</h3></div></div></div>
 
-            <p>As mentioned above, 2.2 introduces a separation of external user identifiers from
+            <p>As mentioned above, 2.2.0 introduces a separation of external user identifiers from
                 Sakai's internal user ids. Any custom <code class="filename">UserDirectoryProvider</code>
                 will need some alteration to account for this, along with changes to its import
                 statements and declarations that stem from API changes. Below is a list of changes
@@ -286,12 +294,13 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2023981"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
+<a name="id2280553"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
 
             <p>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
-                them to 2.2. These changes - including conversion steps - are thoroughly documented
-                in the appendices of the skin document available in <code class="filename">reference/docs/architecture/sakai_skin.doc</code>, or
-                in subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</a></p>
+                them to 2.2.0. These changes - including conversion steps - are thoroughly documented
+                in the appendices of the skin document available in
+                    <code class="filename">reference/docs/architecture/sakai_skin.doc</code>, or in
+                subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</a></p>
         </div>
     </div>
     <div class="sect1" lang="en">
@@ -309,21 +318,27 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
             <span><strong class="command">svn export
             https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</strong></span>
         </p>
-        <p>If you come upon an important fix that you believe should be included in the branch (and perhaps isn't yet), feel free to bring it to the attention of the branch manager, Lance Speelmon (lance@indiana.edu).</p>
+        <p>If you come upon an important fix that you believe should be included in the branch
+            (and perhaps isn't yet), feel free to bring it to the attention of the branch manager,
+            Lance Speelmon (lance@indiana.edu).</p>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
 <a name="resolved"></a>4.&nbsp;Fixes Included in this Release</h2></div></div></div>
 
-        <p>Sakai 2.2 fixes the following issues from previous releases:</p>
-        <p><a href="fixed-issues.html" target="_top">http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</a></p>
+        <p>Sakai 2.2.0 fixes the following issues from previous releases:</p>
+        <p>
+            <a href="fixed-issues.html" target="_top">http://source.sakaiproject.org/release/2.2.0/fixed-issues.html</a>
+        </p>
     </div>
     <div class="sect1" lang="en">
 <div class="titlepage"><div><div><h2 class="title">
 <a name="open-issues"></a>5.&nbsp;Open Issues</h2></div></div></div>
 
         <p>The list of known issues with Sakai 2.2.0 at the time of release is found at:</p>
-        <p><a href="open-issues.html" target="_top">http://source.sakaiproject.org/release/2.2.0/open-issues.html</a></p>
+        <p>
+            <a href="open-issues.html" target="_top">http://source.sakaiproject.org/release/2.2.0/open-issues.html</a>
+        </p>
         <p>See in particular the "Important Issues" noted at the top of the list.</p>
     </div>
 </div>

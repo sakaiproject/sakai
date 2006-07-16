@@ -46,11 +46,11 @@
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Getting the Code from Subversion</h3>
 
-                <p>Alternatively, you may check out the source code from subversion with the
+                <p>Alternatively, you may check out the source code from subversion.  You might wish to do this, for example, in order to grab the <span class="emphasis"><em>maintenance branch</em></span>, which will include the latest set of bug fixes.  To check out the maintenance branch, you can use the following
                     command:</p>
-                <pre class="screen">svn export https://source.sakaiproject.org/svn/tags/sakai_2-2-0</pre>
+                <pre class="screen">svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</pre>
                 <p>In which case you could skip the unpacking step below, and your root directory
-                    would be sakai_2-2-0 instead of sakai-src.</p>
+                    would be sakai_2-2-x instead of sakai-src.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -81,7 +81,7 @@
                 completes with the message <span><strong class="command">BUILD SUCCESSFUL</strong></span>, you should be able
                 to move on to the next step. If you are greeted with the report <span><strong class="command">BUILD
                     FAILED</strong></span> read the accompanying error message carefully to troubleshoot
-                (see the <a href="install-tshoot.html" title="6. Troubleshooting">Troubleshooting</a> section).</p>
+                (see the <a href="install-tshoot.html" title="7. Troubleshooting">Troubleshooting</a> section).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Maven and Memory</h3>
 
@@ -92,7 +92,7 @@
                     <span><strong class="command">MAVEN_OPTS</strong></span>. The value in the sample Unix command below should
                     be more than enough:</p>
                 <pre class="screen">
-export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
+                    export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</pre>
             </div>
             <p>You will probably be able to start up Tomcat and run Sakai with the default
                 configuration at this point, but it would be better to take care of some basic

@@ -31,7 +31,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id1859110"></a>Installation Guide</h1></div></div>
+<a name="id2134413"></a>Installation Guide</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -75,10 +75,19 @@
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-create">5.3. Create Database and User</a></span></dt>
 <dt><span class="sect2"><a href="install-dbconfig.html#install-dbconfig-properties">5.4. Database Properties</a></span></dt>
 </dl></dd>
-<dt><span class="sect1"><a href="install-tshoot.html">6. Troubleshooting</a></span></dt>
+<dt><span class="sect1"><a href="install-software.html">6. Getting Started with the Software</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-build">6.1. Build Issues</a></span></dt>
-<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-startup">6.2. Tomcat Startup Issues</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#install-software-gateway">6.1. The Gateway Page</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2258416">6.2. My Workspace</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2258448">6.3. Other Sites</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2258507">6.4. Admin Tools</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#install-software-tools">6.5. Experimenting with Tools</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2258740">6.6. Where to Learn More</a></span></dt>
+</dl></dd>
+<dt><span class="sect1"><a href="install-tshoot.html">7. Troubleshooting</a></span></dt>
+<dd><dl>
+<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-build">7.1. Build Issues</a></span></dt>
+<dt><span class="sect2"><a href="install-tshoot.html#install-tshoot-startup">7.2. Tomcat Startup Issues</a></span></dt>
 </dl></dd>
 </dl>
 </div>
@@ -93,7 +102,7 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-choose"></a>1.1. Choose an Install Type</h3></div></div></div>
 
-            <p>Sakai is available for three different installation methods: </p>
+            <p>Sakai 2.2.0 downloads are available for three different installation methods: </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -105,6 +114,7 @@
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
                                 that the only prerequisite for getting started is Java (v. 1.4.2 or
                                 higher).</p>
+
                         </td>
 </tr>
 <tr>
@@ -116,6 +126,7 @@
                                 quick way to drop the Sakai application bundle into place without
                                 requiring a maven build. This may be a good choice if you know you
                                 don't need to make any code-level changes.</p>
+
                         </td>
 </tr>
 <tr>
@@ -127,6 +138,7 @@
                                 and the Maven build tool, along with (most likely) a preferred
                                 database. The installation and configuration of these components
                                 comprises the bulk of this installation guide.</p>
+
                         </td>
 </tr>
 </tbody>
@@ -138,17 +150,11 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-demo"></a>1.2. Demo Installation</h3></div></div></div>
 
-            <p>A demo installation is brief and straightforward. The steps are as follows:</p>
+            <p>A demo installation is brief and straightforward. The most technically challenging aspect of a demo install is making sure that your Java environment is squared away in advance.  The steps are as follows:</p>
             <div class="procedure"><ol type="1">
 <li>
-                    <p>Verify Java Installation and Environment Variables (see <a href="install-env.html" title="2. Set up Environment">Set up Environment</a>).</p>
-                    <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
-<h3 class="title">Tuning the JVM</h3>
-
-                        <p>The default JVM is not sufficient to run Sakai out of the box, and
-                            some of its settings will need to be adjusted by setting a new
-                            environment variable called JAVA_OPTS. See the <a href="install-env.html" title="2. Set up Environment">Set up Environment</a> section.</p>
-                    </div>
+                    <p>Verify Java Installation and Environment Variables (see the first two
+                        sections of <a href="install-env.html" title="2. Set up Environment">Set up Environment</a>).</p>
                 </li>
 <li>
                     <p>Download and unpack the Demo archive</p>
@@ -193,11 +199,7 @@
                 </li>
 </ol></div>
             <p>Once Tomcat is started up, you can point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. This
-                will bring you to the Sakai gateway site where you can log in using the default
-                administrator's account (the user id and password are both 'admin'). New user
-                accounts can be created from the <span class="emphasis"><em>User</em></span> tool in the admin
-                workspace, or by using the <span class="emphasis"><em>New Account</em></span> link on the gateway
-                page. New sites can be created using the <span class="emphasis"><em>Worksite Setup</em></span> tool.</p>
+                will bring you to the Sakai gateway site, from which you can create new accounts and log in to the syste.  For more orienting tips on how to begin using Sakai, skip ahead to <a href="install-software.html" title="6. Getting Started with the Software">Getting Started with the Software</a>.</p>
             <p>To stop the demo:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -271,7 +273,10 @@
             <p>The Demo and Binary installs described above provide quick ways to get up and
                 running, but assume that no code-level changes are called for. The remainder of this
                 installation guide devotes itself to the more rigorous and customizable Source
-                installation, although some of its details (e.g. the post-installation configuration) may also be pertinent for more sophisticated uses of the demo and binary installs.  The full set of steps for a Source installation may be organized into the following phases:</p>
+                installation, although some of its details (e.g. the post-installation
+                configuration) may also be pertinent for more sophisticated uses of the demo and
+                binary installs. The full set of steps for a Source installation may be organized
+                into the following phases:</p>
             <div class="orderedlist"><ol type="1">
 <li>
                     <p><a href="install-env.html" title="2. Set up Environment">Set up Environment</a>, including Java,
@@ -360,6 +365,7 @@
 </table></div>
         </div>
     </div>
+
 
 
 

@@ -8,7 +8,7 @@
 <link rel="start" href="install-overview.html" title="Installation Guide">
 <link rel="up" href="install-overview.html" title="Installation Guide">
 <link rel="prev" href="install-config.html" title="4. Post-Installation Configuration">
-<link rel="next" href="install-tshoot.html" title="6. Troubleshooting">
+<link rel="next" href="install-software.html" title="6. Getting Started with the Software">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
 <div id="frame">
@@ -19,7 +19,7 @@
 <td width="20%" align="left">
 <a accesskey="p" href="install-config.html">Prev</a> </td>
 <th width="60%" align="center"> </th>
-<td width="20%" align="right"> <a accesskey="n" href="install-tshoot.html">Next</a>
+<td width="20%" align="right"> <a accesskey="n" href="install-software.html">Next</a>
 </td>
 </tr>
 </table>
@@ -201,7 +201,9 @@ VALUE
 AL32UTF8</pre>
 
                 <p>Converting a database from one character set to another is non-trivial,
-                    particularly if it's a large production database, and so it's strongly recommended that you verify this aspect of your database creation before deploying Sakai.</p>
+                    particularly if it's a large production database, and so it's strongly
+                    recommended that you verify this aspect of your database creation before
+                    deploying Sakai.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
@@ -210,8 +212,8 @@ AL32UTF8</pre>
 
             <p>There are settings in sakai.properties that also define the database technology
                 and connection information. Appropriate <code class="filename">sakai.properties</code>
-                settings for Oracle and MySQL, respectively, are listed below (although some pieces
-                will of course need to be altered appropriately for your installation):</p>
+                settings for Oracle and MySQL, respectively, are listed below, and you need only
+                modify them with your local particulars:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -264,6 +266,9 @@ testOnBorrow@javax.sql.BaseDataSource=false</pre>
                     validating the connection on each transaction caused problems in at least one
                     large production environment (University of Michigan).</p>
             </div>
+            <p>Once you've configured the database appropriately, you need only stop and restart
+                Tomcat. As Tomcat is coming up you can watch its log to see if there are any
+                database connection errors (see the <a href="install-tshoot.html#install-tshoot-startup" title="7.2. Tomcat Startup Issues">Troubleshooting</a> section).</p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Oracle and Tests&amp;Quizzes</h3>
 
@@ -346,13 +351,13 @@ Commit complete.</pre>
 <td width="40%" align="left">
 <a accesskey="p" href="install-config.html">Prev</a> </td>
 <td width="20%" align="center"> </td>
-<td width="40%" align="right"> <a accesskey="n" href="install-tshoot.html">Next</a>
+<td width="40%" align="right"> <a accesskey="n" href="install-software.html">Next</a>
 </td>
 </tr>
 <tr>
 <td width="40%" align="left" valign="top">4. Post-Installation Configuration </td>
 <td width="20%" align="center"><a accesskey="h" href="install-overview.html">Home</a></td>
-<td width="40%" align="right" valign="top"> 6. Troubleshooting</td>
+<td width="40%" align="right" valign="top"> 6. Getting Started with the Software</td>
 </tr>
 </table>
 </div>
