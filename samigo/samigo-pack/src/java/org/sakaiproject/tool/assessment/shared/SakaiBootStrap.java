@@ -24,6 +24,7 @@ package org.sakaiproject.tool.assessment.shared;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
 
 /**
@@ -35,6 +36,8 @@ import org.sakaiproject.db.api.SqlService;
 public class SakaiBootStrap
 {
   private static final String SAKAI_SAMIGO_DDL_NAME = "sakai_samigo";
+  
+  private static final String SAKAI_AUTO_DDL_PROPERTY = "auto.ddl";
 
   private static final Log LOG = LogFactory.getLog(SakaiBootStrap.class);
 
@@ -54,6 +57,8 @@ public class SakaiBootStrap
   public void init()
   {
     LOG.info("**** init() SakaiBootStrap for samigo");
+    
+    autoDdl = ServerConfigurationService.getBoolean(SAKAI_AUTO_DDL_PROPERTY, autoDdl);
 
     sqlService = org.sakaiproject.db.cover.SqlService
         .getInstance();
@@ -67,6 +72,8 @@ public class SakaiBootStrap
     {
       LOG.info("****autoDdl enabled; running DDL...");
       sqlService.ddl(this.getClass().getClassLoader(), SAKAI_SAMIGO_DDL_NAME);
+    } else {
+      LOG.info("****autoDdl disabled.");
     }
 
     LOG.info("***** init() completed successfully");
