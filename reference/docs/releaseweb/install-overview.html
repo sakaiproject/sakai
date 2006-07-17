@@ -31,7 +31,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2134413"></a>Installation Guide</h1></div></div>
+<a name="id2408073"></a>Installation Guide</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -78,11 +78,11 @@
 <dt><span class="sect1"><a href="install-software.html">6. Getting Started with the Software</a></span></dt>
 <dd><dl>
 <dt><span class="sect2"><a href="install-software.html#install-software-gateway">6.1. The Gateway Page</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2258416">6.2. My Workspace</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2258448">6.3. Other Sites</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2258507">6.4. Admin Tools</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2531758">6.2. My Workspace</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2531793">6.3. Other Sites</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#id2531853">6.4. Admin Tools</a></span></dt>
 <dt><span class="sect2"><a href="install-software.html#install-software-tools">6.5. Experimenting with Tools</a></span></dt>
-<dt><span class="sect2"><a href="install-software.html#id2258740">6.6. Where to Learn More</a></span></dt>
+<dt><span class="sect2"><a href="install-software.html#install-software-learn">6.6. Where to Learn More</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="install-tshoot.html">7. Troubleshooting</a></span></dt>
 <dd><dl>
@@ -114,7 +114,6 @@
                                 Sakai. It includes the Tomcat container and pre-built webapps, so
                                 that the only prerequisite for getting started is Java (v. 1.4.2 or
                                 higher).</p>
-
                         </td>
 </tr>
 <tr>
@@ -126,7 +125,6 @@
                                 quick way to drop the Sakai application bundle into place without
                                 requiring a maven build. This may be a good choice if you know you
                                 don't need to make any code-level changes.</p>
-
                         </td>
 </tr>
 <tr>
@@ -138,7 +136,6 @@
                                 and the Maven build tool, along with (most likely) a preferred
                                 database. The installation and configuration of these components
                                 comprises the bulk of this installation guide.</p>
-
                         </td>
 </tr>
 </tbody>
@@ -150,7 +147,9 @@
 <div class="titlepage"><div><div><h3 class="title">
 <a name="install-overview-demo"></a>1.2. Demo Installation</h3></div></div></div>
 
-            <p>A demo installation is brief and straightforward. The most technically challenging aspect of a demo install is making sure that your Java environment is squared away in advance.  The steps are as follows:</p>
+            <p>A demo installation is brief and straightforward. The most technically challenging
+                aspect of a demo install is making sure that your Java environment is squared away
+                in advance. The steps are as follows:</p>
             <div class="procedure"><ol type="1">
 <li>
                     <p>Verify Java Installation and Environment Variables (see the first two
@@ -158,18 +157,29 @@
                 </li>
 <li>
                     <p>Download and unpack the Demo archive</p>
-                    <div class="itemizedlist"><ul>
-<li>
+                    <div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td>
+<span class="term">Windows:</span></td>
+<td>
                             <p>
-                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip" target="_top">Windows demo archive</a>
+                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip" target="_top">demo archive</a>
                             </p>
-                        </li>
-<li>
+                        </td>
+</tr>
+<tr>
+<td>
+<span class="term">Mac/*nix:</span></td>
+<td>
                             <p>
-                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz" target="_top">Mac/*nix archive</a>
+                                <a href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz" target="_top">demo archive</a>
                             </p>
-                        </li>
-</ul></div>
+                        </td>
+</tr>
+</tbody>
+</table></div>
                 </li>
 <li>
                     <p>Start Tomcat with the following commands from the root Tomcat directory:</p>
@@ -199,7 +209,9 @@
                 </li>
 </ol></div>
             <p>Once Tomcat is started up, you can point your browser to <a href="http://localhost:8080/portal" target="_top">http://localhost:8080/portal</a>. This
-                will bring you to the Sakai gateway site, from which you can create new accounts and log in to the syste.  For more orienting tips on how to begin using Sakai, skip ahead to <a href="install-software.html" title="6. Getting Started with the Software">Getting Started with the Software</a>.</p>
+                will bring you to the Sakai gateway site, from which you can create new accounts and
+                log in to the syste. For more orienting tips on how to begin using Sakai, skip ahead
+                to <a href="install-software.html" title="6. Getting Started with the Software">Getting Started with the Software</a>.</p>
             <p>To stop the demo:</p>
             <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -224,6 +236,7 @@
 </tr>
 </tbody>
 </table></div>
+<p></p>
             <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;">
 <h3 class="title">Special notes about the Demo installation</h3>
 
