@@ -477,7 +477,7 @@ public class SearchIndexBuilderWorkerDaoImpl extends HibernateDaoSupport
 									// still alove, no document should
 									// take more than 2 mins to process
 									// refresh the lock
-									if ( !worker.getLockTransaction(15L * 60L * 1000L) ) {
+									if ( !worker.getLockTransaction(15L * 60L * 1000L,true) ) {
 										throw new HibernateException("Transaction Lock Expired while indexing "+ref.getReference());
 									}
 

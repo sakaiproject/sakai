@@ -667,12 +667,15 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		}
 
 	}
+	public boolean getLockTransaction(long nodeLifetime) {
+		return getLockTransaction(nodeLifetime,false);
+	}
 
 	/**
 	 * @return
 	 * @throws HibernateException
 	 */
-	public boolean getLockTransaction(long nodeLifetime)
+	public boolean getLockTransaction(long nodeLifetime, boolean checklock)
 	{
 		String nodeID = getNodeID();
 		Connection connection = null;
@@ -752,6 +755,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			if (takelock)
 			{
 				// any work ?
+				System.err.println("Any work to lock ?");
 				countWork.clearParameters();
 				countWork.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
 				countWork
@@ -764,7 +768,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				}
 				resultSet.close();
 				resultSet = null;
-				if (nitems > 0)
+				System.err.println("Work is "+nitems);
+				if (nitems > 0 || checklock )
 				{
 					try
 					{
@@ -805,6 +810,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					catch (SQLException sqlex)
 					{
 						locked = false;
+						sqlex.printStackTrace();
 						log.debug("Failed to get lock, but this is Ok ", sqlex);
 					}
 

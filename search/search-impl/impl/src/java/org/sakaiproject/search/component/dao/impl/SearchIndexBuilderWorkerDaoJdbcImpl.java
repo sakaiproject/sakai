@@ -395,7 +395,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 							// update this node lock to indicate its
 							// still alove, no document should
 							// take more than 2 mins to process
-							if ( !worker.getLockTransaction(15L * 60L * 1000L) ) {
+							if ( !worker.getLockTransaction(15L * 60L * 1000L,true) ) {
 								throw new Exception("Transaction Lock Expired while indexing "+ref.getReference());
 							}
 							

@@ -93,6 +93,7 @@ public interface SearchIndexBuilderWorker
 	 * @return
 	 */
 	boolean getLockTransaction(long lifetime);
+	boolean getLockTransaction(long nodeLifetime, boolean checklock);
 
 	/**
 	 * 
@@ -142,6 +143,7 @@ public interface SearchIndexBuilderWorker
         String getCurrentDocument();
 
         String getCurrentElapsed();
+
 
 
 }
