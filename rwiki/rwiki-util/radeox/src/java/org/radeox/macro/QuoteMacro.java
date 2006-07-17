@@ -62,7 +62,7 @@ public class QuoteMacro extends LocalePreserved
 			throws IllegalArgumentException, IOException
 	{
 
-		writer.write("<blockquote class=\"quote\">");
+		writer.write("<blockquote class=\"quote\"><p class=\"paragraph\">");
 		writer.write(params.getContent());
 		String source = "Source"; // i18n
 		if (params.getLength() == 2)
@@ -77,7 +77,7 @@ public class QuoteMacro extends LocalePreserved
 			writer.write(source);
 			writer.write("</a>");
 		}
-		writer.write("</blockquote>");
+		writer.write("</p></blockquote>");
 		return;
 	}
 }

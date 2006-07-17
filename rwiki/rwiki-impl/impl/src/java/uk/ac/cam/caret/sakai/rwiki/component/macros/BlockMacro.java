@@ -132,7 +132,9 @@ public class BlockMacro extends BaseMacro
 		}
 		if (params.getContent() != null)
 		{
+			writer.write("<p class=\"paragraph\">");
 			writer.write(params.getContent());
+			writer.write("</p>");
 		}
 		writer.write("</div>");
 	}

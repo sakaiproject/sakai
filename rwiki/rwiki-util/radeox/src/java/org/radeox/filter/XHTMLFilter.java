@@ -74,6 +74,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 		blockElements.put("ul", l);
 		blockElements.put("ol", l);
 		blockElements.put("div", l);
+		blockElements.put("blockquote", l);
 	}
 
 	private static HashMap emptyTag = new HashMap();
@@ -125,7 +126,7 @@ public class XHTMLFilter implements Filter, CacheFilter
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			SpecialXHTMLSerializer xser = new SpecialXHTMLSerializer();
 			xser.setOutputStream(baos);
-			xser.setIndent(true);
+			xser.setIndent(false);
 			xser.setEncoding("UTF-8");
 			xser.setIndentAmount(4);
 			dbf.setContentHandler(epf);
