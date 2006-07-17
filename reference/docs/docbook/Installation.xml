@@ -57,22 +57,28 @@
                 </step>
                 <step>
                     <para>Download and unpack the Demo archive</para>
-                    <itemizedlist>
-                        <listitem>
+                    <variablelist>
+                        <varlistentry>
+                            <term>Windows:</term>
+                            <listitem>
                             <para>
                                 <link
                                     xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip"
-                                    >Windows demo archive</link>
+                                    >demo archive</link>
                             </para>
                         </listitem>
+                        </varlistentry>
+                        <varlistentry>
+                            <term>Mac/*nix:</term>
                         <listitem>
                             <para>
                                 <link
                                     xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz"
-                                    >Mac/*nix archive</link>
+                                    >demo archive</link>
                             </para>
                         </listitem>
-                    </itemizedlist>
+                        </varlistentry>
+                    </variablelist>
                 </step>
                 <step>
                     <para>Start Tomcat with the following commands from the root Tomcat directory:</para>
@@ -608,7 +614,7 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                     <command>MAVEN_OPTS</command>. The value in the sample Unix command below should
                     be more than enough:</para>
                 <screen>
-                    export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</screen>
+export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"</screen>
             </note>
             <para>You will probably be able to start up Tomcat and run Sakai with the default
                 configuration at this point, but it would be better to take care of some basic
@@ -1107,17 +1113,21 @@ Commit complete.</screen>
     </sect1>
     <sect1 xml:id="install-software">
         <title>Getting Started with the Software</title>
-        <para>You should at this point have a working Sakai installation. Now it's time to get started with
-            adding users, creating work sites, and otherwise playing around with the tools. We won't try to
-            present a full user's guide here, but we can offer some pointers to get you oriented and
-            on your way, and link you to more exhaustive sources of information elsewhere.</para>
+        <para>You should at this point have a working Sakai installation. Now it's time to get
+            started with adding users, creating work sites, and otherwise playing around with the
+            tools. We won't try to present a full user's guide here, but we can offer some pointers
+            to get you oriented and on your way, and link you to more exhaustive sources of
+            information elsewhere.</para>
         <sect2 xml:id="install-software-gateway">
             <title>The Gateway Page</title>
             <para>When Tomcat has come up successfully, you should be able to direct your browser to
                 its gateway page at <link xl:href="http://localhost:8080/portal"
                     >http://localhost:8080/portal</link> (or replace 'localhost' with the name of
                 the server where it's installed). From the gateway page you can create new accounts
-                or browse for public site content.  You could start by creating a new account, but that can also be done as an admin, and since the admin functions are needed to allow this account the right permissions, it's just as well to start by logging in as the admin user.  Sakai's out-of-the-box admin account is simply named 'admin' (with
+                or browse for public site content. You could start by creating a new account, but
+                that can also be done as an admin, and since the admin functions are needed to allow
+                this account the right permissions, it's just as well to start by logging in as the
+                admin user. Sakai's out-of-the-box admin account is simply named 'admin' (with
                 password also 'admin'), so use those credentials to log in.</para>
         </sect2>
         <sect2>
@@ -1133,10 +1143,10 @@ Commit complete.</screen>
         </sect2>
         <sect2>
             <title>Other Sites</title>
-            <para>Each new (accessible) site becomes visible as a tab along the top,
-                to the right of <emphasis>My Workspace</emphasis>. For most users, they initially
-                only have access to one site - their <emphasis>My Workspace</emphasis>. The admin
-                user is a little different, in that it has access to two.</para>
+            <para>Each new (accessible) site becomes visible as a tab along the top, to the right of
+                    <emphasis>My Workspace</emphasis>. For most users, they initially only have
+                access to one site - their <emphasis>My Workspace</emphasis>. The admin user is a
+                little different, in that it has access to two.</para>
             <para>The second admin site (which you can enter by clicking on its tab) is entitled
                     <emphasis>Administration Workspace</emphasis> which, strangely enough, looks
                 exactly the same as the admin <emphasis>My Workspace</emphasis>. It is.</para>
@@ -1180,9 +1190,8 @@ Commit complete.</screen>
                     sites have all the tools available to them.</para>
                 <para>Step through the remaining site creation pages, making your preferred
                     selections. Be sure to click the <emphasis>Create Site</emphasis> button at the
-                    end of the process. After doing so, you
-                    should see the site title visible as a new tab along the top of the
-                screen.</para>
+                    end of the process. After doing so, you should see the site title visible as a
+                    new tab along the top of the screen.</para>
             </sect3>
             <sect3>
                 <title>Adding Users to Sites</title>
@@ -1191,8 +1200,8 @@ Commit complete.</screen>
                     to this site in different roles, you can do so through the <emphasis>Site
                     Info</emphasis> tool of the site itself.</para>
                 <para>Click on the tab of your new site (which should now be visible) to enter it,
-                    and then click on the <emphasis>Site Info</emphasis> link along the
-                    lefthand side. <emphasis>Site Info</emphasis> has a number of site maintainer functions
+                    and then click on the <emphasis>Site Info</emphasis> link along the lefthand
+                    side. <emphasis>Site Info</emphasis> has a number of site maintainer functions
                     available as action links across the top, and <emphasis>Add
                     Participants</emphasis> is the one that will allow you to connect other users to
                     the site. These users will of course need to have been previously created.</para>
@@ -1213,11 +1222,13 @@ Commit complete.</screen>
                 happen to be in at the time.</para>
             <para>At some later point, when you become comfortable with the standard tools, you may
                 wish to see other, more experimental tools that are available for Sakai. The Sakai
-                distribution includes <emphasis>provisional tools</emphasis> that
-                are still maturing, but can already serve needs in innovative ways that the standard
-                ones do not. These extra tools require additional steps to enable, so that system
-                users will not stumble across them inadvertently if that's not desired, but you are
-                encouraged to evaluate them for your own deployment.  See <link xl:href="provisional.html">http://source.sakaiproject.org/release/2.2.0/provisional.html</link> for more details.</para>
+                distribution includes <emphasis>provisional tools</emphasis> that are still
+                maturing, but can already serve needs in innovative ways that the standard ones do
+                not. These extra tools require additional steps to enable, so that system users will
+                not stumble across them inadvertently if that's not desired, but you are encouraged
+                to evaluate them for your own deployment. See <link xl:href="provisional.html"
+                    >http://source.sakaiproject.org/release/2.2.0/provisional.html</link> for more
+                details.</para>
         </sect2>
         <sect2 xml:id="install-software-learn">
             <title>Where to Learn More</title>
