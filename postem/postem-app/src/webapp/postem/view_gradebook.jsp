@@ -13,14 +13,14 @@
 				<h:outputText value="#{msgs.gradebook_lastmodified}"/>
 				<h:outputText value="#{gradebook.updatedDateTime}"/>
 				<br />
-				<sakai:flat_list value="#{PostemTool.students}" var="student">
+				<sakai:flat_list styleClass="listHier lines" value="#{PostemTool.students}" var="student">
 					<h:column>
 						<f:facet name="header">
-							<h:outputText style="height: 16px; width=72px" value="#{msgs.username}" />
+							<h:outputText style="padding-top: 0.6em;" value="#{msgs.username}" />
 						</f:facet>
-						<h:outputText value="#{student.username}" rendered="#{student.readAfterUpdate}"/>
-						<h:outputText value="#{student.username}" style="color: red; font-weight: bold;"
-						              rendered="#{!student.readAfterUpdate}"/>
+						<h:outputText value="#{student.username}"  style="padding-top: 0.6em;" rendered="#{student.readAfterUpdate}"/>
+						<h:outputText value="#{student.username}" style="color: red; font-weight: bold; padding-top: 0.6em;"
+						              rendered="#{!student.readAfterUpdate}" />
 					</h:column>
 					<h:column>
 						<f:facet name="header">
@@ -30,9 +30,9 @@
 					</h:column>
 					<h:column>
 						<f:facet name="header">
-							<h:outputText value="#{msgs.student_lastchecked}"/>
+							<h:outputText style="padding-top: 0.6em;" value="#{msgs.student_lastchecked}"/>
 						</f:facet>
-						<h:outputText value="#{student.checkDateTime}"/>
+						<h:outputText style="padding-top: 0.6em;" value="#{student.checkDateTime}"/>
 					</h:column>
 				</sakai:flat_list>
 				<sakai:button_bar>					

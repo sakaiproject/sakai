@@ -244,7 +244,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 			String width = getProperWidth(ii);
 			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
 			totalWidth += iwidth;
-			headingBuffer.append("<td width='");
+			/*headingBuffer.append("<th width='");
 			headingBuffer.append(width);
 			headingBuffer.append("' style='min-width: ");
 			headingBuffer.append(width);
@@ -252,10 +252,11 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 			headingBuffer.append(width);
 			headingBuffer.append(";' >");
 			headingBuffer.append(current);
-			headingBuffer.append("</td>");
+			headingBuffer.append("</th>");*/
+			headingBuffer.append("<th style=\"padding: 0.6em;\" scope=\"col\">" + current + "</th>");
 			ii++;
 		}
-		StringBuffer newBuffer = new StringBuffer();
+		/*StringBuffer newBuffer = new StringBuffer();
 		newBuffer.append("<table width='");
 		newBuffer.append(totalWidth);
 		newBuffer.append("px' style='min-width: ");
@@ -266,7 +267,8 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 		newBuffer.append(headingBuffer);
 
 		newBuffer.append("</tr></table>");
-		return newBuffer.toString();
+		return newBuffer.toString();*/
+		return headingBuffer.toString();
 	}
 
 	public int compareTo(Object other) {

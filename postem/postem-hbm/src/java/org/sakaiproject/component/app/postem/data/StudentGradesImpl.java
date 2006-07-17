@@ -210,18 +210,19 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			String width = gradebook.getProperWidth(ii);
 			int iwidth = Integer.parseInt(width.substring(0, width.length() - 2));
 			totalWidth += iwidth;
-			gradeBuffer.append("<td width='");
+			/*gradeBuffer.append("<td width='");
 			gradeBuffer.append(width);
 			gradeBuffer.append("' style='min-width: ");
 			gradeBuffer.append(width);
 			gradeBuffer.append("; width: ");
 			gradeBuffer.append(width);
-			gradeBuffer.append(";' >");
+			gradeBuffer.append(";' >");*/
+			gradeBuffer.append("<td style=\"padding:0.6em;\">");
 			gradeBuffer.append(current);
 			gradeBuffer.append("</td>");
 			ii++;
 		}
-		StringBuffer newBuffer = new StringBuffer();
+		/*StringBuffer newBuffer = new StringBuffer();
 		newBuffer.append("<table width='");
 		newBuffer.append(totalWidth);
 		newBuffer.append("px' style='min-width: ");
@@ -232,7 +233,8 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 		newBuffer.append(gradeBuffer);
 
 		newBuffer.append("</tr></table>");
-		return newBuffer.toString();
+		newBuffer.append("</tr>");*/
+		return gradeBuffer.toString();
 	}
 
 }
