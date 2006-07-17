@@ -415,6 +415,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						}
 
 					}
+					worker.setStartDocIndex(System.currentTimeMillis());
+					worker.setNowIndexing("-idle-");
+
+
 				}
 				finally
 				{
