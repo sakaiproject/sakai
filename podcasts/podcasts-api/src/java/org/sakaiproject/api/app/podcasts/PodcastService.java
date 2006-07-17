@@ -150,7 +150,7 @@ public interface PodcastService // extends EntityProducer
 	 * @param filename The filename of the podcast being saved
 	 */
 	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
-			               String filename);
+			               String filename, String contentType);
 	
 	/**
 	 * Removes a podcast from site/podcasts folder

@@ -174,10 +174,7 @@ public class podHomeBean {
 		 * @return Returns the fileURL.
 		 */
 		public String getFileURL() {
-			String temp = podcastService.getPodcastFileURL(resourceId);
-			temp = temp.substring(0, temp.lastIndexOf(SLASH));
-
-			return temp + SLASH + getFilename();
+			return podcastService.getPodcastFileURL(resourceId);
 		}
 
 		/**
@@ -193,14 +190,6 @@ public class podHomeBean {
 	private static final String DOT = ".";
 	private static final String NO_RESOURCES_ERR_MSG = "To use the Podcasts tool, you must first add the Resources tool.";
 	private static final String RESOURCEID = "resourceId";
-	
-	// podHomeBean member variables, to detemine how main/home page should be rendered
-	private boolean resourceToolExists;
-	private boolean podcastFolderExists;
-	private boolean actPodcastsExist;
-	private boolean podcastResourceCheckFirstTry;
-	private boolean canUpdateSite;
-	private boolean canUpdateSiteFirstTry;
 
 	// inject the podcast services for its help
 	private PodcastService podcastService;
@@ -217,6 +206,7 @@ public class podHomeBean {
 	private String description;
 	private String email;
 	private long fileSize;
+	private String fileContentType;
     BufferedInputStream fileAsStream;
 
 	private SelectItem [] emailItems = {
@@ -225,13 +215,26 @@ public class podHomeBean {
 		new SelectItem("high", "High - All participants")
 	};
 	
+	// error handling variables
+	private boolean displayNoFileErrMsg;
+	private boolean displayNoDateErrMsg;
+	private boolean displayNoTitleErrMsg;
+	
+	/**
+	 * @return Returns the displayNoTitleErrMsg.
+	 */
+	public boolean getDisplayNoTitleErrMsg() {
+		return displayNoTitleErrMsg;
+	}
+
+	/**
+	 * @param displayNoTitleErrMsg The displayNoTitleErrMsg to set.
+	 */
+	public void setDisplayNoTitleErrMsg(boolean displayNoTitleErrMsg) {
+		this.displayNoTitleErrMsg = displayNoTitleErrMsg;
+	}
+
 	public podHomeBean() {
-		resourceToolExists=false;
-		podcastFolderExists = false;
-		actPodcastsExist = false;
-		podcastResourceCheckFirstTry=true;
-		canUpdateSite = false;
-		canUpdateSiteFirstTry=true;
 	}
 
 	/**
@@ -243,44 +246,36 @@ public class podHomeBean {
      *         false if does not exist so just error message displays
      */
 	public boolean getResourceToolExists() {
-		if (podcastResourceCheckFirstTry) {
-			podcastResourceCheckFirstTry=false;
+		boolean resourceToolExists = false;
+		try
+		{
+			Site thisSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			List pageList = thisSite.getPages();
+			Iterator iterator = pageList.iterator();
 
-			try
+			while(iterator.hasNext())
 			{
-				Site thisSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-				List pageList = thisSite.getPages();
-				Iterator iterator = pageList.iterator();
+				SitePage pgelement = (SitePage) iterator.next();
 
-				while(iterator.hasNext())
+				if (pgelement.getTitle().equals("Resources"))
 				{
-					SitePage pgelement = (SitePage) iterator.next();
-
-					if (pgelement.getTitle().equals("Resources"))
-					{
-						resourceToolExists = true;
-						break;
-					}
+					resourceToolExists = true;
+					break;
 				}
 			}
-			catch(Exception e)
-			{
-				return resourceToolExists;
-			}
-	    
-			if(!resourceToolExists)
-			{
-				setErrorMessage(NO_RESOURCES_ERR_MSG);
-			}
 		}
-		
-	    return resourceToolExists;
+		catch(Exception e)
+		{
+			return resourceToolExists;
+		}
+	    
+		if(!resourceToolExists && (!FacesContext.getCurrentInstance().getMessages().hasNext() ) )
+		{
+			setErrorMessage(NO_RESOURCES_ERR_MSG);
+		}
+    return resourceToolExists;
 	}
 
-	public void setResourseToolExists(boolean resourceToolExists) {
-		this.resourceToolExists = resourceToolExists;
-	}
-	
 	private void setErrorMessage(String errorMsg)
 	{
 		FacesContext.getCurrentInstance().addMessage(null,
@@ -288,18 +283,14 @@ public class podHomeBean {
 	}
 	  
 	public boolean getPodcastFolderExists() {
-		podcastFolderExists=false;
+		boolean podcastFolderExists=false;
 		  
-		  if (resourceToolExists) {
+		  if (getResourceToolExists()) {
 			  // we know resources tool exists, but need to know if podcast folder does
 			  podcastFolderExists = podcastService.checkPodcastFolder();
 		  }
 		  
 		  return podcastFolderExists;
-	  }
-	  
-	  public void setPodcastFolderExists(boolean podcastFolderExists) {
-		  this.podcastFolderExists = podcastFolderExists;
 	  }
 	  
 	  public String getURL() {
@@ -451,6 +442,8 @@ public class podHomeBean {
 	 * @return true if there are podcasts, false otherwise
 	 */
 	public boolean getActPodcastsExist() {
+		boolean actPodcastsExist = false;
+
 		if (!getPodcastFolderExists()) {
 			// if for some reason there is not a podcast folder
 			// for example, was renamed in Resources
@@ -464,10 +457,6 @@ public class podHomeBean {
 		return actPodcastsExist;
 	}
 
-	public void setActPodcastsExist(boolean actPodcastsExist) {
-		this.actPodcastsExist = actPodcastsExist;
-	}
-	
 	/**
 	 * To set the selectedPodcast DecoratedPodcastBean when Revision and Deletion links are clicked
 	 * (possibly Download also)
@@ -569,6 +558,16 @@ public class podHomeBean {
 	}
 
 	/**
+	 * Returns boolean if user can update podcasts. Used to display modification options on
+	 * main page.
+	 * 
+	 * @return true if user can modify, false otherwise.
+	 */
+	public boolean getCanUpdateSite() {
+		return podcastService.canUpdateSite();
+	}
+
+	/**
 	 * Creates a BufferedInputStream to get ready to upload file selected.
 	 * Used by Add Podcast and Revise Podcast pages.
 	 * 
@@ -598,6 +597,7 @@ public class podHomeBean {
 	        String fieldName = item.getFieldName();
 	        filename = item.getName();
 	        fileSize = item.getSize();
+	        fileContentType = item.getContentType();
 	        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + filename + " length: " + fileSize);
 
 	        // Read the file as a stream (may be more memory-efficient)
@@ -623,22 +623,30 @@ public class podHomeBean {
 	 */
 	public String processAdd() {
 		byte[] fileContents = new byte[(int) fileSize];
+		String whereToGo = "podcastAdd";
 		
-		try {
-			fileAsStream.read(fileContents);
-		}
-		catch (IOException ioe) {
-			System.out.println("What happened to the fileStream?");
-		}
+		if (OKtoAdd() ) {
+			try {
+				fileAsStream.read(fileContents);
+			}
+			catch (IOException ioe) {
+				System.out.println("What happened to the fileStream?");
+			}
 		
-		podcastService.addPodcast(title, date, description, fileContents, filename);
+			podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
 
+			displayNoFileErrMsg = false;
+			displayNoDateErrMsg = false;
+			displayNoTitleErrMsg = false;
+			whereToGo = "cancel";
+		}
+		
 		title="";
 		date = null;
 		description="";
 		fileAsStream = null;
 		filename="";
-		return "cancel";
+		return whereToGo;
 	}
 
 	/**
@@ -652,6 +660,8 @@ public class podHomeBean {
 		description="";
 		fileAsStream = null;
 		filename="";
+		displayNoFileErrMsg = false;
+		displayNoDateErrMsg = false;
 		return "cancel";
 	}
 
@@ -743,24 +753,70 @@ public class podHomeBean {
 	}
 
 	/**
-	 * Returns boolean if user can update podcasts. Used to display modification options on
-	 * main page.
-	 * 
-	 * @return true if user can modify, false otherwise.
+	 * Returns whether an error message is to be displayed if a file has not been selected in the file upload field.
+	 * @return Returns the displayNoFileErrMsg.
 	 */
-	public boolean getCanUpdateSite() {
-		if (canUpdateSiteFirstTry) {
-			canUpdateSite = podcastService.canUpdateSite();
-		}
-
-		return canUpdateSite;
+	public boolean getDisplayNoFileErrMsg() {
+		return displayNoFileErrMsg;
 	}
 
 	/**
-	 * @param canUpdateSite The canUpdateSite to set.
+	 * @param displayNoFileErrMsg The displayNoFileErrMsg to set.
 	 */
-	public void setCanUpdateSite(boolean canUpdateSite) {
-		this.canUpdateSite = canUpdateSite;
+	public void setDisplayNoFileErrMsg(boolean displayNoFileErrMsg) {
+		this.displayNoFileErrMsg = displayNoFileErrMsg;
 	}
-	
+
+	/**
+	 * @return Returns the displayNoDateErrMsg.
+	 */
+	public boolean getDisplayNoDateErrMsg() {
+		return displayNoDateErrMsg;
+	}
+
+	/**
+	 * @param displayNoDateErrMsg The displayNoDateErrMsg to set.
+	 */
+	public void setDisplayNoDateErrMsg(boolean displayNoDateErrMsg) {
+		this.displayNoDateErrMsg = displayNoDateErrMsg;
+	}
+
+	private boolean OKtoAdd() {
+		boolean OKtoAdd = true;
+
+		if (filename == null) {
+			displayNoFileErrMsg = true;
+			OKtoAdd = false;			
+		}
+		else if (filename.trim().equals("")) {
+			displayNoFileErrMsg = true;
+			OKtoAdd = false;
+		}
+		else {
+			displayNoFileErrMsg = false;
+		}
+		
+		if (date == null){
+			displayNoDateErrMsg = true;
+			OKtoAdd = false;
+		}
+		else {
+			displayNoDateErrMsg = false;
+		}
+		
+		if (title == null) {
+			displayNoTitleErrMsg = true;
+			OKtoAdd = false;
+		}
+		else if (title.trim().equals("")) {
+			displayNoTitleErrMsg = true;
+			OKtoAdd = false;
+		}
+		else {
+			displayNoTitleErrMsg = false;
+		}
+		
+		return OKtoAdd;
+	}
+
 }

@@ -66,7 +66,6 @@ public class PodcastServiceImpl implements PodcastService
 	private ToolManager toolManager;
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	private Reference siteRef;
-	private boolean podcastCollection;
 	private PodcastComparator podcastComparator;
 	private SecurityService securityService;
 	private UserDirectoryService userDirectoryService;
@@ -218,7 +217,7 @@ public class PodcastServiceImpl implements PodcastService
 	 *  			the bytes of this podcast
 	 */
 	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
-			               String filename) {
+			               String filename, String contentType) {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 
 		try {
@@ -235,7 +234,7 @@ public class PodcastServiceImpl implements PodcastService
 			resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
 			
 			contentHostingService.addResource(Validator.escapeResourceName(title), resourceCollection, 0,
-					ResourceProperties.FILE_TYPE, body, resourceProperties, NotificationService.NOTI_NONE);
+					contentType, body, resourceProperties, NotificationService.NOTI_NONE);
 		}
 		catch (OverQuotaException e) {
 			
@@ -281,6 +280,7 @@ public class PodcastServiceImpl implements PodcastService
 	 * @return true if exists, false otherwise
 	 */
 	public boolean checkPodcastFolder () {
+		boolean podcastCollection = false;
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 		
@@ -328,10 +328,6 @@ public class PodcastServiceImpl implements PodcastService
 		return podcastCollection;
 	}
 	
-	public void setPodcastCollection (boolean podcastCollection) {
-		this.podcastCollection = podcastCollection;
-	}
-	
 	public boolean checkForActualPodcasts() {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
@@ -370,15 +366,6 @@ public class PodcastServiceImpl implements PodcastService
             String filename) {
 		
 		try {
-			/* try2: just remove and add
-			if (body == null) {
-				// the file contents are not what have changed, so get them
-
-			}
-			removePodcast(resourceId);
-			
-			addPodcast(title, date, description, body, filename);
-*/
 			// get Resource to modify
 			ContentResourceEdit podcastEditable = null;
 		
@@ -415,8 +402,7 @@ public class PodcastServiceImpl implements PodcastService
 			contentHostingService.commitResource(podcastEditable);
 
 		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.trace("Expected PermissionException: " + e.getMessage(), e);
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

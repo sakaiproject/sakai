@@ -33,7 +33,8 @@
  	  <sakai:inputFileUpload id="podfile" valueChangeListener="#{podHomeBean.processFileUpload}"
  	     styleClass="indnt1" size="35" />
 
-      <h:message for="podfile" styleClass="alertMessage"/>
+<!--      h:message for="podfile" styleClass="alertMessage" -->
+	  <h:outputText value="#{msgs.nofile_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoFileErrMsg}" />
     </div>
     <br />
 
@@ -43,8 +44,9 @@
 
       <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
 
-      <h:message for="poddate" styleClass="alertMessage" />
-    </div>
+<!--        h:message for="poddate" styleClass="alertMessage" /> -->
+ 	  <h:outputText value="#{msgs.nodate_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoDateErrMsg}" /> 
+ 	</div>
     <br />
      
     <div class="indnt1">  <!-- Title -->
@@ -52,7 +54,8 @@
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
  	  <h:inputText id="podtitle" value="#{podHomeBean.title}" styleClass="indnt3" size="35" />
 
-      <h:message for="podtitle" styleClass="alertMessage" />
+<!--       h:message for="podtitle" styleClass="alertMessage" /> -->
+	  <h:outputText value="#{msgs.notitle_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoTitleErrMsg}" />
     </div>
     <br />
 
