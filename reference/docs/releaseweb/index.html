@@ -125,18 +125,6 @@ small pilot implementations on single servers)
 				  <a href="sakai_2-2-0/sakai-src_2-2-0_tar_gz.MD5">MD5</a>
 	</td>
 </tr>
-<tr>
-	<th>Mini</th>
-	<td>A minimal install designed for developers, which will build and start up relatively quickly. It includes the Sakai Framework Technologies, the developer's Sakai
-Mercury portal, and a few of the basic applications.  It's not available as an archive for download, but you can check it out of subversion, then just add your application
-code and any further dependencies that your application needs.  You can check it out from the following location: <a href="https://source.sakaiproject.org/svn/sakai/branches/sakai_mini/">https://source.sakaiproject.org/svn/sakai/branches/sakai_mini</a>
-
-
-	</td>
-	<td>-
-	</td>
-	<td>-
-</tr>
 </table>
 
 
@@ -332,8 +320,8 @@ involve clustered application servers.
      </tr>
 	 <tr><td colspan="2" class="line">&nbsp;</td></tr>
      <tr>
-       <th>Support<br/>Docs</th>
-       <td>JavaDocs and TagLibDocs are available on-line:
+       <th><p>Support<br/>Docs</p></th>
+       <td><p>JavaDocs and TagLibDocs are available on-line:</p>
          <ul>
 		 		             <li><a href="javadoc/">JavaDocs</a>
 		 		   			or <a href="javadoc/sakai-javadoc.zip">
@@ -350,15 +338,19 @@ involve clustered application servers.
 
 <a name="latest"></a>
 <h3>Getting the Latest Source Code</h3>
-<p>Sakai is using Subversion for its source control, and has maintenance branches for its most current releases. You can check out the maintenance branch for Sakai 2.2 with a subversion client:<p>
+<p>Sakai is using Subversion for its source control, and has maintenance branches - which include the latest bug fixes - for its most current releases . You can check out the maintenance branch for Sakai 2.2 with a subversion client:<p>
 
 <p><b>svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/ </b></p>
 <p>
 The Sakai development trunk can be checked out from here:
 </p>
-<p><b>svn co https://source.sakaiproject.org/svn/sakai/trunk</b>
-<p>
-&nbsp;</p>
+<p><b>svn co https://source.sakaiproject.org/svn/sakai/trunk</b></p>
+
+<p>A minimal source tree designed for developers is also made available, called "Sakai Mini," which is meant to build and start up relatively quickly. It includes the Sakai Framework Technologies, the developer's Sakai
+Mercury portal, and a few of the basic applications.  You can check it out of subversion, then just add your application
+code and any further dependencies that your application needs.  You can grab it here: </p>
+<p><b>svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_mini/</b></p>
+<p>&nbsp;</p>
 
 <a name="issues"></a>
 <h3>
