@@ -121,6 +121,12 @@ languages, as follows:
     Contact: Magnus Tagesson (magnus.tagesson@it.su.se)
     Local ID: sv_SE
                 
+19) Turkish
+    Status: inquiry on 7/17/2006
+    Translated by: n/a
+    Contact: E. Emre …zkeskin (eozkeskin@hotmail.com)
+    Local ID: tr_TR
+                
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
 JAVA_OPTS property as follows:
