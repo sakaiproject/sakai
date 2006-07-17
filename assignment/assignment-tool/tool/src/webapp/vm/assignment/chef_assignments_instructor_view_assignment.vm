@@ -93,19 +93,21 @@
 					#end
 				</td>
 			</tr>
-			<tr> 
-				<th>
-					$tlang.getString("gen.addduedat")
-				</th>
-				<td>
-					#set ($scheduled = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAddDueDate()))
-					#if ($!scheduled == "true")
-						$tlang.getString("gen.yes")
-					#else
-						$tlang.getString("gen.no")
-					#end
-				</td>
-			</tr>
+			#set ($scheduled = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropNewAssignmentCheckAddDueDate()))
+			#if ($scheduled)
+				<tr> 
+					<th>
+						$tlang.getString("gen.addduedat")
+					</th>
+					<td>
+						#if ($!scheduled == "true")
+							$tlang.getString("gen.yes")
+						#else
+							$tlang.getString("gen.no")
+						#end
+					</td>
+				</tr>
+			#end
 			<tr> 
 				<th>
 					$tlang.getString("gen.alert")

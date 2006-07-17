@@ -353,16 +353,18 @@
 					#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
-			<p class="checkbox indnt1">
-				#if ($value_CheckAddDueDate.equals("true"))
-					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
-				#else
-					<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" />
-				#end
-				<label for="$name_CheckAddDueDate">
-					$tlang.getString("gen.addduedat")
-				</label>
-			</p>
+			#if ($!name_CheckAddDueDate)
+				<p class="checkbox indnt1">
+					#if ($value_CheckAddDueDate.equals("true"))
+						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
+					#else
+						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" />
+					#end
+					<label for="$name_CheckAddDueDate">
+						$tlang.getString("gen.addduedat")
+					</label>
+				</p>
+			#end
 			<p class="checkbox  indnt1">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />

@@ -948,6 +948,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
 		context.put("name_GradePoints", NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
+		// do not show the choice when there is no Schedule tool yet
+		if (state.getAttribute(CALENDAR) != null)
 		context.put("name_CheckAddDueDate", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
@@ -992,6 +994,8 @@ public class AssignmentAction extends PagedResourceActionII
 		String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("value_GradePoints", displayGrade(state, maxGrade));
 		context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
+		// don't show the choice when there is no Schedule tool yet
+		if (state.getAttribute(CALENDAR) != null)
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 		String s = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
@@ -3019,14 +3023,23 @@ public class AssignmentAction extends PagedResourceActionII
 				checkForFormattingErrors);
 		state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, description);
 
-		if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null
-				&& params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE).equalsIgnoreCase(Boolean.TRUE.toString()))
+		if (state.getAttribute(CALENDAR) != null)
 		{
-			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+			// calendar enabled for the site
+			if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null
+					&& params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE).equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.TRUE.toString());
+			}
+			else
+			{
+				state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+			}
 		}
 		else
 		{
-			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, Boolean.FALSE.toString());
+			// no calendar yet for the site
+			state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		}
 
 		if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE) != null
@@ -3381,7 +3394,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 
-			String checkAddDueTime = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+			String checkAddDueTime = state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)!=null?(String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE):null;
 
 			String checkAutoAnnounce = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 
@@ -3577,7 +3590,14 @@ public class AssignmentAction extends PagedResourceActionII
 						// for newly created assignment
 						aPropertiesEdit.addProperty("newAssignment", Boolean.TRUE.toString());
 					}
-					aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, checkAddDueTime);
+					if (checkAddDueTime != null)
+					{
+						aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, checkAddDueTime);
+					}
+					else
+					{
+						aPropertiesEdit.removeProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+					}
 					aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
 					aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
 
@@ -3624,73 +3644,63 @@ public class AssignmentAction extends PagedResourceActionII
 						if (post)
 						{
 							// add due date to schedule and add open date to announcement only if user is posting the assignment
-
-							// add the due date to schedule
-							Calendar c = (Calendar) state.getAttribute(CALENDAR);
-							String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-							boolean dueDateEventModified = false;
-							CalendarEvent e = null;
-
-							if (dueDateScheduled != null && dueDateScheduled.equalsIgnoreCase(Boolean.TRUE.toString()))
+							
+							// add the due date to schedule if the schedule exists
+							if (state.getAttribute(CALENDAR) != null)
 							{
-								// find the old event
-								boolean found = false;
-								String oldEventId = aPropertiesEdit
-										.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-								if (oldEventId != null && c != null)
+								Calendar c = (Calendar) state.getAttribute(CALENDAR);
+								String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+								String oldEventId = aPropertiesEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+								CalendarEvent e = null;
+	
+								if (dueDateScheduled != null || oldEventId != null)
 								{
-									try
+									// find the old event
+									boolean found = false;
+									if (oldEventId != null && c != null)
 									{
-										e = c.getEvent(oldEventId);
-										found = true;
-									}
-									catch (IdUnusedException ee)
-									{
-										Log.warn("chef", "The old event has been deleted: event id=" + oldEventId + ". ");
-									}
-									catch (PermissionException ee)
-									{
-										Log.warn("chef", "You do not have the permission to view the schedule event id= "
-												+ oldEventId + ".");
-									}
-								}
-								else
-								{
-									TimeBreakdown b = oldDueTime.breakdownLocal();
-									// TODO: check- this was new Time(year...), not local! -ggolden
-									Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-									Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-									try
-									{
-										Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
-												.iterator();
-
-										while ((!found) && (events.hasNext()))
+										try
 										{
-											e = (CalendarEvent) events.next();
-											if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
-											{
-												found = true;
-											}
+											e = c.getEvent(oldEventId);
+											found = true;
+										}
+										catch (IdUnusedException ee)
+										{
+											Log.warn("chef", "The old event has been deleted: event id=" + oldEventId + ". ");
+										}
+										catch (PermissionException ee)
+										{
+											Log.warn("chef", "You do not have the permission to view the schedule event id= "
+													+ oldEventId + ".");
 										}
 									}
-									catch (PermissionException ignore)
+									else
 									{
-										// ignore PermissionException
+										TimeBreakdown b = oldDueTime.breakdownLocal();
+										// TODO: check- this was new Time(year...), not local! -ggolden
+										Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+										Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+										try
+										{
+											Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
+													.iterator();
+	
+											while ((!found) && (events.hasNext()))
+											{
+												e = (CalendarEvent) events.next();
+												if (((String) e.getDisplayName()).indexOf(rb.getString("assig1") + " " + title) != -1)
+												{
+													found = true;
+												}
+											}
+										}
+										catch (PermissionException ignore)
+										{
+											// ignore PermissionException
+										}
 									}
-								}
-
-								if (found)
-								{
-									if (oldDueTime != null && (!oldDueTime.toStringLocalFull().equals(dueTime.toStringLocalFull())) // due date changed
-											|| !aOldTitle.equals(title) // title changed
-											|| (!checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))) // user choose to not schedule due date
-									{
-										// if the assignment due date or title has been changed, we need to update existing event
-										dueDateEventModified = true;
-									}
-
-									if (dueDateEventModified && found)
+	
+									if (found)
 									{
 										// remove the founded old event
 										try
@@ -3707,35 +3717,49 @@ public class AssignmentAction extends PagedResourceActionII
 										}
 									}
 								}
-							}
-							if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
-							{
-								if (c != null)
+								
+								if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
 								{
-									try
+									if (c != null)
 									{
-										e = null;
-										e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */
-										0 * 60 * 1000),
-										/* title */rb.getString("due") + " " + title,
-										/* description */rb.getString("assig1") + " " + title + " " + "is due on "
-												+ dueTime.toStringLocalFull() + ". ",
-										/* type */rb.getString("deadl"),
-										/* location */"",
-										/* attachments */EntityManager.newReferenceList());
-										aPropertiesEdit.addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
-										if (e != null)
+										try
 										{
-											aPropertiesEdit.addProperty(
-													ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
+											e = null;
+											e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */
+											0 * 60 * 1000),
+											/* title */rb.getString("due") + " " + title,
+											/* description */rb.getString("assig1") + " " + title + " " + "is due on "
+													+ dueTime.toStringLocalFull() + ". ",
+											/* type */rb.getString("deadl"),
+											/* location */"",
+											/* attachments */EntityManager.newReferenceList());
+											
+											// commit related properties into Assignment object
+											String ref = "";
+											try
+											{
+												ref = a.getReference();
+												AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+												aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+												if (e != null)
+												{
+													aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
+												}
+												AssignmentService.commitEdit(aEdit);
+											}
+											catch (Exception ignore)
+											{
+												// ignore the exception
+												Log.warn("chef", rb.getString("cannotfin2") + ref);
+											}
 										}
-									}
-									catch (PermissionException ee)
-									{
-										Log.warn("chef", rb.getString("cannotfin1"));
-									} // try-catch
+										catch (PermissionException ee)
+										{
+											Log.warn("chef", rb.getString("cannotfin1"));
+										} // try-catch
+									} // if
 								} // if
-							} // if
+							}
 
 							// the open date been announced
 							if (checkAutoAnnounce.equalsIgnoreCase(Boolean.TRUE.toString()))
@@ -3788,14 +3812,25 @@ public class AssignmentAction extends PagedResourceActionII
 											}
 											channel.commitMessage(message, NotificationService.NOTI_NONE);
 
-											aPropertiesEdit
-													.addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-											if (message != null)
+											// commit related properties into Assignment object
+											String ref = "";
+											try
 											{
-												aPropertiesEdit.addProperty(
-														ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID,
-														message.getId());
+												ref = a.getReference();
+												AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+												aPropertiesEdit.addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+												if (message != null)
+												{
+													aPropertiesEdit.addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+												}
+												AssignmentService.commitEdit(aEdit);
 											}
+											catch (Exception ignore)
+											{
+												// ignore the exception
+												Log.warn("chef", rb.getString("cannotfin2") + ref);
+											}
+											
 										}
 										catch (PermissionException ee)
 										{
@@ -4986,14 +5021,17 @@ public class AssignmentAction extends PagedResourceActionII
 				catch (IdUnusedException e)
 				{
 					Log.info("chef", "No calendar found for site " + siteId);
+					state.removeAttribute(CALENDAR);
 				}
 				catch (PermissionException e)
 				{
 					Log.info("chef", "No permission to get the calender. ");
+					state.removeAttribute(CALENDAR);
 				}
 				catch (Exception ex)
 				{
 					Log.info("chef", "Assignment : Action : init state : calendar exception : " + ex);
+					state.removeAttribute(CALENDAR);
 				}
 			}
 		} // if
