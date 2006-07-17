@@ -57,7 +57,9 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ErrorReporter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -203,7 +205,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1014,7 +1016,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1255,7 +1257,7 @@ public class CharonPortal extends HttpServlet
 		Site site = null;
 		try
 		{
-			site = SiteService.getSiteVisit(siteId);
+			site = getSiteVisit(siteId);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1628,7 +1630,7 @@ public class CharonPortal extends HttpServlet
 			String toolContextPath, String portalPrefix) throws IOException
 	{
 		String presenceUrl = Web.returnUrl(req, "/presence/" + Web.escapeUrl(site.getId()));
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(site.getId()) + "/page/");
+		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean("display.users.present", true);
 		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu", true);
@@ -1813,13 +1815,23 @@ public class CharonPortal extends HttpServlet
 	protected void includeTabs(PrintWriter out, HttpServletRequest req, Session session, String siteId, String prefix,
 			boolean addLogout) throws IOException
 	{
-
 		// for skinning
 		String siteType = calcSiteType(siteId);
 
 		// is the current site the end user's My Workspace?
-		boolean curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && (SiteService.getSiteUserId(siteId)
-				.equals(session.getUserId()))));
+		// Note: the site id can match the user's id or eid
+		String curUserId = session.getUserId();
+		String curUserEid = curUserId;
+		if (siteId != null)
+		{
+			try
+			{
+				curUserEid = UserDirectoryService.getUserEid(curUserId);
+			}
+			catch (UserNotDefinedException e) {}
+		}
+		boolean curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
+				.equals(curUserId) || SiteService.getSiteUserId(siteId).equals(curUserEid)))));
 
 		// if this is a My Workspace, it gets its own tab and should not be considered in the other tab logic
 		if (curMyWorkspace) siteId = null;
@@ -1934,7 +1946,29 @@ public class CharonPortal extends HttpServlet
 				}
 				catch (IdUnusedException e)
 				{
-					M_log.warn("doSiteNav: cur site not found: " + siteId);
+					// check for another user's myWorkspace by eid
+					if (SiteService.isUserSite(siteId))
+					{
+						String userEid = SiteService.getSiteUserId(siteId);
+						try
+						{
+							String userId = UserDirectoryService.getUserId(userEid);
+							Site site = SiteService.getSite(SiteService.getUserSiteId(userId));
+							extraTitle = site.getTitle();
+						}
+						catch (UserNotDefinedException ee)
+						{
+							M_log.warn("includeTabs: cur site not found (not ~eid): " + siteId);							
+						}
+						catch (IdUnusedException ee)
+						{
+							M_log.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): " + siteId);
+						}
+					}
+					else
+					{
+						M_log.warn("includeTabs: cur site not found: " + siteId);
+					}
 				}
 			}
 		}
@@ -1960,7 +1994,7 @@ public class CharonPortal extends HttpServlet
 		else
 		{
 			String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/"
-					+ Web.escapeUrl(SiteService.getUserSiteId(session.getUserId()));
+					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
 			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
 					+ Web.escapeHtml(rb.getString("sit.mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit.mywor")) + "</span></a></li>");
 		}
@@ -1975,7 +2009,7 @@ public class CharonPortal extends HttpServlet
 			}
 			else
 			{
-				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(s.getId());
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
 				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
 						+ " " + Web.escapeHtml(rb.getString("sit.worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
@@ -2004,7 +2038,7 @@ public class CharonPortal extends HttpServlet
 			for (Iterator i = moreSites.iterator(); i.hasNext();)
 			{
 				Site s = (Site) i.next();
-				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + s.getId();
+				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + getSiteEffectiveId(s);
 				out.println("						<option title=\"" + Web.escapeHtml(s.getTitle()) + " "
 						+ Web.escapeHtml(rb.getString("sit.worksite")) + "\" value=\"" + siteUrl + "\">"
 						+ Web.escapeHtml(s.getTitle()) + "</option> ");
@@ -2308,5 +2342,87 @@ public class CharonPortal extends HttpServlet
 		out.println("portalWindowRefresh('" + url + "');");
 		out.println("</script>");
 		endResponse(out);
+	}
+
+	/**
+	 * Compute the string that will identify the user site for this user - use the EID if possible
+	 * 
+	 * @param userId
+	 *        The user id
+	 * @return The site "ID" but based on the user EID
+	 */
+	protected String getUserEidBasedSiteId(String userId)
+	{
+		try
+		{
+			// use the user EID
+			String eid = UserDirectoryService.getUserEid(userId);
+			return SiteService.getUserSiteId(eid);
+		}
+		catch (UserNotDefinedException e)
+		{
+			M_log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
+			return SiteService.getUserSiteId(userId);
+		}
+	}
+
+	/**
+	 * If this is a user site, return an id based on the user EID, otherwise just return the site id.
+	 * 
+	 * @param site
+	 *        The site.
+	 * @return The effective site id.
+	 */
+	protected String getSiteEffectiveId(Site site)
+	{
+		if (SiteService.isUserSite(site.getId()))
+		{
+			try
+			{
+				String userId = SiteService.getSiteUserId(site.getId());
+				String eid = UserDirectoryService.getUserEid(userId);
+				return SiteService.getUserSiteId(eid);
+			}
+			catch (UserNotDefinedException e)
+			{
+				M_log.warn("getSiteEffectiveId: user eid not found for user site: " + site.getId());
+			}
+		}
+
+		return site.getId();
+	}
+	
+	/**
+	 * Do the getSiteVisit, but if not found and the id is a user site, try translating from user EID to ID.
+	 * @param siteId The Site Id.
+	 * @return The Site.
+	 * @throws PermissionException If not allowed.
+	 * @throws IdUnusedException If not found.
+	 */
+	protected Site getSiteVisit(String siteId) throws PermissionException, IdUnusedException
+	{
+		try
+		{
+			return SiteService.getSiteVisit(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			if (SiteService.isUserSite(siteId))
+			{
+				try
+				{
+					String userEid = SiteService.getSiteUserId(siteId);
+					String userId = UserDirectoryService.getUserId(userEid);
+					String alternateSiteId = SiteService.getUserSiteId(userId);
+					return SiteService.getSiteVisit(alternateSiteId);
+				}
+				catch (UserNotDefinedException ee)
+				{
+				}
+			}
+			
+			// re-throw if that didn't work
+			throw e;
+		}
 	}
 }
