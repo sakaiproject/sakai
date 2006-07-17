@@ -27,7 +27,7 @@
 
     1.1.1. Framework Refactoring
 
-   The 2.2 release marks the culmination of a significant effort to
+   The 2.2.0 release marks the culmination of a significant effort to
    restructure the framework into more logical functional/architectural
    units, paving the way for multiple, focused teams to work in parallel on
    moving the framework and legacy code forward.
@@ -50,7 +50,7 @@
    For the last few releases we've been working to introduce the concept of
    "internal" and "external" identifiers in Sakai in the user records. We
    started with a single identifier that had to play both of these roles, and
-   have been tweaking the code to separate these out. For 2.2 we have
+   have been tweaking the code to separate these out. For 2.2.0 we have
    completed this separation. It is now possible for an institution to, for
    example, alter the enterprise IDs of their users without losing access to
    their sites and materials in Sakai. For a thorough discussion of these
@@ -61,9 +61,9 @@
     1.1.4. FCKeditor
 
    The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In
-   2.2 it has become the default editor. HTMLArea is still included, however,
-   and the default editor may be overridden in sakai.properties by altering
-   the following setting:
+   2.2.0 it has become the default editor. HTMLArea is still included,
+   however, and the default editor may be overridden in sakai.properties by
+   altering the following setting:
 
  # specify the wysiwyg editor
  wysiwyg.editor=FCKeditor
@@ -84,9 +84,9 @@
     1.1.6. Updated Help Content
 
    Help content in 2.1 was out of date, reflecting only version 2.0 of the
-   software. The help content has been updated for 2.2, along with some style
-   improvements. To see the ongoing work of the Help project, visit their
-   space in Confluence:
+   software. The help content has been updated for 2.2.0, along with some
+   style improvements. To see the ongoing work of the Help project, visit
+   their space in Confluence:
 
    http://bugs.sakaiproject.org/confluence/display/HELP/Home
 
@@ -104,8 +104,11 @@
 
      * Search: a tool providing a Google-like search of all site content.
 
-     * Summary Calendar: a synoptic calendar view for the MyWorkspace that
-       includes events from all the sites to which a user is a member.
+     * Summary Calendar: a synoptic calendar view that may be used in either
+       the My Workspace or the Home page of course/project sites, including
+       an event summary from either all the sites to which a user is a member
+       (if in My Workspace) or the events of a particular site (if in that
+       site).
 
      * Post 'Em: an automated reporting system that enables faculty to post
        grades and comments without compromising student privacy. Post `Em
@@ -172,7 +175,7 @@ Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conv
 
   2.3. Provider Changes
 
-   As mentioned above, 2.2 introduces a separation of external user
+   As mentioned above, 2.2.0 introduces a separation of external user
    identifiers from Sakai's internal user ids. Any custom
    UserDirectoryProvider will need some alteration to account for this, along
    with changes to its import statements and declarations that stem from API
@@ -200,7 +203,7 @@ Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conv
   2.4. Skin Changes
 
    A number of CSS changes will need to be made to any 2.1 skins in order to
-   adapt them to 2.2. These changes - including conversion steps - are
+   adapt them to 2.2.0. These changes - including conversion steps - are
    thoroughly documented in the appendices of the skin document available in
    reference/docs/architecture/sakai_skin.doc, or in subversion at:
    https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc
@@ -225,7 +228,7 @@ Oracle: https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/conv
 
 4. Fixes Included in this Release
 
-   Sakai 2.2 fixes the following issues from previous releases:
+   Sakai 2.2.0 fixes the following issues from previous releases:
 
    http://source.sakaiproject.org/release/2.2.0/fixed-issues.html
 

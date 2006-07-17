@@ -37,25 +37,36 @@
                 5.3. Create Database and User
                 5.4. Database Properties
 
-   6. Troubleshooting
-                6.1. Build Issues
-                6.2. Tomcat Startup Issues
+   6. Getting Started with the Software
+                6.1. The Gateway Page
+                6.2. My Workspace
+                6.3. Other Sites
+                6.4. Admin Tools
+                6.5. Experimenting with Tools
+                6.6. Where to Learn More
+
+   7. Troubleshooting
+                7.1. Build Issues
+                7.2. Tomcat Startup Issues
 
 1. Overview
 
   1.1. Choose an Install Type
 
-   Sakai is available for three different installation methods:
+   Sakai 2.2.0 downloads are available for three different installation
+   methods:
 
    Demo:   This archive provides the quickest and easiest way to try out
            Sakai. It includes the Tomcat container and pre-built webapps, so
            that the only prerequisite for getting started is Java (v. 1.4.2
            or higher).
+           
    Binary: This archive is a kind of Tomcat overlay. If you have a working
            Tomcat appropriately configured, the binary installation provides
            a quick way to drop the Sakai application bundle into place
            without requiring a maven build. This may be a good choice if you
            know you don't need to make any code-level changes.
+           
    Source: This archive includes only the source code to build Sakai, and
            therefore calls for separate, preparatory installations of Tomcat
            and the Maven build tool, along with (most likely) a preferred
@@ -64,20 +75,18 @@
 
   1.2. Demo Installation
 
-   A demo installation is brief and straightforward. The steps are as
-   follows:
+   A demo installation is brief and straightforward. The most technically
+   challenging aspect of a demo install is making sure that your Java
+   environment is squared away in advance. The steps are as follows:
 
-    1. Verify Java Installation and Environment Variables (see Set up
-       Environment).
-
-  Tuning the JVM
-
-       The default JVM is not sufficient to run Sakai out of the box, and
-       some of its settings will need to be adjusted by setting a new
-       environment variable called JAVA_OPTS. See the Set up Environment
-       section.
+    1. Verify Java Installation and Environment Variables (see the first two
+       sections of Set up Environment).
 
     2. Download and unpack the Demo archive
+
+          * Windows demo archive
+
+          * Mac/*nix archive
 
     3. Start Tomcat with the following commands from the root Tomcat
        directory:
@@ -87,11 +96,9 @@
 
    Once Tomcat is started up, you can point your browser to
    http://localhost:8080/portal. This will bring you to the Sakai gateway
-   site where you can log in using the default administrator's account (the
-   user id and password are both 'admin'). New user accounts can be created
-   from the User tool in the admin workspace, or by using the New Account
-   link on the gateway page. New sites can be created using the Worksite
-   Setup tool.
+   site, from which you can create new accounts and log in to the syste. For
+   more orienting tips on how to begin using Sakai, skip ahead to [43]Getting
+   Started with the Software.
 
    To stop the demo:
 
@@ -110,7 +117,7 @@
   1.3. Binary Installation
 
    The Binary installation of Sakai provides a shortcut for those that
-   already have Tomcat in place and configured as needed (see Set up
+   already have Tomcat in place and configured as needed (see [44]Set up
    Environment for details on Tomcat configuration), and it does so by
    providing a pre-built Sakai that can simply be dropped into place. All you
    need to do is unpack the binary archive at the root Tomcat directory, and
@@ -177,6 +184,7 @@
                           conversion scripts that pertain to them. Again, see
                           the Database Configuration section for more
                           details.
+                          
    Providers:             Among the changes that 2.2 introduces is a
                           separation of external user identifiers from
                           Sakai's internal user ids. Any custom
@@ -208,12 +216,16 @@
    If you're unfamiliar with the Java world, you may find the acronyms for
    various Java environments a little mysterious. The JRE is simply the
    "runtime environment" which allows you to execute compiled Java bytecode,
-   and for many platforms this is all you usually get - for the very good
-   reason that the average user just wants to run programs, and doesn't need
-   to be building code. For this latter purpose you'll need the JDK, which
-   stands for "Java Developer's Kit." The J2SE (the "Java 2 Standard
-   Edition") is simply the combination of the JDK and the JRE - this is the
-   one you want in order to complete the source installation.
+   and for many platforms this is all you usually get by default - for the
+   very good reason that the average user just wants to run programs, and
+   doesn't need to be building code. The JRE is what Tomcat needs to start
+   up, and if all you're installing is the Sakai demo or binary, then the JRE
+   will suffice for you.
+
+   To build the Sakai source, however, you'll need the JDK, which stands for
+   "Java Developer's Kit." To both build and run Sakai you'll therefore need
+   a combination of both the JDK and the JRE, and, happily, Sun makes this
+   available as a unit: the J2SE (the "Java 2 Standard Edition").
 
    If you go to the Sun site for a download, you may also run across the J2EE
    (the "Enterprise Edition"), or even the J2ME (the "Micro Edition"). Don't
@@ -225,7 +237,7 @@
    There are three Java environment variables you'll want to set for
    everything to function as it should, and though some of them may have
    already been set by your Java installation (depending on your platform),
-   you'll want to double-check them all. You can also look at the [47]Sun
+   you'll want to double-check them all. You can also look at the Sun
    Java Installation Instructions page at the Java web site for further
    details.
 
@@ -240,6 +252,15 @@
    Windows:  Set the (or create a new) environment variable JAVA_HOME to
              C:\jdk1.5.0_06.
    Mac/*nix: export JAVA_HOME=/usr/java/java-current
+
+  JRE_HOME
+
+   If your machine has already set JRE_HOME for any reason, or if you want to
+   be sure to be using a particular JRE - in the event that you have more
+   than one JRE installed on your machine - then you'll want to set the
+   JRE_HOME variable as well. JRE_HOME is what Tomcat uses when it starts up,
+   but it defaults to use JAVA_HOME if JRE_HOME is not set. For most people,
+   then, setting JAVA_HOME will cover both cases sufficiently.
 
    Next you'll want to append to the PATH variable the location of Java
    commands:
@@ -257,9 +278,9 @@
 
    Windows:  Create a new environment variable JAVA_OPTS to hold the value
              "-server -Xmx512m -Xms512m -XX:PermSize=128m
-             -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m".
+             -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m".
    Mac/*nix: export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
-             -XX:MaxPermSize=196m -XX:NewSize=256m -XX:MaxNewSize=384m"
+             -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"
 
   More on JVM Tuning
 
@@ -279,7 +300,9 @@
    http://tomcat.apache.org/download-55.cgi. The distribution you want is
    the one labeled Core, along with the JDK 1.4 Compatibility Package (even
    if you're using Java 1.5, some portions of the Sakai code will require the
-   compatibility package, and Sakai won't start up without it).
+   compatibility package, and Sakai won't start up without it). The Tomcat
+   5.5 instructions will tell you that Java 1.5 is required, but it's not, so
+   long as you have the 1.4 Compatibility package.
 
   Tomcat on Windows
 
@@ -295,7 +318,7 @@
    Unpack the Tomcat archive at your desired location, and unpack the
    compatibility package directly on top of it. From this point forward these
    instructions will refer to the top-level Tomcat directory (e.g.
-   apache-tomcat-5.5.17) as $CATALINA_HOME. You may set this as an
+   /usr/local/apache-tomcat-5.5.17) as $CATALINA_HOME. You may set this as an
    environment variable for convenience's sake, but this is not required.
    Make sure that you have write permissions to the Tomcat files and
    directories before proceeding, or you may later run into errors during the
@@ -348,7 +371,7 @@
   Newer versions of Maven
 
    It's important that Maven 1.0.2 be used. There are betas for Maven 1.1 and
-   Maven 2.0 currently available, but neither will work for Sakai 2.1. Many
+   Maven 2.0 currently available, but neither will work for Sakai 2.2. Many
    plugins have not yet been adapted for the new Maven architecture.
 
    Choose a location for Maven, and unpack the archive there. You will have a
@@ -424,13 +447,15 @@
 
   Getting the Code from Subversion
 
-   Alternatively, you may check out the source code from subversion with the
-   command:
+   Alternatively, you may check out the source code from subversion. You
+   might wish to do this, for example, in order to grab the maintenance
+   branch, which will include the latest set of bug fixes. To check out the
+   maintenance branch, you can use the following command:
 
- svn export https://source.sakaiproject.org/svn/tags/sakai_2-2-0
+ svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/
 
    In which case you could skip the unpacking step below, and your root
-   directory would be sakai_2-2-0 instead of sakai-src.
+   directory would be sakai_2-2-x instead of sakai-src.
 
   3.2. Unpack Source
 
@@ -454,7 +479,7 @@
    $CATALINA_HOME/webapps directory. If Maven completes with the message
    BUILD SUCCESSFUL, you should be able to move on to the next step. If you
    are greeted with the report BUILD FAILED read the accompanying error
-   message carefully to troubleshoot (see the [55]Troubleshooting section).
+   message carefully to troubleshoot (see the Troubleshooting section).
 
   Maven and Memory
 
@@ -464,7 +489,7 @@
    need to set an additional environment variable, namely, MAVEN_OPTS. The
    value in the sample Unix command below should be more than enough:
 
-       export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"
+                     export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"
 
    You will probably be able to start up Tomcat and run Sakai with the
    default configuration at this point, but it would be better to take care
@@ -573,7 +598,7 @@
    for further experimentation and testing, but the following details are
    however offered only as samples or suggestions, and we recommend that you
    consult a systems administrator or local Java guru before making any such
-   changes to a production system. See the [57]Programmer's Cafe on our
+   changes to a production system. See the Programmer's Cafe on our
    Confluence wiki for more discussion of the details.
 
    The standard way to control the JVM options when Tomcat starts up is to
@@ -778,9 +803,8 @@ Oracle: http://www.oracle.com/technology/software/tech/java/sqlj_jdbc/index.html
 
    There are settings in sakai.properties that also define the database
    technology and connection information. Appropriate sakai.properties
-   settings for Oracle and MySQL, respectively, are listed below (although
-   some pieces will of course need to be altered appropriately for your
-   installation):
+   settings for Oracle and MySQL, respectively, are listed below, and you
+   need only modify them with your local particulars:
 
 MySQL:  hibernate.dialect=org.hibernate.dialect.MySQLDialect
         vendor@org.sakaiproject.db.api.SqlService=mysql
@@ -816,6 +840,11 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
    (above) automatically; setting them with each use may affect performace.
    In addition, validating the connection on each transaction caused problems
    in at least one large production environment (University of Michigan).
+
+   Once you've configured the database appropriately, you need only stop and
+   restart Tomcat. As Tomcat is coming up you can watch its log to see if
+   there are any database connection errors (see the [72]Troubleshooting
+   section).
 
   Oracle and Tests&Quizzes
 
@@ -868,20 +897,196 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
 
  Commit complete.
 
-6. Troubleshooting
+6. Getting Started with the Software
+
+   You should at this point have a working Sakai installation. Now it's time
+   to get started with adding users, creating work sites, and otherwise
+   playing around with the tools. We won't try to present a full user's guide
+   here, but we can offer some pointers to get you oriented and on your way,
+   and link you to more exhaustive sources of information elsewhere.
+
+  6.1. The Gateway Page
+
+   When Tomcat has come up successfully, you should be able to direct your
+   browser to its gateway page at http://localhost:8080/portal (or
+   replace 'localhost' with the name of the server where it's installed).
+   From the gateway page you can create new accounts or browse for public
+   site content. You could start by creating a new account, but that can also
+   be done as an admin, and since the admin functions are needed to allow
+   this account the right permissions, it's just as well to start by logging
+   in as the admin user. Sakai's out-of-the-box admin account is simply named
+   'admin' (with password also 'admin'), so use those credentials to log in.
+
+  6.2. My Workspace
+
+   Every user on the system - including the admin - has a private site called
+   My Workspace. It's the landing point upon logging in, and it's the first
+   site tab visible at the upper left. Running vertically along the left-hand
+   side of the screen are links to the various different tool pages within a
+   given site, and the admin's My Workspace has a different set of such
+   options here than most (each different type of account can be configured
+   to have a different set of tools in its My Workspace by altering a
+   template - see below).
+
+  6.3. Other Sites
+
+   Each new (accessible) site becomes visible as a tab along the top, to the
+   right of My Workspace. For most users, they initially only have access to
+   one site - their My Workspace. The admin user is a little different, in
+   that it has access to two.
+
+   The second admin site (which you can enter by clicking on its tab) is
+   entitled Administration Workspace which, strangely enough, looks exactly
+   the same as the admin My Workspace. It is.
+
+   Why the redundancy? Because you'll likely want to make these admin tools
+   available to a particular user who doesn't have access to the admin's My
+   Workspace (no one has access to other people's My Workspace on the
+   system). To allow anyone access to the admin tools, you need only add them
+   to the list of users of the Administration Workspace, and then promote
+   them in the site to the "admin" role.
+
+  6.4. Admin Tools
+
+    6.4.1. Creating Users
+
+   The first thing you may want to do is to change the admin password to
+   something secure, and to start creating a few sample users on your system.
+   You can do both of those tasks through the Users tool on the left. To
+   change the admin user's password, simply click on the 'admin' username in
+   the list of users, and edit the fields on the subsequent page. To create
+   users, click on the New User action link at the top of the tool page.
+
+    6.4.2. Creating Sites
+
+   If you're itching to create your first worksite, you may be tempted to
+   dive directly into the Sites tool. That would probably be a mistake. The
+   Sites tool is a powerful way to construct an entire site from the ground
+   up, with fine-grained control over its every page, tool, and configuration
+   detail. But this flexible power comes with a price, making for an
+   intimidating interface and epic-scale workflow. The Sites tool is
+   therefore best used as a way to tweak an existing site after the fact,
+   once the standard pieces have been more expediently assembled.
+
+   The best way to start creating sites, therefore, is to use the Worksite
+   Setup tool. Click on the New link at the top of the tool page, and then,
+   for simplicity's sake, choose the Project site type, which will allow you
+   to avoid issues of academic term, etc., that are provoked by a "course"
+   site - issues which are probably unnecessary if you just want to start
+   playing with the tools. Either type of site will serve, however: both
+   types of sites have all the tools available to them.
+
+   Step through the remaining site creation pages, making your preferred
+   selections. Be sure to click the Create Site button at the end of the
+   process. After doing so, you should see the site title visible as a new
+   tab along the top of the screen.
+
+    6.4.3. Adding Users to Sites
+
+   Since you set this site up as an admin, the admin is technically the owner
+   of this site, and its only member at first. If you want to add other
+   sample users to this site in different roles, you can do so through the
+   Site Info tool of the site itself.
+
+   Click on the tab of your new site (which should now be visible) to enter
+   it, and then click on the Site Info link along the lefthand side. Site
+   Info has a number of site maintainer functions available as action links
+   across the top, and Add Participants is the one that will allow you to
+   connect other users to the site. These users will of course need to have
+   been previously created.
+
+   As long as we're here in Site Info, it's worth pointing out that the Edit
+   Tools link at the top will allow you to remove and add tools from the
+   site.
+
+  6.5. Experimenting with Tools
+
+   You may have noticed an extra tool appear in your site - one which you
+   didn't explicitly choose - labeled Help. This tool provides online
+   documentation of the various bundle tools, and other facets of the system.
+   This should be your companion as you learn more about the software's
+   functionality.
+
+   This Help tool is also reached in a context-sensitive way by clicking on
+   the question mark icons at the upper right of any particular tool frame.
+   Clicking on those question marks will open up the precise content of the
+   tool you happen to be in at the time.
+
+   At some later point, when you become comfortable with the standard tools,
+   you may wish to see other, more experimental tools that are available for
+   Sakai. The Sakai distribution includes provisional tools that are still
+   maturing, but can already serve needs in innovative ways that the standard
+   ones do not. These extra tools require additional steps to enable, so that
+   system users will not stumble across them inadvertently if that's not
+   desired, but you are encouraged to evaluate them for your own deployment.
+   See http://source.sakaiproject.org/release/2.2.0/provisional.html for
+   more details.
+
+  6.6. Where to Learn More
+
+   Sakai information has been unfortunately a little fragmented to date.
+   Attempts are underway to consolidate and present this information in a
+   more uniform way, but in the interim a tourist's guide of the landmarks
+   may be in order.
+
+    6.6.1. About the Project
+
+   The sakaiproject.org site offers the best background and orientation
+   to the project and its goals, but chances are you've already seen it. For
+   more particular information on the progress and roadmaps of certain tools
+   or other initiatives, see the Confluence space named
+   Management/Project Coordination. That coordinating page will also link
+   you out to Confluence spaces for particular tools, and documentation about
+   them.
+
+    6.6.2. Community Participation
+
+   The Sakai community hosts its own Sakai installation to serve up
+   collaboration sites for its various sub-groups, and for direct interaction
+   with community members you should join sites there that may be of
+   interest. You can create an account there by visiting
+   http://collab.sakaiproject.org and clicking on the New Account button.
+   Once your account is created you can log in, and with the Membership tool
+   you may join any worksites that may seem appropriate. Joining a site
+   automatically adds you to its email list, and unjoining a worksite
+   similarly removes you (while, it should be noted, sending an "unsubscribe"
+   email will not).
+
+    6.6.3. About Technical Matters
+
+   Reference materials for various technical issues are best found in Sakai's
+   subversion repository (where these installation documents are also stored)
+   or in the project's Confluence wiki. The docs in subversion can be
+   found in the reference module, e.g.
+   https://source.sakaiproject.org/svn/reference. See in particular the
+   docs/architecture folder contained there, which contains a wide-ranging
+   collection of technical white papers.
+
+   The Confluence wiki is a more informal source of information, but also
+   valuable and broader in scope. New developers in particular should visit
+   the Programmer's Cafe, while the Sakaipedia provides nuggets of
+   insight on a wide array of issues. You're encouraged to create an account
+   there and participate.
+
+   But often the most incisive information comes from direct interaction with
+   your peers. As mentioned above, the Collab Server is the place to go
+   for this. For technical questions the best (and most active) such group is
+   DG: Development, also commonly referred to by its alias, "sakai-dev."
+
+7. Troubleshooting
 
    Below are a number of common issues encountered while building and
    starting up Sakai, but you may also benefit from the expert opinions that
    reside on the sakai-dev list. To join, visit collab.sakaiproject.org,
-   create a new account, log in to your MyWorkspace, and then use the
+   create a new account, log in to your My Workspace, and then use the
    Membership tool to join the group named DG: Development. Then you can
    begin to send emails to (and receive them from)
    sakai-dev@collab.sakaiproject.org. To later unsubscribe, you can simply
    use the same Membership tool to unjoin the site.
 
-  6.1. Build Issues
+  7.1. Build Issues
 
-    6.1.1. JAR download failures
+    7.1.1. JAR download failures
 
    A first build of Maven on a fresh installation may warn of numerous jar
    download failures if you include the clean phase. This is a nuisance, but
@@ -895,10 +1100,10 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
    code.
 
    If this does not account for the download failures you're seeing, then you
-   may want to double-check your maven.remote.repo setting. See the [65]Maven
+   may want to double-check your maven.remote.repo setting. See the [83]Maven
    Configuration section, and follow it precisely.
 
-    6.1.2. Out of Memory errors
+    7.1.2. Out of Memory errors
 
    You may find that your machine runs out of memory while it is building
    Sakai. As it turns out, maven does not read JAVA_OPTS when it starts up,
@@ -908,12 +1113,12 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
 
  export MAVEN_OPTS="-Xmx384m -XX:PermSize=48m"
 
-    6.1.3. Uninformative failure messages
+    7.1.3. Uninformative failure messages
 
    If you need more detailed output to track down a build error, maven can be
    run in debug mode by adding the -x argument, e.g. maven -x.
 
-    6.1.4. Building only a single module
+    7.1.4. Building only a single module
 
    If you'd like to have the Sakai build targets and goals available for
    building only a single module (i.e. instead of rebuilding the entire
@@ -930,9 +1135,9 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
    sakai/master/project.properties file. It is not necessarily (and in fact
    often isn't) the same as the version of Sakai you're using.
 
-  6.2. Tomcat Startup Issues
+  7.2. Tomcat Startup Issues
 
-    6.2.1. Finding the Tomcat logs
+    7.2.1. Finding the Tomcat logs
 
    Once you have Sakai installed, configured and started, you can monitor
    Sakai by watching the logs. The log level for the standard Sakai source
@@ -1018,7 +1223,7 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
    The SMTP server logs from Sakai will be written to the
    $CATALINA_HOME/sakai/logs directory.
 
-    6.2.2. Startup halts with destroy messages
+    7.2.2. Startup halts with destroy messages
 
    If you see those destroy messages, that's the end of it. Tomcat is not
    coming up, and you'll need to go back and change something before it will.
@@ -1037,14 +1242,14 @@ Oracle: hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
    Deploying this jar will produce a more Shakespearian death in its
    verbosity.
 
-    6.2.3. "Unsupported major.minor version 49.0"
+    7.2.3. "Unsupported major.minor version 49.0"
 
    If this message appears in catalina.out during startup, it means that
    you've built Sakai for Java 1.5, but your JRE is 1.4. Go back to the
-   Set up Build Environment section and double-check your Java version
+   [86]Set up Build Environment section and double-check your Java version
    and environment variables.
 
-    6.2.4. "java.net.BindException: Address already in use"
+    7.2.4. "java.net.BindException: Address already in use"
 
    If this message appears in catalina.out during startup, it means that some
    other application is already running on the port you've assigned for this
