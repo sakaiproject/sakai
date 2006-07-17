@@ -74,13 +74,13 @@
               <h:outputText value="#{eachPodcast.type}" />
 
               <!--  go to Revise page -->
-              <h:outputText value=") | " />
+              <h:outputText value="#{msgs.close_paren} #{msgs.spacer_bar}" />
               <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" rendered="#{podHomeBean.canUpdateSite}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
               <!--  go to Delete page --> 
-              <h:outputText value=" | " />
+              <h:outputText value="#{msgs.spacer_bar}" />
               <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" rendered="#{podHomeBean.canUpdateSite}" >
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
