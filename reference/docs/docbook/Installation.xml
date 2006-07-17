@@ -47,7 +47,9 @@
         </sect2>
         <sect2 xml:id="install-overview-demo">
             <title>Demo Installation</title>
-            <para>A demo installation is brief and straightforward. The most technically challenging aspect of a demo install is making sure that your Java environment is squared away in advance.  The steps are as follows:</para>
+            <para>A demo installation is brief and straightforward. The most technically challenging
+                aspect of a demo install is making sure that your Java environment is squared away
+                in advance. The steps are as follows:</para>
             <procedure>
                 <step>
                     <para>Verify Java Installation and Environment Variables (see the first two
@@ -96,7 +98,9 @@
             </procedure>
             <para>Once Tomcat is started up, you can point your browser to <link
                     xl:href="http://localhost:8080/portal">http://localhost:8080/portal</link>. This
-                will bring you to the Sakai gateway site, from which you can create new accounts and log in to the syste.  For more orienting tips on how to begin using Sakai, skip ahead to <link linkend="install-software">Getting Started with the Software</link>.</para>
+                will bring you to the Sakai gateway site, from which you can create new accounts and
+                log in to the syste. For more orienting tips on how to begin using Sakai, skip ahead
+                to <link linkend="install-software">Getting Started with the Software</link>.</para>
             <para>To stop the demo:</para>
             <variablelist>
                 <varlistentry>
@@ -560,8 +564,10 @@ maven.tomcat.home=/usr/local/tomcat/</screen>
                     xl:href="http://www.sakaiproject.org">http://www.sakaiproject.org/release</link></para>
             <note>
                 <title>Getting the Code from Subversion</title>
-                <para>Alternatively, you may check out the source code from subversion.  You might wish to do this, for example, in order to grab the <emphasis>maintenance branch</emphasis>, which will include the latest set of bug fixes.  To check out the maintenance branch, you can use the following
-                    command:</para>
+                <para>Alternatively, you may check out the source code from subversion. You might
+                    wish to do this, for example, in order to grab the <emphasis>maintenance
+                    branch</emphasis>, which will include the latest set of bug fixes. To check out
+                    the maintenance branch, you can use the following command:</para>
                 <screen>svn export https://source.sakaiproject.org/svn/sakai/branches/sakai_2-2-x/</screen>
                 <para>In which case you could skip the unpacking step below, and your root directory
                     would be sakai_2-2-x instead of sakai-src.</para>
@@ -1101,37 +1107,45 @@ Commit complete.</screen>
     </sect1>
     <sect1 xml:id="install-software">
         <title>Getting Started with the Software</title>
-        <para>You should now have a working Sakai installation. Now it's time to
-            get started with adding users, creating work sites, and playing around with the tools.
-            We won't try to present a full user's guide here, but we can offer some pointers to get
-            you oriented and on your way, and link you to more exhaustive sources of information elsewhere.</para>
+        <para>You should at this point have a working Sakai installation. Now it's time to get started with
+            adding users, creating work sites, and otherwise playing around with the tools. We won't try to
+            present a full user's guide here, but we can offer some pointers to get you oriented and
+            on your way, and link you to more exhaustive sources of information elsewhere.</para>
         <sect2 xml:id="install-software-gateway">
             <title>The Gateway Page</title>
             <para>When Tomcat has come up successfully, you should be able to direct your browser to
                 its gateway page at <link xl:href="http://localhost:8080/portal"
                     >http://localhost:8080/portal</link> (or replace 'localhost' with the name of
                 the server where it's installed). From the gateway page you can create new accounts
-                (by default) or browse for public site content. Nothing is there yet, of course, so the
-                first step is to log in as an admin to lay the groundwork. As an admin you'll be able to customize the
-                content and appearance of the gateway page, as well as add new users and sites.
-                Out-of-the-box Sakai includes an account named 'admin' (with password 'admin'), so
-                use those credentials to log in.</para>
+                or browse for public site content.  You could start by creating a new account, but that can also be done as an admin, and since the admin functions are needed to allow this account the right permissions, it's just as well to start by logging in as the admin user.  Sakai's out-of-the-box admin account is simply named 'admin' (with
+                password also 'admin'), so use those credentials to log in.</para>
         </sect2>
         <sect2>
             <title>My Workspace</title>
             <para>Every user on the system - including the admin - has a private site called
-                    <emphasis>My Workspace</emphasis>. It's the landing spot upon logging in, and
+                    <emphasis>My Workspace</emphasis>. It's the landing point upon logging in, and
                 it's the first site tab visible at the upper left. Running vertically along the
-                left-hand side of the screen are links to the various different tool pages within a given site, and the
-                admin's <emphasis>My Workspace</emphasis> has a different set of such options here than most (each different type of account can
-                be configured to have a different set of tools in its <emphasis>My
-                Workspace</emphasis> by altering a template - see below).</para>
+                left-hand side of the screen are links to the various different tool pages within a
+                given site, and the admin's <emphasis>My Workspace</emphasis> has a different set of
+                such options here than most (each different type of account can be configured to
+                have a different set of tools in its <emphasis>My Workspace</emphasis> by altering a
+                template - see below).</para>
         </sect2>
         <sect2>
             <title>Other Sites</title>
-            <para>Each new site a particular has access to becomes visible as a tab along the top, to the right of <emphasis>My Workspace</emphasis>.  For most users, they initially only have access to one site - their <emphasis>My Workspace</emphasis>.  The admin user is a little different, in that it has access to two.</para>
-            <para>The second admin site (which you can enter by clicking on its tab) is entitled <emphasis>Administration Workspace</emphasis> which, strangely enough, looks exactly the same as the admin <emphasis>My Workspace</emphasis>.  It is.</para>
-            <para>Why the redundancy?  Because you'll likely want to make these admin tools available to a particular user who doesn't have access to the admin's <emphasis>My Workspace</emphasis> (no one has access to other people's <emphasis>My Workspace</emphasis> on the system).  To allow anyone access to the admin tools, you need only add them to the list of users of the <emphasis>Administration Workspace</emphasis>, and do so in the "admin" role.</para>
+            <para>Each new (accessible) site becomes visible as a tab along the top,
+                to the right of <emphasis>My Workspace</emphasis>. For most users, they initially
+                only have access to one site - their <emphasis>My Workspace</emphasis>. The admin
+                user is a little different, in that it has access to two.</para>
+            <para>The second admin site (which you can enter by clicking on its tab) is entitled
+                    <emphasis>Administration Workspace</emphasis> which, strangely enough, looks
+                exactly the same as the admin <emphasis>My Workspace</emphasis>. It is.</para>
+            <para>Why the redundancy? Because you'll likely want to make these admin tools available
+                to a particular user who doesn't have access to the admin's <emphasis>My
+                Workspace</emphasis> (no one has access to other people's <emphasis>My
+                Workspace</emphasis> on the system). To allow anyone access to the admin tools, you
+                need only add them to the list of users of the <emphasis>Administration
+                Workspace</emphasis>, and then promote them in the site to the "admin" role.</para>
         </sect2>
         <sect2>
             <title>Admin Tools</title>
@@ -1139,53 +1153,73 @@ Commit complete.</screen>
                 <title>Creating Users</title>
                 <para>The first thing you may want to do is to change the admin password to
                     something secure, and to start creating a few sample users on your system. You
-                    can do both of those tasks through the <emphasis>Users</emphasis> tool on the left. To change the admin user's password, simply click on the "admin" username in the list of users, and edit the fields on the subsequent page.  To create users,
-                    click on the <emphasis>New User</emphasis> action link at the top of the tool
-                    page.</para>
+                    can do both of those tasks through the <emphasis>Users</emphasis> tool on the
+                    left. To change the admin user's password, simply click on the 'admin' username
+                    in the list of users, and edit the fields on the subsequent page. To create
+                    users, click on the <emphasis>New User</emphasis> action link at the top of the
+                    tool page.</para>
             </sect3>
             <sect3>
                 <title>Creating Sites</title>
                 <para>If you're itching to create your first worksite, you may be tempted to dive
                     directly into the <emphasis>Sites</emphasis> tool. That would probably be a
                     mistake. The <emphasis>Sites</emphasis> tool is a powerful way to construct an
-                    entire site from the ground up, with fine-grained control over its every page, tool, and
-                    configuration detail. But this flexible power comes with a price, making for an intimidating
-                    interface and epic-scale workflow. The <emphasis>Sites</emphasis> tool is therefore
-                    best used as a way to tweak an existing site after the fact, once the standard
-                    pieces have been more expediently assembled.</para>
-                <para>The best way to start creating sites, therefore, is to use the <emphasis>Worksite
-                    Setup</emphasis> tool. Click on the <emphasis>New</emphasis> link at the top of the tool page,
-                    and then, for simplicity's sake, choose the <emphasis>Project</emphasis> site
-                    type, which will allow you to avoid issues of academic term, etc., that are provoked by a "course" site, and which are
-                    probably premature if you just want to start playing with the tools. Either type of site will serve, however:  both types of sites have all the tools available to them that a course site does.</para>
-                <para>Step through the remaining site configuration options, making your preferred
+                    entire site from the ground up, with fine-grained control over its every page,
+                    tool, and configuration detail. But this flexible power comes with a price,
+                    making for an intimidating interface and epic-scale workflow. The
+                        <emphasis>Sites</emphasis> tool is therefore best used as a way to tweak an
+                    existing site after the fact, once the standard pieces have been more
+                    expediently assembled.</para>
+                <para>The best way to start creating sites, therefore, is to use the
+                        <emphasis>Worksite Setup</emphasis> tool. Click on the
+                    <emphasis>New</emphasis> link at the top of the tool page, and then, for
+                    simplicity's sake, choose the <emphasis>Project</emphasis> site type, which will
+                    allow you to avoid issues of academic term, etc., that are provoked by a
+                    "course" site - issues which are probably unnecessary if you just want to start
+                    playing with the tools. Either type of site will serve, however: both types of
+                    sites have all the tools available to them.</para>
+                <para>Step through the remaining site creation pages, making your preferred
                     selections. Be sure to click the <emphasis>Create Site</emphasis> button at the
-                    end of the process, or the site won't be created at all. After doing so, you should see the
-                    site title visible as a new tab along the top of the screen.</para>
+                    end of the process. After doing so, you
+                    should see the site title visible as a new tab along the top of the
+                screen.</para>
             </sect3>
             <sect3>
                 <title>Adding Users to Sites</title>
                 <para>Since you set this site up as an admin, the admin is technically the owner of
-                    this site, and its only member at first. If you want to add other sample users to this
-                    site in different roles, you can do so through the <emphasis>Site
+                    this site, and its only member at first. If you want to add other sample users
+                    to this site in different roles, you can do so through the <emphasis>Site
                     Info</emphasis> tool of the site itself.</para>
-                <para>Click on the tab of your new site (which should now be visible) to enter it, and then click on the
-                        <emphasis>Site Info</emphasis> tool page along the lefthand side. That tool
-                    page has a number of site maintainer functions available as action links across
-                    the top, and <emphasis>Add Participants</emphasis> is the one that will allow
-                    you to connect other users to the site. These users will of course need to exist
-                    first, and, again, you can create new ones through the admin <emphasis>Users</emphasis> tool.</para>
-                <para>As long as we're here in <emphasis>Site Info</emphasis>, it's worth pointing out that the  <emphasis>Edit
-                    Tools</emphasis> link at the top will allow you to remove and add tools from the site.</para>
+                <para>Click on the tab of your new site (which should now be visible) to enter it,
+                    and then click on the <emphasis>Site Info</emphasis> link along the
+                    lefthand side. <emphasis>Site Info</emphasis> has a number of site maintainer functions
+                    available as action links across the top, and <emphasis>Add
+                    Participants</emphasis> is the one that will allow you to connect other users to
+                    the site. These users will of course need to have been previously created.</para>
+                <para>As long as we're here in <emphasis>Site Info</emphasis>, it's worth pointing
+                    out that the <emphasis>Edit Tools</emphasis> link at the top will allow you to
+                    remove and add tools from the site.</para>
             </sect3>
-            </sect2>
-            <sect2 xml:id="install-software-tools">
-                <title>Experimenting with Tools</title>
-                <para>You may have noticed an extra tool appear in your site, one which you didn't explicitly choose, called <emphasis>Help</emphasis>.  This tool provides online documentation of the various bundle tools, and other facets of the system.  This should be your companion as you learn more about the functions of the software.</para>
-                <para>This <emphasis>Help</emphasis> tool is also reached in a context-sensitive way by clicking on the question mark icons at the upper right of any particular tool frame.  Clicking on those question marks will open up the precise content of the tool you happen to be in at the time.</para>
-                <para>At some later point, when you become comfortable with the standard tools, you may wish to see other, more experimental tools that are available for Sakai.  The Sakai distribution includes <link xl:href="provisional.html">provisional tools</link> that are still maturing, but can already serve needs in innovative ways that the standard ones do not.  These extra tools require additional steps to enable, so that system users will not stumble across them inadvertently if that's not desired, but you are encouraged to evaluate them for your own deployment.</para>
-            </sect2>
-        <sect2>
+        </sect2>
+        <sect2 xml:id="install-software-tools">
+            <title>Experimenting with Tools</title>
+            <para>You may have noticed an extra tool appear in your site - one which you didn't
+                explicitly choose - labeled <emphasis>Help</emphasis>. This tool provides online
+                documentation of the various bundle tools, and other facets of the system. This
+                should be your companion as you learn more about the software's functionality.</para>
+            <para>This <emphasis>Help</emphasis> tool is also reached in a context-sensitive way by
+                clicking on the question mark icons at the upper right of any particular tool frame.
+                Clicking on those question marks will open up the precise content of the tool you
+                happen to be in at the time.</para>
+            <para>At some later point, when you become comfortable with the standard tools, you may
+                wish to see other, more experimental tools that are available for Sakai. The Sakai
+                distribution includes <emphasis>provisional tools</emphasis> that
+                are still maturing, but can already serve needs in innovative ways that the standard
+                ones do not. These extra tools require additional steps to enable, so that system
+                users will not stumble across them inadvertently if that's not desired, but you are
+                encouraged to evaluate them for your own deployment.  See <link xl:href="provisional.html">http://source.sakaiproject.org/release/2.2.0/provisional.html</link> for more details.</para>
+        </sect2>
+        <sect2 xml:id="install-software-learn">
             <title>Where to Learn More</title>
             <para>Sakai information has been unfortunately a little fragmented to date. Attempts are
                 underway to consolidate and present this information in a more uniform way, but in
@@ -1193,10 +1227,10 @@ Commit complete.</screen>
             <sect3>
                 <title>About the Project</title>
                 <para>The <link xl:href="http://sakaiproject.org">sakaiproject.org</link> site
-                    offers the best background and orientation to the project and its goals, but chances are
-                    you've already seen it. For more particular information on the progress and
-                    roadmaps of certain tools or other initiatives, see the Confluence space named
-                    <link
+                    offers the best background and orientation to the project and its goals, but
+                    chances are you've already seen it. For more particular information on the
+                    progress and roadmaps of certain tools or other initiatives, see the Confluence
+                    space named <link
                         xl:href="http://bugs.sakaiproject.org/confluence/display/MGT/Sakai+Project+Management+and+Coordination"
                         >Management/Project Coordination</link>. That coordinating page will also
                     link you out to Confluence spaces for particular tools, and documentation about
@@ -1204,37 +1238,40 @@ Commit complete.</screen>
             </sect3>
             <sect3>
                 <title>Community Participation</title>
-                <para>The Sakai community hosts its own Sakai installation to serve
-                    up collaboration sites for its various sub-groups, and for direct interaction with community members you should join sites there that may be of interest. You can create an account
-                    there by visiting <link xl:href="http://collab.sakaiproject.org"
-                        >http://collab.sakaiproject.org</link> and clicking on the <emphasis>New Account</emphasis>
-                    button. Once your account is created you can log in, and with the
-                    <emphasis>Membership</emphasis> tool you may join any worksites that may
-                    seem appropriate. Joining a site automatically adds you to its email list, and
-                    unjoining a worksite similarly removes you (while, it should be noted, sending
-                    an "unsubscribe" email will not).</para>
+                <para>The Sakai community hosts its own Sakai installation to serve up collaboration
+                    sites for its various sub-groups, and for direct interaction with community
+                    members you should join sites there that may be of interest. You can create an
+                    account there by visiting <link xl:href="http://collab.sakaiproject.org"
+                        >http://collab.sakaiproject.org</link> and clicking on the <emphasis>New
+                        Account</emphasis> button. Once your account is created you can log in, and
+                    with the <emphasis>Membership</emphasis> tool you may join any worksites that
+                    may seem appropriate. Joining a site automatically adds you to its email list,
+                    and unjoining a worksite similarly removes you (while, it should be noted,
+                    sending an "unsubscribe" email will not).</para>
             </sect3>
             <sect3>
                 <title>About Technical Matters</title>
                 <para>Reference materials for various technical issues are best found in Sakai's
                     subversion repository (where these installation documents are also stored) or in
-                    the project's <link xl:href="http://bugs.sakaiproject.org/confluence">Confluence</link> wiki. The docs in subversion can be found in the
-                    reference module, e.g. <link
-                        xl:href="https://source.sakaiproject.org/svn/reference"
+                    the project's <link xl:href="http://bugs.sakaiproject.org/confluence"
+                    >Confluence</link> wiki. The docs in subversion can be found in the reference
+                    module, e.g. <link xl:href="https://source.sakaiproject.org/svn/reference"
                         >https://source.sakaiproject.org/svn/reference</link>. See in particular the
-                        <filename>docs/architecture</filename> folder contained there, which contains a wide-ranging collection
-                    of technical white papers.</para>
+                        <filename>docs/architecture</filename> folder contained there, which
+                    contains a wide-ranging collection of technical white papers.</para>
                 <para>The Confluence wiki is a more informal source of information, but also
-                    valuable and broader in scope. New developers in particular should visit the <link
-                        xl:href="http://bugs.sakaiproject.org/confluence/display/BOOT/Home"
+                    valuable and broader in scope. New developers in particular should visit the
+                        <link xl:href="http://bugs.sakaiproject.org/confluence/display/BOOT/Home"
                         >Programmer's Cafe</link>, while the <link
                         xl:href="http://bugs.sakaiproject.org/confluence/display/ENC/Home"
                         >Sakaipedia</link> provides nuggets of insight on a wide array of issues.
-                    You're encouraged to create an account here and participate.</para>
+                    You're encouraged to create an account there and participate.</para>
                 <para>But often the most incisive information comes from direct interaction with
-                    Sakai community members. As mentioned above, the <link xl:href="http://collab.sakaiproject.org">Collab Server</link> is the place to go for this.  For technical questions the best (and most active) such group
-                    is <emphasis>DG: Development</emphasis>, also commonly referred to by its alias,
-                    "sakai-dev."</para>
+                    your peers. As mentioned above, the <link
+                        xl:href="http://collab.sakaiproject.org">Collab Server</link> is the place
+                    to go for this. For technical questions the best (and most active) such group is
+                        <emphasis>DG: Development</emphasis>, also commonly referred to by its
+                    alias, "sakai-dev."</para>
             </sect3>
         </sect2>
     </sect1>
