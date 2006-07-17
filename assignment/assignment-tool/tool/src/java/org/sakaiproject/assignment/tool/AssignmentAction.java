@@ -501,7 +501,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// allow update site?
 		context.put("allowUpdateSite", Boolean
-						.valueOf(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext())));
+						.valueOf(SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))));
 
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
@@ -858,7 +858,7 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			// get current site
-			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 			context.put("site", site);
 			// any group in the site?
 			Collection groups = site.getGroups();
@@ -1013,7 +1013,7 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			// get current site
-			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 			context.put("site", site);
 		}
 		catch (Exception ignore)
@@ -3592,7 +3592,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						else if (range.equals("groups"))
 						{
-							String siteId = ToolManager.getCurrentPlacement().getContext();
+							String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 							try
 							{
 								Site site = SiteService.getSite(siteId);
@@ -4946,6 +4946,8 @@ public class AssignmentAction extends PagedResourceActionII
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
 	{
 		super.initState(state, portlet, data);
+		
+		String siteId = ToolManager.getCurrentPlacement().getContext();
 
 		// show the list of assignment view first
 		if (state.getAttribute(STATE_SELECTED_VIEW) == null)
@@ -4976,42 +4978,22 @@ public class AssignmentAction extends PagedResourceActionII
 			String calendarId = ServerConfigurationService.getString("calendar", null);
 			if (calendarId == null)
 			{
-				calendarId = cService.calendarReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
+				calendarId = cService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
 				try
 				{
 					state.setAttribute(CALENDAR, cService.getCalendar(calendarId));
 				}
 				catch (IdUnusedException e)
 				{
-					Log.warn("chef", "No calendar found. ");
-					try
-					{
-						cService.addCalendar(calendarId);
-					}
-					catch (PermissionException e1)
-					{
-						Log.warn("chef", "Can not create calendar. ");
-					}
-					catch (IdUsedException e1)
-					{
-						Log.warn("chef", "The calendar id has already been used. ");
-					}
-					catch (IdInvalidException e1)
-					{
-						Log.warn("chef", "This calendar could not be created because the Id is invalid. ");
-					}
-					catch (Exception ex)
-					{
-						Log.warn("chef", "Assignment : Action : init state : calendar exception : " + ex);
-					}
+					Log.info("chef", "No calendar found for site " + siteId);
 				}
 				catch (PermissionException e)
 				{
-					Log.warn("chef", "No permission to get the calender. ");
+					Log.info("chef", "No permission to get the calender. ");
 				}
 				catch (Exception ex)
 				{
-					Log.warn("chef", "Assignment : Action : init state : calendar exception : " + ex);
+					Log.info("chef", "Assignment : Action : init state : calendar exception : " + ex);
 				}
 			}
 		} // if
@@ -5026,7 +5008,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String channelId = ServerConfigurationService.getString("channel", null);
 			if (channelId == null)
 			{
-				channelId = aService.channelReference(ToolManager.getCurrentPlacement().getContext(), SiteService.MAIN_CONTAINER);
+				channelId = aService.channelReference(siteId, SiteService.MAIN_CONTAINER);
 				try
 				{
 					state.setAttribute(ANNOUNCEMENT_CHANNEL, aService.getAnnouncementChannel(channelId));
@@ -5075,7 +5057,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if (state.getAttribute(STATE_CONTEXT_STRING) == null)
 		{
-			state.setAttribute(STATE_CONTEXT_STRING, ToolManager.getCurrentPlacement().getContext());
+			state.setAttribute(STATE_CONTEXT_STRING, siteId);
 		} // if context string is null
 
 		if (state.getAttribute(SORTED_BY) == null)
@@ -6022,7 +6004,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// clear search form
 			doSearch_clear(data, null);
 
-			if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			if (SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING)))
 			{
 				// get into helper mode with this helper tool
 				startHelper(data.getRequest(), "sakai.permissions.helper");
