@@ -89,10 +89,14 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 	}
 
 	public int compareTo(Object o) {
-		return this.getTitle().compareTo(((InstructorSectionDecorator)o).getTitle());
+		return this.getTitle().toLowerCase().compareTo(((InstructorSectionDecorator)o).getTitle().toLowerCase());
 	}
 
 	public static final Comparator getFieldComparator(final String fieldName, final boolean sortAscending) {
+		// Titles must be compared case-insensitive
+		if("title".equals(fieldName)) {
+			return getTitleComparator(sortAscending);
+		}
 		return new Comparator() {
 			public int compare(Object o1, Object o2) {
 				if(o1 instanceof InstructorSectionDecorator && o2 instanceof InstructorSectionDecorator) {
@@ -120,18 +124,19 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 							return sortAscending? 1 : -1 ;
 						}
 						if(object1 == null && object2 == null) {
-							if(fieldName.equals("title")) {
-								return 0;
-							} else {
-								return getFieldComparator("title", sortAscending).compare(o1, o2);
-							}
+							// If both of these fields are null, we just compare based on title.
+							return getTitleComparator(sortAscending).compare(o1, o2);
 						}
-						int comparison = object1.compareTo(object2);
+						int comparison;
+						if(object1 instanceof String && object2 instanceof String) {
+							comparison = ((String)object1).toLowerCase().compareTo(((String)object2).toLowerCase());
+						} else {
+							comparison = object1.compareTo(object2);
+						}
 						
 						// If the two objects are equal, then try again using the title.
-						// This recursive call is safe to do only because two titles can not be equal.
 						if(comparison == 0) {
-							comparison = getFieldComparator("title", sortAscending).compare(o1, o2);
+							comparison = getTitleComparator(sortAscending).compare(o1, o2);
 						}
 						return sortAscending ? comparison : (-1 * comparison);
 					}
@@ -141,6 +146,23 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 				if(log.isDebugEnabled()) log.debug("One of these is not an InstructorSectionDecorator: "
 						+ o1 + "," + o2);
 				return 0;
+			}
+		};
+	}
+
+	/**
+	 * TODO: Now that we need to sort titles non-case sensitive, is there much of a point to keeping the generic getFieldComparator() method?
+	 * 
+	 * @param sortAscending
+	 * @return
+	 */
+	public static final Comparator getTitleComparator(final boolean sortAscending) {
+		return new Comparator() {
+			public int compare(Object o1, Object o2) {
+				InstructorSectionDecorator section1 = (InstructorSectionDecorator)o1;
+				InstructorSectionDecorator section2 = (InstructorSectionDecorator)o2;
+				int comparison =  section1.getTitle().toLowerCase().compareTo(section2.getTitle().toLowerCase());
+				return sortAscending ? comparison : (-1 * comparison);
 			}
 		};
 	}
@@ -165,9 +187,12 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 							return sortAscending? 1 : -1 ;
 						}
 						if(managers1.isEmpty() && managers2.isEmpty()) {
-							return 0;
+							return getTitleComparator(sortAscending).compare(o1, o2);
 						}
 						int managersComparison = managers1.get(0).toString().compareTo(managers2.get(0).toString());
+						if(managersComparison == 0) {
+							return getTitleComparator(sortAscending).compare(o1, o2);
+						}
 						return sortAscending ? managersComparison : (-1 * managersComparison);
 					}
 					// These are in different categories, so sort them by category name
@@ -200,16 +225,18 @@ public class InstructorSectionDecorator extends CourseSectionDecorator
 							return sortAscending? -1 : 1 ;
 						}
 						if(maxEnrollments1 == null && maxEnrollments2 == null) {
-							return 0;
+							return getTitleComparator(sortAscending).compare(o1, o2);
 						}
 						int availEnrollmentComparison;
 						if(useAvailable) {
-							
-							availEnrollmentComparison =
-							(maxEnrollments1.intValue() - section1.totalEnrollments) -
-							(maxEnrollments2.intValue() - section2.totalEnrollments);
+							availEnrollmentComparison = (maxEnrollments1.intValue() - section1.totalEnrollments) -
+								(maxEnrollments2.intValue() - section2.totalEnrollments);
 						} else {
 							availEnrollmentComparison = maxEnrollments1.intValue() - maxEnrollments2.intValue();
+						}
+						// If these are in the same category, and have the same number of enrollments (available), use the title to sort
+						if(availEnrollmentComparison == 0) {
+							return getTitleComparator(sortAscending).compare(o1, o2);
 						}
 						return sortAscending ? availEnrollmentComparison : (-1 * availEnrollmentComparison);
 					}

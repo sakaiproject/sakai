@@ -484,11 +484,11 @@ public class CourseSectionImpl implements CourseSection, Comparable, Serializabl
 				return 1;
 			}
 			if(this.category == null && other.category == null) {
-				return this.title.compareTo(other.title);
+				return this.title.toLowerCase().compareTo(other.title.toLowerCase());
 			}
 			int categoryComparison = this.category.compareTo(other.category);
 			if(categoryComparison == 0) {
-				return this.title.compareTo(other.title);
+				return this.title.toLowerCase().compareTo(other.title.toLowerCase());
 			} else {
 				return categoryComparison;
 			}

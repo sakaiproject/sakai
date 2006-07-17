@@ -72,7 +72,7 @@ public class SectionSortTest extends TestCase {
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, false, false, false, false);
 
-		sectionB = new CourseSectionImpl(course, "b section",
+		sectionB = new CourseSectionImpl(course, "B section",
 				"b section uuid", "a category", new Integer(20), "b section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, false, false, false, false);
@@ -85,7 +85,7 @@ public class SectionSortTest extends TestCase {
 		startCal.set(Calendar.HOUR_OF_DAY, 9);
 		endCal.set(Calendar.HOUR_OF_DAY, 10);
 
-		sectionD = new CourseSectionImpl(course, "d section",
+		sectionD = new CourseSectionImpl(course, "D section",
 				"d section uuid", "b category", new Integer(15), "d section location",
 				new Time(startCal.getTimeInMillis()), new Time(endCal.getTimeInMillis()),
 				false, false, false, false, false, false, false);
@@ -109,7 +109,7 @@ public class SectionSortTest extends TestCase {
 
 		// Compare managers in sections of the same category
 		Assert.assertTrue(comp.compare(secA, secB) > 0);
-		Assert.assertTrue(comp.compare(secC, secD) == 0);
+		Assert.assertTrue(comp.compare(secC, secD) < 0); // Using the title, since managers are equal
 		
 		// Compare managers in sections in different categories.  The one with no managers sorts first
 		Assert.assertTrue(comp.compare(secC, secA) > 0);
