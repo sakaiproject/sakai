@@ -59,7 +59,7 @@ osp.presLayout,osp.style</screen>
         <para>A brief overview of each provisional tool is provided below. For more detailed
             information visit the Confluence links provided, or send your questions to the listed
             contact.</para>
-        
+
         <sect2 xml:id="rwiki">
             <title>Rwiki</title>
             <variablelist>
@@ -90,7 +90,7 @@ osp.presLayout,osp.style</screen>
                 <title>Overview</title>
                 <para>The Wiki tool is a fully integrated Sakai Tool that enables users of Sakai to
                     create content, share and manage in a Wiki Environment. Where functionality is
-                    provided by other tools within Sakai, the wiki deligates responsibility to those
+                    provided by other tools within Sakai, the wiki delegates responsibility to those
                     tools (e.g. resources).</para>
 
 
@@ -483,10 +483,10 @@ webservices.allowlogin=false</screen>
             <sect3>
                 <title>Overview</title>
                 <para>Samigo is the historical project name for the tool that appears in Sakai as
-                    <emphasis>Tests&amp;Quizzes</emphasis> (the terms are often used
+                        <emphasis>Tests&amp;Quizzes</emphasis> (the terms are often used
                     interchangeably). It is an online assessment tool that supports teaching and
                     learning, in both formative assessments and summative assessments.</para>
-                
+
                 <para>Its key features are:</para>
                 <itemizedlist>
                     <listitem>
@@ -499,7 +499,7 @@ webservices.allowlogin=false</screen>
                     <listitem>
                         <para><emphasis>Importing/Exporting:</emphasis> Assessments can be
                             exported/imported via IMS QTI xml format. It currently supports QTI
-                            1.2.</para>
+                        1.2.</para>
                     </listitem>
                     <listitem>
                         <para><emphasis>Organizing and Publishing:</emphasis> It allows instructors
@@ -523,7 +523,7 @@ webservices.allowlogin=false</screen>
                 <para>For File Upload questions in Samigo, answers are saved to DB as a blob by
                     default. If you want to save answers to files, you can override this default by
                     adding the following in your sakai.properties file.</para>
-                
+
                 <screen>
 # ** Samigo File Upload question type settings **
 # the following default settings
@@ -536,8 +536,8 @@ samigo.answerUploadRepositoryPath=/tmp/
 samigo.sizeThreshold=512
 samigo.sizeMax=20480
 samigo.saveMediaToDb=false</screen>
-                
-                
+
+
                 <para>When <command>saveMediaToDB</command> is true,
                     <command>SAM_MEDIA_T.MEDIA</command> must be a blob or equivalent to work. If
                     you're running Oracle and using <command>auto.ddl</command> to create tables,
@@ -545,7 +545,7 @@ samigo.saveMediaToDb=false</screen>
                     <command>SAM_MEDIA_T</command> table. Hibernate tries to choose the right data
                     type for this field, but has a habit of choosing the wrong one for Oracle. The
                     correct types for each database are:</para>
-                
+
                 <itemizedlist>
                     <listitem>
                         <para>HSQLDB --> varbinary</para>
@@ -560,24 +560,35 @@ samigo.saveMediaToDb=false</screen>
                 <para>Audio recording questions are turned on by default in 2.2. You can turn it off
                     by modifying
                     <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
-                    changing the showAudio to false, then
-                    redeploying.</para>
-                    <screen>
+                    changing the showAudio to false, then redeploying.</para>
+                <screen>
 &lt;managed-property&gt;
     &lt;property-name&gt;showAudio&lt;/property-name&gt;
     &lt;value&gt;false&lt;/value&gt;
 &lt;/managed-property&gt;</screen>
-                <para>Audio recording questions uses an Audio Recording Applet (Based on Sun's Java Sound API) to record.  Because the default JRE installation doesn't allow Java to record audio from your computer's sound card, you may have to modify your java.policy file and add the following permissions:</para>
-                
+                <para>Audio recording questions uses an Audio Recording Applet (Based on Sun's Java
+                    Sound API) to record. Because the default JRE installation doesn't allow Java to
+                    record audio from your computer's sound card, you may have to modify your
+                    java.policy file and add the following permissions:</para>
+
                 <screen>
 permission javax.sound.sampled.AudioPermission "record";
 permission java.io.FilePermission "&lt;&lt;ALL FILES&gt;&gt;", "read, write";
 permission java.util.PropertyPermission "user.dir", "read";</screen>
-                
-                <para>Audio recording uses the same storage configuration as File Upload questions, so they can be configured to be stored either in DB or files.</para> 
-                
-                <para>Currently, by default QTI Assessment Import also uses the <command>com.corejsf.UploadFilter.repositoryPath</command> parameter in <filename>web.xml</filename> as the location to store a temporary file.  These temporary files are removed after the import is completed.  <command>com.corejsf.UploadFilter.repositoryPath</command> is set to <filename>/tmp</filename> by default.  This again can be overridden in <filename>sakai.properties</filename> the same way as in File Upload/Audio recording questions.   Please make sure that Sakai has write privilege to this directory.  For example, </para>
-                
+
+                <para>Audio recording uses the same storage configuration as File Upload questions,
+                    so they can be configured to be stored either in DB or files.</para>
+
+                <para>Currently, by default QTI Assessment Import also uses the
+                        <command>com.corejsf.UploadFilter.repositoryPath</command> parameter in
+                        <filename>web.xml</filename> as the location to store a temporary file.
+                    These temporary files are removed after the import is completed.
+                        <command>com.corejsf.UploadFilter.repositoryPath</command> is set to
+                        <filename>/tmp</filename> by default. This again can be overridden in
+                        <filename>sakai.properties</filename> the same way as in File Upload/Audio
+                    recording questions. Please make sure that Sakai has write privilege to this
+                    directory. For example, </para>
+
                 <screen>samigo.answerUploadRepositoryPath=/sakaitmp/</screen>
             </sect3>
         </sect2>
