@@ -3722,8 +3722,6 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									if (c != null)
 									{
-											
-											
 										// commit related properties into Assignment object
 										String ref = "";
 										try
@@ -3841,6 +3839,42 @@ public class AssignmentAction extends PagedResourceActionII
 														+ FormattedText.convertPlaintextToFormattedText(title) + " is "
 														+ openTime.toStringLocalFull() + ". ");
 											}
+											
+											// group information
+											if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+											{
+												try 
+												{
+													// get the group ids selected
+													Collection groupRefs = a.getGroups();
+													
+													// make a collection of Group objects
+													Collection groups = new Vector();
+													
+													//make a collection of Group objects from the collection of group ref strings
+													Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+													for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+													{
+														String groupRef = (String) iGroupRefs.next();
+														groups.add(site.getGroup(groupRef));
+													}
+	
+													// set access
+													header.setGroupAccess(groups);
+												}
+												catch (Exception exception)
+												{
+													// log
+													Log.warn("chef", exception.getMessage());
+												}
+											}
+											else
+											{
+												// site announcement
+												header.clearGroupAccess();
+											}
+											
+											
 											channel.commitMessage(message, NotificationService.NOTI_NONE);
 
 											// commit related properties into Assignment object
