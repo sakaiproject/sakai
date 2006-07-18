@@ -28,6 +28,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
@@ -112,7 +113,9 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		siteCheck = currentSite.getReference();
 		userName = sessionManager.getCurrentSessionUserId();
 		superUser = SecurityService.isSuperUser();
-		if (!siteService.allowUpdateSite(siteId))
+		boolean allow = ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.alow.maintain.admin","false")) &&
+						siteService.allowUpdateSite(siteId));
+		if ( !allow )
 		{
 			throw new PermissionException(userName, "site.update", siteCheck);
 		}
@@ -127,6 +130,8 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		}
 
 	}
+	
+	
 
 	private void doCommand() throws PermissionException
 	{

@@ -95,4 +95,5 @@ public interface SearchBean
 	 */
 	boolean isEnabled();
 	
+	
 }

@@ -30,6 +30,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchList;
@@ -378,7 +379,9 @@ public class SearchBeanImpl implements SearchBean
 	 */
 	public boolean hasAdmin()
 	{
-		return siteService.allowUpdateSite(siteId);
+		boolean superUser = SecurityService.isSuperUser();
+		return ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.alow.maintain.admin","false")) &&
+						siteService.allowUpdateSite(siteId));	
 	}
 
 	/**
@@ -389,5 +392,6 @@ public class SearchBeanImpl implements SearchBean
 
 		return ServerConfigurationService.getString("portalPath") + "/tool/" + placementId;
 	}
+
 
 }
