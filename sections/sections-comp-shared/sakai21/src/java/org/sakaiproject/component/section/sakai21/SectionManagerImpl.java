@@ -618,6 +618,10 @@ public class SectionManagerImpl implements SectionManager {
 			// Drop the user from this section if they are enrolled
 			Group group= (Group)iter.next();
 			CourseSectionImpl section = new CourseSectionImpl(group);
+			// Don't drop someone from a non-section groups
+			if(section.getCategory() == null) {
+				continue;
+			}
 			if(section.getCategory().equals(category)) {
 				group.removeMember(studentUid);
 			}
