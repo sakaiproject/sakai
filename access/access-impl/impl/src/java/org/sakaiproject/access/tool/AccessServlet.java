@@ -47,7 +47,6 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -319,11 +318,11 @@ public class AccessServlet extends VmServlet
 		{
 			// make sure we have a valid reference with an entity producer we can talk to
 			EntityProducer service = ref.getEntityProducer();
-			if (service == null) throw new IdUnusedException(ref.getReference());
+			if (service == null) throw new EntityNotDefinedException(ref.getReference());
 
 			// get the producer's HttpAccess helper, it might not support one
 			HttpAccess access = service.getHttpAccess();
-			if (access == null) throw new IdUnusedException(ref.getReference());
+			if (access == null) throw new EntityNotDefinedException(ref.getReference());
 
 			// let the helper do the work
 			access.handleAccess(req, res, ref, accepted);
