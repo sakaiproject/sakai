@@ -103,7 +103,8 @@ public class TotalScoreListener
     AbortProcessingException
   {
 
-    log.debug("TotalScore LISTENER.");
+    // this is called when you click on 'scores' or 'total scores' link from other pages.
+    log.debug("TotalScore Action Listener.");
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
     TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
 
@@ -135,6 +136,13 @@ public class TotalScoreListener
     // set action mode
     delivery.setActionString("gradeAssessment");
 
+    // reset question score page content 
+    QuestionScoresBean questionbean = (QuestionScoresBean) cu.lookupBean("questionScores");
+    questionbean.setSections(new ArrayList());
+    questionbean.setTypeId("0");   // if setting "", QuestionScoreBean.getTypeId will default to 1. Thus setting it to 0. 
+    questionbean.setMaxScore("");
+    questionbean.setDeliveryItem(new ArrayList());
+
     if (!totalScores(pubAssessment, bean, false))
     {
       throw new RuntimeException("failed to call totalScores.");
@@ -147,6 +155,7 @@ public class TotalScoreListener
    */
   public void processValueChange(ValueChangeEvent event)
   {
+    // this is called when you change the section or submission pulldown. 
     // need reset assessmentGrading list
     ResetTotalScoreListener reset = new ResetTotalScoreListener();
     reset.processAction(null);
@@ -214,10 +223,21 @@ public class TotalScoreListener
     log.debug("totalScores()");
     try
     {
+      // when will this happen? 
       boolean firstTime = true;
       PublishedAssessmentData p = (PublishedAssessmentData)pubAssessment.getData();
-      if ((bean.getPublishedId()).equals(p.getPublishedAssessmentId().toString()))
+
+      // check if this is the first visit to total Scores page, if not, then firstTime is set to false, 
+      // for example, if you click on 'scores' from authorIndex page, firstTime is true.  then you click
+      // 'question scores' page. then if you click on 'totalscores' page again from 'question scores' 
+      // page, this firstTime = false;
+
+      if ((bean.getPublishedId()).equals(p.getPublishedAssessmentId().toString())){
         firstTime = false;
+      }
+
+      // this line below also call bean.setPublishedId() so that the previous if.. will return true for 
+      // any subsequent click on 'totalscores' link.
       bean.setPublishedAssessment(p);
 
       //#1 - prepareAgentResultList prepare a list of AssesmentGradingData and set it as
@@ -252,6 +272,7 @@ public class TotalScoreListener
                      getPublishedAssessmentFacadeQueries().getSectionSetForAssessment(p);
         p.setSectionSet(sectionSet);
         bean.setFirstItem(getFirstItem(p));
+log.debug("totallistener: firstItem = " + bean.getFirstItem());
         bean.setHasRandomDrawPart(hasRandomPart(p));
       }
       if (firstTime || (isValueChange)){
@@ -327,7 +348,9 @@ public class TotalScoreListener
   /* daisy's  comment: Really? I don't really understand why but 
      I have rewritten this method so it is more efficient. The old method
      has trouble dealing with large class with large question set. */
+
   public HashMap getAnsweredItems(ArrayList scores, PublishedAssessmentData pub){
+    log.debug("*** in getAnsweredItems.  scores.size = " + scores.size());
     HashMap answeredItems = new HashMap();
     HashMap h = new HashMap();
 
@@ -337,12 +360,15 @@ public class TotalScoreListener
       h.put(a.getAssessmentGradingId(),"");
     }
 
+        log.debug("****h.size "+h.size());
     // 1. get list of publishedItemId
     List list =PersistenceService.getInstance().
       getPublishedAssessmentFacadeQueries().getPublishedItemIds(pub.getPublishedAssessmentId());
 
+        log.debug("***list .size "+list.size());
     // 2. build a HashMap (Long publishedItemId, ArrayList assessmentGradingIds)
     HashMap itemIdHash = getPublishedItemIdHash(pub);
+        log.debug("***temIdHash.size "+itemIdHash.size());
 
     // 3. go through each publishedItemId and get all the submission of 
     // assessmentGradingId for the item
@@ -357,11 +383,14 @@ public class TotalScoreListener
         Long assessmentGradingId = (Long) l.get(j);
         log.debug("****assessmentGradingId"+assessmentGradingId);
         if (h.get(assessmentGradingId) != null){
+      log.debug("****putting itemid into answeredItems: " + itemId);
           answeredItems.put(itemId, "true");
           break;    
 	}
       } 
     }
+
+        log.debug("***answeritems.size "+answeredItems.size());
     return answeredItems;
   }
 

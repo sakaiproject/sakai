@@ -160,9 +160,12 @@ public class QuestionScoreListener
       }
       //build a hashMap (publishedItemId, publishedItem)
       HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
+    log.debug("questionScores(): publishedItemHash.size = " + publishedItemHash.size());
       //build a hashMap (publishedItemTextId, publishedItemText)
       HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
+    log.debug("questionScores(): publishedItemTextHash.size = " + publishedItemTextHash.size());
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
+    log.debug("questionScores(): publishedAnswerHash.size = " + publishedAnswerHash.size());
 
       GradingService delegate =	new GradingService();
 
@@ -202,6 +205,7 @@ public class QuestionScoreListener
       Date dueDate = null;
 
       HashMap map = getItemScores(new Long(publishedId), new Long(itemId), which, isValueChange);
+    log.debug("questionScores(): map .size = " + map.size());
       ArrayList allscores = new ArrayList();
       Iterator keyiter = map.keySet().iterator();
       while (keyiter.hasNext())
@@ -209,12 +213,14 @@ public class QuestionScoreListener
         allscores.addAll((ArrayList) map.get(keyiter.next()));
       }
 
+    log.debug("questionScores(): allscores.size = " + allscores.size());
 
 ///
 
       // now we need filter by sections selected
       ArrayList scores = new ArrayList();  // filtered list
       Map useridMap= totalBean.getUserIdMap();
+    log.debug("questionScores(): useridMap.size = " + useridMap.size());
 
 /*
     if ("true".equalsIgnoreCase(totalBean.getAnonymous())){
@@ -242,13 +248,18 @@ public class QuestionScoreListener
         }
       }
 
+    log.debug("questionScores(): scores.size = " + scores.size());
 
       Iterator iter = scores.iterator();
       ArrayList agents = new ArrayList();
 
+    log.debug("questionScores(): calling populateSections ");
+
+      populateSections(publishedAssessment, bean, totalBean, scores);    // set up the Q1, Q2... links
       if (!iter.hasNext())
       {
         // this section has no students
+    log.debug("questionScores(): this section has no students");
       bean.setAgents(agents);
       bean.setTotalPeople(new Integer(bean.getAgents().size()).toString());
       return true;
@@ -298,11 +309,17 @@ public class QuestionScoreListener
         scoresByItem.put(idata.getAssessmentGradingId()
          + ":" + idata.getPublishedItemId(), newList);
       }
+    log.debug("questionScores(): scoresByItem.size = " + scoresByItem.size());
       bean.setScoresByItem(scoresByItem);
 
       iter = scores.iterator();
+
+      // will never get here 
       if (!iter.hasNext())
         return false;
+
+
+
       Object next = iter.next();
 
       // Okay, here we get the first result set, which has a summary of
@@ -316,6 +333,8 @@ public class QuestionScoreListener
         //log.info("No evaluation model.");
         bean.setAnonymous("false");
       }
+
+// below properties don't seem to be used in jsf pages,
       try {
         bean.setLateHandling(publishedAssessment.getAssessmentAccessControl().getLateHandling().toString());
       } catch (Exception e) {
@@ -349,7 +368,10 @@ public class QuestionScoreListener
         bean.setMaxScore(new Float(score).toString());
       }
 
+/*
+      // replaced by populateSections()
       ArrayList sections = new ArrayList();
+      log.debug("questionScores(): publishedAssessment.getSectionArraySorted size = " + publishedAssessment.getSectionArraySorted().size());
       iter = publishedAssessment.getSectionArraySorted().iterator();
       int i=1;
       while (iter.hasNext())
@@ -370,28 +392,44 @@ public class QuestionScoreListener
 	  
           partitem.setPartNumber(""+j);
           partitem.setId(item.getItemId().toString());
+          log.debug("*   item.getId = " + item.getItemId()); 
+
           if (totalBean.getAnsweredItems().get(item.getItemId()) != null)
+          {
+          log.debug("*   make a link for = " + item.getItemId()); 
             partitem.setLinked(true);
+          }
           else
+          {
+          log.debug("*   do not make a link for = " + item.getItemId()); 
             partitem.setLinked(false);
+          }
           Iterator iter3 = scores.iterator();
           items.add(partitem);
           j++;
         }
+      log.debug("questionScores(): items size = " + items.size());
         part.setQuestionNumberList(items);
         sections.add(part);
         i++;
       }
+      log.debug("questionScores(): sections size = " + sections.size());
       bean.setSections(sections);
+*/
 
+// need to get id from somewhere else, not from data.  data only contains answered items , we want to return all items. 
       ItemDataIfc item = (ItemDataIfc)publishedItemHash.get(data.getPublishedItemId());
 
       if (item!=null){
+log.debug("item!=null steting type id = " + item.getTypeId().toString()); 
         bean.setTypeId(item.getTypeId().toString());
         bean.setItemId(item.getItemId().toString());
 	bean.setPartName(item.getSection().getSequence().toString()); 
         bean.setItemName(item.getSequence().toString());
         item.setHint("***"); // Keyword to not show student answer
+      }
+      else {
+log.debug("item==null "); 
       }
 
 
@@ -596,17 +634,24 @@ public class QuestionScoreListener
    * itemScoresMap will be refreshed when the next QuestionScore link is click
    */
   private HashMap getItemScores(Long publishedId, Long itemId, String which, boolean isValueChange){
+log.debug("getItemScores");
     GradingService delegate = new GradingService();
     QuestionScoresBean questionScoresBean =
       (QuestionScoresBean) cu.lookupBean("questionScores");
     HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
+log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
+log.debug("getItemScores: isValueChange ?" + isValueChange);
     if (itemScoresMap == null || isValueChange){
+log.debug("getItemScores: itemScoresMap ==null or isValueChange==true " + itemScoresMap );
       itemScoresMap = new HashMap();
       questionScoresBean.setItemScoresMap(itemScoresMap);
     }
+log.debug("getItemScores: itemScoresMap.size() " + itemScoresMap.size() );
     HashMap map = (HashMap) itemScoresMap.get(itemId);
     if (map == null){
+log.debug("getItemScores: map == null " + map );
       map = delegate.getItemScores(publishedId, itemId, which);
+log.debug("getItemScores: map size " + map.size() );
       itemScoresMap.put(itemId, map);
     }
     return map;
@@ -627,6 +672,54 @@ public class QuestionScoreListener
     catch(Exception e){
       log.warn("**duration recorded is not an integer value="+e.getMessage());
     }
+  }
+
+  private void populateSections(PublishedAssessmentIfc publishedAssessment, QuestionScoresBean bean, TotalScoresBean totalBean, ArrayList scores){
+      ArrayList sections = new ArrayList();
+      log.debug("questionScores(): populate sctions publishedAssessment.getSectionArraySorted size = " + publishedAssessment.getSectionArraySorted().size());
+      Iterator iter = publishedAssessment.getSectionArraySorted().iterator();
+      int i=1;
+      while (iter.hasNext())
+      {
+        SectionDataIfc section = (SectionDataIfc) iter.next();
+        ArrayList items = new ArrayList();
+        PartData part = new PartData();
+
+        part.setPartNumber(""+i);
+   
+        part.setId(section.getSectionId().toString());
+        Iterator iter2 = section.getItemArraySortedForGrading().iterator();
+        int j = 1;
+        while (iter2.hasNext())
+        {
+          ItemDataIfc item = (ItemDataIfc) iter2.next();
+          PartData partitem = new PartData();
+
+          partitem.setPartNumber(""+j);
+          partitem.setId(item.getItemId().toString());
+          log.debug("*   item.getId = " + item.getItemId());
+
+          if (totalBean.getAnsweredItems().get(item.getItemId()) != null)
+          {
+          log.debug("*   make a link for = " + item.getItemId());
+            partitem.setLinked(true);
+          }
+          else
+          {
+          log.debug("*   do not make a link for = " + item.getItemId());
+            partitem.setLinked(false);
+          }
+          Iterator iter3 = scores.iterator();
+          items.add(partitem);
+          j++;
+        }
+      log.debug("questionScores(): items size = " + items.size());
+        part.setQuestionNumberList(items);
+        sections.add(part);
+        i++;
+      }
+      log.debug("questionScores(): sections size = " + sections.size());
+      bean.setSections(sections);
   }
 
 
