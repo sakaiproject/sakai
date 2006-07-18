@@ -548,16 +548,25 @@ public abstract class SessionComponent implements SessionManager
 		 */
 		public void setAttribute(String name, Object value)
 		{
-			// add
-			Object old = m_attributes.put(name, value);
-
-			// bind event
-			bind(name, value);
-
-			// unbind event if old exiss
-			if (old != null)
+			// treat a set to null as a remove
+			if (value == null)
 			{
-				unBind(name, old);
+				removeAttribute(name);
+			}
+
+			else
+			{
+				// add
+				Object old = m_attributes.put(name, value);
+	
+				// bind event
+				bind(name, value);
+	
+				// unbind event if old exiss
+				if (old != null)
+				{
+					unBind(name, old);
+				}
 			}
 		}
 
