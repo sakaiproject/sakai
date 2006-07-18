@@ -12,7 +12,7 @@
       
       	<h3><h:outputText value="#{msgs.create_update}"/></h3>
       				
-				<h:messages style="color: red;"/>
+				<h:messages globalOnly="true" style="color: red;"/>
 
 				<sakai:group_box>
 					<h:outputText style="font-weight: bold;" value="#{msgs.feedback_instructions}"/>
