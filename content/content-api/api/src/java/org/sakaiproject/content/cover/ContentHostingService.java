@@ -911,4 +911,11 @@ public class ContentHostingService
 		return service.getGroupsWithAddPermission(param0);
 	}
 	
+	public static boolean isShortRefs() 
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isShortRefs();
+	}
 }

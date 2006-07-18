@@ -70,7 +70,7 @@
 	#if($menu)#toolbar($menu)#end
 	<h3>$tlang.getString("dav.webdav")</h3>
 	<h4>$tlang.getString("dav.url")</h4>
-	<p>$tlang.getString("dav.graf20a") <strong>${site_title}</strong>. $tlang.getString("dav.graf20b") <strong>#if("$!inMyWorkspace" == "true")${user_id}#else${site_id}#end</strong>.</p>
+	<p>$tlang.getString("dav.graf20a") <strong>${site_title}</strong>. $tlang.getString("dav.graf20b") <strong>#if("$!inMyWorkspace" == "true")~${user_id}#else${site_id}#end</strong>.</p>
 	<p>$tlang.getString("dav.graf21")</p>
 	<p>
 		$tlang.getString("dav.graf22")

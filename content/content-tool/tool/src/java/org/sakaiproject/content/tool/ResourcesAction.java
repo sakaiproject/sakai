@@ -1973,9 +1973,19 @@ public class ResourcesAction
 		context.put("server_url", ServerConfigurationService.getServerUrl());
 		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
-		context.put("user_id", UserDirectoryService.getCurrentUser().getId());
-		context.put ("dav_group", "/dav/group/");
-		context.put ("dav_user", "/dav/user/");
+		context.put("user_id", UserDirectoryService.getCurrentUser().getEid());
+		if (ContentHostingService.isShortRefs())
+		{
+			// with short refs, this is prettier
+			context.put ("dav_group", "/dav/");
+			context.put ("dav_user", "/dav/~");
+		}
+		else
+		{
+			context.put ("dav_group", "/dav/group/");
+			context.put ("dav_user", "/dav/user/");
+		}
+
 		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
 		context.put("webdav_instructions" ,webdav_instructions);
 

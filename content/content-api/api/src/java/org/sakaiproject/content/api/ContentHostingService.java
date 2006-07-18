@@ -1372,4 +1372,10 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public Collection getGroupsWithRemovePermission(String collectionId);
 
+	/**
+	 * Access the shortRefs configuration. Short refs allow resource URLs without full prefix (may have "~" instead of /user/, or be missing /group/).
+	 * 
+	 * @return true if shortRefs is enabled, false if not.
+	 */
+	public boolean isShortRefs();
 }

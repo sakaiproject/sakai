@@ -49,11 +49,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -111,6 +111,7 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
@@ -365,6 +366,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		catch (Throwable t)
 		{
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isShortRefs()
+	{
+		return m_shortRefs;
 	}
 
 	/** Configuration: allow use of alias for site id in references. */
@@ -4342,7 +4351,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// escape just the is part, not the access point
 		// return getAccessPoint(false) + Validator.escapeUrl(id);
 		return m_serverConfigurationService.getAccessUrl() + getAlternateReferenceRoot(id, rootProperty) + m_relativeAccessPoint
-				+ Validator.escapeUrl(id);
+				+ Validator.escapeUrl(convertIdToUserEid(id));
 
 	} // getUrl
 
@@ -4915,7 +4924,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// double check that it's mine
 		if (APPLICATION_ID != ref.getType()) return null;
 
-		return getUrl(ref.getId());
+		return getUrl(convertIdToUserEid(ref.getId()));
 	}
 
 	/**
@@ -5641,6 +5650,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// parse out the associated site id, with alias checking
 		String parts[] = StringUtil.split(id, Entity.SEPARATOR);
 		boolean checkForAlias = true;
+		boolean checkForUserIdEid = false;
 		if (parts.length >= 3)
 		{
 			if (parts[1].equals("group"))
@@ -5653,6 +5663,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 				// for user sites, don't check for alias
 				checkForAlias = false;
+				
+				// enable user id/eid checking
+				checkForUserIdEid = true;
 			}
 			else if (parts[1].equals("group-user"))
 			{
@@ -5660,6 +5673,38 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				context = parts[2];
 			}
 
+			// if a user site, recognize ID or EID
+			if (checkForUserIdEid && (parts[2] != null) && (parts[2].length() > 0))
+			{
+				try
+				{
+					// if successful, the context is already a valid user id
+					UserDirectoryService.getUser(parts[2]);
+				}
+				catch (UserNotDefinedException tryEid)
+				{
+					try
+					{
+						// try using it as an EID
+						String userId = UserDirectoryService.getUserId(parts[2]);
+						
+						// switch to the ID
+						parts[2] = userId;
+						context = m_siteService.getUserSiteId(userId);
+						String newId = StringUtil.unsplit(parts, Entity.SEPARATOR);
+
+						// add the trailing separator if needed
+						if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
+
+						id = newId;
+					}
+					catch (UserNotDefinedException notEid)
+					{
+						// if context was not a valid EID, leave it alone
+					}
+				}
+			}
+			
 			// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
 			if (m_siteAlias && checkForAlias && (context != null) && (context.length() > 0))
 			{
@@ -7234,6 +7279,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return rv;
 	}
 
+	/**
+	 * If the id is to the /user/ area, make an id that is based on the user EID not ID, if the EID is available.
+	 * @param id The resource id.
+	 * @return The modified id.
+	 */
+	protected String convertIdToUserEid(String id)
+	{
+		if (id.startsWith("/user/"))
+		{
+			try
+			{
+				int pos = id.indexOf('/', 6);
+				String userId = id.substring(6, pos);
+				String userEid = UserDirectoryService.getUserEid(userId);
+				String rv = "/user/" + userEid + id.substring(pos);
+				return rv;
+			}
+			catch (StringIndexOutOfBoundsException e) {}
+			catch (UserNotDefinedException e) {}
+		}
+		
+		return id;
+	}
+
 	public abstract class BasicGroupAwareEdit implements GroupAwareEdit
 	{
 		/** Store the resource id */
@@ -7664,7 +7733,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public String getUrl()
 		{
-			return getAccessPoint(false) + m_id;
+			return getAccessPoint(false) + convertIdToUserEid(m_id);
 
 		} // getUrl
 
@@ -8336,7 +8405,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public String getUrl(String rootProperty)
 		{
 			return m_serverConfigurationService.getAccessUrl() + getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
-					+ m_id;
+					+ convertIdToUserEid(m_id);
 		}
 
 		/**
