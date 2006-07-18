@@ -1804,8 +1804,8 @@ alter table osp_workflow_item add index FKB38697A091A4BC5E (workflow_id), add co
 
 -- These tables have been renamed
 
-RENAME TABLE osp_repository_lock TO CONTENT_RESOURCE_LOCK;
-RENAME TABLE osp_structured_artifact_def TO METAOBJ_FORM_DEF;
+RENAME TABLE osp_repository_lock TO content_resource_lock;
+RENAME TABLE osp_structured_artifact_def TO metaobj_form_def;
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------
