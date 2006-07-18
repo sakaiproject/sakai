@@ -28,7 +28,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -63,6 +65,19 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 
 public class podHomeBean {
+	
+	// Message Bundle handles
+	private static final String QUOTA_ALERT = "quota_alert";
+	private static final String NO_FILE_ALERT = "nofile_alert";
+	private static final String NO_DATE_ALERT = "nodate_alert";
+	private static final String NO_TITLE_ALERT = "notitle_alert";
+	private static final String LENGTH_ALERT = "length_alert";
+	private static final String PERMISSION_ALERT = "permission_alert";
+	private static final String INTERNAL_ERROR_ALERT = "internal_error_alert";
+	private static final String ID_UNUSED_ALERT="id_unused_alert";
+	private static final String ID_INVALID_ALERT="id_invalid_alert";
+	private static final String IO_ALERT  = "io_alert";
+	private static final String ID_USED_ALERT = "id_used_alert";
 	
 	/**
 	 * Stores the properties of a specific podcast to be displayed
@@ -186,11 +201,11 @@ public class podHomeBean {
 			try {
 				return podcastService.getPodcastFileURL(resourceId);
 			} catch (PermissionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				setErrorMessage(PERMISSION_ALERT);
+
 			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				setErrorMessage(ID_UNUSED_ALERT);
+
 			}
 			
 			return "";
@@ -207,9 +222,10 @@ public class podHomeBean {
 
 	// podHomeBean constants
 	private static final String DOT = ".";
-	private static final String NO_RESOURCES_ERR_MSG = "To use the Podcasts tool, you must first add the Resources tool.";
+	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
 	private static final String RESOURCEID = "resourceId";
-
+	private static final String RESOURCE_TITLE = "Resources";
+	
 	// inject the podcast services for its help
 	private PodcastService podcastService;
 
@@ -276,15 +292,16 @@ public class podHomeBean {
 			{
 				SitePage pgelement = (SitePage) iterator.next();
 
-				if (pgelement.getTitle().equals("Resources"))
+				if (pgelement.getTitle().equals(RESOURCE_TITLE))
 				{
 					resourceToolExists = true;
 					break;
 				}
 			}
 		}
-		catch(Exception e)
+		catch(IdUnusedException e)
 		{
+			setErrorMessage(NO_RESOURCES_ERR_MSG);
 			return resourceToolExists;
 		}
 	    
@@ -295,10 +312,10 @@ public class podHomeBean {
     return resourceToolExists;
 	}
 
-	private void setErrorMessage(String errorMsg)
+	private void setErrorMessage(String alertMsg)
 	{
 		FacesContext.getCurrentInstance().addMessage(null,
-		      new FacesMessage("Alert: " + errorMsg));
+		      new FacesMessage("Alert: " + getErrorMessageString(alertMsg)));
 	}
 	  
 	public boolean getPodcastFolderExists() {
@@ -310,10 +327,10 @@ public class podHomeBean {
 				podcastFolderExists = podcastService.checkPodcastFolder();
 			} catch (InUseException e) {
 				// TODO If it's in use, does that mean it exists?
-				e.printStackTrace();
+				
 			} catch (PermissionException e) {
 				// TODO Generate error message about Permission denied
-				e.printStackTrace();
+				setErrorMessage(PERMISSION_ALERT);
 			}
 		  }
 		  
@@ -426,19 +443,19 @@ public class podHomeBean {
 		}
 		catch (PermissionException pe) {
 			// TODO: Set error message to say you don't have permission
-			 return null;
+			 setErrorMessage(PERMISSION_ALERT);
 		} catch (InUseException e) {
 			// TODO Or try again? Set Error Message?
-			return null;
+			setErrorMessage(INTERNAL_ERROR_ALERT);
 		} catch (IdInvalidException e) {
 			// TODO Set a LOG message before rethrowing?
-			return null;
+			setErrorMessage(ID_INVALID_ALERT);
 		} catch (InconsistentException e) {
 			// TODO Auto-generated catch block
 			return null;
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
-			return null;
+			setErrorMessage(ID_UNUSED_ALERT);
 		}
 
 		// create local List of DecoratedBeans
@@ -463,10 +480,10 @@ public class podHomeBean {
 					// get the next podcast if it exists
 				}
 				catch (EntityPropertyNotDefinedException ende) {
-					
+					//TODO: WHAT WOULD THIS MEAN?
 				}
 				catch (EntityPropertyTypeException epte) {
-					
+					//TODO: WHAT WOULD THIS MEAN?
 				}
 
 			}
@@ -498,8 +515,7 @@ public class podHomeBean {
 			try {
 				actPodcastsExist = podcastService.checkForActualPodcasts();
 			} catch (PermissionException e) {
-				// TODO Set error message saying Permission denied
-				
+				setErrorMessage(PERMISSION_ALERT);
 			}
 		}
 
@@ -542,13 +558,10 @@ public class podHomeBean {
 				}
 
 			} catch (EntityPropertyNotDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// TODO WHAT DOES THIS MEAN
 			} catch (EntityPropertyTypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// TODO WHAT DOES THIS MEAN
 			}
-
 		}
 	}
 	
@@ -623,9 +636,7 @@ public class podHomeBean {
 	 * @param event ValueChangeEvent object generated by selecting a file to upload.
 	 * @throws AbortProcessingException
 	 */
-	public void processFileUpload (ValueChangeEvent event)
-            throws AbortProcessingException
-    {
+	public void processFileUpload (ValueChangeEvent event) throws AbortProcessingException {
 	   UIComponent component = event.getComponent();
 
 	    Object newValue = event.getNewValue();
@@ -639,30 +650,21 @@ public class podHomeBean {
         if (newValue instanceof String) return;
         if (newValue == null) return;
 
-        // must be a FileItem
-        try
-        {
-            FileItem item = (FileItem) event.getNewValue();
-	        String fieldName = item.getFieldName();
-	        filename = item.getName();
-	        fileSize = item.getSize();
-	        fileContentType = item.getContentType();
-	        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + filename + " length: " + fileSize);
+        FileItem item = (FileItem) event.getNewValue();
+        String fieldName = item.getFieldName();
+        filename = item.getName();
+        fileSize = item.getSize();
+        fileContentType = item.getContentType();
+        System.out.println("processFileUpload(): item: " + item + " fieldname: " + fieldName + " filename: " + filename + " length: " + fileSize);
 
-	        // Read the file as a stream (may be more memory-efficient)
-	        fileAsStream = new BufferedInputStream(item.getInputStream());
+        // Read the file as a stream (may be more memory-efficient)
+        try {
+			fileAsStream = new BufferedInputStream(item.getInputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			setErrorMessage(INTERNAL_ERROR_ALERT);
+		}
 
-	        // Read the contents as a byte array
-	        // Just need to upload in preparation for depositing into Resources
-	        //fileContents = item.get();
-
-        }
-        catch (Exception ex)
-        {
-            // handle exception
-            System.out.println("Houston, we have a problem.");
-            ex.printStackTrace();
-        }
     }
 	
 	/**
@@ -680,30 +682,37 @@ public class podHomeBean {
 			}
 			catch (IOException ioe) {
 				System.out.println("What happened to the fileStream?");
+				setErrorMessage(IO_ALERT);
 			}
 		
 			try {
 				podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete
-				
+		        setErrorMessage(QUOTA_ALERT);
+
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying Server working too hard
-				e.printStackTrace();
+				setErrorMessage(INTERNAL_ERROR_ALERT);
+				
 			} catch (InconsistentException e) {
 				// TODO Back to where it came from?
 
 			} catch (IdInvalidException e) {
 				// TODO Add error message saying Id invalid
+				setErrorMessage(ID_INVALID_ALERT);
 
 			} catch (IdLengthException e) {
 				// TODO Add error message saying too long
+				setErrorMessage(LENGTH_ALERT);
 
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission denied
+				setErrorMessage(PERMISSION_ALERT);
 
 			} catch (IdUniquenessException e) {
 				// TODO Add error message saying Id already exists
+				setErrorMessage(ID_USED_ALERT);
 
 			}
 
@@ -764,6 +773,7 @@ public class podHomeBean {
 				}
 				catch (IOException ioe) {
 					System.out.println("What happened to the fileStream?");
+					setErrorMessage(IO_ALERT);
 				}
 			
 			}
@@ -778,15 +788,19 @@ public class podHomeBean {
 					selectedPodcast.description, fileContents, selectedPodcast.filename);
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission Denied
+				setErrorMessage(PERMISSION_ALERT);
 
 			} catch (InUseException e) {
 				// TODO Add error message saying locked by another user
+				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete things
-
+				setErrorMessage(QUOTA_ALERT);
+				
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying server working too hard
+				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			}
 		
@@ -820,10 +834,10 @@ public class podHomeBean {
 			return "cancel";
 		}
 		catch (PermissionException e) {
-			setErrorMessage("You do not have permission to delete the selected file.");
+			setErrorMessage(PERMISSION_ALERT);
 		}
 		catch (Exception e) {
-			setErrorMessage("An internal error prevented the podcast from being deleted. Please try again.");
+			setErrorMessage(INTERNAL_ERROR_ALERT);
 		}
 		return "";
 	}
@@ -905,4 +919,18 @@ public class podHomeBean {
 		return OKtoAdd;
 	}
 
+	/**
+	 * Sets the Faces error message by pulling the message from the MessageBundle using
+	 * the name passed in
+	 * 
+	 * @param key The name in the MessageBundle for the message wanted
+	 * @return The string that is the value of the message
+	 */
+	private String getErrorMessageString(String key) {
+        String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+        Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();        
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+        return rb.getString(key);
+		
+	}
 }

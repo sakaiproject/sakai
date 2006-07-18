@@ -34,7 +34,6 @@
       <b><h:outputText value="#{podHomeBean.selectedPodcast.filename}" styleClass="indnt2" /></b>
       <br />
       
-      <span class="reqStarInline">*</span>
  	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
  	  <sakai:inputFileUpload id="podfile" value="#{podHomeBean.filename}"
  	     valueChangeListener="#{podHomeBean.processFileUpload}" 
@@ -49,7 +48,6 @@
      <b><h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="indnt2" /></b>
      <br />
      
-     <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
 
      <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
@@ -59,9 +57,8 @@
     <br />
      
     <div class="indnt1">  <!-- Title -->
-      <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt3" size="35" />
+ 	  <h:inputText id="podtitle" value="#{podHomeBean.selectedPodcast.title}" styleClass="indnt3" size="35" maxlength="255" />
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
