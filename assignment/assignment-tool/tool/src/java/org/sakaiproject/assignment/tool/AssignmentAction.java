@@ -3722,41 +3722,72 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									if (c != null)
 									{
+											
+											
+										// commit related properties into Assignment object
+										String ref = "";
 										try
 										{
-											e = null;
-											e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */
-											0 * 60 * 1000),
-											/* title */rb.getString("due") + " " + title,
-											/* description */rb.getString("assig1") + " " + title + " " + "is due on "
-													+ dueTime.toStringLocalFull() + ". ",
-											/* type */rb.getString("deadl"),
-											/* location */"",
-											/* attachments */EntityManager.newReferenceList());
+											ref = a.getReference();
+											AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
 											
-											// commit related properties into Assignment object
-											String ref = "";
 											try
 											{
-												ref = a.getReference();
-												AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+												e = null;
+												CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+												Collection eGroups = new Vector();
+												
+												if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+												{
+													eAccess = CalendarEvent.EventAccess.GROUPED;
+													Collection groupRefs = aEdit.getGroups();
+													
+													// make a collection of Group objects from the collection of group ref strings
+													Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+													for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+													{
+														String groupRef = (String) iGroupRefs.next();
+														eGroups.add(site.getGroup(groupRef));
+													}
+												}
+												e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
+														/* title */rb.getString("due") + " " + title,
+														/* description */rb.getString("assig1") + " " + title + " " + "is due on "
+																+ dueTime.toStringLocalFull() + ". ",
+														/* type */rb.getString("deadl"),
+														/* location */"",
+														/* access */ eAccess,
+														/* groups */ eGroups,
+														/* attachments */EntityManager.newReferenceList());
+												
 												aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
 												if (e != null)
 												{
 													aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
 												}
-												AssignmentService.commitEdit(aEdit);
 											}
-											catch (Exception ignore)
+											catch (IdUnusedException ee)
 											{
-												// ignore the exception
-												Log.warn("chef", rb.getString("cannotfin2") + ref);
+												Log.warn("chef", ee.getMessage());
 											}
+											catch (PermissionException ee)
+											{
+												Log.warn("chef", rb.getString("cannotfin1"));
+											}
+											catch (Exception ee)
+											{
+												Log.warn("chef", ee.getMessage());
+											}
+											// try-catch
+												
+											
+											AssignmentService.commitEdit(aEdit);
 										}
-										catch (PermissionException ee)
+										catch (Exception ignore)
 										{
-											Log.warn("chef", rb.getString("cannotfin1"));
-										} // try-catch
+											// ignore the exception
+											Log.warn("chef", rb.getString("cannotfin2") + ref);
+										}
 									} // if
 								} // if
 							}
