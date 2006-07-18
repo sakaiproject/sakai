@@ -42,7 +42,7 @@
 stealthTools@org.sakaiproject.tool.api.ActiveToolManager=sakai.assignment,sakai.rwiki,sakai.site.roster,
 osp.evaluation,osp.exposedmatrix,osp.exposedwizard,osp.glossary,osp.guidance.sample,osp.matrix,osp.presTemplate,
 osp.presentation,osp.reports,osp.synoptic,osp.synoptic.design.publish,osp.wizard,sakai.messagecenter,
-sakai.metaobj,sakai.postem,sakai.rwiki,sakai.samigo,sakai.search,sakai.site.roster,sakai.sitemanage,
+sakai.metaobj,sakai.postem,sakai.samigo,sakai.search,sakai.sitemanage,
 osp.presLayout,osp.style</screen>
         <para>To unstealth a tool, simply remove it from this list in
             <filename>sakai.properties</filename>.</para>
@@ -517,6 +517,7 @@ webservices.allowlogin=false</screen>
                             grades to Sakai's Gradebook tool.</para>
                     </listitem>
                 </itemizedlist>
+                <para>Samigo is an ambitious application, and has its own set of release notes maintained on Confluence, which you can find at: <link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes">http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
@@ -557,39 +558,7 @@ samigo.saveMediaToDb=false</screen>
                         <para>MySQL --> longblob</para>
                     </listitem>
                 </itemizedlist>
-                <para>Audio recording questions are turned on by default in 2.2. You can turn it off
-                    by modifying
-                    <filename>sam/samigo-app/src/webapp/WEB-INF/faceconfig.xml</filename>, and
-                    changing the showAudio to false, then redeploying.</para>
-                <screen>
-&lt;managed-property&gt;
-    &lt;property-name&gt;showAudio&lt;/property-name&gt;
-    &lt;value&gt;false&lt;/value&gt;
-&lt;/managed-property&gt;</screen>
-                <para>Audio recording questions uses an Audio Recording Applet (Based on Sun's Java
-                    Sound API) to record. Because the default JRE installation doesn't allow Java to
-                    record audio from your computer's sound card, you may have to modify your
-                    java.policy file and add the following permissions:</para>
-
-                <screen>
-permission javax.sound.sampled.AudioPermission "record";
-permission java.io.FilePermission "&lt;&lt;ALL FILES&gt;&gt;", "read, write";
-permission java.util.PropertyPermission "user.dir", "read";</screen>
-
-                <para>Audio recording uses the same storage configuration as File Upload questions,
-                    so they can be configured to be stored either in DB or files.</para>
-
-                <para>Currently, by default QTI Assessment Import also uses the
-                        <command>com.corejsf.UploadFilter.repositoryPath</command> parameter in
-                        <filename>web.xml</filename> as the location to store a temporary file.
-                    These temporary files are removed after the import is completed.
-                        <command>com.corejsf.UploadFilter.repositoryPath</command> is set to
-                        <filename>/tmp</filename> by default. This again can be overridden in
-                        <filename>sakai.properties</filename> the same way as in File Upload/Audio
-                    recording questions. Please make sure that Sakai has write privilege to this
-                    directory. For example, </para>
-
-                <screen>samigo.answerUploadRepositoryPath=/sakaitmp/</screen>
+                <para>For further configuration options and details, please see the Samigo release notes at:<link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes">http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="roster">
