@@ -47,7 +47,16 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
@@ -174,7 +183,17 @@ public class podHomeBean {
 		 * @return Returns the fileURL.
 		 */
 		public String getFileURL() {
-			return podcastService.getPodcastFileURL(resourceId);
+			try {
+				return podcastService.getPodcastFileURL(resourceId);
+			} catch (PermissionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return "";
 		}
 
 		/**
@@ -287,7 +306,15 @@ public class podHomeBean {
 		  
 		  if (getResourceToolExists()) {
 			  // we know resources tool exists, but need to know if podcast folder does
-			  podcastFolderExists = podcastService.checkPodcastFolder();
+			  try {
+				podcastFolderExists = podcastService.checkPodcastFolder();
+			} catch (InUseException e) {
+				// TODO If it's in use, does that mean it exists?
+				e.printStackTrace();
+			} catch (PermissionException e) {
+				// TODO Generate error message about Permission denied
+				e.printStackTrace();
+			}
 		  }
 		  
 		  return podcastFolderExists;
@@ -362,13 +389,12 @@ public class podHomeBean {
 		}
 		podcastInfo.setSize(sizeString);
 
-		// TODO: figure out how to determine/store content type
-		// this version, just capitalize extension
-		// ie, MP3, AVI, etc
-		if (filename.indexOf(DOT) == -1)
+		// TODO: figure out how to determine/store content type name
+		// this version, just capitalize extension, ie, MP3, AVI, etc
+		if (filename.lastIndexOf(DOT) == -1)
 			podcastInfo.setType("unknown");
 		else {
-			String extension = filename.substring(filename.indexOf(DOT) + 1);
+			String extension = filename.substring(filename.lastIndexOf(DOT) + 1);
 			podcastInfo.setType( extension.toUpperCase() );
 		}
 
@@ -394,7 +420,26 @@ public class podHomeBean {
 	 * @return List of DecoratedPodcastBeans that are the podcasts
 	 */
 	public List getContents() {
+		try {
 		contents = podcastService.getPodcasts();
+		
+		}
+		catch (PermissionException pe) {
+			// TODO: Set error message to say you don't have permission
+			 return null;
+		} catch (InUseException e) {
+			// TODO Or try again? Set Error Message?
+			return null;
+		} catch (IdInvalidException e) {
+			// TODO Set a LOG message before rethrowing?
+			return null;
+		} catch (InconsistentException e) {
+			// TODO Auto-generated catch block
+			return null;
+		} catch (IdUsedException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}
 
 		// create local List of DecoratedBeans
 		ArrayList decoratedPodcasts = new ArrayList();
@@ -428,7 +473,6 @@ public class podHomeBean {
 		
 		}
 
-		// TODO: sort the list
 		return decoratedPodcasts; //new decorated list 
 	}
 
@@ -451,7 +495,12 @@ public class podHomeBean {
 		}
 		else  {
 			// ask the service if there is anything in the podcast folder
-			actPodcastsExist = podcastService.checkForActualPodcasts();
+			try {
+				actPodcastsExist = podcastService.checkForActualPodcasts();
+			} catch (PermissionException e) {
+				// TODO Set error message saying Permission denied
+				
+			}
 		}
 
 		return actPodcastsExist;
@@ -633,7 +682,30 @@ public class podHomeBean {
 				System.out.println("What happened to the fileStream?");
 			}
 		
-			podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
+			try {
+				podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
+			} catch (OverQuotaException e) {
+				// TODO Add error message saying delete
+				
+			} catch (ServerOverloadException e) {
+				// TODO Add error message saying Server working too hard
+				e.printStackTrace();
+			} catch (InconsistentException e) {
+				// TODO Back to where it came from?
+
+			} catch (IdInvalidException e) {
+				// TODO Add error message saying Id invalid
+
+			} catch (IdLengthException e) {
+				// TODO Add error message saying too long
+
+			} catch (PermissionException e) {
+				// TODO Add error message saying Permission denied
+
+			} catch (IdUniquenessException e) {
+				// TODO Add error message saying Id already exists
+
+			}
 
 			displayNoFileErrMsg = false;
 			displayNoDateErrMsg = false;
@@ -701,8 +773,22 @@ public class podHomeBean {
 			date = new Date(selectedPodcast.displayDate);
 		}
 			
-			podcastService.revisePodcast(selectedPodcast.resourceId, selectedPodcast.title, date,
-				selectedPodcast.description, fileContents, selectedPodcast.filename);
+			try {
+				podcastService.revisePodcast(selectedPodcast.resourceId, selectedPodcast.title, date,
+					selectedPodcast.description, fileContents, selectedPodcast.filename);
+			} catch (PermissionException e) {
+				// TODO Add error message saying Permission Denied
+
+			} catch (InUseException e) {
+				// TODO Add error message saying locked by another user
+
+			} catch (OverQuotaException e) {
+				// TODO Add error message saying delete things
+
+			} catch (ServerOverloadException e) {
+				// TODO Add error message saying server working too hard
+
+			}
 		
 		date = null;
 		title="";

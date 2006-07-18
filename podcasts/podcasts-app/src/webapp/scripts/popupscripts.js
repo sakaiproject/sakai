@@ -49,8 +49,8 @@ function showPopupHere(el,divid) {
     // Need to adjust position given
     if (document.all) { 
        // For IE, need to adjust both
-       pos.y -= (width / 2);
-       pos.x -= height;
+       pos.y -= (height * 2.7);
+       pos.x -= (width * .3);
     }
     else {
        // For non-IE

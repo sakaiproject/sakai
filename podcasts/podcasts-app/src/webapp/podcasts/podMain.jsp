@@ -55,8 +55,8 @@
             <!--  Download link -->
             <f:verbatim><div class="podLinksPosition" ></f:verbatim>
 
-            <!--  7/13/06 Hack to fix if spaces in name. TODO: redo correctly -->
-            <!--  Below is correct JSP. Problem is when rendering what's sent from bean 
+            <!--  7/17/06 Hack to fix if spaces in name. TODO: redo correctly -->
+            <!--  Below is correct JSP. Problem is when rendering what's sent from bean  
             h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
                  h:outputText value="#{msgs.download}" 
             h:outputLink> -->

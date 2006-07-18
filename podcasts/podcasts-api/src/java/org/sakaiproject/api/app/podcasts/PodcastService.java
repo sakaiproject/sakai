@@ -27,9 +27,16 @@ import java.util.List;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolManager;
 
@@ -64,7 +71,7 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return true if folder exists/created, false otherwise.
 	 */
-	public boolean checkPodcastFolder ();
+	public boolean checkPodcastFolder () throws InUseException, PermissionException;
 
 	/**
 	 * Will check if any podcasts were added in Resources and do not have their DISPLAY_DATE property set.
@@ -80,7 +87,7 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return true if there are actual podcasts, false otherwise
 	 */
-	public boolean checkForActualPodcasts();
+	public boolean checkForActualPodcasts() throws PermissionException;
 
 	/**
 	 * Used to inject the ContentHostingService
@@ -101,7 +108,8 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return List of podcasts
 	 */
-	public List getPodcasts();
+	public List getPodcasts()throws PermissionException, InUseException, IdInvalidException, 
+					InconsistentException, IdUsedException;
 	
 	/**
 	 * Returns SiteId for the site this tool is a part of
@@ -124,14 +132,14 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return String The full URL for the file
 	 */
-	public String getPodcastFileURL(String resourceId);
+	public String getPodcastFileURL(String resourceId) throws PermissionException, IdUnusedException;
 
 	/**
 	 * Returns an editable resource if ID exists.
 	 * 
 	 * @return ContentResourceEdit object if ID valid, null otherwise
 	 */
-	public ContentResourceEdit getAResource(String resourceId);
+	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException;
 
 	/**
 	 * Sets the DISPLAY_DATE property of a podcast to CREATION_DATE
@@ -150,7 +158,8 @@ public interface PodcastService // extends EntityProducer
 	 * @param filename The filename of the podcast being saved
 	 */
 	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
-			               String filename, String contentType);
+			               String filename, String contentType) throws OverQuotaException, ServerOverloadException, InconsistentException,
+			               IdInvalidException, IdLengthException, PermissionException, IdUniquenessException;
 	
 	/**
 	 * Removes a podcast from site/podcasts folder
@@ -166,7 +175,7 @@ public interface PodcastService // extends EntityProducer
 	 * @return ContentResourceEdit object if ID valid, null otherwise
 	 */
 	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
-            String filename);
+            String filename) throws PermissionException, InUseException, OverQuotaException, ServerOverloadException;
 	
 	/**
 	 * Determines if user can modify the site.

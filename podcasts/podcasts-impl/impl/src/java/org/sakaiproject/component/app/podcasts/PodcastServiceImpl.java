@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -121,7 +120,8 @@ public class PodcastServiceImpl implements PodcastService
 	 * 
 	 * @return A List of podcast resources
 	 */
-	public List getPodcasts() {
+	public List getPodcasts() throws PermissionException, InUseException, IdInvalidException, 
+					InconsistentException, IdUsedException {
 		List resourcesList = null;
 		
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
@@ -161,45 +161,29 @@ public class PodcastServiceImpl implements PodcastService
 			}
 			catch (IdUnusedException e) {
 				// TODO: handle if necessary
+				LOG.warn("IdUnusedException: " + e.getMessage(), e);
 			}
 			catch (TypeException e) {
-			}
-			catch (InUseException e) {
-			}
-			catch (PermissionException e) {
-			}
-			catch (IdInvalidException e) {
-			}
-			catch (InconsistentException e) {
-			}
-			catch (IdUsedException e) {
+				LOG.warn("TypeException: " + e.getMessage(), e);
 			}
 			
 		}
 		catch (TypeException e) {
-			
-		}
-		catch (PermissionException e) {
-			
+			LOG.warn("TypeException: " + e.getMessage(), e);
 		}
 		
 		return resourcesList;
 	}
 	
-	public ContentResourceEdit getAResource(String resourceId) {
+	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException {
 
 		try {
 			return (ContentResourceEdit) contentHostingService.getResource(resourceId);				
 		}
-		catch (PermissionException pe) {
-			
+		catch (TypeException e) {
+			LOG.warn("TypeException: " + e.getMessage(), e);
 		}
-		catch (TypeException te) {
-			
-		}
-		catch (IdUnusedException iue) {
-			
-		}
+
 		return null;
 	} 
 	
@@ -217,46 +201,24 @@ public class PodcastServiceImpl implements PodcastService
 	 *  			the bytes of this podcast
 	 */
 	public void addPodcast(String title, Date displayDate, String description, byte[] body, 
-			               String filename, String contentType) {
+			               String filename, String contentType) throws OverQuotaException, ServerOverloadException, InconsistentException, 
+			               IdInvalidException, IdLengthException, PermissionException, IdUniquenessException {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 
-		try {
-			ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
-			String resourceCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+		ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
+		String resourceCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 			
-			//TODO: may need additional properties here
-			resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString() );
-			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
-			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-			resourceProperties.addProperty(DISPLAY_DATE, formatter.format(displayDate));
-			resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
-			resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
+		//TODO: may need additional properties here
+		resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString() );
+		resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, title);
+		resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		resourceProperties.addProperty(DISPLAY_DATE, formatter.format(displayDate));
+		resourceProperties.addProperty(ResourceProperties.PROP_ORIGINAL_FILENAME, filename);
+		resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, new Integer(body.length).toString());
 			
-			contentHostingService.addResource(Validator.escapeResourceName(title), resourceCollection, 0,
-					contentType, body, resourceProperties, NotificationService.NOTI_NONE);
-		}
-		catch (OverQuotaException e) {
-			
-		}
-		catch (IdInvalidException e) {
-			
-		}
-		catch (ServerOverloadException e) {
-			
-		}
-		catch (InconsistentException e) {
-			
-		}
-		catch (IdLengthException e) {
-			
-		}
-		catch (PermissionException e) {
-			
-		}
-		catch (IdUniquenessException e) {
-			
-		}
+		contentHostingService.addResource(Validator.escapeResourceName(title), resourceCollection, 0,
+			contentType, body, resourceProperties, NotificationService.NOTI_NONE);
 	}
 	
 	/**
@@ -279,7 +241,8 @@ public class PodcastServiceImpl implements PodcastService
 	 *  
 	 * @return true if exists, false otherwise
 	 */
-	public boolean checkPodcastFolder () {
+	public boolean checkPodcastFolder () throws  PermissionException, InUseException {
+	
 		boolean podcastCollection = false;
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
@@ -288,8 +251,7 @@ public class PodcastServiceImpl implements PodcastService
 			contentHostingService.checkCollection(podcastsCollection);		
 			podcastCollection =  true;
 		}
-		catch(Exception ex){
-		//catch (IdUnusedException ex) {
+		catch (IdUnusedException ex) {
 			try {
 				// TODO: Does not exist. Create podcasts folder
 				ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
@@ -307,33 +269,35 @@ public class PodcastServiceImpl implements PodcastService
 				
 				podcastCollection = true;
 			}
-			catch (IdUnusedException e) {
-				// TODO: user must have renamed/deleted podcast folder, recreate
-				System.out.println("Problem creating podcasts folder");
-			}
 			catch (TypeException e) {
-			}
-			catch (InUseException e) {
-			}
-			catch (PermissionException e) {
+				LOG.warn("TypeException: " + e.getMessage(), e);
 			}
 			catch (IdInvalidException e) {
+				LOG.error("IdInvalidException: " + e.getMessage(), e);
 			}
 			catch (InconsistentException e) {
+				LOG.error("InconsistentError: " + e.getMessage(), e);
+			} catch (IdUnusedException e) {
+				LOG.warn("IdUnusedException: " + e.getMessage(), e);
+			} catch (IdUsedException e) {
+				// TODO Auto-generated catch block
+				LOG.warn("IdUsedException: " + e.getMessage(), e);
 			}
-			catch (IdUsedException e) {
-			}
+		}
+		catch (TypeException e) {
+			LOG.warn("TypeException: " + e.getMessage(), e);
 		}
 
 		return podcastCollection;
 	}
 	
-	public boolean checkForActualPodcasts() {
+	public boolean checkForActualPodcasts() throws PermissionException {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 		List resourcesList = null;
-		
+
 		try {
+
 			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
 			
 			resourcesList = collection.getMemberResources();
@@ -346,9 +310,13 @@ public class PodcastServiceImpl implements PodcastService
 			}
 			else 
 				return false;
-		}
-		catch (Exception e) {
 			
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			LOG.warn("IdUnusedException: " + e.getMessage(), e);
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			LOG.warn("TypeException: " + e.getMessage(), e);
 		}
 
 		return false;
@@ -363,7 +331,7 @@ public class PodcastServiceImpl implements PodcastService
 	}
 	
 	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
-            String filename) {
+            String filename) throws PermissionException, InUseException, OverQuotaException, ServerOverloadException {
 		
 		try {
 			// get Resource to modify
@@ -401,24 +369,14 @@ public class PodcastServiceImpl implements PodcastService
 
 			contentHostingService.commitResource(podcastEditable);
 
-		} catch (PermissionException e) {
-			LOG.trace("Expected PermissionException: " + e.getMessage(), e);
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.trace("Expected PermissionException: " + e.getMessage(), e);
 		} catch (TypeException e) {
 			// TODO Auto-generated catch block
+			LOG.warn("TypeException: " + e.getMessage(), e);
 			e.printStackTrace();
-		} catch (InUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverQuotaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		}
 	}
 
 	public List checkDISPLAY_DATE(List resourcesList) {
@@ -449,31 +407,25 @@ public class PodcastServiceImpl implements PodcastService
 		Date tempDate = null;
 		try {
 			tempDate = new Date(rp.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
-		} catch (EntityPropertyNotDefinedException epnde) {
+		} catch (EntityPropertyNotDefinedException e) {
 			// TODO Auto-generated catch block
-			epnde.printStackTrace();
+			LOG.warn("EntityPropertyNotDefinedException: " + e.getMessage(), e);
 		} catch (EntityPropertyTypeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn("EntityPropertyTypeException: " + e.getMessage(), e);
 		}
 		
 		rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
 
 	}
 	
-	public String getPodcastFileURL(String resourceId) {
+	public String getPodcastFileURL(String resourceId) throws PermissionException, IdUnusedException {
 		try {
 				return (contentHostingService.getResource(resourceId)).getUrl();
 
-		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (TypeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn("TypeException: " + e.getMessage(), e);
 		}
 		
 		return null;
