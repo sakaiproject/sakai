@@ -2,7 +2,6 @@
 <%@ page contentType="text/xml;charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<!-- $Id$
 <%--
 ***********************************************************************************
 *
@@ -24,7 +23,6 @@
 *
 **********************************************************************************/
 --%>
--->
 <f:view>
   <h:outputText value="#{xml.xml}" escape="false" />
 </f:view>
