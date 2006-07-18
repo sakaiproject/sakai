@@ -27,7 +27,7 @@
 				<sakai:button_bar>					
 					<sakai:button_bar_item
 						action="#{PostemTool.processCreateOk}"
-						value="#{msgs.ok}" />
+						value="#{msgs.bar_save}" />
 					<sakai:button_bar_item
 						action="#{PostemTool.processCreateBack}"
 						value="#{msgs.back}" />
