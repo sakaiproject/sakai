@@ -35,12 +35,12 @@ FCKToolbarAttachmentSelectCommand.prototype.GetState = function()
 	return this.combo.currentItem.FCKItemID;
 }
 
-var FCKToolbarAttachmentsCombo = function(  )
+var FCKToolbarAttachmentsCombo = function( commandName )
 {
-	this.Label		= this.GetLabel() ;
-	this.Tooltip	= this.Label ;
-	this.Style		= FCK_TOOLBARITEM_ICONTEXT ;
-   this.Command   = new FCKToolbarAttachmentSelectCommand( this );
+	this.Label		  = this.GetLabel() ;
+	this.Tooltip	  = this.Label ;
+	this.Style		  = FCK_TOOLBARITEM_ICONTEXT ;
+   this.CommandName = commandName;
 
    this.NormalLabel = 'Normal' ;
 
@@ -159,7 +159,10 @@ SelectAttachmentsCommand.prototype.GetState = function()
 	return FCK_TRISTATE_OFF ;
 }
 
-var attachmentCombo = new FCKToolbarAttachmentsCombo();
+var attachmentCombo = new FCKToolbarAttachmentsCombo('SelectAttachmentsCombo');
+var attachmentComboCommand = new FCKToolbarAttachmentSelectCommand( attachmentCombo );
+
+FCKCommands.RegisterCommand('SelectAttachmentsCombo', attachmentComboCommand);
 FCKToolbarItems.RegisterItem('SelectAttachmentsCombo', attachmentCombo);
 
 FCKCommands.RegisterCommand('Select_Attachment', new SelectAttachmentsCommand(attachmentCombo));
