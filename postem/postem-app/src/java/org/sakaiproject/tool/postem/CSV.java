@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
+import javax.faces.application.FacesMessage;
+
 public class CSV {
 
 	private List contents;
@@ -91,8 +93,6 @@ public class CSV {
 
 	public static List retrieveContents(String csv) throws DataFormatException {
 
-		int properLength = determineColumns(csv);
-
 		List all = new ArrayList();
 		List current = new ArrayList();
 		StringBuffer it = new StringBuffer();
@@ -142,28 +142,37 @@ public class CSV {
 				} else if (csv.charAt(ii) == '\r' || csv.charAt(ii) == '\n') {
 					if (ii < length - 1 && csv.charAt(ii + 1) == '\n') {
 						ii++;
-					}
+					}		
 					current.add((it.length() == 0) ? " " : it.toString());
 					it = new StringBuffer();
-					all.add(current);
+		            all.add(current);
 					current = new ArrayList();
-					if (ii < length - 1
-							&& properLength != determineColumns(csv.substring(ii + 1))) {
-						int row = all.size() + 1;
-						System.out.println();
-						System.out.println(csv.substring(ii + 1));
-						throw new DataFormatException("Number of columns ("
-								+ determineColumns(csv.substring(ii + 1)) + ") in row " + row
-								+ " does not match number in row one!");
-					}
+					
 				} else if (csv.charAt(ii) == '"') {
 					inQuotes = true;
 				} else {
 					it.append(csv.charAt(ii));
 				}
+			}	
+		}
+        
+		// we want to identify the row with the most columns and then append blank columns until all the rows
+		// are the same length
+		int finalNumCols = 0;
+		for (int i=0; i < all.size(); i++) {
+			if(((List)all.get(i)).size() > finalNumCols) {
+				finalNumCols = ((List)all.get(i)).size();
 			}
 		}
-
+		
+		// make sure all of the rows have the same number of cols as the longest row
+		for (int j=0; j < all.size(); j++) {
+				
+			while(((List)all.get(j)).size() < finalNumCols) {					
+				((List)all.get(j)).add("");
+			}											
+		}
+	
 		return all;
 	}
 
