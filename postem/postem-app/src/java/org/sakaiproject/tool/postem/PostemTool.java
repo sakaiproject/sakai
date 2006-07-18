@@ -360,6 +360,11 @@ public class PostemTool {
 					new Object[] {});
 			return "create_gradebook";
 		}
+		
+		if (this.csv == null || this.csv.trim().length() <= 0) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "missing_csv", new Object[] {});
+			return "create_gradebook";
+		}
 
 		if (this.csv != null && this.csv.trim().length() > 0) {
 			// logger.info("*** Non-Empty CSV!");
