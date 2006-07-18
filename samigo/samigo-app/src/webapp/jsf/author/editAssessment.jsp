@@ -227,7 +227,17 @@ document.links[newindex].onclick();
             </h:selectOneMenu>
 
 	<h:panelGroup >
-		<h:outputText value=" #{question.itemData.type.keyword} #{msg.dash} #{question.itemData.score}" />
+     <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{msg.multiple_choice_sin}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{msg.multiple_choice_mul}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{msg.multiple_choice_surv}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{msg.true_false}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{msg.short_answer_essay}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 8}" value=" #{msg.fill_in_the_blank}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{msg.matching}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{msg.audio_recording}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{msg.file_upload}"/>
+
+		<h:outputText value=" #{msg.dash} #{question.itemData.score}" />
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{msg.points_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{msg.point_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{msg.points_lower_case}"/>
