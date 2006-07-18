@@ -150,7 +150,7 @@
 		<x:div styleClass="act">
 	        <h:commandButton
 	            action="#{addSectionsBean.addSections}"
-	            disabled="#{addSectionsBean.category == null}"
+	            disabled="#{empty addSectionsBean.category}"
 	            value="#{msgs.add_sections_add}"
 	            styleClass="active" />
 	        
