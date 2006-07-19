@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -44,7 +45,11 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -177,6 +182,28 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** sort by group description */
 	private static final String SORTED_BY_GROUP_DESCRIPTION = "group_description";
+	
+	/** *************************** sort submission in instructor grade view *********************** */
+	/** state sort submission* */
+	private static final String SORTED_GRADE_SUBMISSION_BY = "Assignment.grade_submission_sorted_by";
+
+	/** state sort submission ascendingly * */
+	private static final String SORTED_GRADE_SUBMISSION_ASC = "Assignment.grade_submission_sorted_asc";
+
+	/** state sort submission by submitters last name * */
+	private static final String SORTED_GRADE_SUBMISSION_BY_LASTNAME = "grade_lastname";
+
+	/** state sort submission by submit time * */
+	private static final String SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME = "grade_submit_time";
+	
+	/** state sort submission by submission status * */
+	private static final String SORTED_GRADE_SUBMISSION_BY_STATUS = "grade_status";
+
+	/** state sort submission by submission grade * */
+	private static final String SORTED_GRADE_SUBMISSION_BY_GRADE = "grade_submission_grade";
+
+	/** state sort submission by submission released * */
+	private static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "grade_released";
 
 	/** *************************** sort submission *********************** */
 	/** state sort submission* */
@@ -1057,7 +1084,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(SORTED_BY, sort);
 					state.setAttribute(SORTED_ASC, asc);
 				}
-				context.put("groups", new SortedIterator(groupsAllowAddAssignment.iterator(), new AssignmentComparator(sort, asc)));
+				context.put("groups", new SortedIterator(groupsAllowAddAssignment.iterator(), new AssignmentComparator(state, sort, asc)));
 				context.put("assignmentGroups", state.getAttribute(NEW_ASSIGNMENT_GROUPS));
 			}
 		}
@@ -1377,32 +1404,24 @@ public class AssignmentAction extends PagedResourceActionII
 			SessionState state)
 	{
 		context.put("user", state.getAttribute(STATE_USER));
-
+		
+		// sorting related fields
+		context.put("sortedBy", state.getAttribute(SORTED_GRADE_SUBMISSION_BY));
+		context.put("sortedAsc", state.getAttribute(SORTED_GRADE_SUBMISSION_ASC));
+		context.put("sort_lastName", SORTED_GRADE_SUBMISSION_BY_LASTNAME);
+		context.put("sort_submitTime", SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME);
+		context.put("sort_submitStatus", SORTED_GRADE_SUBMISSION_BY_STATUS);
+		context.put("sort_submitGrade", SORTED_GRADE_SUBMISSION_BY_GRADE);
+		context.put("sort_submitReleased", SORTED_GRADE_SUBMISSION_BY_RELEASED);
+		
 		try
 		{
 			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
 			context.put("assignment", a);
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
 
-			String sortedSubmissionBy = (String) state.getAttribute(SORTED_SUBMISSION_BY);
-			String sortedSubmissionAsc = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
-			context.put("sortedBy", sortedSubmissionBy);
-			context.put("sortedAsc", sortedSubmissionAsc);
-			List submissions = prepPage(state);
-			context.put("submissions", submissions);
-
-			boolean noSubmittedSubmission = true;
-			if (submissions != null && submissions.size() > 0)
-			{
-				for (int k = 0; noSubmittedSubmission && k < submissions.size(); k++)
-				{
-					if (((AssignmentSubmission) submissions.get(k)).getSubmitted())
-					{
-						noSubmittedSubmission = false;
-					}
-				}
-			}
-			context.put("noSubmittedSubmission", new Boolean(noSubmittedSubmission));
+			List siteUsers = prepPage(state);
+			context.put("siteUsers", siteUsers);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1412,7 +1431,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("youarenot14"));
 		}
-
+		
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
@@ -4782,6 +4801,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
 		state.setAttribute(SORTED_BY, SORTED_SUBMISSION_BY_LASTNAME);
+		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doReport_submissions
 
@@ -5172,6 +5192,16 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 		}
+		
+		if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null)
+		{
+			state.setAttribute(SORTED_GRADE_SUBMISSION_BY, SORTED_GRADE_SUBMISSION_BY_LASTNAME);
+		}
+
+		if (state.getAttribute(SORTED_GRADE_SUBMISSION_ASC) == null)
+		{
+			state.setAttribute(SORTED_GRADE_SUBMISSION_ASC, Boolean.TRUE.toString());
+		}
 
 		if (state.getAttribute(SORTED_SUBMISSION_BY) == null)
 		{
@@ -5494,12 +5524,61 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(SORTED_SUBMISSION_ASC, asc);
 		}
 	} // doSort_submission
+	
+
+	/**
+	 * Sort submission based on the given property in instructor grade view
+	 */
+	public void doSort_grade_submission(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// we are changing the sort, so start from the first page again
+		resetPaging(state);
+
+		// get the ParameterParser from RunData
+		ParameterParser params = data.getParameters();
+
+		String criteria = params.getString("criteria");
+
+		// current sorting sequence
+		String asc = "";
+
+		if (!criteria.equals(state.getAttribute(SORTED_GRADE_SUBMISSION_BY)))
+		{
+			state.setAttribute(SORTED_GRADE_SUBMISSION_BY, criteria);
+			asc = Boolean.TRUE.toString();
+			state.setAttribute(SORTED_GRADE_SUBMISSION_ASC, asc);
+		}
+		else
+		{
+			// current sorting sequence
+			state.setAttribute(SORTED_GRADE_SUBMISSION_BY, criteria);
+			asc = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
+
+			// toggle between the ascending and descending sequence
+			if (asc.equals(Boolean.TRUE.toString()))
+			{
+				asc = Boolean.FALSE.toString();
+			}
+			else
+			{
+				asc = Boolean.TRUE.toString();
+			}
+			state.setAttribute(SORTED_GRADE_SUBMISSION_ASC, asc);
+		}
+	} // doSort_grade_submission
 
 	/**
 	 * the AssignmentComparator clas
 	 */
 	private class AssignmentComparator implements Comparator
 	{
+		/**
+		 * the SessionState object
+		 */
+		SessionState m_state = null;
+		
 		/**
 		 * the criteria
 		 */
@@ -5518,13 +5597,16 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * constructor
 		 * 
+		 * @param state
+		 *        The state object
 		 * @param criteria
 		 *        The sort criteria string
 		 * @param asc
 		 *        The sort order string. TRUE_STRING if ascending; "false" otherwise.
 		 */
-		public AssignmentComparator(String criteria, String asc)
+		public AssignmentComparator(SessionState state, String criteria, String asc)
 		{
+			m_state = state;
 			m_criteria = criteria;
 			m_asc = asc;
 
@@ -5533,6 +5615,8 @@ public class AssignmentAction extends PagedResourceActionII
 		/**
 		 * constructor
 		 * 
+		 * @param state
+		 *        The state object
 		 * @param criteria
 		 *        The sort criteria string
 		 * @param asc
@@ -5540,8 +5624,9 @@ public class AssignmentAction extends PagedResourceActionII
 		 * @param user
 		 *        The user object
 		 */
-		public AssignmentComparator(String criteria, String asc, User user)
+		public AssignmentComparator(SessionState state, String criteria, String asc, User user)
 		{
+			m_state = state;
 			m_criteria = criteria;
 			m_asc = asc;
 			m_user = user;
@@ -5807,7 +5892,158 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				result = factor1.compareToIgnoreCase(factor2);
 			}
-			/** ***************** for sorting submissions ************* */
+			/** ***************** for sorting submissions in instructor grade assignment view ************* */
+			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_LASTNAME))
+			{
+				// sorted by the submitters sort name
+				User u1 = (User) o1;
+				User u2 = (User) o2;
+
+				if (u1 == null || u2 == null)
+				{
+					result = 1;
+				}
+				else
+				{
+					String lName1 = u1.getLastName();
+					String lName2 = u2.getLastName();
+					if (lName1.compareTo(lName2) == -1)
+					{
+						result = 1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}
+			}
+			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME))
+			{
+				// sorted by submission time
+				try
+				{
+					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
+					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
+	
+					if (s1 == null || s1.getTimeSubmitted() == null)
+					{
+						result = -1;
+					}
+					else if (s2 == null || s2.getTimeSubmitted() == null)
+					{
+						result = 1;
+					}
+					else if (s1.getTimeSubmitted().before(s2.getTimeSubmitted()))
+					{
+						result = -1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.getMessage() + o1 + o2);
+				}
+			}
+			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_STATUS))
+			{
+				// sort by submission status
+				try
+				{
+					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
+					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
+	
+					if (s1 == null)
+					{
+						result = -1;
+					}
+					else if (s2 == null)
+					{
+						result = 1;
+					}
+					else
+					{
+						String status1 = getSubmissionStatus((AssignmentSubmission) s1);
+						String status2 = getSubmissionStatus((AssignmentSubmission) s2);
+
+						result = status1.compareTo(status2);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.getMessage() + o1 + o2);
+				}
+			}
+			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_GRADE))
+			{
+				// sort by submission status
+				try
+				{
+					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
+					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
+	
+					//sort by submission grade
+					String grade1 = s1.getGrade();
+					String grade2 = s2.getGrade();
+					if (grade1 == null)
+					{
+						grade1 = "";
+					}
+					if (grade2 == null)
+					{
+						grade2 = "";
+					}
+
+					// if scale is points
+					if ((((AssignmentSubmission) o1).getAssignment().getContent().getTypeOfGrade() == 3)
+							&& ((((AssignmentSubmission) o2).getAssignment().getContent().getTypeOfGrade() == 3)))
+					{
+						if (grade1.equals(""))
+						{
+							result = -1;
+						}
+						else if (grade2.equals(""))
+						{
+							result = 1;
+						}
+						else
+						{
+							result = (new Integer(grade1)).intValue() > (new Integer(grade2)).intValue() ? 1 : -1;
+
+						}
+					}
+					else
+					{
+						result = grade1.compareTo(grade2);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.getMessage() + o1 + o2);
+				}
+			}
+			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_RELEASED))
+			{
+				// sort by submission status
+				try
+				{
+					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
+					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
+	
+					// sort by submission released
+					String released1 = (new Boolean(s1.getGradeReleased())).toString();
+					String released2 = (new Boolean(s2.getGradeReleased())).toString();
+
+					result = released1.compareTo(released2);
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.getMessage() + o1 + o2);
+				}
+			}
+			/****** for other sort on submissions **/
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_LASTNAME))
 			{
 				// sorted by the submitters sort name
@@ -5917,6 +6153,43 @@ public class AssignmentAction extends PagedResourceActionII
 					result = grade1.compareTo(grade2);
 				}
 			}
+			else if (m_criteria.equals(SORTED_SUBMISSION_BY_GRADE))
+			{
+				// sort by submission grade
+				String grade1 = ((AssignmentSubmission) o1).getGrade();
+				String grade2 = ((AssignmentSubmission) o2).getGrade();
+				if (grade1 == null)
+				{
+					grade1 = "";
+				}
+				if (grade2 == null)
+				{
+					grade2 = "";
+				}
+
+				// if scale is points
+				if ((((AssignmentSubmission) o1).getAssignment().getContent().getTypeOfGrade() == 3)
+						&& ((((AssignmentSubmission) o2).getAssignment().getContent().getTypeOfGrade() == 3)))
+				{
+					if (grade1.equals(""))
+					{
+						result = -1;
+					}
+					else if (grade2.equals(""))
+					{
+						result = 1;
+					}
+					else
+					{
+						result = (new Integer(grade1)).intValue() > (new Integer(grade2)).intValue() ? 1 : -1;
+
+					}
+				}
+				else
+				{
+					result = grade1.compareTo(grade2);
+				}
+			}
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_MAX_GRADE))
 			{
 				Assignment a1 = ((AssignmentSubmission) o1).getAssignment();
@@ -5952,14 +6225,6 @@ public class AssignmentAction extends PagedResourceActionII
 				String title2 = ((AssignmentSubmission) o2).getAssignment().getContent().getTitle();
 
 				result = title1.compareTo(title2);
-			}
-			else if (m_criteria.equals(SORTED_SUBMISSION_BY_MAX_GRADE))
-			{
-				// sort by submission max grade
-				int maxGrade1 = ((AssignmentSubmission) o1).getAssignment().getContent().getMaxGradePoint();
-				int maxGrade2 = ((AssignmentSubmission) o2).getAssignment().getContent().getMaxGradePoint();
-
-				result = (maxGrade1 < maxGrade2) ? 1 : -1;
 			}
 
 			// sort ascending or descending
@@ -6176,11 +6441,11 @@ public class AssignmentAction extends PagedResourceActionII
 	protected int sizeResources(SessionState state)
 	{
 		String mode = (String) state.getAttribute(STATE_MODE);
-		
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// all the resources for paging
 		List returnResources = new Vector();
 
-		boolean allowAddAssignment = AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING));
+		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
 		if (mode.equalsIgnoreCase(MODE_LIST_ASSIGNMENTS))
 		{
 			String view = "";
@@ -6200,7 +6465,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// in the student list view of assignments
 				Iterator assignments = AssignmentService
-						.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING));
+						.getAssignmentsForContext(contextString);
 				Time currentTime = TimeService.newTime();
 				while (assignments.hasNext())
 				{
@@ -6235,12 +6500,6 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 		}
-		/*
-		 * else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT)) { Iterator assignments = AssignmentService.getAssignmentsForContext ((String) state.getAttribute (STATE_CONTEXT_STRING)); boolean found = false; while
-		 * (assignments.hasNext () && !found) { Assignment a = (Assignment) assignments.next(); String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED); if ((deleted == null || deleted.equals("")) && (!a.getDraft())) { //
-		 * not deleted, show it List users = AssignmentService.allowAddSubmissionUsers (a.getReference ()); // not deleted, show it if (search != null && !search.equals("")) { for (int i=0; i < users.size(); i++) { User u = (User) users.get(i); if
-		 * (StringUtil.containsIgnoreCase(u.getDisplayName(),search)) { returnResources.add(u); } } } else { returnResources.add(users); } found = true; } } }
-		 */
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
 			Vector submissions = new Vector();
@@ -6282,36 +6541,47 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
 		{
+			//	get all active site users
+			String authzGroupId = SiteService.siteReference(contextString);
+			List allowAddAssignmentUsers = AssignmentService.allowAddAssignmentUsers(contextString);
 			try
 			{
-				Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-				Vector submissions = iterator_to_vector(AssignmentService.getSubmissions(a));
-
-				// iterator to find only submitted ones
-				for (int i = 0; i < submissions.size(); i++)
+				AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
+				Set grants = group.getUsers();
+				for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 				{
-					AssignmentSubmission submission = (AssignmentSubmission) submissions.get(i);
-
-					if (submission.getSubmitted())
+					String userId = (String) iUserIds.next();
+					try
 					{
-						returnResources.add(submission);
+						User u = UserDirectoryService.getUser(userId);
+						// only return student
+						if (!allowAddAssignmentUsers.contains(u))
+						{
+							returnResources.add(u);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.warn("chef", this + e.getMessage() + " userId = " + userId);
 					}
 				}
 			}
-			catch (IdUnusedException e)
+			catch (Exception e)
 			{
-				addAlert(state, rb.getString("cannotfin3"));
+				Log.warn("chef", e.getMessage() + " authGroupId=" + authzGroupId);
 			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("youarenot14"));
-			}
+			
 		}
 
 		// sort them all
 		String ascending = "true";
 		String sort = "";
-		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) || mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
+		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT))
+		{
+			ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
+			sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
+		}
+		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
 			ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
@@ -6324,7 +6594,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if ((returnResources.size() > 1) && !mode.equalsIgnoreCase(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
-			Collections.sort(returnResources, new AssignmentComparator(sort, ascending));
+			Collections.sort(returnResources, new AssignmentComparator(state, sort, ascending));
 		}
 
 		// record the total item number

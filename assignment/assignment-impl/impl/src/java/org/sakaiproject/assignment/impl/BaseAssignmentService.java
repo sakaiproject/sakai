@@ -52,6 +52,7 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -2734,8 +2735,39 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		cell.setCellValue(rb.getString("download.spreadsheet.column.name"));
 
 		Iterator assignments = getAssignmentsForContext(context);
-		Vector assignmentTypeVector = new Vector();
-		Vector assignmentSubmissionVector = new Vector();
+
+		List assignmentList = new Vector();
+			
+		List allowAddAssignmentUsers = allowAddAssignmentUsers(context);
+		
+		// get the list of users who cannot add assignment
+		List notAllowedAddAssignmentUsers = new Vector();
+		try
+		{
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
+			Set grants = group.getUsers();
+			for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+			{
+				String userId = (String) iUserIds.next();
+				try
+				{
+					User u = UserDirectoryService.getUser(userId);
+					// only return student
+					if (!allowAddAssignmentUsers.contains(u))
+					{
+						notAllowedAddAssignmentUsers.add(u);
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.warn(this + e.getMessage() + " userId = " + userId);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn(e.getMessage() + " context=" + context);
+		}
 
 		int index = 0;
 		List members = new Vector();
@@ -2748,9 +2780,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String deleted = a.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
 				if ((deleted == null || deleted.equals("")) && (!a.getDraft()) && (a.getOpenTime().before(TimeService.newTime())))
 				{
-					if (index == 0)
+					if (members.size() == 0 && notAllowedAddAssignmentUsers.size()!=0 && a.getAccess().equals(Assignment.AssignmentAccess.SITE))
 					{
-						List allowAddAssignmentUsers = allowAddAssignmentUsers(a.getContext());
 						List allowAddSubmissionUsers = allowAddSubmissionUsers(a.getReference());
 						for (int i = 0; i < allowAddSubmissionUsers.size(); i++)
 						{
@@ -2761,15 +2792,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 						}
 					}
-					assignmentTypeVector.add(index, new Integer(a.getContent().getTypeOfGrade()));
-					Iterator submissions = getSubmissions(a);
-					List submissionList = new Vector();
-					while (submissions.hasNext())
-					{
-						submissionList.add(submissions.next());
-					}
-					assignmentSubmissionVector.add(index, submissionList);
-
+					assignmentList.add(index, a);
 					cell = row.createCell(cellNum++);
 					cell.setCellStyle(style);
 					cell.setCellValue(a.getTitle());
@@ -2779,10 +2802,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 
+		// if members are still empty, use "users not allowed to create assignment" list
+		if (members.size() == 0)
+		{
+			members = notAllowedAddAssignmentUsers;
+		}
+		
 		// is there a grade or not
-		AssignmentSubmission submissionWithGrade = null;
-		List submitterIds = null;
-		String submitterId = "";
 		User member = null;
 		for (Iterator it = members.iterator(); it.hasNext();)
 		{
@@ -2797,81 +2823,64 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// show user's name
 			row.createCell(cellNum++).setCellValue(member.getSortName());
 
-			for (int i = 0; i < assignmentSubmissionVector.size(); i++)
+			for (int i = 0; i < assignmentList.size(); i++)
 			{
 				// type for this assignment
-				int assignmentType = ((Integer) assignmentTypeVector.get(i)).intValue();
+				Assignment a = (Assignment) assignmentList.get(i);
+				int assignmentType = a.getContent().getTypeOfGrade();
+				AssignmentSubmission submission = getSubmission(a.getReference(), member);
 
-				// submission for this assignment
-				List submissions = (List) (assignmentSubmissionVector.get(i));
-
-				// initialize it for every assignment
-				submissionWithGrade = null;
-
-				for (int k = 0; k < submissions.size() && submissionWithGrade == null; k++)
+				if (submission != null)
 				{
-					AssignmentSubmission s = (AssignmentSubmission) submissions.get(k);
-
-					submitterIds = (List) s.getSubmitterIds();
-					for (int submitterIndex = 0; submitterIndex < submitterIds.size(); submitterIndex++)
+					if (submission.getGraded() && submission.getGradeReleased())
 					{
-						submitterId = (String) submitterIds.get(submitterIndex);
-
-						if (submitterId.equals(member.getId()))
+						// graded and released
+						if (assignmentType == 3)
 						{
-							// found the member's submission to the assignment
-							// show user's grade
-							if ((s != null) && (s.getGraded()) && (s.getGradeReleased()))
+							try
 							{
-								submissionWithGrade = s;
+								// numeric cell type?
+								String grade = submission.getGradeDisplay();
+								Float.parseFloat(grade);
+	
+								cell = row.createCell(cellNum++);
+								cell.setCellType(0);
+								cell.setCellValue(Float.parseFloat(grade));
+	
+								style = wb.createCellStyle();
+								style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+								cell.setCellStyle(style);
 							}
-						} // if
-					} // for
-				} // for
-
-				if (submissionWithGrade != null)
-				{
-					if (assignmentType == 3)
-					{
-						try
-						{
-							// numeric cell type?
-							String grade = submissionWithGrade.getGradeDisplay();
-							Float.parseFloat(grade);
-
-							cell = row.createCell(cellNum++);
-							cell.setCellType(0);
-							cell.setCellValue(Float.parseFloat(grade));
-
-							style = wb.createCellStyle();
-							style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
-							cell.setCellStyle(style);
+							catch (Exception e)
+							{
+								// if the grade is not numeric, let's make it as String type
+								cell = row.createCell(cellNum++);
+								cell.setCellType(1);
+								cell.setCellValue(submission.getGrade());
+							}
 						}
-						catch (Exception e)
+						else
 						{
-							// if the grade is not numeric, let's make it as String type
+							// String cell type
 							cell = row.createCell(cellNum++);
 							cell.setCellType(1);
-							cell.setCellValue(submissionWithGrade.getGrade());
+							cell.setCellValue(submission.getGrade());
 						}
-
 					}
 					else
 					{
-						// String cell type
+						// no grade available yet
 						cell = row.createCell(cellNum++);
 						cell.setCellType(1);
-						cell.setCellValue(submissionWithGrade.getGrade());
+						cell.setCellValue("");
 					}
 				} // if
 				else
 				{
-					// no grade to show yet
-					// String cell type
-					// set value to be "" if there is no grade yet
+					// no submission yet
 					cell = row.createCell(cellNum++);
 					cell.setCellType(1);
-					cell.setCellValue("");
+					cell.setCellValue(rb.getString("listsub.nosub"));
 				} // if
 			} // for
 		} // for
