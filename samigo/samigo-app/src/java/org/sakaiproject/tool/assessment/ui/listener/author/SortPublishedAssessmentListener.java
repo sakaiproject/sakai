@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
@@ -33,7 +34,9 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -64,14 +67,16 @@ public class SortPublishedAssessmentListener
                        "author");
 
     processSortInfo(author);
-
+    
+    GradingService gradingService = new GradingService();
+    HashMap map = gradingService.getSubmissionSizeOfAllPublishedAssessments();
+	 
     ArrayList publishedList = new ArrayList();
-    publishedList = publishedAssessmentService.
-        getBasicInfoOfAllActivePublishedAssessments(this.getPublishedOrderBy(author),author.isPublishedAscending());
+    publishedList = publishedAssessmentService.getBasicInfoOfAllActivePublishedAssessments(this.getPublishedOrderBy(author),author.isPublishedAscending());
 
     // get the managed bean, author and set the list
     author.setPublishedAssessments(publishedList);
-
+    setSubmissionSize(publishedList, map);
   }
 
   /**
@@ -124,6 +129,16 @@ public class SortPublishedAssessmentListener
 	bean.setPublishedAscending(true);
     }
 
+  }
+  
+  private void setSubmissionSize(ArrayList list, HashMap map) {
+	  for (int i = 0; i < list.size(); i++) {
+	      PublishedAssessmentFacade p = (PublishedAssessmentFacade) list.get(i);
+	      Integer size = (Integer) map.get(p.getPublishedAssessmentId());
+	      if (size != null) {
+	        p.setSubmissionSize(size.intValue());
+	      }
+	  }
   }
 
 }
