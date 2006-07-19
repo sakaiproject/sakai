@@ -52,6 +52,15 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
+<!-- Builds and delivers the actual feed
+  <managed-bean>
+    <description>Bean to build and deliver the actual feed</description>
+    <managed-bean-name>podcastFeeder</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.PodcastFeeder</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+-->
+
 	<!-- navigation
 			FROM what page TO what page
 			IUPUI: path needs to be /projname/xx.jsp -->

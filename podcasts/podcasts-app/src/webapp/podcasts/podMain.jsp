@@ -31,6 +31,7 @@
  	     </div>
  	     <br />
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
+ 	     <h:graphicImage value="images/rss20.gif" styleClass="indnt1" />
  	  </div>
 
       <div class="indnt1" style="position:relative; top:20px;">
