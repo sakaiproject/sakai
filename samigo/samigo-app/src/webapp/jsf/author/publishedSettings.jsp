@@ -46,7 +46,7 @@
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       </head>
-    <body onload="hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
+    <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <!-- content... -->
@@ -513,7 +513,7 @@
 </h:form>
 <!-- end content -->
 </div>
-
+        <script language="javascript" style="text/JavaScript">hideUnhideAllDivsExceptOne('none');</script>
       </body>
     </html>
   </f:view>

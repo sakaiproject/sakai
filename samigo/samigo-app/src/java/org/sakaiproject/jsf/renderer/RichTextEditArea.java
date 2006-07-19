@@ -397,7 +397,11 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
 
     writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-    writer.write("function chef_setupformattedtextarea(textarea_id){\n");
+    writer.write("\n  if(document.wysiwyg==undefined)");
+    writer.write("\n  {");
+    writer.write("\n    document.wysiwyg = \"FCKeditor\"");
+    writer.write("\n  }");
+    writer.write("\n\nfunction chef_setupformattedtextarea(textarea_id){\n");
 
     writer.write("var oFCKeditor = new FCKeditor(textarea_id);\n");
     writer.write("\n\toFCKeditor.BasePath = \"" + FCK_BASE + "\";");
@@ -440,7 +444,6 @@ public class RichTextEditArea extends Renderer
     
     writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n</script>");
 
-    writer.write("</script>\n");
     writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "_textinput');</script>");
 
   }

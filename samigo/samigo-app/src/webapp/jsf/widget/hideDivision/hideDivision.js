@@ -76,7 +76,14 @@ function hideUnhideAllDivs(action)
         {
             elem = document.getElementById(divisionNo);
             if (elem){
-            elem.style.display =action;
+               //Don't hide if FF and FCK.. let FCK hide all later
+               if (document.wysiwyg == "FCKeditor" && navigator.product == "Gecko")
+               {
+               }
+               else
+               {
+                   elem.style.display =action;
+               }
             }
         }
     }
@@ -117,57 +124,74 @@ function hideUnhideAllDivsWithWysiwyg(action)
 // for all wysiwygs in division; needed for Gecko based browsers
 function resetWysiwygi(hDiv)
 {
- if (document.htmlareas == undefined)
+ 
+ if (document.htmlareas != undefined)
  {
-  // alert("htmlareas is undefined");
-  return;
+   var counter = document.htmlareas.length;
+   // alert(counter);
+
+   for (i=0; i<counter; i++)
+   {
+    // alert("i="+i);
+    var editor = document.htmlareas[i][1];
+    if (editor == undefined)
+    {
+      // in a bad state, so we recreate wysiwyg
+      // first look up the ith wysiwyg id
+      var ta = document.htmlareas[i][0];
+      // alert("ta = " + ta);
+
+      // check if the textarea is in the division
+      var tas = hDiv.getElementsByTagName("textarea");
+      for (j=0; j<tas.length; j++)
+      {
+       var childId = tas[j].id;
+       // alert("childId=" + childId);
+
+       if (childId==ta)
+       {
+        // we make sure that the textarea is not set to "none"
+        tas[j].style.display = "block";
+
+        // finally, create a configuration and assign an HTMLArea to this textarea
+        var config=new HTMLArea.Config();
+        config.toolbar = [['fontname', 'space','fontsize', 'space','formatblock',
+          'space','bold', 'italic', 'underline'],    ['separator','strikethrough',
+          'subscript', 'superscript', 'separator', 'space', 'undo', 'redo',
+          'separator', 'justifyleft', 'justifycenter', 'justifyright',
+          'justifyfull', 'separator','outdent', 'indent'],        ['separator',
+          'forecolor', 'hilitecolor', 'textindicator', 'separator',
+          'inserthorizontalrule', 'createlink', 'insertimage', 'separator',
+          'showhelp', 'about' ],];
+        config.width='450px';
+        config.height='140px';
+        editor = HTMLArea.replace(ta,config);
+        document.htmlareas[i][1] = editor;
+        break;
+       }
+     }
+    }
+   }
  }
-
- var counter = document.htmlareas.length;
- // alert(counter);
-
- for (i=0; i<counter; i++)
+ else 
  {
-  // alert("i="+i);
-  var editor = document.htmlareas[i][1];
-  if (editor == undefined)
-  {
-    // in a bad state, so we recreate wysiwyg
-    // first look up the ith wysiwyg id
-    var ta = document.htmlareas[i][0];
-    // alert("ta = " + ta);
-
-    // check if the textarea is in the division
     var tas = hDiv.getElementsByTagName("textarea");
     for (j=0; j<tas.length; j++)
     {
-     var childId = tas[j].id;
-     // alert("childId=" + childId);
+       var childId = tas[j].id;
+       if (document.wysiwyg == "FCKeditor")
+       {
+           editor = FCKeditorAPI.GetInstance(childId);
+           if (editor && editor.EditorDocument && editor.EditMode == FCK_EDITMODE_WYSIWYG) {
+              editor.SwitchEditMode()
+              editor.SwitchEditMode()
+           }
+       }  
 
-     if (childId==ta)
-     {
-      // we make sure that the textarea is not set to "none"
-      tas[j].style.display = "block";
-
-      // finally, create a configuration and assign an HTMLArea to this textarea
-      var config=new HTMLArea.Config();
-      config.toolbar = [['fontname', 'space','fontsize', 'space','formatblock',
-        'space','bold', 'italic', 'underline'],    ['separator','strikethrough',
-        'subscript', 'superscript', 'separator', 'space', 'undo', 'redo',
-        'separator', 'justifyleft', 'justifycenter', 'justifyright',
-        'justifyfull', 'separator','outdent', 'indent'],        ['separator',
-        'forecolor', 'hilitecolor', 'textindicator', 'separator',
-        'inserthorizontalrule', 'createlink', 'insertimage', 'separator',
-        'showhelp', 'about' ],];
-      config.width='450px';
-      config.height='140px';
-      editor = HTMLArea.replace(ta,config);
-      document.htmlareas[i][1] = editor;
-      break;
-     }
-   }
-  }
+    }
+    return;
  }
+
 
 }
 
@@ -220,6 +244,25 @@ function getTheElement(thisid){
   }
 }
 
+/* 
+ * added by Joshua Ryan Joshua.ryan@asu.edu  7/11/06
+ * The FCK editor will call this function when it's done loading/rendering
+ * It's a known bug that FCK won't work on FF in a div with display=none,
+ * so we delay turning dispaly=none to hide menu items until the editor is
+ * done rendering on FF.
+ *
+ * TODO: When we upgrade to FCK 2.3, switch this to look for FF version as 
+ * this bug is fixed in FCK 2.3 for FF > 1.5
+ */
+function FCKeditor_OnComplete( editorInstance )
+{
+   if (navigator.product == "Gecko")
+   { 
+      hideDivs();
+   } 
+}
+
+
 var exceptionId = "";
 function setExceptionId(thisExceptionIdValue)
 {
@@ -247,7 +290,14 @@ function hideUnhideAllDivsExceptOne(action)
         elem = document.getElementById(divisionNo);
         if (elem)
         {
-          elem.style.display =action;
+          //Don't hide if FF and FCK.. let FCK hide all later
+          if (document.wysiwyg == "FCKeditor" && navigator.product == "Gecko")
+          {
+          }
+          else
+          {
+            elem.style.display =action;
+          }
         }
       }
     }

@@ -44,7 +44,7 @@
       <title><h:outputText value="#{msg.template_editor}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       </head>
-      <body onload="javascript:hideUnhideAllDivsWithWysiwyg('none');;<%= request.getAttribute("html.body.onload") %>">
+      <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
  <div class="portletBody">
   <h:form id="templateEditorForm">
@@ -639,6 +639,7 @@
 </h:form>
 <!-- end content -->
 </div>
+<script type="text/javascript" language="JavaScript">hideUnhideAllDivsWithWysiwyg('none');</script>
       </body>
     </html>
   </f:view>

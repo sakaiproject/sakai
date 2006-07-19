@@ -202,7 +202,7 @@ function uncheckOther(field){
 
 
       </head>
-    <body onload="hideUnhideAllDivsExceptOne('none');checkTimeSelect();<%= request.getAttribute("html.body.onload") %>">
+    <body onload="checkTimeSelect();<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 
@@ -749,6 +749,7 @@ function uncheckOther(field){
 </h:form>
 <!-- end content -->
 </div>
+         <script language="javascript" style="text/JavaScript">hideUnhideAllDivsExceptOne('none');</script>
       </body>
     </html>
   </f:view>
