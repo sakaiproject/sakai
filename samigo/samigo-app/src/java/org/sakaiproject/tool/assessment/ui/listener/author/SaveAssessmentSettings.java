@@ -217,8 +217,10 @@ public class SaveAssessmentSettings
     
     String[] ip = ipAddresses.split("\\n");
     for (int j=0; j<ip.length;j++){
-      if (ip[j]!=null)
+      if (ip[j]!=null && !ip[j].equals("\r")) {
+    	  
         ipSet.add(new SecuredIPAddress(assessment.getData(),null,ip[j]));
+      }
     }
     assessment.setSecuredIPAddressSet(ipSet);
     // l. FINALLY: save the assessment
@@ -248,23 +250,24 @@ public class SaveAssessmentSettings
   }
 
     public boolean isIpValid(String ipString){
+      if (ipString.endsWith(".")) {
+    	  return false;
+      }
       String[] parts=ipString.split("\\.");
       int l=parts.length;
       if((l>4)||((l<4)&&(ipString.indexOf("*")<0)))
-	  return false;
+    	  return false;
       for(int i=0;i<l;i++){
 	  String s=parts[i];
           if(s.trim().equals(""))
 	      return false;
-	  try{
-	      String s2=s.replace('*','0');
-	      if(Integer.parseInt(s2)<0 ||Integer.parseInt(s2)>255){
-		  return false;
-	       }
-	     }
-	     catch(NumberFormatException e){
-	       return false;
-	     }
+	   
+	   // to filter out 1*3 or *6  
+	   if (s.length() > 1) {
+		   if (s.indexOf("*") != -1) {
+			   return false;
+		   }
+	   }
 	   int index=0;
 	   while(index<s.length()){
 	       char c=s.charAt(index);
