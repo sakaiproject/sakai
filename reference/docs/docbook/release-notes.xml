@@ -45,9 +45,9 @@
             </sect3>
             <sect3 xml:id="new-enhance-fck">
                 <title>FCKeditor</title>
-                <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2.0
-                    it has become the default editor. HTMLArea is still included, however, and the
-                    default editor may be overridden in <filename>sakai.properties</filename> by
+                <para>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In
+                    2.2.0 it has become the default editor. HTMLArea is still included, however, and
+                    the default editor may be overridden in <filename>sakai.properties</filename> by
                     altering the following setting:</para>
                 <screen>
 # specify the wysiwyg editor 
@@ -78,14 +78,28 @@ skin.default=default</screen>
                 </para>
             </sect3>
             <sect3 xml:id="new-enhance-translate">
-                <title>French and Japanese translations</title>
-                <para>New interface translations for French and Japanese have been included. See
-                        <filename>reference/docs/readme_i18n.txt</filename> for more information on
-                    the translations.</para>
+                <title>New translations</title>
+                <para>New interface translations for French and Catalan, as well as updated Japanese translations, are
+                    available in this release. See
+                        <filename>reference/docs/readme_i18n.txt</filename> for more information.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="new-tools">
             <title>New Tools</title>
+            <sect3 xml:id="new-tools-osp">
+                <title>Open Source Portfolio</title>
+                <para>2.2.0 marks closer integration with the Open Source Portfolio, an existing suite of tools supporting portfolio activities,
+                    and which are available in this release as
+                    <link
+                        xl:href="provisional.html">provisional tools</link>. Using OSP, individuals can collect
+                    items, reflect, design portfolios, and publish them to
+                    designated audiences. Instructors and program administrators
+                    are able to provide structure and guidance to an individual's
+                    work that include step-by-step (sequential) wizards, matrices
+                    of goals/standards, and hierarchies to organize related work.</para>
+            </sect3>
+            <sect3 xml:id="new-tools-provisional">
+                <title>Provisional Tools</title>
             <para>Sakai 2.2.0 has added four new provisional tools</para>
             <itemizedlist>
                 <listitem>
@@ -102,8 +116,8 @@ skin.default=default</screen>
                     <para><emphasis>Summary Calendar:</emphasis> a synoptic calendar view that may
                         be used in either the <emphasis>My Workspace</emphasis> or the Home page of
                         course/project sites, including an event summary from either all the sites
-                        to which a user is a member (if in <emphasis>My Workspace</emphasis>) or the events of a
-                        particular site (if in that site).</para>
+                        to which a user is a member (if in <emphasis>My Workspace</emphasis>) or the
+                        events of a particular site (if in that site).</para>
                 </listitem>
 
                 <listitem>
@@ -116,6 +130,7 @@ skin.default=default</screen>
             </itemizedlist>
             <para>You can find more details about these and all other provisional tools on the <link
                     xl:href="provisional.html">provisional tools</link> page.</para>
+            </sect3>
         </sect2>
     </sect1>
     <sect1 xml:id="migration">
@@ -204,11 +219,11 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         </sect2>
         <sect2 xml:id="migration-providers">
             <title>Provider Changes</title>
-            <para>As mentioned above, 2.2.0 introduces a separation of external user identifiers from
-                Sakai's internal user ids. Any custom <filename>UserDirectoryProvider</filename>
-                will need some alteration to account for this, along with changes to its import
-                statements and declarations that stem from API changes. Below is a list of changes
-                that a typical provider should require:</para>
+            <para>As mentioned above, 2.2.0 introduces a separation of external user identifiers
+                from Sakai's internal user ids. Any custom
+                <filename>UserDirectoryProvider</filename> will need some alteration to account for
+                this, along with changes to its import statements and declarations that stem from
+                API changes. Below is a list of changes that a typical provider should require:</para>
             <orderedlist>
                 <listitem>
                     <para>Import statements altered to reflect new package names.</para>
@@ -241,8 +256,8 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</screen>
         <sect2>
             <title>Skin Changes</title>
             <para>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
-                them to 2.2.0. These changes - including conversion steps - are thoroughly documented
-                in the appendices of the skin document available in
+                them to 2.2.0. These changes - including conversion steps - are thoroughly
+                documented in the appendices of the skin document available in
                     <filename>reference/docs/architecture/sakai_skin.doc</filename>, or in
                 subversion at: <link
                     xl:href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc"

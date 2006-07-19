@@ -11,7 +11,7 @@
 <div class="article" lang="en">
 <div class="titlepage">
 <div><div><h1 class="title">
-<a name="id2279596"></a>2.2.0 Release Notes</h1></div></div>
+<a name="id1957380"></a>2.2.0 Release Notes</h1></div></div>
 <hr>
 </div>
 <div class="toc">
@@ -27,7 +27,7 @@
 <dt><span class="sect2"><a href="#migration-conversion">2.1. Database Conversion</a></span></dt>
 <dt><span class="sect2"><a href="#migration-api">2.2. Framework Changes</a></span></dt>
 <dt><span class="sect2"><a href="#migration-providers">2.3. Provider Changes</a></span></dt>
-<dt><span class="sect2"><a href="#id2280553">2.4. Skin Changes</a></span></dt>
+<dt><span class="sect2"><a href="#id1958419">2.4. Skin Changes</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="#maintenance">3. Maintenance Branch</a></span></dt>
 <dt><span class="sect1"><a href="#resolved">4. Fixes Included in this Release</a></span></dt>
@@ -84,9 +84,9 @@
 <div class="titlepage"><div><div><h4 class="title">
 <a name="new-enhance-fck"></a>1.1.4.&nbsp;FCKeditor</h4></div></div></div>
 
-                <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In 2.2.0
-                    it has become the default editor. HTMLArea is still included, however, and the
-                    default editor may be overridden in <code class="filename">sakai.properties</code> by
+                <p>The FCKeditor WYSIWYG editor was available in 2.1, but not the default. In
+                    2.2.0 it has become the default editor. HTMLArea is still included, however, and
+                    the default editor may be overridden in <code class="filename">sakai.properties</code> by
                     altering the following setting:</p>
                 <pre class="screen">
 # specify the wysiwyg editor
@@ -121,16 +121,33 @@ skin.default=default</pre>
             </div>
             <div class="sect3" lang="en">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="new-enhance-translate"></a>1.1.7.&nbsp;French and Japanese translations</h4></div></div></div>
+<a name="new-enhance-translate"></a>1.1.7.&nbsp;New translations</h4></div></div></div>
 
-                <p>New interface translations for French and Japanese have been included. See
-                        <code class="filename">reference/docs/readme_i18n.txt</code> for more information on
-                    the translations.</p>
+                <p>New interface translations for French and Catalan, as well as updated Japanese translations, are
+                    available in this release. See
+                        <code class="filename">reference/docs/readme_i18n.txt</code> for more information.</p>
             </div>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="new-tools"></a>1.2.&nbsp;New Tools</h3></div></div></div>
+
+            <div class="sect3" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="new-tools-osp"></a>1.2.1.&nbsp;Open Source Portfolio</h4></div></div></div>
+
+                <p>2.2.0 marks closer integration with the Open Source Portfolio, an existing suite of tools supporting portfolio activities,
+                    and which are available in this release as
+                    <a href="provisional.html" target="_top">provisional tools</a>. Using OSP, individuals can collect
+                    items, reflect, design portfolios, and publish them to
+                    designated audiences. Instructors and program administrators
+                    are able to provide structure and guidance to an individual's
+                    work that include step-by-step (sequential) wizards, matrices
+                    of goals/standards, and hierarchies to organize related work.</p>
+            </div>
+            <div class="sect3" lang="en">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="new-tools-provisional"></a>1.2.2.&nbsp;Provisional Tools</h4></div></div></div>
 
             <p>Sakai 2.2.0 has added four new provisional tools</p>
             <div class="itemizedlist"><ul>
@@ -146,8 +163,8 @@ skin.default=default</pre>
                     <p><span class="emphasis"><em>Summary Calendar:</em></span> a synoptic calendar view that may
                         be used in either the <span class="emphasis"><em>My Workspace</em></span> or the Home page of
                         course/project sites, including an event summary from either all the sites
-                        to which a user is a member (if in <span class="emphasis"><em>My Workspace</em></span>) or the events of a
-                        particular site (if in that site).</p>
+                        to which a user is a member (if in <span class="emphasis"><em>My Workspace</em></span>) or the
+                        events of a particular site (if in that site).</p>
                 </li>
 <li>
                     <p><span class="emphasis"><em>Post 'Em:</em></span> an automated reporting system that enables
@@ -157,6 +174,7 @@ skin.default=default</pre>
                 </li>
 </ul></div>
             <p>You can find more details about these and all other provisional tools on the <a href="provisional.html" target="_top">provisional tools</a> page.</p>
+            </div>
         </div>
     </div>
     <div class="sect1" lang="en">
@@ -260,11 +278,11 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
 <div class="titlepage"><div><div><h3 class="title">
 <a name="migration-providers"></a>2.3.&nbsp;Provider Changes</h3></div></div></div>
 
-            <p>As mentioned above, 2.2.0 introduces a separation of external user identifiers from
-                Sakai's internal user ids. Any custom <code class="filename">UserDirectoryProvider</code>
-                will need some alteration to account for this, along with changes to its import
-                statements and declarations that stem from API changes. Below is a list of changes
-                that a typical provider should require:</p>
+            <p>As mentioned above, 2.2.0 introduces a separation of external user identifiers
+                from Sakai's internal user ids. Any custom
+                <code class="filename">UserDirectoryProvider</code> will need some alteration to account for
+                this, along with changes to its import statements and declarations that stem from
+                API changes. Below is a list of changes that a typical provider should require:</p>
             <div class="orderedlist"><ol type="1">
 <li>
                     <p>Import statements altered to reflect new package names.</p>
@@ -294,11 +312,11 @@ ALTER TABLE MFR_MESSAGE_T ADD GRADECOMMENT VARCHAR2(255) NULL;</pre>
         </div>
         <div class="sect2" lang="en">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="id2280553"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
+<a name="id1958419"></a>2.4.&nbsp;Skin Changes</h3></div></div></div>
 
             <p>A number of CSS changes will need to be made to any 2.1 skins in order to adapt
-                them to 2.2.0. These changes - including conversion steps - are thoroughly documented
-                in the appendices of the skin document available in
+                them to 2.2.0. These changes - including conversion steps - are thoroughly
+                documented in the appendices of the skin document available in
                     <code class="filename">reference/docs/architecture/sakai_skin.doc</code>, or in
                 subversion at: <a href="https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc" target="_top">https://source.sakaiproject.org/svn/reference/tags/sakai_2-2-0/docs/architecture/sakai_skin.doc</a></p>
         </div>

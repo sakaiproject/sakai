@@ -202,9 +202,13 @@ mc.default.Teaching\ Assisant=Contributor</screen>
             <sect3>
                 <title>Overview</title>
                 <para>The Open Source Portfolio (OSP) has been a significant standalone product in
-                    its own right, and it is bundled in Sakai 2.2 as a suite of several tools
-                    designed to work in concert for portfolio-based assessment. The number of tools
-                    and purposes is too great to take on here, so please visit <link
+                    its own right, and it is bundled in Sakai 2.2 as a suite of tools
+                    designed to work in concert for portfolio-based assessment. Using OSP, individuals can collect
+                    items, reflect, design portfolios, and publish them to
+                    designated audiences. Instructors and program administrators
+                    are able to provide structure and guidance to an individual's
+                    work that include step-by-step (sequential) wizards, matrices
+                    of goals/standards, and hierarchies to organize related work.  Please visit <link
                         xl:href="http://www.osportfolio.org">http://www.osportfolio.org</link> for
                     more information on the Open Source Portfolio (OSP).</para>
             </sect3>
@@ -517,7 +521,10 @@ webservices.allowlogin=false</screen>
                             grades to Sakai's Gradebook tool.</para>
                     </listitem>
                 </itemizedlist>
-                <para>Samigo is an ambitious application, and has its own set of release notes maintained on Confluence, which you can find at: <link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes">http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
+                <para>Samigo is an ambitious application, and has its own set of release notes
+                    maintained on Confluence, which you can find at: <link
+                        xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes"
+                        >http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
             </sect3>
             <sect3>
                 <title>Configuration</title>
@@ -558,7 +565,10 @@ samigo.saveMediaToDb=false</screen>
                         <para>MySQL --> longblob</para>
                     </listitem>
                 </itemizedlist>
-                <para>For further configuration options and details, please see the Samigo release notes at:<link xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes">http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
+                <para>For further configuration options and details, please see the Samigo release
+                    notes at:<link
+                        xl:href="http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes"
+                        >http://bugs.sakaiproject.org/confluence/display/SAM/2.2+Release+Notes</link>.</para>
             </sect3>
         </sect2>
         <sect2 xml:id="roster">
