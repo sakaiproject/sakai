@@ -66,7 +66,7 @@ $Id$
 
   <h3>
     <h:outputText value="#{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
-    <h:outputText value="#{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
+    <h:outputText value="#{msg.submission_id}#{dmsg.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
   </h3>
   <p class="navViewAction">
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
