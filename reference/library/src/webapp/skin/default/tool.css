@@ -758,7 +758,8 @@ tr.selectedFound td{
 
 .rosterImage{
 	border:1px solid #bbb;
-	height: 75px;
+/* no height - so no distortion - adjust to a specific size if size known - otherwise leave as is
+height: 75px;*/
 	width:75px
 }
 
