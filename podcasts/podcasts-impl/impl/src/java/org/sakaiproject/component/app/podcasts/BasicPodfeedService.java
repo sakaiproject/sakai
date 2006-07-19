@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -27,7 +28,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.SyndFeedOutput;
 
-public class BasicPodfeedService /*extends PodfeedService */ {
+public class BasicPodfeedService implements PodfeedService {
 
 	private static final String DESCRIPTION_CONTENT_TYPE = "text/plain";
 	
@@ -41,8 +42,8 @@ public class BasicPodfeedService /*extends PodfeedService */ {
 	 * @param Category The category to run as containing podcast content.
 	 * @param Name The filename to write out the format to.
 	 */
-        public void generatePodcastRSS(String Category, String Name) {
-		feedType = "rss2.0";
+      public void generatePodcastRSS(String Category, String Name) {
+		feedType = "rss_2.0";
 		fileName = Name;
 		
 		populatePodcastArray(Category);
@@ -120,7 +121,7 @@ public class BasicPodfeedService /*extends PodfeedService */ {
     			}
     		
     		// need to pass in global information for podcast here
-    		doSyndication("name", "url", "description", "copyright", podEntries, fileName);
+    		doSyndication("name", "url", "description", "copyright", entries, fileName);
     		System.out.println("Did Syndication");
     		
     		}
@@ -190,6 +191,7 @@ public class BasicPodfeedService /*extends PodfeedService */ {
              final Writer writer = new FileWriter(xml);
              final SyndFeedOutput output = new SyndFeedOutput();
              output.output(feed,writer);
+             System.out.println(feed.toString());
              writer.close();
      
              System.out.println("************* The feed has been written to the file ["+xml+"]");

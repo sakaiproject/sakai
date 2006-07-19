@@ -81,17 +81,20 @@
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>   
+		</dependency>
+
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>0.8</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 	</dependencies>

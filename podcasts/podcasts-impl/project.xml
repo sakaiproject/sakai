@@ -122,7 +122,7 @@
 			<version>${sakai.spring.version}</version>			
   		</dependency>-->
   		
-  				<dependency>
+  		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>

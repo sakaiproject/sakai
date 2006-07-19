@@ -43,6 +43,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
@@ -228,6 +229,7 @@ public class podHomeBean {
 	
 	// inject the podcast services for its help
 	private PodcastService podcastService;
+	private PodfeedService podfeedService;
 
 	// variables to hold miscellanous information
 	private List contents;
@@ -933,4 +935,23 @@ public class podHomeBean {
         return rb.getString(key);
 		
 	}
+
+	public void generatePodcastRSS(ActionEvent e) {
+		podfeedService.generatePodcastRSS("Podcast", "TestRSS.feed");
+	}
+
+	/**
+	 * @return Returns the podfeedService.
+	 */
+	public PodfeedService getPodfeedService() {
+		return podfeedService;
+	}
+
+	/**
+	 * @param podfeedService The podfeedService to set.
+	 */
+	public void setPodfeedService(PodfeedService podfeedService) {
+		this.podfeedService = podfeedService;
+	}
+
 }
