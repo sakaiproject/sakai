@@ -20,7 +20,6 @@
 
    5. Open Issues
 
-
 1. What's New
 
   1.1. Enhancements
@@ -90,12 +89,26 @@
 
    http://bugs.sakaiproject.org/confluence/display/HELP/Home
 
-    1.1.7. French and Japanese translations
+    1.1.7. New translations
 
-   New interface translations for French and Japanese have been included. See
-   reference/docs/readme_i18n.txt for more information on the translations.
+   New interface translations for French and Catalan, as well as updated
+   Japanese translations, are available in this release. See
+   reference/docs/readme_i18n.txt for more information.
 
   1.2. New Tools
+
+    1.2.1. Open Source Portfolio
+
+   2.2.0 marks closer integration with the Open Source Portfolio, an existing
+   suite of tools supporting portfolio activities, and which are available in
+   this release as provisional tools. Using OSP, individuals can collect
+   items, reflect, design portfolios, and publish them to designated
+   audiences. Instructors and program administrators are able to provide
+   structure and guidance to an individual's work that include step-by-step
+   (sequential) wizards, matrices of goals/standards, and hierarchies to
+   organize related work.
+
+    1.2.2. Provisional Tools
 
    Sakai 2.2.0 has added four new provisional tools
 
