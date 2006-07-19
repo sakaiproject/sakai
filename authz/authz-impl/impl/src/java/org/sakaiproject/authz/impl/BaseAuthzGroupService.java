@@ -802,7 +802,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			{
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
-				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
+						&& !SiteService.isSpecialSite(ref.getId())
 						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 				{
 					updSites.add(ref.getId());
@@ -814,7 +815,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			{
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
-				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
+						&& !SiteService.isSpecialSite(ref.getId())
 						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 				{
 					unpSites.add(ref.getId());
@@ -826,7 +828,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			{
 				String azGroupId = (String) i.next();
 				Reference ref = entityManager().newReference(azGroupId);
-				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && !SiteService.isSpecialSite(ref.getId())
+				if ((SiteService.APPLICATION_ID.equals(ref.getType())) && SiteService.SITE_SUBTYPE.equals(ref.getSubType())
+						&& !SiteService.isSpecialSite(ref.getId())
 						&& (!SiteService.isUserSite(ref.getId()) || userId.equals(SiteService.getSiteUserId(ref.getId()))))
 				{
 					visitSites.add(ref.getId());
@@ -872,7 +875,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	{
 		// Special code for the site service
 		Reference ref = entityManager().newReference(azGroup.getId());
-		if (ref.getType().equals(SiteService.APPLICATION_ID))
+		if (SiteService.APPLICATION_ID.equals(ref.getType()) && SiteService.SITE_SUBTYPE.equals(ref.getSubType()))
 		{
 			// no azGroup, no users
 			Set empty = new HashSet();
