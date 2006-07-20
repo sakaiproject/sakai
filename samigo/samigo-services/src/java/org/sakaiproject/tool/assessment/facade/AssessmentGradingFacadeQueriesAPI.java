@@ -123,6 +123,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public List getLastAssessmentGradingList(Long publishedAssessmentId);
 
+  public List getLastSubmittedAssessmentGradingList(Long publishedAssessmentId);
+
   public void saveItemGrading(ItemGradingIfc item);
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment);
