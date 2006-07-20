@@ -32,11 +32,9 @@
  	     <br />
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	     
- 	     <br />
- 	     <h:outputText value="#{msgs.subscribe}" styleClass="indnt1" />
- 	     <h:commandLink actionListener="#{podHomeBean.generatePodcastRSS}" styleClass="indnt1" >
+  	     <h:outputLink value="#{podHomeBean.URL}" styleClass="indnt1" >
    	       <h:graphicImage value="images/rss20.gif"  />
-		</h:commandLink>
+		</h:outputLink>
  	  </div>
 
       <div class="indnt1" style="position:relative; top:20px;">

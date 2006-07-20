@@ -338,10 +338,10 @@ public class podHomeBean {
 		  
 		  return podcastFolderExists;
 	  }
-	  
+	  	  
 	  public String getURL() {
-		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "site/" 
-		         + podcastService.getSiteId() + "/podcasts";
+		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "sakai-podcasts/podfeed/" 
+		         + podcastService.getSiteId();
 		  return URL;
 	  }
 	  

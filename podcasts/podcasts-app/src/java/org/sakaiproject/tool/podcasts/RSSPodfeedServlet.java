@@ -69,8 +69,11 @@ public class RSSPodfeedServlet extends HttpServlet {
 		if (podcastFeed.equals("")) {
 			response.setStatus(response.SC_INTERNAL_SERVER_ERROR);
 		}
-		PrintWriter pw = response.getWriter();
-		pw.write(podcastFeed);
+		else {
+			PrintWriter pw = response.getWriter();
+			pw.write(podcastFeed);
+		
+		}
 		
 	}
 
