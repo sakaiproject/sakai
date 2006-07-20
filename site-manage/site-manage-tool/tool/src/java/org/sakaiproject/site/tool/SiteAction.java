@@ -10791,7 +10791,7 @@ public class SiteAction extends PagedResourceActionII
 							boolean notifyNewUserEmail = (ServerConfigurationService.getString("notifyNewUserEmail", Boolean.TRUE.toString())).equalsIgnoreCase(Boolean.TRUE.toString());
 							if (notifyNewUserEmail)
 							{
-								notifyNewUserEmail(uEdit.getId(), uEdit.getEmail(), pw, siteTitle);
+								notifyNewUserEmail(uEdit.getEid(), uEdit.getEmail(), pw, siteTitle);
 							}
 						 }
 						 catch(UserIdInvalidException ee)
