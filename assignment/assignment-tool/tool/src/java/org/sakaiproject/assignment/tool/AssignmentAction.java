@@ -5907,14 +5907,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					String lName1 = u1.getLastName();
 					String lName2 = u2.getLastName();
-					if (lName1.compareTo(lName2) == -1)
-					{
-						result = 1;
-					}
-					else
-					{
-						result = 1;
-					}
+					result = lName1.toLowerCase().compareTo(lName2.toLowerCase());
 				}
 			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME))
@@ -6061,28 +6054,28 @@ public class AssignmentAction extends PagedResourceActionII
 
 					for (int j = 0; j < u1.length; j++)
 					{
-						if (u1[j] != null && u1[j].getSortName() != null)
+						if (u1[j] != null && u1[j].getLastName() != null)
 						{
 							if (j > 0)
 							{
 								submitters1 = submitters1.concat("; ");
 							}
-							submitters1 = submitters1.concat("" + u1[j].getSortName());
+							submitters1 = submitters1.concat("" + u1[j].getLastName());
 						}
 					}
 
 					for (int j = 0; j < u2.length; j++)
 					{
-						if (u2[j] != null && u2[j].getSortName() != null)
+						if (u2[j] != null && u2[j].getLastName() != null)
 						{
 							if (j > 0)
 							{
 								submitters2 = submitters2.concat("; ");
 							}
-							submitters2 = submitters2.concat(u2[j].getSortName());
+							submitters2 = submitters2.concat(u2[j].getLastName());
 						}
 					}
-					result = submitters1.compareTo(submitters2);
+					result = submitters1.toLowerCase().compareTo(submitters2.toLowerCase());
 				}
 			}
 			else if (m_criteria.equals(SORTED_SUBMISSION_BY_SUBMIT_TIME))

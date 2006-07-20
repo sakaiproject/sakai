@@ -208,7 +208,7 @@
 							</td>
 							<td headers="studentname">
 								<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">
-									$siteUser.displayName
+									$siteUser.sortName
 								</a>
 							</td>
 							<td headers="submitted">
@@ -258,7 +258,7 @@
 								&nbsp;
 							</td>
 							<td headers="studentname">
-								$siteUser.displayName
+								$siteUser.sortName
 							</td>
 							<td headers="submitted">
 								&nbsp;
