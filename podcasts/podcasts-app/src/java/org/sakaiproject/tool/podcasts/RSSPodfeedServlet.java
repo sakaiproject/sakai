@@ -55,7 +55,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 		String siteID;
 		
 		if (reqURL != null) {
-			siteID = reqURL.substring(reqURL.lastIndexOf("/"));
+			siteID = reqURL.substring(reqURL.lastIndexOf("/") + 1);
 		}
 		else {
 			reqURL = request.getRequestURI();
@@ -63,9 +63,6 @@ public class RSSPodfeedServlet extends HttpServlet {
 			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
 		}
 
-		// for testing purposes
-		siteID = "d6bdb95a-a683-4bd1-0079-3eb5ba3341ee";
-		
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
 		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.XML", siteID);
 

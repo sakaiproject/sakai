@@ -2,7 +2,7 @@
 
 <registration>
 	<tool
-			id="sakai.podcasts"
+			id="podcasts"
 			title="Podcasts"
 			description="Will manage podcasts.">
 			

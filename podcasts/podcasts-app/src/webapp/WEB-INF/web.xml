@@ -62,7 +62,7 @@
  
   <servlet-mapping>
     <servlet-name>RSSPodfeedServlet</servlet-name>
-    <url-pattern>/podcasts/RSSPodfeedServlet</url-pattern>
+    <url-pattern>/site/*</url-pattern>
   </servlet-mapping>
   
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
