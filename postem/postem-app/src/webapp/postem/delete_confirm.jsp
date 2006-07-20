@@ -6,45 +6,26 @@
 
 <f:view>
 	<sakai:view title="#{msgs.title_list}">
-		<sakai:view_content>
 			<h:form>
+			  <h:outputText styleClass="alertMessage" value="#{msgs.delete_confirm}" />
+			  
+			  <br />
+			  
+			  <table styleClass="itemSummary">
+			    <tr>
+			      <th scope="row"><h:outputText value="#{msgs.title_label}" /></th>
+			      <td><h:outputText value="#{PostemTool.currentGradebook.title}"/></td>
+			    </tr>
+			  </table>
 
-				<table width="100%" align="center">
-					<tr>
-					  <td>
-					  	<br/>
-					 	</td>
-					</tr>
-					<tr>
-						<table width="100%" align="center">
-							<tr>
-								<td align="center" style="font-size: 12pt; color: #8B0000" width="100%">
-								<h:outputText value="#{msgs.delete_confirm}"/>
-								<h:outputText value="#{PostemTool.currentGradebook.title}"/>
-								</td>
-							</tr>
-						</table>
-					</tr>
-					<tr>
-						<table width="100%" align="center">
-							<tr>
-							  <td width="50%" align="right">
-		 							<sakai:tool_bar_item
-										action="#{PostemTool.processDelete}"
-										value="#{msgs.bar_ok}" />
-								</td>
-								<td width="50%" align="left">
-									<sakai:tool_bar_item
-										action="#{PostemTool.processCancelView}"
-										value="#{msgs.bar_cancel}" />
-								</td>
-							</tr>
-						</table>
-					</tr>
-				</table>
+				<sakai:button_bar>
+          <sakai:button_bar_item action="#{PostemTool.processDelete}"
+					                       value="#{msgs.bar_delete}" />
+					<sakai:button_bar_item action="#{PostemTool.processCancelView}"
+										             value="#{msgs.cancel}" />
+         </sakai:button_bar>
 
 			</h:form>
-		</sakai:view_content>
 	</sakai:view>
 </f:view>
 				
