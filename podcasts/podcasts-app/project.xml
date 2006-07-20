@@ -3,7 +3,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/jsf-sun-tool.xml</extend>
-	<name>podcasts</name>
+	<name>sakai-podcasts</name>
 	<groupId>sakaiproject</groupId>
 	<id>sakai-podcasts</id>
 	<currentVersion>${sakai.version}</currentVersion>
