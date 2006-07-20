@@ -12,10 +12,10 @@ public interface PodfeedService {
 	 * @param category What category of feed is to be generated.
 	 * @param name What is the name of the feed.
 	 */
-	public SyndFeed generatePodcastRSS(String category, String name);
+	public String generatePodcastRSS(String category, String name);
 
-	public SyndFeed generatePodcastRSS(String category, String name, String siteID);
+	public String generatePodcastRSS(String category, String name, String siteID);
 
-	public SyndFeed generatePodcastRSS(String Category);
+	public String generatePodcastRSS(String Category);
 
 }

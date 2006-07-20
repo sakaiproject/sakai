@@ -3,24 +3,22 @@ package org.sakaiproject.tool.podcasts;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedOutput;
-
 public class RSSPodfeedServlet extends HttpServlet {
 
 	private PodfeedService podfeedService;
+	private Log LOG = LogFactory.getLog(RSSPodfeedServlet.class);
 	
 	/**
 	 * Constructor of the object.
@@ -69,24 +67,14 @@ public class RSSPodfeedServlet extends HttpServlet {
 		siteID = "d6bdb95a-a683-4bd1-0079-3eb5ba3341ee";
 		
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
-		SyndFeed podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.XML", siteID);
+		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.XML", siteID);
 
-		if (podcastFeed != null) {
-			final SyndFeedOutput feedWriter = new SyndFeedOutput();
-		
-			try {
-				PrintWriter pw = response.getWriter();
-				String xmlDoc = feedWriter.outputString(podcastFeed);
-				pw.write(xmlDoc);
-//				feedWriter.output(podcastFeed, response.getWriter());
-			} catch (FeedException e) {
-				// TODO Auto-generated catch block
-				throw new IOException(e.getMessage());
-			}
-		
-			
-		
+		if (podcastFeed.equals("")) {
+			response.setStatus(response.SC_INTERNAL_SERVER_ERROR);
 		}
+		PrintWriter pw = response.getWriter();
+		pw.write(podcastFeed);
+		
 	}
 
 	/**
@@ -118,18 +106,6 @@ public class RSSPodfeedServlet extends HttpServlet {
 		WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(sc);
 
 		podfeedService = (PodfeedService) wac.getBean("org.sakaiproject.api.app.podcasts.PodfeedService");
-	}
-
-	public void init(ServletConfig servletConfig) throws ServletException {
-
-		super.init(servletConfig);
-
-		ServletContext sc = servletConfig.getServletContext();
-
-		WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(sc);
-
-		podfeedService = (PodfeedService) wac.getBean("org.sakaiproject.api.app.podcasts.PodfeedService");
-
 	}
 	
 	/**

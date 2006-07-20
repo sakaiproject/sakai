@@ -65,6 +65,15 @@
 			</properties>
 		</dependency>
 
+		<dependency>
+			<groupId>jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.0</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
 	</dependencies>
 
 	<build>

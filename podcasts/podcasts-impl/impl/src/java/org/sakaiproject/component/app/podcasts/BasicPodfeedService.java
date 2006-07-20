@@ -3,6 +3,7 @@ package org.sakaiproject.component.app.podcasts;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,7 +51,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Category The category to run as containing podcast content.
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
-      public SyndFeed generatePodcastRSS(String Category, String Name) {
+      public String generatePodcastRSS(String Category, String Name) {
 		feedType = "rss_2.0";
 		fileName = Name;
 		SyndFeed podcastFeed = null;
@@ -63,7 +64,17 @@ public class BasicPodfeedService implements PodfeedService {
 
 		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, fileName);
 		
-		return podcastFeed;
+		final SyndFeedOutput feedWriter = new SyndFeedOutput();
+		
+		String xmlDoc = "";
+		try {
+			xmlDoc = feedWriter.outputString(podcastFeed);
+		} catch (FeedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return xmlDoc;
 	}
 
   	/**
@@ -73,7 +84,7 @@ public class BasicPodfeedService implements PodfeedService {
   	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
   	 * @param siteID The site ID passed in by the podfeed servlet
   	 */
-        public SyndFeed generatePodcastRSS(String Category, String Name, String siteID) {
+        public String generatePodcastRSS(String Category, String Name, String siteID) {
   		feedType = "rss_2.0";
   		fileName = Name;
   		SyndFeed podcastFeed = null;
@@ -86,7 +97,17 @@ public class BasicPodfeedService implements PodfeedService {
 
   		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, fileName);
   		
-  		return podcastFeed;
+		final SyndFeedOutput feedWriter = new SyndFeedOutput();
+		
+		String xmlDoc = "";
+		try {
+			xmlDoc = feedWriter.outputString(podcastFeed);
+		} catch (FeedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return xmlDoc;
   	}
 
     /**
@@ -95,7 +116,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Category The category to run as containing podcast content.
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
-      public SyndFeed generatePodcastRSS(String Category) {
+      public String generatePodcastRSS(String Category) {
 		feedType = "rss_2.0";
 		SyndFeed podcastFeed = null;
 		
@@ -107,7 +128,17 @@ public class BasicPodfeedService implements PodfeedService {
 
 		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, "RSSTest.xml");
 		
-		return podcastFeed;
+		final SyndFeedOutput feedWriter = new SyndFeedOutput();
+		
+		String xmlDoc = "";
+		try {
+			xmlDoc = feedWriter.outputString(podcastFeed);
+		} catch (FeedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return xmlDoc;
 
 	}
 
@@ -127,16 +158,16 @@ public class BasicPodfeedService implements PodfeedService {
 		}
 		catch (PermissionException pe) {
 			// TODO: Set error message to say you don't have permission
-//			 setErrorMessage(PERMISSION_ALERT);
+			LOG.warn("Permission denied: " + pe.getMessage(), pe);
 		} catch (InUseException e) {
 			// TODO Or try again? Set Error Message?
-//			setErrorMessage(INTERNAL_ERROR_ALERT);
+			LOG.warn("Podcast folder in use: " + e.getMessage(), e);
 		} catch (IdInvalidException e) {
 			// TODO Set a LOG message before rethrowing?
-//			setErrorMessage(ID_INVALID_ALERT);
+			LOG.warn("Invalid ID used: " + e.getMessage(), e);
 		} catch (InconsistentException e) {
 			// TODO Auto-generated catch block
-//			return null;
+			LOG.warn("InconsistentException: " + e.getMessage(), e);
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
 //			setErrorMessage(ID_UNUSED_ALERT);
