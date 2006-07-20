@@ -30,7 +30,7 @@
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
     </servlet-mapping>
-    
+     
 	<!-- the missing link of my attempt, servlet-name must match tool.
 		 it is JsfTool that will intercept requests and grap the
 		 correct information -->
@@ -50,7 +50,20 @@
             <param-name>default.last.view</param-name>
             <param-value>true</param-value>
         </init-param>
-   </servlet> 
+   </servlet>
+ 
+  <servlet>
+    <servlet-name>RSSPodfeedServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
+    <display-name>RSSPodfeedServlet</display-name>
+    <description>This generates the actual Poddcast feed</description>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+ 
+  <servlet-mapping>
+    <servlet-name>RSSPodfeedServlet</servlet-name>
+    <url-pattern>/podcasts/RSSPodfeedServlet</url-pattern>
+  </servlet-mapping>
   
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
     <filter>

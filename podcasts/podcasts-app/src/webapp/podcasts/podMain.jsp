@@ -32,6 +32,8 @@
  	     <br />
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	     
+ 	     <br />
+ 	     <h:outputText value="#{msgs.subscribe}" styleClass="indnt1" />
  	     <h:commandLink actionListener="#{podHomeBean.generatePodcastRSS}" styleClass="indnt1" >
    	       <h:graphicImage value="images/rss20.gif"  />
 		</h:commandLink>
@@ -59,8 +61,10 @@
             <!--  Download link -->
             <f:verbatim><div class="podLinksPosition" ></f:verbatim>
 
-            <!--  7/17/06 Hack to fix if spaces in name. TODO: redo correctly -->
-            <!--  Below is correct JSP. Problem is when rendering what's sent from bean  
+            <!--  7/17/06 Hack to fix if spaces in name. 
+                  TODO: redo correctly
+                  Below is correct JSP. Problem is when rendering what's sent from bean
+            		 it escapes spaces which causes link to fail  
             h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
                  h:outputText value="#{msgs.download}" 
             h:outputLink> -->

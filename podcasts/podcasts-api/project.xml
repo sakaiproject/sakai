@@ -62,6 +62,13 @@
 			<version>1.0.4</version>
 		</dependency> 
 
+<!--		Needed to construct the actual feed -->
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>rome</artifactId>
+			<version>0.8</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -175,6 +175,67 @@ public class PodcastServiceImpl implements PodcastService
 		return resourcesList;
 	}
 	
+	/**
+	 * Retrieve Podcasts for site and if podcast folder does not exist,
+	 * create it.
+	 * 
+	 * @return A List of podcast resources
+	 */
+	public List getPodcasts(String siteID) throws PermissionException, InUseException, IdInvalidException, 
+					InconsistentException, IdUsedException {
+		List resourcesList = null;
+		
+		String siteCollection = contentHostingService.getSiteCollection( siteID );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+
+		try {
+			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
+
+			resourcesList = collection.getMemberResources();
+			
+			checkDISPLAY_DATE(resourcesList);
+			
+			PodcastComparator podcastComparator = new PodcastComparator(DISPLAY_DATE, false);
+			
+			// call a sort using Collections.sort(comparator, resourcesList);
+			Collections.sort(resourcesList, podcastComparator);
+
+		}
+		catch (IdUnusedException ex) {
+			try {
+				// Podcasts folder does not exist, create it and return a null list
+				System.out.println("Attempting to create podcasts folder.");
+				ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
+				
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, COLLECTION_PODCASTS_TITLE);
+				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, COLLECTION_PODCASTS_DESCRIPTION);
+				
+				ContentCollection collection = contentHostingService.addCollection(podcastsCollection, resourceProperties);
+				
+				contentHostingService.setPubView(collection.getId(), true);
+				
+				ContentCollectionEdit edit = contentHostingService.editCollection(collection.getId());
+
+				contentHostingService.commitCollection(edit);
+
+				// TODO: create an empty resourceList instead of null?
+			}
+			catch (IdUnusedException e) {
+				// TODO: handle if necessary
+				LOG.warn("IdUnusedException: " + e.getMessage(), e);
+			}
+			catch (TypeException e) {
+				LOG.warn("TypeException: " + e.getMessage(), e);
+			}
+			
+		}
+		catch (TypeException e) {
+			LOG.warn("TypeException: " + e.getMessage(), e);
+		}
+		
+		return resourcesList;
+	}
+
 	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException {
 
 		try {

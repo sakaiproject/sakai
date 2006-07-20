@@ -112,6 +112,22 @@ public interface PodcastService // extends EntityProducer
 					InconsistentException, IdUsedException;
 	
 	/**
+	 * Returns a list of the podcasts stored in site/podcasts folder
+	 * 
+	 * @param siteID Passed in by the podfeed server
+	 * 
+	 * @return List of podcasts
+	 * 
+	 * @throws PermissionException
+	 * @throws InUseException
+	 * @throws IdInvalidException
+	 * @throws InconsistentException
+	 * @throws IdUsedException
+	 */
+	public List getPodcasts(String siteID)throws PermissionException, InUseException, IdInvalidException, 
+					InconsistentException, IdUsedException;
+	
+	/**
 	 * Returns SiteId for the site this tool is a part of
 	 * 
 	 * @return String of the site id

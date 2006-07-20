@@ -340,8 +340,8 @@ public class podHomeBean {
 	  }
 	  
 	  public String getURL() {
-		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" 
-		         + podcastService.getSiteId();
+		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "site/" 
+		         + podcastService.getSiteId() + "/podcasts";
 		  return URL;
 	  }
 	  
