@@ -48,10 +48,11 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 public class PostemTool {
 	protected GradebookManager gradebookManager;
-
+	
 	// protected Logger logger = Logger.getLogger(PostemTool.class);
 
 	protected ArrayList gradebooks;
@@ -91,6 +92,7 @@ public class PostemTool {
 	protected int column = 0;
 
 	public static final String messageBundle = "org.sakaiproject.tool.postem.bundle.Messages";
+	public ResourceLoader msgs = new ResourceLoader(messageBundle);
 
 	public void setLogger(Logger logger) {
 		this.logger = logger;
@@ -200,23 +202,21 @@ public class PostemTool {
 		 * template currently exists for this gradebook.</p>"; } }
 		 */
 		if (currentGradebook == null) {
-			return "<p>Sorry, no gradebook currently selected</p>";
+			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
 		if (!currentGradebook.hasStudent(this.userId)) {
-			return "<p>No grades for current user in gradebook "
-					+ currentGradebook.getTitle() + ".</p>";
+			return "<p>" + msgs.getString("no_grades_for_user") + " " + currentGradebook.getTitle() + ".</p>";
 		}
 		return currentGradebook.studentGrades(this.userId).formatGrades();
 	}
 
 	public String getFirstStudentGrades() {
 		if (currentGradebook == null) {
-			return "<p>Sorry, no gradebook currently selected</p>";
+			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
 		Set students = currentGradebook.getStudents();
 		if (students.size() == 0) {
-			return "<p>No grades exist in gradebook " + currentGradebook.getTitle()
-					+ ".</p>";
+			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
 		}
 		StudentGrades student = (StudentGrades) students.iterator().next();
 		return student.formatGrades();
@@ -224,15 +224,14 @@ public class PostemTool {
 
 	public String getSelectedStudentGrades() {
 		if (currentGradebook == null) {
-			return "<p>Sorry, no gradebook currently selected</p>";
+			return "<p>" + msgs.getString("no_gradebook_selected") + "</p>";
 		}
 		Set students = currentGradebook.getStudents();
 		if (students.size() == 0) {
-			return "<p>No grades exist in gradebook " + currentGradebook.getTitle()
-					+ ".</p>";
+			return "<p>" + msgs.getString("no_grades_in_gradebook") + " " + currentGradebook.getTitle() + ".</p>";
 		}
 		if (selectedStudent == null) {
-			return "Error! No selected student!";
+			return msgs.getString("select_participant");
 		}
 
 		Iterator iter = students.iterator();
@@ -242,7 +241,7 @@ public class PostemTool {
 				return student.formatGrades();
 			}
 		}
-		return "Error! No selected student!";
+		return msgs.getString("select_participant");
 	}
 
 	public String processCreateNew() {
@@ -370,14 +369,18 @@ public class PostemTool {
 			// logger.info("*** Non-Empty CSV!");
 			try {
 				CSV grades = new CSV(csv, withHeader);
-
+										
+				if(!usernamesValid(grades)) {
+					return "create_gradebook";
+				}
+				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {
 						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 								"has_headers", new Object[] {});
 					}
 				}
-				if (grades.getStudents() != null) {
+				if (grades.getStudents() != null) {	
 					PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 							"has_students", new Object[] { new Integer(grades.getStudents()
 									.size()) });
@@ -711,6 +714,26 @@ public class PostemTool {
 
 	public Column getCurrentColumn() {
 		return new Column(currentGradebook, column);
+	}
+	
+	public boolean usernamesValid(CSV studentGrades) {
+		boolean usersAreValid = true;
+		int row=1;
+		
+		List studentList = studentGrades.getStudents();
+		Iterator studentIter = studentList.iterator();
+		while (studentIter.hasNext()) {
+			row++;
+			List s1 = (List) studentIter.next();
+			String usr = ((String) s1.get(0)).trim();
+			
+			if(usr.equals("") || usr == null) {
+				usersAreValid = false;
+				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+						"invalid_username", new Object[] { new Integer(row) });
+			}
+		}
+	  return usersAreValid;
 	}
 
 }

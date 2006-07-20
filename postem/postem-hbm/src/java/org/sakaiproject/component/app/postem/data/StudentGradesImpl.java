@@ -163,20 +163,20 @@ public class StudentGradesImpl implements StudentGrades, Comparable,
 			List h2 = new ArrayList(gradebook.getHeadings());
 
 			StringBuffer gradeBuffer = new StringBuffer();
-			gradeBuffer.append("<table>");
+			gradeBuffer.append("<table class=\"itemSummary\">");
 
 			if (h2.size() != 0) {
+				gradeBuffer.append("<tr><th scope=\"row\">" + h2.get(0).toString() + "</th><td>");
 				h2.remove(0);
-				gradeBuffer.append("<tr><td colspan='2'>");
 				gradeBuffer.append(getUsername());
 				gradeBuffer.append("</td></tr>");
 				Iterator ii = h2.iterator();
 				Iterator jj = grades.iterator();
 
 				while (ii.hasNext()) {
-					gradeBuffer.append("<tr><td>");
+					gradeBuffer.append("<tr><th scope=\"row\">");
 					gradeBuffer.append((String) ii.next());
-					gradeBuffer.append("</td><td>");
+					gradeBuffer.append("</th><td>");
 					gradeBuffer.append((String) jj.next());
 					gradeBuffer.append("</td></tr>");
 				}

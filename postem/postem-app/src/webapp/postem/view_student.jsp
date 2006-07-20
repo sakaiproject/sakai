@@ -11,13 +11,16 @@
 				
 		  	<sakai:tool_bar_message value="#{msgs.view_student}" />
 		  	<sakai:panel_edit>
-		  		<h:outputText value="#{msgs.choose_username}"/>
-		  		<h:selectOneMenu value="#{PostemTool.selectedStudent}" onchange="submit()">
+		  		<h:outputLabel styleClass="shorttext" for="participant"><h:outputText value="#{msgs.choose_username}"/></h:outputLabel>
+		  		<h:selectOneMenu value="#{PostemTool.selectedStudent}" id="participant" onchange="submit()">
 		  			<f:selectItems value="#{PostemTool.currentGradebook.studentMap}"/>
 		  		</h:selectOneMenu>
 		  	</sakai:panel_edit>
 		  	
-            		  	<h:outputText value="#{PostemTool.selectedStudentGrades}" escape="false" rendered="#{PostemTool.editable}"/>
+		  	<br />
+		  	
+	    	<h:outputText value="#{PostemTool.selectedStudentGrades}" escape="false" rendered="#{PostemTool.editable}"/>
+		  	
 				<sakai:button_bar>					
 					<sakai:button_bar_item
 						action="#{PostemTool.processCancelView}"

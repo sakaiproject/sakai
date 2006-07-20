@@ -419,6 +419,7 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	public TreeMap getStudentMap() {
 		TreeMap studentMap = new TreeMap();
+		studentMap.put(" ", "blank");
 
 		Iterator iter = getStudents().iterator();
 		while (iter.hasNext()) {
