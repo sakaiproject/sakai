@@ -61,22 +61,22 @@
                         <varlistentry>
                             <term>Windows:</term>
                             <listitem>
-                            <para>
-                                <link
-                                    xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip"
-                                    >demo archive</link>
-                            </para>
-                        </listitem>
+                                <para>
+                                    <link
+                                        xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.zip"
+                                        >demo archive</link>
+                                </para>
+                            </listitem>
                         </varlistentry>
                         <varlistentry>
                             <term>Mac/*nix:</term>
-                        <listitem>
-                            <para>
-                                <link
-                                    xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz"
-                                    >demo archive</link>
-                            </para>
-                        </listitem>
+                            <listitem>
+                                <para>
+                                    <link
+                                        xl:href="http://source.sakaiproject.org/release/2.2.0/sakai_2-2-0/sakai-demo_2-2-0.tar.gz"
+                                        >demo archive</link>
+                                </para>
+                            </listitem>
                         </varlistentry>
                     </variablelist>
                 </step>
@@ -359,7 +359,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <term>Windows:</term>
                     <listitem>
                         <para> Create a new environment variable <command>JAVA_OPTS</command> to
-                            hold the value "<command>-server -Xmx512m -Xms512m -XX:PermSize=128m
+                            hold the value "<command>-server -Xms512m -Xmx512m -XX:PermSize=128m
                                 -XX:MaxPermSize=196m -XX:NewSize=192m
                             -XX:MaxNewSize=384m</command>". </para>
                     </listitem>
@@ -368,7 +368,7 @@ Java HotSpot(TM) Server VM (build 1.5.0_06-b05, mixed mode)</screen>
                     <term>Mac/*nix:</term>
                     <listitem>
                         <para>
-                            <command>export JAVA_OPTS="-server -Xmx512m -Xms512m -XX:PermSize=128m
+                            <command>export JAVA_OPTS="-server -Xms512m -Xmx512m -XX:PermSize=128m
                                 -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</command>
                         </para>
                     </listitem>
@@ -729,7 +729,7 @@ smtp.enabled = true</screen>
                 however, start with a bare minimum which will at least avoid "Out of Memory" errors,
                 and be suitable for developer installs of the software:</para>
             <screen>
-JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</screen>
+JAVA_OPTS="-server -Xms512m -Xmx768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"</screen>
             <para>This is an adequate - if minimal - starting point: it selects server mode, sets an
                 adequate heap size, and sizes the permanent generation to accommodate more
                 longer-persisting objects. These settings will allow things to be functional for

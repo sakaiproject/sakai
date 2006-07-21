@@ -610,7 +610,7 @@
    least avoid "Out of Memory" errors, and be suitable for developer installs
    of the software:
 
- JAVA_OPTS="-server -Xmx512m -Xms768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"
+ JAVA_OPTS="-server -Xms512m -Xmx768m -XX:PermSize=128m -XX:MaxPermSize=196m -XX:NewSize=192m -XX:MaxNewSize=384m"
 
    This is an adequate - if minimal - starting point: it selects server mode,
    sets an adequate heap size, and sizes the permanent generation to
