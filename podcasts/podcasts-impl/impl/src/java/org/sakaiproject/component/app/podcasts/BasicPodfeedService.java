@@ -3,7 +3,6 @@ package org.sakaiproject.component.app.podcasts;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,6 +25,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.SiteService;
 
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -43,6 +43,7 @@ public class BasicPodfeedService implements PodfeedService {
 	private static String feedType = null;
 	
 	private PodcastService podcastService;
+	private SiteService siteService;
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	
 	/**
@@ -52,29 +53,8 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
       public String generatePodcastRSS(String Category, String Name) {
-		feedType = "rss_2.0";
-		fileName = Name;
-		SyndFeed podcastFeed = null;
-		
-		List entries = populatePodcastArray(Category);
+		return generatePodcastRSS(Category, Name, podcastService.getSiteId());
 
-		// need to pass in global information for podcast here
-		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + podcastService.getSiteId();
-		
-
-		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, fileName);
-		
-		final SyndFeedOutput feedWriter = new SyndFeedOutput();
-		
-		String xmlDoc = "";
-		try {
-			xmlDoc = feedWriter.outputString(podcastFeed);
-		} catch (FeedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return xmlDoc;
 	}
 
   	/**
@@ -85,17 +65,34 @@ public class BasicPodfeedService implements PodfeedService {
   	 * @param siteID The site ID passed in by the podfeed servlet
   	 */
         public String generatePodcastRSS(String Category, String Name, String siteID) {
-  		feedType = "rss_2.0";
+  		feedType = "rss_2.01";
   		fileName = Name;
   		SyndFeed podcastFeed = null;
   		
   		List entries = populatePodcastArray(Category, siteID);
 
+		ResourceProperties siteProperties = null;
+        
+		try{
+		  siteProperties = siteService.getSite(siteID).getProperties();
+		}
+		catch(IdUnusedException e){
+		            LOG.info("IdUnusedException for site: " + siteID);
+		}
+		            
+		 String courseName = null;
+		 
+		  if (siteProperties != null){
+		            courseName = siteProperties.getProperty("site-oncourse-course-id");
+		  }
+
   		// need to pass in global information for podcast here
   		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + siteID;
+  		String name = "Podcast for " + courseName;
+  		String description = "This is the official podcast for the course " + courseName + ". Please check back throughout the semester for updates.";
+  		String copyright = "2006 IUPUI";
   		
-
-  		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, fileName);
+  		podcastFeed = doSyndication(name, URL, description, copyright, entries, fileName);
   		
 		final SyndFeedOutput feedWriter = new SyndFeedOutput();
 		
@@ -104,7 +101,7 @@ public class BasicPodfeedService implements PodfeedService {
 			xmlDoc = feedWriter.outputString(podcastFeed);
 		} catch (FeedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.info("FeedException for site: " + siteID );
 		}
 
 		return xmlDoc;
@@ -117,30 +114,9 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
       public String generatePodcastRSS(String Category) {
-		feedType = "rss_2.0";
-		SyndFeed podcastFeed = null;
-		
-		List entries = populatePodcastArray(Category);
+		return generatePodcastRSS(Category, ""+ podcastService.getSiteId()+ "feedsave.xml" +podcastService.getSiteId());
 
-		// need to pass in global information for podcast here
-		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + podcastService.getSiteId();
-		
-
-		podcastFeed = doSyndication("name", URL, "description", "copyright", entries, "RSSTest.xml");
-		
-		final SyndFeedOutput feedWriter = new SyndFeedOutput();
-		
-		String xmlDoc = "";
-		try {
-			xmlDoc = feedWriter.outputString(podcastFeed);
-		} catch (FeedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return xmlDoc;
-
-	}
+      }
 
     /**
      * This pulls the podcasts from Resourses and stuffs it in an array
@@ -149,7 +125,8 @@ public class BasicPodfeedService implements PodfeedService {
      * @param category_string For what Category of feed wanted, ie, blog, podcast, etc.
      */
     	private List populatePodcastArray(String category_string) {
-    	    List podEntries = null;
+    		return populatePodcastArray(category_string, podcastService.getSiteId());
+ /*   	    List podEntries = null;
     	    List entries = new ArrayList(); 
     	    
  		try {
@@ -167,10 +144,10 @@ public class BasicPodfeedService implements PodfeedService {
 			LOG.warn("Invalid ID used: " + e.getMessage(), e);
 		} catch (InconsistentException e) {
 			// TODO Auto-generated catch block
-			LOG.warn("InconsistentException: " + e.getMessage(), e);
+			LOG.info("InconsistentException: " + e.getMessage(), e);
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
-//			setErrorMessage(ID_UNUSED_ALERT);
+			LOG.info("IdUnusedException getting podcasts: ");
 		}
 
     		// get the iterator
@@ -216,7 +193,7 @@ public class BasicPodfeedService implements PodfeedService {
     		}
        		
 		return entries;
-    		    		
+*/    		    		
     	}
 
         /**
@@ -235,57 +212,61 @@ public class BasicPodfeedService implements PodfeedService {
     		}
     		catch (PermissionException pe) {
     			// TODO: Set error message to say you don't have permission
-//    			 setErrorMessage(PERMISSION_ALERT);
+   			 LOG.info("PermissionException generating podfeed for site: " + siteID);
     		} catch (InUseException e) {
     			// TODO Or try again? Set Error Message?
-//    			setErrorMessage(INTERNAL_ERROR_ALERT);
+    			LOG.info("InUseException generating podfeed for site: " + siteID);
     		} catch (IdInvalidException e) {
     			// TODO Set a LOG message before rethrowing?
-//    			setErrorMessage(ID_INVALID_ALERT);
+    			LOG.info("IdInvalidException generating podfeed for site: " + siteID);
     		} catch (InconsistentException e) {
     			// TODO Auto-generated catch block
-//    			return null;
+    			LOG.info("InconsistentException generating podfeed for site: " + siteID);
     		} catch (IdUsedException e) {
     			// TODO Auto-generated catch block
-//    			setErrorMessage(ID_UNUSED_ALERT);
+    			LOG.info("IdUnusedException generating podfeed for site: " + siteID);
     		}
 
-        		// get the iterator
-        		if (podEntries != null) {
-        			Iterator podcastIter = podEntries.iterator();
+    		// get the iterator
+    		if (podEntries != null) {
+    			Iterator podcastIter = podEntries.iterator();
         		
-        			while (podcastIter.hasNext()) {
+    			while (podcastIter.hasNext()) {
         		    
-    				// get its properties from ContentHosting
-    				ContentResource podcastResource = (ContentResource) podcastIter.next();
-    				ResourceProperties podcastProperties = podcastResource.getProperties();
+			// get its properties from ContentHosting
+			ContentResource podcastResource = (ContentResource) podcastIter.next();
+			ResourceProperties podcastProperties = podcastResource.getProperties();
         				
-    				// Format date, change SimpleDateFormat to format from example
-    				Date publishDate = null;
-    				try {
-    					publishDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
-    				} catch (EntityPropertyNotDefinedException e) {
-    					// TODO If not date, set to today? skip? throw PodcastFormatException?
-    					publishDate = new Date();
+			// Format date, change SimpleDateFormat to format from example
+			Date publishDate = null;
+			try {
+				publishDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+			} catch (EntityPropertyNotDefinedException e) {
+				// TODO If not date, set to today? skip? throw PodcastFormatException?
+				publishDate = new Date();
+				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID);
 
-    				} catch (EntityPropertyTypeException e) {
-    					// TODO Same thing, set to today? skip? throw PodcastFormatException?
-    					publishDate = new Date();
+			} catch (EntityPropertyTypeException e) {
+				// TODO Same thing, set to today? skip? throw PodcastFormatException?
+				publishDate = new Date();
+				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID);
 
-    				}
+			}
     				
-        				try {
-        		            entries.add(addPodCast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
-    									   podcastService.getPodcastFileURL(podcastResource.getId()), 
-    									   publishDate, 
-    									   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
-    									   category_string, 
-    									   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR)));
+			try {
+ 		            entries.add(addPodCast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
+							   podcastService.getPodcastFileURL(podcastResource.getId()), 
+							   publishDate, 
+							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
+							   category_string, 
+							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR)) );
     					} catch (PermissionException e) {
     						// TODO LOG.error - Feeder should have permission
+    						LOG.info("PermissionException generating podfeed while adding entry  for site: " + siteID);
 
     					} catch (IdUnusedException e) {
     						// TODO Problem with this podcast file - LOG and skip?
+    						LOG.info("IdUnusedException generating podfeed while adding entry for site: " + siteID);
     						
     					}
         			}
@@ -367,10 +348,10 @@ public class BasicPodfeedService implements PodfeedService {
 
    		}
    	    catch (FeedException ex) {
-             LOG.error("FeedException: "+ex.getMessage() ,ex);
+             LOG.info("FeedException generating actual xml feed for podfeed: " + title);
          }
    	    catch (IOException ioe) {
-   	    		LOG.warn("IOException: " + ioe.getMessage(), ioe);
+   	    		LOG.warn("IOException generating actual xml feed for podfeed: " + title);
    	    }
             
          return feed;

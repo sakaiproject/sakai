@@ -82,9 +82,9 @@
 
     <sakai:button_bar>  <!-- Save Changes and Cancel buttons -->
       <sakai:button_bar_item action="#{podHomeBean.processRevisePodcast}" value="#{msgs.change_submit}" 
-          accesskey="s" title="Save changes to Podcasts" styleClass="active" />
+          accesskey="s" title="#{msgs.change_submit}" styleClass="active" />
       <sakai:button_bar_item action="#{podHomeBean.processCancelRevise}" value="#{msgs.cancel}" 
-          accesskey="c" title="Cancel Changes" />
+          accesskey="c" title="#{msgs.cancel}" />
     </sakai:button_bar>
    </h:form>
  </sakai:view>

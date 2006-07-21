@@ -64,7 +64,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 		}
 
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
-		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.XML", siteID);
+		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID);
 
 		if (podcastFeed.equals("")) {
 			response.setStatus(response.SC_INTERNAL_SERVER_ERROR);

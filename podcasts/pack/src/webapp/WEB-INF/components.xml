@@ -33,6 +33,10 @@
        <property name="podcastService">
            <ref bean="org.sakaiproject.api.app.podcasts.PodcastService"/>
        </property>
+       
+       <property name="siteSerivce">
+           <ref bean="org.sakaiproject.site.api.SiteService"/>
+       </property>
      </bean>
  
 </beans>

@@ -64,7 +64,7 @@
     <servlet-name>podcasts</servlet-name>
     <url-pattern>/podfeed/*</url-pattern>
   </servlet-mapping>
-  
+
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
     <filter>
         <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
