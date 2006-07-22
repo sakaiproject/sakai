@@ -122,7 +122,7 @@ public class StudentScoreUpdateListener
           log.info("****1. pub questionId = " + question.getItemData().getItemId());
           log.info("****2. Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
-          if (gradingarray.isEmpty() && (question.getPoints() > 0  ||
+          if (gradingarray.isEmpty() && (question.getExactPoints() > 0  ||
               (question.getGradingComment() != null &&
                !question.getGradingComment().trim().equals("")) ))
           {
@@ -131,7 +131,7 @@ public class StudentScoreUpdateListener
             gradingarray = question.getItemGradingDataArray();
           }
           log.info("****3a Gradingarray length2 = " + gradingarray.size());
-          log.info("****3b set points = " + question.getPoints() + ", comments to " + question.getGradingComment());
+          log.info("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
@@ -145,7 +145,7 @@ public class StudentScoreUpdateListener
               data.setAgentId(bean.getStudentId());
             }
             data.setAutoScore(new Float
-              (new Float(question.getPoints()).floatValue()
+              (new Float(question.getExactPoints()).floatValue()
                / (float) gradingarray.size()));
             data.setComments(question.getGradingComment());
             log.info("****4 itemGradingId="+data.getItemGradingId());

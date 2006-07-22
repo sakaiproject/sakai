@@ -162,7 +162,11 @@ public class AgentResults
     this.forGrade = forGrade;
   }
   public String getTotalAutoScore() {
-    return Validator.check(totalAutoScore, "0");
+    return getRoundedTotalAutoScore();
+  }
+  
+  public String getExactTotalAutoScore() {
+	    return Validator.check(totalAutoScore, "0");
   }
 
   public String getRoundedTotalAutoScore() {

@@ -546,7 +546,7 @@ log.debug("item==null ");
           { // We already have an agentResults for this one
             results.setAnswer(results.getAnswer() + "<br/>" + answerText);
             results.setTotalAutoScore(new Float
-              ((new Float(results.getTotalAutoScore())).floatValue() +
+              ((new Float(results.getExactTotalAutoScore())).floatValue() +
                gdata.getAutoScore().floatValue()).toString());
           }
           else

@@ -149,14 +149,23 @@ public class ItemContentsBean
   }
 
   /**
-   * String representation of the points.
+   * String representation of the rounded points.
    * @return String representation of the points.
    */
   public float getPoints()
   {
-    return points;
+    return SectionContentsBean.roundTo2Decimals(points);
   }
 
+  /**
+   * String representation of the exact points (unrounded points)
+   * @return String representation of the points.
+   */
+  public float getExactPoints()
+  {
+    return points;
+  }
+  
   /**
    * String representation of the points.
    * @param points String representation of the points.

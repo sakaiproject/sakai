@@ -661,7 +661,7 @@ public class DeliveryActionListener
 
       // scoring
       maxPoints += itemBean.getMaxPoints();
-      points += itemBean.getPoints();
+      points += itemBean.getExactPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
       itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
 
@@ -743,7 +743,7 @@ public class DeliveryActionListener
 
       // scoring
       maxPoints += itemBean.getMaxPoints();
-      points += itemBean.getPoints();
+      points += itemBean.getExactPoints();
       itemBean.setShowStudentScore(delivery.isShowStudentScore());
       itemBean.setShowStudentQuestionScore(delivery.isShowStudentQuestionScore());
 
@@ -816,7 +816,7 @@ public class DeliveryActionListener
       itemBean.setGradingComment(data.getComments());
       if (data.getAutoScore() != null)
       {
-        itemBean.setPoints(itemBean.getPoints() +
+        itemBean.setPoints(itemBean.getExactPoints() +
                            data.getAutoScore().floatValue());
       }
       // set attempts remaining for audio, there is only one itemGradingData
@@ -833,7 +833,7 @@ public class DeliveryActionListener
     {
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
-    else if (itemBean.getPoints() >= itemBean.getMaxPoints())
+    else if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
     {
       itemBean.setFeedback(item.getCorrectItemFeedback());
     }
