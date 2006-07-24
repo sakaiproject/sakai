@@ -37,7 +37,7 @@
 		</h:outputLink>
  	     <br />
  	     
- 	     <h:commandLink action="podfeedRevise" styleClass="indnt1" >
+ 	     <h:commandLink action="podfeedRevise" styleClass="indnt1" rendered="#{podHomeBean.canUpdateSite}" >
  	         <h:outputText value="#{msgs.revise}" />
  	     </h:commandLink>
  	  </div>

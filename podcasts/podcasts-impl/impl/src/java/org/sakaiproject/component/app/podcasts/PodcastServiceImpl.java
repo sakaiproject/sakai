@@ -22,6 +22,7 @@
 package org.sakaiproject.component.app.podcasts;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -54,6 +55,8 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -68,6 +71,7 @@ public class PodcastServiceImpl implements PodcastService
 	private PodcastComparator podcastComparator;
 	private SecurityService securityService;
 	private UserDirectoryService userDirectoryService;
+	private TimeService timeService;
 	
 	PodcastServiceImpl() {
 	}
@@ -134,6 +138,10 @@ public class PodcastServiceImpl implements PodcastService
 			
 			checkDISPLAY_DATE(resourcesList);
 			
+			if (! canUpdateSite()) {
+				resourcesList = filterPodcasts(resourcesList);
+			}
+			
 			PodcastComparator podcastComparator = new PodcastComparator(DISPLAY_DATE, false);
 			
 			Collections.sort(resourcesList, podcastComparator);
@@ -175,6 +183,38 @@ public class PodcastServiceImpl implements PodcastService
 		return resourcesList;
 	}
 	
+	private List filterPodcasts(List resourcesList) {
+
+		List filteredPodcasts = new ArrayList();
+		
+		final Time now = TimeService.newTime();
+		
+		//loop to check if DISPLAY_DATE has been set. If not, set it
+		Iterator podcastIter = resourcesList.iterator();
+		
+		// for each bean
+		while (podcastIter.hasNext() ) {
+			// get its properties from ContentHosting
+			ContentResource aResource = (ContentResource) podcastIter.next();
+			ResourceProperties itsProperties = aResource.getProperties();
+			
+			try {
+				Time podcastTime = itsProperties.getTimeProperty(DISPLAY_DATE);
+				
+				if (podcastTime.before(now)) {
+					filteredPodcasts.add(aResource);
+				}
+			} catch (EntityPropertyNotDefinedException e) {
+				// TODO Auto-generated catch block
+				LOG.info("EntityPropertyNotDefinedException for podcast item: " + aResource);
+			} catch (EntityPropertyTypeException e) {
+				// TODO Auto-generated catch block
+				LOG.warn("EntityPropertyTypeException for podcast item: " + aResource);
+			}
+		}
+		return filteredPodcasts;
+	}
+
 	/**
 	 * Retrieve Podcasts for site and if podcast folder does not exist,
 	 * create it. Used by feed since no context to pull siteID from
@@ -454,12 +494,18 @@ public class PodcastServiceImpl implements PodcastService
 			ResourceProperties itsProperties = aResource.getProperties();
 			
 			try {
-				itsProperties.getTimeProperty(DISPLAY_DATE);
-			}
-			catch (Exception e) {
-				// does not exit, set CREATION_DATE to DISPLAY_DATE
-				setDISPLAY_DATE(itsProperties);
-			}
+					itsProperties.getTimeProperty(DISPLAY_DATE);
+				} catch (EntityPropertyNotDefinedException e) {
+					// TODO Auto-generated catch block
+					setDISPLAY_DATE(itsProperties);
+				} catch (EntityPropertyTypeException e) {
+					// TODO Auto-generated catch block
+					setDISPLAY_DATE(itsProperties);
+				}
+//			}
+//			catch (Exception e) {
+//				// does not exist, set CREATION_DATE to DISPLAY_DATE
+//			}
 		}
 
 		return resourcesList;
@@ -497,5 +543,20 @@ public class PodcastServiceImpl implements PodcastService
 	public boolean canUpdateSite() {
 		return securityService.unlock(userDirectoryService.getCurrentUser(), UPDATE_PERMISSIONS, getSiteId());
 	}
+
+	/**
+	 * @return Returns the timeService.
+	 */
+	public TimeService getTimeService() {
+		return timeService;
+	}
+
+	/**
+	 * @param timeService The timeService to set.
+	 */
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+
 }
 

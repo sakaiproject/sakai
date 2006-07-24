@@ -23,8 +23,8 @@
         		<artifactId>sakai-podcasts-api</artifactId>
 			<version>${sakai.version}</version>
     	</dependency>
-
-<!--		<dependency>
+    	
+		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
@@ -59,11 +59,6 @@
 			<artifactId>sakai-site-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-email-api</artifactId>
@@ -120,112 +115,8 @@
   			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
 			<version>${sakai.spring.version}</version>			
-  		</dependency>-->
-  		
-  		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-event-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-email-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-archive-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-alias-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>	
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>	
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>		
-		
-		<dependency>
-  			<groupId>${sakai.hibernate.groupId}</groupId>
-  			<artifactId>${sakai.hibernate.artifactId}</artifactId>
-	  		<version>${sakai.hibernate.version}</version>
   		</dependency>
   		
-	  	<dependency>
-  			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-			<version>${sakai.spring.version}</version>			
-  		</dependency>
-
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
@@ -245,16 +136,5 @@
     
        <sourceDirectory>impl/src/java</sourceDirectory>
 
-  <!--      <resources>
-
-          <resource>
-            <directory>${basedir}/src/bundle</directory>
-              <includes>
-                <include>**/*.properties</include>
-              </includes>
-          </resource>
-
-      </resources>     -->
-      
     </build>
 </project>
