@@ -835,7 +835,10 @@ public class ItemContentsBean implements Serializable {
 			GradingService service = new GradingService();
 			mediaArray = service.getMediaArray(itemGradingData
 					.getItemGradingId().toString());
-			setDurationIsOver(getItemData(), mediaArray);
+                        // if question is audio, check time limit
+                        ItemDataIfc item = getItemData();
+                        if ((TypeIfc.AUDIO_RECORDING).equals(item.getTypeId()))
+                        setDurationIsOver(item, mediaArray);
 		}
 		return mediaArray;
 	}
