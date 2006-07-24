@@ -75,6 +75,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
@@ -6132,6 +6133,20 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// transfer from the XML read object to the edit
 		edit.set(collectionFromXml);
+		
+		try
+		{
+			Time createTime = edit.getProperties().getTimeProperty(ResourceProperties.PROP_CREATION_DATE);
+		}
+		catch(EntityPropertyNotDefinedException epnde)
+		{
+			String now = TimeService.newTime().toString();
+			edit.getProperties().addProperty(ResourceProperties.PROP_CREATION_DATE, now);
+		}
+		catch(EntityPropertyTypeException epte)
+		{
+			M_log.error(epte);
+		}
 
 		// setup the event
 		edit.setEvent(EVENT_RESOURCE_ADD);
