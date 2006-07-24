@@ -1551,7 +1551,8 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 					out.println(site.getTitle());
 					out.println("</title>");
 					out.println("</head><body><div class=\"portletBody\">");
-
+					out.println("<br />");
+					
 					// get the description - if missing, use the site title
 					String description = site.getDescription();
 
