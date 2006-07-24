@@ -25,7 +25,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.cover.SiteService;
 
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -43,7 +43,6 @@ public class BasicPodfeedService implements PodfeedService {
 	private static String feedType = null;
 	
 	private PodcastService podcastService;
-	private SiteService siteService;
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	
 	/**
@@ -65,7 +64,7 @@ public class BasicPodfeedService implements PodfeedService {
   	 * @param siteID The site ID passed in by the podfeed servlet
   	 */
         public String generatePodcastRSS(String Category, String Name, String siteID) {
-  		feedType = "rss_2.01";
+  		feedType = "rss_2.0";
   		fileName = Name;
   		SyndFeed podcastFeed = null;
   		
@@ -74,7 +73,7 @@ public class BasicPodfeedService implements PodfeedService {
 		ResourceProperties siteProperties = null;
         
 		try{
-		  siteProperties = siteService.getSite(siteID).getProperties();
+		  siteProperties = SiteService.getSite(siteID).getProperties();
 		}
 		catch(IdUnusedException e){
 		            LOG.info("IdUnusedException for site: " + siteID);
@@ -114,7 +113,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
       public String generatePodcastRSS(String Category) {
-		return generatePodcastRSS(Category, ""+ podcastService.getSiteId()+ "feedsave.xml" +podcastService.getSiteId());
+		return generatePodcastRSS(Category, ""+ podcastService.getSiteId()+ "feedsave.xml", podcastService.getSiteId());
 
       }
 
@@ -370,4 +369,5 @@ public class BasicPodfeedService implements PodfeedService {
 		public void setPodcastService(PodcastService podcastService) {
 			this.podcastService = podcastService;
 		}
+
 }

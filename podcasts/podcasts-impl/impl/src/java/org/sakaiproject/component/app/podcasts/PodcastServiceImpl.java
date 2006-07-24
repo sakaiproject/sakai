@@ -177,7 +177,9 @@ public class PodcastServiceImpl implements PodcastService
 	
 	/**
 	 * Retrieve Podcasts for site and if podcast folder does not exist,
-	 * create it.
+	 * create it. Used by feed since no context to pull siteID from
+	 * 
+	 * @param String The siteID the feed needs the podcasts from
 	 * 
 	 * @return A List of podcast resources
 	 */

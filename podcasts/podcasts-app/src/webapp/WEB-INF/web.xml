@@ -53,7 +53,7 @@
    </servlet>
  
   <servlet>
-    <servlet-name>podcasts</servlet-name>
+    <servlet-name>podfeed</servlet-name>
     <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
     <display-name>RSSPodfeedServlet</display-name>
     <description>This generates the actual Poddcast feed</description>
@@ -61,7 +61,7 @@
   </servlet>
  
   <servlet-mapping>
-    <servlet-name>podcasts</servlet-name>
+    <servlet-name>podfeed</servlet-name>
     <url-pattern>/podfeed/*</url-pattern>
   </servlet-mapping>
 

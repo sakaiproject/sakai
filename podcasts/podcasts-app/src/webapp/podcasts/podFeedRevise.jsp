@@ -33,7 +33,7 @@
 
     <div class="indnt1">  <!-- Title -->
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
- 	  <h:inputText id="podtitle" value="#{podHomeBean.podfeedTitle}" styleClass="indnt3" size="35" maxlength="255" />
+ 	  <h:inputText id="podtitle" value="#{podHomeBean.podFeedTitle}" styleClass="indnt3" size="35" maxlength="255" />
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
@@ -42,7 +42,7 @@
     <div class="indnt1"> <!-- Description -->
       <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
       <br />
-      <h:inputTextarea value="#{podHomeBean.podfeedDescription}" rows="6" cols="80" />
+      <h:inputTextarea value="#{podHomeBean.podFeedDescription}" rows="6" cols="80" />
     </div>
     <br />
 

@@ -42,6 +42,8 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -64,6 +66,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 
 public class podHomeBean {
 	
@@ -221,6 +224,9 @@ public class podHomeBean {
 
 	}
 
+	// static reference to access messages in bundle
+	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.podcasts.bundle.Messages");
+
 	// podHomeBean constants
 	private static final String DOT = ".";
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
@@ -228,6 +234,7 @@ public class podHomeBean {
 	private static final String RESOURCE_TITLE = "Resources";
 	
 	// inject the podcast services for its help
+	private Log LOG = LogFactory.getLog(podHomeBean.class);
 	private PodcastService podcastService;
 	private PodfeedService podfeedService;
 
@@ -256,6 +263,10 @@ public class podHomeBean {
 	private boolean displayNoFileErrMsg;
 	private boolean displayNoDateErrMsg;
 	private boolean displayNoTitleErrMsg;
+	
+	// Used by podFeedRevise for global feed info
+	private String podFeedTitle;
+	private String podFeedDescription;
 	
 	/**
 	 * @return Returns the displayNoTitleErrMsg.
@@ -358,6 +369,20 @@ public class podHomeBean {
 	}
 
 	/**
+	 * @return Returns the podfeedService.
+	 */
+	public PodfeedService getPodfeedService() {
+		return podfeedService;
+	}
+
+	/**
+	 * @param podfeedService The podfeedService to set.
+	 */
+	public void setPodfeedService(PodfeedService podfeedService) {
+		this.podfeedService = podfeedService;
+	}
+
+	/**
 	 * Gets a particular podcast and packages it as a DecoratedPodcastBean
 	 * 
 	 * @param podcastProperties contains the ResourceProperties object of a podcast resource
@@ -446,6 +471,7 @@ public class podHomeBean {
 		catch (PermissionException pe) {
 			// TODO: Set error message to say you don't have permission
 			 setErrorMessage(PERMISSION_ALERT);
+			 LOG.info("PermissionException getting podcasts for display " + pe.getMessage());
 		} catch (InUseException e) {
 			// TODO Or try again? Set Error Message?
 			setErrorMessage(INTERNAL_ERROR_ALERT);
@@ -670,6 +696,54 @@ public class podHomeBean {
     }
 	
 	/**
+	 * @return Returns the podFeedTitle.
+	 */
+	public String getPodFeedTitle() {
+		// TODO: if (podcastService.getFeedTitle == null) {
+		//			podFeedTitle = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
+		//       }
+		//		else {
+		//			podFeedTitle = podcastService.getGlobalDescription();
+		//		}
+		podFeedTitle = rb.getString("podfeed_global_title") + " TestPodcast";
+		
+		return podFeedTitle;
+	}
+
+	/**
+	 * @param podFeedTitle The podFeedTitle to set.
+	 */
+	public void setPodFeedTitle(String podFeedTitle) {
+		this.podFeedTitle = podFeedTitle;
+		
+		//TODO: store it somewhere for later
+	}
+
+	/**
+	 * @return Returns the podFeedDescription.
+	 */
+	public String getPodFeedDescription() {
+		// TODO: if (podcastService.getFeedDescription == null) {
+		//			podFeedDescription = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
+		//       }
+		//		else {
+		//			podFeedDescription = podcastService.getGlobalDescription();
+		//		}
+		podFeedDescription = rb.getString("podfeed_global_desc1") + "TestPodcast" + rb.getString("podfeed_global_desc2"); 
+		
+		return podFeedDescription;
+	}
+
+	/**
+	 * @param podFeedDescription The podFeedDescription to set.
+	 */
+	public void setPodFeedDescription(String podFeedDescription) {
+		this.podFeedDescription = podFeedDescription;
+		
+		//TODO: store it somewhere for later
+	}
+
+	/**
 	 * Performs the actual adding of a podcast. Calls PodcastService to actually add the podcast.
 	 * 
 	 * @return String Sent to return to main page.
@@ -854,6 +928,27 @@ public class podHomeBean {
 		return "cancel";
 	}
 
+
+	public String processPodfeedRevise() {
+		if (! (podFeedTitle.equals("") || podFeedTitle.equals(""/* old title */))) {
+			// Replace with this title
+		}
+		
+		if (! (podFeedDescription.equals("") || podFeedDescription.equals(""/* old description */))) {
+			// Replace with this description
+		}
+		
+		return "cancel";
+	}
+	/**
+	 * Cancels revising global podfeed information
+	 * 
+	 * @return String Sent to return to the main page
+	 */
+	public String processCancelPodfeedRevise() {
+		return "cancel";
+	}
+
 	/**
 	 * Returns whether an error message is to be displayed if a file has not been selected in the file upload field.
 	 * @return Returns the displayNoFileErrMsg.
@@ -940,18 +1035,5 @@ public class podHomeBean {
 		podfeedService.generatePodcastRSS("Podcast", "TestRSS.feed");
 	}
 
-	/**
-	 * @return Returns the podfeedService.
-	 */
-	public PodfeedService getPodfeedService() {
-		return podfeedService;
-	}
-
-	/**
-	 * @param podfeedService The podfeedService to set.
-	 */
-	public void setPodfeedService(PodfeedService podfeedService) {
-		this.podfeedService = podfeedService;
-	}
 
 }

@@ -57,6 +57,12 @@
 		</dependency>
 
 		<dependency>
+		  <groupId>sakaiproject</groupId>
+		  <artifactId>sakai-site-api</artifactId>
+		  <version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>rome</groupId>
 			<artifactId>rome</artifactId>
 			<version>0.8</version>

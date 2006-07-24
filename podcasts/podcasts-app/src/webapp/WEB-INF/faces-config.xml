@@ -86,6 +86,10 @@
 	      <from-outcome>podcastDelete</from-outcome>
 	      <to-view-id>/podcasts/podDelete.jsp</to-view-id>
 	    </navigation-case>
+	    <navigation-case> <!-- GOTO podfeedRevise -->
+	      <from-outcome>podfeedRevise</from-outcome>
+	      <to-view-id>/podcasts/podFeedRevise.jsp</to-view-id>
+	    </navigation-case>
 	</navigation-rule>
 	
 </faces-config>
