@@ -121,4 +121,10 @@ public interface ClusterFilesystem
 	 */
 	boolean checkSegmentValidity(String segmentName) throws Exception;
 
+	/**
+	 * Remove a segment from the index.
+	 * @param mergeSegment
+	 */
+	void removeLocalSegment(File mergeSegment);
+
 }

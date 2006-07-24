@@ -1447,4 +1447,11 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 		this.validate = validate;
 	}
+
+	public void removeLocalSegment(File mergeSegment)
+	{
+		if ( (new File(mergeSegment,"segments")).exists() ) {
+			deleteAll(mergeSegment);
+		}
+	}
 }

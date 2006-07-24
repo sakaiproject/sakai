@@ -24,6 +24,7 @@ package org.sakaiproject.search.index.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -273,10 +274,141 @@ public class ClusterFSIndexStorage implements IndexStorage
 		Directory[] tmpDirectory = new Directory[1];
 		tmpDirectory[0] = FSDirectory.getDirectory(tmpSegment, false);
 
+		List segments = clusterFS.updateSegments();
+
+		// create a size sorted list
+		long[] segmentSize = new long[segments.size()-1];
+		File[] segmentName = new File[segments.size()-1];
+		if ( segmentSize.length > 10 ) {
+			for (int i = 0; i < segments.size()-1; i++ ) {
+				segmentName[i] = new File((String)segments.get(i));
+				segmentSize[i] = clusterFS.getTotalSize(segmentName[i]);
+			}
+			boolean moved = true;
+			while (moved)
+			{
+				moved = false;
+				for (int i = 1; i < segmentSize.length; i++)
+				{
+					if (segmentSize[i] > segmentSize[i - 1])
+					{
+						long size = segmentSize[i];
+						File name = segmentName[i];
+						segmentSize[i] = segmentSize[i - 1];
+						segmentName[i] = segmentName[i - 1];
+						segmentSize[i - 1] = size;
+						segmentName[i - 1] = name;
+						moved = true;
+					}
+				}
+			}
+			
+			long sizeBlock = 0;
+			int ninblock = 0;
+			int mergegroupno = 1;
+			int[] mergegroup = new int[segmentSize.length];
+			int[] groupstomerge = new int[segmentSize.length];
+			mergegroup[0] = mergegroupno;
+			{
+				int j = 0;
+				for ( int i = 0; i < segmentSize.length; i++ ) {
+					groupstomerge[i] = 0;
+					if ( ninblock == 0 ) {
+						sizeBlock = segmentSize[0];
+						ninblock = 1;	
+					}
+					if ( segmentSize[i] > sizeBlock/10 ) {
+						ninblock++;
+					} else {
+						ninblock = 1;
+						mergegroupno++;
+						sizeBlock = segmentSize[i];
+					}
+					mergegroup[i] = mergegroupno;
+					if ( ninblock >= 10 ) {
+						groupstomerge[j++] = mergegroupno;
+						mergegroupno++;
+						ninblock = 0;
+						
+					} 
+				}
+				if ( j > 0 ) {
+					StringBuffer status = new StringBuffer();
+					for ( int i = 0; i < segmentSize.length; i++ ) {
+						status.append("Segment ").append(i).append(" n").append(segmentName[i]).append(" s").append(segmentSize[i]).append(" g").append(mergegroup[i]).append("\n");
+					}
+					for ( int i = 0; i < groupstomerge.length; i++ ) {
+						status.append("Merge group ").append(i).append(" m").append(groupstomerge[i]).append("\n");
+					}
+					log.info("Search Merge \n"+status);
+				}
+					
+			}
+			// groups to merge contains a list of group numbers that need to be
+			// merged.
+			// mergegroup marks each segment with a group number.
+			for ( int i = 0; i < groupstomerge.length; i++ ) {
+				if ( groupstomerge[i] != 0 ) {
+					StringBuffer status = new StringBuffer();
+					status.append("Group ").append(i).append(" Merge ").append(groupstomerge[i]).append("\n");
+					File mergeSegment = clusterFS.newSegment();
+					
+					IndexWriter mergeIndexWriter = null;
+					boolean mergeOk = false;
+					try {
+						mergeIndexWriter = new IndexWriter(FSDirectory.getDirectory(mergeSegment,false), getAnalyzer(), true);
+						mergeIndexWriter.setUseCompoundFile(true);
+						//indexWriter.setInfoStream(System.out);
+						mergeIndexWriter.setMaxMergeDocs(50);
+						mergeIndexWriter.setMergeFactor(50);
+						ArrayList indexes = new ArrayList();
+						for ( int j = 0; j < mergegroup.length; j++  ) {
+							if ( mergegroup[j] == groupstomerge[i]) {
+								Directory d = FSDirectory.getDirectory(segmentName[j],false);
+								if ( d.fileExists("segments") ) {
+									status.append("   Merge ").append(segmentName[i].getName()).append(" >> ").append(mergeSegment.getName()).append("\n");
+									indexes.add(d);
+								}
+							}
+						}
+						log.info("Merging \n"+status);
+						mergeIndexWriter.addIndexes((Directory[]) indexes.toArray(new Directory[indexes.size()]));
+						mergeIndexWriter.close();
+						log.info("Done "+groupstomerge[i]);
+						mergeIndexWriter = null;
+						// remove old segments
+						mergeOk = true;
+					} catch ( Exception ex ) {
+						log.error("Failed to merge search segments "+ex.getMessage());
+						try { mergeIndexWriter.close(); } catch ( Exception ex2 ) {}
+						try {
+							clusterFS.removeLocalSegment(mergeSegment);
+						} catch ( Exception ex2 ) {
+							log.error("Failed to remove merge segment "+mergeSegment.getName()+" "+ex2.getMessage());
+						}
+						
+					} finally {
+						try {
+							mergeIndexWriter.close();
+						} catch ( Exception ex) {
+						}
+					}
+					if ( mergeOk ) {
+						for ( int j = 0; j < mergegroup.length; j++  ) {
+							if ( mergegroup[j] == groupstomerge[i]) {
+								clusterFS.removeLocalSegment(segmentName[j]);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		
 		// merge it with the current index
 		File currentSegment = null;
 		IndexWriter indexWriter = null;
-		List segments = clusterFS.updateSegments();
+
 		log.debug("Found " + segments.size() + " segments ");
 		if (segments.size() > 0)
 		{
@@ -320,6 +452,8 @@ public class ClusterFSIndexStorage implements IndexStorage
 		
 		log.debug("End Index Cycle");
 	}
+	
+	
 
 	/**
 	 * @return Returns the analzyserFactory.
