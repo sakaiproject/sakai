@@ -1,6 +1,7 @@
 /*NOTE:This file is linked to after the tool_base.css file inside of tools. It provides for skinning.*/
 /*many of the definitions below exist also in tool_base.css - the duplication allows for one instalation with many different looks sharing some common elements
 */
+/*NOTE: this skin addresses JSR 168 css mappings - search for "portlet-" */
 
 /*SECTION 1 GENERIC SELECTORS*/
 body{
@@ -12,7 +13,6 @@ body{
 
 hr.itemSeparator{
 	height: 1px;
-	border-color: #27d;
 		border-color: #27d;
 	border-style: solid;
 	border-width: 1px 0 0 0;
@@ -111,7 +111,7 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 }
 
 /*links for the generic toolbar*/
-.navIntraTool a,.navIntraTool a:link{
+.navIntraTool a, .navIntraTool a:link, .portlet-menu a:link{
 	margin: 0 .5em;
 	text-decoration: underline;
 	white-space: nowrap;
@@ -119,12 +119,12 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 * html .navIntraTool a, * html  .navIntraTool a:link{
 	display:inline-block
 }
-.navIntraTool a:visited{
+.navIntraTool a:visited, .portlet-menu a:visited{
 	color: #35b;
 	text-decoration: underline;
 }
 
-.navIntraTool a:hover{
+.navIntraTool a:hover, .portlet-menu a:hover{
 	color: #33f;
 	text-decoration: underline;
 }
@@ -366,7 +366,7 @@ table.lines{
 	border-collapse: collapse;
 }
 
-table.lines tr:hover{
+table.lines tr:hover, .portlet-section-alternate{
 	background-color: #ffc;
 }
 
@@ -402,12 +402,12 @@ tr.selectedCopy td{
 	border-bottom: 2px solid #bbb;
 }
 /*when an item has been cut - signal this*/
-tr.selectedMove{
+tr.selectedMove, .portlet-section-selected {
 	color: silver;
 	background: #eee;
 }
 
-tr.selectedMove td{
+tr.selectedMove td, .portlet-section-selected{
 	border-top: 2px dotted #bbb;
 	border-bottom: 2px dotted #bbb;
 }
@@ -443,7 +443,7 @@ tr.selectedFound{
 /*SECTION 6 HIERARCHY*/
 
 /*headers are used in many places for structuring things semantically - these are the plain headers - below there are others contextually defined*/
-h2,h3,h4,h5,h6{
+h2,h3,h4,h5,h6, .portlet-form-label, .portlet-section-subheader, .portlet-section-header, .portlet-menu-caption{
 	color: #555;
 	padding: 0;
 	font-weight: bold;
@@ -453,14 +453,14 @@ h2,h3,h4,h5,h6{
 }
 
 h2{
-	font-size: 130%;
+	font-size: 120%;
 }
 
-h3{
+h3, .portlet-section-header{
 	font-size: 110%;
 }
 
-h4,h5,h6 {
+h4,h5,h6, .portlet-section-subheader, .portlet-form-label, .portlet-menu-caption {
 	font-size: 100%;
 }
 /*headers when they occur in a table*/
@@ -478,7 +478,7 @@ h4,h5,h6 {
 
 /*SECTION 7 INPUTS*/
 /*see: create any item*/
-label{
+label, .portlet-form-field-label, .portlet-icon-label, .portlet-dlg-icon-label {
 	color: #000;
 	font-family: Arial,Helvetica,sans-serif;
 	font-weight: normal;
@@ -502,10 +502,11 @@ label{
 	margin: 0 0 0 17em !important;
 }
 
-.shorttext input{
+.shorttext input, input.portlet-form-input-field{
+	border: 1px solid #555;
 }
 
-.shorttext input:focus{
+.shorttext input:focus, input.portlet-form-input-field:focus{
 	border: 1px solid #000;
 }
 
@@ -523,7 +524,7 @@ textarea:focus{
 
 /*SECTION 8 TOOLBAR*/
 /*see: any tool*/
-.navIntraTool{
+.navIntraTool, .portlet-menu{
 	background-color: #eee;	
 	padding:.3em;
 	margin: 0;
@@ -539,7 +540,7 @@ textarea:focus{
 * html .navIntraTool{
 	font-size:.85em;
 }
-.navIntraTool:hover{
+.navIntraTool:hover, .portlet-menu:hover{
 	border-bottom:1px solid silver}
 .navIntraTool .searchField{
 	border:1px solid silver;
@@ -572,7 +573,7 @@ textarea:focus{
 
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
-.instruction{
+.instruction, .portlet-msg-info, .portlet-menu-description{
 	color: #555;
 }
 /*see: create a site*/
@@ -613,7 +614,7 @@ textarea:focus{
 
 /*inline blob used to indicate progress (see: upload a resource say)
 visibility gets toggled*/
-#submitnotif{
+#submitnotif, .portlet-msg-status{
 	background: #fff url(../images/warn.gif) .3em .3em no-repeat;
 	border: 1px solid #b11;
 	font-family: Verdana,Arial,Helvetica,sans-serif;
@@ -637,16 +638,16 @@ you loose the native buttonishness affordance of the os/browser */
 .act .active {
 	color:#CB2DCC
 }
-.act input{
+.act input, .portlet-form-button{
 	border:1px solid gray;
 	filter:progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='silver', Positive='true');
 }
-html>body .act input {
+html>body .act input, html>body .portlet-form-button {
 	border:1px solid #ccc;
 	background: #ddd;
 	-moz-border-radius:10px;
 }
-.act input:hover {
+.act input:hover, input.portlet-form-button:hover {
 	border:1px solid #000;
 	background: #ccc;
 	-moz-border-radius:4px;
@@ -906,4 +907,53 @@ width:auto !important
 /*see presense list when one member is in chat room*/
 .presenceList li.inChat {
 	background: url(images/chatpresicon.gif) -.1em center no-repeat;
+}
+
+/*jsr168 mappings that have no sakai equivalent in tool.css*/
+.portlet-font-dim {
+	color:#555
+}
+.portlet-msg-error {
+	font-size:1.2em;
+	color:#b11
+}
+.portlet-msg-alert{
+/*essentially the same as in tool_base.css*/
+	background: #fff url(images/warn.gif) .3em center no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: #b11;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+.portlet-msg-success{
+	background-color: #fff;
+	background-image: url('images/check.gif');
+	background-position: .3em;
+	background-repeat: no-repeat;
+	border: 1px solid #4a4;
+	display: block;
+	width: 80%;
+	clear: both;
+	color: #000;
+	font-size: 1em;
+	margin: 5px 0px;
+	padding: 5px 5px 5px 25px;
+}
+/*from tool_base*/
+h3.textPanelHeader,h4.textPanelHeader,h5.textPanelHeader, h6.textPanelHeader, .portlet-section-header {
+	font-size: 1em;
+	color: #555;
+	margin: 1em 1em .2em 0;
+}
+.textPanel, .portlet-section-body{
+	margin: .5em 0;
+.textPanelFooter, .portlet-section-footer{
+	font-size: 85%;
+	margin: 0;
+	color: #555;
+	font-weight: normal;
 }
