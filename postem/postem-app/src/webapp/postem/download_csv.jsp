@@ -5,6 +5,10 @@
 	PostemTool tool = (PostemTool) session.getAttribute("PostemTool");
 	response.setHeader("Content-disposition", "attachment; filename=postem_" +
 		tool.getCurrentGradebook().getTitle() + ".csv");
+	
+	response.setHeader ("Pragma", "public");
+	response.setHeader("Cache-control", "must-revalidate");
+	
 	String csv = tool.getCsv();
 	out.print(csv);
 	//out.flush();

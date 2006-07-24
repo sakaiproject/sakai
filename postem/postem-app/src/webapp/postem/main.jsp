@@ -79,13 +79,9 @@
 							<h:outputText value="#{msgs.gradebook_delete}" />
 						</h:commandLink>
 					</h:column>
-					<%-- <h:column rendered="#{PostemTool.editable && gradebook.hasGrades}"> --%>
-					<h:column rendered="false">
-						<f:facet name="header">
+					<h:column rendered="#{PostemTool.editable}">
+						<h:commandLink action="#{PostemTool.processCsvDownload}" rendered="#{PostemTool.editable && gradebook.hasGrades}" >
 							<h:outputText value="#{msgs.csv_download}"/>
-						</f:facet>
-						<h:commandLink action="#{PostemTool.processCsvDownload}">
-							<h:outputText value="#{msgs.csv}"/>
 						</h:commandLink>
 					</h:column>
 					<%-- <h:column rendered="#{PostemTool.editable && gradebook.hasTemplate}"> --%>
