@@ -204,4 +204,12 @@ public interface Cache extends Cacher
 	 * Clear all entries and shudown the cache. Don't use after this call.
 	 */
 	void destroy();
+	
+	/**
+	 * Attach this DerivedCache to the cache. The DerivedCache is then notified of the cache contents changing events.
+	 * 
+	 * @param cache
+	 *        The DerivedCache to attach.
+	 */
+	void attachDerivedCache(DerivedCache cache);
 }

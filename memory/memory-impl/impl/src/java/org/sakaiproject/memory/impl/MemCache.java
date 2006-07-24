@@ -38,6 +38,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.DerivedCache;
 
 import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
@@ -99,6 +100,9 @@ public class MemCache implements Cache, Runnable, Observer
 	/** Count of things put into the cache. */
 	protected long m_putCount = 0;
 
+	/** My (optional) DerivedCache. */
+	protected DerivedCache m_derivedCache = null;
+
 	/**
 	 * The cache entry. Holds a time stamped payload.
 	 */
@@ -143,6 +147,15 @@ public class MemCache implements Cache, Runnable, Observer
 			reset();
 
 		} // CacheEntry
+
+		/**
+		 * Access the hard payload directly.
+		 * @return The hard payload.
+		 */
+		public Object getHardPayload()
+		{
+			return m_hardPayload;
+		}
 
 		/**
 		 * Get the cached object.
@@ -334,6 +347,29 @@ public class MemCache implements Cache, Runnable, Observer
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void attachDerivedCache(DerivedCache cache)
+	{
+		// Note: only one is supported
+		if (cache == null)
+		{
+			m_derivedCache = null;
+		}
+		else
+		{
+			if (m_derivedCache != null)
+			{
+				M_log.warn("attachDerivedCache - already got one!");
+			}
+			else
+			{
+				m_derivedCache = cache;
+			}
+		}
+	}
+
+	/**
 	 * Cache an object
 	 * 
 	 * @param key
@@ -350,6 +386,8 @@ public class MemCache implements Cache, Runnable, Observer
 		m_map.put(key, new CacheEntry(payload, duration));
 
 		m_putCount++;
+
+		if (m_derivedCache != null) m_derivedCache.notifyCachePut(key, payload);
 	}
 
 	/**
@@ -615,6 +653,8 @@ public class MemCache implements Cache, Runnable, Observer
 		m_hitCount = 0;
 		m_putCount = 0;
 
+		if (m_derivedCache != null) m_derivedCache.notifyCacheClear();
+
 	} // clear
 
 	/**
@@ -627,7 +667,18 @@ public class MemCache implements Cache, Runnable, Observer
 	{
 		if (disabled()) return;
 
-		m_map.remove(key);
+		CacheEntry entry = (CacheEntry) m_map.remove(key);
+		
+		if (m_derivedCache != null)
+		{
+			Object old = null;
+			if (entry != null)
+			{
+				old = entry.getHardPayload();
+			}
+
+			m_derivedCache.notifyCacheRemove(key, old);
+		}
 
 	} // remove
 
