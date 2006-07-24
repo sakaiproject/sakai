@@ -198,7 +198,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     // read parameters passed in
     String mimeType = req.getContentType();
     String duration  = req.getParameter("lastDuration");
-
+    String agentId  = req.getParameter("agent");
+    
     int attemptsRemaining =0;
     GradingService gradingService = new GradingService();
     PublishedAssessmentService pubService = new PublishedAssessmentService();
@@ -210,7 +211,6 @@ public class UploadAudioMediaServlet extends HttpServlet
 						     questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     String agentEid = mediaLocation.substring(agentIndex+1, myfileIndex);
-    String agentId = AgentFacade.getAgentString();
     //System.out.println("****pubAss="+pubAssessmentId);
     //System.out.println("****questionId="+questionId);
     //System.out.println("****agent="+agentId);
@@ -218,6 +218,8 @@ public class UploadAudioMediaServlet extends HttpServlet
     PublishedItemData item = pubService.loadPublishedItem(questionId);
     PublishedItemText itemText = (PublishedItemText)(item.getItemTextSet()).iterator().next();
 
+    System.out.println("****agentId="+agentId);
+    System.out.println("****pubAssId="+pubAssessmentId);
     // 1. get assessmentGrading form DB
     AssessmentGradingData adata = gradingService.getLastSavedAssessmentGradingByAgentId(
                                   pubAssessmentId, agentId);
@@ -270,9 +272,9 @@ public class UploadAudioMediaServlet extends HttpServlet
       itemGrading.setAssessmentGradingId(adata.getAssessmentGradingId());
       itemGrading.setPublishedItemId(item.getItemId());
       itemGrading.setPublishedItemTextId(itemText.getId());
-      itemGrading.setSubmittedDate(new Date());
       itemGrading.setAgentId(agentId);
       itemGrading.setOverrideScore(new Float(0));
+      itemGrading.setSubmittedDate(new Date());
       itemGrading.setAttemptsRemaining(new Integer(attemptsRemaining));
       itemGrading.setLastDuration(duration);
       gradingService.saveItemGrading(itemGrading);

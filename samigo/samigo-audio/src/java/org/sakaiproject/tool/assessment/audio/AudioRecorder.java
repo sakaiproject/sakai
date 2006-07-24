@@ -141,6 +141,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
   JLabel statusLabel = new JLabel("", SwingConstants.LEFT);
 
   String fileName = res.getString("default_file_name");
+  String agentId;
   String errStr;
   double duration, seconds;
   int attempts;
@@ -467,7 +468,10 @@ public class AudioRecorder extends JPanel implements ActionListener,
         try{
           // URL of audio processing servlet
           // note for applet security, this must be on same host
-          String queryString = "&lastDuration="+duration+"&suffix="+suffix;
+          agentId = params.getAgentId();
+          String queryString = "&agent="+agentId+
+                               "&lastDuration="+duration+
+                               "&suffix="+suffix;
           url = new URL(urlString+queryString);
           urlConn = url.openConnection();
           urlConn.setDoInput(true);

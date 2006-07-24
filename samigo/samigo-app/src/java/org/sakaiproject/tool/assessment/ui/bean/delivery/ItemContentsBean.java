@@ -840,23 +840,29 @@ public class ItemContentsBean implements Serializable {
 		return mediaArray;
 	}
 
-	private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList) {
-		try {
-			int maxDurationAllowed = item.getDuration().intValue();
-			for (int i = 0; i < mediaList.size(); i++) {
-				MediaIfc m = (MediaIfc) mediaList.get(i);
-				float duration = (new Float(m.getDuration())).floatValue();
-				if (duration > maxDurationAllowed)
-					m.setDurationIsOver(true);
-				else
-					m.setDurationIsOver(false);
-			}
-		} catch (Exception e) {
-			log.info("**duration recorded is not an integer value="
-					+ e.getMessage());
-		}
-	}
-
+  private void setDurationIsOver(ItemDataIfc item, ArrayList mediaList){
+    // we set maxDurationAllowed = 60s for audio question published without
+    // a duration. This is created from imported assessment when duration for
+    // audio question was not set correctly. Note that this is just a work 
+    // around. Ultimately, the importing procedure need to be fixed or the
+    // publishing procedure need to be tightened. - daisyf
+    int maxDurationAllowed = 60;
+    try{
+      maxDurationAllowed = item.getDuration().intValue();
+    }
+    catch(Exception e){
+      log.info("**duration recorded is not an integer value="+e.getMessage());
+      maxDurationAllowed = 60;
+    }
+    for (int i=0; i<mediaList.size(); i++){
+      MediaIfc m = (MediaIfc) mediaList.get(i);
+      float duration = (new Float(m.getDuration())).floatValue();
+      if (duration > maxDurationAllowed)
+        m.setDurationIsOver(true);
+      else
+        m.setDurationIsOver(false);
+    }
+  }
 	/**
 	 * Show the student score currently earned?
 	 * 
