@@ -169,7 +169,7 @@ public class CSV {
 		for (int j=0; j < all.size(); j++) {
 				
 			while(((List)all.get(j)).size() < finalNumCols) {					
-				((List)all.get(j)).add("");
+				((List)all.get(j)).add(" ");
 			}											
 		}
 	
