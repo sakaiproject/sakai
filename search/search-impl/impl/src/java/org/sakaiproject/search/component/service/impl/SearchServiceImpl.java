@@ -314,7 +314,18 @@ public class SearchServiceImpl implements SearchService
 			try
 			{
 				reloadStart = System.currentTimeMillis();
-				runningIndexSearcher = indexStorage.getIndexSearcher();
+				
+				// dont leave closing the index searcher to the GC. It may not happen fast enough.
+				IndexSearcher newRunningIndexSearcher = indexStorage.getIndexSearcher();
+				IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
+				runningIndexSearcher = newRunningIndexSearcher;
+				
+				try {
+					oldRunningIndexSearcher.close();
+				} catch ( Exception ex) {
+					log.debug("Failed to close old searcher ",ex);
+				}
+
 				reloadEnd = System.currentTimeMillis();
 			}
 			catch (IOException e)
