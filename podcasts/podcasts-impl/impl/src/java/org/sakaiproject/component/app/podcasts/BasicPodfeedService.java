@@ -82,7 +82,8 @@ public class BasicPodfeedService implements PodfeedService {
 		 String courseName = null;
 		 
 		  if (siteProperties != null){
-		            courseName = siteProperties.getProperty("site-oncourse-course-id");
+		           // courseName = siteProperties.getProperty("site-oncourse-course-id");
+			  courseName = "PodfeedTesting";
 		  }
 
   		// need to pass in global information for podcast here
@@ -125,75 +126,7 @@ public class BasicPodfeedService implements PodfeedService {
      */
     	private List populatePodcastArray(String category_string) {
     		return populatePodcastArray(category_string, podcastService.getSiteId());
- /*   	    List podEntries = null;
-    	    List entries = new ArrayList(); 
-    	    
- 		try {
-    			podEntries = podcastService.getPodcasts();
-		
-		}
-		catch (PermissionException pe) {
-			// TODO: Set error message to say you don't have permission
-			LOG.warn("Permission denied: " + pe.getMessage(), pe);
-		} catch (InUseException e) {
-			// TODO Or try again? Set Error Message?
-			LOG.warn("Podcast folder in use: " + e.getMessage(), e);
-		} catch (IdInvalidException e) {
-			// TODO Set a LOG message before rethrowing?
-			LOG.warn("Invalid ID used: " + e.getMessage(), e);
-		} catch (InconsistentException e) {
-			// TODO Auto-generated catch block
-			LOG.info("InconsistentException: " + e.getMessage(), e);
-		} catch (IdUsedException e) {
-			// TODO Auto-generated catch block
-			LOG.info("IdUnusedException getting podcasts: ");
-		}
-
-    		// get the iterator
-    		if (podEntries != null) {
-    			Iterator podcastIter = podEntries.iterator();
-    		
-    			while (podcastIter.hasNext()) {
-    		    
-				// get its properties from ContentHosting
-				ContentResource podcastResource = (ContentResource) podcastIter.next();
-				ResourceProperties podcastProperties = podcastResource.getProperties();
-    				
-				// Format date, change SimpleDateFormat to format from example
-				Date publishDate = null;
-				try {
-					publishDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
-				} catch (EntityPropertyNotDefinedException e) {
-					// TODO If not date, set to today? skip? throw PodcastFormatException?
-					publishDate = new Date();
-
-				} catch (EntityPropertyTypeException e) {
-					// TODO Same thing, set to today? skip? throw PodcastFormatException?
-					publishDate = new Date();
-
-				}
-				
-    				try {
-    		            entries.add(addPodCast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
-									   podcastService.getPodcastFileURL(podcastResource.getId()), 
-									   publishDate, 
-									   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
-									   category_string, 
-									   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR)));
-					} catch (PermissionException e) {
-						// TODO LOG.error - Feeder should have permission
-
-					} catch (IdUnusedException e) {
-						// TODO Problem with this podcast file - LOG and skip?
-						
-					}
-    			}
-    		
-    		}
-       		
-		return entries;
-*/    		    		
-    	}
+    }
 
         /**
          * This pulls the podcasts from Resourses and stuffs it in an array
@@ -243,12 +176,12 @@ public class BasicPodfeedService implements PodfeedService {
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO If not date, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID);
+				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date.");
 
 			} catch (EntityPropertyTypeException e) {
 				// TODO Same thing, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID);
+				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date.");
 
 			}
     				
@@ -293,6 +226,7 @@ public class BasicPodfeedService implements PodfeedService {
     		SyndEntryImpl entry = new SyndEntryImpl();
          entry.setAuthor(author);
          entry.setTitle(title);
+         mp3link = mp3link.replaceAll(" ", "%20");
          entry.setLink(mp3link);
          entry.setPublishedDate(date);
             
@@ -347,7 +281,7 @@ public class BasicPodfeedService implements PodfeedService {
 
    		}
    	    catch (FeedException ex) {
-             LOG.info("FeedException generating actual xml feed for podfeed: " + title);
+             LOG.warn("FeedException generating actual xml feed for podfeed: " + title);
          }
    	    catch (IOException ioe) {
    	    		LOG.warn("IOException generating actual xml feed for podfeed: " + title);
