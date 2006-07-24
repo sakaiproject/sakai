@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -38,7 +39,7 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
  * </p>
  */
-public class SiteCacheImpl
+public class SiteCacheImpl implements DerivedCache
 {
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map m_tools = new ConcurrentReaderHashMap();
@@ -63,6 +64,9 @@ public class SiteCacheImpl
 	public SiteCacheImpl(MemoryService memoryService, long sleep, String pattern)
 	{
 		m_cache = memoryService.newHardCache(sleep, pattern);
+
+		// setup as the derived cache
+		m_cache.attachDerivedCache(this);
 	}
 
 	/**
@@ -77,37 +81,7 @@ public class SiteCacheImpl
 	 */
 	public void put(Object key, Object payload, int duration)
 	{
-		if (m_cache.disabled()) return;
-
 		m_cache.put(key, payload, duration);
-
-		// add the payload (Site) tool ids
-		if (payload instanceof Site)
-		{
-			Site site = (Site) payload;
-
-			// get the pages and tools, groups and propeties all loaded efficiently
-			site.loadAll();
-
-			// add the pages and tools to the cache
-			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
-			{
-				SitePage page = (SitePage) pages.next();
-				m_pages.put(page.getId(), page);
-				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
-				{
-					ToolConfiguration tool = (ToolConfiguration) tools.next();
-					m_tools.put(tool.getId(), tool);
-				}
-			}
-
-			// add the groups to the cache
-			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
-			{
-				Group group = (Group) groups.next();
-				m_groups.put(group.getId(), group);
-			}
-		}
 	}
 
 	/**
@@ -140,15 +114,6 @@ public class SiteCacheImpl
 	public void clear()
 	{
 		m_cache.clear();
-
-		// clear the tool ids
-		m_tools.clear();
-
-		// clear the pages
-		m_pages.clear();
-
-		// clear the groups
-		m_groups.clear();
 	}
 
 	/**
@@ -159,34 +124,7 @@ public class SiteCacheImpl
 	 */
 	public void remove(Object key)
 	{
-		if (m_cache.disabled()) return;
-
-		// get the current payload, if any
-		Object payload = m_cache.getExpiredOrNot(key);
-
 		m_cache.remove(key);
-
-		// clear the tool ids for this site
-		if ((payload != null) && (payload instanceof Site))
-		{
-			Site site = (Site) payload;
-			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
-			{
-				SitePage page = (SitePage) pages.next();
-				m_pages.remove(page.getId());
-				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
-				{
-					ToolConfiguration tool = (ToolConfiguration) tools.next();
-					m_tools.remove(tool.getId());
-				}
-			}
-
-			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
-			{
-				Group group = (Group) groups.next();
-				m_groups.remove(group.getId());
-			}
-		}
 	}
 
 	/**
@@ -223,5 +161,82 @@ public class SiteCacheImpl
 	public Group getGroup(String groupId)
 	{
 		return (Group) m_groups.get(groupId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyCacheClear()
+	{
+		// clear the tool ids
+		m_tools.clear();
+
+		// clear the pages
+		m_pages.clear();
+
+		// clear the groups
+		m_groups.clear();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyCachePut(Object key, Object payload)
+	{
+		// add the payload (Site) tool ids
+		if (payload instanceof Site)
+		{
+			Site site = (Site) payload;
+
+			// get the pages and tools, groups and propeties all loaded efficiently
+			site.loadAll();
+
+			// add the pages and tools to the cache
+			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
+			{
+				SitePage page = (SitePage) pages.next();
+				m_pages.put(page.getId(), page);
+				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
+				{
+					ToolConfiguration tool = (ToolConfiguration) tools.next();
+					m_tools.put(tool.getId(), tool);
+				}
+			}
+
+			// add the groups to the cache
+			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
+			{
+				Group group = (Group) groups.next();
+				m_groups.put(group.getId(), group);
+			}
+		}		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void notifyCacheRemove(Object key, Object payload)
+	{
+		// clear the tool ids for this site
+		if ((payload != null) && (payload instanceof Site))
+		{
+			Site site = (Site) payload;
+			for (Iterator pages = site.getPages().iterator(); pages.hasNext();)
+			{
+				SitePage page = (SitePage) pages.next();
+				m_pages.remove(page.getId());
+				for (Iterator tools = page.getTools().iterator(); tools.hasNext();)
+				{
+					ToolConfiguration tool = (ToolConfiguration) tools.next();
+					m_tools.remove(tool.getId());
+				}
+			}
+
+			for (Iterator groups = site.getGroups().iterator(); groups.hasNext();)
+			{
+				Group group = (Group) groups.next();
+				m_groups.remove(group.getId());
+			}
+		}
 	}
 }
