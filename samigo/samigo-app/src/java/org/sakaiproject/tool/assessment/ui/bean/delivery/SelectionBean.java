@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.util.ArrayList;
@@ -29,91 +27,89 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
- * @author rgollub@stanford.edu
+ * This is the JSF backing bean for delivery, used for TF and MC questions
+ * 
  * $Id$
  */
-public class SelectionBean
-{
+public class SelectionBean {
 
-  private ItemContentsBean parent;
-  private ItemGradingData data;
-  private boolean response;
-  private AnswerIfc answer;
-  private String feedback;
-  private String responseId;
+	private static Log log = LogFactory.getLog(SelectionBean.class);
 
-  public ItemContentsBean getItemContentsBean()
-  {
-    return parent;
-  }
+	private ItemContentsBean parent;
 
-  public void setItemContentsBean(ItemContentsBean bean)
-  {
-    parent = bean;
-  }
+	private ItemGradingData data;
 
-  public ItemGradingData getItemGradingData()
-  {
-    return data;
-  }
+	private boolean response;
 
-  public void setItemGradingData(ItemGradingData newdata)
-  {
-    data = newdata;
-  }
+	private AnswerIfc answer;
 
-  public boolean getResponse()
-  {
-    return response;
-  }
+	private String feedback;
 
-  public void setResponse(boolean newresp)
-  {
-    response = newresp;
-    if (newresp)
-    {
-      ItemTextIfc itemText = (ItemTextIfc) parent.getItemData()
-        .getItemTextSet().toArray()[0];
-      if (data == null)
-      {
-        data = new ItemGradingData();
-        data.setPublishedItemId(parent.getItemData().getItemId());
-        data.setPublishedItemTextId(itemText.getId());
-        ArrayList items = parent.getItemGradingDataArray();
-        items.add(data);
-        parent.setItemGradingDataArray(items);
-      }
-      data.setPublishedAnswerId(answer.getId());
-    }
-    else if (data != null)
-      data.setPublishedAnswerId(null);
-  }
+	private String responseId;
 
-  public AnswerIfc getAnswer()
-  {
-    return answer;
-  }
+	public ItemContentsBean getItemContentsBean() {
+		return parent;
+	}
 
-  public void setAnswer(AnswerIfc newAnswer)
-  {
-    answer = newAnswer;
-  }
+	public void setItemContentsBean(ItemContentsBean bean) {
+		parent = bean;
+	}
 
-  public String getFeedback()
-  {
-    if (feedback == null)
-      return "";
-    return feedback;
-  }
+	public ItemGradingData getItemGradingData() {
+		return data;
+	}
 
-  public void setFeedback(String newfb)
-  {
-    feedback = newfb;
-  }
+	public void setItemGradingData(ItemGradingData newdata) {
+		data = newdata;
+	}
 
-  public String getAnswerId()
-  {
-    return answer.getId().toString();
-  }
+	public boolean getResponse() {
+		return response;
+	}
+
+	public void setResponse(boolean newresp) {
+		// this is called with mcsc and mcmc
+
+		response = newresp;
+		if (newresp) {
+			ItemTextIfc itemText = (ItemTextIfc) parent.getItemData()
+					.getItemTextSet().toArray()[0];
+			if (data == null) {
+				data = new ItemGradingData();
+				data.setPublishedItemId(parent.getItemData().getItemId());
+				data.setPublishedItemTextId(itemText.getId());
+				ArrayList items = parent.getItemGradingDataArray();
+				items.add(data);
+				parent.setItemGradingDataArray(items);
+			}
+			data.setPublishedAnswerId(answer.getId());
+		} else if (data != null)
+			data.setPublishedAnswerId(null);
+	}
+
+	public AnswerIfc getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(AnswerIfc newAnswer) {
+		answer = newAnswer;
+	}
+
+	public String getFeedback() {
+		if (feedback == null)
+			return "";
+		return feedback;
+	}
+
+	public void setFeedback(String newfb) {
+		feedback = newfb;
+	}
+
+	public String getAnswerId() {
+		return answer.getId().toString();
+	}
 }
