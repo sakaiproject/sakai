@@ -27,11 +27,12 @@
 
     <div class="indnt1">  <!-- Choose a file -->
       <h:outputText value="#{msgs.podfeed_revise_url_caption}" />
-      <b><h:outputText value="#{podHomeBean.URL}" styleClass="indnt2" /></b>
+      <b><h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" /></b>
     </div>
     <br />
 
     <div class="indnt1">  <!-- Title -->
+      <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
  	  <h:inputText id="podtitle" value="#{podHomeBean.podFeedTitle}" styleClass="indnt3" size="35" maxlength="255" />
 
@@ -40,6 +41,7 @@
     <br />
 
     <div class="indnt1"> <!-- Description -->
+      <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />
       <br />
       <h:inputTextarea value="#{podHomeBean.podFeedDescription}" rows="6" cols="80" />

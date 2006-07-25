@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +26,10 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Tool;
 
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -64,44 +68,95 @@ public class BasicPodfeedService implements PodfeedService {
   	 * @param siteID The site ID passed in by the podfeed servlet
   	 */
         public String generatePodcastRSS(String Category, String Name, String siteID) {
-  		feedType = "rss_2.0";
-  		fileName = Name;
-  		SyndFeed podcastFeed = null;
+      		SyndFeed podcastFeed = null;
+
+      		feedType = "rss_2.0";
+      		fileName = Name;
   		
   		List entries = populatePodcastArray(Category, siteID);
 
-		ResourceProperties siteProperties = null;
-        
-		try{
-		  siteProperties = SiteService.getSite(siteID).getProperties();
-		}
-		catch(IdUnusedException e){
-		            LOG.info("IdUnusedException for site: " + siteID);
-		}
-		            
-		 String courseName = null;
-		 
-		  if (siteProperties != null){
-		           // courseName = siteProperties.getProperty("site-oncourse-course-id");
-			  courseName = "PodfeedTesting";
-		  }
-
-  		// need to pass in global information for podcast here
-  		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + siteID;
-  		String name = "Podcast for " + courseName;
-  		String description = "This is the official podcast for the course " + courseName + ". Please check back throughout the semester for updates.";
-  		String copyright = "2006 IUPUI";
+		// TODO: need to pass in global information for podcast here
+		String courseName = null;
+  		String podfeedTitle;
+  		String description;
   		
-  		podcastFeed = doSyndication(name, URL, description, copyright, entries, fileName);
+  		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + siteID;
+ /* 		Properties siteProps = null;
+  		
+  		try {
+			Site site = SiteService.getSite(siteID);
+			
+			Iterator pages = site.getPages().iterator();
+			
+			while(pages.hasNext()) {
+				
+				SitePage page = (SitePage) pages.next();
+				Iterator tools = page.getTools().iterator();
+			
+				while(tools.hasNext()) {
+				
+					Tool tool = (Tool) tools.next();
+					
+					if (tool.getMutableConfig().getProperty("registration") ==  "sakai.podcast") {
+						siteProps = tool.getMutableConfig();
+						
+					}
+				
+				}
+				
+			}
+  		}
+		catch (IdUnusedException e) {
+			LOG.warn("IdUnusedException while generating podcast feed when attempting to get site " + siteID + ". " + e.getMessage());
+				
+		}
+			
+  		if ((podfeedTitle = siteProps.getProperty("podfeedTitle")) == null) {
+  			ResourceProperties siteProperties = null;
+  	        
+  			try{
+  			  siteProperties = SiteService.getSite(siteID).getProperties();
+  			}
+  			catch(IdUnusedException e){
+  				LOG.info("IdUnusedException for site: " + siteID + ". " + e.getMessage());
+  				
+  			}
+  			
+  			if (siteProperties != null){ 
+  				// courseName = siteProperties.getProperty("site-oncourse-course-id");
+  				//TODO: parse coursename to get Department and Course Number
+  				courseName = "Podfeed101";
+/*  			}
+  			else {
+  				  courseName = "PodfeedTesting";
+  				
+  			}
+*/
+  			  podfeedTitle = "Podcast for " + courseName;
+/*  			  siteProps.setProperty("podfeedTitle", podfeedTitle);
+  			
+  		}
+
+  		if ((description = siteProps.getProperty("podfeedDescription")) == null) {
+*/  	  		description = "This is the official podcast for the course " + courseName + ". Please check back throughout the semester for updates.";
+//  	  		siteProps.setProperty("podfeedDescription", description);
+
+//  		}
+  		
+  		String copyright = "IUPUI 2006";
+  		
+  		podcastFeed = doSyndication(podfeedTitle, URL, description, copyright, entries, fileName);
   		
 		final SyndFeedOutput feedWriter = new SyndFeedOutput();
 		
 		String xmlDoc = "";
 		try {
 			xmlDoc = feedWriter.outputString(podcastFeed);
+			
 		} catch (FeedException e) {
 			// TODO Auto-generated catch block
-			LOG.info("FeedException for site: " + siteID );
+			LOG.info("FeedException for site: " + siteID + " while generating podcast feed. " + e.getMessage());
+			
 		}
 
 		return xmlDoc;
@@ -144,19 +199,24 @@ public class BasicPodfeedService implements PodfeedService {
     		}
     		catch (PermissionException pe) {
     			// TODO: Set error message to say you don't have permission
-   			 LOG.info("PermissionException generating podfeed for site: " + siteID);
+   			 LOG.info("PermissionException generating podfeed for site: " + siteID + ". " + pe.getMessage());
+
     		} catch (InUseException e) {
     			// TODO Or try again? Set Error Message?
-    			LOG.info("InUseException generating podfeed for site: " + siteID);
+    			LOG.info("InUseException generating podfeed for site: " + siteID + ". " + e.getMessage());
+    			
     		} catch (IdInvalidException e) {
     			// TODO Set a LOG message before rethrowing?
-    			LOG.info("IdInvalidException generating podfeed for site: " + siteID);
+    			LOG.info("IdInvalidException generating podfeed for site: " + siteID + ". " + e.getMessage());
+    			
     		} catch (InconsistentException e) {
     			// TODO Auto-generated catch block
-    			LOG.info("InconsistentException generating podfeed for site: " + siteID);
+    			LOG.info("InconsistentException generating podfeed for site: " + siteID + ". " + e.getMessage());
+    			
     		} catch (IdUsedException e) {
     			// TODO Auto-generated catch block
-    			LOG.info("IdUnusedException generating podfeed for site: " + siteID);
+    			LOG.info("IdUnusedException generating podfeed for site: " + siteID + ". " + e.getMessage());
+    			
     		}
 
     		// get the iterator
@@ -176,12 +236,12 @@ public class BasicPodfeedService implements PodfeedService {
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO If not date, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date.");
+				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date. " + e.getMessage());
 
 			} catch (EntityPropertyTypeException e) {
 				// TODO Same thing, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date.");
+				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date. " + e.getMessage());
 
 			}
     				
@@ -192,13 +252,14 @@ public class BasicPodfeedService implements PodfeedService {
 							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
 							   category_string, 
 							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR)) );
+ 		            
     					} catch (PermissionException e) {
     						// TODO LOG.error - Feeder should have permission
-    						LOG.info("PermissionException generating podfeed while adding entry  for site: " + siteID);
+    						LOG.info("PermissionException generating podfeed while adding entry  for site: " + siteID + ". " + e.getMessage());
 
     					} catch (IdUnusedException e) {
     						// TODO Problem with this podcast file - LOG and skip?
-    						LOG.info("IdUnusedException generating podfeed while adding entry for site: " + siteID);
+    						LOG.info("IdUnusedException generating podfeed while adding entry for site: " + siteID + ". " + e.getMessage());
     						
     					}
         			}
@@ -229,7 +290,7 @@ public class BasicPodfeedService implements PodfeedService {
          mp3link = mp3link.replaceAll(" ", "%20");
          entry.setLink(mp3link);
          entry.setPublishedDate(date);
-            
+   
          SyndContentImpl description = new SyndContentImpl();
          description.setType(DESCRIPTION_CONTENT_TYPE);
          description.setValue(blogContent);
@@ -281,10 +342,12 @@ public class BasicPodfeedService implements PodfeedService {
 
    		}
    	    catch (FeedException ex) {
-             LOG.warn("FeedException generating actual xml feed for podfeed: " + title);
+             LOG.warn("FeedException generating actual xml feed for podfeed: " + title + ". " + ex.getMessage());
+             
          }
    	    catch (IOException ioe) {
-   	    		LOG.warn("IOException generating actual xml feed for podfeed: " + title);
+   	    		LOG.warn("IOException generating actual xml feed for podfeed: " + title + ". " + ioe.getMessage());
+   	    		
    	    }
             
          return feed;

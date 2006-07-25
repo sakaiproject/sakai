@@ -169,20 +169,27 @@ public class PodcastServiceImpl implements PodcastService
 			}
 			catch (IdUnusedException e) {
 				// TODO: handle if necessary
-				LOG.warn("IdUnusedException: " + e.getMessage(), e);
+				LOG.warn("IdUnusedException while creating podcast folder in Resources: " + e.getMessage(), e);
 			}
 			catch (TypeException e) {
-				LOG.warn("TypeException: " + e.getMessage(), e);
+				LOG.warn("TypeException while creating podcast folder in Resources: " + e.getMessage(), e);
 			}
 			
 		}
 		catch (TypeException e) {
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException getting podcasts from Resouces: " + e.getMessage(), e);
 		}
 		
 		return resourcesList;
 	}
-	
+
+	/**
+	 * Only add podcast resources whose DISPLAY_DATE is today or earlier
+	 * 
+	 * @param resourcesList List of podcasts
+	 * 
+	 * @return List of podcasts whose DISPLAY_DATE is today or before
+	 */
 	private List filterPodcasts(List resourcesList) {
 
 		List filteredPodcasts = new ArrayList();
@@ -201,15 +208,18 @@ public class PodcastServiceImpl implements PodcastService
 			try {
 				Time podcastTime = itsProperties.getTimeProperty(DISPLAY_DATE);
 				
-				if (podcastTime.before(now)) {
+				if (podcastTime.before(now) || (podcastTime.getTime() == now.getTime()) ) {
 					filteredPodcasts.add(aResource);
+					
 				}
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO Auto-generated catch block
 				LOG.info("EntityPropertyNotDefinedException for podcast item: " + aResource);
+				
 			} catch (EntityPropertyTypeException e) {
 				// TODO Auto-generated catch block
 				LOG.warn("EntityPropertyTypeException for podcast item: " + aResource);
+				
 			}
 		}
 		return filteredPodcasts;
@@ -246,7 +256,7 @@ public class PodcastServiceImpl implements PodcastService
 		catch (IdUnusedException ex) {
 			try {
 				// Podcasts folder does not exist, create it and return a null list
-				System.out.println("Attempting to create podcasts folder.");
+				System.out.println("Attempting to create podcasts folder for podcast feed.");
 				ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
 				
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, COLLECTION_PODCASTS_TITLE);
@@ -264,27 +274,37 @@ public class PodcastServiceImpl implements PodcastService
 			}
 			catch (IdUnusedException e) {
 				// TODO: handle if necessary
-				LOG.warn("IdUnusedException: " + e.getMessage(), e);
+				LOG.warn("IdUnusedException while getting podcasts for feed: " + e.getMessage(), e);
+				
 			}
 			catch (TypeException e) {
-				LOG.warn("TypeException: " + e.getMessage(), e);
+				LOG.warn("TypeException while getting podcasts for feed: " + e.getMessage(), e);
+				
 			}
 			
 		}
 		catch (TypeException e) {
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException while getting podcasts for feed: " + e.getMessage(), e);
+			
 		}
 		
 		return resourcesList;
 	}
 
+	/**
+	 * Pulls a ContentResourceEdit from ContentHostingService.
+	 * 
+	 * @param String The resourceId of the resource to get
+	 * @return ContentResourceEdit if found, null otherwise
+	 */
 	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException {
 
 		try {
 			return (ContentResourceEdit) contentHostingService.getResource(resourceId);				
+			
 		}
 		catch (TypeException e) {
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException while attempting to pull resource " + resourceId + ": " + e.getMessage(), e);
 		}
 
 		return null;
@@ -373,27 +393,32 @@ public class PodcastServiceImpl implements PodcastService
 				podcastCollection = true;
 			}
 			catch (TypeException e) {
-				LOG.warn("TypeException: " + e.getMessage(), e);
+				LOG.warn("TypeException while trying to create podcast folder: " + e.getMessage(), e);
 			}
 			catch (IdInvalidException e) {
-				LOG.error("IdInvalidException: " + e.getMessage(), e);
+				LOG.error("IdInvalidException while trying to create podcast folder: " + e.getMessage(), e);
 			}
 			catch (InconsistentException e) {
-				LOG.error("InconsistentError: " + e.getMessage(), e);
+				LOG.error("InconsistentError while trying to create podcast folder: " + e.getMessage(), e);
 			} catch (IdUnusedException e) {
-				LOG.warn("IdUnusedException: " + e.getMessage(), e);
+				LOG.warn("IdUnusedException while trying to create podcast folder: " + e.getMessage(), e);
 			} catch (IdUsedException e) {
 				// TODO Auto-generated catch block
-				LOG.warn("IdUsedException: " + e.getMessage(), e);
+				LOG.warn("IdUsedException while trying to create podcast folder: " + e.getMessage(), e);
 			}
 		}
 		catch (TypeException e) {
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException while trying to get podcast folder: " + e.getMessage(), e);
 		}
 
 		return podcastCollection;
 	}
 	
+	/**
+	 * Determines if folder contains actual files
+	 * 
+	 * @return boolean true if files are stored there, false otherwise
+	 */
 	public boolean checkForActualPodcasts() throws PermissionException {
 		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
@@ -416,10 +441,12 @@ public class PodcastServiceImpl implements PodcastService
 			
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block
-			LOG.warn("IdUnusedException: " + e.getMessage(), e);
+			LOG.warn("IdUnusedException while checking for files in podcast folder: " + e.getMessage(), e);
+			
 		} catch (TypeException e) {
 			// TODO Auto-generated catch block
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException while checking for files in podcast folder: " + e.getMessage(), e);
+			
 		}
 
 		return false;
@@ -433,6 +460,16 @@ public class PodcastServiceImpl implements PodcastService
 		this.podcastComparator = podcastComparator;
 	}
 	
+	/**
+	 * Will apply changes made (if any) to podcast
+	 * 
+	 * @param String The resourceId
+	 * @param String The title
+	 * @param Date The display/publish date
+	 * @param String The description
+	 * @param byte[] The actual file contents
+	 * @param String The filename
+	 */
 	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
             String filename) throws PermissionException, InUseException, OverQuotaException, ServerOverloadException {
 		
@@ -474,14 +511,21 @@ public class PodcastServiceImpl implements PodcastService
 
 		} catch (IdUnusedException e) {
 			// TODO Auto-generated catch block
-			LOG.trace("Expected PermissionException: " + e.getMessage(), e);
+			LOG.trace("IdUnusedException while revising podcasts: " + e.getMessage(), e);
+			
 		} catch (TypeException e) {
 			// TODO Auto-generated catch block
-			LOG.warn("TypeException: " + e.getMessage(), e);
-			e.printStackTrace();
+			LOG.warn("TypeException while revising podcasts: " + e.getMessage(), e);
+			
 		}
 	}
 
+	/**
+	 * Checks if podcast resources have a DISPLAY_DATE set. Occurs when files uploaded
+	 * to podcast folder from Resources.
+	 * 
+	 * @param List The list of podcast resources
+	 */
 	public List checkDISPLAY_DATE(List resourcesList) {
 		
 		//loop to check if DISPLAY_DATE has been set. If not, set it
@@ -496,45 +540,58 @@ public class PodcastServiceImpl implements PodcastService
 			try {
 					itsProperties.getTimeProperty(DISPLAY_DATE);
 				} catch (EntityPropertyNotDefinedException e) {
-					// TODO Auto-generated catch block
+					// DISPLAY_DATE does not exist, add it
 					setDISPLAY_DATE(itsProperties);
+					
 				} catch (EntityPropertyTypeException e) {
-					// TODO Auto-generated catch block
+					// DISPLAY_DATE does not exist, add it
 					setDISPLAY_DATE(itsProperties);
+					
 				}
-//			}
-//			catch (Exception e) {
-//				// does not exist, set CREATION_DATE to DISPLAY_DATE
-//			}
 		}
 
 		return resourcesList;
 	}
-	
+
+	/**
+	 * Sets the DISPLAY_DATE property to the creation date of the podcast
+	 * 
+	 * @param ResourceProperties The ResourceProperties that need DISPLAY_DATE added
+	 */
 	public void setDISPLAY_DATE(ResourceProperties rp) {
 		SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		Date tempDate = null;
 		try {
 			tempDate = new Date(rp.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+			
 		} catch (EntityPropertyNotDefinedException e) {
 			// TODO Auto-generated catch block
 			LOG.warn("EntityPropertyNotDefinedException: " + e.getMessage(), e);
+			
 		} catch (EntityPropertyTypeException e) {
 			// TODO Auto-generated catch block
 			LOG.warn("EntityPropertyTypeException: " + e.getMessage(), e);
+			
 		}
 		
 		rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
 
 	}
 	
+	/**
+	 * Returns the file's URL
+	 * 
+	 * @param String The resource Id
+	 * @return String The URL for the resource
+	 */
 	public String getPodcastFileURL(String resourceId) throws PermissionException, IdUnusedException {
 		try {
 				return (contentHostingService.getResource(resourceId)).getUrl();
 
 		} catch (TypeException e) {
 			// TODO Auto-generated catch block
-			LOG.warn("TypeException: " + e.getMessage(), e);
+			LOG.warn("TypeException while getting the resource " + resourceId + "'s URL: " + e.getMessage(), e);
+
 		}
 		
 		return null;

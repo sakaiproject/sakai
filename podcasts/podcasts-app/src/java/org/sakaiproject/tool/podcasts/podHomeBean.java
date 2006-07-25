@@ -62,6 +62,7 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
@@ -206,9 +207,11 @@ public class podHomeBean {
 				return podcastService.getPodcastFileURL(resourceId);
 			} catch (PermissionException e) {
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.info("PermissionException getting file URL for " + resourceId + "while displaying podcast file.");
 
 			} catch (IdUnusedException e) {
 				setErrorMessage(ID_UNUSED_ALERT);
+				LOG.info("IdUnusedException getting file URL for " + resourceId + " while displaying podcast file.");
 
 			}
 			
@@ -340,10 +343,12 @@ public class podHomeBean {
 				podcastFolderExists = podcastService.checkPodcastFolder();
 			} catch (InUseException e) {
 				// TODO If it's in use, does that mean it exists?
+				LOG.info("InUseException while attempting to determine if podcast folder exists.");
 				
 			} catch (PermissionException e) {
 				// TODO Generate error message about Permission denied
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.warn("PermissionException while attempting to determine if podcast folder exists.");
 			}
 		  }
 		  
@@ -472,18 +477,27 @@ public class podHomeBean {
 			// TODO: Set error message to say you don't have permission
 			 setErrorMessage(PERMISSION_ALERT);
 			 LOG.info("PermissionException getting podcasts for display " + pe.getMessage());
+			 
 		} catch (InUseException e) {
 			// TODO Or try again? Set Error Message?
 			setErrorMessage(INTERNAL_ERROR_ALERT);
+			LOG.info("InUseException while getting podcasts for display" + e.getMessage());
+			
 		} catch (IdInvalidException e) {
 			// TODO Set a LOG message before rethrowing?
 			setErrorMessage(ID_INVALID_ALERT);
+			LOG.info("IdInvalidException while getting podcasts for display " + e.getMessage());
+			
 		} catch (InconsistentException e) {
 			// TODO Auto-generated catch block
+			LOG.info("InconsistentException while getting podcasts for display " + e.getMessage());
 			return null;
+			
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
 			setErrorMessage(ID_UNUSED_ALERT);
+			LOG.info("IdUsedException while gettting podcasts for display " + e.getMessage());
+			
 		}
 
 		// create local List of DecoratedBeans
@@ -509,9 +523,13 @@ public class podHomeBean {
 				}
 				catch (EntityPropertyNotDefinedException ende) {
 					//TODO: WHAT WOULD THIS MEAN?
+					LOG.warn("EntityzPropertyNotDefinedException while creating DecoratedPodcastBean " + ende.getMessage());
+					
 				}
 				catch (EntityPropertyTypeException epte) {
 					//TODO: WHAT WOULD THIS MEAN?
+					LOG.info("EntityPropertyTypeException while creating DecoratedPodcastBean " + epte.getMessage());
+					
 				}
 
 			}
@@ -544,6 +562,7 @@ public class podHomeBean {
 				actPodcastsExist = podcastService.checkForActualPodcasts();
 			} catch (PermissionException e) {
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.warn("PermissionException while determining if there are files in the podcast folder " + e.getMessage());
 			}
 		}
 
@@ -587,8 +606,11 @@ public class podHomeBean {
 
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO WHAT DOES THIS MEAN
+				LOG.info("EntityPropertyNotDefinedException while attempting to fill selectedPodcast property " + e.getMessage());
+				
 			} catch (EntityPropertyTypeException e) {
 				// TODO WHAT DOES THIS MEAN
+				LOG.info("EntityPropertyTypeException while attempting to fill selectedPodcast property " + e.getMessage());
 			}
 		}
 	}
@@ -691,6 +713,8 @@ public class podHomeBean {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			setErrorMessage(INTERNAL_ERROR_ALERT);
+			LOG.warn("IOException while attempting to set BufferedInputStream to upload " + filename + ". " + e.getMessage());
+			
 		}
 
     }
@@ -757,38 +781,47 @@ public class podHomeBean {
 				fileAsStream.read(fileContents);
 			}
 			catch (IOException ioe) {
-				System.out.println("What happened to the fileStream?");
+				LOG.warn("IOException while attempting the actual upload file during processAdd " + ioe.getMessage());
 				setErrorMessage(IO_ALERT);
+				
 			}
 		
 			try {
 				podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
+				
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete
 		        setErrorMessage(QUOTA_ALERT);
+		        LOG.info("OverQuotaException while attempting to actually add the new podcast " + e.getMessage());
 
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying Server working too hard
 				setErrorMessage(INTERNAL_ERROR_ALERT);
+				LOG.info("ServerOverloadException while attempting to actually add the new podcast " + e.getMessage());
 				
 			} catch (InconsistentException e) {
 				// TODO Back to where it came from?
+				LOG.info("InconsistentException while attempting to actually add the new podcast " + e.getMessage());
 
 			} catch (IdInvalidException e) {
 				// TODO Add error message saying Id invalid
 				setErrorMessage(ID_INVALID_ALERT);
+				LOG.info("IdInvalidException while attempting to actually add the new podcast " + e.getMessage());
 
 			} catch (IdLengthException e) {
 				// TODO Add error message saying too long
 				setErrorMessage(LENGTH_ALERT);
+				LOG.info("IdLengthException while attempting to actually add the new podcast " + e.getMessage());  
 
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission denied
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.info("PermissionException while attempting to actually add the new podcast " + e.getMessage());
 
 			} catch (IdUniquenessException e) {
 				// TODO Add error message saying Id already exists
 				setErrorMessage(ID_USED_ALERT);
+				LOG.warn("IdUniquenessException while attempting to actually add the new podcast " + e.getMessage());
 
 			}
 
@@ -848,7 +881,7 @@ public class podHomeBean {
 					fileAsStream.read(fileContents);
 				}
 				catch (IOException ioe) {
-					System.out.println("What happened to the fileStream?");
+					LOG.warn("IOException while attempting to revise podcast info for " + filename + ". " + ioe.getMessage());
 					setErrorMessage(IO_ALERT);
 				}
 			
@@ -862,20 +895,25 @@ public class podHomeBean {
 			try {
 				podcastService.revisePodcast(selectedPodcast.resourceId, selectedPodcast.title, date,
 					selectedPodcast.description, fileContents, selectedPodcast.filename);
+				
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission Denied
+				LOG.warn("PermissionException while revising podcast " + selectedPodcast.title + ". " + e.getMessage());
 				setErrorMessage(PERMISSION_ALERT);
 
 			} catch (InUseException e) {
 				// TODO Add error message saying locked by another user
+				LOG.info("InUseException while revising podcast " + selectedPodcast.title + ". " + e.getMessage());
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete things
+				LOG.info("OverQuotaException while revising podcast " + selectedPodcast.title + ". " + e.getMessage());
 				setErrorMessage(QUOTA_ALERT);
 				
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying server working too hard
+				LOG.warn("ServerOverloadException while revising podcast " + selectedPodcast.title + ". " + e.getMessage());
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			}
@@ -910,11 +948,25 @@ public class podHomeBean {
 			return "cancel";
 		}
 		catch (PermissionException e) {
+			LOG.warn("PermissionException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage());
 			setErrorMessage(PERMISSION_ALERT);
+			
 		}
-		catch (Exception e) {
+		catch (IdUnusedException e) {
+			LOG.warn("IdUnusedException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage());
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 		}
+		catch (InUseException e) {
+			LOG.info("InUseException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage());
+			setErrorMessage(INTERNAL_ERROR_ALERT);
+			
+		}
+		catch (TypeException e) {
+			LOG.warn("TypeException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage());
+			setErrorMessage(INTERNAL_ERROR_ALERT);
+
+		}
+		
 		return "";
 	}
 	
