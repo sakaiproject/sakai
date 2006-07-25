@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.assessment.business.entity.assessment.model;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 
 import java.util.ArrayList;
@@ -36,8 +37,11 @@ import java.util.Collection;
  * @author Rachel Gollub
  * @author Ed Smiley
  */
-public class IPMaskData
+public class IPMaskData implements Serializable
 {
+	/** Use serialVersionUID for interoperability. */
+	private final static long serialVersionUID = -1090852048737428722L;
+
   private String ipAccessType;
   private Collection allowedAddresses;
   private Collection blockedAddresses;

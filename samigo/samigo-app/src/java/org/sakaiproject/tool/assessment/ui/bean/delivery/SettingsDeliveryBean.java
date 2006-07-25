@@ -26,14 +26,19 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+
+import java.io.Serializable;
 import java.util.Set;
 import java.util.Iterator;
 
 /**
  * Assessment Settings used in Delivery   
  */
-public class SettingsDeliveryBean
+public class SettingsDeliveryBean implements Serializable
 {
+	/** Use serialVersionUID for interoperability. */
+	private final static long serialVersionUID = -1090852048737428722L;
+
   private String username;
   private String password;
   private Set ipAddresses;

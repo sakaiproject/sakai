@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.assessment.business.entity.assessment.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -32,14 +33,15 @@ import java.util.Date;
  *
  * @see AccessGroup
  */
-public class FeedbackModel
+public class FeedbackModel implements Serializable
 {
-  private String feedbackType;
-  private String immediateFeedbackType;
-  private String datedFeedbackType;
-  private String perQuestionFeedbackType;
-  private Date feedbackDate;
-  private Date scoreDate;
+	/** Use serialVersionUID for interoperability. */
+	private final static long serialVersionUID = -1090852048737428722L;private String feedbackType;
+	private String immediateFeedbackType;
+	private String datedFeedbackType;
+	private String perQuestionFeedbackType;
+	private Date feedbackDate;
+	private Date scoreDate;
 
   /**
    * DOCUMENTATION PENDING

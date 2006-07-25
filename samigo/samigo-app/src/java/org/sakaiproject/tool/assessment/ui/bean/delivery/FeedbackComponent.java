@@ -22,6 +22,8 @@
 
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
+import java.io.Serializable;
+
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 
 /**
@@ -29,8 +31,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIf
  * @author esmiley@stanford.edu
  * $Id$
  */
-public class FeedbackComponent
+public class FeedbackComponent implements Serializable
 {
+	  /** Use serialVersionUID for interoperability. */
+	  private final static long serialVersionUID = -1090852048737428722L;
+
   private boolean showCorrectResponse;
   private boolean showGraderComment;
   private boolean showItemLevel;

@@ -39,8 +39,11 @@ import org.apache.commons.logging.LogFactory;
  */
 public class AccessGroup implements Serializable
 {
-  private long id;
-  private String name;
+	/** Use serialVersionUID for interoperability. */
+	private final static long serialVersionUID = -1090852048737428722L;
+	private String feedbackType;
+	private long id;
+	private String name;
   private String releaseType;
   private String releaseWhen;
   private String releaseScore;

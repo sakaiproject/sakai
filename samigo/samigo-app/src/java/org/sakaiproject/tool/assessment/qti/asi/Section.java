@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
@@ -133,9 +134,13 @@ public class Section extends ASIBaseClass
     // Where the heck do these come from?  Looks like not being used.
     // If required we could extract keywords by weighting, and
     // set rubrics identical to description, or, we could eliminate these from XML.
-    setFieldentry("SECTION_OBJECTIVE", section.getDescription());//for now
-    setFieldentry("SECTION_KEYWORD", "");
-    setFieldentry("SECTION_RUBRIC", "");
+
+    // well, we can add metadata from users' input - lydial 
+    
+    setFieldentry("SECTION_OBJECTIVE", section.getSectionMetaDataByLabel(SectionMetaDataIfc.OBJECTIVES));
+    setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
+    setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
+ 
     // items
     ArrayList items = section.getItemArray();
     addItems(items);

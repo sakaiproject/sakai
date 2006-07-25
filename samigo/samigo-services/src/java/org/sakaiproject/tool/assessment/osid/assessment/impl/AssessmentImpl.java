@@ -38,14 +38,15 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.ArrayList;
 
-public class AssessmentImpl implements Assessment {
-  private Id id;
-  private String displayName;
-  private String description;
-  private String topic;
-  private Serializable data;
-  private Type assessmentType;
-  private List sectionList;
+public class AssessmentImpl implements Serializable, Assessment {
+	private static final long serialVersionUID = 7526471155622776147L;
+	private Id id;
+	private String displayName;
+	private String description;
+	private String topic;
+	private Serializable data;
+	private Type assessmentType;
+	private List sectionList;
 
   public AssessmentImpl() {
   }

@@ -32,6 +32,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIConstantStrings;
@@ -150,10 +151,11 @@ public class Item extends ASIBaseClass
   {
     // metadata
     setFieldentry("ITEM_OBJECTIVE",
-      item.getItemMetaDataByLabel("ITEM_OBJECTIVE"));
+      item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE ));
     setFieldentry("ITEM_KEYWORD",
-      item.getItemMetaDataByLabel("ITEM_KEYWORD"));
-    setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel("ITEM_RUBRIC"));
+      item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
+    setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
+  
     //  rshastri: SAK-1824
     if(item !=null &&(item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)||
