@@ -255,12 +255,21 @@ public class SaveAssessmentSettings
       }
       String[] parts=ipString.split("\\.");
       int l=parts.length;
-      if((l>4)||((l<4)&&(ipString.indexOf("*")<0)))
+      if(l != 4)
     	  return false;
       for(int i=0;i<l;i++){
 	  String s=parts[i];
           if(s.trim().equals(""))
 	      return false;
+	   
+	   int index = 0;
+	   while(index < s.length()){
+	       char c = s.charAt(index);
+	       if(!((Character.isDigit(c))||(Character.toString(c).equals("*")))){
+		       return false;
+	       }
+	       index++;
+	   }//end while
 	   
 	   // to filter out 1*3 or *6  
 	   if (s.length() > 1) {
@@ -268,15 +277,14 @@ public class SaveAssessmentSettings
 			   return false;
 		   }
 	   }
-	   int index=0;
-	   while(index<s.length()){
-	       char c=s.charAt(index);
-              
-	       if(!((Character.isDigit(c))||(Character.toString(c).equals("*")))){
-		       return false;
-	       }
-	       index++;
-	   }//end while
+	   
+	   // if it is an number, it has to between 0 - 255
+	   if (!s.equals("*")) {
+		   int num = Integer.parseInt(s);	   
+		   if ( num > 255 || num < 0) {
+			   return false;
+		   }
+	   }
 	}//end for	
       
 	return true;
