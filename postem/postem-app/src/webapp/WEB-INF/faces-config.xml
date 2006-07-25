@@ -37,11 +37,6 @@
     <managed-bean-class>org.sakaiproject.tool.postem.PostemTool</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
 	
-	<managed-property>
-			<description>logger</description>
-			<property-name>logger</property-name>
-			<value>#{Components["org.sakaiproject.service.framework.log.Logger"]}</value>
-		</managed-property>
     <managed-property>
       <description>gradebookManager</description>
       <property-name>gradebookManager</property-name>
