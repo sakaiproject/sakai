@@ -219,7 +219,11 @@ public class DiscussionForumTool
   public DiscussionForumTool()
   {
     LOG.debug("DiscussionForumTool()");
-    ;
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.threadedview")))
+    {
+    	threaded = true;
+    	selectedMessageView = THREADED_VIEW;
+    }
   }
 
   /**
