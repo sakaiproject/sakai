@@ -116,6 +116,9 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	  edit.setFunction(EVENT_SYLLABUS_POST_NEW);
 	  edit.addFunction(EVENT_SYLLABUS_POST_CHANGE);
 	  edit.addFunction(EVENT_SYLLABUS_DELETE_POST);
+	  edit.addFunction(EVENT_SYLLABUS_READ);
+	  edit.addFunction(EVENT_SYLLABUS_DRAFT_NEW);
+	  edit.addFunction(EVENT_SYLLABUS_DRAFT_CHANGE);
 	  
 	  edit.setResourceFilter(getAccessPoint(true));
 	  
@@ -1105,22 +1108,24 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
     
     int priority;
     
-    if(emailNotify.equalsIgnoreCase("none"))
-    {
-      priority = NotificationService.NOTI_NONE;
-    }
-    else if(emailNotify.equalsIgnoreCase("high"))
-    {
-      priority = NotificationService.NOTI_REQUIRED;
-    }
-    else if(emailNotify.equalsIgnoreCase("low"))
-    {
-      priority = NotificationService.NOTI_OPTIONAL;
-    }
-    else
-    {
-      priority = NotificationService.NOTI_NONE;
-    }
+//for adding more logging info and not send out email notification
+//    if(emailNotify.equalsIgnoreCase("none"))
+//    {
+//      priority = NotificationService.NOTI_NONE;
+//    }
+//    else if(emailNotify.equalsIgnoreCase("high"))
+//    {
+//      priority = NotificationService.NOTI_REQUIRED;
+//    }
+//    else if(emailNotify.equalsIgnoreCase("low"))
+//    {
+//      priority = NotificationService.NOTI_OPTIONAL;
+//    }
+//    else
+//    {
+//      priority = NotificationService.NOTI_NONE;
+//    }
+    priority = NotificationService.NOTI_NONE;
 
 		Event event =
 		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
@@ -1255,5 +1260,61 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			logger.error(e.getMessage(), e);
 		}
 	}
-}
 
+	public void readSyllabus(SyllabusData data)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_READ);
+    
+    int priority;
+    
+    priority = NotificationService.NOTI_NONE;
+
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    false, priority);
+		
+		EventTrackingService.post(event);
+	}
+
+	public void draftChangeSyllabus(SyllabusData data)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_DRAFT_CHANGE);
+    
+    int priority;
+    
+    priority = NotificationService.NOTI_NONE;
+
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    true, priority);
+		
+		EventTrackingService.post(event);
+	}
+
+	public void draftNewSyllabus(SyllabusData data)
+	{
+    BaseResourceEdit bre = new BaseResourceEdit(data.getSyllabusId().toString(), data);
+    
+    addLiveSyllabusProperties(bre);
+    
+    bre.setEvent(EVENT_SYLLABUS_DRAFT_NEW);
+    
+    int priority;
+    
+    priority = NotificationService.NOTI_NONE;
+
+		Event event =
+		  	EventTrackingService.newEvent(bre.getEvent(), bre.getReference(), 
+			    true, priority);
+		
+		EventTrackingService.post(event);
+	}
+}

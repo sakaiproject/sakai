@@ -35,8 +35,16 @@ public interface SyllabusService extends EntityProducer
 	
 	public static final String EVENT_SYLLABUS_POST_CHANGE = "syllabus.post.change";
 	
-	public static final String EVENT_SYLLABUS_DELETE_POST = "syllabus.delete.posted";
+//for adding more logging info and not send out email notification
+	//public static final String EVENT_SYLLABUS_DELETE_POST = "syllabus.delete.posted";
+	public static final String EVENT_SYLLABUS_DELETE_POST = "syllabus.delete";
 	
+	public static final String EVENT_SYLLABUS_READ = "syllabus.read";
+
+	public static final String EVENT_SYLLABUS_DRAFT_NEW = "syllabus.draft.new";
+	
+	public static final String EVENT_SYLLABUS_DRAFT_CHANGE = "syllabus.draft.change";
+
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "syllabus";
 	
 	public static final String SYLLABUS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.SyllabusService";
@@ -46,6 +54,12 @@ public interface SyllabusService extends EntityProducer
 	public void postChangeSyllabus(SyllabusData data);
 	
 	public void deletePostedSyllabus(SyllabusData data);
+	
+	public void readSyllabus(SyllabusData data);
+	
+	public void draftNewSyllabus(SyllabusData data);
+	
+	public void draftChangeSyllabus(SyllabusData data);
 	
 	public List getMessages(String id);
 	

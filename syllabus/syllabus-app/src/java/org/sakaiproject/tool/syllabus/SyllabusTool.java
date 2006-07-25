@@ -129,6 +129,8 @@ public class SyllabusTool
         allAttachments.add((SyllabusAttachment)oldAttachments.get(i));
       }
       
+      syllabusService.readSyllabus(sd);
+      
       entry = this;
 
       entries.clear();
@@ -556,7 +558,7 @@ public String processDeleteCancel()
           
 //          if(den.getEntry().getStatus().equalsIgnoreCase("Posted"))
 //          {
-//            syllabusService.deletePostedSyllabus(den.getEntry());
+            syllabusService.deletePostedSyllabus(den.getEntry());
 //          }
           
           //Set syllabusAttachments = den.getEntry().getAttachments();
@@ -683,6 +685,7 @@ public String processDeleteCancel()
             syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
                 (SyllabusAttachment)attachments.get(i));            
           }
+          syllabusService.draftNewSyllabus(getEntry().getEntry());
         }
       }
  
@@ -941,6 +944,8 @@ public String processDeleteCancel()
             syllabusManager.addSyllabusAttachToSyllabusData(getEntry().getEntry(), 
                 (SyllabusAttachment)attachments.get(i));            
           }
+          
+          syllabusService.draftChangeSyllabus(getEntry().getEntry());
         }
       }
       
