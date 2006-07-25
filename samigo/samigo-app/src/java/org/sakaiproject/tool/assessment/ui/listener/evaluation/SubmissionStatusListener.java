@@ -230,7 +230,7 @@ public class SubmissionStatusListener
           results.setLastInitial(results.getFirstName().substring(0,1));
         else
           results.setLastInitial("A");
-        results.setIdString(agent.getIdString());
+        results.setIdString(agent.getEidString());
         results.setRole((String)userRoles.get(agentid));
         if (useridMap.containsKey(agentid) ) {
           agents.add(results);
@@ -296,7 +296,7 @@ public class SubmissionStatusListener
       {
         results.setLastInitial("Anonymous");
       }
-      results.setIdString(agent.getIdString());
+      results.setIdString(agent.getEidString());
       results.setRole((String)userRoles.get(studentid));
       agents.add(results);
     }

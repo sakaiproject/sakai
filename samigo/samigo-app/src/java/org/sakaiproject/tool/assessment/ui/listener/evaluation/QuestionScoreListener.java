@@ -583,7 +583,7 @@ log.debug("item==null ");
               results.setLastInitial(results.getFirstName().substring(0,1));
             else
 	      results.setLastInitial("Anonymous");
-            results.setIdString(agent.getIdString());
+            results.setIdString(agent.getEidString());
             results.setRole(agent.getRole());
             agents.add(results);
           }

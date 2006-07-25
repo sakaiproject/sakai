@@ -77,6 +77,9 @@ public class AgentHelperImpl implements AgentHelper
   public String getEid(String agentString){
     return getAgentString(agentString);
   }
+  public String getEidById(String agentString){
+    return getAgentString(agentString);
+  }
 
   public String getAgentString(String agentString){
     String agentS = "admin";

@@ -107,6 +107,11 @@ public class AgentFacade implements Serializable, AgentDataIfc
   }
 
 
+  /**
+   * Get the current user's Eid.
+   * Static convenience method.
+   * @return the eid.
+   */
   public static String getEid()
   {
     AgentFacade facade =new AgentFacade();
@@ -134,6 +139,18 @@ public class AgentFacade implements Serializable, AgentDataIfc
 //  {
 //    return helper.getAgentString(agentString);
 //  }
+
+  /**
+   * Get the Eid String of an Agent.
+   * @return the Agent Eid.
+   */
+  public String getEidString()
+  {
+log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
+    return helper.getEidById(agentString);
+  }
+
+
   /**
    * Get the Agent display name.
    * @param agentS the Agent string.
@@ -143,6 +160,8 @@ public class AgentFacade implements Serializable, AgentDataIfc
   {
     return helper.getDisplayName(agentS);
   }
+
+
 
   /**
    * Get the Agent display name for this agent.

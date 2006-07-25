@@ -112,6 +112,7 @@ public class AgentHelperImpl implements AgentHelper
   public String getEid(String agentString){
     String eid="";
     // this is anonymous user sign 'cos sakai doesn't know about them-daisyf
+    // this returns the currently logged in user's eid. 
     try
     {
       User user = UserDirectoryService.getCurrentUser();
@@ -133,6 +134,26 @@ public class AgentHelperImpl implements AgentHelper
     }
     return eid;
   }
+
+  /**
+   * Get the Agent Eid given an Id String.
+   * @param agentS the Agent Id string.
+   * @return the Agent Eid.
+   */
+  public String getEidById(String agentString){
+log.debug("getEidById agentString = " + agentString);
+    String s="";
+    try{
+      if (!agentString.startsWith("anonymous_"))
+        s=UserDirectoryService.getUser(agentString).getEid();
+log.debug("getEidById agentString s = " + s);
+    }
+    catch(Exception e){
+      log.warn(e.getMessage());
+    }
+    return s;
+  }
+
 
   /**
    * Get the Agent display name.
