@@ -1334,7 +1334,7 @@ public String getAddOrEdit()
 //            new Integer(tree.getChildList(thepool.getQuestionPoolId()).size()).toString());
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
-
+          //pool.setDateCreated(thepool.getDateCreated());
 
       pool.setLastModified(new Date());
 
@@ -1666,7 +1666,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 //            new Integer(tree.getChildList(thepool.getQuestionPoolId()).size()).toString());
           pool.setNumberOfSubpools(thepool.getSubPoolSize().toString());
           pool.setNumberOfQuestions(thepool.getQuestionSize().toString());
-
+          pool.setDateCreated(thepool.getDateCreated());
 
           Collection objects = tree.getSortedObjects(thepool.getQuestionPoolId());
 	  this.setSortedSubqpools(objects);

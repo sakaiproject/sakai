@@ -64,6 +64,7 @@ public class QuestionPoolDataBean
   private String objectives;
   private String keywords;
   private Date lastModified;
+  private Date dateCreated;
 
 
   private static Log log = LogFactory.getLog(QuestionPoolDataBean.class);
@@ -94,6 +95,26 @@ public class QuestionPoolDataBean
     lastModified = param;
   }
 
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @return DOCUMENTATION PENDING
+   */
+  public Date getDateCreated() {
+	return dateCreated;
+  }
+
+
+  /**
+   * DOCUMENTATION PENDING
+   *
+   * @param newName DOCUMENTATION PENDING
+   */
+  public void setDateCreated(Date param)
+  {
+	  dateCreated = param;
+  }
+  
   /**
    * DOCUMENTATION PENDING
    *

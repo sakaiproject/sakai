@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Collections;
 import java.util.Iterator;
@@ -166,7 +167,15 @@ public class PoolSaveListener implements ActionListener
 //owner is hardcoded for now
       questionpool.setOwnerId(AgentFacade.getAgentString());
       questionpool.setAccessTypeId(QuestionPoolFacade.ACCESS_DENIED); // set as default
-
+      
+      // add pool
+      if (beanid.toString().equals("0")) {
+    		  questionpool.setDateCreated(new Date());
+      }
+      // edit pool
+      else {
+    	  questionpool.setDateCreated(bean.getDateCreated());
+      }
       QuestionPoolService delegate = new QuestionPoolService();
       //log.info("Saving pool");
       delegate.savePool(questionpool);

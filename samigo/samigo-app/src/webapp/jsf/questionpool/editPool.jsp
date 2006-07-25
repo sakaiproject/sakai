@@ -98,6 +98,10 @@
 
   <h:outputLabel for="keyfield" value="#{msg.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
+
+  <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
+  <f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/>
+  </h:inputHidden>
 </h:panelGrid>
  </div>
 
