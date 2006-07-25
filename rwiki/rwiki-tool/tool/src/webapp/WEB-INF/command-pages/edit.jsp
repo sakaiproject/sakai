@@ -81,7 +81,9 @@
 		<c:set var="rwikiContentStyle"  value="rwiki_content" />
 		<jsp:directive.include file="breadcrumb.jsp"/>
 	  <!-- Creates the right hand sidebar -->
-	  <jsp:directive.include file="sidebar-switcher.jsp"/>
+	  <c:if test="${rightRenderBean.hasContent}">
+	    <jsp:directive.include file="sidebar-switcher.jsp"/>
+	  </c:if>
 	  <jsp:directive.include file="sidebar.jsp"/>
 	  <!-- Main page -->
 	  <div id="${rwikiContentStyle}" >
