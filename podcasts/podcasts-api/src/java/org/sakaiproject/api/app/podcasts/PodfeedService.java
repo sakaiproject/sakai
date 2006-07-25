@@ -1,6 +1,5 @@
 package org.sakaiproject.api.app.podcasts;
 
-import com.sun.syndication.feed.synd.SyndFeed;
 
 public interface PodfeedService {
 
@@ -14,7 +13,7 @@ public interface PodfeedService {
 	 */
 	public String generatePodcastRSS(String category, String name);
 
-	public String generatePodcastRSS(String category, String name, String siteID);
+	public String generatePodcastRSS(String category, String name, String siteID, String feedType);
 
 	public String generatePodcastRSS(String Category);
 

@@ -12,13 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class RSSPodfeedServlet extends HttpServlet {
-
+	private static final String RESPONSE_MIME_TYPE="application/xml; charset=UTF-8";
+	private static final String FEED_TYPE = "type";
+	
 	private PodfeedService podfeedService;
 	private Log LOG = LogFactory.getLog(RSSPodfeedServlet.class);
 	
@@ -50,7 +50,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		response.setContentType("text/xml");
+		response.setContentType(RESPONSE_MIME_TYPE);
 		
 		//Get the siteID from the URL passed in
 		String reqURL = request.getPathInfo();
@@ -66,7 +66,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 		}
 
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
-		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID);
+		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID, request.getParameter(FEED_TYPE));
 
 		if (podcastFeed.equals("")) {
 			response.setStatus(response.SC_INTERNAL_SERVER_ERROR);

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,10 +25,6 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Tool;
 
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -42,6 +37,7 @@ import com.sun.syndication.io.SyndFeedOutput;
 public class BasicPodfeedService implements PodfeedService {
 
 	private static final String DESCRIPTION_CONTENT_TYPE = "text/plain";
+	private static final String defaultFeedType = "rss_2.0";
 	
 	private static String fileName = "podtest.xml";
 	private static String feedType = null;
@@ -50,13 +46,27 @@ public class BasicPodfeedService implements PodfeedService {
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	
 	/**
+	 * @return Returns the podcastService.
+	 */
+	public PodcastService getPodcastService() {
+		return podcastService;
+	}
+
+	/**
+	 * @param podcastService The podcastService to set.
+	 */
+	public void setPodcastService(PodcastService podcastService) {
+		this.podcastService = podcastService;
+	}
+
+	/**
 	 * This method generates the RSS feeds for podcasting based on category (i.e. Podcast)
 	 * 
 	 * @param Category The category to run as containing podcast content.
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
       public String generatePodcastRSS(String Category, String Name) {
-		return generatePodcastRSS(Category, Name, podcastService.getSiteId());
+		return generatePodcastRSS(Category, Name, podcastService.getSiteId(), null);
 
 	}
 
@@ -67,20 +77,19 @@ public class BasicPodfeedService implements PodfeedService {
   	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
   	 * @param siteID The site ID passed in by the podfeed servlet
   	 */
-        public String generatePodcastRSS(String Category, String Name, String siteID) {
-      		SyndFeed podcastFeed = null;
-
-      		feedType = "rss_2.0";
-      		fileName = Name;
+        public String generatePodcastRSS(String Category, String Name, String siteID, String ftype) {
+     		fileName = Name;
+     		 
+     		feedType = (ftype!=null) ? ftype : defaultFeedType;
   		
-  		List entries = populatePodcastArray(Category, siteID);
+     		List entries = populatePodcastArray(Category, siteID);
 
-		// TODO: need to pass in global information for podcast here
-		String courseName = null;
-  		String podfeedTitle;
-  		String description;
+     		// TODO: need to pass in global information for podcast here
+     		String courseName = null;
+     		String podfeedTitle;
+     		String description;
   		
-  		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + siteID;
+     		String URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "podcasts/site/" + siteID;
  /* 		Properties siteProps = null;
   		
   		try {
@@ -145,7 +154,7 @@ public class BasicPodfeedService implements PodfeedService {
   		
   		String copyright = "IUPUI 2006";
   		
-  		podcastFeed = doSyndication(podfeedTitle, URL, description, copyright, entries, fileName);
+  		SyndFeed podcastFeed = doSyndication(podfeedTitle, URL, description, copyright, entries, fileName);
   		
 		final SyndFeedOutput feedWriter = new SyndFeedOutput();
 		
@@ -169,7 +178,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * @param Name The filename to write out the format to. THIS FOR DEBUG PURPOSES ONLY.
 	 */
       public String generatePodcastRSS(String Category) {
-		return generatePodcastRSS(Category, ""+ podcastService.getSiteId()+ "feedsave.xml", podcastService.getSiteId());
+		return generatePodcastRSS(Category, ""+ podcastService.getSiteId()+ "feedsave.xml", podcastService.getSiteId(), null);
 
       }
 
@@ -247,7 +256,7 @@ public class BasicPodfeedService implements PodfeedService {
     				
 			try {
  		            entries.add(addPodCast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
-							   podcastService.getPodcastFileURL(podcastResource.getId()), 
+							   podcastService.getPodcastFileURL(podcastResource.getId()).replace("localhost", "149.166.143.203"), 
 							   publishDate, 
 							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
 							   category_string, 
@@ -287,8 +296,11 @@ public class BasicPodfeedService implements PodfeedService {
     		SyndEntryImpl entry = new SyndEntryImpl();
          entry.setAuthor(author);
          entry.setTitle(title);
+         
+         // Since we have the complete URL, we only need to replace spaces, not slashes
          mp3link = mp3link.replaceAll(" ", "%20");
          entry.setLink(mp3link);
+         
          entry.setPublishedDate(date);
    
          SyndContentImpl description = new SyndContentImpl();
@@ -327,10 +339,11 @@ public class BasicPodfeedService implements PodfeedService {
      
              // Set global values for feed
              feed.setTitle(title);
-             feed.setLink(link);
+             
+             feed.setLink(link.replace("localhost", "149.166.143.203"));
              feed.setDescription(description_loc);
              feed.setCopyright(copyright);
-    				
+    			
              feed.setEntries(entries);
     			   
              final Writer writer = new FileWriter(xml);
@@ -352,19 +365,5 @@ public class BasicPodfeedService implements PodfeedService {
             
          return feed;
     	}
-
-		/**
-		 * @return Returns the podcastService.
-		 */
-		public PodcastService getPodcastService() {
-			return podcastService;
-		}
-
-		/**
-		 * @param podcastService The podcastService to set.
-		 */
-		public void setPodcastService(PodcastService podcastService) {
-			this.podcastService = podcastService;
-		}
 
 }

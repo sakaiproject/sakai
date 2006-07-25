@@ -48,6 +48,7 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -788,6 +789,12 @@ public class podHomeBean {
 		
 			try {
 				podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
+
+				displayNoFileErrMsg = false;
+				displayNoDateErrMsg = false;
+				displayNoTitleErrMsg = false;
+
+				whereToGo = "cancel";
 				
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete
@@ -825,10 +832,13 @@ public class podHomeBean {
 
 			}
 
-			displayNoFileErrMsg = false;
-			displayNoDateErrMsg = false;
-			displayNoTitleErrMsg = false;
-			whereToGo = "cancel";
+			if (email.equalsIgnoreCase("high")) {
+				EmailService.send("josrodri@iupui.edu", "josrodri@iupui.edu", "A podcast has been added to feed.", "A podcast has been added to the list of podcasts. It's publish date will determine when it will be available in the feed",
+						null, null, null);
+			}
+			else if (email.equalsIgnoreCase("low")){
+				//TODO: email only those who have opted in
+			}
 		}
 		
 		title="";
@@ -895,6 +905,14 @@ public class podHomeBean {
 			try {
 				podcastService.revisePodcast(selectedPodcast.resourceId, selectedPodcast.title, date,
 					selectedPodcast.description, fileContents, selectedPodcast.filename);
+				
+				if (email.equalsIgnoreCase("high")) {
+					EmailService.send("josrodri@iupui.edu", "josrodri@iupui.edu", "A podcast has been added to feed.", "A podcast has been added to the list of podcasts. It's publish date will determine when it will be available in the feed",
+							null, null, null);
+				}
+				else if (email.equalsIgnoreCase("low")){
+					//TODO: email only those who have opted in
+				}
 				
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission Denied
