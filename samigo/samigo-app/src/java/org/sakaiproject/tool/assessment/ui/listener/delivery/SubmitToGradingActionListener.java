@@ -507,6 +507,18 @@ public class SubmitToGradingActionListener implements ActionListener {
 					}
 				}
 			}
+                        else{
+                          for (int m = 0; m < grading.size(); m++) {
+                            ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+                            if (itemgrading.getItemGradingId() != null 
+                              && itemgrading.getItemGradingId().intValue() > 0
+                              && itemgrading.getReview() != null)  {
+                              // we will save itemgarding even though answer was not modified 
+                              // 'cos mark for review may have been modified
+                              adds.add(itemgrading);
+                            }
+			  }
+			}
 			break;
 		case 4: // T/F
 		case 5: // SAQ
