@@ -410,10 +410,10 @@ public class ItemContentsBean implements Serializable {
   {
     if (itemGradingDataArray == null)
     {
- log.debug("getReview : getitemgradingdataarray is null, size =0 ");
+      // log.debug("getReview : getitemgradingdataarray is null, size =0 ");
       return new ArrayList();
     }
- log.debug("getReview: getitemgradingdataarray size " + itemGradingDataArray.size());
+    // log.debug("getReview: getitemgradingdataarray size " + itemGradingDataArray.size());
     return itemGradingDataArray;
   }
 
