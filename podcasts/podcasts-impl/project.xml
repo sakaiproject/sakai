@@ -130,6 +130,12 @@
 			<version>0.8</version>
 		</dependency>
 
+		<dependency>
+			<groupId>rome</groupId>
+			<artifactId>itunes</artifactId>
+			<version>0.3</version>
+		</dependency>
+
 	</dependencies>
 
     <build>

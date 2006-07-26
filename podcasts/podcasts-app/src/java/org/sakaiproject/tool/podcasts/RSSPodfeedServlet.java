@@ -69,7 +69,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID, request.getParameter(FEED_TYPE));
 
 		if (podcastFeed.equals("")) {
-			response.setStatus(response.SC_INTERNAL_SERVER_ERROR);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 		else {
 			PrintWriter pw = response.getWriter();

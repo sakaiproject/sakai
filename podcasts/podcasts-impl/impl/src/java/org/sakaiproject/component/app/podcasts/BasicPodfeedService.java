@@ -25,22 +25,30 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
+import org.w3c.dom.Document;
 
+import com.sun.syndication.feed.module.itunes.EntryInformationImpl;
+import com.sun.syndication.feed.module.itunes.types.Duration;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
+import com.sun.syndication.feed.synd.SyndEnclosureImpl;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 
+
+
 public class BasicPodfeedService implements PodfeedService {
 
 	private static final String DESCRIPTION_CONTENT_TYPE = "text/plain";
 	private static final String defaultFeedType = "rss_2.0";
+	private static final String LANGUAGE = "en-us";
 	
 	private static String fileName = "podtest.xml";
 	private static String feedType = null;
+	private Date pubDate = null;
 	
 	private PodcastService podcastService;
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
@@ -159,15 +167,32 @@ public class BasicPodfeedService implements PodfeedService {
 		final SyndFeedOutput feedWriter = new SyndFeedOutput();
 		
 		String xmlDoc = "";
+		Document xmlJdomDoc = null;
+		
 		try {
 			xmlDoc = feedWriter.outputString(podcastFeed);
+//			String test = feedWriter.toString();
+//			System.out.println(test);
+
+//			xmlJdomDoc = feedWriter.outputW3CDom(podcastFeed);
 			
 		} catch (FeedException e) {
 			// TODO Auto-generated catch block
 			LOG.info("FeedException for site: " + siteID + " while generating podcast feed. " + e.getMessage());
 			
 		}
+		catch (ClassCastException e) {
+			String test = feedWriter.toString();
+			LOG.info(test + " " + e.getMessage());
+		}
 
+/*		if (xmlJdomDoc == null) {
+			return "";
+		} else {
+			String returnValue = xmlJdomDoc.toString();
+			return returnValue;
+		} */
+		
 		return xmlDoc;
   	}
 
@@ -192,18 +217,19 @@ public class BasicPodfeedService implements PodfeedService {
     		return populatePodcastArray(category_string, podcastService.getSiteId());
     }
 
-        /**
-         * This pulls the podcasts from Resourses and stuffs it in an array
-         * to be added to the feed
-         * 
-         * @param category_string For what Category of feed wanted, ie, blog, podcast, etc.
-         */
-        	private List populatePodcastArray(String category_string, String siteID) {
-        	    List podEntries = null;
-        	    List entries = new ArrayList(); 
+    /**
+     * This pulls the podcasts from Resourses and stuffs it in an array
+     * to be added to the feed
+     * 
+     * @param category_string For what Category of feed wanted, ie, blog, podcast, etc.
+     */
+     private List populatePodcastArray(String category_string, String siteID) {
+        	 List podEntries = null;
+        	 List entries = new ArrayList();
+        	 pubDate = null;
         	    
-     		try {
-        			podEntries = podcastService.getPodcasts(siteID);
+     	 try {
+     		 podEntries = podcastService.getPodcasts(siteID);
     		
     		}
     		catch (PermissionException pe) {
@@ -237,11 +263,19 @@ public class BasicPodfeedService implements PodfeedService {
 			// get its properties from ContentHosting
 			ContentResource podcastResource = (ContentResource) podcastIter.next();
 			ResourceProperties podcastProperties = podcastResource.getProperties();
-        				
+
 			// Format date, change SimpleDateFormat to format from example
 			Date publishDate = null;
 			try {
 				publishDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+				if (pubDate == null) {
+					pubDate = publishDate;
+
+				}
+				else if (publishDate.after(pubDate)) {
+					pubDate = publishDate;
+					
+				}
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO If not date, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
@@ -255,12 +289,14 @@ public class BasicPodfeedService implements PodfeedService {
 			}
     				
 			try {
- 		            entries.add(addPodCast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
+ 		            entries.add(addPodcast(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME),
 							   podcastService.getPodcastFileURL(podcastResource.getId()).replace("localhost", "149.166.143.203"), 
 							   publishDate, 
 							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION),
 							   category_string, 
-							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR)) );
+							   podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR),
+							   Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)),
+							   podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE)));
  		            
     					} catch (PermissionException e) {
     						// TODO LOG.error - Feeder should have permission
@@ -277,7 +313,7 @@ public class BasicPodfeedService implements PodfeedService {
            		
     		return entries;
         		    		
-        	}
+	}
 
     	/**
     	 * This add a particular podcast to the feed
@@ -291,9 +327,21 @@ public class BasicPodfeedService implements PodfeedService {
     	 * 
     	 * @return A SyndEntryImpl for this podcast
     	 */
-    	private SyndEntryImpl addPodCast(String title, String mp3link, Date date, String blogContent, String cat, String author) {
-    		
-    		SyndEntryImpl entry = new SyndEntryImpl();
+    	private SyndEntryImpl addPodcast(String title, String mp3link, Date date, String blogContent, String cat, String author,
+    									long length, String mimeType) {
+
+    	    SyndEntryImpl entry = new SyndEntryImpl();
+   	    EntryInformationImpl e = new EntryInformationImpl();
+   	    ArrayList modules = new ArrayList();
+        
+       // TODO: Determine duration of file
+   	    e.setAuthor(author);
+  
+   	    e.setDuration( new Duration( 263000 ) );
+
+        modules.add( e );
+        entry.setModules( modules );
+
          entry.setAuthor(author);
          entry.setTitle(title);
          
@@ -315,7 +363,20 @@ public class BasicPodfeedService implements PodfeedService {
             
          categories.add(category);
          entry.setCategories(categories);
-    		
+    	
+         List enclosures = new ArrayList();
+         
+         SyndEnclosureImpl enc = new SyndEnclosureImpl();
+         enc.setUrl(mp3link);
+       
+         // TODO: check if valid MIME type that can be displayed
+         enc.setType(mimeType);
+         enc.setLength(length);
+         
+         enclosures.add(enc);
+
+         entry.setEnclosures(enclosures);
+         
          return entry;
     	}
 
@@ -340,7 +401,15 @@ public class BasicPodfeedService implements PodfeedService {
              // Set global values for feed
              feed.setTitle(title);
              
+             // Set langauge for the feed
+             feed.setLanguage(LANGUAGE);
+
+             // Set the publish date
+             feed.setPublishedDate(pubDate);
+             
+             // remove following line, put in so can test with iTunes
              feed.setLink(link.replace("localhost", "149.166.143.203"));
+             
              feed.setDescription(description_loc);
              feed.setCopyright(copyright);
     			
