@@ -156,6 +156,12 @@ public class Item extends ASIBaseClass
       item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD));
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
   
+    // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
+    setFieldentry("TIMEALLOWED",
+    	      item.getDuration().toString()); 
+    setFieldentry("NUM_OF_ATTEMPTS",
+  	      item.getTriesAllowed().toString());
+
     //  rshastri: SAK-1824
     if(item !=null &&(item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)||

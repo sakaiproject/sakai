@@ -335,6 +335,11 @@ public abstract class ItemHelperBase
       {
         CharacterDataImpl cdi = (CharacterDataImpl) child;
         text = text + " " + cdi.getData();
+        // wrapping itemtext in CDATA
+        log.debug("in ItemHelperBase.java: makeItemNodeText() text is = " + text);
+        text =  "<![CDATA[" + text + "]]>";
+        log.debug("in ItemHelperBase.java: makeItemNodeText() wrapped CDATA text is = " + text);
+
       }
     }
     return text;

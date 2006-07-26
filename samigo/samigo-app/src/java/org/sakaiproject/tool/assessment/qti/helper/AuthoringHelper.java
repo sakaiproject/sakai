@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -535,6 +536,23 @@ public class AuthoringHelper
           log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
           Map itemMap = exHelper.mapItem(itemXml);
+
+          // lydia debugging
+          if (itemMap!=null && itemMap.keySet()!=null){
+              Iterator iter = itemMap.keySet().iterator();
+
+              while (iter.hasNext()) {
+                 
+                String label = (String) iter.next();
+                String value="";
+                if (itemMap.get(label)!=null){
+                  value = (String) itemMap.get(label).toString();
+                  System.out.println("get Label: " + label + ", Value: " + value);
+                }
+                
+              }
+          }
+          // end lydia
 
           ItemFacade item = new ItemFacade();
           exHelper.updateItem(item, itemMap);

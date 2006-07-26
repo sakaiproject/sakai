@@ -123,10 +123,35 @@ public class MetaDataList
       if (st.hasMoreTokens())
       {
         value = st.nextToken().trim();
+        if (key.equalsIgnoreCase("TIMEALLOWED")){
+        	item.setDuration(new Integer(value));
+        }
+        else if (key.equalsIgnoreCase("NUM_OF_ATTEMPTS")){
+        	item.setTriesAllowed(new Integer(value));
+        	
+        }
+  /*
+  // these metadata names are different in QTI and Authoring, 
+  public static final String OBJECTIVE = "OBJECTIVE";
+  public static final String KEYWORD= "KEYWORD";
+  public static final String RUBRIC= "RUBRIC";
+  */
+        else if (key.equalsIgnoreCase("ITEM_KEYWORD")){
+        	item.addItemMetaData("KEYWORD", value);
+        }
+        else if (key.equalsIgnoreCase("ITEM_OBJECTIVE")){
+        	item.addItemMetaData("OBJECTIVE", value);
+        }
+        else if (key.equalsIgnoreCase("ITEM_RUBRIC")){
+        	item.addItemMetaData("RUBRIC", value);
+        }
+        else {
         item.addItemMetaData(key, value);
+        }
       }
     }
   }
+
 
   /**
    * Adds extraction-created list of "|" key value pairs
