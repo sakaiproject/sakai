@@ -11287,7 +11287,7 @@ public class SiteAction extends PagedResourceActionII
 					MyTool tool = (MyTool) i.next();
 					if(toolConfiguration.getTitle() != null)
 					{
-						if((toolConfiguration.getTool().getId()).indexOf(tool.getId()) != -1) { match = true; }
+						if(toolConfiguration.getTool() != null && toolConfiguration.getTool().getId().indexOf(tool.getId()) != -1) { match = true; }
 					}
 				}
 				if (!match) { return false; }
