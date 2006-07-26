@@ -157,11 +157,14 @@ public class Item extends ASIBaseClass
     setFieldentry("ITEM_RUBRIC", item.getItemMetaDataByLabel(ItemMetaDataIfc.RUBRIC ));
   
     // set TIMEALLOWED and NUM_OF_ATTEMPTS for audio recording questions:
-    setFieldentry("TIMEALLOWED",
-    	      item.getDuration().toString()); 
-    setFieldentry("NUM_OF_ATTEMPTS",
-  	      item.getTriesAllowed().toString());
-
+    if (item.getDuration()!=null){
+    	setFieldentry("TIMEALLOWED",
+    			item.getDuration().toString()); 
+    }
+    if (item.getTriesAllowed()!=null){
+    	setFieldentry("NUM_OF_ATTEMPTS",
+    			item.getTriesAllowed().toString());
+    }
     //  rshastri: SAK-1824
     if(item !=null &&(item.getTypeId().equals(TypeIfc.TRUE_FALSE) ||
     		item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE)||
@@ -183,7 +186,7 @@ public class Item extends ASIBaseClass
     {
       if ( instruction != null)
         {
-          helper.setItemText(instruction, this);
+    	  helper.setItemText(instruction, this);
         }
     }
     ArrayList itemTexts = item.getItemTextArraySorted();

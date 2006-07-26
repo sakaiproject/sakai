@@ -934,6 +934,10 @@ public class ItemHelper12Impl extends ItemHelperBase
     String xpath = "item/presentation/flow/material/mattext";
 
     List list = itemXml.selectNodes(xpath);
+    log.debug("in ItemHelper12Impl.java: setItemText() text = " + itemText);
+    itemText =  "<![CDATA[" + itemText + "]]>";
+    log.debug("in ItemHelperBase.java: setItemText() wrapped CDATA text is = " + itemText);
+
     try
     {
       itemXml.update(xpath, itemText);
@@ -1284,6 +1288,11 @@ public class ItemHelper12Impl extends ItemHelperBase
       xpath + "/response_label[" + responseNo + "]", "material/mattext");
     try
     {
+    	
+    	log.debug("in ItemHelper12Impl.java: insertResponseLabelMattext() text = " + value);
+    	value =  "<![CDATA[" + value + "]]>";
+    	log.debug("in ItemHelperBase.java: insertResponseLabelMattext() wrapped CDATA text is = " + value);
+    	
       itemXml.update(
         xpath + "/response_label[" + responseNo + "]/material/mattext",
         value);
