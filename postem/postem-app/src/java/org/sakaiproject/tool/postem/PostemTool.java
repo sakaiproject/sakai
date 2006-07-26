@@ -369,13 +369,30 @@ public class PostemTool {
 			// logger.info("*** Non-Empty CSV!");
 			try {
 				CSV grades = new CSV(csv, withHeader);
-										
-				if(!usernamesValid(grades)) {
-					return "create_gradebook";
-				}
 				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {
+						// Make sure there are no blank headings
+						List headingList = grades.getHeaders();
+						for(int col=0; col < headingList.size(); col++) {
+							String heading = (String)headingList.get(col).toString().trim();			
+							if(heading.equals("") || heading == null) {
+								PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+										"blank_headings", new Object[] {});
+								return "create_gradebook";
+							}
+						}
+					}
+				}
+				
+				if (grades.getStudents() != null) {
+				  if(!usernamesValid(grades)) {
+					  return "create_gradebook";
+				  }
+				}
+				
+				if (withHeader == true) {
+					if (grades.getHeaders() != null) {	
 						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 								"has_headers", new Object[] {});
 					}
