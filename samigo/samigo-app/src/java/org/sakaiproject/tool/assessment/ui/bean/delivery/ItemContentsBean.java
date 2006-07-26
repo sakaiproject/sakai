@@ -214,7 +214,6 @@ public class ItemContentsBean implements Serializable {
 		if (data.getReview() == null) {
 			return false;
 		}
-		log.debug("getReview():" + data.getReview().booleanValue());
 		return data.getReview().booleanValue();
 	}
 
