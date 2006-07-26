@@ -51,6 +51,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
@@ -594,8 +595,9 @@ public class GradingService
           // note that totalItems & fibAnswersMap would be modified by the following method
           autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                  totalItems, fibAnswersMap, publishedAnswerHash);
-          //log.debug("**!regrade, autoScore="+autoScore);
-          totalItems.put(itemId, new Float(autoScore));
+          log.debug("**!regrade, autoScore="+autoScore);
+          if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
+            totalItems.put(itemId, new Float(autoScore));
 	}
         else{
           autoScore = itemGrading.getAutoScore().floatValue();
@@ -604,20 +606,22 @@ public class GradingService
             autoScore += itemGrading.getOverrideScore().floatValue();
           }
 
-          if(!totalItems.containsKey(itemId)){
+          if(!totalItems.containsKey(itemId) && !(TypeIfc.MULTIPLE_CORRECT).equals(itemType) ){
             totalItems.put(itemId, new Float(autoScore));
           }
           else{
             float accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
             accumelateScore += autoScore;
-            totalItems.put(itemId, new Float(accumelateScore));
+            if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
+              totalItems.put(itemId, new Float(accumelateScore));
           }
         }
         itemGrading.setAutoScore(new Float(autoScore));
       }
 
       log.debug("****x3. "+(new Date()).getTime());
-      // what does the following address? daisyf
+      // the following procedure ensure total score awarded per question is no less than 0
+      // this probably only applies to MCMR question type - daisyf
       iter = itemGradingSet.iterator();
       while(iter.hasNext())
       {
@@ -733,12 +737,18 @@ public class GradingService
               //overridescore?
               if (itemGrading.getOverrideScore() != null)
                 autoScore += itemGrading.getOverrideScore().floatValue();
-              if (!totalItems.containsKey(itemId))
+              if (!totalItems.containsKey(itemId)){
                 totalItems.put(itemId, new Float(autoScore));
+                //System.out.println("****0. first answer score = "+autoScore);
+	      }
               else{
                 accumelateScore = ((Float)totalItems.get(itemId)).floatValue();
+                //System.out.println("****1. before adding new score = "+accumelateScore);
+                //System.out.println("****2. this answer score = "+autoScore);
                 accumelateScore += autoScore;
+                //System.out.println("****3. add 1+2 score = "+accumelateScore);
                 totalItems.put(itemId, new Float(accumelateScore));
+                //System.out.println("****4. what did we put in = "+((Float)totalItems.get(itemId)).floatValue());
               }
               break;
 
