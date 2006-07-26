@@ -222,7 +222,7 @@ public class AuthorizationBean implements Serializable {
 
 
   public boolean addPrivilege(String functionKey, String siteId){
-     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
+     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
      log.debug(functionName+"_"+siteId+"="+privilege);
@@ -230,7 +230,7 @@ public class AuthorizationBean implements Serializable {
   }
 
   public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
-     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
+     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
      map.put(functionName+"_"+siteId, new Boolean(privilege));
      log.debug(functionName+"_"+siteId+"="+privilege);
   }
@@ -308,7 +308,7 @@ public class AuthorizationBean implements Serializable {
 
   public boolean getPrivilege(String functionKey){
     String siteId  = AgentFacade.getCurrentSiteId();
-    String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", functionKey);
+    String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
     boolean privilege = false;
     Object o = map.get(functionName+"_"+siteId);
     if (o!=null)
@@ -332,7 +332,7 @@ public class AuthorizationBean implements Serializable {
   public boolean getPrivilege(HttpServletRequest req,
                               String functionKey, String siteId){
     String functionName=(String)ContextUtil.getLocalizedString(req,
-                             "org.sakaiproject.tool.assessment.facade.authz.resource.AuthzPermissions", 
+                             "org.sakaiproject.tool.assessment.bundle.AuthzPermissions", 
                               functionKey);
     boolean privilege = false;
     Object o = map.get(functionName+"_"+siteId);
