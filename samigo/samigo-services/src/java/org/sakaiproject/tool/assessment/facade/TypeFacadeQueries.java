@@ -136,7 +136,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return HashMap
      */
     private HashMap getMapForAllTypes() {
-	HashMap typeMap = new HashMap();
+	//HashMap typeMap = new HashMap();
 	List typeList = getAllTypes();
 	return createTypeFacadeMapById(typeList);
     }

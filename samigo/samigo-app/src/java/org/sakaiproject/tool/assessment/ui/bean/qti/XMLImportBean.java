@@ -52,6 +52,10 @@ import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 
 public class XMLImportBean implements Serializable
 {
+	
+	  /** Use serialVersionUID for interoperability. */
+	  private final static long serialVersionUID = 418920360211039758L;
+
   private int qtiVersion;
   private String uploadFileName;
   private String importType;
@@ -68,7 +72,7 @@ public class XMLImportBean implements Serializable
   // put tests here...
   public static void main(String[] args)
   {
-    XMLImportBean XMLImportBean1 = new XMLImportBean();
+    //XMLImportBean XMLImportBean1 = new XMLImportBean();
   }
 
   /**

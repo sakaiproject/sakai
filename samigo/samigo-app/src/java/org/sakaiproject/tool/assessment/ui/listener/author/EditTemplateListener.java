@@ -24,7 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 //import java.util.ResourceBundle;
@@ -42,7 +42,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+//import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
 /**
@@ -72,10 +72,9 @@ public class EditTemplateListener
     //log.info("Editing new template.");
     String tempName=templateBean.getNewName();
     AssessmentService assessmentService = new AssessmentService();
-    IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(
-                       "templateIndex");
+    //IndexBean templateIndex = (IndexBean) ContextUtil.lookupBean(                       "templateIndex");
 
-    ArrayList templates = new ArrayList();
+    //ArrayList templates = new ArrayList();
     // id=0 => new template
     boolean isUnique=assessmentService.assessmentTitleIsUnique("0",tempName,true);
      FacesContext context = FacesContext.getCurrentInstance();
@@ -105,7 +104,7 @@ public class EditTemplateListener
     Iterator iter = service.getDefaultMetaDataSet().iterator();
     while (iter.hasNext()){
       String label = (String) ((AssessmentMetaData)iter.next()).getLabel();
-      String value ="true";
+      //String value ="true";
       h.put(label, "true");
     }
     return h;

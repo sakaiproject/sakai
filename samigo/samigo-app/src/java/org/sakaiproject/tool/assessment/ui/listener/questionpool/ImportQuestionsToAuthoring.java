@@ -57,7 +57,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class ImportQuestionsToAuthoring implements ActionListener
 {
   private static Log log = LogFactory.getLog(ImportQuestionsToAuthoring.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
 
 
   /**
@@ -68,7 +68,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     //log.info("ImportQuestionsToAuthoring:");
-    QuestionPoolBean  qpoolbean= (QuestionPoolBean) cu.lookupBean("questionpool");
+    QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     if (!importItems(qpoolbean))
     {
       throw new RuntimeException("failed to populateItemBean.");
@@ -83,8 +83,8 @@ public class ImportQuestionsToAuthoring implements ActionListener
       AssessmentService assessdelegate = new AssessmentService();
       ItemService delegate = new ItemService();
       SectionService sectiondelegate = new SectionService();
-      AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean("assessmentBean");
-      ItemAuthorBean itemauthor = (ItemAuthorBean) cu.lookupBean("itemauthor");
+      AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+      ItemAuthorBean itemauthor = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
       int itempos= 0;
       SectionFacade section = null;
       ItemFacade itemfacade = new ItemFacade();
@@ -95,7 +95,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
       if (destItems.size() > 0) {
 
-      List items= new ArrayList();
+      //List items= new ArrayList();
       Iterator iter = destItems.iterator();
       while(iter.hasNext())
       {
@@ -105,7 +105,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
         itemfacade = (ItemFacade) poolitemfacade.clone();
 
 
-        AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
+        //AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
 
           if ("-1".equals(qpoolbean.getSelectedSection())) {
 // add a new section

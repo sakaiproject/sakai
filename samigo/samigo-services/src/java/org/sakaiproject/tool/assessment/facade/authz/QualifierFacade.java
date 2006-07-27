@@ -101,7 +101,7 @@ public class QualifierFacade implements QualifierIfc {
 
   public boolean isParent() {
     boolean returnValue = false;
-    ArrayList a = new ArrayList();
+    //ArrayList a = new ArrayList();
     while (childrenIter.hasNextQualifier()){
       Id i = (Id)childrenIter.nextQualifier();
       if (i.equals(this.id)){
@@ -155,7 +155,7 @@ public class QualifierFacade implements QualifierIfc {
 
   public boolean isChildOf(Id parent)  {
     boolean returnValue = false;
-    ArrayList a = new ArrayList();
+    //ArrayList a = new ArrayList();
     while (parentIter.hasNextQualifier()){
       Id i = (Id)parentIter.nextQualifier();
       if (parent.equals(i)){

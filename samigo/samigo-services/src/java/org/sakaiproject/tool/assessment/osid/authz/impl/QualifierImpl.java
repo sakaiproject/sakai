@@ -53,7 +53,7 @@ public class QualifierImpl implements Qualifier {
 
   public boolean isParent() throws org.osid.authorization.AuthorizationException {
     boolean returnValue = false;
-    ArrayList a = new ArrayList();
+    //ArrayList a = new ArrayList();
     while (childrenIter.hasNextQualifier()){
       Id i = (Id)childrenIter.nextQualifier();
       if (i.equals(this.id)){
@@ -69,7 +69,7 @@ public class QualifierImpl implements Qualifier {
   }
 
   public void updateDescription(String parm1) throws org.osid.authorization.AuthorizationException {
-    this.description = description;
+    this.description = parm1;
   }
 
   public void addParent(Id parm1) throws org.osid.authorization.AuthorizationException {
@@ -106,7 +106,7 @@ public class QualifierImpl implements Qualifier {
 
   public boolean isChildOf(Id parent) throws org.osid.authorization.AuthorizationException {
     boolean returnValue = false;
-    ArrayList a = new ArrayList();
+    //ArrayList a = new ArrayList();
     while (parentIter.hasNextQualifier()){
       Id i = (Id)parentIter.nextQualifier();
       if (parent.equals(i)){

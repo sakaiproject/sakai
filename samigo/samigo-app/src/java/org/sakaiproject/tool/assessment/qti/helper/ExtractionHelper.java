@@ -933,7 +933,7 @@ public class ExtractionHelper
     if (securedIPAddressSet.size()>0)
     {
       //log.info("Setting securedIPAddressSet;addAssessmentMetaData(hasIpAddress, true)");
-      AssessmentService assessmentService = new AssessmentService();
+      //AssessmentService assessmentService = new AssessmentService();
 //      assessment.getData().setSecuredIPAddressSet(securedIPAddressSet);
 //      assessment.getData().addAssessmentMetaData("hasIpAddress", "true");
 //      assessment.getData().addAssessmentMetaData("hasSpecificIP", "true");

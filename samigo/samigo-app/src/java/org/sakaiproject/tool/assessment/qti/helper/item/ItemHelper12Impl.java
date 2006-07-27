@@ -65,7 +65,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     "item/presentation/flow/response_grp/render_choice";
   private static final String NBSP = "&#160;";
 
-  private Document doc;
+  //private Document doc;
 
   protected String[] itemTypes = AuthoringConstantStrings.itemTypes;
   private AuthoringXml authoringXml;
@@ -451,17 +451,17 @@ public class ItemHelper12Impl extends ItemHelperBase
     {
       List fibList = parseFillInBlank(fibAns);
       Map valueMap = null;
-      Set newSet = null;
+      //Set newSet = null;
       String mattext = null;
       String respStr = null;
       String xpath = "item/presentation/flow/flow";
-      String position = null;
-      String[] responses = null;
+      //String position = null;
+      //String[] responses = null;
 
       if ( (fibList != null) && (fibList.size() > 0))
       {
 
-        List idsAndResponses = new ArrayList();
+        //List idsAndResponses = new ArrayList();
         //1. add Mattext And Responses
         for (int i = 0; i < fibList.size(); i++)
         {
@@ -744,7 +744,7 @@ public class ItemHelper12Impl extends ItemHelperBase
     String[] compareResponse = null;
     ArrayList finalArray = new ArrayList(); // this is list of maps which contains arrayList  correct responses and ids
     ArrayList idList = new ArrayList();
-    ArrayList responseList = new ArrayList();
+    //ArrayList responseList = new ArrayList();
     Map intermediaryMap = new HashMap();
     for (int l = 0; l < idsAndResponses.size(); l++)
     {

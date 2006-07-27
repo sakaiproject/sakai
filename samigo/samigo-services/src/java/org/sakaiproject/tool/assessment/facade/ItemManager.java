@@ -39,7 +39,7 @@ public class ItemManager {
   }
 
   public static void main(String[] args){
-    ItemManager instance = new ItemManager();
+    //ItemManager instance = new ItemManager();
     System.exit(0);
   }
 

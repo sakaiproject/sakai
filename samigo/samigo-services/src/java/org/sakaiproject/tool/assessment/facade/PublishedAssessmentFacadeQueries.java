@@ -1237,7 +1237,7 @@ public class PublishedAssessmentFacadeQueries
 
 
   public String getPublishedAssessmentOwner(String publishedAssessmentId){
-    HashMap h = new HashMap();
+    //HashMap h = new HashMap();
     String query =
         "select a from AuthorizationData a where "+
         " a.functionId='OWN_PUBLISHED_ASSESSMENT' and a.qualifierId="+publishedAssessmentId;

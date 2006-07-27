@@ -61,9 +61,9 @@ public class QuestionScoreUpdateListener
   implements ActionListener
 {
   private static Log log = LogFactory.getLog(QuestionScoreUpdateListener.class);
-  private static EvaluationListenerUtil util;
-  private static BeanSort bs;
-  private static ContextUtil cu;
+  //private static EvaluationListenerUtil util;
+  //private static BeanSort bs;
+  //private static ContextUtil cu;
 
   /**
    * Standard process action method.
@@ -74,8 +74,8 @@ public class QuestionScoreUpdateListener
     AbortProcessingException
   {
     log.debug("Question Score Update LISTENER.");
-    QuestionScoresBean bean = (QuestionScoresBean) cu.lookupBean("questionScores");
-    TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
+    QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+    TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     log.debug("Calling saveQuestionScores.");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     try{
@@ -85,7 +85,7 @@ public class QuestionScoreUpdateListener
       }
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
        context.addMessage(null, new FacesMessage(err));
 
     }
@@ -102,13 +102,13 @@ public class QuestionScoreUpdateListener
     try
     {
       GradingService delegate = new GradingService();
-      String publishedId = cu.lookupParam("publishedId");
-      String itemId = cu.lookupParam("itemId");
-      String which = cu.lookupParam("allSubmissions");
+      //String publishedId = ContextUtil.lookupParam("publishedId");
+      String itemId = ContextUtil.lookupParam("itemId");
+      String which = ContextUtil.lookupParam("allSubmissions");
       if (which == null)
         which = "false";
       Collection agents = bean.getAgents();
-      ArrayList items = new ArrayList();
+      //ArrayList items = new ArrayList();
       Iterator iter = agents.iterator();
       while (iter.hasNext())
       {
@@ -148,7 +148,7 @@ public class QuestionScoreUpdateListener
 
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
        context.addMessage(null, new FacesMessage(err));
 
     }

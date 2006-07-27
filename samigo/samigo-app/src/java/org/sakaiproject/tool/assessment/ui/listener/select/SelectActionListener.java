@@ -64,7 +64,7 @@ import org.sakaiproject.tool.assessment.util.BeanSort;
 public class SelectActionListener
     implements ActionListener {
   private static Log log = LogFactory.getLog(SelectActionListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
   private static BeanSort bs;
   private static BeanSort bs2;
   public SelectActionListener() {
@@ -88,8 +88,8 @@ public class SelectActionListener
     //#0 - permission checking before proceeding - daisyf
     // if it is anonymos login, let it pass 'cos there is no site and authz is 
     // about permission in a site
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
-    DeliveryBean deliveryBean = (DeliveryBean) cu.lookupBean("delivery");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
     if (!deliveryBean.getAnonymousLogin() && !authzBean.getTakeAssessment())
       return;
 
@@ -98,7 +98,7 @@ public class SelectActionListener
     // get service and managed bean
     PublishedAssessmentService publishedAssessmentService = new
         PublishedAssessmentService();
-    SelectAssessmentBean select = (SelectAssessmentBean) cu.lookupBean(
+    SelectAssessmentBean select = (SelectAssessmentBean) ContextUtil.lookupBean(
         "select");
 
     // look for some sort information passed as parameters
@@ -147,7 +147,7 @@ public class SelectActionListener
     ArrayList recentSubmittedList =
         publishedAssessmentService.getBasicInfoOfLastSubmittedAssessments(
         AgentFacade.getAgentString(), this.getSubmittedOrderBy(select),
-        Boolean.getBoolean( (String) cu.lookupParam("reviewAscending")));
+        Boolean.getBoolean( (String) ContextUtil.lookupParam("reviewAscending")));
 
     HashMap authorizationHash = PersistenceService.getInstance().getAuthzQueriesFacade().
         getAuthorizationToViewAssessments(AgentFacade.getCurrentSiteId()) ;
@@ -328,10 +328,10 @@ public class SelectActionListener
    * @param bean the select index managed bean
    */
   private void processSortInfo(SelectAssessmentBean bean) {
-    String takeOrder = cu.lookupParam("takeableSortType");
-    String reviewOrder = cu.lookupParam("reviewableSortType");
-    String reviewAscending = cu.lookupParam("reviewableAscending");
-    String takeAscending = cu.lookupParam("takeAscending");
+    String takeOrder = ContextUtil.lookupParam("takeableSortType");
+    String reviewOrder = ContextUtil.lookupParam("reviewableSortType");
+    String reviewAscending = ContextUtil.lookupParam("reviewableAscending");
+    String takeAscending = ContextUtil.lookupParam("takeAscending");
 
     if (takeOrder != null && !takeOrder.trim().equals("")) {
       bean.setTakeableSortOrder(takeOrder);

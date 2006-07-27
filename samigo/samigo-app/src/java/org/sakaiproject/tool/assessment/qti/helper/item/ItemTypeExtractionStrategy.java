@@ -65,7 +65,7 @@ public class ItemTypeExtractionStrategy
    */
   public static void main(String[] args)
   {
-    ItemFacade item = new ItemFacade();
+ //   ItemFacade item = new ItemFacade();
     String title;
     String intro;
     String qmd;

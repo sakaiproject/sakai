@@ -1630,15 +1630,14 @@ public class DeliveryBean
     {
     System.out.println("****"+mediaLocation+" "+(new Date()));
     GradingService gradingService = new GradingService();
-    PublishedAssessmentService publishedService = new
-      PublishedAssessmentService();
+    //PublishedAssessmentService publishedService = new PublishedAssessmentService();
     HashMap itemHash = getPublishedItemHash();
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agent = person.getId();
 
     // 2. format of the media location is: assessmentXXX/questionXXX/agentId/myfile
     // 3. get the questionId (which is the PublishedItemData.itemId)
-    int assessmentIndex = mediaLocation.indexOf("assessment");
+    //int assessmentIndex = mediaLocation.indexOf("assessment");
     int questionIndex = mediaLocation.indexOf("question");
     int agentIndex = mediaLocation.indexOf("/", questionIndex + 8);
     int myfileIndex = mediaLocation.lastIndexOf("/");
@@ -1647,8 +1646,7 @@ public class DeliveryBean
     {
       agentIndex = mediaLocation.indexOf("\\", questionIndex + 8);
     }
-    String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10,
-      questionIndex - 1);
+    //String pubAssessmentId = mediaLocation.substring(assessmentIndex + 10, questionIndex - 1);
     String questionId = mediaLocation.substring(questionIndex + 8, agentIndex);
     log.debug("***3a. addMediaToItemGrading, questionId =" + questionId);
     log.debug("***3b. addMediaToItemGrading, assessmentId =" + assessmentId);

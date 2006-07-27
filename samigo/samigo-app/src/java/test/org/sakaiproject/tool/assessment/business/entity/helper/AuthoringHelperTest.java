@@ -290,7 +290,7 @@ public class AuthoringHelperTest {
       Map itemMap = exHelper.mapItem(itemXml);
 //      log.debug("ITEM MAP=" + itemMap);
       exHelper.updateItem(item, itemMap);
-      ItemService itemService = new ItemService();
+      //ItemService itemService = new ItemService();
       log.info("updating item");
 //      itemService.saveItem(item);
     }

@@ -64,7 +64,7 @@ public class SavePartListener
     implements ActionListener
 {
   private static Log log = LogFactory.getLog(SavePartListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
 
   public SavePartListener()
   {
@@ -73,14 +73,14 @@ public class SavePartListener
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
     FacesContext context = FacesContext.getCurrentInstance();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
+    //Map reqMap = context.getExternalContext().getRequestMap();
+    //Map requestParams = context.getExternalContext().getRequestParameterMap();
 
-    AssessmentBean assessmentBean = (AssessmentBean) cu.lookupBean(
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
 								   "assessmentBean");
     String assessmentId = assessmentBean.getAssessmentId();
 
-    SectionBean sectionBean= (SectionBean) cu.lookupBean(
+    SectionBean sectionBean= (SectionBean) ContextUtil.lookupBean(
                          "sectionBean");
     // create an assessment based on the title entered and the assessment
     // template selected
@@ -190,7 +190,7 @@ public class SavePartListener
     if (addItemsFromPool)
     {
       QuestionPoolService qpservice = new QuestionPoolService();
-      ItemService itemservice = new ItemService();
+      //ItemService itemservice = new ItemService();
 
     ArrayList itemlist = qpservice.getAllItems(new Long(sectionBean.getSelectedPool()) );
     int i = 0;

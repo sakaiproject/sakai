@@ -48,7 +48,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -57,7 +56,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+//import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
  * The GradingService calls the back end to get grading information from
@@ -627,7 +626,7 @@ public class GradingService
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         Long itemId = itemGrading.getPublishedItemId();
-        float autoScore = (float) 0;
+        //float autoScore = (float) 0;
 
         float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
         if(eachItemScore < 0)
@@ -951,7 +950,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
     String casesensitive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB);
     String mutuallyexclusive = itemdata.getItemMetaDataByLabel(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB);
-    Set answerSet = new HashSet();
+    //Set answerSet = new HashSet();
 
     float totalScore = (float) 0;
 

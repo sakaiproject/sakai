@@ -1117,7 +1117,7 @@ public class AssessmentFacadeQueries
     SectionData section= loadSection(sourceSectionId);
 
     Set itemSet = section.getItemSet();
-    HashSet newItemSet = new HashSet();
+    //HashSet newItemSet = new HashSet();
     Iterator iter = itemSet.iterator();
     //log.debug("***itemSet before=" + itemSet.size());
     while (iter.hasNext()) {

@@ -72,6 +72,10 @@ import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIf
  */
 public class QuestionPoolBean implements Serializable
 {
+	
+	  /** Use serialVersionUID for interoperability. */
+	  private final static long serialVersionUID = 418920360211039758L;
+
   private String name;
   private Collection pools;
   private QuestionPoolDataBean currentPool;

@@ -194,7 +194,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       ArrayList scores = (ArrayList)
         getTotalScores(publishedId.toString(), which);
       HashMap map = new HashMap();
-      List list = new ArrayList();
+      //List list = new ArrayList();
 
       // make final for callback to access
       final Iterator iter = scores.iterator();
