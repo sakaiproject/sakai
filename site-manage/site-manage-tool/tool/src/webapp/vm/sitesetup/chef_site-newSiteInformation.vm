@@ -34,7 +34,12 @@
 			$tlang.getString("sinfo.enter2")
 		</p>
 	#else
-		$tlang.getString("sinfo.creating")
+		<h3>
+			$tlang.getString("sinfo.other")
+		</h3>
+		<p class="step">
+			$tlang.getString("sinfo.enter3")
+		</p>
 	#end
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
