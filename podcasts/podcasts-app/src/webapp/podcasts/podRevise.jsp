@@ -21,9 +21,6 @@
       <div class="indnt1">
           <p class="instruction"> 
             <h:outputText value="#{msgs.revise_directions}" />
- 	        <br /><br />
-            <h:outputText value="#{msgs.required_prompt}" />
-            <span class="reqStarInline">*</span>
           </p>
  	  </div>
     </div>
@@ -37,11 +34,11 @@
  	  <h:outputText value="#{msgs.file_prompt}" styleClass="reqPrompt" />
  	  <sakai:inputFileUpload id="podfile" value="#{podHomeBean.filename}"
  	     valueChangeListener="#{podHomeBean.processFileUpload}" 
- 	     styleClass="indnt1" size="35" />
+ 	     styleClass="indnt2" size="35" />
 
       <h:message for="podfile" styleClass="alertMessage" />
     </div>
-    <br />
+    <br /><br />
 
     <div class="indnt1">  <!-- Date -->
      <h:outputText value="#{msgs.current_date}" />
@@ -50,11 +47,11 @@
      
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
 
-     <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
+     <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" showTime="true" rendered="true" />
      
       <h:message for="poddate" styleClass="alertMessage" />
     </div>
-    <br />
+    <br /><br />
      
     <div class="indnt1">  <!-- Title -->
       <h:outputText value="#{msgs.title_prompt}" styleClass="reqPrompt" />
@@ -62,7 +59,7 @@
 
       <h:message for="podtitle" styleClass="alertMessage" />
     </div>
-    <br />
+    <br /><br />
 
     <div class="indnt1"> <!-- Description -->
       <h:outputText value="#{msgs.description_prompt}" styleClass="reqPrompt" />

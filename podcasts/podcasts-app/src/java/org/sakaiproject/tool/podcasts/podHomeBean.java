@@ -236,6 +236,16 @@ public class podHomeBean {
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
 	private static final String RESOURCEID = "resourceId";
 	private static final String RESOURCE_TITLE = "Resources";
+	private static final String FEED_URL_MIDDLE = "sakai-podcasts/podfeed/";
+	private static final String MB = "MB";
+	private static final String BYTES = "Bytes";
+	
+	// Patterns for Date and Number formatting
+	private static final String DISPLAY_DATE_FORMAT = "EEEEEE',' dd MMMMM yyyy hh:mm a z";
+	private static final String MB_NUMBER_FORMAT = "#.#";
+	private static final String BYTE_NUMBER_FORMAT = "#,###";
+	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
+	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
 	
 	// inject the podcast services for its help
 	private Log LOG = LogFactory.getLog(podHomeBean.class);
@@ -325,12 +335,22 @@ public class podHomeBean {
     return resourceToolExists;
 	}
 
+	/**
+	 * Passes an error message to the Spring framework to display on page.
+	 * 
+	 * @param alertMsg The key to get the message from the message bundle 
+	 */
 	private void setErrorMessage(String alertMsg)
 	{
 		FacesContext.getCurrentInstance().addMessage(null,
 		      new FacesMessage("Alert: " + getErrorMessageString(alertMsg)));
 	}
-	  
+	
+	/**
+	 * Determines if the podcast folder exists. If it does not, it will attempt to create it.
+	 * 
+	 * @return TRUE if folder exists, FALSE otherwise.
+	 */
 	public boolean getPodcastFolderExists() {
 		boolean podcastFolderExists=false;
 		  
@@ -351,9 +371,14 @@ public class podHomeBean {
 		  
 		  return podcastFolderExists;
 	  }
-	  	  
+
+	  /**
+	   * Returns the URL to point your podcatcher to in order to grab the feed.
+	   * 
+	   * @return String The feed URL.
+	   */
 	  public String getURL() {
-		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "sakai-podcasts/podfeed/" 
+		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + FEED_URL_MIDDLE 
 		         + podcastService.getSiteId();
 		  return URL;
 	  }
@@ -409,7 +434,7 @@ public class podHomeBean {
 
 		// store Display date
 		// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
-		SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
+		SimpleDateFormat formatter = new SimpleDateFormat (DISPLAY_DATE_FORMAT );
 		Date tempDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
 		podcastInfo.setDisplayDate(formatter.format(tempDate));
 							
@@ -424,14 +449,14 @@ public class podHomeBean {
 		podcastInfo.setFileSize(size);
 		
 		double sizeMB = size / (1024.0*1024.0); 
-		DecimalFormat df = new DecimalFormat("#.#");
+		DecimalFormat df = new DecimalFormat(MB_NUMBER_FORMAT);
 		String sizeString;
 		if ( sizeMB >  0.3) {
-			sizeString = df.format(sizeMB) + "MB";
+			sizeString = df.format(sizeMB) + MB;
 		}
 		else {
-			df.applyPattern("#,###");
-			sizeString = "" + df.format(size) + " bytes";
+			df.applyPattern(BYTE_NUMBER_FORMAT);
+			sizeString = "" + df.format(size) + " " + BYTES;
 		}
 		podcastInfo.setSize(sizeString);
 
@@ -445,12 +470,12 @@ public class podHomeBean {
 		}
 
 		// get and format last modified time
-		formatter.applyPattern("hh:mm a z" );
+		formatter.applyPattern(LAST_MODIFIED_TIME_FORMAT);
 		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 		podcastInfo.setPostedTime(formatter.format(tempDate));
 
 		// get and format last modified date
-		formatter.applyPattern("MM/dd/yyyy" );
+		formatter.applyPattern(LAST_MODIFIED_DATE_FORMAT);
 		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 		podcastInfo.setPostedDate(formatter.format(tempDate));
 

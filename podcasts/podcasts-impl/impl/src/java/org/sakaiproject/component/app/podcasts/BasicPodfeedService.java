@@ -39,7 +39,6 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 
 
-
 public class BasicPodfeedService implements PodfeedService {
 
 	private static final String DESCRIPTION_CONTENT_TYPE = "text/plain";
@@ -234,7 +233,8 @@ public class BasicPodfeedService implements PodfeedService {
     		}
     		catch (PermissionException pe) {
     			// TODO: Set error message to say you don't have permission
-   			 LOG.info("PermissionException generating podfeed for site: " + siteID + ". " + pe.getMessage());
+   			 LOG.info("PermissionException getting podcasts in order to generate podfeed for site: " + siteID + ". " + pe.getMessage());
+   			 pe.printStackTrace();
 
     		} catch (InUseException e) {
     			// TODO Or try again? Set Error Message?
@@ -305,7 +305,7 @@ public class BasicPodfeedService implements PodfeedService {
  		            
     					} catch (PermissionException e) {
     						// TODO LOG.error - Feeder should have permission
-    						LOG.info("PermissionException generating podfeed while adding entry  for site: " + siteID + ". " + e.getMessage());
+    						LOG.info("PermissionException generating podfeed while adding entry for site: " + siteID + ". " + e.getMessage());
 
     					} catch (IdUnusedException e) {
     						// TODO Problem with this podcast file - LOG and skip?

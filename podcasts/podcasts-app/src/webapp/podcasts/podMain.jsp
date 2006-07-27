@@ -45,8 +45,7 @@
                 rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
       </div>
  
-	  <!-- TODO: if there are podcasts, display their information here 
-	     or possibly return this part from previous tag -->
+	  <!-- if there are podcasts, display their information here -->
       <div class="indnt1" style="position:relative; top:20px;">
       <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast"  rendered="#{podHomeBean.actPodcastsExist}" >
         <h:column>
@@ -59,16 +58,16 @@
             <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat" />
 			<f:verbatim><br /></f:verbatim>
             
-            <!--  Download link -->
+            <%--  Download link --%>
             <f:verbatim><div class="podLinksPosition" ></f:verbatim>
 
-            <!--  7/17/06 Hack to fix if spaces in name. 
+            <%--  7/17/06 Hack to fix if spaces in name. 
                   TODO: redo correctly
                   Below is correct JSP. Problem is when rendering what's sent from bean
             		 it escapes spaces which causes link to fail  
             h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
                  h:outputText value="#{msgs.download}" 
-            h:outputLink> -->
+            h:outputLink> --%>
  
  			 <f:verbatim><a href="</f:verbatim>
  			 <h:outputText value="#{eachPodcast.fileURL}" />
@@ -81,10 +80,10 @@
               <h:outputText value=" #{msgs.open_paren}" />
               <h:outputText value="#{eachPodcast.size}" />
             
-              <h:outputText value=" " /> <!--  type -->
+              <h:outputText value=" " /> <%--  type --%>
               <h:outputText value="#{eachPodcast.type}" />
 
-              <!--  go to Revise page -->
+              <%--  go to Revise page --%>
               <h:outputText value="#{msgs.close_paren}" /><h:outputText value=" " />
               <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
               <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
@@ -92,7 +91,7 @@
                 <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
               </h:commandLink>
                  
-              <!--  go to Delete page --> 
+              <%--  go to Delete page --%> 
               <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite}" />
               <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
                     rendered="#{podHomeBean.canUpdateSite}" >
