@@ -538,6 +538,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       else
         results.setLastInitial("Anonymous");
         results.setIdString(agent.getIdString());
+        results.setAgentEid(agent.getEidString());
 log.debug("testing agent getEid agent.getFirstname= " + agent.getFirstName());
 log.debug("testing agent getEid agent.getid= " + agent.getIdString());
 log.debug("testing agent getEid agent.geteid = " + agent.getEidString());

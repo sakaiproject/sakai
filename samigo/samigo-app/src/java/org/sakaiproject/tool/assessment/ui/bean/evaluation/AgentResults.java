@@ -43,6 +43,7 @@ public class AgentResults
   private Long assessmentGradingId;
   private Long itemGradingId;
   private String agentId;
+  private String agentEid;
   private String firstName;
   private String lastName;
   private String lastInitial;
@@ -90,8 +91,17 @@ public class AgentResults
   public String getAgentId() {
     return Validator.check(agentId, "N/A");
   }
+
   public void setAgentId(String agentId) {
     this.agentId = agentId;
+  }
+
+  public String getAgentEid() {
+    return Validator.check(agentEid, "N/A");
+  }
+
+  public void setAgentEid(String agentEid) {
+    this.agentEid = agentEid;
   }
 
   public String getFirstName() {
