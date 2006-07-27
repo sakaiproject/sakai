@@ -41,10 +41,10 @@
 			</fileset>
 		</copy>
 
-		<copy file="${basedir}/reference/demo/bin/start-sakai.bat" tofile="${maven.tomcat.home}start-sakai.bat" />
-		<copy file="${basedir}/reference/demo/bin/start-sakai.sh" tofile="${maven.tomcat.home}start-sakai.sh" />
-		<copy file="${basedir}/reference/demo/bin/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
-		<copy file="${basedir}/reference/demo/bin/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
+		<copy file="${basedir}/reference/demo/start-sakai.bat" tofile="${maven.tomcat.home}start-sakai.bat" />
+		<copy file="${basedir}/reference/demo/start-sakai.sh" tofile="${maven.tomcat.home}start-sakai.sh" />
+		<copy file="${basedir}/reference/demo/stop-sakai.bat" tofile="${maven.tomcat.home}stop-sakai.bat" />
+		<copy file="${basedir}/reference/demo/stop-sakai.sh" tofile="${maven.tomcat.home}stop-sakai.sh" />
 
 		<!-- Replace the favorite icon from tomcat -->
 		<copy file="${basedir}/reference/library/src/webapp/icon/favicon.ico" tofile="${maven.tomcat.home}webapps/ROOT/favicon.ico" overwrite="true" />
