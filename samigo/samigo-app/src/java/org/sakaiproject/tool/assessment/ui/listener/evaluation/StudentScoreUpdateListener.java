@@ -130,13 +130,14 @@ public class StudentScoreUpdateListener
             question.setReview(false); // This creates an itemgradingdata
             gradingarray = question.getItemGradingDataArray();
           }
+
           log.info("****3a Gradingarray length2 = " + gradingarray.size());
           log.info("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
             ItemGradingData data = (ItemGradingData) iter3.next();
-            if (adata == null){
+            if (adata == null && data.getAssessmentGradingId() != null){
               adata = delegate.load(data.getAssessmentGradingId().toString());
 	    }
             if (data.getAgentId() == null)
@@ -153,6 +154,12 @@ public class StudentScoreUpdateListener
             itemGradingSet.add(data);
           }
         }
+        if (adata==null){
+          // this is for cases when studnet submitted an assessment but skipped all teh questions
+          // when we won't be able to get teh assessmentGrading based on itemGrdaing ('cos there is none).
+          String assessmentGradingId = cu.lookupParam("gradingData");
+          adata = delegate.load(assessmentGradingId);
+	}
         adata.setItemGradingSet(itemGradingSet);
       }
 
