@@ -257,34 +257,39 @@ public class BasicPodfeedService implements PodfeedService {
     		// get the iterator
     		if (podEntries != null) {
     			Iterator podcastIter = podEntries.iterator();
-        		
+
     			while (podcastIter.hasNext()) {
         		    
 			// get its properties from ContentHosting
 			ContentResource podcastResource = (ContentResource) podcastIter.next();
 			ResourceProperties podcastProperties = podcastResource.getProperties();
 
-			// Format date, change SimpleDateFormat to format from example
+			Date today = new Date();
 			Date publishDate = null;
 			try {
 				publishDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
-				if (pubDate == null) {
-					pubDate = publishDate;
+				
+				if (publishDate.before(today) || publishDate.equals(today)) {
+					if (pubDate == null) {
+						pubDate = publishDate;
 
-				}
-				else if (publishDate.after(pubDate)) {
-					pubDate = publishDate;
+					}
+					else if (publishDate.after(pubDate)) {
+						pubDate = publishDate;
+					
+					}
 					
 				}
+
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO If not date, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date. " + e.getMessage());
+				LOG.info("EntityPropertyNotDefinedException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + ", using current date. " + e.getMessage());
 
 			} catch (EntityPropertyTypeException e) {
 				// TODO Same thing, set to today? skip? throw PodcastFormatException?
 				publishDate = new Date();
-				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + "using current date. " + e.getMessage());
+				LOG.info("EntityPropertyTypeException generating podfeed getting DISPLAY_DATE for entry for site: " + siteID + ", using current date. " + e.getMessage());
 
 			}
     				
@@ -337,7 +342,7 @@ public class BasicPodfeedService implements PodfeedService {
          
          // Since we have the complete URL, we only need to replace spaces, not slashes
          mp3link = mp3link.replaceAll(" ", "%20");
-         mp3link = mp3link.replace("qt", "mov");
+//         mp3link = mp3link.replace("qt", "mov");
          entry.setLink(mp3link);
          
          entry.setPublishedDate(date);
