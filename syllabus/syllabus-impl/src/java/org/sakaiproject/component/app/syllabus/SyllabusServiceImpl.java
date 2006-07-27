@@ -55,6 +55,10 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+//permission convert
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -63,6 +67,10 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Validator;
+
+//permission convert
+import org.sakaiproject.authz.cover.SecurityService;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -278,7 +286,42 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
-		return null;
+	//permission convert
+		Collection rv = new Vector();
+
+		try
+		{
+			Site site = SiteService.getSite(ref.getContext());
+			Collection groups = site.getGroups();
+
+			if ((SecurityService.isSuperUser()))
+			{
+				return groups;
+			}
+
+			Collection groupRefs = new Vector();
+			for (Iterator i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				groupRefs.add(group.getReference());
+			}
+		
+			for (Iterator i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				rv.add(group);
+			}
+			
+			ref.addSiteContextAuthzGroup(rv);
+		}
+		catch (IdUnusedException e) 
+		{
+			logger.error("SyllabusServiceImpl:getEntityAuthzGroups - " + e);
+			e.printStackTrace();
+		}
+
+		return rv;
+
 	}
 
 	/**
@@ -949,6 +992,34 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 			
 			m_properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, data.getTitle());
 		}
+		
+		//permission convert
+		public BaseResourceEdit(String id, SyllabusData data, String siteId)
+		{
+			m_id = id;
+			
+			m_data = data;
+			
+			m_reference = Entity.SEPARATOR + siteId + Entity.SEPARATOR + m_id;
+			
+			m_properties = new BaseResourcePropertiesEdit();
+			
+			m_properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, data.getTitle());
+		}
+
+		//permission convert
+		public BaseResourceEdit(String siteId)
+		{
+			m_id = null;
+			
+			m_data = null;
+			
+			m_reference = Entity.SEPARATOR + siteId;
+			
+			m_properties = new BaseResourcePropertiesEdit();
+			
+			m_properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, "");
+		}
 
 		public String getUrl()
     {
@@ -1317,4 +1388,25 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 		
 		EventTrackingService.post(event);
 	}
+	
+	//permission convert
+	public String getEntityReference(SyllabusData sd, String thisSiteId)
+	{
+		BaseResourceEdit bre = new BaseResourceEdit(sd.getSyllabusId().toString(), sd, thisSiteId);		
+		return bre.getReference();
+	}
+	
+	//permission convert
+	public String getSyllabusApplicationSiteReference(String thisSiteId)
+	{
+		BaseResourceEdit bre = new BaseResourceEdit(thisSiteId);		
+		return bre.getReference();
+	}
+
+	//permission convert
+	public boolean checkPermission(String lock, String reference)
+	{
+		return SecurityService.unlock(lock, reference);
+	}
+	
 }

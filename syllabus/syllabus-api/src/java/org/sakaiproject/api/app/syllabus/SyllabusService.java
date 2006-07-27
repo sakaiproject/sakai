@@ -49,6 +49,9 @@ public interface SyllabusService extends EntityProducer
 	
 	public static final String SYLLABUS_SERVICE_NAME = "org.sakaiproject.api.app.syllabus.SyllabusService";
 	
+	//permission convert
+	public static final String PERMISSION_UPDATE = "syllabus.update"; 
+		
 	public void postNewSyllabus(SyllabusData data);
 	
 	public void postChangeSyllabus(SyllabusData data);
@@ -64,4 +67,12 @@ public interface SyllabusService extends EntityProducer
 	public List getMessages(String id);
 	
 	public void importEntities(String fromSiteId, String toSiteId, List resourceIds);
+	
+	//permission convert
+	public String getEntityReference(SyllabusData sd, String thisSiteId);
+	
+	public String getSyllabusApplicationSiteReference(String thisSiteId);
+	
+	public boolean checkPermission(String lock, String reference);
+
 }
