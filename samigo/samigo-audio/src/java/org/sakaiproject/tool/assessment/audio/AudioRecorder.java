@@ -406,34 +406,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
   }
 
   /**
-   * Save to a temporary file, then post it.
-   * We could do this directly without a file, but this way
-   * user has a local copy they can replay.
-   *
-   * @param tempFileName the file name where data is temporarily stored.
-   * @param audioType the audio type string
-   * @param urlString the url (in applets must use getCodeBase().toString() +
-   * same-host relative url)
-   */
-  public void saveToFileAndPost(String tempFileName,
-                                AudioFileFormat.Type audioType,
-                                String urlString,
-                                int attemptsLeft)
-  {
-    try
-    {
-      saveToFile(tempFileName, audioType);
-      FileInputStream inputStream = new FileInputStream(tempFileName);
-      saveAndPost(inputStream, audioType,  urlString, attemptsLeft,true);
-    }
-    catch (Exception ex)
-    {
-      reportStatus(ex.toString());
-      samplingGraph.repaint();
-    }
-  }
-
-  /**
    * Post audio data directly.
    *
    * @param audioType the audio type string
@@ -533,46 +505,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
     catch (IOException ex){
       reportStatus(ex.toString());
     }
-  }
-
-  public void saveToFile(String name, AudioFileFormat.Type fileType)
-  {
-
-    if (audioInputStream == null)
-    {
-      reportStatus(res.getString("No_loaded_audio_to"));
-      return;
-    }
-    else if (file != null)
-    {
-      createAudioInputStream(file, false);
-    }
-
-    // reset to the beginnning of the captured data
-    try
-    {
-      audioInputStream.reset();
-    }
-    catch (Exception e)
-    {
-      reportStatus(res.getString("Unable_to_reset") + e);
-      return;
-    }
-
-    File file = new File("/tmp/daisyf.au");
-    //File file = new File(fileName = name);
-    try
-    {
-      if (AudioSystem.write(audioInputStream, fileType, file) == -1)
-      {
-        throw new IOException(res.getString("Problems_writing_to"));
-      }
-    }
-    catch (Exception ex)
-    {
-      reportStatus(ex.toString());
-    }
-    samplingGraph.repaint();
   }
 
   private void reportStatus(String msg)
@@ -1078,19 +1010,15 @@ public class AudioRecorder extends JPanel implements ActionListener,
         params.setAttemptsRemaining(--attempts);
         rtextField.setText("" + attempts);
       }
-      if (params.isSaveToFile() && params.isSaveToUrl()){
-        saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
-      }
-      else if (params.isSaveToUrl()){  //<-- this is what we want for samigo 2.2  -daisyf
+
+      if (params.isSaveToUrl()){
         saveAndPost(audioInputStream, type, params.getUrl(), attempts, true);
-      }
-      else if (params.isSaveToFile()){
-        saveToFile(textField.getText().trim(), type);
       }
       else{
       // this is for preview when u just wnat to keep the recording at client
         saveAndPost(audioInputStream, type, params.getUrl(), attempts, false);
       }
+
       // earlier we add 1sec leeway for the applet to load after the timer start. to avoid
       // alarm user, the duration value shown wuld not be over max seconds allowed.
       // However, for record keeping, the actual duration is saved.

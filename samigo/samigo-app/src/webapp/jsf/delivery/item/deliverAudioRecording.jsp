@@ -88,14 +88,9 @@ should be included in file importing DeliveryMessages
   <PARAM NAME = NAME VALUE = "Record Audio" >
   <PARAM NAME = "type" VALUE = "application/x-java-applet;version=1.5">
   <PARAM NAME = "scriptable" VALUE = "false">
-  <PARAM NAME = "enablePlay" VALUE="true">
-  <PARAM NAME = "enableRecord" VALUE="true">
-  <PARAM NAME = "enablePause" VALUE="true">
-  <PARAM NAME = "enableLoad" VALUE="false">
   <PARAM NAME = "saveAu" VALUE="true">
   <PARAM NAME = "saveWave" VALUE="false">
   <PARAM NAME = "saveAiff" VALUE="false">
-  <PARAM NAME = "saveToFile" VALUE="false">
   <PARAM NAME = "saveToUrl" VALUE="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>">
   <PARAM NAME = "fileName" VALUE="audio">
   <PARAM NAME = "url" VALUE="</f:verbatim><h:outputText
@@ -129,14 +124,9 @@ should be included in file importing DeliveryMessages
       ALIGN = "middle" \
       VSPACE = "2" \
       HSPACE = "2" \
-      enablePlay ="true" \
-      enableRecord ="true" \
-      enablePause ="true" \
-      enableLoad ="false" \
       saveAu ="true" \
       saveWave ="false" \
       saveAiff ="false" \
-      saveToFile ="false" \
       saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
       fileName ="audio" \
       url ="</f:verbatim><h:outputText
