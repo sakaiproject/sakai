@@ -43,6 +43,7 @@
       <property name="docId"><value>aqze</value></property>
       <property name="name"><value>Modify Profile</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/aqze.html</value></property>
+      <property name="defaultForTool"><value>sakai.profile</value></property>
    </bean>
    
    <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -111,6 +112,7 @@
       <property name="docId"><value>arce</value></property>
       <property name="name"><value>Preferences Overview</value></property>
       <property name="location"><value>/sakai_iframe_myworkspace/arce.html</value></property>
+      <property name="defaultForTool"><value>sakai.preferences</value></property>
    </bean>
    
    
@@ -124,23 +126,23 @@
                <property name="resources">
                   <list>
                      <ref bean="workspaceOverview"/>
-                     <ref bean="changeNotificationPreferences"/>
-                     <ref bean="addTools"/>
-                     <ref bean="searchUserProfile"/>
-                     <ref bean="setMOD"/>
                      <ref bean="clickBackButton"/>
-                     <ref bean="modifyProfile"/>
+                     <ref bean="setMOD"/>
                      <ref bean="changeWorkspace"/>
                      <ref bean="membershipOverview"/>
                      <ref bean="joinSites"/>
                      <ref bean="worksiteSetupOverview"/>
+                     <ref bean="addTools"/>
                      <ref bean="worksiteSetupAddParticipants"/>
                      <ref bean="worksiteSetupControlAccess"/>
                      <ref bean="worksiteSetupTextDescription"/>
                      <ref bean="worksiteSetupPublish"/>
                      <ref bean="worksiteSetupChangeRoles"/>
                      <ref bean="worksiteSetupEditInfo"/>
+                     <ref bean="modifyProfile"/>
+                     <ref bean="searchUserProfile"/>
                      <ref bean="preferencesOverview"/>
+                     <ref bean="changeNotificationPreferences"/>
                   </list>
                </property>
             </bean>
