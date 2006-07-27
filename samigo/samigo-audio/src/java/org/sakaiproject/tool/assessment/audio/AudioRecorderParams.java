@@ -325,7 +325,7 @@ public class AudioRecorderParams implements Serializable
       }
     }
     s = applet.getParameter("attemptsRemaining");
-    if (s != null)
+    if (s != null && !("").equals(s))
     {
       try
       {

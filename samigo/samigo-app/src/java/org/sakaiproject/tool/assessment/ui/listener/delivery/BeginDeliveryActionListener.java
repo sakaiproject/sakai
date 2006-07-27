@@ -100,6 +100,9 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setBeginAssessment(true);
     delivery.setTimeStamp((new Date()).getTime());
 
+    // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
+    delivery.setProtocol(cu.getProtocol());
+
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     delivery.setPublishedAssessment(pub);
 

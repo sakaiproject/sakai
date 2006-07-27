@@ -208,9 +208,6 @@ public class DeliveryActionListener
               setFeedbackMode(delivery);
               setTimer(delivery, publishedAssessment);
 
-              // protocol = http://servername:8080/; deliverAudioRecording.jsp needs it
-              delivery.setProtocol(cu.getProtocol()); 
-
               // extend session time out
               SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);
               log.debug("****Set begin time " + delivery.getBeginTime());
