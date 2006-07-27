@@ -57,6 +57,13 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
 
+  <managed-bean>
+    <description>Bean to process global feed information</description>
+    <managed-bean-name>podFeedBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podFeedBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  
 	<!-- navigation
 			FROM what page TO what page
 			IUPUI: path needs to be /projname/xx.jsp -->

@@ -268,10 +268,6 @@ public class podHomeBean {
 	private boolean displayNoDateErrMsg;
 	private boolean displayNoTitleErrMsg;
 	
-	// Used by podFeedRevise for global feed info
-	private String podFeedTitle;
-	private String podFeedDescription;
-	
 	/**
 	 * @return Returns the displayNoTitleErrMsg.
 	 */
@@ -721,54 +717,6 @@ public class podHomeBean {
     }
 	
 	/**
-	 * @return Returns the podFeedTitle.
-	 */
-	public String getPodFeedTitle() {
-		// TODO: if (podcastService.getFeedTitle == null) {
-		//			podFeedTitle = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
-		//       }
-		//		else {
-		//			podFeedTitle = podcastService.getGlobalDescription();
-		//		}
-		podFeedTitle = rb.getString("podfeed_global_title") + " TestPodcast";
-		
-		return podFeedTitle;
-	}
-
-	/**
-	 * @param podFeedTitle The podFeedTitle to set.
-	 */
-	public void setPodFeedTitle(String podFeedTitle) {
-		this.podFeedTitle = podFeedTitle;
-		
-		//TODO: store it somewhere for later
-	}
-
-	/**
-	 * @return Returns the podFeedDescription.
-	 */
-	public String getPodFeedDescription() {
-		// TODO: if (podcastService.getFeedDescription == null) {
-		//			podFeedDescription = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
-		//       }
-		//		else {
-		//			podFeedDescription = podcastService.getGlobalDescription();
-		//		}
-		podFeedDescription = rb.getString("podfeed_global_desc1") + "TestPodcast" + rb.getString("podfeed_global_desc2"); 
-		
-		return podFeedDescription;
-	}
-
-	/**
-	 * @param podFeedDescription The podFeedDescription to set.
-	 */
-	public void setPodFeedDescription(String podFeedDescription) {
-		this.podFeedDescription = podFeedDescription;
-		
-		//TODO: store it somewhere for later
-	}
-
-	/**
 	 * Performs the actual adding of a podcast. Calls PodcastService to actually add the podcast.
 	 * 
 	 * @return String Sent to return to main page.
@@ -999,26 +947,6 @@ public class podHomeBean {
 	}
 
 
-	public String processPodfeedRevise() {
-		if (! (podFeedTitle.equals("") || podFeedTitle.equals(""/* old title */))) {
-			// Replace with this title
-		}
-		
-		if (! (podFeedDescription.equals("") || podFeedDescription.equals(""/* old description */))) {
-			// Replace with this description
-		}
-		
-		return "cancel";
-	}
-	/**
-	 * Cancels revising global podfeed information
-	 * 
-	 * @return String Sent to return to the main page
-	 */
-	public String processCancelPodfeedRevise() {
-		return "cancel";
-	}
-
 	/**
 	 * Returns whether an error message is to be displayed if a file has not been selected in the file upload field.
 	 * @return Returns the displayNoFileErrMsg.
@@ -1099,10 +1027,6 @@ public class podHomeBean {
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
         return rb.getString(key);
 		
-	}
-
-	public void generatePodcastRSS(ActionEvent e) {
-		podfeedService.generatePodcastRSS("Podcast", "TestRSS.feed");
 	}
 
 

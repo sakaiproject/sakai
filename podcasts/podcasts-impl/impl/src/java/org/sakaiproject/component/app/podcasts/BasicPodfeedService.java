@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.datatype.Duration;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
@@ -27,8 +29,6 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.w3c.dom.Document;
 
-import com.sun.syndication.feed.module.itunes.EntryInformationImpl;
-import com.sun.syndication.feed.module.itunes.types.Duration;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEnclosureImpl;
@@ -331,22 +331,13 @@ public class BasicPodfeedService implements PodfeedService {
     									long length, String mimeType) {
 
     	    SyndEntryImpl entry = new SyndEntryImpl();
-   	    EntryInformationImpl e = new EntryInformationImpl();
-   	    ArrayList modules = new ArrayList();
-        
-       // TODO: Determine duration of file
-   	    e.setAuthor(author);
-  
-   	    e.setDuration( new Duration( 263000 ) );
-
-        modules.add( e );
-        entry.setModules( modules );
 
          entry.setAuthor(author);
          entry.setTitle(title);
          
          // Since we have the complete URL, we only need to replace spaces, not slashes
          mp3link = mp3link.replaceAll(" ", "%20");
+         mp3link = mp3link.replace("qt", "mov");
          entry.setLink(mp3link);
          
          entry.setPublishedDate(date);
@@ -408,7 +399,7 @@ public class BasicPodfeedService implements PodfeedService {
              feed.setPublishedDate(pubDate);
              
              // remove following line, put in so can test with iTunes
-             feed.setLink(link.replace("localhost", "149.166.143.203"));
+             feed.setLink(link);
              
              feed.setDescription(description_loc);
              feed.setCopyright(copyright);

@@ -32,9 +32,7 @@
  	     <br />
  	     <b class="indnt1"><h:outputText value="#{podHomeBean.URL}" /></b>
  	     
-  	     <h:outputLink value="#{podHomeBean.URL}" styleClass="indnt1" >
-   	       <h:graphicImage value="images/rss20.gif"  />
-		</h:outputLink>
+ 	     <h:graphicImage value="images/rss20.gif"  styleClass="indnt1" />
  	     <br />
  	     
  	     <h:commandLink action="podfeedRevise" styleClass="indnt1" rendered="#{podHomeBean.canUpdateSite}" >
