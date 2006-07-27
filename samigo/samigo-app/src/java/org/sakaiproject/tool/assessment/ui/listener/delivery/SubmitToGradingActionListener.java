@@ -278,6 +278,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			// 1. add all the new itemgrading for MC/Survey and discard any
 			// itemgrading for MC/Survey
 			// 2. add any modified SAQ/TF/FIB/Matching/MCMR
+			// 3. save any modified Mark for Review in FileUplaod/Audio
 
 			HashMap fibMap = getFIBMap(publishedAssessment);
 			HashMap mcmrMap = getMCMRMap(publishedAssessment);
@@ -378,12 +379,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 				Long newAnswerId = newItem.getPublishedAnswerId();
 				String oldRationale = oldItem.getRationale();
 				String newRationale = newItem.getRationale();
-
 				String oldAnswerText = oldItem.getAnswerText();
-
 				String newAnswerText = newItem.getAnswerText();
-
 				if ((oldReview != null && !oldReview.equals(newReview))
+				    || (newReview!=null && !newReview.equals(oldReview))
 						|| (oldAnswerId != null && !oldAnswerId
 								.equals(newAnswerId))
 						|| (newAnswerId != null && !newAnswerId
@@ -508,22 +507,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
                         else{
-                          for (int m = 0; m < grading.size(); m++) {
-                            ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
-                            if (itemgrading.getItemGradingId() != null 
-                              && itemgrading.getItemGradingId().intValue() > 0
-                              && itemgrading.getReview() != null)  {
-                              // we will save itemgarding even though answer was not modified 
-                              // 'cos mark for review may have been modified
-                              adds.add(itemgrading);
-                            }
-			  }
+                          handleMarkForReview(grading, adds);
 			}
 			break;
 		case 4: // T/F
 		case 5: // SAQ
-		case 6: // File Upload
-		case 7: // Audio
 		case 8: // FIB
 		case 9: // Matching
 			for (int m = 0; m < grading.size(); m++) {
@@ -565,34 +553,27 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-		/*
-		 case 7: // Audio
-		 // audio is uploaded by UploadAudioMediaServlet to 
-		  // {repositoryPath}/jsf/upload_tmp/assessmentId/questionId/agentId
-		   // 1. check if saveToDB=true, if so move audio to DB
-		    // 2. add an itemGrading record for audio question.   
-		     ExternalContext extContext = FacesContext.getCurrentInstance().getExternalContext();
-		     ServletContext context = (ServletContext) extContext.getContext();
-		     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
-		     Long questionId = item.getItemData().getItemId();
-		     String mediaLocation = repositoryPath+ContextUtil.lookupParam("mediaLocation_"+questionId.toString());           
-		     //log.debug("**** mediaLocation="+mediaLocation);
-		      try{
-		      File file = new File(mediaLocation); 
-		      //log.debug("**** file exists="+file.exists());
-		       if (file.exists())
-		       delivery.addMediaToItemGrading(mediaLocation);
-		       }
-		       catch(Exception e){
-		       
-		       log.debug("audio question not answered:"+e.getMessage());
-		       e.printStackTrace();
-		       }
-		       break;
-		 */
+		case 6: // File Upload
+		case 7: // Audio
+                        handleMarkForReview(grading, adds);
+                        break;
 		}
 	}
 
+    private void handleMarkForReview(ArrayList grading, HashSet adds){
+      for (int m = 0; m < grading.size(); m++) {
+        ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+        if (itemgrading.getItemGradingId() != null 
+            && itemgrading.getItemGradingId().intValue() > 0
+            && itemgrading.getReview() != null)  {
+            // we will save itemgarding even though answer was not modified 
+            // 'cos mark for review may have been modified
+          adds.add(itemgrading);
+        }
+      }
+    }
+
+   
 	private Boolean isLate(PublishedAssessmentIfc pub) {
 		AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
 		if (a.getDueDate() != null && a.getDueDate().before(new Date()))
