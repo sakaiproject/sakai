@@ -11,7 +11,7 @@
 			<sakai:view_content>
 				<br />
 				<h:outputText value="#{msgs.gradebook_lastmodified}"/>
-				<h:outputText value="#{gradebook.updatedDateTime}"/>
+				<h:outputText value="#{PostemTool.currentGradebook.updatedDateTime}"/>
 				<br />
 				<sakai:flat_list styleClass="listHier lines" value="#{PostemTool.students}" var="student">
 					<h:column>
