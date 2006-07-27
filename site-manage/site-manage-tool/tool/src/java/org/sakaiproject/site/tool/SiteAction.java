@@ -1410,6 +1410,7 @@ public class SiteAction extends PagedResourceActionII
 				/*  buildContextForTemplate chef_site-siteInfo-list.vm
 				* 
 				*/
+				context.put("userDirectoryService", UserDirectoryService.getInstance());
 				try
 				{
 					siteProperties = site.getProperties();
@@ -9306,7 +9307,7 @@ public class SiteAction extends PagedResourceActionII
 			for (Iterator i = grants.iterator(); i.hasNext();)
 			{
 				Member g = (Member) i.next();
-				String userString = g.getUserId();
+				String userString = g.getUserEid();
 				Role r = g.getRole();
 				
 				boolean alreadyInList = false;

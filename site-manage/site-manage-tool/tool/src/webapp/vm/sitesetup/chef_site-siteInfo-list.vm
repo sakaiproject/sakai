@@ -322,7 +322,19 @@
 								#else
 									$participantName
 								#end
-								($participant.getDisplayId())
+								(#set($displayId=false)
+								#set($displayId = $participant.getDisplayId())
+								#if ($!displayId)
+									## for those internal users as Participant objects
+									$displayId
+								#else
+									## for those external users as CourseMember objects
+									#set($user = $!userDirectoryService.getUserByEid($participant.getUniqname()))
+									#if ($!user)
+										#set($displayId=$user.getDisplayId())
+									#end
+									$!displayId
+								#end)
 							</h5>
 						</td>
 						#if ($!isCourseSite)
