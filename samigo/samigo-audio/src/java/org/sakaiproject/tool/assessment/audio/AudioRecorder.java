@@ -424,7 +424,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
     {
       saveToFile(tempFileName, audioType);
       FileInputStream inputStream = new FileInputStream(tempFileName);
-      saveAndPost(inputStream, audioType,  urlString, attemptsLeft);
+      saveAndPost(inputStream, audioType,  urlString, attemptsLeft,true);
     }
     catch (Exception ex)
     {
@@ -445,7 +445,8 @@ public class AudioRecorder extends JPanel implements ActionListener,
   public void saveAndPost(InputStream inputStream,
                           final AudioFileFormat.Type audioType,
                           final String urlString,
-                          int attemptsLeft)
+                          int attemptsLeft,
+                          final boolean post)
   {
     Thread saveAndPostThread = new Thread(){
       public void run(){      
@@ -462,58 +463,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
           return;
         }
   
-        String suffix = getAudioSuffix();
-        URL url;
-        URLConnection urlConn;
-        try{
-          // URL of audio processing servlet
-          // note for applet security, this must be on same host
-          agentId = params.getAgentId();
-          String queryString = "&agent="+agentId+
-                               "&lastDuration="+duration+
-                               "&suffix="+suffix;
-          url = new URL(urlString+queryString);
-          urlConn = url.openConnection();
-          urlConn.setDoInput(true);
-          urlConn.setDoOutput(true);
-
-          // No caching, we want the real thing.
-          urlConn.setUseCaches(false);
-
-          urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
-          // Send binary POST output.
-          OutputStream outputStream = urlConn.getOutputStream();
-
-          try{
-	    //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
-            int c = AudioSystem.write(audioInputStream, audioType, outputStream);
-            if (c <= 0){
-              throw new IOException(res.getString("Problems_writing_to"));
-             }
-            outputStream.flush();
-            outputStream.close();
-
-            // Get response data.
-            String reportStr = res.getString("contentlenw") + ": " +
-                               c + " " + res.getString("bytes") + ".\n  ";
-            DataInputStream input = new DataInputStream(urlConn.getInputStream());
-
-            // need to check that acknowlegement from server matches or display
-            String str;
-            while (null != ( (str = input.readLine()))){
-              reportStr += str;
-            }
-            input.close();
-            // mock up doesn't require report, let's comment it out
-            //reportStatus(reportStr + "\n");
-	  }
-          catch (Exception ex){
-            reportStatus(ex.toString());
-          }
-        }
-        catch (IOException ex){
-          reportStatus(ex.toString());
-        }
+        if (post) postAudio(audioType, urlString);
         // hide the statusLabel and enable buttons after we saved the media
         statusLabel.setVisible(false);
         statusLabel.setText("");
@@ -527,6 +477,62 @@ public class AudioRecorder extends JPanel implements ActionListener,
       } // end of run
     }; // end of saveAndPostThread
     saveAndPostThread.start(); 
+  }
+
+  public void postAudio(AudioFileFormat.Type audioType,
+                        String urlString){
+    String suffix = getAudioSuffix();
+    URL url;
+    URLConnection urlConn;
+    try{
+      // URL of audio processing servlet
+      // note for applet security, this must be on same host
+      agentId = params.getAgentId();
+      String queryString = "&agent="+agentId+
+                           "&lastDuration="+duration+
+                           "&suffix="+suffix;
+      url = new URL(urlString+queryString);
+      urlConn = url.openConnection();
+      urlConn.setDoInput(true);
+      urlConn.setDoOutput(true);
+
+      // No caching, we want the real thing.
+      urlConn.setUseCaches(false);
+
+      urlConn.setRequestProperty("CONTENT-TYPE", getMimeType(audioType));
+      // Send binary POST output.
+      OutputStream outputStream = urlConn.getOutputStream();
+
+      try{
+        //System.out.println("**** no. of bytes recorded="+audioInputStream.available());
+        int c = AudioSystem.write(audioInputStream, audioType, outputStream);
+        if (c <= 0){
+          throw new IOException(res.getString("Problems_writing_to"));
+        }
+        outputStream.flush();
+        outputStream.close();
+
+        // Get response data.
+        String reportStr = res.getString("contentlenw") + ": " +
+                           c + " " + res.getString("bytes") + ".\n  ";
+        DataInputStream input = new DataInputStream(urlConn.getInputStream());
+
+        // need to check that acknowlegement from server matches or display
+        String str;
+        while (null != ( (str = input.readLine()))){
+          reportStr += str;
+        }
+        input.close();
+        // mock up doesn't require report, let's comment it out
+        //reportStatus(reportStr + "\n");
+      }
+      catch (Exception ex){
+         reportStatus(ex.toString());
+      }
+    }
+    catch (IOException ex){
+      reportStatus(ex.toString());
+    }
   }
 
   public void saveToFile(String name, AudioFileFormat.Type fileType)
@@ -1076,10 +1082,14 @@ public class AudioRecorder extends JPanel implements ActionListener,
         saveToFileAndPost(textField.getText().trim(), type, params.getUrl(), attempts);
       }
       else if (params.isSaveToUrl()){  //<-- this is what we want for samigo 2.2  -daisyf
-        saveAndPost(audioInputStream, type, params.getUrl(), attempts);
+        saveAndPost(audioInputStream, type, params.getUrl(), attempts, true);
       }
       else if (params.isSaveToFile()){
         saveToFile(textField.getText().trim(), type);
+      }
+      else{
+      // this is for preview when u just wnat to keep the recording at client
+        saveAndPost(audioInputStream, type, params.getUrl(), attempts, false);
       }
       // earlier we add 1sec leeway for the applet to load after the timer start. to avoid
       // alarm user, the duration value shown wuld not be over max seconds allowed.
