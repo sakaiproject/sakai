@@ -260,6 +260,7 @@ public class podHomeBean {
 	// used by podAdd.jsp for adding a podcast
 	private String filename;
 	private Date date;
+	private Date time;
 	private String title;
 	private String description;
 	private String email;
@@ -1052,6 +1053,20 @@ public class podHomeBean {
         ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
         return rb.getString(key);
 		
+	}
+
+	/**
+	 * @return Returns the time.
+	 */
+	public Date getTime() {
+		return time;
+	}
+
+	/**
+	 * @param time The time to set.
+	 */
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 

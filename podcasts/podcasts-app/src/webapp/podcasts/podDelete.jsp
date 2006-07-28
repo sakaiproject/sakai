@@ -10,7 +10,8 @@
         <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
     <h:form>
- 
+      <h3><h:outputText value="#{msgs.delete_title}" /></h3>
+ 	  
   	  <h:outputText value="#{msgs.del_confirm}" styleClass="alertMessage" />
 
       <h:outputText value="#{podHomeBean.selectedPodcast.displayDate}" styleClass="podDelDateFormat" />

@@ -9,13 +9,12 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.datatype.Duration;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -233,12 +232,12 @@ public class BasicPodfeedService implements PodfeedService {
     		}
     		catch (PermissionException pe) {
     			// TODO: Set error message to say you don't have permission
-   			 LOG.info("PermissionException getting podcasts in order to generate podfeed for site: " + siteID + ". " + pe.getMessage());
+   			 LOG.info("PermissionException getting podcasts in order to generate podfeed for site: " + siteID + ". " + pe.getMessage(), pe);
    			 pe.printStackTrace();
 
     		} catch (InUseException e) {
     			// TODO Or try again? Set Error Message?
-    			LOG.info("InUseException generating podfeed for site: " + siteID + ". " + e.getMessage());
+    			LOG.info("InUseException generating podfeed for site: " + siteID + ". " + e.getMessage(), e);
     			
     		} catch (IdInvalidException e) {
     			// TODO Set a LOG message before rethrowing?
@@ -431,4 +430,16 @@ public class BasicPodfeedService implements PodfeedService {
          return feed;
     	}
 
+    	public boolean getPodcastAccessPublic(String siteId) throws InconsistentException {
+
+    		ContentCollection collection = podcastService.getContentCollection(siteId);
+    		
+    		if (collection == null) {
+    			throw new InconsistentException("Problem accessing ContentCollection");
+    		}
+
+    		// TODO: How to determine if it is public/private?
+    		
+    		return true;
+    	}
 }

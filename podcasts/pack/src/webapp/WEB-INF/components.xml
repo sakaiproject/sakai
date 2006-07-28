@@ -25,6 +25,9 @@
 		    <ref bean="org.sakaiproject.authz.api.SecurityService" />
 		</property>
 
+		<property name="notificationService">
+			<ref bean="org.sakaiproject.event.api.NotificationService" />
+		</property>
 	</bean>
 
     <bean id="org.sakaiproject.api.app.podcasts.PodfeedService"

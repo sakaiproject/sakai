@@ -23,15 +23,23 @@ package org.sakaiproject.component.app.podcasts;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.podcasts.PodcastEmailService;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -40,9 +48,12 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
@@ -61,17 +72,24 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-public class PodcastServiceImpl implements PodcastService
+public class PodcastServiceImpl implements PodcastService, PodcastEmailService
 {
 	private ContentHostingService contentHostingService;
 	private ToolManager toolManager;
 	private Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 	private Reference siteRef;
+	
+	// injected beans
 	private PodcastComparator podcastComparator;
 	private SecurityService securityService;
 	private UserDirectoryService userDirectoryService;
 	private TimeService timeService;
+	private NotificationService notificationService;
+	
+    protected String m_relativeAccessPoint = null;
 	
 	PodcastServiceImpl() {
 	}
@@ -214,17 +232,43 @@ public class PodcastServiceImpl implements PodcastService
 				}
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO Auto-generated catch block
-				LOG.info("EntityPropertyNotDefinedException for podcast item: " + aResource);
+				LOG.info("EntityPropertyNotDefinedException for podcast item: " + aResource, e);
 				
 			} catch (EntityPropertyTypeException e) {
 				// TODO Auto-generated catch block
-				LOG.warn("EntityPropertyTypeException for podcast item: " + aResource);
+				LOG.warn("EntityPropertyTypeException for podcast item: " + aResource, e);
 				
 			}
 		}
 		return filteredPodcasts;
 	}
 
+	public ContentCollection getContentCollection(String siteId) {
+		
+		String siteCollection = contentHostingService.getSiteCollection( siteId );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+
+		ContentCollection collection = null;
+
+		try {
+			enablePodcastSecurityAdvisor();
+			
+			collection = contentHostingService.getCollection(podcastsCollection);
+			
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			LOG.info("IdUnusedException when trying to get podcast collection for " + siteId + ": " + e.getMessage(), e);
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			LOG.info("TypeException when trying to get podcast collection for " + siteId + ": " + e.getMessage(), e);
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			LOG.info("PermissionException when trying to get podcast collection for " + siteId + ": " + e.getMessage(), e);
+		}
+
+		return collection;
+	}
+	
 	/**
 	 * Retrieve Podcasts for site and if podcast folder does not exist,
 	 * create it. Used by feed since no context to pull siteID from
@@ -241,6 +285,8 @@ public class PodcastServiceImpl implements PodcastService
 		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 
 		try {
+			enablePodcastSecurityAdvisor();
+			
 			ContentCollection collection = contentHostingService.getCollection(podcastsCollection);
 
 			resourcesList = collection.getMemberResources();
@@ -287,6 +333,8 @@ public class PodcastServiceImpl implements PodcastService
 			LOG.warn("TypeException while getting podcasts for feed: " + e.getMessage(), e);
 			
 		}
+		
+		securityService.clearAdvisors();
 		
 		return resourcesList;
 	}
@@ -614,6 +662,117 @@ public class PodcastServiceImpl implements PodcastService
 	public void setTimeService(TimeService timeService) {
 		this.timeService = timeService;
 	}
+
+	public void init()
+	{
+		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);
+	  
+	  m_relativeAccessPoint = REFERENCE_ROOT;
+	  
+	  NotificationEdit edit = notificationService.addTransientNotification();
+	  
+	  edit.setFunction(EVENT_PODCAST_ADD);
+	  edit.addFunction(EVENT_PODCAST_REVISE);
+	  
+	  edit.setResourceFilter(getAccessPoint(true));
+	  
+//	  edit.setAction(new SiteEmailNotificationPodcasts());
+	}
+
+	public void destroy()
+	{
+	}
+
+	public String getLabel() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean willArchiveMerge() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public boolean parseEntityReference(String reference, Reference ref) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public String getEntityDescription(Reference ref) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ResourceProperties getEntityResourceProperties(Reference ref) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Entity getEntity(Reference ref) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getEntityUrl(Reference ref) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection getEntityAuthzGroups(Reference ref, String userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public HttpAccess getHttpAccess() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected String getAccessPoint(boolean relative) {
+		return (relative ? "" : ServerConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
+	}
+
+	/**
+	 * @return Returns the notificationService.
+	 */
+	public NotificationService getNotificationService() {
+		return notificationService;
+	}
+
+	/**
+	 * @param notificationService The notificationService to set.
+	 */
+	public void setNotificationService(NotificationService notificationService) {
+		this.notificationService = notificationService;
+	}
+	 
+	/**
+	 * Establish a security advisor to allow the "embedded" azg work to occur with no need for additional security permissions.
+	 */
+	protected void enablePodcastSecurityAdvisor()
+	{
+		// put in a security advisor so we can do our podcast work without need of further permissions
+		// TODO: could make this more specific to the AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP permission -ggolden
+		securityService.pushAdvisor(new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+
 
 }
 

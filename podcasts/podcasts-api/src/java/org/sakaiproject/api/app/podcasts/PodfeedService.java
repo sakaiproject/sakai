@@ -1,5 +1,7 @@
 package org.sakaiproject.api.app.podcasts;
 
+import org.sakaiproject.exception.InconsistentException;
+
 
 public interface PodfeedService {
 
@@ -17,4 +19,6 @@ public interface PodfeedService {
 
 	public String generatePodcastRSS(String Category);
 
+	public boolean getPodcastAccessPublic(String siteId) throws InconsistentException;
+	
 }

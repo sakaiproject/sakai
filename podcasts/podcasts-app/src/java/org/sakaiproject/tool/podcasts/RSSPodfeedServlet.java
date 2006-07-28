@@ -2,6 +2,7 @@ package org.sakaiproject.tool.podcasts;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.Principal;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -12,6 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+import org.sakaiproject.user.api.Evidence;
+import org.sakaiproject.user.cover.AuthenticationManager;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -50,9 +56,64 @@ public class RSSPodfeedServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		response.setContentType(RESPONSE_MIME_TYPE);
+		// Authentication madness:
+		//  1. Determine if resource if public/private ("default" - public)
+		//  2. if private, was username/password sent with request?
+		//  3.     if so, authenticate
+		//  4.     if successful, in you go, if not -> 403 response
+		//  5. if no username/password, 403 response
+		//  6. if public, on you go
 		
-		//Get the siteID from the URL passed in
+		// try to authenticate based on a Principal (one of ours) in the req
+		Principal prin = request.getUserPrincipal();
+
+		if (prin == null) {
+			String username = request.getHeader("username");
+			String password = request.getParameter("password");
+//			System.out.println("user: " + prin.getName() + ",pass: " + ((PodPrincipal) prin).getPassword());
+		
+		}
+
+		if ((prin != null) && (prin instanceof PodPrincipal))
+		{
+			String eid = prin.getName();
+			String pw = ((PodPrincipal) prin).getPassword();
+			Evidence e = new org.sakaiproject.util.IdPwEvidence(eid, pw);
+
+			// authenticate
+			try
+			{
+				if ((eid.length() == 0) || (pw.length() == 0))
+				{
+					throw new AuthenticationException("missing required fields");
+				}
+
+				Authentication a = AuthenticationManager.authenticate(e);
+
+				if (!UsageSessionService.login(a, request))
+				{
+					// login failed
+					response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+					response.sendError(401);
+					return;
+				}
+			}
+			catch (AuthenticationException ex)
+			{
+				// not authenticated
+				response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+				response.sendError(401);
+				return;
+			}
+		}
+		else
+		{
+			// user name missing, so can't authenticate
+			response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+			response.sendError(401);
+			return;
+		}
+
 		String reqURL = request.getPathInfo();
 		String siteID;
 		
@@ -65,6 +126,8 @@ public class RSSPodfeedServlet extends HttpServlet {
 			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
 		}
 
+		response.setContentType(RESPONSE_MIME_TYPE);
+		
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
 		String podcastFeed = podfeedService.generatePodcastRSS(PodfeedService.PODFEED_CATEGORY, "FromServlet.xml", siteID, request.getParameter(FEED_TYPE));
 
@@ -74,9 +137,14 @@ public class RSSPodfeedServlet extends HttpServlet {
 		else {
 			PrintWriter pw = response.getWriter();
 			pw.write(podcastFeed);
-		
+
 		}
 		
+/*		}
+		catch (InconsistentException e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+*/		
 	}
 
 	/**

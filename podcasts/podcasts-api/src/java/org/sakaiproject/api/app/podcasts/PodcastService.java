@@ -24,6 +24,7 @@ package org.sakaiproject.api.app.podcasts;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -199,4 +200,14 @@ public interface PodcastService // extends EntityProducer
 	 * @return boolean true if user can modify, false otherwise
 	 */
 	public boolean canUpdateSite();
+	
+	/**
+	 * Returns the ContentCollection that contains the podcasts.
+	 * 
+	 * @param siteId The site id to pull the correct collection
+	 * 
+	 * @return ContentCollection
+	 */
+	public ContentCollection getContentCollection(String siteId);
+
 }
