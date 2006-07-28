@@ -9,28 +9,20 @@
 <body>
 <div class="helpBody">
 <h2>Basic Search</h2>
-<p>The Search Tool is designed to provide a search faclility to content within tools within a worksite or course.
-It achieves this by creating an index of all content that other tools decide to make available to the search tool.
-This index is updated automatically, so as content is added to the worksite or course, it will be indexed.</p>
 <p>
-For example, if the worksite or course has an email list, as emails are posted to the list, the content of those emails
-will be indexed and become searchable in the search tool.
+On the Search page, enter the words that you want to search for in the entry box.
+The search tool will search for one or more of those terms.
 </p>
 <p>
-On the search tool 'search' page, you will find an entry box. To perform a search, simply enter the words that you want to search for.
-The search tool will then perform search based on those terms. 
-</p>
-<p>
-When the search is performed it will only return items form the current worksite or course where the 
-tool has been placed. 
-The hit results are ranked acording to a relevance score. This score is based on
-the proximity of the words, and the frequencey of the words within the content. 
-If there are more than 10 results, the results wil be paged, and you can browse through the 
+Search will only return items from the current worksite or course.
+The results are ranked according to a relevance score. This score is based on
+the proximity of the words, and the frequency of the words within the content. 
+If there are more than 10 results, the results will be paged, and you can browse through the 
 pages by selecting the page number to view.
 </p>
 <p>
-The search tool performs some basic analysis on the words you enter, for instance it will ignore
-frequently occouring terms like <em>I, the, and</em> and will reduce words to their stem word. 
+The search tool performs some basic analysis on the words you enter. For example, it will ignore
+frequently occurring terms like <em>I</em> or <em>the</em> and will reduce words to their stem word.
 </p>
 <blockquote>
 For example, if you search
@@ -38,15 +30,11 @@ for <em>cowslips</em>, the search tool will recognise the stem of the word as <e
 i.e. <em>cowslip, cowslips</em>. 
 </blockquote>
 <p>
-This process is called stemming.
-</p>
-<p>
-As has been mentioned the search tool ignores the boolean operators, but if you want to 
-improve the search you can prefix with + or -, indicating the search <em>must contain</em> or <em>must not contain</em> the 
-following word, respecively. 
+To improve search accuracy, you can prefix terms with + or -, indicating the search <em>must contain</em> or <em>must not contain</em> the 
+term which follows.
 <blockquote>
-For Example, if you search for <em>+cowslips -bluebells</em>, 
-the search engine will generate a the query <em>documents must contian the stem cowslip and must not contain the stem bluebell</em>
+For example if you search for <em>+cowslips -bluebells</em>, 	
+the search will return results which contain the stem <em>cowslip</em> and do not contain the stem <em>bluebell</em>.
 </blockquote>
 </div>
 </body>
