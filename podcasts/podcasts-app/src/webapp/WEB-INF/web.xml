@@ -61,16 +61,14 @@
   </servlet>
  
    <servlet-mapping>
-       <servlet-name>
-          podfeed
-       </servlet-name>
-       <url-pattern>/*</url-pattern>
+       <servlet-name>podfeed</servlet-name>
+       <url-pattern>/podfeed/*</url-pattern>
     </servlet-mapping>
   
   <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Sakai Podcast Feed Servlet</web-resource-name>
-			<url-pattern>/*</url-pattern>
+			<url-pattern>/podfeed/*</url-pattern>
 			<http-method>GET</http-method>
 			<http-method>POST</http-method>
 		</web-resource-collection>

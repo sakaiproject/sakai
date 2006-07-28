@@ -15,12 +15,14 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.dav.DavPrincipal;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
 import org.sakaiproject.user.cover.AuthenticationManager;
+import org.sakaiproject.util.IdPwEvidence;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -71,7 +73,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
 		}
 
-		String siteCollection = ContentHostingService.getSiteCollection(siteID);
+/*		String siteCollection = ContentHostingService.getSiteCollection(siteID);
 		String podcastsCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
 
 		if (! ContentHostingService.isPubView(podcastsCollection)) {
@@ -84,14 +86,14 @@ public class RSSPodfeedServlet extends HttpServlet {
 			//  6. if public, on you go
 		
 			// try to authenticate based on a Principal (one of ours) in the req
-			Principal prin = (PodPrincipal) request.getUserPrincipal();
+			Principal prin = (DavPrincipal) request.getUserPrincipal();
 			String username;
 		
-			if ((prin != null) && (prin instanceof PodPrincipal))
+			if ((prin != null) && (prin instanceof DavPrincipal))
 			{
 				String eid = prin.getName();
-				String pw = ((PodPrincipal) prin).getPassword();
-				Evidence e = new org.sakaiproject.util.IdPwEvidence(eid, pw);
+				String pw = ((DavPrincipal) prin).getPassword();
+				Evidence e = new IdPwEvidence(eid, pw);
 
 				// authenticate
 				try
@@ -128,7 +130,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 			}
 			
 		}
-
+*/
 		response.setContentType(RESPONSE_MIME_TYPE);
 		
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"
