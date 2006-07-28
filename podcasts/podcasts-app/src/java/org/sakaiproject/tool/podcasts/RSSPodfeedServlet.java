@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
@@ -35,62 +38,6 @@ public class RSSPodfeedServlet extends HttpServlet {
 		super();
 	}
 
-	protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, java.io.IOException
-	{
-		// Authentication madness:
-		//  1. Determine if resource if public/private ("default" - public)
-		//  2. if private, was username/password sent with request?
-		//  3.     if so, authenticate
-		//  4.     if successful, in you go, if not -> 403 response
-		//  5. if no username/password, 403 response
-		//  6. if public, on you go
-		
-		// try to authenticate based on a Principal (one of ours) in the req
-		Principal prin = (PodPrincipal) request.getUserPrincipal();
-		String username;
-		
-		if ((prin != null) && (prin instanceof PodPrincipal))
-		{
-			String eid = prin.getName();
-			String pw = ((PodPrincipal) prin).getPassword();
-			Evidence e = new org.sakaiproject.util.IdPwEvidence(eid, pw);
-
-			// authenticate
-			try
-			{
-				if ((eid.length() == 0) || (pw.length() == 0))
-				{
-					throw new AuthenticationException("missing required fields");
-				}
-
-				Authentication a = AuthenticationManager.authenticate(e);
-
-				if (!UsageSessionService.login(a, request))
-				{
-					// login failed
-					response.sendError(401);
-					return;
-				}
-			}
-			catch (AuthenticationException ex)
-			{
-				// not authenticated
-				response.sendError(401);
-				return;
-			}
-		}
-		else
-		{
-			// user name missing, so can't authenticate
-			response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
-			response.sendError(401);
-			return;
-		}
-		
-//		doGet(request, response);
-
-	}
-	
 	/**
 	 * Destruction of the servlet. <br>
 	 */
@@ -122,6 +69,64 @@ public class RSSPodfeedServlet extends HttpServlet {
 			reqURL = request.getRequestURI();
 			
 			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
+		}
+
+		String siteCollection = ContentHostingService.getSiteCollection(siteID);
+		String podcastsCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
+
+		if (! ContentHostingService.isPubView(podcastsCollection)) {
+			// Authentication madness:
+			//  1. Determine if resource if public/private ("default" - public)
+			//  2. if private, was username/password sent with request?
+			//  3.     if so, authenticate
+			//  4.     if successful, in you go, if not -> 403 response
+			//  5. if no username/password, 403 response
+			//  6. if public, on you go
+		
+			// try to authenticate based on a Principal (one of ours) in the req
+			Principal prin = (PodPrincipal) request.getUserPrincipal();
+			String username;
+		
+			if ((prin != null) && (prin instanceof PodPrincipal))
+			{
+				String eid = prin.getName();
+				String pw = ((PodPrincipal) prin).getPassword();
+				Evidence e = new org.sakaiproject.util.IdPwEvidence(eid, pw);
+
+				// authenticate
+				try
+				{
+					if ((eid.length() == 0) || (pw.length() == 0))
+					{
+						throw new AuthenticationException("missing required fields");
+					}
+
+					Authentication a = AuthenticationManager.authenticate(e);
+
+					if (!UsageSessionService.login(a, request))
+					{
+						// login failed
+						response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+						response.sendError(401);
+						return;
+					}
+				}
+				catch (AuthenticationException ex)
+				{
+					// not authenticated
+					response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+					response.sendError(401);
+					return;
+				}
+			}
+			else
+			{
+				// user name missing, so can't authenticate
+				response.setHeader("WWW-Authenticate", HttpServletRequest.BASIC_AUTH + " realm=\"Podcaster\"");
+				response.sendError(401);
+				return;
+			}
+			
 		}
 
 		response.setContentType(RESPONSE_MIME_TYPE);
