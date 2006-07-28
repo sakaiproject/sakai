@@ -9330,7 +9330,7 @@ public class SiteAction extends PagedResourceActionII
 				{
 					try
 					{
-						User user = UserDirectoryService.getUser(userString);
+						User user = UserDirectoryService.getUserByEid(userString);
 						Participant participant = new Participant();
 						participant.name = user.getSortName();
 						participant.uniqname = user.getId();
