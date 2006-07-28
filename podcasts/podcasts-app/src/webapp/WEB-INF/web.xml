@@ -60,10 +60,36 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
  
-  <servlet-mapping>
-    <servlet-name>podfeed</servlet-name>
-    <url-pattern>/podfeed/*</url-pattern>
-  </servlet-mapping>
+   <servlet-mapping>
+       <servlet-name>
+          podfeed
+       </servlet-name>
+       <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+  
+  <security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Sakai Podcast Feed Servlet</web-resource-name>
+			<url-pattern>/*</url-pattern>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>tomcat</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>BASIC</auth-method>
+		<realm-name></realm-name>
+	</login-config>
+
+	<security-role>
+		<description>
+			An example role defined in "conf/tomcat-users.xml"
+		</description>
+		<role-name>tomcat</role-name>
+	</security-role>
 
 	<!-- the RequestFilter works with JsfTool to intercept requests -->
     <filter>
