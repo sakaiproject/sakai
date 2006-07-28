@@ -34,27 +34,27 @@ public class TypeFacade implements Serializable, TypeIfc{
   // 02_TypeData.sql when generate the table
   // these are qestion type available in this site,
 
-  public static Long MULTIPLE_CHOICE = new Long(1);
-  public static Long MULTIPLE_CORRECT = new Long(2);
-  public static Long MULTIPLE_CHOICE_SURVEY = new Long(3);
-  public static Long TRUE_FALSE = new Long(4);
-  public static Long ESSAY_QUESTION = new Long(5);
-  public static Long FILE_UPLOAD = new Long(6);
-  public static Long AUDIO_RECORDING = new Long(7);
-  public static Long FILL_IN_BLANK = new Long(8);
-  public static Long MATCHING = new Long(9);
+  public static final Long MULTIPLE_CHOICE = new Long(1);
+  public static final Long MULTIPLE_CORRECT = new Long(2);
+  public static final Long MULTIPLE_CHOICE_SURVEY = new Long(3);
+  public static final Long TRUE_FALSE = new Long(4);
+  public static final Long ESSAY_QUESTION = new Long(5);
+  public static final Long FILE_UPLOAD = new Long(6);
+  public static final Long AUDIO_RECORDING = new Long(7);
+  public static final Long FILL_IN_BLANK = new Long(8);
+  public static final Long MATCHING = new Long(9);
   // these are section type available in this site,
-  public static Long DEFAULT_SECTION = new Long(21);
+  public static final Long DEFAULT_SECTION = new Long(21);
   // these are assessment template type available in this site,
-  public static Long TEMPLATE_QUIZ = new Long(41);
-  public static Long TEMPLATE_HOMEWORK = new Long(42);
-  public static Long TEMPLATE_MIDTERM = new Long(43);
-  public static Long TEMPLATE_FINAL = new Long(44);
+  public static final Long TEMPLATE_QUIZ = new Long(41);
+  public static final Long TEMPLATE_HOMEWORK = new Long(42);
+  public static final Long TEMPLATE_MIDTERM = new Long(43);
+  public static final Long TEMPLATE_FINAL = new Long(44);
   // these are assessment type available in this site,
-  public static Long QUIZ = new Long(61);
-  public static Long HOMEWORK = new Long(62);
-  public static Long MIDTERM = new Long(63);
-  public static Long FINAL = new Long(64);
+  public static final Long QUIZ = new Long(61);
+  public static final Long HOMEWORK = new Long(62);
+  public static final Long MIDTERM = new Long(63);
+  public static final Long FINAL = new Long(64);
 
   private Long typeId;
   private String authority;

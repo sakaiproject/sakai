@@ -29,15 +29,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.ResourceBundle;
+//import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+//import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateQueryException;
-import org.hibernate.Hibernate;
+//import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -76,8 +76,8 @@ public class AssessmentFacadeQueries
   
   // private ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
-  public static String LASTMODIFIEDDATE = "lastModifiedDate";
-  public static String TITLE = "title";
+  public static final String LASTMODIFIEDDATE = "lastModifiedDate";
+  public static final String TITLE = "title";
 
   public AssessmentFacadeQueries()
   {

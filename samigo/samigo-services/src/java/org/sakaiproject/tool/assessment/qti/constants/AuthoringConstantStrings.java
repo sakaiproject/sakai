@@ -56,22 +56,22 @@ public class AuthoringConstantStrings
   private static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   //
-  public static String UNLIMITED_SUBMISSIONS = "9999";
+  public static final String UNLIMITED_SUBMISSIONS = "9999";
   
-  public static String ANONYMOUS = rb.getString("anonymous"); // Anonymous Users
-  public static String AUTHENTICATED = rb.getString("authenticated"); // Authenticated Users
+  public static final String ANONYMOUS = rb.getString("anonymous"); // Anonymous Users
+  public static final String AUTHENTICATED = rb.getString("authenticated"); // Authenticated Users
   
   //Item Types
-  public static String MATCHING = rb.getString("matching"); //"Matching"
-  public static String FIB = rb.getString("fib"); //"Fill In the Blank"
-  public static String MCMC = rb.getString("mcmc"); //"Multiple Correct Answer"
-  public static String MCSC = rb.getString("mcsc"); // "Multiple Choice"
-  public static String TF = rb.getString("tf"); // "True False"
-  public static String SURVEY = rb.getString("survey"); // "Multiple Choice Survey"
-  public static String ESSAY = rb.getString("essay"); // "Short Answers/Essay"
-  public static String ESSAY_ALT = rb.getString("essay_alt"); // "Essay"
-  public static String AUDIO = rb.getString("audio"); // "Audio Recording"
-  public static String FILE = rb.getString("file"); // "File Upload"
+  public static final String MATCHING = rb.getString("matching"); //"Matching"
+  public static final String FIB = rb.getString("fib"); //"Fill In the Blank"
+  public static final String MCMC = rb.getString("mcmc"); //"Multiple Correct Answer"
+  public static final String MCSC = rb.getString("mcsc"); // "Multiple Choice"
+  public static final String TF = rb.getString("tf"); // "True False"
+  public static final String SURVEY = rb.getString("survey"); // "Multiple Choice Survey"
+  public static final String ESSAY = rb.getString("essay"); // "Short Answers/Essay"
+  public static final String ESSAY_ALT = rb.getString("essay_alt"); // "Essay"
+  public static final String AUDIO = rb.getString("audio"); // "Audio Recording"
+  public static final String FILE = rb.getString("file"); // "File Upload"
 
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
   public static String[] itemTypes =
@@ -79,9 +79,9 @@ public class AuthoringConstantStrings
 
 
   // Feedback Type
-  public static String FEEDBACKTYPE_IMMEDIATE = "IMMEDIATE";
-  public static String FEEDBACKTYPE_DATED = "DATED";
-  public static String FEEDBACKTYPE_NONE = "NONE";
+  public static final String FEEDBACKTYPE_IMMEDIATE = "IMMEDIATE";
+  public static final String FEEDBACKTYPE_DATED = "DATED";
+  public static final String FEEDBACKTYPE_NONE = "NONE";
 }
 
 

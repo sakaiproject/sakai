@@ -94,20 +94,20 @@ public class PublishedAssessmentFacadeQueries
   private static Log log = LogFactory.getLog(PublishedAssessmentFacadeQueries.class);
 
 
-  public static String STARTDATE = "assessmentAccessControl.startDate";
-  public static String DUEDATE = "assessmentAccessControl.dueDate";
-  public static String RETRACTDATE = "assessmentAccessControl.retractDate";
-  public static String RELEASETO = "assessmentAccessControl.releaseTo";
+  public static final String STARTDATE = "assessmentAccessControl.startDate";
+  public static final String DUEDATE = "assessmentAccessControl.dueDate";
+  public static final String RETRACTDATE = "assessmentAccessControl.retractDate";
+  public static final String RELEASETO = "assessmentAccessControl.releaseTo";
 
-  public static String PUB_RELEASETO = "releaseTo";
-  public static String PUB_STARTDATE = "startDate";
-  public static String PUB_DUEDATE = "dueDate";
-  public static String TITLE = "title";
-  public static String GRADE = "finalScore";
-  public static String DUE = "dueDate";
-  public static String RAW = "totalAutoScore";
-  public static String TIME = "timeElapsed";
-  public static String SUBMITTED = "submittedDate";
+  public static final String PUB_RELEASETO = "releaseTo";
+  public static final String PUB_STARTDATE = "startDate";
+  public static final String PUB_DUEDATE = "dueDate";
+  public static final String TITLE = "title";
+  public static final String GRADE = "finalScore";
+  public static final String DUE = "dueDate";
+  public static final String RAW = "totalAutoScore";
+  public static final String TIME = "timeElapsed";
+  public static final String SUBMITTED = "submittedDate";
 
   public PublishedAssessmentFacadeQueries()
   {

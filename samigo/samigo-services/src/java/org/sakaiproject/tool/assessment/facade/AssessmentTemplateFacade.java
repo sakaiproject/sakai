@@ -35,15 +35,15 @@ public class AssessmentTemplateFacade
     implements java.io.Serializable, AssessmentTemplateIfc
 {
   private static final long serialVersionUID = 7526471155622776147L;
-  public static String AUTHORS = "ASSESSMENTTEMPLATE_AUTHORS";
-  public static String KEYWORDS = "ASSESSMENTTEMPLATE_KEYWORDS";
-  public static String OBJECTIVES = "ASSESSMENTTEMPLATE_OBJECTIVES";
-  public static String BGCOLOR = "ASSESSMENTTEMPLATE_BGCOLOR";
-  public static String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
+  public static final String AUTHORS = "ASSESSMENTTEMPLATE_AUTHORS";
+  public static final String KEYWORDS = "ASSESSMENTTEMPLATE_KEYWORDS";
+  public static final String OBJECTIVES = "ASSESSMENTTEMPLATE_OBJECTIVES";
+  public static final String BGCOLOR = "ASSESSMENTTEMPLATE_BGCOLOR";
+  public static final String BGIMAGE = "ASSESSMENTTEMPLATE_BGIMAGE";
 
-  public static Long DEFAULTTEMPLATE = new Long("1");
-  public static Integer INACTIVE_STATUS = new Integer("0");
-  public static Integer ACTIVE_STATUS = new Integer("1");
+  public static final Long DEFAULTTEMPLATE = new Long("1");
+  public static final Integer INACTIVE_STATUS = new Integer("0");
+  public static final Integer ACTIVE_STATUS = new Integer("1");
   private org.osid.assessment.Assessment assessment;
   private AssessmentTemplateIfc data;
   private Long assessmentTemplateId;

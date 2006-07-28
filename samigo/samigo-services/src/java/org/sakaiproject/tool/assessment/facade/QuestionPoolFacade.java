@@ -51,14 +51,14 @@ public class QuestionPoolFacade
   private static Log log = LogFactory.getLog(QuestionPoolFacade.class);
   private static final long serialVersionUID = 7526471155622776147L;
 
-  public static Long ACCESS_DENIED = new Long(30);
-  public static Long READ_ONLY = new Long(31);
-  public static Long READ_COPY = new Long(32);
-  public static Long READ_WRITE = new Long(33);
-  public static Long ADMIN = new Long(34);
-  public static Long DEFAULT_TYPEID = new Long(0);
-  public static Long DEFAULT_INTELLECTUAL_PROPERTYID = new Long(0);
-  public static Long ROOT_POOL = new Long(0);
+  public static final Long ACCESS_DENIED = new Long(30);
+  public static final Long READ_ONLY = new Long(31);
+  public static final Long READ_COPY = new Long(32);
+  public static final Long READ_WRITE = new Long(33);
+  public static final Long ADMIN = new Long(34);
+  public static final Long DEFAULT_TYPEID = new Long(0);
+  public static final Long DEFAULT_INTELLECTUAL_PROPERTYID = new Long(0);
+  public static final Long ROOT_POOL = new Long(0);
 
   private QuestionPool questionPool;
   // We have 2 sets of properties:

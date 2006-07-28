@@ -32,8 +32,8 @@ public class PublishedItemFeedback
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static String CORRECT_FEEDBACK = "Correct Feedback";
-  public static String INCORRECT_FEEDBACK = "InCorrect Feedback";
+  public static final String CORRECT_FEEDBACK = "Correct Feedback";
+  public static final String INCORRECT_FEEDBACK = "InCorrect Feedback";
 
   private Long id;
   private ItemDataIfc item;

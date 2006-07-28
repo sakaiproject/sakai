@@ -45,9 +45,9 @@ public class PublishedSectionData
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static Integer ACTIVE_STATUS = new Integer(1);
-  public static Integer INACTIVE_STATUS = new Integer(0);
-  public static Integer ANY_STATUS = new Integer(2);
+  public static final Integer ACTIVE_STATUS = new Integer(1);
+  public static final Integer INACTIVE_STATUS = new Integer(0);
+  public static final Integer ANY_STATUS = new Integer(2);
 
   private Long id;
   private Long assessmentId;

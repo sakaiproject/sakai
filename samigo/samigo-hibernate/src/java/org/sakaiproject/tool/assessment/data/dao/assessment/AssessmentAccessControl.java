@@ -40,31 +40,31 @@ public class AssessmentAccessControl
   // AssessmentTemplateData) that is associated with it.
 
   // flag it when no editing on the property is desire
-  public static Integer NO_EDIT = new Integer(-1);
+  public static final Integer NO_EDIT = new Integer(-1);
   // timedAssessment
-  public static Integer TIMED_ASSESSMENT = new Integer(1);
-  public static Integer DO_NOT_TIMED_ASSESSMENT = new Integer(0);
+  public static final Integer TIMED_ASSESSMENT = new Integer(1);
+  public static final Integer DO_NOT_TIMED_ASSESSMENT = new Integer(0);
   // autoSubmit
-  public static Integer AUTO_SUBMIT = new Integer(1);
-  public static Integer DO_NOT_AUTO_SUBMIT = new Integer(0);
+  public static final Integer AUTO_SUBMIT = new Integer(1);
+  public static final Integer DO_NOT_AUTO_SUBMIT = new Integer(0);
   // autoSave
-  public static Integer SAVE_ON_CLICK = new Integer(1);
-  public static Integer AUTO_SAVE = new Integer(2);
+  public static final Integer SAVE_ON_CLICK = new Integer(1);
+  public static final Integer AUTO_SAVE = new Integer(2);
   // itemNavigation
-  public static Integer LINEAR_ACCESS = new Integer(1);
-  public static Integer RANDOM_ACCESS = new Integer(2);
+  public static final Integer LINEAR_ACCESS = new Integer(1);
+  public static final Integer RANDOM_ACCESS = new Integer(2);
   // assessmentFormat
-  public static Integer BY_QUESTION = new Integer(1);
-  public static Integer BY_PART = new Integer(2);
-  public static Integer BY_ASSESSMENT = new Integer(3);
+  public static final Integer BY_QUESTION = new Integer(1);
+  public static final Integer BY_PART = new Integer(2);
+  public static final Integer BY_ASSESSMENT = new Integer(3);
   // itemNumbering
-  public static Integer CONTINUOUS_NUMBERING = new Integer(1);
-  public static Integer RESTART_NUMBERING_BY_PART = new Integer(2);
+  public static final Integer CONTINUOUS_NUMBERING = new Integer(1);
+  public static final Integer RESTART_NUMBERING_BY_PART = new Integer(2);
   // submissionsAllowed
-  public static Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
+  public static final Integer UNLIMITED_SUBMISSIONS_ALLOWED = new Integer(9999);
   // lateHandling
-  public static Integer ACCEPT_LATE_SUBMISSION = new Integer(1);
-  public static Integer NOT_ACCEPT_LATE_SUBMISSION = new Integer(2);
+  public static final Integer ACCEPT_LATE_SUBMISSION = new Integer(1);
+  public static final Integer NOT_ACCEPT_LATE_SUBMISSION = new Integer(2);
 
   private Long id;
 

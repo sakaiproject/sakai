@@ -24,7 +24,7 @@ public class ItemData
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static Long ADMIN = new Long(34);
+  public static final Long ADMIN = new Long(34);
 
   private Long itemId;
   private String itemIdString;

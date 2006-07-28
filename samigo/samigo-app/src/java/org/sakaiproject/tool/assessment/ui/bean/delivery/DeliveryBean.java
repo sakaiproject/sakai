@@ -2097,11 +2097,11 @@ public class DeliveryBean
   }
 
   // delivery action
-  public static int TAKE_ASSESSMENT = 1;
-  public static int PREVIEW_ASSESSMENT = 2;
-  public static int REVIEW_ASSESSMENT = 3;
-  public static int GRADE_ASSESSMENT = 4;
-  public static int TAKE_ASSESSMENT_VIA_URL = 5;
+  public static final int TAKE_ASSESSMENT = 1;
+  public static final int PREVIEW_ASSESSMENT = 2;
+  public static final int REVIEW_ASSESSMENT = 3;
+  public static final int GRADE_ASSESSMENT = 4;
+  public static final int TAKE_ASSESSMENT_VIA_URL = 5;
   private int actionMode;
   private String actionString;
 

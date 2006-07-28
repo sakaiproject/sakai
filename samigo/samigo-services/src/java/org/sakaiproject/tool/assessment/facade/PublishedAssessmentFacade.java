@@ -47,9 +47,9 @@ public class PublishedAssessmentFacade
 {
   private static final long serialVersionUID = 7526471155622776147L;
   private static Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
-  public static Integer ACTIVE_STATUS = new Integer(1);
-  public static Integer INACTIVE_STATUS = new Integer(0);
-  public static Integer ANY_STATUS = new Integer(2);
+  public static final Integer ACTIVE_STATUS = new Integer(1);
+  public static final Integer INACTIVE_STATUS = new Integer(0);
+  public static final Integer ANY_STATUS = new Integer(2);
   private PublishedAssessmentIfc data;
   private AssessmentFacade assessment;
   private Long publishedAssessmentId;
