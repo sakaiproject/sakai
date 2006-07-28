@@ -137,8 +137,8 @@ public class StudentScoreUpdateListener
               adata = delegate.load(data.getAssessmentGradingId().toString());
 	    }
             if (data.getAgentId() == null)
-            { // it's a new data, fill it in
-              data.setSubmittedDate(new Date());
+            { // this is a skipped question, set submittedDate=null
+              data.setSubmittedDate(null);
               data.setAgentId(bean.getStudentId());
             }
             data.setAutoScore(new Float

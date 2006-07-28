@@ -1224,7 +1224,7 @@ public class DeliveryActionListener
         while (iter2.hasNext())
         {
           ItemGradingData data = (ItemGradingData) iter2.next();
-          if (data.getPublishedAnswerId().equals(answer.getId()))
+          if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
             fbean.setResponse(data.getAnswerText());

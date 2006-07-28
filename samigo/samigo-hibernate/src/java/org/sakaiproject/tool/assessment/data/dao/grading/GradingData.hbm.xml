@@ -27,7 +27,7 @@
       <column name="AGENTID" not-null="true" sql-type="varchar(36)" />
     </property>
     <property name="submittedDate" type="timestamp">
-      <column name="SUBMITTEDDATE" not-null="true" />
+      <column name="SUBMITTEDDATE" not-null="false" />
     </property>
 <!--
     <many-to-one name="publishedAnswer" class="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer"
