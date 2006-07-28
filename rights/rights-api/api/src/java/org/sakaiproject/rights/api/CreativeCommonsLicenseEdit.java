@@ -13,4 +13,4 @@ public interface CreativeCommonsLicenseEdit extends CreativeCommonsLicense
 	public void addRequirement();
 	public void setRequirements(Collection requirements);
 
-}
+}	// interface CreativeCommonsLicenseEdit

@@ -11,4 +11,5 @@ public interface Copyright
 	public String getOwner();
 	
 	public Element toXml(Document doc, Stack stack);
+	
 }	// interface Copyright
