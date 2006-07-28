@@ -366,7 +366,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 							if ( mergegroup[j] == groupstomerge[i]) {
 								Directory d = FSDirectory.getDirectory(segmentName[j],false);
 								if ( d.fileExists("segments") ) {
-									status.append("   Merge ").append(segmentName[i].getName()).append(" >> ").append(mergeSegment.getName()).append("\n");
+									status.append("   Merge ").append(segmentName[j].getName()).append(" >> ").append(mergeSegment.getName()).append("\n");
 									indexes.add(d);
 								}
 							}

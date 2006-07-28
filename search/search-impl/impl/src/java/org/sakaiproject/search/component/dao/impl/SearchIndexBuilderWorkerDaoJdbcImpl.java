@@ -289,6 +289,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 							try
 							{
+							try
+							{
 								Entity entity = ref.getEntity();
 								EntityContentProducer sep = searchIndexBuilder.newEntityContentProducer(ref);
 								if (sep != null && sep.isForIndex(ref) && ref.getContext() != null)
@@ -377,6 +379,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 								{
 									log.debug("Ignored Document " + ref.getId());
 								}
+							}
+							catch (Exception e1)
+							{
+								log.info(" Failed to index document cause: " + e1.getMessage());
+							}
 								sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 								updateOrSave(connection,sbi);
 								connection.commit();
