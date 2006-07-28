@@ -21,6 +21,10 @@
 
 package org.sakaiproject.tool.podcasts;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
 public class podOptionsBean {
@@ -28,10 +32,12 @@ public class podOptionsBean {
   
   private static final int PUBLIC = 0;
   private static final int SITE = 1;
+  private static final String OPTIONS_PUBLIC = "options_public";
+  private static final String OPTIONS_SITE = "options_site";
   
   private SelectItem [] displayItems = new SelectItem [] {
-    new SelectItem(new Integer(PUBLIC), "Display to Public"),
-    new SelectItem(new Integer(SITE), "Display to Site")
+    new SelectItem(new Integer(PUBLIC), getMessageString(OPTIONS_PUBLIC)),
+    new SelectItem(new Integer(SITE), getMessageString(OPTIONS_SITE))
   };
   
   public podOptionsBean () {
@@ -61,5 +67,21 @@ public class podOptionsBean {
   public String processOptionCancel() {
 	  return "cancel";
   }
+  
+	/**
+	 * Sets the Faces error message by pulling the message from the MessageBundle using
+	 * the name passed in
+	 * 
+	 * @param key The name in the MessageBundle for the message wanted
+	 * @return The string that is the value of the message
+	 */
+	private String getMessageString(String key) {
+      String bundleName = FacesContext.getCurrentInstance().getApplication().getMessageBundle();
+      Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();        
+      ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+      return rb.getString(key);
+		
+	}
+
 
 }

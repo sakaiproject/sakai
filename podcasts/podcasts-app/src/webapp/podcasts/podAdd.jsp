@@ -42,8 +42,7 @@
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
 
-      <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
-	  <sakai:input_date id="podtime" value="#{podHomeBean.time}" showTime="true" rendered="true" />
+      <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" showTime="true" rendered="true" />
 	  
 <!--        h:message for="poddate" styleClass="alertMessage" /> -->
  	  <h:outputText value="#{msgs.nodate_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoDateErrMsg}" /> 
