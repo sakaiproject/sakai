@@ -1195,7 +1195,9 @@
 		<input type="hidden" name="index" id="index" value="0" />
 		
 		<p class="shorttext">
-			<span class="reqStar">*</span>
+			#if (! $atHome)						 
+				<span class="reqStar">*</span>
+			#end
 			<label for="name">
 				$tlang.getString("gen.title") 
 			</label>
@@ -1361,6 +1363,37 @@
 				</table>
 			#end
 		#end
+		
+		######### begin availability section ##########
+		<h4>$tlang.getString("avail.title")</h4>
+		<div  class="labelindnt">
+			<p class="checkbox">
+				<input type="radio" name="availability" id="availability_show" value="show" />
+				<label for="availability_show">
+					$tlang.getString("avail.show")
+				</label>
+			</p>
+			<p class="checkbox indnt2">
+				<input type="checkbox" name="use_start_date" id="use_start_date" value="true" />
+				<label for="use_start_date">
+					$tlang.getString("avail.start")
+				</label>
+			</p>
+			<p class="checkbox indnt2">
+				<input type="checkbox" name="use_end_date" id="use_end_date" value="true" />
+				<label for="use_end_date">
+					$tlang.getString("avail.end")
+				</label>
+			</p>
+			<p class="checkbox">
+				<input type="radio" name="availability" id="availability_hide" value="hide" />
+				<label for="availability_hide">
+					$tlang.getString("avail.hide")
+				</label>
+			</p>
+		</div>
+		######### end availability section ##########
+		
 		######### begin access section ##########
 		## Should initial access to this resource or collection be determined
 		## for "site" (standard sakai permissions), "grouped" or "public"?
