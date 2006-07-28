@@ -355,7 +355,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public String getTool()
 	{
-		return "Content";
+		return "content";
 	}
 
 	public String getUrl(Entity entity)

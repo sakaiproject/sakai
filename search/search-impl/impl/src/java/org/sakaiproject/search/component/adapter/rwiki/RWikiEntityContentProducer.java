@@ -179,7 +179,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	public String getTool()
 	{
-		return "Wiki";
+		return "wiki";
 	}
 
 	public String getUrl(Entity entity)

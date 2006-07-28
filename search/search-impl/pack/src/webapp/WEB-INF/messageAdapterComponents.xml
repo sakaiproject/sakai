@@ -29,7 +29,7 @@
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
     init-method="init" >
-    <property name="toolName" ><value>Email</value></property>
+    <property name="toolName" ><value>email</value></property>
     <property name="addEvents" >
       <list>
         <value>mail.new</value>
@@ -50,7 +50,7 @@
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
     init-method="init" >
-    <property name="toolName" ><value>Discussion</value></property>
+    <property name="toolName" ><value>discussion</value></property>
     <property name="addEvents" >
       <list>
         <value>disc.new</value>
@@ -71,7 +71,7 @@
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
     init-method="init" >
-    <property name="toolName" ><value>Chat</value></property>
+    <property name="toolName" ><value>chat</value></property>
     <property name="addEvents" >
       <list>
         <value>chat.new</value>
@@ -91,7 +91,7 @@
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
     init-method="init" >
-    <property name="toolName" ><value>Announcement</value></property>
+    <property name="toolName" ><value>announcement</value></property>
     <property name="addEvents" >
       <list>
         <value>annc.new</value>

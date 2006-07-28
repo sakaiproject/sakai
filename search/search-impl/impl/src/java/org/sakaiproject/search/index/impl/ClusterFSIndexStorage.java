@@ -326,7 +326,11 @@ public class ClusterFSIndexStorage implements IndexStorage
 					}
 					mergegroup[i] = mergegroupno;
 					if ( ninblock >= 10 ) {
-						groupstomerge[j++] = mergegroupno;
+						if ( sizeBlock < 200L*1024L*1024L) {
+							// only perform merge for segments < 200M
+							// oterwise we risk a 2G segment.
+							groupstomerge[j++] = mergegroupno;
+						}
 						mergegroupno++;
 						ninblock = 0;
 						
