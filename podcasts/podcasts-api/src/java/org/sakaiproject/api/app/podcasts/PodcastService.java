@@ -209,5 +209,13 @@ public interface PodcastService // extends EntityProducer
 	 * @return ContentCollection
 	 */
 	public ContentCollection getContentCollection(String siteId);
+	
+	/**
+	 * Changes whether the podcast folder is public/private
+	 * 
+	 * @param option int that sets the public/private option
+	 */
+	public void reviseOptions(boolean option);
 
+	public int getOptions();
 }

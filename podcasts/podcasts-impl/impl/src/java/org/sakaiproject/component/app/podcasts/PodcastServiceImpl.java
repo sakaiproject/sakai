@@ -762,7 +762,6 @@ public class PodcastServiceImpl implements PodcastService, PodcastEmailService
 	protected void enablePodcastSecurityAdvisor()
 	{
 		// put in a security advisor so we can do our podcast work without need of further permissions
-		// TODO: could make this more specific to the AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP permission -ggolden
 		securityService.pushAdvisor(new SecurityAdvisor()
 		{
 			public SecurityAdvice isAllowed(String userId, String function, String reference)
@@ -772,7 +771,26 @@ public class PodcastServiceImpl implements PodcastService, PodcastEmailService
 		});
 	}
 
+	public void reviseOptions(boolean option) {
 
+		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 
+		contentHostingService.setPubView(podcastsCollection, option);
+
+	}
+
+	public int getOptions() {
+		String siteCollection = contentHostingService.getSiteCollection( getSiteId() );
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
+
+		if (contentHostingService.isPubView(podcastsCollection)) {
+			return 0;
+		}
+		else {
+			return 1;
+			
+		}
+	}
 }
 

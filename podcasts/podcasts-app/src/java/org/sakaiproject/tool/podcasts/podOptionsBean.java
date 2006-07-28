@@ -27,8 +27,12 @@ import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 
+import org.sakaiproject.api.app.podcasts.PodcastService;
+
 public class podOptionsBean {
   private int podOption;
+  
+  private PodcastService podcastService;
   
   private static final int PUBLIC = 0;
   private static final int SITE = 1;
@@ -49,7 +53,8 @@ public class podOptionsBean {
   }
   
   public int getPodOption() {
-	  return podOption;
+	  //TODO: get option from Resources
+	  return podcastService.getOptions();
   }
   
   public void setPodOption(int option) {
@@ -61,6 +66,9 @@ public class podOptionsBean {
   }
   
   public String processOptionChange() {
+	  
+	  podcastService.reviseOptions(podOption == PUBLIC);
+	  
 	  return "cancel";
   }
   
@@ -83,5 +91,18 @@ public class podOptionsBean {
 		
 	}
 
+	/**
+	 * @return Returns the podcastService.
+	 */
+	public PodcastService getPodcastService() {
+		return podcastService;
+	}
+
+	/**
+	 * @param podcastService The podcastService to set.
+	 */
+	public void setPodcastService(PodcastService podcastService) {
+		this.podcastService = podcastService;
+	}
 
 }
