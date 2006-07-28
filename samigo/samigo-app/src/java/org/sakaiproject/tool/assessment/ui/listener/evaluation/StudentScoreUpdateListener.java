@@ -45,9 +45,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.util.BeanSort;
 
 /**
  * <p>
@@ -64,8 +62,6 @@ public class StudentScoreUpdateListener
   implements ActionListener
 {
   private static Log log = LogFactory.getLog(StudentScoreUpdateListener.class);
-  private static EvaluationListenerUtil util;
-  private static BeanSort bs;
   private static ContextUtil cu;
 
   /**

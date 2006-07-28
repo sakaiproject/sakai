@@ -45,10 +45,10 @@ public class AssessmentGradingData
 {
   private static final long serialVersionUID = 7526471155622776147L;
 
-  public static Integer AUTO_GRADED = new Integer(2);
-  public static Integer NEED_HUMAN_ATTENTION = new Integer(3);
-  public static Integer LATE_SUBMISSION = new Integer(4);
-  public static Integer NO_SUBMISSION = new Integer(5);
+  public static final Integer AUTO_GRADED = new Integer(2);
+  public static final Integer NEED_HUMAN_ATTENTION = new Integer(3);
+  public static final Integer LATE_SUBMISSION = new Integer(4);
+  public static final Integer NO_SUBMISSION = new Integer(5);
 
   private Long assessmentGradingId;
   private String agentId;
