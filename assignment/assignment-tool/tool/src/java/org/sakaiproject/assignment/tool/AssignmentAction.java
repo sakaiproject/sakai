@@ -46,9 +46,7 @@ import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -498,9 +496,6 @@ public class AssignmentAction extends PagedResourceActionII
 	/** The alert flag when doing global navigation from improper mode */
 	private static final String ALERT_GLOBAL_NAVIGATION = "alert_global_navigation";
 
-	/** The maximum trial number to get an uniq assignment title in gradebook */
-	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-	
 	/** The total list item before paging */
 	private static final String STATE_PAGEING_TOTAL_ITEMS = "state_paging_total_items";
 	
@@ -1651,41 +1646,8 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					catch (ConflictingAssignmentNameException e)
 					{
-						// try to modify assignment title, make sure there is no such assignment in the gradebook, and insert again
-						boolean trying = true;
-						int attempts = 1;
-						String titleBase = newAssignment_title;
-						while (trying && attempts < MAXIMUM_ATTEMPTS_FOR_UNIQUENESS) // see end of loop for condition that enforces attempts <= limit)
-						{
-							String newTitle = titleBase + "-" + attempts;
-
-							if (!g.isAssignmentDefined(gradebookUid, newTitle) && !isExternalAssignmentDefined)
-							{
-								try
-								{
-									// add assignment to gradebook
-									g.addExternalAssessment(gradebookUid, assignmentRef, null, newTitle,
-											newAssignment_maxPoints / 10, new Date(newAssignment_dueTime.getTime()), "Assignment");
-									trying = false;
-								}
-								catch (ConflictingAssignmentNameException ee)
-								{
-									// still conflicting name, try again till the max meets
-									attempts++;
-									if (attempts >= MAXIMUM_ATTEMPTS_FOR_UNIQUENESS)
-									{
-										// add alert prompting for change assignment title
-										addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
-									}
-								}
-								catch (Exception ee)
-								{
-									// other type of exception, terminate the loop
-									trying = false;
-									Log.warn("chef", this + ee.getMessage());
-								}
-							}
-						}
+						// add alert prompting for change assignment title
+						addAlert(state, rb.getString("addtogradebook.nonUniqueTitle"));
 					}
 					catch (ConflictingExternalIdException e)
 					{
