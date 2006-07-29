@@ -1450,9 +1450,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
 				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
-		// gradebook integration
-		context.put("withGradebook", Boolean.valueOf(isGradebookDefined()));
-
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
 
