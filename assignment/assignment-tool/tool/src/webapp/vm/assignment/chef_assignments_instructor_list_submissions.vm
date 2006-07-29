@@ -186,6 +186,7 @@
 					</th>
 				</tr>
 				#foreach ($siteUser in $siteUsers)
+					#set($submission=false)
 					#set($submission = $service.getSubmission($!assignment.getId(), $siteUser))
 					#if ($!submission && $submission.submitted) 
 						#set($returnedTime = $submission.getTimeReturned())
