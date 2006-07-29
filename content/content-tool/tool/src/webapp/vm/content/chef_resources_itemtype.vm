@@ -1095,8 +1095,12 @@
 		cr_element.select();
 		if(new_value == "$!{USE_THIS_COPYRIGHT}")
 		{
-		cr_element.focus();
-		}	
+			cr_element.focus();
+		}
+		else
+		{
+			element.focus();
+		}
 	}
 	
 	function toggleSelectAll(element, item_name)
