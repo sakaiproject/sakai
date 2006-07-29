@@ -3413,9 +3413,14 @@ public class ResourcesAction
 						if(value == null)
 						{
 							// do nothing
+							continue;
 						}
 						else if(value instanceof String)
 						{
+							if("".equals((String) value))
+							{
+								continue;
+							}
 							node.appendChild(doc.createTextNode((String)value));
 						}
 						else if(value instanceof Time)
@@ -3444,17 +3449,21 @@ public class ResourcesAction
 							node.appendChild(doc.createTextNode(value.toString()));
 						}
 					}
+					
+					if(node.hasChildNodes())
+					{
+						Element parent = (Element) parents.get(element.getDottedname());
+						if(parent == null)
+						{
+							doc.appendChild(node);
+							count++;
+						}
+						else
+						{
+							parent.appendChild(node);
+						}
+					}
 
-					Element parent = (Element) parents.get(element.getDottedname());
-					if(parent == null)
-					{
-						doc.appendChild(node);
-						count++;
-					}
-					else
-					{
-						parent.appendChild(node);
-					}
 				}
 			}
 			else if(object instanceof ElementCarrier)
