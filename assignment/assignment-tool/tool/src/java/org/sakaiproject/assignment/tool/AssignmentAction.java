@@ -5978,38 +5978,49 @@ public class AssignmentAction extends PagedResourceActionII
 					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
 	
 					//sort by submission grade
-					String grade1 = s1.getGrade();
-					String grade2 = s2.getGrade();
-					if (grade1 == null)
+					if (s1 == null)
 					{
-						grade1 = "";
+						result = -1;
 					}
-					if (grade2 == null)
+					else if (s2 == null)
 					{
-						grade2 = "";
-					}
-
-					// if scale is points
-					if ((((AssignmentSubmission) o1).getAssignment().getContent().getTypeOfGrade() == 3)
-							&& ((((AssignmentSubmission) o2).getAssignment().getContent().getTypeOfGrade() == 3)))
-					{
-						if (grade1.equals(""))
-						{
-							result = -1;
-						}
-						else if (grade2.equals(""))
-						{
-							result = 1;
-						}
-						else
-						{
-							result = (new Integer(grade1)).intValue() > (new Integer(grade2)).intValue() ? 1 : -1;
-
-						}
+						result = 1;
 					}
 					else
 					{
-						result = grade1.compareTo(grade2);
+						String grade1 = s1.getGrade();
+						String grade2 = s2.getGrade();
+						if (grade1 == null)
+						{
+							grade1 = "";
+						}
+						if (grade2 == null)
+						{
+							grade2 = "";
+						}
+	
+						// if scale is points
+						if ((((AssignmentSubmission) s1).getAssignment().getContent().getTypeOfGrade() == 3)
+								&& ((((AssignmentSubmission) s2).getAssignment().getContent().getTypeOfGrade() == 3)))
+						{
+							if (grade1.equals(""))
+							{
+								result = -1;
+							}
+							else if (grade2.equals(""))
+							{
+								result = 1;
+							}
+							else
+							{
+								result = (new Integer(grade1)).intValue() > (new Integer(grade2)).intValue() ? 1 : -1;
+	
+							}
+						}
+						else
+						{
+							result = grade1.compareTo(grade2);
+						}
 					}
 				}
 				catch (Exception e)
@@ -6025,11 +6036,22 @@ public class AssignmentAction extends PagedResourceActionII
 					AssignmentSubmission s1 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o1);
 					AssignmentSubmission s2 = AssignmentService.getSubmission((String) m_state.getAttribute(EXPORT_ASSIGNMENT_REF), (User) o2);
 	
-					// sort by submission released
-					String released1 = (new Boolean(s1.getGradeReleased())).toString();
-					String released2 = (new Boolean(s2.getGradeReleased())).toString();
-
-					result = released1.compareTo(released2);
+					if (s1 == null)
+					{
+						result = -1;
+					}
+					else if (s2 == null)
+					{
+						result = 1;
+					}
+					else
+					{
+						// sort by submission released
+						String released1 = (new Boolean(s1.getGradeReleased())).toString();
+						String released2 = (new Boolean(s2.getGradeReleased())).toString();
+	
+						result = released1.compareTo(released2);
+					}
 				}
 				catch (Exception e)
 				{
