@@ -677,7 +677,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// further limited to only those authz groups in the azGroups parameter if not null
 
 			// if azGroups is not null, but empty, we can short-circut and return an empty set
-			if ((azGroups != null) && azGroups.isEmpty())
+			// or if the lock is null
+			if (((azGroups != null) && azGroups.isEmpty()) || lock == null)
 			{
 				return new HashSet();
 			}
@@ -713,12 +714,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			sql = sqlBuf.toString();
-
-			// String statement = "select distinct REALM_ID from SAKAI_REALM where REALM_KEY in (" +
-			// "select REALM_KEY from SAKAI_REALM_RL_FN " +
-			// "where FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) " +
-			// "and ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? and SAKAI_REALM_RL_GR.REALM_KEY=SAKAI_REALM_RL_FN.REALM_KEY)" +
-			// ")";
 
 			int size = 2;
 			if (azGroups != null)
@@ -1093,48 +1088,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public boolean isAllowed(String userId, String lock, String realmId)
 		{
+			if ((lock == null) || (realmId == null)) return false;
+
 			// does the user have any roles granted that include this lock, based on grants or anon/auth?
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
-			// String statement = "select count(1) from SAKAI_REALM_RL_FN " +
-			// "where REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID = ?) " +
-			// "and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) " +
-			// "and (ROLE_KEY in " +
-			// "(select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? " +
-			// "and SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM_RL_FN.REALM_KEY) " +
-			// "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + ANON_ROLE + "') " +
-			// (auth ? "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + AUTH_ROLE + "') " : "") +
-			// ")";
-			//
-			// Object[] fields = new Object[3];
-			// fields[0] = realmId;
-			// fields[1] = lock;
-			// fields[2] = userId;
-			//
-			// List results = m_sql.dbRead(statement, fields,
-			// new SqlReader()
-			// {
-			// public Object readSqlResultRecord(ResultSet result)
-			// {
-			// try
-			// {
-			// int count = result.getInt(1);
-			// return new Integer(count);
-			// }
-			// catch (SQLException ignore) { return null;}
-			// }
-			// }
-			// );
-			//
-			// boolean rv = false;
-			// int count = -1;
-			// if (!results.isEmpty())
-			// {
-			// count = ((Integer) results.get(0)).intValue();
-			// rv = count > 0;
-			// }
-
-			// New code
 			String statement = "select count(1) "
 					+ "from "
 					+ "  SAKAI_REALM_RL_FN MAINTABLE "
@@ -1182,18 +1140,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				rvNew = countNew > 0;
 			}
 
-			// compare new and old
-			// if ((rv != rvNew) || (count != countNew))
-			// {
-			// m_logger.warn("**unlock1 new mismatch: new/old rv: " + rv + "/" + rvNew + " count: " + count + "/" + countNew + " u: " + userId + " l: " + lock);
-			// }
-			// else
-			// {
-			// m_logger.warn("**unlock1 new worked: rv: " + rv + "/" + rvNew + " count: " + count + "/" + countNew + " u: " + userId + " l: " + lock);
-			// }
-			//
-			// return rv;
-
 			return rvNew;
 		}
 
@@ -1202,13 +1148,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public boolean isAllowed(String userId, String lock, Collection realms)
 		{
+			if (lock == null) return false;
+
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
 			// TODO: pre-compute some fields arrays and statements for common roleRealms sizes for efficiency? -ggolden
 
 			if (realms == null || realms.size() < 1)
 			{
-				M_log.warn("iallowed(): called with no realms l:" + lock + "u:" + userId);
+				M_log.warn("isAllowed(): called with no realms: lock: " + lock + " user: " + userId);
 				if (M_log.isDebugEnabled())
 				{
 					try
@@ -1217,7 +1165,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					}
 					catch (Exception e)
 					{
-						M_log.debug("iallowed:", e);
+						M_log.debug("isAllowed():", e);
 					}
 				}
 				return false;
@@ -1297,80 +1245,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				rv = count > 0;
 			}
 
-			// the problem with this: once a role is found that has the function in any of the list of realm,
-			// if the user is granted this role in any of the realms (not necessairly the one with the function),
-			// that should count - but doesnt
-			// String statement =
-			// "select count(1) " +
-			// "from " +
-			// " SAKAI_REALM_RL_FN MAINTABLE, " +
-			// " SAKAI_REALM_RL_GR GRANTED_ROLES, " +
-			// " SAKAI_REALM REALMS, " +
-			// " SAKAI_REALM_ROLE ROLES, " +
-			// " SAKAI_REALM_FUNCTION FUNCTIONS " +
-			// "where " +
-			// // our criteria
-			// " ( " +
-			// " ROLES.ROLE_NAME in('" + ANON_ROLE + "'" + (auth ? ",'" + AUTH_ROLE + "'" : "") + ") " +
-			// " or " +
-			// " ( " +
-			// " GRANTED_ROLES.USER_ID = ? " +
-			// " AND GRANTED_ROLES.ACTIVE = 1 " +
-			// " ) " +
-			// " )" +
-			// " AND FUNCTIONS.FUNCTION_NAME = ? " +
-			// " AND REALMS.REALM_ID in " + buf.toString() +
-			// // for the join
-			// " AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY " +
-			// " AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY " +
-			// " AND MAINTABLE.ROLE_KEY = ROLES.ROLE_KEY " +
-			// // grant table join should be outer - things reling on anon or auth will not have any grants
-			// " AND MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY (+) " +
-			// " AND MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY (+) ";
-			//
-			// Object[] fields = new Object[2 + realms.size()];
-			// int pos = 0;
-			// fields[pos++] = userId;
-			// fields[pos++] = lock;
-			// for (Iterator i = realms.iterator(); i.hasNext();)
-			// {
-			// String role = (String) i.next();
-			// fields[pos++] = role;
-			// }
-			//
-			// List resultsNew = m_sql.dbRead(statement, fields,
-			// new SqlReader()
-			// {
-			// public Object readSqlResultRecord(ResultSet result)
-			// {
-			// try
-			// {
-			// int count = result.getInt(1);
-			// return new Integer(count);
-			// }
-			// catch (SQLException ignore) { return null;}
-			// }
-			// }
-			// );
-			//
-			// boolean rvNew = false;
-			// int countNew = -1;
-			// if (!resultsNew.isEmpty())
-			// {
-			// countNew = ((Integer) resultsNew.get(0)).intValue();
-			// rvNew = countNew > 0;
-			// }
-
-			// // compare new and old
-			// if ((rv != rvNew) || (count != countNew))
-			// {
-			// m_logger.warn("**unlock new mismatch: new/old rv: " + rv + "/" + rvNew + " count: " + count + "/" + countNew + " u: " + userId + " l: " + lock);
-			// }
-			// else
-			// {
-			// m_logger.warn("**unlock new worked: rv: " + rv + "/" + rvNew + " count: " + count + "/" + countNew + " u: " + userId + " l: " + lock);
-			// }
-
 			return rv;
 
 			// return rvNew;
@@ -1381,6 +1255,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public Set getUsersIsAllowed(String lock, Collection realms)
 		{
+			if ((lock == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
+
 			String sql = "";
 			String sqlParam = "";
 			StringBuffer sqlBuf = null;
@@ -1430,13 +1306,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf.append("and SR1.REALM_ID in  " + sqlParam + ")");
 			sql = sqlBuf.toString();
 
-			// String statement = "select USER_ID from SAKAI_REALM_RL_GR where " +
-			// "REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID in " + buf.toString() +
-			// ") and ACTIVE = '1' " +
-			// "and ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_FN where " +
-			// "FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) " +
-			// "and REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID in " + buf.toString() + "))";
-
 			Object[] fields = new Object[1 + (2 * realms.size())];
 			int pos = 0;
 			for (Iterator i = realms.iterator(); i.hasNext();)
@@ -1465,6 +1334,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public Set getAllowedFunctions(String role, Collection realms)
 		{
+			if ((role == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
+
 			String sql = "";
 			String sqlParam = "";
 			StringBuffer sqlBuf = null;
@@ -1493,11 +1364,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf.append("and SR.REALM_ID in " + sqlParam);
 			sql = sqlBuf.toString();
 
-			// String statement = "select FUNCTION_NAME from SAKAI_REALM_FUNCTION where FUNCTION_KEY in " +
-			// "(select distinct FUNCTION_KEY from SAKAI_REALM_RL_FN where " +
-			// "ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?) " +
-			// "and REALM_KEY in (select REALM_KEY from SAKAI_REALM where REALM_ID in " + buf.toString() + "))";
-
 			Object[] fields = new Object[1 + realms.size()];
 			fields[0] = role;
 			int pos = 1;
@@ -1521,6 +1387,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public void refreshUser(String userId, Map providerGrants)
 		{
+			if (userId == null) return;
+
 			String sql = "";
 			String sqlParam = "";
 			StringBuffer sqlBuf = null;
@@ -1533,10 +1401,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			sqlBuf.append("inner join SAKAI_REALM_RL_GR SRRG on SRR.ROLE_KEY = SRRG.ROLE_KEY ");
 			sqlBuf.append("where SRRG.USER_ID = ?");
 			sql = sqlBuf.toString();
-
-			// String statement = "select REALM_KEY, ROLE_NAME, ACTIVE, PROVIDED from SAKAI_REALM_RL_GR,SAKAI_REALM_ROLE " +
-			// "where USER_ID = ? and " +
-			// "SAKAI_REALM_RL_GR.ROLE_KEY=SAKAI_REALM_ROLE.ROLE_KEY";
 
 			Object[] fields = new Object[1];
 			fields[0] = userId;
@@ -1600,7 +1464,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// for each realm that has a provider in the map, and does not have a grant for the user,
 			// add the active provided grant with the map's role.
 
-			if (providerGrants.size() > 0)
+			if ((providerGrants != null) && (providerGrants.size() > 0))
 			{
 				// get all the realms that have providers in the map, with their full provider id
 
@@ -1625,11 +1489,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				sqlBuf.append("inner join SAKAI_REALM SR on SRP.REALM_KEY = SR.REALM_KEY ");
 				sqlBuf.append("where SRP.PROVIDER_ID in " + sqlParam);
 				sql = sqlBuf.toString();
-
-				// statement = "select distinct SAKAI_REALM_PROVIDER.REALM_KEY, SAKAI_REALM.PROVIDER_ID " +
-				// "from SAKAI_REALM_PROVIDER,SAKAI_REALM where " +
-				// "SAKAI_REALM_PROVIDER.REALM_KEY = SAKAI_REALM.REALM_KEY and " +
-				// "SAKAI_REALM_PROVIDER.PROVIDER_ID in " + buf.toString();
 
 				Object[] fieldsx = new Object[providerGrants.size()];
 				int pos = 0;
@@ -1746,12 +1605,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public void refreshAuthzGroup(BaseAuthzGroup realm)
 		{
+			if ((realm == null) || (m_provider == null)) return;
+
 			String sql = "";
 			StringBuffer sqlBuf = null;
 
 			// Note: the realm is still lazy - we have the realm id but don't need to worry about changing grants
-
-			if ((realm == null) || (m_provider == null)) return;
 
 			// get the latest userEid -> role name map from the provider
 			Map target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
