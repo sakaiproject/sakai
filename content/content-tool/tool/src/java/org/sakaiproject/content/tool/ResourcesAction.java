@@ -1022,16 +1022,19 @@ public class ResourcesAction
 		}
 		else if(MODE_ATTACHMENT_CREATE.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_CREATE_INIT;
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_NEW_ITEM_INIT;
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
 		}
@@ -2257,7 +2260,7 @@ public class ResourcesAction
 		context.put("REVISE", INTENT_REVISE_FILE);
 		context.put("REPLACE", INTENT_REPLACE_FILE);
 
-		String show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
+		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
 			show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
@@ -2508,6 +2511,7 @@ public class ResourcesAction
 		{
 			current_stack_frame = pushOnStack(state);
 		}
+		setupStructuredObjects(state);
 
 		String encoding = data.getRequest().getCharacterEncoding();
 
@@ -4908,8 +4912,9 @@ public class ResourcesAction
 			}
 			context.put("theGroupsInThisSite", theGroupsInThisSite);
 		}
-
-		String show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
+		
+		setupStructuredObjects(state);
+		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
 			show_form_items = (String) state.getAttribute(STATE_SHOW_FORM_ITEMS);
@@ -6216,6 +6221,10 @@ public class ResourcesAction
 			{}
 		}
 		current_stack_frame.put(STATE_STRUCTOBJ_HOMES, listOfHomes);
+		if(!listOfHomes.isEmpty())
+		{
+			current_stack_frame.put(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+		}
 
 		StructuredArtifactHomeInterface home = null;
 		SchemaBean rootSchema = null;
@@ -8946,15 +8955,15 @@ public class ResourcesAction
 		state.setAttribute (STATE_COLLECTION_ID, home);
 		state.setAttribute (STATE_NAVIGATION_ROOT, home);
 
-		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-		if(factory != null)
-		{
-			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-			if(! homes.isEmpty())
-			{
-				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
-			}
-		}
+//		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
+//		if(factory != null)
+//		{
+//			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+//			if(! homes.isEmpty())
+//			{
+//				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+//			}
+//		}
 
 		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
 
