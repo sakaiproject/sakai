@@ -1237,7 +1237,7 @@ public class AssessmentFacadeQueries
     if (isTemplate.booleanValue()){ // templates are person scoped
       query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"+
               " from AssessmentTemplateData a, AuthorizationData z where "+
-              " a.title=? and a.assessmentBaseId!=? and a.createdBy=?";
+              " a.title=? and a.assessmentBaseId!=? and a.createdBy=? and a.status=1";
 
       final String hql = query;
       final String titlef = title;
