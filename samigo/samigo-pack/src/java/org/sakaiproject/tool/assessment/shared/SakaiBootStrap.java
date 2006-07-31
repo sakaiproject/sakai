@@ -56,7 +56,7 @@ public class SakaiBootStrap
 
   public void init()
   {
-    LOG.info("**** init() SakaiBootStrap for samigo");
+    //LOG.debug("**** init() SakaiBootStrap for samigo");
     
     autoDdl = ServerConfigurationService.getBoolean(SAKAI_AUTO_DDL_PROPERTY, autoDdl);
 
@@ -64,19 +64,19 @@ public class SakaiBootStrap
         .getInstance();
     if (sqlService == null)
     {
-      LOG.error("***** SqlService cannot be found!");
+      LOG.error("SakaiBootStrap.init(): SqlService cannot be found!");
       throw new IllegalStateException("SqlService cannot be found!");
     }
 
     if (autoDdl)
     {
-      LOG.info("****autoDdl enabled; running DDL...");
+      LOG.info("SakaiBootStrap.init(): autoDdl enabled; running DDL...");
       sqlService.ddl(this.getClass().getClassLoader(), SAKAI_SAMIGO_DDL_NAME);
     } else {
-      LOG.info("****autoDdl disabled.");
+      LOG.debug("****autoDdl disabled.");
     }
 
-    LOG.info("***** init() completed successfully");
+    //LOG.debug("***** init() completed successfully");
   }
 
   /**
