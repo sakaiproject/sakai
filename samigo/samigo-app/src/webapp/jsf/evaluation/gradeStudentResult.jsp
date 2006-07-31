@@ -182,8 +182,7 @@ $Id$
           <f:verbatim></h4></f:verbatim>
 
           <f:verbatim><div class="tier3"></f:verbatim>
-            <h:outputText value="#{question.itemData.description}" escape="false"/>
-
+            
             <h:panelGroup rendered="#{question.itemData.typeId == 7}">
               <f:subview id="deliverAudioRecording">
                <%@ include file="/jsf/evaluation/item/displayAudioRecording.jsp" %>
