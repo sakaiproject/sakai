@@ -3945,9 +3945,11 @@ public class AssignmentAction extends PagedResourceActionII
 								// remove assignment entry from Gradebook
 								integrateGradebook(state, aReference, "remove", null, null, -1, null, null, null);
 							}
-
+						}	// if post
+						
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
 							state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-
 							state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 							resetAssignment(state);
 						}
