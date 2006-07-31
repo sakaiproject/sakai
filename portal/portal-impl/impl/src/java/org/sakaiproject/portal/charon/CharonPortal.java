@@ -230,10 +230,10 @@ public class CharonPortal extends HttpServlet
 		SitePage page = site.getPage(pageId);
 		if (page == null)
 		{
-			List pages = site.getPages();
+			List pages = site.getOrderedPages();
 			if (!pages.isEmpty())
 			{
-				page = (SitePage) site.getPages().get(0);
+				page = (SitePage) pages.get(0);
 			}
 		}
 		if (page == null)
@@ -1044,7 +1044,7 @@ public class CharonPortal extends HttpServlet
 			List pages = site.getOrderedPages();
 			if (!pages.isEmpty())
 			{
-				page = (SitePage) site.getPages().get(0);
+				page = (SitePage) pages.get(0);
 			}
 		}
 		if (page == null)
@@ -1282,10 +1282,10 @@ public class CharonPortal extends HttpServlet
 		SitePage page = site.getPage(pageId);
 		if (page == null)
 		{
-			List pages = site.getPages();
+			List pages = site.getOrderedPages();
 			if (!pages.isEmpty())
 			{
-				page = (SitePage) site.getPages().get(0);
+				page = (SitePage) pages.get(0);
 			}
 		}
 		if (page == null)
