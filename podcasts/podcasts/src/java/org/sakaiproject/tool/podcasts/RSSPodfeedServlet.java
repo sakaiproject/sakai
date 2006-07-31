@@ -73,7 +73,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 			siteID = reqURL.substring(1, reqURL.lastIndexOf("/"));
 		}
 
-/*		String siteCollection = ContentHostingService.getSiteCollection(siteID);
+		String siteCollection = ContentHostingService.getSiteCollection(siteID);
 		String podcastsCollection = siteCollection + PodcastService.COLLECTION_PODCASTS + Entity.SEPARATOR;
 
 		if (! ContentHostingService.isPubView(podcastsCollection)) {
@@ -130,7 +130,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 			}
 			
 		}
-*/
+
 		response.setContentType(RESPONSE_MIME_TYPE);
 		
 		// We want to generate this every time to ensure changes to the Podcast folder are put in feed "immediately"

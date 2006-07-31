@@ -2,8 +2,8 @@
 <web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
-    <display-name>sakai-podcasts</display-name>
-    <description>Sakai Podcasts Tool</description>
+    <display-name>podcasts</display-name>
+    <description>Sakai Podcasts Feed Servlet</description>
 
     <context-param>
         <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
@@ -31,29 +31,8 @@
         <url-pattern>*.jsf</url-pattern>
     </servlet-mapping>
      
-	<!-- the missing link of my attempt, servlet-name must match tool.
-		 it is JsfTool that will intercept requests and grap the
-		 correct information -->
-     <servlet>
-      <servlet-name>sakai.podcasts</servlet-name>
-      <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
-        <init-param>
-            <param-name>path</param-name>
-            <param-value>/podcasts</param-value>
-        </init-param>
-      <load-on-startup>2</load-on-startup>
-        <init-param>
-            <param-name>default</param-name>
-            <param-value>podMain</param-value>
-        </init-param>
-         <init-param>
-            <param-name>default.last.view</param-name>
-            <param-value>true</param-value>
-        </init-param>
-   </servlet>
- 
   <servlet>
-    <servlet-name>podfeed</servlet-name>
+    <servlet-name>podcasts</servlet-name>
     <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
     <display-name>RSSPodfeedServlet</display-name>
     <description>This generates the actual Poddcast feed</description>
@@ -61,14 +40,14 @@
   </servlet>
  
    <servlet-mapping>
-       <servlet-name>podfeed</servlet-name>
-       <url-pattern>/podfeed/*</url-pattern>
+       <servlet-name>podcasts</servlet-name>
+       <url-pattern>/site/*</url-pattern>
     </servlet-mapping>
   
   <security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Sakai Podcast Feed Servlet</web-resource-name>
-			<url-pattern>/podfeed/*</url-pattern>
+			<url-pattern>/site/*</url-pattern>
 			<http-method>GET</http-method>
 			<http-method>POST</http-method>
 		</web-resource-collection>
@@ -99,7 +78,7 @@
   	   usually all 3 dispachers values kept -->
    <filter-mapping>
         <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
-        <servlet-name>sakai.podcasts</servlet-name>
+        <servlet-name>podcasts</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>

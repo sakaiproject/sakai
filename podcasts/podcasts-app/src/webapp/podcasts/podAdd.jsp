@@ -1,6 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <f:loadBundle basename="org.sakaiproject.tool.podcasts.bundle.Messages" var="msgs"/>
@@ -42,9 +43,10 @@
       <span class="reqStarInline">*</span>
       <h:outputText value="#{msgs.date_prompt}" styleClass="reqPrompt" />
 
-      <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" rendered="true" />
-
+<!--       <sakai:input_date id="poddate" value="#{podHomeBean.date}" showDate="true" showTime="true" rendered="true" />
+	  
 <!--        h:message for="poddate" styleClass="alertMessage" /> -->
+      <samigo:datePicker value="#{podHomeBean.date}" id="addDate" size="20" />
  	  <h:outputText value="#{msgs.nodate_alert}" styleClass="alertMessage" rendered="#{podHomeBean.displayNoDateErrMsg}" /> 
  	</div>
     <br />
