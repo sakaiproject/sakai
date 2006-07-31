@@ -1,3 +1,0 @@
-<Context path="/podcasts" docBase="podcasts">
-	<Realm className="org.sakaiproject.dav.DavRealm" />
-</Context>
