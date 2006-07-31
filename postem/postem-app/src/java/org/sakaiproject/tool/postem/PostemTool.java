@@ -39,16 +39,26 @@ import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.util.MessageUtils;
 import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.GradebookManager;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
+
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class PostemTool {
 	protected GradebookManager gradebookManager;
@@ -94,6 +104,8 @@ public class PostemTool {
 	public static final String messageBundle = "org.sakaiproject.tool.postem.bundle.Messages";
 	public ResourceLoader msgs = new ResourceLoader(messageBundle);
 
+	private static final Log LOG = LogFactory.getLog(PostemTool.class);
+	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
@@ -735,6 +747,8 @@ public class PostemTool {
 	
 	public boolean usernamesValid(CSV studentGrades) {
 		boolean usersAreValid = true;
+		List blankRows = new ArrayList();
+		List invalidUsernames = new ArrayList();
 		int row=1;
 		
 		List studentList = studentGrades.getStudents();
@@ -746,11 +760,81 @@ public class PostemTool {
 			
 			if(usr.equals("") || usr == null) {
 				usersAreValid = false;
+				blankRows.add(new Integer(row));
+			} else if(!isSiteMember(getUserId(usr))) {
+				  usersAreValid = false;
+				  invalidUsernames.add(usr);
+			}	
+		}
+		
+		if (blankRows.size() == 1) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"missing_single_username", new Object[] { });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"missing_location", new Object[] { blankRows.get(0) });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"missing_username_dir", new Object[] { });
+		} else if (blankRows.size() > 1) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"missing_mult_usernames", new Object[] { });
+			for(int i=0; i < blankRows.size(); i++) {
 				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
-						"invalid_username", new Object[] { new Integer(row) });
+						"missing_location", new Object[] { blankRows.get(i) });
 			}
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"missing_username_dir", new Object[] { });
+		}
+		
+		if (invalidUsernames.size() == 1) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"blank", new Object[] { });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"single_invalid_username", new Object[] { });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"invalid_username", new Object[] { invalidUsernames.get(0) });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"single_invalid_username_dir", new Object[] { invalidUsernames.get(0) });
+		} else if (invalidUsernames.size() > 1) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"blank", new Object[] { });
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"mult_invalid_usernames", new Object[] { });
+			for(int j=0; j < invalidUsernames.size(); j++) {
+				PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+						"invalid_username", new Object[] { invalidUsernames.get(j) });
+			}	
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					"mult_invalid_usernames_dir", new Object[] { });
 		}
 	  return usersAreValid;
 	}
-
+	
+	private boolean isSiteMember(String uid)
+	{
+		AuthzGroup realm;
+		try	{
+			realm = AuthzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
+			return realm.getUsers().contains(uid);
+		}
+		catch (GroupNotDefinedException e) {
+			LOG.error("IdUnusedException:", e);
+		}		
+		return false;
+	}
+	
+	private String getCurrentSiteId()
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		return placement.getContext();
+	}
+	
+	private String getUserId(String usr)
+	{
+		try	{
+			return UserDirectoryService.getUserId(usr);
+		} 
+		catch (UserNotDefinedException e) {
+			return usr;
+		}
+	}
 }
