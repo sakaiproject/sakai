@@ -488,7 +488,9 @@ public class PostemTool {
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
 		}
+		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
+		currentGradebook.setLastUpdater(this.userId);
 		gradebookManager.saveGradebook(currentGradebook);
 
 		this.currentGradebook = null;
@@ -503,7 +505,9 @@ public class PostemTool {
 		while (oi.hasNext()) {
 			gradebookManager.deleteStudentGrades((StudentGrades) oi.next());
 		}
+		this.userId = SessionManager.getCurrentSessionUserId();
 		currentGradebook.setLastUpdated(new Timestamp(new Date().getTime()));
+		currentGradebook.setLastUpdater(this.userId);
 		gradebookManager.saveGradebook(currentGradebook);
 
 		this.currentGradebook = null;
