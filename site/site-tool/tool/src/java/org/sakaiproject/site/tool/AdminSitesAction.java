@@ -708,7 +708,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.setAttribute("new", "true");
 
 		// disable auto-updates while in view mode
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+		if (courier != null) courier.disable();
 
 	} // doNew
 
@@ -734,7 +735,8 @@ public class AdminSitesAction extends PagedResourceActionII
 				state.setAttribute("mode", "edit");
 
 				// disable auto-updates while in view mode
-				((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+				ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+				if (courier != null) courier.disable();
 			}
 			catch (IdUnusedException e)
 			{
