@@ -229,7 +229,8 @@ public class AliasesAction extends PagedResourceActionII
 		state.setAttribute("new", "true");
 
 		// disable auto-updates while not in list mode
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+		if (courier != null) courier.disable();
 
 	} // doNew
 
@@ -249,7 +250,8 @@ public class AliasesAction extends PagedResourceActionII
 			state.setAttribute("mode", "edit");
 
 			// disable auto-updates while not in list mode
-			((ObservingCourier) state.getAttribute(STATE_OBSERVER)).disable();
+			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+			if (courier != null) courier.disable();
 		}
 		catch (IdUnusedException e)
 		{
@@ -259,7 +261,8 @@ public class AliasesAction extends PagedResourceActionII
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
-			((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+			if (courier != null) courier.enable();
 		}
 		catch (PermissionException e)
 		{
@@ -267,7 +270,8 @@ public class AliasesAction extends PagedResourceActionII
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
-			((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+			if (courier != null) courier.enable();
 		}
 		catch (InUseException e)
 		{
@@ -275,7 +279,8 @@ public class AliasesAction extends PagedResourceActionII
 			state.removeAttribute("mode");
 
 			// make sure auto-updates are enabled
-			((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+			ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+			if (courier != null) courier.enable();
 		}
 
 	} // doEdit
@@ -305,7 +310,8 @@ public class AliasesAction extends PagedResourceActionII
 		state.removeAttribute("mode");
 
 		// make sure auto-updates are enabled
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+		if (courier != null) courier.enable();
 
 	} // doSave
 
@@ -347,7 +353,8 @@ public class AliasesAction extends PagedResourceActionII
 		state.removeAttribute("mode");
 
 		// make sure auto-updates are enabled
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+		if (courier != null) courier.enable();
 
 	} // doCancel
 
@@ -394,7 +401,8 @@ public class AliasesAction extends PagedResourceActionII
 		state.removeAttribute("mode");
 
 		// make sure auto-updates are enabled
-		((ObservingCourier) state.getAttribute(STATE_OBSERVER)).enable();
+		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
+		if (courier != null) courier.enable();
 
 	} // doRemove_confirmed
 
