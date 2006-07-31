@@ -50,8 +50,11 @@ public class EscapeFilter extends LocaleRegexTokenFilter implements CacheFilter
 
 	public String handleMatch(MatchResult result, FilterContext context)
 	{
-		if (result.group(1) == null)
-		{
+		if (result.group(1) != null) {
+			return "&#92;";
+		} else if (result.group(4) != null ) {
+			return "\n";
+		} else {
 			String match = result.group(2);
 			if (match == null)
 			{
@@ -62,10 +65,6 @@ public class EscapeFilter extends LocaleRegexTokenFilter implements CacheFilter
 				return "\\\\";
 			}
 			return Encoder.toEntity(match.charAt(0));
-		}
-		else
-		{
-			return "&#92;";
 		}
 	}
 
