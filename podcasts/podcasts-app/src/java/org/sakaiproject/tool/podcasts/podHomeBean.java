@@ -48,6 +48,7 @@ import org.sakaiproject.api.app.podcasts.PodcastService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -62,6 +63,7 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
@@ -206,9 +208,11 @@ public class podHomeBean {
 				return podcastService.getPodcastFileURL(resourceId);
 			} catch (PermissionException e) {
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.info("PermissionException getting file URL for " + resourceId + "while displaying podcast file.", e);
 
 			} catch (IdUnusedException e) {
 				setErrorMessage(ID_UNUSED_ALERT);
+				LOG.info("IdUnusedException getting file URL for " + resourceId + " while displaying podcast file.", e);
 
 			}
 			
@@ -232,6 +236,16 @@ public class podHomeBean {
 	private static final String NO_RESOURCES_ERR_MSG = "no_resource_alert";
 	private static final String RESOURCEID = "resourceId";
 	private static final String RESOURCE_TITLE = "Resources";
+	private static final String FEED_URL_MIDDLE = "podcasts/site/";
+	private static final String MB = "MB";
+	private static final String BYTES = "Bytes";
+	
+	// Patterns for Date and Number formatting
+	private static final String PUBLISH_DATE_FORMAT = "publish_date_format";
+	private static final String MB_NUMBER_FORMAT = "#.#";
+	private static final String BYTE_NUMBER_FORMAT = "#,###";
+	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
+	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
 	
 	// inject the podcast services for its help
 	private Log LOG = LogFactory.getLog(podHomeBean.class);
@@ -246,6 +260,7 @@ public class podHomeBean {
 	// used by podAdd.jsp for adding a podcast
 	private String filename;
 	private Date date;
+	private Date time;
 	private String title;
 	private String description;
 	private String email;
@@ -263,10 +278,6 @@ public class podHomeBean {
 	private boolean displayNoFileErrMsg;
 	private boolean displayNoDateErrMsg;
 	private boolean displayNoTitleErrMsg;
-	
-	// Used by podFeedRevise for global feed info
-	private String podFeedTitle;
-	private String podFeedDescription;
 	
 	/**
 	 * @return Returns the displayNoTitleErrMsg.
@@ -325,12 +336,22 @@ public class podHomeBean {
     return resourceToolExists;
 	}
 
+	/**
+	 * Passes an error message to the Spring framework to display on page.
+	 * 
+	 * @param alertMsg The key to get the message from the message bundle 
+	 */
 	private void setErrorMessage(String alertMsg)
 	{
 		FacesContext.getCurrentInstance().addMessage(null,
 		      new FacesMessage("Alert: " + getErrorMessageString(alertMsg)));
 	}
-	  
+	
+	/**
+	 * Determines if the podcast folder exists. If it does not, it will attempt to create it.
+	 * 
+	 * @return TRUE if folder exists, FALSE otherwise.
+	 */
 	public boolean getPodcastFolderExists() {
 		boolean podcastFolderExists=false;
 		  
@@ -340,18 +361,25 @@ public class podHomeBean {
 				podcastFolderExists = podcastService.checkPodcastFolder();
 			} catch (InUseException e) {
 				// TODO If it's in use, does that mean it exists?
+				LOG.info("InUseException while attempting to determine if podcast folder exists.", e);
 				
 			} catch (PermissionException e) {
 				// TODO Generate error message about Permission denied
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.warn("PermissionException while attempting to determine if podcast folder exists.", e);
 			}
 		  }
 		  
 		  return podcastFolderExists;
 	  }
-	  	  
+
+	  /**
+	   * Returns the URL to point your podcatcher to in order to grab the feed.
+	   * 
+	   * @return String The feed URL.
+	   */
 	  public String getURL() {
-		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + "sakai-podcasts/podfeed/" 
+		  URL = ServerConfigurationService.getServerUrl() + Entity.SEPARATOR + FEED_URL_MIDDLE 
 		         + podcastService.getSiteId();
 		  return URL;
 	  }
@@ -407,7 +435,7 @@ public class podHomeBean {
 
 		// store Display date
 		// to format the date as: DAY_OF_WEEK  DAY MONTH_NAME YEAR
-		SimpleDateFormat formatter = new SimpleDateFormat ("EEEEEE',' dd MMMMM yyyy" );
+		SimpleDateFormat formatter = new SimpleDateFormat (getErrorMessageString(PUBLISH_DATE_FORMAT) );
 		Date tempDate = new Date(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
 		podcastInfo.setDisplayDate(formatter.format(tempDate));
 							
@@ -422,14 +450,14 @@ public class podHomeBean {
 		podcastInfo.setFileSize(size);
 		
 		double sizeMB = size / (1024.0*1024.0); 
-		DecimalFormat df = new DecimalFormat("#.#");
+		DecimalFormat df = new DecimalFormat(MB_NUMBER_FORMAT);
 		String sizeString;
 		if ( sizeMB >  0.3) {
-			sizeString = df.format(sizeMB) + "MB";
+			sizeString = df.format(sizeMB) + MB;
 		}
 		else {
-			df.applyPattern("#,###");
-			sizeString = "" + df.format(size) + " bytes";
+			df.applyPattern(BYTE_NUMBER_FORMAT);
+			sizeString = "" + df.format(size) + " " + BYTES;
 		}
 		podcastInfo.setSize(sizeString);
 
@@ -443,12 +471,12 @@ public class podHomeBean {
 		}
 
 		// get and format last modified time
-		formatter.applyPattern("hh:mm a z" );
+		formatter.applyPattern(LAST_MODIFIED_TIME_FORMAT);
 		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 		podcastInfo.setPostedTime(formatter.format(tempDate));
 
 		// get and format last modified date
-		formatter.applyPattern("MM/dd/yyyy" );
+		formatter.applyPattern(LAST_MODIFIED_DATE_FORMAT);
 		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
 		podcastInfo.setPostedDate(formatter.format(tempDate));
 
@@ -471,19 +499,28 @@ public class podHomeBean {
 		catch (PermissionException pe) {
 			// TODO: Set error message to say you don't have permission
 			 setErrorMessage(PERMISSION_ALERT);
-			 LOG.info("PermissionException getting podcasts for display " + pe.getMessage());
+			 LOG.info("PermissionException getting podcasts for display " + pe.getMessage(), pe);
+			 
 		} catch (InUseException e) {
 			// TODO Or try again? Set Error Message?
 			setErrorMessage(INTERNAL_ERROR_ALERT);
+			LOG.info("InUseException while getting podcasts for display" + e.getMessage(), e);
+			
 		} catch (IdInvalidException e) {
 			// TODO Set a LOG message before rethrowing?
 			setErrorMessage(ID_INVALID_ALERT);
+			LOG.info("IdInvalidException while getting podcasts for display " + e.getMessage(), e);
+			
 		} catch (InconsistentException e) {
 			// TODO Auto-generated catch block
+			LOG.info("InconsistentException while getting podcasts for display " + e.getMessage(), e);
 			return null;
+			
 		} catch (IdUsedException e) {
 			// TODO Auto-generated catch block
 			setErrorMessage(ID_UNUSED_ALERT);
+			LOG.info("IdUsedException while gettting podcasts for display " + e.getMessage(), e);
+			
 		}
 
 		// create local List of DecoratedBeans
@@ -509,9 +546,13 @@ public class podHomeBean {
 				}
 				catch (EntityPropertyNotDefinedException ende) {
 					//TODO: WHAT WOULD THIS MEAN?
+					LOG.warn("EntityzPropertyNotDefinedException while creating DecoratedPodcastBean " + ende.getMessage(), ende);
+					
 				}
 				catch (EntityPropertyTypeException epte) {
 					//TODO: WHAT WOULD THIS MEAN?
+					LOG.info("EntityPropertyTypeException while creating DecoratedPodcastBean " + epte.getMessage(), epte);
+					
 				}
 
 			}
@@ -544,6 +585,7 @@ public class podHomeBean {
 				actPodcastsExist = podcastService.checkForActualPodcasts();
 			} catch (PermissionException e) {
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.warn("PermissionException while determining if there are files in the podcast folder " + e.getMessage(), e);
 			}
 		}
 
@@ -587,8 +629,11 @@ public class podHomeBean {
 
 			} catch (EntityPropertyNotDefinedException e) {
 				// TODO WHAT DOES THIS MEAN
+				LOG.info("EntityPropertyNotDefinedException while attempting to fill selectedPodcast property " + e.getMessage(), e);
+				
 			} catch (EntityPropertyTypeException e) {
 				// TODO WHAT DOES THIS MEAN
+				LOG.info("EntityPropertyTypeException while attempting to fill selectedPodcast property " + e.getMessage(), e);
 			}
 		}
 	}
@@ -616,7 +661,9 @@ public class podHomeBean {
 	public void setDate(Date date) {
 		// hack needed since ends up passing in date 1 day earlier
 		// than actual
-	    this.date = new Date(date.getTime() + (24 * 60 * 60 * 1000));
+		Date tempDate = date;
+		
+	    this.date = tempDate;
 	}
 
 	public String getTitle() {
@@ -691,58 +738,12 @@ public class podHomeBean {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			setErrorMessage(INTERNAL_ERROR_ALERT);
+			LOG.warn("IOException while attempting to set BufferedInputStream to upload " + filename + ". " + e.getMessage(), e);
+			
 		}
 
     }
 	
-	/**
-	 * @return Returns the podFeedTitle.
-	 */
-	public String getPodFeedTitle() {
-		// TODO: if (podcastService.getFeedTitle == null) {
-		//			podFeedTitle = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
-		//       }
-		//		else {
-		//			podFeedTitle = podcastService.getGlobalDescription();
-		//		}
-		podFeedTitle = rb.getString("podfeed_global_title") + " TestPodcast";
-		
-		return podFeedTitle;
-	}
-
-	/**
-	 * @param podFeedTitle The podFeedTitle to set.
-	 */
-	public void setPodFeedTitle(String podFeedTitle) {
-		this.podFeedTitle = podFeedTitle;
-		
-		//TODO: store it somewhere for later
-	}
-
-	/**
-	 * @return Returns the podFeedDescription.
-	 */
-	public String getPodFeedDescription() {
-		// TODO: if (podcastService.getFeedDescription == null) {
-		//			podFeedDescription = rb.getMessage(podfeed_global_desc1) + department code + course number + rb.getMessage(podfeed_global_desc2;
-		//       }
-		//		else {
-		//			podFeedDescription = podcastService.getGlobalDescription();
-		//		}
-		podFeedDescription = rb.getString("podfeed_global_desc1") + "TestPodcast" + rb.getString("podfeed_global_desc2"); 
-		
-		return podFeedDescription;
-	}
-
-	/**
-	 * @param podFeedDescription The podFeedDescription to set.
-	 */
-	public void setPodFeedDescription(String podFeedDescription) {
-		this.podFeedDescription = podFeedDescription;
-		
-		//TODO: store it somewhere for later
-	}
-
 	/**
 	 * Performs the actual adding of a podcast. Calls PodcastService to actually add the podcast.
 	 * 
@@ -757,45 +758,63 @@ public class podHomeBean {
 				fileAsStream.read(fileContents);
 			}
 			catch (IOException ioe) {
-				System.out.println("What happened to the fileStream?");
+				LOG.warn("IOException while attempting the actual upload file during processAdd " + ioe.getMessage(), ioe);
 				setErrorMessage(IO_ALERT);
+				
 			}
 		
 			try {
-				podcastService.addPodcast(title, date, description, fileContents, filename, fileContentType);
+				podcastService.addPodcast(title, new Date(date.getTime() + time.getTime()), description, fileContents, filename, fileContentType);
+
+				displayNoFileErrMsg = false;
+				displayNoDateErrMsg = false;
+				displayNoTitleErrMsg = false;
+
+				whereToGo = "cancel";
+				
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete
 		        setErrorMessage(QUOTA_ALERT);
+		        LOG.info("OverQuotaException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying Server working too hard
 				setErrorMessage(INTERNAL_ERROR_ALERT);
+				LOG.info("ServerOverloadException while attempting to actually add the new podcast " + e.getMessage(), e);
 				
 			} catch (InconsistentException e) {
 				// TODO Back to where it came from?
+				LOG.info("InconsistentException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			} catch (IdInvalidException e) {
 				// TODO Add error message saying Id invalid
 				setErrorMessage(ID_INVALID_ALERT);
+				LOG.info("IdInvalidException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			} catch (IdLengthException e) {
 				// TODO Add error message saying too long
 				setErrorMessage(LENGTH_ALERT);
+				LOG.info("IdLengthException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission denied
 				setErrorMessage(PERMISSION_ALERT);
+				LOG.info("PermissionException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			} catch (IdUniquenessException e) {
 				// TODO Add error message saying Id already exists
 				setErrorMessage(ID_USED_ALERT);
+				LOG.warn("IdUniquenessException while attempting to actually add the new podcast " + e.getMessage(), e);
 
 			}
 
-			displayNoFileErrMsg = false;
-			displayNoDateErrMsg = false;
-			displayNoTitleErrMsg = false;
-			whereToGo = "cancel";
+			if (email.equalsIgnoreCase("high")) {
+				EmailService.send("josrodri@iupui.edu", "josrodri@iupui.edu", "A podcast has been added to feed.", "A podcast has been added to the list of podcasts. It's publish date will determine when it will be available in the feed",
+						null, null, null);
+			}
+			else if (email.equalsIgnoreCase("low")){
+				//TODO: email only those who have opted in
+			}
 		}
 		
 		title="";
@@ -848,7 +867,7 @@ public class podHomeBean {
 					fileAsStream.read(fileContents);
 				}
 				catch (IOException ioe) {
-					System.out.println("What happened to the fileStream?");
+					LOG.warn("IOException while attempting to revise podcast info for " + filename + ". " + ioe.getMessage());
 					setErrorMessage(IO_ALERT);
 				}
 			
@@ -862,20 +881,33 @@ public class podHomeBean {
 			try {
 				podcastService.revisePodcast(selectedPodcast.resourceId, selectedPodcast.title, date,
 					selectedPodcast.description, fileContents, selectedPodcast.filename);
+				
+				if (email.equalsIgnoreCase("high")) {
+					EmailService.send("josrodri@iupui.edu", "josrodri@iupui.edu", "A podcast has been added to feed.", "A podcast has been added to the list of podcasts. It's publish date will determine when it will be available in the feed",
+							null, null, null);
+				}
+				else if (email.equalsIgnoreCase("low")){
+					//TODO: email only those who have opted in
+				}
+				
 			} catch (PermissionException e) {
 				// TODO Add error message saying Permission Denied
+				LOG.warn("PermissionException while revising podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 				setErrorMessage(PERMISSION_ALERT);
 
 			} catch (InUseException e) {
 				// TODO Add error message saying locked by another user
+				LOG.info("InUseException while revising podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			} catch (OverQuotaException e) {
 				// TODO Add error message saying delete things
+				LOG.info("OverQuotaException while revising podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 				setErrorMessage(QUOTA_ALERT);
 				
 			} catch (ServerOverloadException e) {
 				// TODO Add error message saying server working too hard
+				LOG.warn("ServerOverloadException while revising podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 				setErrorMessage(INTERNAL_ERROR_ALERT);
 
 			}
@@ -910,11 +942,25 @@ public class podHomeBean {
 			return "cancel";
 		}
 		catch (PermissionException e) {
+			LOG.warn("PermissionException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 			setErrorMessage(PERMISSION_ALERT);
+			
 		}
-		catch (Exception e) {
+		catch (IdUnusedException e) {
+			LOG.warn("IdUnusedException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
 			setErrorMessage(INTERNAL_ERROR_ALERT);
 		}
+		catch (InUseException e) {
+			LOG.info("InUseException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
+			setErrorMessage(INTERNAL_ERROR_ALERT);
+			
+		}
+		catch (TypeException e) {
+			LOG.warn("TypeException while deleting podcast " + selectedPodcast.title + ". " + e.getMessage(), e);
+			setErrorMessage(INTERNAL_ERROR_ALERT);
+
+		}
+		
 		return "";
 	}
 	
@@ -928,26 +974,6 @@ public class podHomeBean {
 		return "cancel";
 	}
 
-
-	public String processPodfeedRevise() {
-		if (! (podFeedTitle.equals("") || podFeedTitle.equals(""/* old title */))) {
-			// Replace with this title
-		}
-		
-		if (! (podFeedDescription.equals("") || podFeedDescription.equals(""/* old description */))) {
-			// Replace with this description
-		}
-		
-		return "cancel";
-	}
-	/**
-	 * Cancels revising global podfeed information
-	 * 
-	 * @return String Sent to return to the main page
-	 */
-	public String processCancelPodfeedRevise() {
-		return "cancel";
-	}
 
 	/**
 	 * Returns whether an error message is to be displayed if a file has not been selected in the file upload field.
@@ -1031,8 +1057,18 @@ public class podHomeBean {
 		
 	}
 
-	public void generatePodcastRSS(ActionEvent e) {
-		podfeedService.generatePodcastRSS("Podcast", "TestRSS.feed");
+	/**
+	 * @return Returns the time.
+	 */
+	public Date getTime() {
+		return time;
+	}
+
+	/**
+	 * @param time The time to set.
+	 */
+	public void setTime(Date time) {
+		this.time = time;
 	}
 
 

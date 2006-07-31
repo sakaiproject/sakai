@@ -5,7 +5,7 @@
 	<extend>../../master/jsf-sun-tool.xml</extend>
 	<name>podcasts</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-podcasts</id>
+	<id>podcasts</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>University of Michigan</name>
