@@ -24,7 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.Date;
-import java.util.Map;
+//import java.util.Map;
 
 
 import javax.faces.application.FacesMessage;
@@ -63,7 +63,7 @@ public class ConfirmPublishAssessmentListener
     implements ActionListener {
 
   private static Log log = LogFactory.getLog(ConfirmPublishAssessmentListener.class);
-  private static ContextUtil cu;
+  //private static ContextUtil cu;
   private static final GradebookServiceHelper gbsHelper =
       IntegrationContextFactory.getInstance().getGradebookServiceHelper();
   private static final boolean integrated =
@@ -75,15 +75,8 @@ public class ConfirmPublishAssessmentListener
   public void processAction(ActionEvent ae) throws AbortProcessingException {
     FacesContext context = FacesContext.getCurrentInstance();
     ExternalContext extContext = context.getExternalContext();
-    Map reqMap = context.getExternalContext().getRequestMap();
-    Map requestParams = context.getExternalContext().getRequestParameterMap();
-    boolean ipError=false;
-    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) cu.
-        lookupBean(
-        "assessmentSettings");
- AssessmentBean assessmentBean = (AssessmentBean) cu.
-        lookupBean(
-        "assessmentBean");
+    AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     //#1 - permission checking before proceeding - daisyf
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
@@ -95,6 +88,7 @@ public class ConfirmPublishAssessmentListener
       return;
     }
 
+    assessmentBean.setAssessment(assessment);
     //proceed to look for error, save assessment setting and confirm publish
     //#2a - look for error: check if core assessment title is unique
     boolean error=false;
@@ -114,10 +108,9 @@ public class ConfirmPublishAssessmentListener
    
     if(assessmentSettings.getToDefaultGradebook().equals("1"))
 	{
-	    if(assessmentBean.getTotalScore()<=0)
+ 	    if(assessmentBean.getTotalScore()<=0)
 		{
-                String gb_err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-							    "gradebook_exception_min_points");
+                String gb_err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",							    "gradebook_exception_min_points");
 		context.addMessage(null, new FacesMessage(gb_err));
 		error=true;
 		}
@@ -135,7 +128,7 @@ public class ConfirmPublishAssessmentListener
     try{
 	if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
 	    gbsHelper.isAssignmentDefined(assessmentName, g)){
-        String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+        String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
         context.addMessage(null,new FacesMessage(gbConflict_err));
         error=true;
       }
@@ -218,7 +211,7 @@ public class ConfirmPublishAssessmentListener
 	}
 	if(ipErr){
 	    error=true;
-	    String  ip_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
+	    String  ip_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","ip_error");
 	    context.addMessage(null,new FacesMessage(ip_err));
 
        
@@ -226,7 +219,7 @@ public class ConfirmPublishAssessmentListener
  //check feedback - if at specific time then time should be defined.
     if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
 	error=true;
-	String  date_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
 	context.addMessage(null,new FacesMessage(date_err));
 
     }
@@ -270,13 +263,13 @@ public class ConfirmPublishAssessmentListener
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
-      String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
 		     "denied_publish_assessment_error");
       context.addMessage(null,new FacesMessage(err));
     }
