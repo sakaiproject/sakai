@@ -479,7 +479,7 @@ public class SiteAction extends PagedResourceActionII
 		String publicTypes = StringUtil.trimToNull(config.getInitParameter("publicSiteTypes"));
 		if (state.getAttribute(STATE_PUBLIC_SITE_TYPES) == null)
 		{
-			if (changeableTypes != null)
+			if (publicTypes != null)
 			{
 				state.setAttribute(STATE_PUBLIC_SITE_TYPES, new ArrayList(Arrays.asList(publicTypes.split(","))));
 			}
