@@ -181,38 +181,41 @@ public class MembershipManagerImpl implements MembershipManager{
 		e.printStackTrace();
 	}            
       
-      MembershipItem memberItem = MembershipItem.getInstance();
-      memberItem.setType(MembershipItem.TYPE_USER);
-      memberItem.setName(user.getSortName());
-      memberItem.setUser(user);
-      memberItem.setRole(userRole);             
-                         
-      if(!(userId).equals("admin"))
-      {                                       
-        if (filterFerpa){                       
-          List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
-          boolean ferpa_flag = false;
-          for (Iterator iter = personList.iterator(); iter.hasNext();)
-          {
-            SakaiPerson element = (SakaiPerson) iter.next();            
-            if (Boolean.TRUE.equals(element.getFerpaEnabled())){
-              ferpa_flag = true;
-            }            
-          }                                          
-         if (!ferpa_flag || securityService.unlock(memberItem.getUser(), 
-                                                   SiteService.SECURE_UPDATE_SITE,
-                                                   getContextSiteId())
-                         || securityService.unlock(userDirectoryService.getCurrentUser(),
-                                                   SiteService.SECURE_UPDATE_SITE,
-                                                   getContextSiteId())
-          ){
-           returnMap.put(memberItem.getId(), memberItem);
-          }
-        }
-        else{
-          returnMap.put(memberItem.getId(), memberItem);
-        }
-      }                                
+      if(user != null)
+      {
+      	MembershipItem memberItem = MembershipItem.getInstance();
+      	memberItem.setType(MembershipItem.TYPE_USER);
+      	memberItem.setName(user.getSortName());
+      	memberItem.setUser(user);
+      	memberItem.setRole(userRole);             
+
+      	if(!(userId).equals("admin"))
+      	{                                       
+      		if (filterFerpa){                       
+      			List personList = sakaiPersonManager.findSakaiPersonByUid(userId);
+      			boolean ferpa_flag = false;
+      			for (Iterator iter = personList.iterator(); iter.hasNext();)
+      			{
+      				SakaiPerson element = (SakaiPerson) iter.next();            
+      				if (Boolean.TRUE.equals(element.getFerpaEnabled())){
+      					ferpa_flag = true;
+      				}            
+      			}                                          
+      			if (!ferpa_flag || securityService.unlock(memberItem.getUser(), 
+      					SiteService.SECURE_UPDATE_SITE,
+      					getContextSiteId())
+      					|| securityService.unlock(userDirectoryService.getCurrentUser(),
+      							SiteService.SECURE_UPDATE_SITE,
+      							getContextSiteId())
+      			){
+      				returnMap.put(memberItem.getId(), memberItem);
+      			}
+      		}
+      		else{
+      			returnMap.put(memberItem.getId(), memberItem);
+      		}
+      	}                                
+      }
     }
     
     return returnMap;
@@ -250,16 +253,19 @@ public class MembershipManagerImpl implements MembershipManager{
 		e.printStackTrace();
 	}            
       
-      MembershipItem memberItem = MembershipItem.getInstance();
-      memberItem.setType(MembershipItem.TYPE_USER);
-      memberItem.setName(user.getSortName());
-      memberItem.setUser(user);
-      memberItem.setRole(userRole);             
-                         
-      if(!(userId).equals("admin"))
-      {                                               
-        userMap.put(memberItem.getId(), memberItem);                
-      }                                
+      if(user != null)
+      {
+      	MembershipItem memberItem = MembershipItem.getInstance();
+      	memberItem.setType(MembershipItem.TYPE_USER);
+      	memberItem.setName(user.getSortName());
+      	memberItem.setUser(user);
+      	memberItem.setRole(userRole);             
+
+      	if(!(userId).equals("admin"))
+      	{                                               
+      		userMap.put(memberItem.getId(), memberItem);                
+      	}
+      }
     }
     
     return convertMemberMapToList(userMap);
