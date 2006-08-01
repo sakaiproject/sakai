@@ -175,7 +175,10 @@ public class MembershipManagerImpl implements MembershipManager{
       
       User user = null;
       try{
-        user = userDirectoryService.getUser(userId);
+      	if(realm.getMember(userId) != null && realm.getMember(userId).isActive())
+      	{
+      		user = userDirectoryService.getUser(userId);
+      	}
       } catch (UserNotDefinedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -247,7 +250,10 @@ public class MembershipManagerImpl implements MembershipManager{
       
       User user = null;
       try{
-        user = userDirectoryService.getUser(userId);
+      	if(realm.getMember(userId) != null && realm.getMember(userId).isActive())
+      	{
+      		user = userDirectoryService.getUser(userId);
+      	}
       } catch (UserNotDefinedException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
