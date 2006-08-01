@@ -30,7 +30,7 @@
 					$validator.escapeHtml("$item.name")
 				#end
 			#else
-				<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)")" title ="$tlang.getString('sh.go')">
+				<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($navRoot)")" title ="$tlang.getString('sh.go')">
 					#if ($dropboxMode && $velocityCount == 1)
 						$siteTitle $tlang.getString("gen.drop")
 					#elseif($velocityCount == 1)

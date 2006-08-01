@@ -2082,6 +2082,8 @@ public class ResourcesAction
 		context.put("homeCollectionId", homeCollectionId);
 		List cPath = getCollectionPath(state);
 		context.put ("collectionPath", cPath);
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		context.put("navRoot", navRoot);
 		
 		EditItem item = getEditItem(id, collectionId, data);
 		context.put("item", item);
@@ -9452,11 +9454,15 @@ public class ResourcesAction
 			previousCollectionId = currentCollectionId;
 			currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
 		}
-		pathitems.add(navRoot);
-
-		if(!navRoot.equals(homeCollectionId))
+		
+		if(navRoot != null)
 		{
-			pathitems.add(homeCollectionId);
+			pathitems.add(navRoot);
+
+			if(!navRoot.equals(homeCollectionId))
+			{
+				pathitems.add(homeCollectionId);
+			}
 		}
 
 		Iterator items = pathitems.iterator();
