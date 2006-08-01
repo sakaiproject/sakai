@@ -88,7 +88,9 @@
 					      <f:param value="#{forum.forum.id}" name="forumId"/>
 				      </h:commandLink>
 				      <h:outputText id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
-				                    rendered="#{topic.isRead}"/>
+				                    rendered="#{topic.isRead && topic.totalNoMessages < 2 }"/>
+				      <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
+				                    rendered="#{topic.isRead && topic.totalNoMessages > 1}"/>
     	        </h:panelGroup>
     	        <h:panelGroup styleClass="msgNav">
     	         <h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}"

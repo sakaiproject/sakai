@@ -56,7 +56,8 @@
 						  <f:param value="#{topic.topic.id}" name="topicId"/>
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
-					  <h:outputText id="topic_msg_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}"/>
+					  <h:outputText id="topic_msg_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.totalNoMessages < 2}"/>
+					  <h:outputText id="topic_msgs_count" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" rendered="#{topic.totalNoMessages > 1}"/>
 				  </h:panelGroup>
 				  <h:panelGroup styleClass="msgNav">
 						<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
