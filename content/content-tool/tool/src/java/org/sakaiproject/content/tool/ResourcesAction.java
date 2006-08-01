@@ -1022,19 +1022,16 @@ public class ResourcesAction
 		}
 		else if(MODE_ATTACHMENT_CREATE.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_CREATE_INIT;
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_NEW_ITEM_INIT;
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
 			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
 		}
@@ -1166,14 +1163,17 @@ public class ResourcesAction
 		}
 		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			template = buildCreateContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			template = buildItemTypeContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
 		{
+			setupStructuredObjects(state);
 			template = buildEditContext(portlet, context, data, state);
 		}
 		return template;
@@ -2567,17 +2567,17 @@ public class ResourcesAction
 		catch(PermissionException e)
 		{
 			//alerts.add(rb.getString("notpermis4"));
-			e.printStackTrace();
+			logger.warn("ResourcesAction.newEditItems() PermissionException ", e);
 		} 
 		catch (IdUnusedException e) 
 		{
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("ResourcesAction.newEditItems() IdUnusedException ", e);
 		} 
 		catch (TypeException e) 
 		{
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("ResourcesAction.newEditItems() TypeException ", e);
 		}
 
 		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
