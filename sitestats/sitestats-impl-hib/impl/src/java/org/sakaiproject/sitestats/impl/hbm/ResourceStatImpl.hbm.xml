@@ -15,7 +15,7 @@
 		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SITE_ID_IDX" />
 		<property name="resourceRef" column="RESOURCE_REF" type="string" length="255" not-null="true" />		
 		<property name="resourceAction" column="RESOURCE_ACTION" type="string" length="12" not-null="true"  index="RES_ACT_IDX"/>		
-		<property name="date" column="DATE" type="date" not-null="true" index="DATE_IDX" />
-		<property name="count" column="COUNT" type="long" not-null="true" />
+		<property name="date" column="RESOURCE_DATE" type="date" not-null="true" index="DATE_IDX" />
+		<property name="count" column="RESOURCE_COUNT" type="long" not-null="true" />
 	</class>
 </hibernate-mapping>

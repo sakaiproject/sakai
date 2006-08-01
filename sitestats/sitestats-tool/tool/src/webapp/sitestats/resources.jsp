@@ -57,7 +57,7 @@
 				value="#{ResourcesBean.events}"
 				var="row"
 				styleClass="listHier narrowTable"
-				columnClasses="left,left,left,right"
+				columnClasses="left,left,left,left,left,left"
 				sortColumn="#{ResourcesBean.sortColumn}" 
 	            sortAscending="#{ResourcesBean.sortAscending}"
 	            first="#{ResourcesBean.firstItem}"

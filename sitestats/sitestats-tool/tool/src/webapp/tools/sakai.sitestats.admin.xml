@@ -3,7 +3,7 @@
 <registration>
 	<tool id="sakai.sitestats.admin"
     	title="Site Stats"
-        description="Tool for showing site statistics by user, event, or resource for every site (admin).">
+        description="For showing site statistics by user, event, or resource for every sakai site (admin).">
     	
     	<category name="sakai.admin" />
 

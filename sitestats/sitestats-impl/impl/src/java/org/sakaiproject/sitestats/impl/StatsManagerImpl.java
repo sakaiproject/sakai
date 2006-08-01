@@ -45,6 +45,7 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
@@ -456,10 +457,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStatsGrpByDate(java.lang.String, java.util.List, java.lang.String, java.util.Date, java.util.Date, boolean)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getEventStatsGrpByDate(String, List, String, Date, Date, PagingPosition)
 	 */
 	public List getEventStatsGrpByDate(final String siteId, final List events, 
-			final String searchKey, final Date iDate, final Date fDate) {
+			final String searchKey, final Date iDate, final Date fDate, final PagingPosition page) {
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
@@ -498,6 +499,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						Date fDate2 = c.getTime();
 						q.setDate("fdate", fDate2);
 					}
+					if(page != null){
+						q.setFirstResult(page.getFirst() - 1);
+						q.setMaxResults(page.getLast() - page.getFirst());
+					}
 					List records = q.list();
 					List results = new ArrayList();
 					if(records.size() > 0){
@@ -517,6 +522,53 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 			};
 			return (List) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	public int countEventStatsGrpByDate(final String siteId, final List events, 
+			final String searchKey, final Date iDate, final Date fDate) {
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final List userIdList = searchUsers(searchKey);
+
+			String usersStr = "";
+			String iDateStr = "";
+			String fDateStr = "";
+			if(userIdList != null && userIdList.size() > 0)
+				usersStr = "and s.userId in (:users) ";
+			if(iDate != null)
+				iDateStr = "and s.date >= :idate ";
+			if(fDate != null)
+				fDateStr = "and s.date < :fdate ";
+			final String hql = "select count(*) " + 
+					"from EventStatImpl as s " +
+					"where s.siteId = :siteid " +
+					"and s.eventId in (:events) " +
+					usersStr + iDateStr + fDateStr +
+					"group by s.siteId, s.userId, s.eventId";
+			
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setParameterList("events", events);
+					if(userIdList != null && userIdList.size() > 0)
+						q.setParameterList("users", userIdList);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					return new Integer(q.list().size());	
+				}
+			};
+			return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
 		}
 	}
 
@@ -565,10 +617,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsGrpByDateAndAction(java.lang.String, java.lang.String, java.util.Date, java.util.Date)
+	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsGrpByDateAndAction(java.lang.String, java.lang.String, java.util.Date, java.util.Date, org.sakaiproject.javax.PagingPosition)
 	 */
 	public List getResourceStatsGrpByDateAndAction(final String siteId, final String searchKey, 
-			final Date iDate, final Date fDate) {
+			final Date iDate, final Date fDate, final PagingPosition page) {
 		if(siteId == null){
 			throw new IllegalArgumentException("Null siteId");
 		}else{
@@ -605,6 +657,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						Date fDate2 = c.getTime();
 						q.setDate("fdate", fDate2);
 					}
+					if(page != null){
+						q.setFirstResult(page.getFirst() - 1);
+						q.setMaxResults(page.getLast() - page.getFirst());
+					}
 					List records = q.list();
 					List results = new ArrayList();
 					if(records.size() > 0){
@@ -627,6 +683,51 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 			};
 			return (List) getHibernateTemplate().execute(hcb);
+		}
+	}
+	
+	public int countResourceStatsGrpByDateAndAction(final String siteId, final String searchKey,
+			final Date iDate, final Date fDate){
+		if(siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		}else{
+			final List userIdList = searchUsers(searchKey);			
+			
+			String usersStr = "";
+			String iDateStr = "";
+			String fDateStr = "";
+			if(userIdList != null && userIdList.size() > 0)
+				usersStr = "and s.userId in (:users) ";
+			if(iDate != null)
+				iDateStr = "and s.date >= :idate ";
+			if(fDate != null)
+				fDateStr = "and s.date < :fdate ";
+			final String hql = "select count(*) " + 
+					"from ResourceStatImpl as s " +
+					"where s.siteId = :siteid " +
+					usersStr + iDateStr + fDateStr +
+					"group by s.siteId, s.userId, s.resourceRef, s.resourceAction";
+			
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					if(userIdList != null && userIdList.size() > 0)
+						q.setParameterList("users", userIdList);
+					if(iDate != null)
+						q.setDate("idate", iDate);
+					if(fDate != null){
+						// adjust final date
+						Calendar c = Calendar.getInstance();
+						c.setTime(fDate);
+						c.add(Calendar.DAY_OF_YEAR, 1);
+						Date fDate2 = c.getTime();
+						q.setDate("fdate", fDate2);
+					}
+					return new Integer(q.list().size());						
+				}
+			};
+			return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
 		}
 	}
 

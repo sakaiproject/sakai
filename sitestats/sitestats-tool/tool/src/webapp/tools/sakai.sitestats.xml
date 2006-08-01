@@ -3,7 +3,7 @@
 <registration>
 	<tool id="sakai.sitestats"
     	title="Site Stats"
-        description="Tool for showing site statistics by user, event, or resource.">
+        description="For showing site statistics by user, event, or resource.">
     	
     	<category name="course" />
 		<category name="project" />

@@ -57,7 +57,7 @@
 				value="#{EventsBean.events}"
 				var="row"
 				styleClass="listHier narrowTable"
-				columnClasses="left,left,left,right"
+				columnClasses="left,left,left,left,left"
 				sortColumn="#{EventsBean.sortColumn}" 
 	            sortAscending="#{EventsBean.sortAscending}"
 	            first="#{EventsBean.firstItem}"

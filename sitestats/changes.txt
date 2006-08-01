@@ -1,3 +1,10 @@
+2006/08/01 - Version 0.5.2
+------------------------------
+- STAT-6: Make appearance of dates in SiteStats more consitent? --> use ISO while dates are not yet localized
+- STAT-5: Correct alignment of text in 'Most Recent Date' column in Site Stats
+- STAT-4: Unsuccessful schema statement- creating tables in Oracle
+- changed tool registration file description for consistency with other tool descriptioons
+
 2006/06/28 - Version 0.5.1
 ------------------------------
 - fix case where resource no longer exists (failed while creating link to it)

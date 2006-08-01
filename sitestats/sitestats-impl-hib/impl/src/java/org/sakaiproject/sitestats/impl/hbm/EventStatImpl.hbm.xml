@@ -14,7 +14,7 @@
 		<property name="userId" column="USER_ID" type="string" length="99" not-null="true" index="USER_ID_IDX" />
 		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SITE_ID_IDX" />
 		<property name="eventId" column="EVENT_ID"  type="string" length="32" not-null="true" index="EVENT_ID_IDX"/>
-		<property name="date" column="DATE" type="date" not-null="true" index="DATE_IDX"/>
-		<property name="count" column="COUNT" type="long" not-null="true"/>
+		<property name="date" column="EVENT_DATE" type="date" not-null="true" index="DATE_IDX"/>
+		<property name="count" column="EVENT_COUNT" type="long" not-null="true"/>
 	</class>
 </hibernate-mapping>

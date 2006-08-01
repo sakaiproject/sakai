@@ -31,6 +31,7 @@ import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.sitestats.api.StatsManager;
 
 
@@ -106,10 +107,17 @@ public class ResourcesBean extends BaseFilteringBean implements Serializable {
 		String key = getSearchKeyword();
 		if(key == null || key.equals("") || key.equals(msgs.getString("search_int")))
 			key = null;
+
+		// pager
+//		int start = getFirstItem() + 1;
+//		int end = start + getPageSize() - 1;
+//		PagingPosition pp = new PagingPosition(start, end);
 		
-		// get data
-		events = sm.getResourceStatsGrpByDateAndAction(baseBean.getSiteId(), key, iDate, fDate);
+		// get data		
+		events = sm.getResourceStatsGrpByDateAndAction(baseBean.getSiteId(), key, iDate, fDate, null);
+		//setTotalItems(sm.countResourceStatsGrpByDateAndAction(baseBean.getSiteId(), key, iDate, fDate));
 		setEvents(events);
+		//setRenderPager(true);
 	}
 
 	private StatsManager getStatsManager() {

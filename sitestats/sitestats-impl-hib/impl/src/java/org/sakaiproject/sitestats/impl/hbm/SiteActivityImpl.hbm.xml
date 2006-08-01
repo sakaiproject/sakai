@@ -12,8 +12,8 @@
 			</generator>
 		</id>
 		<property name="siteId" column="SITE_ID" type="string" length="99" not-null="true" index="SITE_ID_IDX" />
-		<property name="date" column="DATE" type="date" not-null="true" index="DATE_IDX" />
+		<property name="date" column="ACTIVITY_DATE" type="date" not-null="true" index="DATE_IDX" />
 		<property name="eventId" column="EVENT_ID" type="string" length="32" not-null="true" index="EVENT_ID_IDX" />
-		<property name="count" column="COUNT" type="long" not-null="true" />		
+		<property name="count" column="ACTIVITY_COUNT" type="long" not-null="true" />		
 	</class>
 </hibernate-mapping>

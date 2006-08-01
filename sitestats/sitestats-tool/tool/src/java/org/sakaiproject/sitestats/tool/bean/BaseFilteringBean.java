@@ -147,13 +147,13 @@ public class BaseFilteringBean extends InitializableBean {
 	private void initializeDates() {
 		Calendar c = Calendar.getInstance();
 		toYear = Integer.toString(c.get(Calendar.YEAR));
-		toMonth = Integer.toString(c.get(Calendar.MONTH) + 1);
-		toDay = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
+		toMonth = toTwoDigitString(c.get(Calendar.MONTH) + 1);
+		toDay = toTwoDigitString(c.get(Calendar.DAY_OF_MONTH));
 		initialActivityDate = sm.getInitialActivityDate(getBaseBean().getSiteId());
 		c.setTimeInMillis(initialActivityDate.getTime());
 		fromYear = Integer.toString(c.get(Calendar.YEAR));
-		fromMonth = Integer.toString(c.get(Calendar.MONTH) + 1);
-		fromDay = Integer.toString(c.get(Calendar.DAY_OF_MONTH));
+		fromMonth = toTwoDigitString(c.get(Calendar.MONTH) + 1);
+		fromDay = toTwoDigitString(c.get(Calendar.DAY_OF_MONTH));
 	}
 
 	// ######################################################################################
@@ -378,12 +378,18 @@ public class BaseFilteringBean extends InitializableBean {
 		this.toYear = toYear;
 	}
 
+	protected String toTwoDigitString(int n){
+		if(n < 10)
+			return "0" + String.valueOf(n);
+		return String.valueOf(n);
+	}
+	
 	public List getDays() {
 		if(days == null){
 			days = new ArrayList();
 			days.add(new SelectItem(NO_DATE));
 			for(int i = 0; i < 31; i++)
-				days.add(new SelectItem((i + 1) + ""));
+				days.add(new SelectItem(toTwoDigitString(i + 1)));
 		}
 		return days;
 	}
@@ -393,7 +399,7 @@ public class BaseFilteringBean extends InitializableBean {
 			months = new ArrayList();
 			months.add(new SelectItem(NO_DATE));
 			for(int i = 0; i < 12; i++)
-				months.add(new SelectItem((i + 1) + ""));
+				months.add(new SelectItem(toTwoDigitString(i + 1)));
 		}
 		return months;
 	}

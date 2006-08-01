@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Tool;
 
@@ -106,9 +107,21 @@ public interface StatsManager {
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date 
+	 * @param page The PagePosition subset of items to return
 	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
 	 */
-	public List getEventStatsGrpByDate(String siteId, List events, String searchKey, Date iDate, Date fDate);
+	public List getEventStatsGrpByDate(String siteId, List events, String searchKey, Date iDate, Date fDate, PagingPosition page);
+
+	/**
+	 * Count event statistics grouped by user, site, event and date
+	 * @param siteId The site ID
+	 * @param events List of events to get statistics for
+	 * @param searchKey An user ID, first or last name
+	 * @param iDate The initial date
+	 * @param fDate The final date
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given event)
+	 */
+	public int countEventStatsGrpByDate(String siteId, List events, String searchKey, Date iDate, Date fDate);
 
 	
 	// ################################################################
@@ -137,9 +150,20 @@ public interface StatsManager {
 	 * @param searchKey An user ID, first or last name
 	 * @param iDate The initial date
 	 * @param fDate The final date
+	 * @param page The PagePosition subset of items to return
 	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given resource access)
 	 */
-	public List getResourceStatsGrpByDateAndAction(String siteId, String searchKey, Date iDate, Date fDate);
+	public List getResourceStatsGrpByDateAndAction(String siteId, String searchKey, Date iDate, Date fDate, PagingPosition page);
+	
+	/**
+	 * Count resource statistics grouped by user, site, resource and date
+	 * @param siteId The site ID
+	 * @param searchKey An user ID, first or last name
+	 * @param iDate The initial date
+	 * @param fDate The final date
+	 * @return a list of CommonStatGrpByDate objects (date member contains last date for the given resource access)
+	 */
+	public int countResourceStatsGrpByDateAndAction(String siteId, String searchKey, Date iDate, Date fDate);
 
 
 	// ################################################################

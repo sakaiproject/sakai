@@ -99,7 +99,8 @@ public class CommonStatGrpByDateImpl implements CommonStatGrpByDate, Serializabl
 	 * @see org.sakaiproject.sitestats.api.CommonStatGrpByDate#getDateAsString()
 	 */
 	public String getDateAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, yyyy");
+		// STAT-6: changed to ISO while dates are not localized
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		return formatter.format(date);
 	}
 
