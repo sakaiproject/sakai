@@ -1638,7 +1638,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// add assignment to gradebook
 						g.addExternalAssessment(gradebookUid, assignmentRef, null, newAssignment_title,
-								newAssignment_maxPoints / 10, new Date(newAssignment_dueTime.getTime()), getToolTitle());
+								newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()), getToolTitle());
 					}
 					catch (AssignmentHasIllegalPointsException e)
 					{
@@ -1675,7 +1675,7 @@ public class AssignmentAction extends PagedResourceActionII
 						    Assignment a = AssignmentService.getAssignment(assignmentRef);
 						    	
 						    // update attributes for existing assignment
-					    		g.updateExternalAssessment(gradebookUid, assignmentRef, null, a.getTitle(), a.getContent().getMaxGradePoint()/10, new Date(a.getDueTime().getTime()));
+					    		g.updateExternalAssessment(gradebookUid, assignmentRef, null, a.getTitle(), a.getContent().getMaxGradePoint()/10.0, new Date(a.getDueTime().getTime()));
 						}
 					    catch(Exception e)
 				        {
