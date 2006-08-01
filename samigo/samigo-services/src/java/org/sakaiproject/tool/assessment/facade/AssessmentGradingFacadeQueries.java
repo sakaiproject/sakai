@@ -962,7 +962,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         currentAgent = g.getAgentId();
         finalScore = g.getFinalScore();
       }
-      if (currentAgent.equals(g.getAgentId()) && finalScore.equals(g.getFinalScore())){
+      if (currentAgent.equals(g.getAgentId()) 
+        && ((finalScore==null && g.getFinalScore()==null)
+            || finalScore.equals(g.getFinalScore()))){
         Object o = h.get(itemId);
         if (o != null)
           ((ArrayList) o).add(gradingId);
