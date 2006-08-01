@@ -3619,6 +3619,13 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// commit assignment first
 						AssignmentService.commitEdit(a);
+						
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+							state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+							resetAssignment(state);
+						}
 
 						if (post)
 						{
@@ -3947,12 +3954,6 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 						}	// if post
 						
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-							state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
-							resetAssignment(state);
-						}
 					} // if
 				}
 				catch (IdUnusedException e)
