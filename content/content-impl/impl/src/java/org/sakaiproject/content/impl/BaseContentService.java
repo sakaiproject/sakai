@@ -1533,11 +1533,21 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowUpdateCollection(String id)
 	{
-		if (isLocked(getUuid(id)))
+		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
+		
+		if(isAllowed)
 		{
-			return false;
+			try
+			{
+				checkExplicitLock(id);
+			}
+			catch(PermissionException e)
+			{
+				isAllowed = false;
+			}
 		}
-		return unlockCheck(EVENT_RESOURCE_WRITE, id);
+		
+		return isAllowed;
 
 	} // allowUpdateCollection
 
@@ -2012,9 +2022,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			id = id.substring(0, id.length() - 1);
 		}
-
+		
 		// check security
-		return unlockCheck(EVENT_RESOURCE_ADD, id);
+		boolean isAllowed = unlockCheck(EVENT_RESOURCE_ADD, id);
+		
+		if(isAllowed)
+		{
+			// check for explicit locks
+			try 
+			{
+				checkExplicitLock(id);
+			} 
+			catch (PermissionException e) 
+			{
+				isAllowed = false;
+			}
+		}
+
+		return isAllowed;
 
 	} // allowAddResource
 
@@ -2879,7 +2904,21 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	public boolean allowRemoveResource(String id)
 	{
 		// check security
-		return unlockCheck(EVENT_RESOURCE_REMOVE, id);
+		boolean isAllowed = unlockCheck(EVENT_RESOURCE_REMOVE, id);
+		
+		if(isAllowed)
+		{
+			try
+			{
+				checkExplicitLock(id);
+			}
+			catch(PermissionException e)
+			{
+				isAllowed = false;
+			}
+		}
+		
+		return isAllowed;
 
 	} // allowRemoveResource
 
@@ -4181,7 +4220,20 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowAddProperty(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_WRITE, id);
+		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
+		if(isAllowed)
+		{
+			try 
+			{
+				checkExplicitLock(id);
+			} 
+			catch (PermissionException e) 
+			{
+				isAllowed = false;
+			}
+		}
+		
+		return isAllowed;
 
 	} // allowAddProperty
 
@@ -4258,8 +4310,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public boolean allowRemoveProperty(String id)
 	{
-		return unlockCheck(EVENT_RESOURCE_WRITE, id);
+		boolean isAllowed = unlockCheck(EVENT_RESOURCE_WRITE, id);
 
+		if(isAllowed)
+		{
+			try
+			{
+				checkExplicitLock(id);
+			}
+			catch(PermissionException e)
+			{
+				isAllowed = false;
+			}
+		}
+		
+		return isAllowed;
+		
 	} // allowRemoveProperty
 
 	/**

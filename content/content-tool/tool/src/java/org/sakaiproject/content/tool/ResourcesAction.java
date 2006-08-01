@@ -9571,7 +9571,8 @@ public class ResourcesAction
 			}
 			if(parent == null || ! parent.canDelete())
 			{
-				canDelete = contentService.allowRemoveResource(collectionId);
+				// canDelete = contentService.allowRemoveResource(collectionId);
+				canDelete = contentService.allowRemoveCollection(collectionId);
 			}
 			else
 			{
@@ -9579,7 +9580,8 @@ public class ResourcesAction
 			}
 			if(parent == null || ! parent.canRevise())
 			{
-				canRevise = contentService.allowUpdateResource(collectionId);
+				// canRevise = contentService.allowUpdateResource(collectionId);
+				canRevise = contentService.allowUpdateCollection(collectionId);
 			}
 			else
 			{
@@ -9818,6 +9820,8 @@ public class ResourcesAction
 						String itemType = ((ContentResource)resource).getContentType();
 						String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						BrowseItem newItem = new BrowseItem(itemId, itemName, itemType);
+						
+						boolean isLocked = contentService.isLocked(itemId);
 
 						newItem.setAccess(access_mode.toString());
 						newItem.setInheritedAccess(folder.getEffectiveAccess());
@@ -9842,7 +9846,7 @@ public class ResourcesAction
 						newItem.setContainer(collectionId);
 						newItem.setRoot(folder.getRoot());
 
-						newItem.setCanDelete(canDelete);
+						newItem.setCanDelete(canDelete && ! isLocked);
 						newItem.setCanRevise(canRevise);
 						newItem.setCanRead(canRead);
 						newItem.setCanCopy(canRead);
