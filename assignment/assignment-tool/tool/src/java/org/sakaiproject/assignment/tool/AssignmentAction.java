@@ -3811,8 +3811,9 @@ public class AssignmentAction extends PagedResourceActionII
 											header.setDraft(/* draft */false);
 											header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
 
-											if (!openDateMessageModified)
+											if (openDateAnnounced == null)
 											{
+												// making new announcement
 												header.setSubject(/* subject */rb.getString("assig6") + " " + title);
 												message.setBody(/* body */rb.getString("opedat") + " "
 														+ FormattedText.convertPlaintextToFormattedText(title) + " is "
@@ -3820,6 +3821,7 @@ public class AssignmentAction extends PagedResourceActionII
 											}
 											else
 											{
+												// revised announcement
 												header.setSubject(/* subject */rb.getString("assig5") + " " + title);
 												message.setBody(/* body */rb.getString("newope") + " "
 														+ FormattedText.convertPlaintextToFormattedText(title) + " is "
@@ -3869,10 +3871,10 @@ public class AssignmentAction extends PagedResourceActionII
 											{
 												ref = a.getReference();
 												AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-												aPropertiesEdit.addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+												aEdit.getPropertiesEdit().addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
 												if (message != null)
 												{
-													aPropertiesEdit.addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+													aEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
 												}
 												AssignmentService.commitEdit(aEdit);
 											}
