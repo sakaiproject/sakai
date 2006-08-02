@@ -158,6 +158,13 @@
   </servlet>
 
   <servlet>
+    <servlet-name>DownloadAllMediaServlet</servlet-name>
+    <display-name>Download All Media</display-name>
+    <description>Download all uploaded media files.</description>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.DownloadAllMediaServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>UploadAudioMediaServlet</servlet-name>
     <display-name>UploadAudio</display-name>
     <description>Upload audio file from client stream.</description>
@@ -167,6 +174,11 @@
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>DownloadAllMediaServlet</servlet-name>
+    <url-pattern>/servlet/DownloadAllMedia</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
