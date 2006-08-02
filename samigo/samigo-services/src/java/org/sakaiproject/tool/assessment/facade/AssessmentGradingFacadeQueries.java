@@ -905,7 +905,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         currentAgent = g.getAgentId();
         submittedDate = g.getSubmittedDate();
       }
-      if (currentAgent.equals(g.getAgentId()) && submittedDate.equals(g.getSubmittedDate())){
+      if (currentAgent.equals(g.getAgentId())
+          && ((submittedDate==null && g.getSubmittedDate()==null)
+              || (submittedDate!=null && submittedDate.equals(g.getSubmittedDate())))){
         Object o = h.get(itemId);
         if (o != null)
           ((ArrayList) o).add(gradingId);
