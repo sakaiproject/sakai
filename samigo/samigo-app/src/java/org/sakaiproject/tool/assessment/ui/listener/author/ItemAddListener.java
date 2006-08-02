@@ -525,8 +525,8 @@ public class ItemAddListener
           }
 
         // if assign to pool, add the item to the pool
-        if ( (!bean.getSelectedPool().equals("")) && (bean.getSelectedPool() != null)) {
-          // if the item is already in the pool then do not add.
+        if ( (bean.getSelectedPool() != null) && !bean.getSelectedPool().equals("")) {
+        	// if the item is already in the pool then do not add.
           // This is a scenario where the item might already be in the pool:
           // create an item in an assessemnt and assign it to p1
           // copy item from p1 to p2. 
@@ -856,7 +856,7 @@ public class ItemAddListener
     return textSet;
   }
 
-  private HashSet prepareMetaData(ItemFacade item, ItemBean bean) {
+  protected HashSet prepareMetaData(ItemFacade item, ItemBean bean) {
     HashSet set = new HashSet();
     if (bean.getKeyword() != null) {
       set.add(new ItemMetaData(item.getData(), ItemMetaDataIfc.KEYWORD,
