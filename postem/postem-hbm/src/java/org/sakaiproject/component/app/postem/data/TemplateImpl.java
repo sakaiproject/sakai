@@ -40,12 +40,12 @@ public class TemplateImpl implements Template, Serializable {
 
 	public String fillGrades(StudentGrades student) {
 		String output = new String(templateCode);
-		output = output.replaceAll("\\$0", student.getUsername());
+		output = output.replace("$0$", student.getUsername());
 		ListIterator grades = student.getGrades().listIterator();
 		while (grades.hasNext()) {
 			int index = grades.nextIndex();
 			String grade = (String) grades.next();
-			output = output.replaceAll("\\$" + (index + 1), grade);
+			output = output.replace("$" + (index + 1) + "$", grade);
 		}
 		return output;
 	}
