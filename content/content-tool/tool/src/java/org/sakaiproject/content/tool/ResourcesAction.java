@@ -3415,13 +3415,13 @@ public class ResourcesAction
 						if(value == null)
 						{
 							// do nothing
-							continue;
+							//continue;
 						}
 						else if(value instanceof String)
 						{
 							if("".equals((String) value))
 							{
-								continue;
+								//continue;
 							}
 							node.appendChild(doc.createTextNode((String)value));
 						}
@@ -9438,6 +9438,18 @@ public class ResourcesAction
 				if(editCollectionId != null)
 				{
 					currentCollectionId = editCollectionId;
+				}
+				else
+				{
+					String infoCollectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
+					if(infoCollectionId == null)
+					{
+						infoCollectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
+					}
+					if(infoCollectionId != null)
+					{
+						currentCollectionId = infoCollectionId;
+					}
 				}
 			}
 		}
