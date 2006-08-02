@@ -3414,13 +3414,13 @@ public class ResourcesAction
 						if(value == null)
 						{
 							// do nothing
-							//continue;
+							continue;
 						}
 						else if(value instanceof String)
 						{
 							if("".equals((String) value))
 							{
-								//continue;
+								continue;
 							}
 							node.appendChild(doc.createTextNode((String)value));
 						}
