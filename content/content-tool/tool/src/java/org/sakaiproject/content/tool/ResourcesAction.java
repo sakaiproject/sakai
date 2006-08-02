@@ -1163,17 +1163,17 @@ public class ResourcesAction
 		}
 		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
+			// setupStructuredObjects(state);
 			template = buildCreateContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM_INIT.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
+			// setupStructuredObjects(state);
 			template = buildItemTypeContext(portlet, context, data, state);
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM_INIT.equals(helper_mode))
 		{
-			setupStructuredObjects(state);
+			// setupStructuredObjects(state);
 			template = buildEditContext(portlet, context, data, state);
 		}
 		return template;
@@ -1242,7 +1242,7 @@ public class ResourcesAction
 		}
 
 		context.put("itemType", itemType);
-
+		
 		Integer numberOfItems = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
 		if(numberOfItems == null)
 		{
@@ -1318,7 +1318,7 @@ public class ResourcesAction
 		}
 		context.put("new_items", new_items);
 		current_stack_frame.put(STATE_STACK_CREATE_ITEMS, new_items);
-		
+
 		String show_form_items = (String) current_stack_frame.get(STATE_SHOW_FORM_ITEMS);
 		if(show_form_items == null)
 		{
@@ -1348,11 +1348,11 @@ public class ResourcesAction
 
 		if(TYPE_FORM.equals(itemType))
 		{
+			setupStructuredObjects(state);
 			List listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
 			if(listOfHomes == null)
 			{
-				setupStructuredObjects(state);
-				listOfHomes = (List) current_stack_frame.get(STATE_STRUCTOBJ_HOMES);
+				listOfHomes = (List) state.getAttribute(STATE_STRUCTOBJ_HOMES);
 			}
 			context.put("homes", listOfHomes);
 
@@ -2513,7 +2513,7 @@ public class ResourcesAction
 		{
 			current_stack_frame = pushOnStack(state);
 		}
-		setupStructuredObjects(state);
+		//setupStructuredObjects(state);
 
 		String encoding = data.getRequest().getCharacterEncoding();
 
@@ -2596,8 +2596,7 @@ public class ResourcesAction
 		} 
 		catch (IdUnusedException e) 
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("resourcesAction.newEditItems() IdUnusedException ", e);
 		}
 		if(site != null)
 		{
@@ -2878,7 +2877,7 @@ public class ResourcesAction
 				missing.add("formtype");
 			}
 			current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			setupStructuredObjects(state);
+			//setupStructuredObjects(state);
 		}
 		else if(flow.equals("addInstance"))
 		{
@@ -6179,7 +6178,7 @@ public class ResourcesAction
 		}
 		catch(RuntimeException e)
 		{
-			logger.warn("ResourcesAction.doEdit ***** Unknown Exception ***** " + e.getMessage());
+			logger.warn("ResourcesAction.getEditItem ***** Unknown Exception ***** " + e.getMessage());
 			addAlert(state, rb.getString("failed"));
 		}
 
