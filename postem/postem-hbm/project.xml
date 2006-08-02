@@ -24,6 +24,12 @@
 			<artifactId>sakai-postem-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-math</groupId>

@@ -39,15 +39,22 @@ import org.sakaiproject.api.app.postem.data.Gradebook;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 import org.sakaiproject.api.app.postem.data.Template;
 
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
+
 public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	protected String title;
 
 	protected String creator;
+	
+	protected String creatorEid;
 
 	protected Timestamp created;
 
 	protected String lastUpdater;
+	
+	protected String lastUpdaterEid;
 
 	protected DateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm");
 
@@ -119,6 +126,20 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	public void setCreator(String creator) {
 		this.creator = creator;
+		setCreatorEid(creator);
+	}
+	
+	public String getCreatorEid() {
+		return creatorEid;
+	}
+	
+	public void setCreatorEid(String creatorUserId) {
+		try {
+			this.creatorEid = UserDirectoryService.getUserEid(creatorUserId);
+			
+		} catch(UserNotDefinedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Timestamp getCreated() {
@@ -135,6 +156,20 @@ public class GradebookImpl implements Gradebook, Comparable, Serializable {
 
 	public void setLastUpdater(String lastUpdater) {
 		this.lastUpdater = lastUpdater;
+		setLastUpdaterEid(lastUpdater);
+	}
+	
+	public String getLastUpdaterEid() {
+		return lastUpdaterEid;
+	}
+	
+	public void setLastUpdaterEid(String lastUpdaterUserId) {
+		try {
+			this.lastUpdaterEid = UserDirectoryService.getUserEid(lastUpdaterUserId);
+			
+		} catch(UserNotDefinedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getUpdatedDateTime() {

@@ -27,13 +27,13 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.gradebook_creators}"/>
 						</f:facet>
-						<h:outputText value="#{gradebook.creator}"/>
+						<h:outputText value="#{gradebook.creatorEid}"/>
 					</h:column>
 					<h:column rendered="#{PostemTool.editable}">
 						<f:facet name="header">
 							<h:outputText value="#{msgs.gradebook_lastmodifiedby}"/>
 						</f:facet>
-						<h:outputText value="#{gradebook.lastUpdater}"/>
+						<h:outputText value="#{gradebook.lastUpdaterEid}"/>
 					</h:column>
 					<h:column>
 						<f:facet name="header">
