@@ -277,10 +277,10 @@ public class ClusterFSIndexStorage implements IndexStorage
 		List segments = clusterFS.updateSegments();
 
 		// create a size sorted list
-		long[] segmentSize = new long[segments.size()-1];
-		File[] segmentName = new File[segments.size()-1];
-		if ( segmentSize.length > 10 ) {
-			for (int i = 0; i < segments.size()-1; i++ ) {
+		if ( segments.size() > 10 ) {
+			long[] segmentSize = new long[segments.size()-1];
+			File[] segmentName = new File[segments.size()-1];
+			for (int i = 0; i < segmentSize.length; i++ ) {
 				segmentName[i] = new File((String)segments.get(i));
 				segmentSize[i] = clusterFS.getTotalSize(segmentName[i]);
 			}
