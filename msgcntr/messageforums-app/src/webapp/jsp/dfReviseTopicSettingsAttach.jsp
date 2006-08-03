@@ -18,7 +18,7 @@
 			</div>
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
-		  <h:panelGrid styleClass="shorttext" columns="3">
+		  <h:panelGrid styleClass="shorttext" columns="3" rendered="#{! ForumTool.disableLongDesc}">
 				<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"/>	
 				<h:outputLabel id="outputLabel" for="topic_title"  value="#{msgs.cdfm_topic_title}"/>	
 				<h:inputText size="50" id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}"/>
@@ -27,9 +27,18 @@
 				<h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}"/>
 				<h:inputTextarea rows="3" cols="45" id="topic_shortDescription"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/>
 
-				<h:outputText value="" />
+				<h:outputText value=""/>
 				<h:outputLabel id="outputLabel2"   value="#{msgs.cdfm_fullDescription}"/>
 				<sakai:rich_text_area rows="10" columns="70"  value="#{ForumTool.selectedTopic.topic.extendedDescription}"/>
+     	</h:panelGrid>
+		  <h:panelGrid styleClass="shorttext" columns="3" rendered="#{ForumTool.disableLongDesc}">
+				<h:outputText id="req_star_noLong"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"/>	
+				<h:outputLabel id="outputLabel_noLong" for="topic_title"  value="#{msgs.cdfm_topic_title}"/>	
+				<h:inputText size="50" id="topic_title_noLong"  value="#{ForumTool.selectedTopic.topic.title}"/>
+
+				<h:outputText value="" />
+				<h:outputLabel id="outputLabel1_noLong" for="topic_shortDescription_noLong"  value="#{msgs.cdfm_shortDescription}"/>
+				<h:inputTextarea rows="3" cols="45" id="topic_shortDescription_noLong"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/>
      	</h:panelGrid>
 
 

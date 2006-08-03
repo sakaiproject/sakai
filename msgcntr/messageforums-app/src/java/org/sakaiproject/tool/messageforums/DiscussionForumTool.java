@@ -187,6 +187,7 @@ public class DiscussionForumTool
   // private List allAttachments = new ArrayList();
   private boolean threaded = false;
   private String expanded = "true";
+  private boolean disableLongDesc = false;
   private boolean isDisplaySearchedMessages;
   private List siteMembers = new ArrayList();
   private String selectedRole;
@@ -223,6 +224,10 @@ public class DiscussionForumTool
     {
     	threaded = true;
     	selectedMessageView = THREADED_VIEW;
+    }
+    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.disableLongDesc")))
+    {
+    	disableLongDesc = true;
     }
   }
 
@@ -4227,4 +4232,10 @@ public class DiscussionForumTool
   	  
   	  return getUserId();
 	}
+
+	public boolean isDisableLongDesc()
+	{
+		return disableLongDesc;
+	}
+
 }
