@@ -5891,7 +5891,7 @@ public class SiteAction extends PagedResourceActionII
 					buf.append(requiredField +"\t" + requiredFieldList.get(j) + "\n");
 				}
 			}
-			buf.append(rb.getString("java.name")+"\t" + sessionUserName + " (" + noEmailInIdAccountName + " " + sessionUserId + ")\n");
+			buf.append(rb.getString("java.name")+"\t" + sessionUserName + " (" + noEmailInIdAccountName + " " + sessionUserName + ")\n");
 			buf.append(rb.getString("java.email")+"\t" + replyTo + "\n\n");
 			buf.append(rb.getString("java.sitetitle")+"\t" + title + "\n"); 
 			buf.append(rb.getString("java.siteid")+"\t" +  id + "\n");
