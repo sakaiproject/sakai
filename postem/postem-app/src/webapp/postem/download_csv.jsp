@@ -3,14 +3,12 @@
 %><%@ page import="javax.faces.context.FacesContext"
 %><%@ page import="javax.faces.component.UIViewRoot" %><%
 	PostemTool tool = (PostemTool) session.getAttribute("PostemTool");
-	String[] invalidChars = {":",";","*","?","^","$",".","|","+","(",")","[","<",">","{","}","/",",","\"","\\"};
+	String[] invalidChars = {":",";","\\*","\\?","\\^","\\$","\\.","\\|","\\+","\\(","\\)","\\[","<",">","\\{","}",",","\"","\\\\"};
   String titleName = tool.getCurrentGradebook().getTitle().trim();
   titleName = titleName.replaceAll(" ","_");
 
   for(int i=0; i < invalidChars.length; i++) {
-	  if(titleName.contains(invalidChars[i])) {
-	    titleName = titleName.replace(invalidChars[i], "");
-	  }
+	  titleName = titleName.replaceAll(invalidChars[i], "");
   }
    
 	response.setHeader("Content-disposition", "attachment; filename=postem_" +
