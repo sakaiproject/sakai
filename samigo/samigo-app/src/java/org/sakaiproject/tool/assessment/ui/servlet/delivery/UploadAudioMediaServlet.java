@@ -36,6 +36,8 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,11 +91,6 @@ public class UploadAudioMediaServlet extends HttpServlet
     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
     String saveToDb = (String)context.getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
 
-    // writer for status message
-    PrintWriter pw = res.getWriter();
-    // default status message, if things go wrong
-    String status = "Upload failure: empty media location.";
-
     System.out.println("req content length ="+req.getContentLength());
     System.out.println("req content type ="+req.getContentType());
 
@@ -103,7 +100,8 @@ public class UploadAudioMediaServlet extends HttpServlet
       suffix = "au";
     String mediaLocation = req.getParameter("media")+"."+suffix;
     System.out.println("****media location="+mediaLocation);
-    
+    String zip_mediaLocation=null;
+
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
@@ -113,55 +111,12 @@ public class UploadAudioMediaServlet extends HttpServlet
       if (!mediaDir.exists())
         mediaDir.mkdirs();
       //System.out.println("*** directory exist="+mediaDir.exists());
-      ServletInputStream inputStream = null;
-      FileOutputStream fileOutputStream = null;
-      BufferedInputStream bufInputStream = null;
-      BufferedOutputStream bufOutputStream = null; 
-      int count = 0;
+      mediaIsValid=writeToFile(req, mediaLocation);
 
-      try
-      {
-        inputStream = req.getInputStream();
-        fileOutputStream = getFileOutputStream(mediaLocation);
-
-        // buffered input for servlet
-        bufInputStream = new BufferedInputStream(inputStream);
-        // buffered output to file
-        bufOutputStream = new BufferedOutputStream(fileOutputStream);
-
-        // write the binary data
-        int i = 0;
-        count = 0;
-        if (bufInputStream != null)
-        {
-          while ( (i = bufInputStream.read()) != -1)
-          {
-            bufOutputStream.write(i);
-            count++;
-          }
-        }
-        bufOutputStream.flush();
-
-        // clean up
-        bufOutputStream.close();
-        bufInputStream.close();
-        if (inputStream != null)
-        {
-          inputStream.close();
-        }
-        fileOutputStream.close();
-        status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
-        if (count > 0) 
-          mediaIsValid = true;
-      }
-      catch (Exception ex)
-      {
-        log.info(ex.getMessage());
-        status = "Upload failure: "+ mediaLocation;
-      }
+      //this is progess for SAK-5792, comment is out for now
+      //zip_mediaLocation = createZipFile(mediaDir.getPath(), mediaLocation);
     }
 
-    log.info(status);
     res.flushBuffer();
 
     //#2 - record media as question submission
@@ -169,15 +124,101 @@ public class UploadAudioMediaServlet extends HttpServlet
       // note that this delivery bean is empty. this is not the same one created for the
       // user during take assessment.
       try{
-        submitMediaAsAnswer(req, mediaLocation, saveToDb);
-        status = "Audio has been saved and submitted as answer to the question. Any old recordings have been removed from the system.";
-        pw.write(status);
+        if (zip_mediaLocation != null)
+          submitMediaAsAnswer(req, zip_mediaLocation, saveToDb);
+        else
+          submitMediaAsAnswer(req, mediaLocation, saveToDb);
+        log.info("Audio has been saved and submitted as answer to the question. Any old recordings have been removed from the system.");
       }
       catch (Exception ex){
         log.info(ex.getMessage());
-        pw.write(ex.getMessage());
       }
     }
+  }
+
+  private boolean writeToFile(HttpServletRequest req, String mediaLocation){
+    // default status message, if things go wrong
+    boolean mediaIsValid = false;
+    String status = "Upload failure: empty media location.";
+    ServletInputStream inputStream = null;
+    FileOutputStream fileOutputStream = null;
+    BufferedInputStream bufInputStream = null;
+    BufferedOutputStream bufOutputStream = null; 
+    int count = 0;
+
+    try{
+      inputStream = req.getInputStream();
+      fileOutputStream = getFileOutputStream(mediaLocation);
+
+      // buffered input for servlet
+      bufInputStream = new BufferedInputStream(inputStream);
+      // buffered output to file
+      bufOutputStream = new BufferedOutputStream(fileOutputStream);
+
+      // write the binary data
+      int i = 0;
+      count = 0;
+      if (bufInputStream != null){
+        while ( (i = bufInputStream.read()) != -1){
+          bufOutputStream.write(i);
+          count++;
+        }
+      }
+      bufOutputStream.flush();
+
+      // clean up
+      bufOutputStream.close();
+      bufInputStream.close();
+      if (inputStream != null){
+        inputStream.close();
+      }
+      fileOutputStream.close();
+      status = "Acknowleged: " +mediaLocation+"-> "+count+" bytes.";
+      if (count > 0) 
+        mediaIsValid = true;
+    }
+    catch (Exception ex){
+      log.info(ex.getMessage());
+      status = "Upload failure: "+ mediaLocation;
+    }
+    log.info(status);
+    return mediaIsValid;
+  }
+
+  private String createZipFile(String mediaDirString, String mediaLocation){
+    // Create a buffer for reading the files
+    File file = new File(mediaLocation);
+    String fileName=file.getName();
+    byte[] buf = new byte[1024];
+    String zip_mediaLocation = mediaDirString+"/"+fileName+".zip";
+
+    try {
+      // Create the ZIP file
+      System.out.println("*** zip file="+zip_mediaLocation);
+      ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zip_mediaLocation));
+    
+      // Add ZIP entry to output stream.
+      zip.putNextEntry(new ZipEntry(fileName));
+    
+      // Transfer bytes from the file to the ZIP file
+      FileInputStream in = new FileInputStream(mediaLocation);
+      int len;
+      while ((len = in.read(buf)) > 0) {
+        zip.write(buf, 0, len);
+      }
+    
+      // Complete the entry
+      zip.closeEntry();
+      in.close();
+
+      // Complete the ZIP file
+      zip.close();
+    } 
+    catch (IOException e) {
+      zip_mediaLocation=null;
+      log.error("problem zipping file at "+mediaLocation);
+    }
+    return zip_mediaLocation;
   }
 
   private FileOutputStream getFileOutputStream(String mediaLocation){
