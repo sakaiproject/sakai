@@ -24,6 +24,7 @@ package org.sakaiproject.content.api;
 import java.util.Collection;
 
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -78,6 +79,35 @@ public interface GroupAwareEntity extends Entity
 	public AccessMode getInheritedAccess();
 	
 	/**
+	 * Access the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which the entity may be accessed by all users.
+	 */
+	public Time getReleaseDate();
+	
+	/**
+	 * Access the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which access to the entity should be restricted.
+	 */
+	public Time getRetractDate();
+	
+	/** 
+	 * Access the raw availability setting for this entity: is it set to "hide" or "show".
+	 * Does not take into account the release or retract dates.
+	 * @return
+	 */
+	public boolean isHidden();
+	
+	/**
+	 * Calculate the avilability based on whether the item is hidden and (if not) whether
+	 * it has a releaseDate or retractDate and (if so) neither of them restrict availabity
+	 * right now.
+	 * @return true if the entity is available now, false otherwise.
+	 */
+	public boolean isAvailable();
+	
+	/**
 	 * <p>
 	 * AccessMode enumerates different access modes for the entity: site-wide or grouped.
 	 * </p>
@@ -128,5 +158,6 @@ public interface GroupAwareEntity extends Entity
 
 		/** inherited access; must look up a hierarchy to determine actual access */
 		public static final AccessMode INHERITED = new AccessMode("inherited");
+
 	}
 }

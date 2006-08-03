@@ -56,20 +56,6 @@ public interface ContentResource
 	public byte[] getContent() throws ServerOverloadException;
 
 	/**
-	 * Access the release date before which this entity should not be available to users 
-	 * except those with adequate permission (what defines "adequate permission" is TBD).
-	 * @return The date/time at which the entity may be accessed by all users.
-	 */
-	public Time getReleaseDate();
-	
-	/**
-	 * Access the retract date after which this entity should not be available to users 
-	 * except those with adequate permission (what defines "adequate permission" is TBD).
-	 * @return The date/time at which access to the entity should be restricted.
-	 */
-	public Time getRetractDate();
-	
-	/**
 	 * Access the content as a stream.
 	 * Please close the stream when done as it may be holding valuable system resources.
 	 * @return an InputStream through which the bytes of the resource can be read.

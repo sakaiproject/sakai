@@ -42,6 +42,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.time.api.Time;
 import org.w3c.dom.Document;
 
 /**
@@ -185,6 +186,12 @@ public interface ContentHostingService extends EntityProducer
 	 *        A ResourceProperties object with the properties to add to the new collection.
 	 * @param groups
 	 *        The (possibly empty) collection (String) of reference-strings for groups to be associated with this entity.
+	 * @param hidden
+	 *        A flag indicating that the entity should be hidden from users unless they created the entity or have permission to modify it.
+	 * @param releaseDate
+	 *        The time at which the entity becomes available to most users. The entity should be available immediately if this value is null.
+	 * @param retractDate
+	 *        The date after which the entity is no longer available to most users. The entity should be available indefinitely if this value is null.
 	 * 
 	 * @exception IdUsedException
 	 *            if the id is already in use.
@@ -200,8 +207,7 @@ public interface ContentHostingService extends EntityProducer
 	 * @throws IdInvalidException 
 	 * @throws IdUsedException 
 	 */
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
-
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate) throws IdUsedException, IdInvalidException, PermissionException, InconsistentException;
 
 	/**
 	 * Create a new collection with the given resource id, locked for update. Must commitCollection() to make official, or cancelCollection() when done!
@@ -519,6 +525,12 @@ public interface ContentHostingService extends EntityProducer
 	 * @param groups
 	 *        A collection (String) of references to Group objects representing the site subgroups that should have access to this entity.
 	 *        May be empty to indicate access is not limited to a group or groups.
+	 * @param hidden
+	 *        A flag indicating that the entity should be hidden from users unless they created the entity or have permission to modify it.
+	 * @param releaseDate
+	 *        The time at which the entity becomes available to most users. The entity should be available immediately if this value is null.
+	 * @param retractDate
+	 *        The date after which the entity is no longer available to most users. The entity should be available indefinitely if this value is null.
 	 * @param priority
 	 *        The notification priority for this commit.
 	 * @exception PermissionException
@@ -537,7 +549,7 @@ public interface ContentHostingService extends EntityProducer
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object.
 	 */
-	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, int priority)
+	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority)
 			throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, InconsistentException, IdLengthException, OverQuotaException,
 			ServerOverloadException;
 
@@ -1378,4 +1390,10 @@ public interface ContentHostingService extends EntityProducer
 	 * @return true if shortRefs is enabled, false if not.
 	 */
 	public boolean isShortRefs();
+	
+	/**
+	 * Access flag indicating whether entities can be hidden (scheduled or otherwise).
+	 * @return true if the availability features are enabled, false otherwise.
+	 */
+	public boolean isAvailabilityEnabled();
 }

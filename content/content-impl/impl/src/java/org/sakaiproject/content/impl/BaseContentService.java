@@ -420,6 +420,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return m_allowGroupResources;
 	}
 	
+	/** flag indicating whether entities can be hidden (scheduled or otherwise) */
+	protected boolean m_availabilityChecksEnabled = false;
+	
+	/**
+	 * Configuration: set a flag indicating whether entities can be hidden (scheduled or otherwise)
+	 * 
+	 * @param value
+	 *        The value indicating whether entities can be hidden.
+	 */
+	public void setAvailabilityChecksEnabled(String value)
+	{
+		m_availabilityChecksEnabled = value != null && Boolean.TRUE.toString().equalsIgnoreCase(value);
+	}
+	
+	/**
+	 * Access flag indicating whether entities can be hidden (scheduled or otherwise).
+	 * @return true if the availability features are enabled, false otherwise.
+	 */
+	public boolean isAvailabilityEnabled()
+	{
+		return m_availabilityChecksEnabled;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1137,7 +1159,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	} // addCollection
 
-	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups) 
+	public ContentCollection addCollection(String id, ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate) 
 		throws IdUsedException, IdInvalidException, PermissionException, InconsistentException 
 	{
 		ContentCollectionEdit edit = addCollection(id);
@@ -1159,6 +1181,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			// ignore
 		}
+		edit.setAvailability(hidden, releaseDate, retractDate);
 		
 		// commit the change
 		commitCollection(edit);
@@ -2172,7 +2195,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 * @return a new ContentResource object.
 	 */
 	public ContentResource addResource(String name, String collectionId, int limit, String type, byte[] content,
-			ResourceProperties properties, Collection groups, int priority) 
+			ResourceProperties properties, Collection groups, boolean hidden, Time releaseDate, Time retractDate, int priority) 
 		throws PermissionException, IdUniquenessException, IdLengthException, IdInvalidException, 
 			InconsistentException, OverQuotaException, ServerOverloadException
 	{
@@ -2215,6 +2238,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				edit.setGroupAccess(groups);
 				// TODO: Need to deal with failure here
 			}
+			edit.setAvailability(hidden, releaseDate, retractDate);
 			
 			// commit the change
 			commitResource(edit, priority);
@@ -2342,7 +2366,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			InconsistentException, OverQuotaException, ServerOverloadException
 	{
 		Collection no_groups = new Vector();
-		return addResource(name, collectionId, limit, type, content, properties, no_groups, priority);
+		return addResource(name, collectionId, limit, type, content, properties, no_groups, false, null, null, priority);
 	}
 	/**
 	 * Create a new resource with the given resource id, locked for update. Must commitResource() to make official, or cancelResource() when done!
@@ -6894,6 +6918,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 	public static final String RETRACT_DATE = "sakai:retract_date";
 
+	public static final String HIDDEN = "sakai:hidden";
+
 	/**
 	 * @inheritDoc
 	 */
@@ -7405,10 +7431,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		protected AccessMode m_access = AccessMode.INHERITED;
 
 		/** The date/time after which the entity should no longer be generally available */
-		protected Time m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
+		protected Time m_retractDate = null;
 
 		/** The date/time before which the entity should not be generally available */
-		protected Time m_releaseDate = TimeService.newTime(0);
+		protected Time m_releaseDate = null;
+
+		/** The availability of the item */
+		protected boolean m_hidden = false;
 
 		/** The Collection of group-ids for groups with access to this entity. */
 		protected Collection m_groups = new Vector();
@@ -7645,6 +7674,86 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return unlockCheck(EVENT_RESOURCE_ADD, group.getReference()) || unlockCheck(EVENT_RESOURCE_ADD, collectionId);
 		}
 
+		public Time getReleaseDate()
+		{
+			return m_releaseDate;
+		}
+
+		public Time getRetractDate()
+		{
+			// TODO Auto-generated method stub
+			return m_retractDate;
+		}
+
+		public boolean isAvailable() 
+		{
+			boolean available = m_hidden;
+			
+			if(available && (this.m_releaseDate != null || this.m_retractDate != null))
+			{
+				Time now = TimeService.newTime();
+				if(this.m_releaseDate != null)
+				{
+					available = this.m_releaseDate.before(now);
+				}
+				if(available && this.m_retractDate != null)
+				{
+					available = this.m_retractDate.after(now);
+				}
+			}
+			if(!available)
+			{
+				return available;
+			}
+			ContentCollection parent = ((ContentEntity) this).getContainingCollection();
+			if(parent == null)
+			{
+				return available;
+			}
+			return parent.isAvailable();
+		}
+
+		public boolean isHidden() 
+		{
+			return this.m_hidden;
+		}
+
+		public void setReleaseDate(Time time)
+		{
+			m_releaseDate = TimeService.newTime(time.getTime());
+			m_hidden = false;
+		}
+
+		public void setRetractDate(Time time)
+		{
+			m_retractDate = TimeService.newTime(time.getTime());
+			m_hidden = false;
+		}
+
+		public void setAvailability(boolean hidden, Time releaseDate, Time retractDate) 
+		{
+			m_hidden = hidden;
+			if(hidden)
+			{
+				this.m_releaseDate = null;
+				this.m_retractDate = null;
+			}
+			else
+			{
+				this.m_releaseDate = TimeService.newTime(releaseDate.getTime());
+				this.m_retractDate = TimeService.newTime(retractDate.getTime());
+			}
+			
+		}
+
+		public void setHidden() 
+		{
+			m_hidden = true;
+			this.m_releaseDate = null;
+			this.m_retractDate = null;
+		}
+
+
 	}	// BasicGroupAwareEntity
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7752,7 +7861,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			
 			// extract release date
-			m_releaseDate = TimeService.newTime(0);
+			// m_releaseDate = TimeService.newTime(0);
 			String date0 = el.getAttribute(RELEASE_DATE);
 			if(date0 != null && !date0.trim().equals(""))
 			{
@@ -7760,12 +7869,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			
 			// extract retract date
-			m_retractDate = TimeService.newTimeGmt(9999,12, 31, 23, 59, 59, 999);
+			// m_retractDate = TimeService.newTimeGmt(9999,12, 31, 23, 59, 59, 999);
 			String date1 = el.getAttribute(RETRACT_DATE);
 			if(date1 != null && !date1.trim().equals(""))
 			{
 				m_retractDate = TimeService.newTimeGmt(date1);
 			}
+			
+			String hidden = el.getAttribute(HIDDEN);
+			m_hidden = hidden != null && ! hidden.trim().equals("") && ! Boolean.FALSE.toString().equalsIgnoreCase(hidden);
 			
 		} // BaseCollectionEdit
 
@@ -7789,8 +7901,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
 			
-			m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
-			m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+			m_hidden = other.isHidden();
+			
+			if(m_hidden || other.getReleaseDate() == null)
+			{
+				m_releaseDate = null;
+			}
+			else
+			{
+				m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+			}
+			if(m_hidden || other.getRetractDate() == null)
+			{
+				m_retractDate = null;
+			}
+			else
+			{
+				m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+			}
 
 		} // set
 
@@ -8082,9 +8210,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				m_access = AccessMode.INHERITED;
 			}
-			collection.setAttribute(ACCESS_MODE, m_access.toString());
-			collection.setAttribute(RELEASE_DATE, m_releaseDate.toString());
-			collection.setAttribute(RETRACT_DATE, m_retractDate.toString());
+			collection.setAttribute(HIDDEN, Boolean.toString(m_hidden));
+			if(!m_hidden && m_releaseDate != null)
+			{
+				// add release-date 
+				collection.setAttribute(RELEASE_DATE, m_releaseDate.toString());
+			}
+			if(!m_hidden && m_releaseDate != null)
+			{
+				// add retract-date
+				collection.setAttribute(RETRACT_DATE, m_retractDate.toString());
+			}
+
 
 			// properties
 			m_properties.toXml(doc, stack);
@@ -8189,29 +8326,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 		} // valueUnbound
-
-		public void setReleaseDate(Time time)
-		{
-			m_releaseDate = TimeService.newTime(time.getTime());
-			
-		}
-
-		public void getRetractDate(Time time)
-		{
-			m_retractDate = TimeService.newTime(time.getTime());
-			
-		}
-
-		public Time getReleaseDate()
-		{
-			return m_releaseDate;
-		}
-
-		public Time getRetractDate()
-		{
-			// TODO Auto-generated method stub
-			return m_retractDate;
-		}
 
 		/**
 		 * @inheritDoc
@@ -8361,8 +8475,24 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(other.getProperties());
 
-			m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
-			m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+			m_hidden = other.isHidden();
+			
+			if(m_hidden || other.getReleaseDate() == null)
+			{
+				m_releaseDate = null;
+			}
+			else
+			{
+				m_releaseDate = TimeService.newTime(other.getReleaseDate().getTime());
+			}
+			if(m_hidden || other.getRetractDate() == null)
+			{
+				m_retractDate = null;
+			}
+			else
+			{
+				m_retractDate = TimeService.newTime(other.getRetractDate().getTime());
+			}
 
 		} // set
 
@@ -8431,20 +8561,29 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					m_access = AccessMode.INHERITED;
 				}
 				
-				// extract release date
-				m_releaseDate = TimeService.newTime(0);
-				String date0 = el.getAttribute(RELEASE_DATE);
-				if(date0 != null && !date0.trim().equals(""))
-				{
-					m_releaseDate = TimeService.newTimeGmt(date0);
-				}
+				String hidden = el.getAttribute(HIDDEN);
+				m_hidden = hidden != null && ! hidden.trim().equals("") && ! Boolean.FALSE.toString().equalsIgnoreCase(hidden);
 				
-				// extract retract date
-				m_retractDate = TimeService.newTimeGmt(9999, 12, 31, 23, 59, 59, 999);
-				String date1 = el.getAttribute(RETRACT_DATE);
-				if(date1 != null && !date1.trim().equals(""))
+				if(m_hidden)
 				{
-					m_retractDate = TimeService.newTimeGmt(date1);
+					m_releaseDate = null;
+					m_retractDate = null;
+				}
+				else
+				{
+					// extract release date
+					String date0 = el.getAttribute(RELEASE_DATE);
+					if(date0 != null && !date0.trim().equals(""))
+					{
+						m_releaseDate = TimeService.newTimeGmt(date0);
+					}
+					
+					// extract retract date
+					String date1 = el.getAttribute(RETRACT_DATE);
+					if(date1 != null && !date1.trim().equals(""))
+					{
+						m_retractDate = TimeService.newTimeGmt(date1);
+					}
 				}
 				
 			}
@@ -8738,9 +8877,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			resource.setAttribute(ACCESS_MODE, m_access.toString());
 			
-			// add release-date and retract-date
-			resource.setAttribute(RELEASE_DATE, m_releaseDate.toString());
-			resource.setAttribute(RETRACT_DATE, m_retractDate.toString());
+			resource.setAttribute(HIDDEN, Boolean.toString(m_hidden));
+			if(!m_hidden && m_releaseDate != null)
+			{
+				// add release-date 
+				resource.setAttribute(RELEASE_DATE, m_releaseDate.toString());
+			}
+			if(!m_hidden && m_releaseDate != null)
+			{
+				// add retract-date
+				resource.setAttribute(RETRACT_DATE, m_retractDate.toString());
+			}
 
 			// properties
 			m_properties.toXml(doc, stack);
@@ -8844,28 +8991,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 
 		} // valueUnbound
-
-		public void setReleaseDate(Time time)
-		{
-			m_releaseDate = TimeService.newTime(time.getTime());
-			
-		}
-
-		public void getRetractDate(Time time)
-		{
-			m_retractDate = TimeService.newTime(time.getTime());
-			
-		}
-
-		public Time getReleaseDate()
-		{
-			return m_releaseDate;
-		}
-
-		public Time getRetractDate()
-		{
-			return m_retractDate;
-		}
 
 		public boolean isResource()
 		{

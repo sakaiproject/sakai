@@ -3229,6 +3229,25 @@ public class ResourcesAction
 					SortedSet groups = new TreeSet(item.getEntityGroupRefs());
 					groups.retainAll(item.getAllowedAddGroupRefs());
 
+					boolean hidden = false;
+
+					Time releaseDate = null;
+					Time retractDate = null;
+					
+					if(ContentHostingService.isAvailabilityEnabled())
+					{
+						hidden = "hide".equalsIgnoreCase(item.getAvailability());
+						
+						if(item.useReleaseDate())
+						{
+							releaseDate = item.getReleaseDate();
+						}
+						if(item.useRetractDate())
+						{
+							retractDate = item.getRetractDate();
+						}
+					}
+					
 					try
 					{
 						ContentResource resource = ContentHostingService.addResource (filename + extension,
@@ -3238,6 +3257,9 @@ public class ResourcesAction
 																					item.getContent(),
 																					resourceProperties,
 																					groups,
+																					hidden,
+																					releaseDate,
+																					retractDate,
 																					item.getNotification());
 
 
@@ -3614,7 +3636,26 @@ public class ResourcesAction
 				SortedSet groups = new TreeSet(item.getEntityGroupRefs());
 				groups.retainAll(item.getAllowedAddGroupRefs());
 
-				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, groups);
+				boolean hidden = false;
+
+				Time releaseDate = null;
+				Time retractDate = null;
+				
+				if(ContentHostingService.isAvailabilityEnabled())
+				{
+					hidden = "hide".equalsIgnoreCase(item.getAvailability());
+					
+					if(item.useReleaseDate())
+					{
+						releaseDate = item.getReleaseDate();
+					}
+					if(item.useRetractDate())
+					{
+						retractDate = item.getRetractDate();
+					}
+				}
+				
+				ContentCollection collection = ContentHostingService.addCollection (newCollectionId, resourceProperties, groups, hidden, releaseDate, retractDate);
 				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
@@ -3766,7 +3807,26 @@ public class ResourcesAction
 			
 			SortedSet groups = new TreeSet(item.getEntityGroupRefs());
 			groups.retainAll(item.getAllowedAddGroupRefs());
+			
+			boolean hidden = false;
 
+			Time releaseDate = null;
+			Time retractDate = null;
+			
+			if(ContentHostingService.isAvailabilityEnabled())
+			{
+				hidden = "hide".equalsIgnoreCase(item.getAvailability());
+				
+				if(item.useReleaseDate())
+				{
+					releaseDate = item.getReleaseDate();
+				}
+				if(item.useRetractDate())
+				{
+					retractDate = item.getRetractDate();
+				}
+			}
+			
 			try
 			{
 				ContentResource resource = ContentHostingService.addResource (filename,
@@ -3776,10 +3836,13 @@ public class ResourcesAction
 																			item.getContent(),
 																			resourceProperties,
 																			groups,
+																			hidden,
+																			releaseDate,
+																			retractDate,
 																			item.getNotification());
 
 				item.setAdded(true);
-
+				
 				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 				if(preventPublicDisplay == null)
 				{
@@ -4679,7 +4742,26 @@ public class ResourcesAction
 
 			SortedSet groups = new TreeSet(item.getEntityGroupRefs());
 			groups.retainAll(item.getAllowedAddGroupRefs());
+			
+			boolean hidden = false;
 
+			Time releaseDate = null;
+			Time retractDate = null;
+			
+			if(ContentHostingService.isAvailabilityEnabled())
+			{
+				hidden = "hide".equalsIgnoreCase(item.getAvailability());
+				
+				if(item.useReleaseDate())
+				{
+					releaseDate = item.getReleaseDate();
+				}
+				if(item.useRetractDate())
+				{
+					retractDate = item.getRetractDate();
+				}
+			}
+			
 			try
 			{
 				ContentResource resource = ContentHostingService.addResource (name,
@@ -4689,6 +4771,9 @@ public class ResourcesAction
 																			newUrl,
 																			resourceProperties, 
 																			groups,
+																			hidden,
+																			releaseDate,
+																			retractDate,
 																			item.getNotification());
 
 				item.setAdded(true);
@@ -12287,6 +12372,28 @@ public class ResourcesAction
 		public String getAvailability()
 		{
 			return this.m_availability;
+		}
+		
+		public boolean isAvailable()
+		{
+			boolean available = "show".equalsIgnoreCase(this.m_availability);
+			
+			Time now = null;
+			if(available && (this.m_useReleaseDate || this.useRetractDate()))
+			{
+				now = TimeService.newTime();
+			}
+			
+			if(available && this.m_useReleaseDate)
+			{
+				available = this.m_releaseDate.after(now);
+			}
+			if(available && this.useRetractDate())
+			{
+				available = this.m_releaseDate.before(now);
+			}
+			
+			return available;
 		}
 
 		public SortedSet convertToRefs(Collection groupIds) 

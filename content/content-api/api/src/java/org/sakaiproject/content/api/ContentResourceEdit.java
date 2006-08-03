@@ -49,20 +49,6 @@ public interface ContentResourceEdit
 	*/
 	public void setContent(byte[] content);
 
-	/**
-	 * Set the release date before which this entity should not be available to users 
-	 * except those with adequate permission (what defines "adequate permission" is TBD).
-	 * @param time The date/time at which the entity may be accessed by all users.
-	 */
-	public void setReleaseDate(Time time);
-	
-	/**
-	 * Set the retract date after which this entity should not be available to users 
-	 * except those with adequate permission (what defines "adequate permission" is TBD).
-	 * @param time The date/time at which access to the entity should be restricted.
-	 */
-	public void getRetractDate(Time time);
-
 }	// ContentResourceEdit
 
 

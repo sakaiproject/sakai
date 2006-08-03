@@ -27,6 +27,7 @@
 		<property name="bodyVolumes"><null/></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="siteQuota"><value>1048576</value></property>
+ 		<property name="availabilityChecksEnabled"><value>true</value></property>
  		
 	</bean>
 

@@ -145,14 +145,14 @@ public class ContentHostingService
 	}
 
 	public static org.sakaiproject.content.api.ContentCollection addCollection(java.lang.String param0,
-			org.sakaiproject.entity.api.ResourceProperties param1, java.util.Collection param2) throws org.sakaiproject.exception.IdUsedException,
+			org.sakaiproject.entity.api.ResourceProperties param1, java.util.Collection param2, boolean param3, org.sakaiproject.time.api.Time param4, org.sakaiproject.time.api.Time param5) throws org.sakaiproject.exception.IdUsedException,
 			org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException,
 			org.sakaiproject.exception.InconsistentException
 	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return null;
 
-		return service.addCollection(param0, param1, param2);
+		return service.addCollection(param0, param1, param2, param3, param4, param5);
 	}
 
 	public static org.sakaiproject.content.api.ContentCollectionEdit addCollection(java.lang.String param0)
@@ -307,7 +307,7 @@ public class ContentHostingService
 
 	public static org.sakaiproject.content.api.ContentResource addResource(java.lang.String param0, java.lang.String param1,
 			int param2, java.lang.String param3, byte[] param4, org.sakaiproject.entity.api.ResourceProperties param5,
-			java.util.Collection param6, int param7)
+			java.util.Collection param6, boolean param7, org.sakaiproject.time.api.Time param8, org.sakaiproject.time.api.Time param9, int param10)
 			throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.IdInvalidException,
 			org.sakaiproject.exception.InconsistentException, org.sakaiproject.exception.OverQuotaException,
 			org.sakaiproject.exception.ServerOverloadException, org.sakaiproject.exception.IdUniquenessException,
@@ -316,7 +316,7 @@ public class ContentHostingService
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return null;
 
-		return service.addResource(param0, param1, param2, param3, param4, param5, param6, param7);
+		return service.addResource(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
 	}
 
 	public static org.sakaiproject.content.api.ContentResourceEdit addResource(java.lang.String param0)
@@ -917,5 +917,13 @@ public class ContentHostingService
 		if (service == null) return false;
 
 		return service.isShortRefs();
+	}
+
+	public static boolean isAvailabilityEnabled() 
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isAvailabilityEnabled();
 	}
 }
