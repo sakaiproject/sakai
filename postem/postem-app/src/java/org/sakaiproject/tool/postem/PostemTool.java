@@ -90,6 +90,11 @@ public class PostemTool {
 	protected String newTemplate;
 
 	protected ArrayList students;
+	
+	protected String delimiter;
+	
+	private static final String COMMA_DELIM_STR = "comma";
+	private static final String TAB_DELIM_STR = "tab";
 
 	protected Logger logger = null;
 
@@ -158,6 +163,13 @@ public class PostemTool {
 		this.csv = csv;
 	}
 
+	public String getDelimiter() {
+		return delimiter;
+	}
+	
+	public void setDelimiter(String delimiter) {
+		this.delimiter = delimiter;
+	}
 	public String getNewTemplate() {
 		return newTemplate;
 	}
@@ -280,6 +292,7 @@ public class PostemTool {
 				this.siteId);
 		this.csv = null;
 		this.newTemplate = null;
+		this.delimiter = COMMA_DELIM_STR;
 
 		return "create_gradebook";
 	}
@@ -318,6 +331,7 @@ public class PostemTool {
 		 */
 		this.csv = null;
 		this.newTemplate = null;
+		this.delimiter = COMMA_DELIM_STR;
 
 		return "create_gradebook";
 
@@ -376,11 +390,22 @@ public class PostemTool {
 			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "missing_csv", new Object[] {});
 			return "create_gradebook";
 		}
+		
+		if (!this.delimiter.equals(COMMA_DELIM_STR) && !this.delimiter.equals(TAB_DELIM_STR)) {
+			PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "invalid_delim", new Object[] {});
+			return "create_gradebook";
+		}
 
 		if (this.csv != null && this.csv.trim().length() > 0) {
 			// logger.info("*** Non-Empty CSV!");
 			try {
-				CSV grades = new CSV(csv, withHeader);
+				
+				char csv_delim = CSV.COMMA_DELIM;
+				if(this.delimiter.equals(TAB_DELIM_STR)) {
+					csv_delim = CSV.TAB_DELIM;
+				}
+				
+				CSV grades = new CSV(csv, withHeader, csv_delim);
 				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {

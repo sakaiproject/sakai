@@ -34,6 +34,12 @@
 						<h:outputText style="font-weight: bold;" value="#{msgs.gradebook_choosefile}"/>
 						<corejsf:upload value="#{PostemTool.csv}" />
 
+						<h:outputText value="#{msgs.delimiter}" style="font-weight: bold;" />
+					  <h:selectOneRadio styleClass="checkbox" value="#{PostemTool.delimiter}" layout="pageDirection">
+				      <f:selectItem itemValue="comma" itemLabel="#{msgs.comma_delim}"/>
+  			      <f:selectItem itemValue="tab" itemLabel="#{msgs.tab_delim}"/>
+			      </h:selectOneRadio>
+
 						<h:outputText value="#{msgs.gradebook_feedbackavail}" style="font-weight: bold;"/>
 						<h:panelGroup styleClass="checkbox">
 						  <h:selectBooleanCheckbox id="release" value="#{PostemTool.currentGradebook.release}" />
