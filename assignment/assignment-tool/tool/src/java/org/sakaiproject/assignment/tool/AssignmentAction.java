@@ -6523,7 +6523,6 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			//	get all active site users
 			String authzGroupId = SiteService.siteReference(contextString);
-			List allowAddAssignmentUsers = AssignmentService.allowAddAssignmentUsers(contextString);
 			try
 			{
 				AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
@@ -6534,11 +6533,7 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						User u = UserDirectoryService.getUser(userId);
-						// only return student
-						if (!allowAddAssignmentUsers.contains(u))
-						{
-							returnResources.add(u);
-						}
+						returnResources.add(u);
 					}
 					catch (Exception e)
 					{
