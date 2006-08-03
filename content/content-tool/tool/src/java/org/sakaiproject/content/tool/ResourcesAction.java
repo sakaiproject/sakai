@@ -6915,6 +6915,61 @@ public class ResourcesAction
 		}
 		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
+			String availability = params.getString("availability");
+			String use_start_date = params.getString("use_start_date");
+			String use_end_date = params.getString("use_end_date");
+			String release_month = params.getString("release_month");
+			String release_day = params.getString("release_day");
+			String release_year = params.getString("release_year");
+			String release_hour = params.getString("release_hour");
+			String release_min = params.getString("release_minute");
+			String release_ampm = params.getString("release_ampm");
+			
+			String release_time = params.getString("release_time");
+			String retract_month = params.getString("retract_month");
+			String retract_day = params.getString("retract_day");
+			String retract_year = params.getString("retract_year");
+			String retract_time = params.getString("retract_time");
+			String retract_hour = params.getString("retract_hour");
+			String retract_min = params.getString("retract_minute");
+			String retract_ampm = params.getString("retract_ampm");
+			
+			item.setAvailability(availability);
+			item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+			item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
+			
+			int begin_year = Integer.parseInt(release_year);
+			int begin_month = Integer.parseInt(release_month);
+			int begin_day = Integer.parseInt(release_day);
+			int begin_hour = Integer.parseInt(release_hour);
+			int begin_min = Integer.parseInt(release_min);
+			if("pm".equals(release_ampm))
+			{
+				begin_hour += 12;
+			}
+			else if(begin_hour == 12)
+			{
+				begin_hour = 0;
+			}
+			Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+			item.setReleaseDate(releaseDate);
+			
+			int end_year = Integer.parseInt(retract_year);
+			int end_month = Integer.parseInt(retract_month);
+			int end_day = Integer.parseInt(retract_day);
+			int end_hour = Integer.parseInt(retract_hour);
+			int end_min = Integer.parseInt(retract_min);
+			if("pm".equals(retract_ampm))
+			{
+				end_hour += 12;
+			}
+			else if(begin_hour == 12)
+			{
+				end_hour = 0;
+			}
+			Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+			item.setRetractDate(retractDate);
+			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
 			{
@@ -7400,6 +7455,59 @@ public class ResourcesAction
 
 		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
 		{
+			String availability = params.getString("availability" + index);
+			String use_start_date = params.getString("use_start_date" + index);
+			String use_end_date = params.getString("use_end_date" + index);
+			String release_month = params.getString("release_month" + index);
+			String release_day = params.getString("release_day" + index);
+			String release_year = params.getString("release_year" + index);
+			String release_hour = params.getString("release" + index + "_hour");
+			String release_min = params.getString("release" + index + "_minute");
+			String release_ampm = params.getString("release" + index + "_ampm");
+			
+			String retract_month = params.getString("retract_month" + index);
+			String retract_day = params.getString("retract_day" + index);
+			String retract_year = params.getString("retract_year" + index);
+			String retract_hour = params.getString("retract" + index + "_hour");
+			String retract_min = params.getString("retract" + index + "_minute");
+			String retract_ampm = params.getString("retract" + index + "_ampm");
+			
+			item.setAvailability(availability);
+			item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
+			item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
+			
+			int begin_year = Integer.parseInt(release_year);
+			int begin_month = Integer.parseInt(release_month);
+			int begin_day = Integer.parseInt(release_day);
+			int begin_hour = Integer.parseInt(release_hour);
+			int begin_min = Integer.parseInt(release_min);
+			if("pm".equals(release_ampm))
+			{
+				begin_hour += 12;
+			}
+			else if(begin_hour == 12)
+			{
+				begin_hour = 0;
+			}
+			Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+			item.setReleaseDate(releaseDate);
+			
+			int end_year = Integer.parseInt(retract_year);
+			int end_month = Integer.parseInt(retract_month);
+			int end_day = Integer.parseInt(retract_day);
+			int end_hour = Integer.parseInt(retract_hour);
+			int end_min = Integer.parseInt(retract_min);
+			if("pm".equals(retract_ampm))
+			{
+				end_hour += 12;
+			}
+			else if(begin_hour == 12)
+			{
+				end_hour = 0;
+			}
+			Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+			item.setRetractDate(retractDate);
+			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
 			{
@@ -12123,6 +12231,12 @@ public class ResourcesAction
 		protected String m_ccModification;
 		protected String m_ccRightsOwner;
 		protected String m_ccRightsYear;
+		
+		protected String m_availability;
+		protected Time m_releaseDate;
+		protected Time m_retractDate;
+		protected boolean m_useReleaseDate;
+		protected boolean m_useRetractDate;
 
 		/**
 		 * @param id
@@ -12156,8 +12270,25 @@ public class ResourcesAction
 			m_ccLicense = "";
 			// m_copyrightStatus = ServerConfigurationService.getString("default.copyright");
 			
+			m_availability = "show";
+			m_releaseDate = TimeService.newTime();
+			m_retractDate = TimeService.newTime();
+			m_useReleaseDate = false;
+			m_useRetractDate = false;
+
+		
 		}
 		
+		public void setAvailability(String availability) 
+		{
+			this.m_availability = availability;
+		}
+		
+		public String getAvailability()
+		{
+			return this.m_availability;
+		}
+
 		public SortedSet convertToRefs(Collection groupIds) 
 		{
 			SortedSet groupRefs = new TreeSet();
@@ -13007,6 +13138,70 @@ public class ResourcesAction
 		public boolean hasBeenAdded()
 		{
 			return m_hasBeenAdded;
+		}
+
+		/**
+		 * @return the releaseDate
+		 */
+		public Time getReleaseDate() 
+		{
+			return m_releaseDate;
+		}
+
+		/**
+		 * @param releaseDate the releaseDate to set
+		 */
+		public void setReleaseDate(Time releaseDate) 
+		{
+			this.m_releaseDate = releaseDate;
+		}
+
+		/**
+		 * @return the retractDate
+		 */
+		public Time getRetractDate() 
+		{
+			return m_retractDate;
+		}
+
+		/**
+		 * @param retractDate the retractDate to set
+		 */
+		public void setRetractDate(Time retractDate) 
+		{
+			this.m_retractDate = retractDate;
+		}
+
+		/**
+		 * @return the useReleaseDate
+		 */
+		public boolean useReleaseDate() 
+		{
+			return m_useReleaseDate;
+		}
+
+		/**
+		 * @param useReleaseDate the useReleaseDate to set
+		 */
+		public void setUseReleaseDate(boolean useReleaseDate) 
+		{
+			this.m_useReleaseDate = useReleaseDate;
+		}
+
+		/**
+		 * @return the useRetractDate
+		 */
+		public boolean useRetractDate() 
+		{
+			return m_useRetractDate;
+		}
+
+		/**
+		 * @param useRetractDate the useRetractDate to set
+		 */
+		public void setUseRetractDate(boolean useRetractDate) 
+		{
+			this.m_useRetractDate = useRetractDate;
 		}
 
 
