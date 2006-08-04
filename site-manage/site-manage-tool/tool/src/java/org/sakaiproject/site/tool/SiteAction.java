@@ -10362,6 +10362,7 @@ public class SiteAction extends PagedResourceActionII
 		// get the participants to be added
 		int i;
 		Vector pList = new Vector();
+		HashSet existingUsers = new HashSet();
 		
 		Site site = null;
 		String siteId = (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
@@ -10416,7 +10417,7 @@ public class SiteAction extends PagedResourceActionII
 						if (site != null && site.getUserRole(u.getId()) != null)
 						{
 							// user already exists in the site, cannot be added again
-							addAlert(state, rb.getString("java.user") + " " + noEmailInIdAccount + " " + rb.getString("java.exists"));
+							existingUsers.add(noEmailInIdAccount);
 						}
 						else
 						{
@@ -10482,7 +10483,7 @@ public class SiteAction extends PagedResourceActionII
 							if (site != null && site.getUserRole(u.getId()) != null)
 							{
 								// user already exists in the site, cannot be added again
-								addAlert(state, rb.getString("java.user") + " " + emailInIdAccount + " " + rb.getString("java.exists"));
+								existingUsers.add(emailInIdAccount);
 							}
 							else
 							{
@@ -10531,16 +10532,33 @@ public class SiteAction extends PagedResourceActionII
 		}
 		
 		// remove duplicate or existing user from participant list
-		int pListOldSize = pList.size();
 		pList=removeDuplicateParticipants(pList, state);
-		pList=removeExistingParticipants(pList, state);
 		state.setAttribute(STATE_ADD_PARTICIPANTS, pList);
 		
 		// if the add participant list is empty after above removal, stay in the current page
-		if (pListOldSize > 0 && pList.size() == 0)
+		if (pList.size() == 0)
 		{
 			state.setAttribute(STATE_TEMPLATE_INDEX, "5");
-			addAlert(state, rb.getString("java.guest"));
+		}
+		
+		// add alert for attempting to add existing site user(s)
+		if (!existingUsers.isEmpty())
+		{
+			int count = 0;
+			String accounts = "";
+			for (Iterator eIterator = existingUsers.iterator();eIterator.hasNext();)
+			{
+				if (count == 0)
+				{
+					accounts = (String) eIterator.next();
+				}
+				else
+				{
+					accounts = accounts + ", " + (String) eIterator.next();
+				}
+				count++;
+			}
+			addAlert(state, rb.getString("add.existingpart.1") + accounts + rb.getString("add.existingpart.2"));
 		}
 		
 		return;
@@ -10595,65 +10613,6 @@ public class SiteAction extends PagedResourceActionII
 			}
 		}
 		
-		return rv;
-	}
-
-	private Vector removeExistingParticipants(List pList, SessionState state)
-	{
-		String siteId=ToolManager.getCurrentPlacement().getContext();
-		Vector rv = new Vector();
-		Set s = new HashSet();
-		
-		try
-		{
-			
-			Site site=SiteService.getSite(siteId);
-		
-			for (int i = 0; i < pList.size(); i++)
-			{
-				Participant p = (Participant) pList.get(i);
-				if (site.getMember(p.getUniqname()) == null)
-				{
-					// no entry for the account yet
-					rv.add(p);
-				}
-				else
-				{
-					// found duplicates
-					s.add(p.getUniqname());
-				}
-			}
-	    }
-	    catch (Exception ignore)
-	    {
-	    		// ignore exceptions
-	    }
-
-		if (!s.isEmpty())
-		{
-			int count = 0;
-			String accounts = "";
-			for (Iterator i = s.iterator();i.hasNext();)
-			{
-				if (count == 0)
-				{
-					accounts = (String) i.next();
-				}
-				else
-				{
-					accounts = accounts + ", " + (String) i.next();
-				}
-				count++;
-			}
-			if (count == 1)
-			{
-				addAlert(state, rb.getString("add.existingpart.single") + accounts + ".");
-			}
-			else
-			{
-				addAlert(state, rb.getString("add.existingpart") + accounts + ".");
-			}
-		}
 		return rv;
 	}
 
