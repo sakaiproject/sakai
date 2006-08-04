@@ -1,3 +1,9 @@
+2006/08/01 - Version 0.5.3
+------------------------------
+- STAT-8: Hibernate date functions not correctly translated in Oracle
+- STAT-7: Problem with OverviewBean.visits in existing courses
+- STAT-4: Unsuccessful schema statement- creating tables in Oracle
+
 2006/08/01 - Version 0.5.2
 ------------------------------
 - STAT-6: Make appearance of dates in SiteStats more consitent? --> use ISO while dates are not yet localized

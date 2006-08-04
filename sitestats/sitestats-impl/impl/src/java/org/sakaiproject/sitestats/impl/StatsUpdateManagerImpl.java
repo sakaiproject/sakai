@@ -156,7 +156,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private void startUpdateThread(){
 		threadsRunning = true;
 		updateThread = null;
-		updateThread = new Thread(this);
+		updateThread = new Thread(this, "org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl");
 		updateThread.start();
 	}
 	

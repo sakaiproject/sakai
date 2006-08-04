@@ -11,19 +11,19 @@
 -- This file creates schema in reverse order of when they were added to
 -- SiteStats out-of-the-box SQL, to increase the chances that the script
 -- will have useful results as an upgrader as well as an initializer.
-create index SITE_ID_IX on SST_EVENTS(SITE_ID);
-create index USER_ID_IX on SST_EVENTS(USER_ID);
-create index EVENT_ID_IX on SST_EVENTS(EVENT_ID);
-create index DATE_ID_IX on SST_EVENTS(EVENT_DATE);
+create index SST_EVENTS_SITE_ID_IX on SST_EVENTS(SITE_ID);
+create index SST_EVENTS_USER_ID_IX on SST_EVENTS(USER_ID);
+create index SST_EVENTS_EVENT_ID_IX on SST_EVENTS(EVENT_ID);
+create index SST_EVENTS_DATE_ID_IX on SST_EVENTS(EVENT_DATE);
 
-create index SITE_ID_IX on SST_RESOURCES(SITE_ID);
-create index USER_ID_IX on SST_RESOURCES(USER_ID);
-create index RES_ACT_IDX on SST_RESOURCES(RESOURCE_ACTION);
-create index DATE_ID_IX on SST_RESOURCES(RESOURCE_DATE);
+create index SST_RESOURCES_SITE_ID_IX on SST_RESOURCES(SITE_ID);
+create index SST_RESOURCES_USER_ID_IX on SST_RESOURCES(USER_ID);
+create index SST_RESOURCES_RES_ACT_IDX on SST_RESOURCES(RESOURCE_ACTION);
+create index SST_RESOURCES_DATE_ID_IX on SST_RESOURCES(RESOURCE_DATE);
 
-create index SITE_ID_IX on SST_SITEACTIVITY(SITE_ID);
-create index EVENT_ID_IX on SST_SITEACTIVITY(EVENT_ID);
-create index DATE_ID_IX on SST_SITEACTIVITY(ACTIVITY_DATE);
+create index SST_SITEACTIVITY_SITE_ID_IX on SST_SITEACTIVITY(SITE_ID);
+create index SST_SITEACTIVITY_EVENT_ID_IX on SST_SITEACTIVITY(EVENT_ID);
+create index SST_SITEACTIVITY_DATE_ID_IX on SST_SITEACTIVITY(ACTIVITY_DATE);
 
-create index SITE_ID_IX on SST_SITEVISITS(SITE_ID);
-create index DATE_ID_IX on SST_SITEVISITS(VISITS_DATE);
+create index SST_SITEVISITS_SITE_ID_IX on SST_SITEVISITS(SITE_ID);
+create index SST_SITEVISITS_DATE_ID_IX on SST_SITEVISITS(VISITS_DATE);

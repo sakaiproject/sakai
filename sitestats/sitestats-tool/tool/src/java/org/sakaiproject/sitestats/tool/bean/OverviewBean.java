@@ -580,7 +580,14 @@ public class OverviewBean extends InitializableBean implements Serializable {
 			curr.setTime(key);
 			month = curr.get(Calendar.MONTH);
 			day = curr.get(Calendar.DATE);
-			day = (month == currMonth)? day : day - nDaysOfPreviousMonth;
+			if(month != currMonth){
+				if(nDaysOfPreviousMonth == -1){
+					Calendar c = (Calendar) curr.clone();
+					c.set(Calendar.MONTH, month);
+					nDaysOfPreviousMonth = c.getActualMaximum(Calendar.DAY_OF_MONTH); 
+				}
+				day = day - nDaysOfPreviousMonth;
+			}
 			pos = 6 - currDay + day;
 			weekActivity.set(pos , new Integer((int)ss.getCount()));
 		}
