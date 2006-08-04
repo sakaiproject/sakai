@@ -1436,10 +1436,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			if (!check)
 			{
-				log.info("Checksum Failed Live(" + segmentName + ") = "
-						+ liveCheckSum);
-				log.info("Checksum Failed Stor(" + segmentName + ") = "
+				if ( !force ) {
+					log.info("Checksum Failed Live(" + segmentName + ") = "
+						+ liveCheckSum );
+					log.info("Checksum Failed Stor(" + segmentName + ") = "
 						+ storedCheckSum);
+				}
 			}
 			return check;
 		}
