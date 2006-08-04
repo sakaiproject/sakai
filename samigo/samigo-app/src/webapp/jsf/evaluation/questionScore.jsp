@@ -190,7 +190,7 @@ $Id$
 	</p>
 	</h:panelGroup>
 	<h:panelGroup rendered="#{questionScores.typeId == '6'}">
-		<h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/DownloadAllMedia?publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&assessmentName=#{totalScores.assessmentName}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+		<h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&assessmentName=#{totalScores.assessmentName}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
 		<h:outputText escape="false" value="#{msg.download_all}" />
 		</h:outputLink>
 	 </h:panelGroup>
