@@ -107,6 +107,8 @@ import org.sakaiproject.metaobj.shared.model.ValidationError;
 import org.sakaiproject.metaobj.utils.xml.SchemaNode;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Term;
+import org.sakaiproject.site.cover.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -186,9 +188,9 @@ public class ResourcesAction
 
 	/** The display name of the "home" collection (can't go up from here.) */
 	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = "resources.collection_home_display_name";
-
-	/** The inqualified input field */
-	private static final String STATE_UNQUALIFIED_INPUT_FIELD = "resources.unqualified_input_field";
+	
+	/** name of state attribute for the default retract time */
+	protected static final String STATE_DEFAULT_RETRACT_TIME = "resources.default_retract_time";
 
 	/** The collection id path */
 	private static final String STATE_COLLECTION_PATH = "resources.collection_path";
@@ -570,6 +572,10 @@ public class ResourcesAction
 
 	/** string used to represent "public" access mode in UI elements */
 	protected static final String PUBLIC_ACCESS = "public";
+
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
+
 	/**
 	* Build the context for normal display
 	*/
@@ -6060,6 +6066,44 @@ public class ResourcesAction
 				}
 			}
 
+			if(entity.isHidden())
+			{
+				item.setAvailability("hide");
+				//item.setReleaseDate(null);
+				//item.setRetractDate(null);
+			}
+			else
+			{
+				item.setAvailability("show");
+				Time releaseDate = entity.getReleaseDate();
+				if(releaseDate == null)
+				{
+					item.setUseReleaseDate(false);
+					item.setReleaseDate(TimeService.newTime());
+				}
+				else
+				{
+					item.setUseReleaseDate(true);
+					item.setReleaseDate(releaseDate);
+				}
+				Time retractDate = entity.getRetractDate();
+				if(retractDate == null)
+				{
+					item.setUseRetractDate(false);
+					Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+					if(defaultRetractDate == null)
+					{
+						defaultRetractDate = TimeService.newTime();
+						state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+					}
+					item.setRetractDate(defaultRetractDate);
+				}
+				else
+				{
+					item.setUseRetractDate(true);
+					item.setRetractDate(retractDate);
+				}
+			}
 
 
 			if(item.isUrl())
@@ -8109,7 +8153,27 @@ public class ResourcesAction
 					// TODO: Should this be reported to user??
 					logger.warn("ResourcesAction.doSavechanges ***** InconsistentException changing groups ***** " + e.getMessage());
 				}
+								
+				boolean hidden = false;
+
+				Time releaseDate = null;
+				Time retractDate = null;
 				
+				if(ContentHostingService.isAvailabilityEnabled())
+				{
+					hidden = "hide".equalsIgnoreCase(item.getAvailability());
+					
+					if(item.useReleaseDate())
+					{
+						releaseDate = item.getReleaseDate();
+					}
+					if(item.useRetractDate())
+					{
+						retractDate = item.getRetractDate();
+					}
+				}
+				
+				gedit.setAvailability(hidden, releaseDate, retractDate);
 				
 				if(item.isFolder())
 				{
@@ -9065,6 +9129,8 @@ public class ResourcesAction
 		{
 			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
 		}
+		
+		
 
 		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
 
@@ -9265,30 +9331,59 @@ public class ResourcesAction
 		
 		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
 		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
-		if(siteTypes != null)
+		String siteType = null;
+		Site site;
+		try
 		{
-			Site site;
-			try
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			siteType = site.getType();
+			if(siteTypes != null)
 			{
-				site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 				for(int i = 0; i < siteTypes.length; i++)
 				{
-					if ((StringUtil.trimToNull(siteTypes[i])).equals(site.getType()))
+					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
 					{
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
 					}
 				}
 			}
-			catch (IdUnusedException e)
+		}
+		catch (IdUnusedException e)
+		{
+			// allow public display
+		}
+		catch(NullPointerException e)
+		{
+			// allow public display
+		}
+		
+		Time defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
+		Time guess = null;
+		Time now = TimeService.newTime();
+		if(siteType != null && siteType.equalsIgnoreCase("course"))
+		{
+			List terms = CourseManagementService.getTerms();
+			boolean found = false;
+			Term term = null;
+			Iterator termIt = terms.iterator();
+			while(termIt.hasNext())
 			{
-				// allow public display
+				term = (Term) termIt.next();
+				if(term.getEndTime().after(now))
+				{
+					if(guess == null || term.getEndTime().before(guess))
+					{
+						guess = term.getEndTime();
+					}
+				}
 			}
-			catch(NullPointerException e)
+			if(guess != null)
 			{
-				// allow public display
+				defaultRetractTime = guess;
 			}
 		}
-
+		state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractTime);
+			
 		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
 
 	}

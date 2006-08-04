@@ -7720,13 +7720,27 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public void setReleaseDate(Time time)
 		{
-			m_releaseDate = TimeService.newTime(time.getTime());
+			if(time == null)
+			{
+				m_releaseDate = null;
+			}
+			else
+			{
+				m_releaseDate = TimeService.newTime(time.getTime());
+			}
 			m_hidden = false;
 		}
 
 		public void setRetractDate(Time time)
 		{
-			m_retractDate = TimeService.newTime(time.getTime());
+			if(time == null)
+			{
+				m_retractDate = null;
+			}
+			else
+			{
+				m_retractDate = TimeService.newTime(time.getTime());
+			}
 			m_hidden = false;
 		}
 
@@ -7740,8 +7754,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			else
 			{
-				this.m_releaseDate = TimeService.newTime(releaseDate.getTime());
-				this.m_retractDate = TimeService.newTime(retractDate.getTime());
+				if(releaseDate == null)
+				{
+					this.m_releaseDate = null;
+				}
+				else
+				{
+					this.m_releaseDate = TimeService.newTime(releaseDate.getTime());
+				}
+				if(retractDate == null)
+				{
+					this.m_retractDate = null;
+				}
+				else
+				{
+					this.m_retractDate = TimeService.newTime(retractDate.getTime());
+				}
 			}
 			
 		}
