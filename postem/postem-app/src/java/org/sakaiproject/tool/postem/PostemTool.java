@@ -93,6 +93,8 @@ public class PostemTool {
 	
 	protected String delimiter;
 	
+	private static final int TEMPLATE_MAX_LENGTH = 4000;
+	
 	private static final String COMMA_DELIM_STR = "comma";
 	private static final String TAB_DELIM_STR = "tab";
 
@@ -428,6 +430,14 @@ public class PostemTool {
 				  }
 				}
 				
+				if (this.newTemplate != null && this.newTemplate.trim().length() > 0) {
+					if(this.newTemplate.trim().length() > TEMPLATE_MAX_LENGTH) {
+						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "template_too_long",
+								new Object[] { new Integer(this.newTemplate.trim().length()), new Integer(TEMPLATE_MAX_LENGTH)});
+						return "create_gradebook";
+					}
+				}
+				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {	
 						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
@@ -485,7 +495,7 @@ public class PostemTool {
 
 		if (this.newTemplate != null && this.newTemplate.trim().length() > 0) {
 			currentGradebook
-					.setTemplate(gradebookManager.createTemplate(newTemplate));
+					.setTemplate(gradebookManager.createTemplate(newTemplate.trim()));
 		} else if (this.newTemplate != null) {
 			// logger.info("*** Non Null Empty Template!");
 			currentGradebook.setTemplate(null);

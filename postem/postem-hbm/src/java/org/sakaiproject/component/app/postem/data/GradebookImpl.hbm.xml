@@ -50,7 +50,7 @@
 		</property>
 
 		<component name="template" class="org.sakaiproject.component.app.postem.data.TemplateImpl">
-			<property name="templateCode" type="string" column="template" />
+			<property name="templateCode" type="string" length="4000" column="template" />
 		</component>
 
 		<set name="students" lazy="false" cascade="save-update" inverse="true">
