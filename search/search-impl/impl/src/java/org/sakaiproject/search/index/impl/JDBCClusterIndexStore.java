@@ -148,6 +148,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateLocalSegments.add(db_si);
+				    log.debug("Missing Will update "+db_si);
+				} else {
+					log.debug("Present Will Not update "+db_si);
 				}
 			}
 
@@ -165,8 +168,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							&& db_si.getVersion() > version)
 					{
 						updateLocalSegments.add(db_si);
+						log.error("Newer will Update "+db_si);
+						found = true;
 						break;
 					}
+				}
+				if ( ! found ) {
+					log.debug("Ok will not update "+current_si);
 				}
 			}
 
@@ -176,7 +184,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			// ie only on the first time in any 1 JVM run
 			if (okToRemove)
 			{
-				okToRemove = false;
+				okToRemove = true; 
+				// with merge we need to remove local segments
+				// that are not present. This may cause problems with
+				// an open index, as it will suddenly see segments dissapear
 				List removeLocalSegments = new ArrayList();
 
 				// which segments exist locally but not in the DB, these should
@@ -199,6 +210,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					if (!found)
 					{
 						removeLocalSegments.add(local_si);
+						log.debug("Will remove "+local_si);
+					} else {
+						log.debug("Ok Will not remove "+local_si);
 					}
 				}
 
@@ -222,6 +236,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = new File(searchIndexDirectory, si.getName());
 				segmentList.add(f.getPath());
+				log.debug("Segment Present at "+f.getName());
 			}
 
 			connection.commit();
@@ -312,10 +327,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					removeDBSegments.add(db_si);
+					log.debug("Will remove from the DB "+db_si);
 				}
 				else
 				{
 					currentDBSegments.add(db_si);
+					log.debug("In the DB will not remove "+db_si);
 				}
 			}
 
@@ -339,6 +356,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				if (!found)
 				{
 					updateDBSegments.add(local_si);
+					log.debug(" Will update to the DB "+local_si);
+				} else {
+					log.debug(" Will NOT update to the DB "+local_si);
+
 				}
 			}
 
@@ -356,8 +377,14 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 							&& version > db_si.getVersion())
 					{
 						updateDBSegments.add(db_si);
+						log.debug("Will update modified to the DB "+db_si);
+						found = true;
 						break;
 					}
+				}
+				if ( !found ) {
+					log.debug("Will not update the DB, matches "+local_si);
+					
 				}
 			}
 
@@ -380,6 +407,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				SegmentInfo si = (SegmentInfo) i.next();
 				File f = new File(searchIndexDirectory, si.getName());
 				segmentList.add(f.getPath());
+				log.debug("Segments saved "+f.getName());
+
 			}
 			connection.commit();
 		}
@@ -541,6 +570,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				{
 					long version = resultSet.getLong(1);
 					packetStream = resultSet.getBinaryStream(2);
+					checked.remove(addsi.getName()); // force revalidation
 					unpackSegment(addsi, packetStream, version);
 					log.debug("Updated Packet from DB to versiob " + version);
 				}
@@ -1550,7 +1580,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 			addsi.setVersion(newVersion);
 			sharedTempFile.renameTo(sharedFinalFile);
-			log.debug("DB Updated " + addsi);
+			log.info("DB Updated " + addsi);
 
 		}
 		finally
@@ -1655,8 +1685,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					File f = new File(getSharedFileName(addsi.getName()));
 					packetStream = new FileInputStream(f);
+					checked.remove(addsi.getName()); // force revalidation
 					unpackSegment(addsi, packetStream, version);
-					log.debug("Updated Packet from DB to versiob " + version);
+					log.debug("Updated Local " + addsi);
 				}
 				finally
 				{
