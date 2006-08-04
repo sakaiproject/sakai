@@ -129,12 +129,18 @@ public class DownloadAllMediaServlet extends HttpServlet
   }
    
   private void processAnonymous(HttpServletRequest req, HttpServletResponse res){
+	  String publishedId = req.getParameter("publishedId");
+	  String publishedItemId = req.getParameter("publishedItemId");
 	  String scoringType = req.getParameter("scoringType");
+	  log.debug("publishedId = " + publishedId);
+	  log.debug("publishedItemId = " + publishedItemId);
 	  log.debug("scoringType = " + scoringType);
+	  
 	  GradingService gradingService = new GradingService();
-	  List mediaList = gradingService.getMediaArrayByPublishedItemId(req.getParameter("publishedItemId"), scoringType);
+	  List mediaList = gradingService.getMediaArray(publishedId,publishedItemId, scoringType);
+
 	  MediaIfc mediaData;
-	  log.error("mediaList.size() = " + mediaList.size());
+	  log.debug("mediaList.size() = " + mediaList.size());
       try{
     	  ServletOutputStream outputStream = res.getOutputStream();
     	  ZipOutputStream zos = new ZipOutputStream(outputStream);
@@ -151,100 +157,125 @@ public class DownloadAllMediaServlet extends HttpServlet
   }
   
   private void processNonAnonymous(HttpServletRequest req, HttpServletResponse res){
+	  String publishedId = req.getParameter("publishedId");
 	  String publishedItemId = req.getParameter("publishedItemId");
-	  List agentList = gradingService.getAgentIds(publishedItemId);
 	  String scoringType = req.getParameter("scoringType");
+	  log.debug("publishedId = " + publishedId);
+	  log.debug("publishedItemId = " + publishedItemId);
 	  log.debug("scoringType = " + scoringType);
 	  
-      String agentId;
-      HashMap hashMap = new HashMap();
+      HashMap hashByAgentId = new HashMap();
+      HashMap subHashByAssessmentGradingId = new HashMap();
       MediaIfc mediaData;
       ArrayList list = new ArrayList();
       ItemGradingData itemGradingData;
 
-      try {
-    	  ServletOutputStream outputStream = res.getOutputStream();
-    	  ZipOutputStream zos = new ZipOutputStream(outputStream);
-    	  for (int i = 0; i < agentList.size(); i++){
-    		  agentId = (String) agentList.get(i);
-    		  log.debug("agentId = " + agentId);
-        
-    		  List mediaList = gradingService.getMediaArray(publishedItemId, agentId, scoringType);
-    		  hashMap.clear();
-    		  log.error("mediaList.size() = " + mediaList.size());
-    		  for (int j = 0; j < mediaList.size(); j++) {
-    			  mediaData = (MediaIfc) mediaList.get(j);
-    			  itemGradingData = (ItemGradingData) mediaData.getItemGradingData();
-    			  Long assessmentGradingId = itemGradingData.getAssessmentGradingId();
-    			  log.error("assessmentGradingId = " + assessmentGradingId);
-    			  
-    			  if (hashMap.containsKey(assessmentGradingId)) {
-    				  log.error("same assessmentGradingId");
-    				  list = (ArrayList) hashMap.get(assessmentGradingId);
-    				  list.add(mediaData);
-    			  }
-    			  else {
-    				  log.error("different assessmentGradingId");
-    				  list = new ArrayList();
-    				  list.add(mediaData);
-    				  hashMap.put(assessmentGradingId, list);
-    			  }
-    		  }
-    		  int numberSubmission = hashMap.size();
-    		  log.debug("numberSubmission = " + numberSubmission);
-    		  // this student has submitted more than once
-    		  if (numberSubmission > 1) {
-    			  Iterator iter = hashMap.keySet().iterator();
-    			  ArrayList keyList = new ArrayList();
-    			  Long key;
-    			  
-    			  // Because Hashmap makes no guarantees as to the order of the map; 
-    			  // and it does not guarantee that the order will remain constant over time,
-    			  // following implementation is to make sure we get the correct order
-    			  // that is, if there are two submissions from John Doe:
-    			  // submission id 24 submitted on Jun 28, 2006 (file A.txt)
-    			  // submission id 33 submitted on Jul 03, 2006 (file B.txt)
-    			  // We want to make sure the filename of these two are:
-    			  // Doe_John_sub1_A.txt and Doe_John_sub2_B.txt
-    			  // If we don't sort it, the outcome might be:
-    			  // Doe_John_sub2_A.txt and Doe_John_sub1_B.txt which are not what we want
-    			  while(iter.hasNext()) {
-    				  key = (Long) iter.next();
-    				  log.debug("key = " + key);
-    				  keyList.add(key);
-    				  Collections.sort(keyList);
-    			  }
-    			  
-    			  ArrayList valueList;
-    			  Long sortedKey;
-    			  for (int j = 0; j < keyList.size(); j++) {
-    				  sortedKey = (Long) keyList.get(j);
-    				  valueList = (ArrayList) hashMap.get(sortedKey);
-    				  for (int k = 0; k < valueList.size(); k++) {
-    					  log.debug("k = " + k);
-    					  mediaData = (MediaIfc) valueList.get(k);
-    					  processOneMediaData(zos, mediaData, false, j+1);
-    				  }
-    			  }
-    		  }
-    		  // this student has only one submission
-    		  // don't need to access hashMap to get list, we can just use list from above
-    		  // because that's what got put into hashMap
-    	   	  else if (numberSubmission == 1){
-    	   		  for (int k = 0; k < list.size(); k++) {
-    	   			  mediaData = (MediaIfc) list.get(k);
-    	   			  // we use "-1" to indicate one submission
-    	   			  // "sub" will not be instered into filename
-    	   			  processOneMediaData(zos, mediaData, false, -1); 
-    	   		  }
-    		  }
-    	  }
-    	  zos.close();
-      }
-      catch(Exception e){
-    		  log.error(e.getMessage());
-    		  e.printStackTrace();
-      }
+	  List mediaList;
+	  mediaList = gradingService.getMediaArray(publishedId, publishedItemId, scoringType);
+	  log.debug("mediaList.size() = " + mediaList.size());
+		  
+	  String agentId;
+	  Long assessmentGradingId;
+	  for (int i = 0; i < mediaList.size(); i++) {
+		  mediaData = (MediaIfc) mediaList.get(i);
+		  itemGradingData = (ItemGradingData) mediaData.getItemGradingData();
+		  agentId = itemGradingData.getAgentId();
+		  assessmentGradingId = itemGradingData.getAssessmentGradingId();
+		  log.debug("agentId = " + agentId);
+		  log.debug("assessmentGradingId = " + assessmentGradingId);
+		  if (hashByAgentId.containsKey(agentId)) {
+			  log.error("same agentId");
+			  subHashByAssessmentGradingId = (HashMap) hashByAgentId.get(agentId);
+			  if (subHashByAssessmentGradingId.containsKey(assessmentGradingId)) {
+				  log.debug("same assessmentGradingId");
+				  list = (ArrayList) subHashByAssessmentGradingId.get(assessmentGradingId);
+				  list.add(mediaData);
+			  }
+			  else {
+				  log.debug("different assessmentGradingId");
+				  list = new ArrayList();
+				  list.add(mediaData);
+				  subHashByAssessmentGradingId.put(assessmentGradingId, list);
+			  }
+		  }
+		  else {
+			  log.debug("different agentId");
+			  list = new ArrayList();
+			  list.add(mediaData);
+			  subHashByAssessmentGradingId = new HashMap();
+			  subHashByAssessmentGradingId.put(assessmentGradingId, list);
+			  hashByAgentId.put(agentId, subHashByAssessmentGradingId);
+		  }
+	  }
+	  log.debug("HashMap built successfully");
+
+	  try {
+		  ServletOutputStream outputStream = res.getOutputStream();
+		  ZipOutputStream zos = new ZipOutputStream(outputStream);			  
+          
+		  HashMap hashMap;
+		  Iterator iter = hashByAgentId.values().iterator();
+		  int numberSubmission;
+		  while (iter.hasNext()) {
+  			  hashMap = (HashMap) iter.next();
+   			  numberSubmission = hashMap.size();
+   			  log.debug("numberSubmission = " + numberSubmission);
+   			  Iterator subIter = hashMap.keySet().iterator();
+   			  // this student has submitted more than once
+   			  if (numberSubmission > 1) {
+   				  // Because Hashmap makes no guarantees as to the order of the map; 
+   				  // and it does not guarantee that the order will remain constant over time,
+   				  // following implementation is to make sure we get the correct order
+   				  // that is, if there are two submissions from John Doe:
+   				  // submission id 24 submitted on Jun 28, 2006 (file A.txt)
+   				  // submission id 33 submitted on Jul 03, 2006 (file B.txt)
+   				  // We want to make sure the filename of these two are:
+   				  // Doe_John_sub1_A.txt and Doe_John_sub2_B.txt
+   				  // If we don't sort it, the outcome might be:
+   				  // Doe_John_sub2_A.txt and Doe_John_sub1_B.txt which are not what we want
+   				  ArrayList keyList = new ArrayList();
+   				  Long key;
+   				  while(subIter.hasNext()) {
+   					  key = (Long) subIter.next();
+   					  log.debug("key = " + key);
+   					  keyList.add(key);
+   					  Collections.sort(keyList);
+   				  }
+   			  
+   				  ArrayList valueList;
+   				  Long sortedKey;
+   				  for (int i = 0; i < keyList.size(); i++) {
+   					  sortedKey = (Long) keyList.get(i);
+   					  valueList = (ArrayList) hashMap.get(sortedKey);
+   					  for (int j = 0; j < valueList.size(); j++) {
+   						  log.debug("j = " + j);
+   						  mediaData = (MediaIfc) valueList.get(j);
+   						  processOneMediaData(zos, mediaData, false, i+1);
+   					  }
+   				  }
+   			  }
+   			  // this student has only one submission
+   			  else if (numberSubmission == 1){
+   				  ArrayList valueList;
+   				  while(subIter.hasNext()) {
+   					valueList = (ArrayList) hashMap.get(subIter.next());
+   					log.debug("valueList.size() = " + valueList.size());
+   					for (int i = 0; i < valueList.size(); i++) {
+   						log.debug("i = " + i);
+   						mediaData = (MediaIfc) valueList.get(i);
+   						// we use "-1" to indicate one submission
+   						// "sub" will not be instered into filename
+   						processOneMediaData(zos, mediaData, false, -1); 
+   					}
+   				  }
+   			  }
+   		  }
+   		  zos.close();
+	  }
+	  catch(Exception e){
+   		  log.error(e.getMessage());
+   		  e.printStackTrace();
+	  }	  
   }
   
   private void processOneMediaData(ZipOutputStream zos, MediaIfc mediaData, boolean anonymous, int numberSubmission) 

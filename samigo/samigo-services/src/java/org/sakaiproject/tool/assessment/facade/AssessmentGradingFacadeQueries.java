@@ -556,148 +556,48 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return a;
   }
 
-  public List getMediaArray(final Long publishedItemId, final String agentId, String which) {
-	    log.debug("*** publishedItemId = " + publishedItemId);
-	    log.debug("*** agentId = " + agentId);
-	    log.debug("*** which = " + which);
-	    
-	    try {
-	    	final HibernateCallback hcb = new HibernateCallback(){
-	    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    			Query q = session.createQuery("select m from MediaData m, ItemGradingData i, AssessmentGradingData a " +
-	    					"where m.itemGradingData.itemGradingId=i.itemGradingId " +
-	    					"and i.assessmentGradingId=a.assessmentGradingId " +
-	    					"and i.publishedItemId=? and i.agentId = ? and a.forGrade=? " +
-  	                	"order by finalScore DESC, a.submittedDate DESC");
-	    			q.setLong(0, publishedItemId.longValue());
-	    			q.setString(1, agentId);
-	    			q.setBoolean(2, true);
-	    			return q.list();
-	    		};
-	    	};
-	    	List list = getHibernateTemplate().executeFind(hcb);
-  
-	    	// last submission
-	    	if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
-	    		final HibernateCallback hcb2 = new HibernateCallback(){
-	    			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    				Query q = session.createQuery("select m from MediaData m, ItemGradingData i, AssessmentGradingData a " +
-	    						"where m.itemGradingData.itemGradingId=i.itemGradingId " +
-	    						"and i.assessmentGradingId=a.assessmentGradingId " +
-	    						"and i.publishedItemId=? and i.agentId = ? and a.forGrade=? " +
-	    	                	"order by a.submittedDate DESC");
-	    				q.setLong(0, publishedItemId.longValue());
-	    				q.setString(1, agentId);
-	    				q.setBoolean(2, true);
-	    				return q.list();
-	    			};
-	    		};
-	    	list = getHibernateTemplate().executeFind(hcb2);
-	    	}
-	    
-	    	if (which.equals(EvaluationModelIfc.ALL_SCORE.toString())) {
-	    		return list;
-	    	}
-	    	else {
-	    		if (list.size() == 0) {
-	    			return list;
-	    		}
-	    		else {
-	    		// only take highest or latest
-	    		Iterator items = list.iterator();
-	    		ArrayList newlist = new ArrayList();
-	    		MediaData mediaData = (MediaData) items.next();
-	    		Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
-	    		newlist.add(mediaData);
-	    		while (items.hasNext()) {
-	    			while (items.hasNext()) {
-	    				mediaData = (MediaData) items.next();
-	    				if (mediaData.getItemGradingData().getAssessmentGradingId().equals(assessmentGradingId)) {
-	    					assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
-	    					newlist.add(mediaData);
-	    					break;
-	    				}
-	    			}
-	    		}
-	    		return newlist;
-	    	}
-	    	}
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	      return new ArrayList();
-	    }
-  }
+  public List getMediaArray(Long publishedId, final Long publishedItemId, String which)
+  {
+    try {
+    	HashMap itemScores = (HashMap) getItemScores(publishedId, publishedItemId, which);
+    	final List list = (List) itemScores.get(publishedItemId);
+    	log.debug("list size list.size() = " + list.size());
+    	
+    	HibernateCallback hcb = new HibernateCallback()
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException, SQLException
+    		{
+    			Criteria criteria = session.createCriteria(MediaData.class);
+    			Disjunction disjunction = Expression.disjunction();
 
-  public List getMediaArrayByPublishedItemId(final Long publishedItemId, String which) {
-	    log.debug("*** publishedItemId = " + publishedItemId);
-	    log.debug("*** which = " + which);
-	    
-	    try {
-	    	final HibernateCallback hcb = new HibernateCallback(){
-	    		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    			Query q = session.createQuery("select m from MediaData m, ItemGradingData i, AssessmentGradingData a " +
-	    					"where m.itemGradingData.itemGradingId=i.itemGradingId " +
-	    					"and i.assessmentGradingId=a.assessmentGradingId " +
-	    					"and i.publishedItemId=? and a.forGrade=? " +
-  	                	"order by a.agentId ASC, finalScore DESC, a.submittedDate DESC");
-	    			q.setLong(0, publishedItemId.longValue());
-	    			q.setBoolean(1, true);
-	    			return q.list();
-	    		};
-	    	};
-	    	List list = getHibernateTemplate().executeFind(hcb);
-  
-	    	// last submission
-	    	if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
-	    		final HibernateCallback hcb2 = new HibernateCallback(){
-	    			public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    				Query q = session.createQuery("select m from MediaData m, ItemGradingData i, AssessmentGradingData a " +
-	    						"where m.itemGradingData.itemGradingId=i.itemGradingId " +
-	    						"and i.assessmentGradingId=a.assessmentGradingId " +
-	    						"and i.publishedItemId=? and a.forGrade=? " +
-	    	                	"order by a.agentId ASC, a.submittedDate DESC");
-	    				q.setLong(0, publishedItemId.longValue());
-	    				q.setBoolean(1, true);
-	    				return q.list();
-	    			};
-	    		};
-	    	list = getHibernateTemplate().executeFind(hcb2);
-	    	}
-	    
-	    	if (which.equals(EvaluationModelIfc.ALL_SCORE.toString())) {
-	    		return list;
-	    	}
-	    	else {
-	    		if (list.size() == 0) {
-	    			return list;
-	    		}
-	    		else {
-	    		// only take highest or latest
-	    		Iterator items = list.iterator();
-	    		ArrayList newlist = new ArrayList();
-	    		MediaData mediaData = (MediaData) items.next();
-	    		String agentid = mediaData.getItemGradingData().getAgentId();
-	    		Long assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
-	    		newlist.add(mediaData);
-	    		while (items.hasNext()) {
-	    			while (items.hasNext()) {
-	    				mediaData = (MediaData) items.next();
-	    				if (!mediaData.getItemGradingData().getAgentId().equals(agentid) ||
-	    					mediaData.getItemGradingData().getAssessmentGradingId().equals(assessmentGradingId)) {
-	    					agentid = mediaData.getItemGradingData().getAgentId();
-	    					assessmentGradingId = mediaData.getItemGradingData().getAssessmentGradingId();
-	    					newlist.add(mediaData);
-	    					break;
-	    				}
-	    			}
-	    		}
-	    		return newlist;
-	    	}
-	    	}
-	    } catch (Exception e) {
-	      e.printStackTrace();
-	      return new ArrayList();
-	    }
+    			/** make list from AssessmentGradingData ids */
+    			List itemGradingIdList = new ArrayList();
+    			for (int i = 0; i < list.size() ; i++) {
+    				ItemGradingIfc itemGradingData = (ItemGradingIfc) list.get(i);
+    				itemGradingIdList.add(itemGradingData.getItemGradingId());
+    			}
+
+    			/** create or disjunctive expression for (in clauses) */
+    			List tempList = new ArrayList();
+    			for (int i = 0; i < itemGradingIdList.size(); i += 50){
+    				if (i + 50 > itemGradingIdList.size()){
+    					tempList = itemGradingIdList.subList(i, itemGradingIdList.size());
+    					disjunction.add(Expression.in("itemGradingData.itemGradingId", tempList));
+    				}
+    				else{
+    					tempList = itemGradingIdList.subList(i, i + 50);
+    					disjunction.add(Expression.in("itemGradingData.itemGradingId", tempList));
+    				}
+    			}
+    			criteria.add(disjunction);
+    			return criteria.setMaxResults(10000).list();
+    		}
+    	};
+    	return (List) getHibernateTemplate().execute(hcb);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		return new ArrayList();
+    	}
   }
   
   public ItemGradingData getLastItemGradingDataByAgent(
@@ -1254,19 +1154,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      pub = (PublishedAssessmentIfc) pubList.get(0);
 
 	    return pub; 
-  }
-
-  public List getAgentIds(final Long publishedItemId)
-  {
-	    final HibernateCallback hcb = new HibernateCallback(){
-	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select DISTINCT g.agentId from "+
-	    		         " ItemGradingData g where g.publishedItemId=?");
-	    		q.setLong(0, publishedItemId.longValue());
-	    		return q.list();
-	    	};
-	    };
-	    return getHibernateTemplate().executeFind(hcb);
   }
 
 }

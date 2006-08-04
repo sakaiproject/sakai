@@ -105,10 +105,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public ArrayList getMediaArray(ItemGradingData item);
 
-  public List getMediaArray(Long publishedItemId, String agentId, String which);
+  public List getMediaArray(Long publishedItemId, Long agentId, String which);
   
-  public List getMediaArrayByPublishedItemId(Long publishedItemId, String which);
-
   public ItemGradingData getLastItemGradingDataByAgent(Long publishedItemId,
       String agentId);
 
@@ -157,7 +155,5 @@ public interface AssessmentGradingFacadeQueriesAPI
   public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(Long assessmentGradingId);
 
   public PublishedAssessmentIfc getPublishedAssessmentByPublishedItemId(Long publishedItemId);
-  
-  public List getAgentIds(Long publishedItemId);
 
 }

@@ -356,16 +356,11 @@ public class GradingService
         getMediaArray(i);
   }
 
-  public List getMediaArray(String publishItemId, String agentId, String which){
+  public List getMediaArray(String publishedId, String publishItemId, String which){
 	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	        getMediaArray(new Long(publishItemId), agentId, which);
+	    getMediaArray(new Long(publishedId), new Long(publishItemId), which);
   }
-
-  public List getMediaArrayByPublishedItemId(String publishItemId, String which){
-	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	    getMediaArrayByPublishedItemId(new Long(publishItemId), which);
-  }
-
+  
   public ItemGradingData getLastItemGradingDataByAgent(String publishedItemId, String agentId)
   {
     try {
@@ -1121,11 +1116,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    }
 	    return pub;
 	  }
-  
-  public List getAgentIds(String publishedItemId){
-	    return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-	    getAgentIds(new Long(publishedItemId));
-  }
 
 }
 
