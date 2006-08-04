@@ -1414,15 +1414,16 @@
 		#end
 		
 		######### begin availability section ##########
+		#if($availability_is_enabled)
 		<h4>$tlang.getString("avail.title")</h4>
 		<div  class="labelindnt">
 			<table>
 				<tr>
 					<td>
-						<input type="radio" name="availability" id="availability_show" value="show" #if("$item.availability" == "show")checked="checked" #end/>
+						<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$item.isHidden())checked="checked" #end/>
 					</td>
 					<td colspan="4">
-						<label for="availability_show">
+						<label for="hidden_false">
 							$tlang.getString("avail.show")
 						</label>
 					</td>
@@ -1519,16 +1520,17 @@
 				</tr>
 				<tr>
 					<td>
-						<input type="radio" name="availability" id="availability_hide" value="hide" #if("$item.availability" == "hide")checked="checked" #end/>
+						<input type="radio" name="hidden" id="hidden_true" value="true" #if($item.isHidden())checked="checked" #end/>
 					</td>
 					<td colspan="4">
-						<label for="availability_hide">
+						<label for="hidden_true">
 							$tlang.getString("avail.hide")
 						</label>
 					</td>
 				</tr>
 			</table>
 		</div>
+		#end
 		######### end availability section ##########
 		
 		######### begin access section ##########

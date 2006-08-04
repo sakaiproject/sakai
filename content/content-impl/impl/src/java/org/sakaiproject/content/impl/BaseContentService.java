@@ -64,6 +64,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.GroupAwareEdit;
+import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -499,6 +500,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			FunctionManager.registerFunction(EVENT_RESOURCE_WRITE);
 			FunctionManager.registerFunction(EVENT_RESOURCE_REMOVE);
 			FunctionManager.registerFunction(EVENT_RESOURCE_ALL_GROUPS);
+			FunctionManager.registerFunction(EVENT_RESOURCE_HIDDEN);
 
 			FunctionManager.registerFunction(EVENT_DROPBOX_OWN);
 			FunctionManager.registerFunction(EVENT_DROPBOX_MAINTAIN);
@@ -856,6 +858,88 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		return entityId.startsWith("/group-user");
 	}
+	
+	/**
+	 * Check whether the resource is hidden.
+	 * @param id
+	 * @return
+	 * @throws IdUnusedException
+	 */
+	protected boolean availabilityCheck(String id) throws IdUnusedException
+	{
+		if(isAttachmentResource(id))
+		{
+			return true;
+		}
+		
+		// assume it's blocked
+		boolean available = false;
+		
+		
+		boolean first_try = true;
+		GroupAwareEntity entity = null;
+		boolean isCollection = id.endsWith(Entity.SEPARATOR);
+		while(entity == null)
+		{
+			try
+			{
+				if (isCollection)
+				{
+					entity = findCollection(id);
+				}
+				else
+				{
+					entity = findResource(id);
+				}
+			}
+			catch (TypeException ignore)
+			{
+			}
+			
+			if (entity == null)
+			{
+				// this deals with case where we're creating a new entity
+				if(first_try)
+				{
+					first_try = false;
+					id = isolateContainingId(id);
+					isCollection = true;
+				}
+				else
+				{
+					throw new IdUnusedException(id);
+				}
+			}
+		}
+		
+		String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
+		String userId = SessionManager.getCurrentSessionUserId().trim();
+		
+		// available if user is creator
+		available = creator != null && userId != null && creator.equals(userId);
+		
+		if(! available)
+		{
+			// available if user has permission to view hidden entities
+			String lock = EVENT_RESOURCE_HIDDEN;
+			lock = convertLockIfDropbox(lock, id);
+			available = SecurityService.unlock(lock, entity.getReference());
+		}
+
+		if(! available && m_availabilityChecksEnabled)
+		{
+			// available if not hidden or in a hidden collection
+			available = entity.isAvailable();
+			
+			// TODO: reevaluate 
+			// suppose user does not have adequate permission 
+			// higher in hierarchy where folder is hidden
+			// but does have it here???
+		}
+		
+		return available;
+		
+	}
 
 	/**
 	 * Check security permission.
@@ -881,6 +965,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			
 			isAllowed = ref != null && SecurityService.unlock(lock, ref);
+		}
+		
+		if(isAllowed && m_availabilityChecksEnabled)
+		{
+			try 
+			{
+				isAllowed = availabilityCheck(id);
+			} 
+			catch (IdUnusedException e) 
+			{
+				// ignore because we would have caught this earlier.
+			}
 		}
 		
 		return isAllowed;
@@ -931,6 +1027,19 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		if (!SecurityService.unlock(lock, ref))
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
+		}
+		boolean available = false;
+		try 
+		{
+			available = availabilityCheck(id);
+		} 
+		catch (IdUnusedException e) 
+		{
+			// ignore. this was checked earlier in the call
+		}
+		if(! available)
 		{
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, ref);
 		}
@@ -7687,7 +7796,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public boolean isAvailable() 
 		{
-			boolean available = m_hidden;
+			boolean available = !m_hidden;
 			
 			if(available && (this.m_releaseDate != null || this.m_retractDate != null))
 			{
@@ -8244,7 +8353,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				// add release-date 
 				collection.setAttribute(RELEASE_DATE, m_releaseDate.toString());
 			}
-			if(!m_hidden && m_releaseDate != null)
+			if(!m_hidden && m_retractDate != null)
 			{
 				// add retract-date
 				collection.setAttribute(RETRACT_DATE, m_retractDate.toString());

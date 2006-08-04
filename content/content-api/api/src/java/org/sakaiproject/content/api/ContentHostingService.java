@@ -110,6 +110,9 @@ public interface ContentHostingService extends EntityProducer
 	/** Name of the event when removing a resource. */
 	public static final String EVENT_RESOURCE_REMOVE = "content.delete";
 	
+	/** name of event when accessing hidden entities */
+	public static final String EVENT_RESOURCE_HIDDEN = "content.hidden";
+	
 	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
 	public static final String EVENT_RESOURCE_ALL_GROUPS = "content.all.groups";
 
