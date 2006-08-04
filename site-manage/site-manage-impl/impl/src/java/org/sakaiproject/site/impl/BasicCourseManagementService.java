@@ -36,6 +36,8 @@ import org.sakaiproject.site.api.CourseManagementProvider;
 import org.sakaiproject.site.api.CourseManagementService;
 import org.sakaiproject.site.api.Term;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * <p>
@@ -309,8 +311,20 @@ public class BasicCourseManagementService implements CourseManagementService
 	{
 		// TODO: make this more efficient
 		List rv = new Vector();
-
-		rv = m_provider.getInstructorCourses(instructorId, termYear, termTerm);
+		
+		try
+		{
+			String instructorEid = ((UserDirectoryService) ComponentManager.get(org.sakaiproject.user.api.UserDirectoryService.class.getName())).getUserEid(instructorId);
+			rv = m_provider.getInstructorCourses(instructorEid, termYear, termTerm);
+		}
+		catch (UserNotDefinedException e)
+		{
+			M_log.info(this + "Cannot get eid for instructor user id=" + instructorId);
+		}
+		catch (Exception e)
+		{
+			M_log.info(this + e.getMessage());
+		}
 
 		return rv;
 	}
