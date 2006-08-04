@@ -157,13 +157,13 @@
     init-method="init" >
     <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
-    <property name="clusterFS" ><ref bean="jdbcClusterIndexStore" /></property>    
+    <property name="clusterFS" ><ref bean="org.sakaiproject.search.api.SearchService.SegmentStore" /></property>    
   </bean>
   
   <!--
   This is a cluster FS implementation 
   -->
-  <bean id="jdbcClusterIndexStore" 
+  <bean id="org.sakaiproject.search.api.SearchService.SegmentStore" 
     class="org.sakaiproject.search.index.impl.JDBCClusterIndexStore" 
     init-method="init" >
     <property name="location"><value>${sakai.home}searchindex</value></property>

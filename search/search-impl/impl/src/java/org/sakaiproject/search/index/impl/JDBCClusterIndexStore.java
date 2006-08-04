@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -94,25 +95,19 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * the Segments that we try and remove.
 	 */
 	private static boolean okToRemove = true;
+	
+	private String sharedSegments = null;
+
 
 	public void init()
 	{
 		log.info(this + ":init() ");
 		/*
-		 The storage is created by hibernate now
-		try
-		{
-			if (autoDdl)
-			{
-				SqlService.getInstance().ddl(this.getClass().getClassLoader(),
-						"search_cluster");
-			}
-		}
-		catch (Exception ex)
-		{
-			log.error("Failed to init JDBCClusterIndexStorage", ex);
-		}
-		*/
+		 * The storage is created by hibernate now try { if (autoDdl) {
+		 * SqlService.getInstance().ddl(this.getClass().getClassLoader(),
+		 * "search_cluster"); } } catch (Exception ex) { log.error("Failed to
+		 * init JDBCClusterIndexStorage", ex); }
+		 */
 		log.info(this + ":init() Ok ");
 
 	}
@@ -508,13 +503,25 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return segmentList;
 	}
 
+	protected void updateLocalSegment(Connection connection, SegmentInfo addsi)
+			throws SQLException, IOException
+	{
+		if ( sharedSegments == null || sharedSegments.length() == 0 ) {
+			updateLocalSegmentBLOB(connection,addsi);
+		} else {
+			updateLocalSegmentFilesystem(connection,addsi);
+		}
+
+		
+	}
+
 	/**
 	 * updte a segment from the database
 	 * 
 	 * @param connection
 	 * @param addsi
 	 */
-	private void updateLocalSegment(Connection connection, SegmentInfo addsi)
+	protected void updateLocalSegmentBLOB(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
 		log.debug("Updating local segment from databse " + addsi);
@@ -631,13 +638,24 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return dbsegments;
 	}
 
+	protected void updateDBSegment(Connection connection, SegmentInfo addsi)
+			throws SQLException, IOException
+	{
+
+		if ( sharedSegments == null || sharedSegments.length() == 0 ) {
+			updateDBSegmentBLOB(connection,addsi);
+		} else {
+			updateDBSegmentFilesystem(connection,addsi);
+		}
+	}
+
 	/**
 	 * updat this save this local segment into the db
 	 * 
 	 * @param connection
 	 * @param addsi
 	 */
-	private void updateDBSegment(Connection connection, SegmentInfo addsi)
+	protected void updateDBSegmentBLOB(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
 
@@ -748,6 +766,15 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				segmentDelete.setString(1, rmsi.getName());
 				segmentDelete.setLong(2, rmsi.getVersion());
 				segmentDelete.execute();
+				
+				String sharedSegment = getSharedFileName(rmsi.getName());
+				if ( sharedSegment != null ) {
+					File f = new File(sharedSegment);
+					if ( f.exists() ) {
+						f.delete();
+					}
+				}
+				
 				log.debug("DB Removed " + rmsi);
 			}
 		}
@@ -1025,7 +1052,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @param packetStream
 	 * @param version
 	 */
-	private void unpackSegment(SegmentInfo addsi, InputStream packetStream,
+	protected void unpackSegment(SegmentInfo addsi, InputStream packetStream,
 			long version) throws IOException
 	{
 		ZipInputStream zin = new ZipInputStream(packetStream);
@@ -1088,7 +1115,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	 * @return
 	 * @throws IOException
 	 */
-	private File packSegment(SegmentInfo addsi, long newVersion)
+	protected File packSegment(SegmentInfo addsi, long newVersion)
 			throws IOException
 	{
 
@@ -1246,7 +1273,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 
 		searchIndexDirectory = location;
-		log.info("Search Index Location is "+location);
+		log.info("Search Index Location is " + location);
 
 	}
 
@@ -1450,8 +1477,231 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	public void removeLocalSegment(File mergeSegment)
 	{
-		if ( (new File(mergeSegment,"segments")).exists() ) {
+		if ((new File(mergeSegment, "segments")).exists())
+		{
 			deleteAll(mergeSegment);
 		}
 	}
+
+
+	/**
+	 * updat this save this local segment into the db
+	 * 
+	 * @param connection
+	 * @param addsi
+	 */
+	protected void updateDBSegmentFilesystem(Connection connection,
+			SegmentInfo addsi) throws SQLException, IOException
+	{
+
+		PreparedStatement segmentUpdate = null;
+		PreparedStatement segmentInsert = null;
+		InputStream packetStream = null;
+		OutputStream sharedStream = null;
+		File packetFile = null;
+		File sharedFinalFile = null;
+		File sharedTempFile = null;
+		long newVersion = System.currentTimeMillis();
+		try
+		{
+			sharedTempFile = new File(getSharedTempFileName(addsi.getName()));
+			sharedFinalFile = new File(getSharedFileName(addsi.getName()));
+			packetFile = packSegment(addsi, newVersion);
+			packetStream = new FileInputStream(packetFile);
+			sharedStream = new FileOutputStream(sharedTempFile);
+
+			byte[] b = new byte[1024 * 1024];
+			int l = 0;
+			while ((l = packetStream.read(b)) != -1)
+			{
+				sharedStream.write(b, 0, l);
+			}
+
+			packetStream.close();
+			sharedStream.close();
+
+			segmentUpdate = connection
+					.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? and version_ = ?");
+			segmentInsert = connection
+					.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
+			if (addsi.isInDb())
+			{
+				segmentUpdate.clearParameters();
+				segmentUpdate.setLong(1, newVersion);
+				segmentUpdate.setLong(2, packetFile.length());
+				segmentUpdate.setString(3, addsi.getName());
+				segmentUpdate.setLong(4, addsi.getVersion());
+				if (segmentUpdate.executeUpdate() != 1)
+				{
+					throw new SQLException(" ant Find packet to update "
+							+ addsi);
+				}
+			}
+			else
+			{
+				segmentInsert.clearParameters();
+				segmentInsert.setString(1, addsi.getName());
+				segmentInsert.setLong(2, newVersion);
+				segmentInsert.setLong(3, packetFile.length());
+				if (segmentInsert.executeUpdate() != 1)
+				{
+					throw new SQLException(" Failed to insert packet  " + addsi);
+				}
+			}
+			addsi.setVersion(newVersion);
+			sharedTempFile.renameTo(sharedFinalFile);
+			log.debug("DB Updated " + addsi);
+
+		}
+		finally
+		{
+			try
+			{
+				packetStream.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				packetFile.delete();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sharedStream.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				sharedTempFile.delete();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentUpdate.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentInsert.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	private String getSharedFileName(String name)
+	{
+		if (sharedSegments != null && sharedSegments.length() > 0)
+		{
+			if (!sharedSegments.endsWith("/"))
+			{
+				sharedSegments = sharedSegments + "/";
+			}
+			return sharedSegments + name + ".zip";
+		}
+		return null;
+	}
+
+	private String getSharedTempFileName(String name)
+	{
+
+		if (sharedSegments != null && sharedSegments.length() > 0)
+		{
+			if (!sharedSegments.endsWith("/"))
+			{
+				sharedSegments = sharedSegments + "/";
+			}
+			return sharedSegments + name + ".zip." + System.currentTimeMillis();
+		}
+		return null;
+	}
+
+	/**
+	 * updte a segment from the database
+	 * 
+	 * @param connection
+	 * @param addsi
+	 */
+	protected void updateLocalSegmentFilesystem(Connection connection,
+			SegmentInfo addsi) throws SQLException, IOException
+	{
+		log.debug("Updating local segment from databse " + addsi);
+		PreparedStatement segmentSelect = null;
+		ResultSet resultSet = null;
+		try
+		{
+			segmentSelect = connection
+					.prepareStatement("select version_ from search_segments where name_ = ?");
+			segmentSelect.clearParameters();
+			segmentSelect.setString(1, addsi.getName());
+			resultSet = segmentSelect.executeQuery();
+			if (resultSet.next())
+			{
+				InputStream packetStream = null;
+				try
+				{
+					long version = resultSet.getLong(1);
+					File f = new File(getSharedFileName(addsi.getName()));
+					packetStream = new FileInputStream(f);
+					unpackSegment(addsi, packetStream, version);
+					log.debug("Updated Packet from DB to versiob " + version);
+				}
+				finally
+				{
+					try
+					{
+						packetStream.close();
+					}
+					catch (Exception ex)
+					{
+					}
+				}
+			}
+			else
+			{
+				log.error("Didnt find segment in database");
+			}
+		}
+		finally
+		{
+			try
+			{
+				resultSet.close();
+			}
+			catch (Exception ex)
+			{
+			}
+			try
+			{
+				segmentSelect.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+
+	}
+
+	public String getSharedSegments()
+	{
+		return sharedSegments;
+	}
+
+	public void setSharedSegments(String sharedSegments)
+	{
+		this.sharedSegments = sharedSegments;
+	}
+
 }
