@@ -823,6 +823,7 @@ public class DeliveryActionListener
       }
     }
 
+    // set question feedback.
     if (item.getTypeId().toString().equals("5") ||
         item.getTypeId().toString().equals("6") ||
         item.getTypeId().toString().equals("3") ||
@@ -830,6 +831,12 @@ public class DeliveryActionListener
     {
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
+    
+    // below doesn't work for questions with 0 points. see SAK-5669
+    // will need to set Feedback later based on answer.isCorrect(). 
+    // but I'm leaving this part here, in case we (will) have a question 
+    // type that don't have answer.isCorrect() set.
+ 
     else if (itemBean.getExactPoints() >= itemBean.getMaxPoints())
     {
       itemBean.setFeedback(item.getCorrectItemFeedback());
@@ -837,9 +844,11 @@ public class DeliveryActionListener
     else
     {
       itemBean.setFeedback(item.getInCorrectItemFeedback());
-
-      // Do we randomize answer list?
     }
+    
+    
+      // Do we randomize answer list?
+
     boolean randomize = false;
     i = item.getItemMetaDataSet().iterator();
     while (i.hasNext())

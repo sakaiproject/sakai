@@ -43,15 +43,15 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+//import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+//import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+//import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -87,7 +87,6 @@ public class TotalScoreListener
   implements ActionListener, ValueChangeListener
 {
   private static Log log = LogFactory.getLog(TotalScoreListener.class);
-  private static EvaluationListenerUtil util;
   private static BeanSort bs;
   private static ContextUtil cu;
 
@@ -105,11 +104,11 @@ public class TotalScoreListener
 
     // this is called when you click on 'scores' or 'total scores' link from other pages.
     log.debug("TotalScore Action Listener.");
-    DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
+    DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
+    TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
     //log.info("Got publishedId " + publishedId);
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
@@ -126,7 +125,7 @@ public class TotalScoreListener
     
    // checking for permission first
     FacesContext context = FacesContext.getCurrentInstance();
-    AuthorBean author = (AuthorBean) cu.lookupBean("author");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("totalScores");
     if (!passAuthz(context, pubAssessment.getCreatedBy())){
       author.setOutcome("author");
@@ -137,11 +136,12 @@ public class TotalScoreListener
     delivery.setActionString("gradeAssessment");
 
     // reset question score page content 
-    QuestionScoresBean questionbean = (QuestionScoresBean) cu.lookupBean("questionScores");
+    QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     questionbean.setSections(new ArrayList());
     questionbean.setTypeId("0");   // if setting "", QuestionScoreBean.getTypeId will default to 1. Thus setting it to 0. 
     questionbean.setMaxScore("");
     questionbean.setDeliveryItem(new ArrayList());
+    questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
 
     if (!totalScores(pubAssessment, bean, false))
     {
@@ -161,12 +161,12 @@ public class TotalScoreListener
     reset.processAction(null);
 
     //log.info("TotalScore CHANGE LISTENER.");
-    TotalScoresBean bean = (TotalScoresBean) cu.lookupBean("totalScores");
-    QuestionScoresBean questionbean = (QuestionScoresBean) cu.lookupBean("questionScores");
-    HistogramScoresBean histobean = (HistogramScoresBean) cu.lookupBean("histogramScores");
+    TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+    QuestionScoresBean questionbean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
+    HistogramScoresBean histobean = (HistogramScoresBean) ContextUtil.lookupBean("histogramScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
@@ -207,14 +207,14 @@ public class TotalScoreListener
     PublishedAssessmentFacade pubAssessment, TotalScoresBean bean, boolean isValueChange)
   {
 	log.debug("TotalScoreListener: totalScores() starts");
-    if (cu.lookupParam("sortBy") != null &&
-	!cu.lookupParam("sortBy").trim().equals("")){
-      bean.setSortType(cu.lookupParam("sortBy"));
-      log.debug("TotalScoreListener: totalScores() :: sortBy = " + cu.lookupParam("sortBy"));
+    if (ContextUtil.lookupParam("sortBy") != null &&
+	!ContextUtil.lookupParam("sortBy").trim().equals("")){
+      bean.setSortType(ContextUtil.lookupParam("sortBy"));
+      log.debug("TotalScoreListener: totalScores() :: sortBy = " + ContextUtil.lookupParam("sortBy"));
     }
     boolean sortAscending = true;
-    if (cu.lookupParam("sortAscending") != null &&
-    		!cu.lookupParam("sortAscending").trim().equals("")){
+    if (ContextUtil.lookupParam("sortAscending") != null &&
+    		!ContextUtil.lookupParam("sortAscending").trim().equals("")){
     	sortAscending = Boolean.valueOf(cu.lookupParam("sortAscending")).booleanValue();
     	bean.setSortAscending(sortAscending);
     	log.debug("TotalScoreListener: totalScores() :: sortAscending = " + sortAscending);
@@ -249,7 +249,7 @@ public class TotalScoreListener
       // if for anonymous, reset totalscorebean.getselectedsectionfiltervalue = ALL_SECTIONS_SELECT_VALUE 
     if ("true".equalsIgnoreCase(bean.getAnonymous())){
       //reset sectionaware pulldown to -1 all sections
-      bean.setSelectedSectionFilterValue(bean.ALL_SECTIONS_SELECT_VALUE);
+      bean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
     }
 
       Map useridMap= bean.getUserIdMap(); 
@@ -310,13 +310,13 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
 
  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) cu.lookupBean("authorization");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     boolean hasPrivilege_any = authzBean.getGradeAnyAssessment();
     boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment();
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
     if (!hasPrivilege){
-       String err=(String)cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_grade_assessment_error");
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_grade_assessment_error");
        context.addMessage("authorIndexForm:grade_assessment_denied" ,new FacesMessage(err));
     }
     return hasPrivilege;
@@ -455,7 +455,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
                  ArrayList scores, ArrayList students_not_submitted, Map useridMap){ 
 
     // get available sections 
-    String pulldownid = bean.getSelectedSectionFilterValue();
+    //String pulldownid = bean.getSelectedSectionFilterValue();
 
     // daisyf: #1a - place for optimization. all score contains full object of
     // AssessmentGradingData, do we need full?
@@ -471,7 +471,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
 
   /* Dump the grading and agent information into AgentResults */
   public void prepareAgentResult(PublishedAssessmentData p, Iterator iter, ArrayList agents, Map userRoles){
-	  GradingService gradingService = new GradingService();
+	  //GradingService gradingService = new GradingService();
     while (iter.hasNext())
     {
       AgentResults results = new AgentResults();
@@ -561,9 +561,9 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
 
   public void setRoleAndSortSelection(TotalScoresBean bean, ArrayList agents, boolean sortAscending){
     log.debug("TotalScoreListener: setRoleAndSortSection() starts");
-	  if (cu.lookupParam("roleSelection") != null)
+	  if (ContextUtil.lookupParam("roleSelection") != null)
     {
-      bean.setRoleSelection(cu.lookupParam("roleSelection"));
+      bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
     }
 
     if (bean.getSortType() == null)

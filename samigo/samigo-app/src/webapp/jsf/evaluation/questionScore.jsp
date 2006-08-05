@@ -201,9 +201,15 @@ $Id$
 
      <!-- h:outputText value="#{msg.max_score_poss}" style="instruction"/-->
      <!-- h:outputText value="#{questionScores.maxScore}" style="instruction"/-->
-
+<div class="viewNav">
      <h:outputText value="#{msg.view}:" />
+<!--
+ public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
+  public static final String ALL_SUBMISSIONS = "3";
+  public static final String LAST_SUBMISSION = "2";
+  public static final String HIGHEST_SUBMISSION = "1";
 
+-->
 
      <h:selectOneMenu value="#{questionScores.selectedSectionFilterValue}" id="sectionpicker" rendered="#{totalScores.anonymous eq 'false'}"
      required="true" onchange="document.forms[0].submit();" >
@@ -227,6 +233,22 @@ $Id$
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
      </h:selectOneMenu>
+     
+<!--
+ public static final String SHOW_SA_RATIONALE_RESPONSES_INLINE = "2"; 
+  public static final String SHOW_SA_RATIONALE_RESPONSES_POPUP = "1"; 
+
+--> 
+   
+    <h:selectOneMenu value="#{questionScores.selectedSARationaleView}" id="inlinepopup" 
+    	rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4'  || questionScores.typeId == '5')}" 
+       	required="true" onchange="document.forms[0].submit();" >
+       <f:selectItem itemValue="1" itemLabel="#{msg.responses_popup}" />
+       <f:selectItem itemValue="2" itemLabel="#{msg.responses_inline}" />
+       
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
+     </h:selectOneMenu> 
 
 <%--  THIS MIGHT BE FOR NEXT RELEASE
 
@@ -237,12 +259,14 @@ $Id$
       prevText="Previous" nextText="Next" numItems="10" />
  </span>
 END OF TEMPORARY OUT FOR THIS RELEASE --%>
-
+</div>
    <h:panelGroup rendered="#{questionScores.anonymous eq 'false'}">
-   <f:verbatim> <span class="abc"></f:verbatim> 
+   <f:verbatim> <div class="itemNav"></f:verbatim> 
       <samigo:alphaIndex initials="#{questionScores.agentInitials}" />
-  <f:verbatim> </span></f:verbatim> 
+  <f:verbatim> </div></f:verbatim> 
    </h:panelGroup>
+   
+
 
   <!-- STUDENT RESPONSES AND GRADING -->
   <!-- note that we will have to hook up with the back end to get N at a time -->
@@ -658,18 +682,34 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
         </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5'}" />
      <f:verbatim><br/></f:verbatim>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
+    <h:outputText value="#{description.answer}" escape="false"/>
+     <f:verbatim><br/></f:verbatim>
+		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '2' && questionScores.typeId == '5'}">
+		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+		<h:outputLink title="#{msg.t_rationale}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_rationale})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+		<h:outputText escape="false" value="#{description.rationale}"/>
+    </h:panelGroup>
+    
 
-	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_shortAnswer})" />
-    </h:outputLink>
-
-	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_rationale})" />
-    </h:outputLink>
+    
 <%--
     <h:outputLink title="#{msg.t_rationale}"
       rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}" 
@@ -707,18 +747,33 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           </h:commandLink>  
           </h:panelGroup>  
       </f:facet>
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5'}" />
      <f:verbatim><br/></f:verbatim>
    	<!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
 
-	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_shortAnswer})" />
-    </h:outputLink>
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
+    <h:outputText value="#{description.answer}" escape="false"/>
+		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '2' && questionScores.typeId == '5'}">
+		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+		<h:outputLink title="#{msg.t_rationale}"  
+	value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_rationale})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+		<h:outputText escape="false" value="#{description.rationale}"/>
+    </h:panelGroup>
 
-	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_rationale})" />
-    </h:outputLink>
     
     <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload3">
@@ -750,18 +805,32 @@ END OF TEMPORARY OUT FOR THIS RELEASE --%>
           </h:commandLink>    
           </h:panelGroup>
       </f:facet>
-	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7'}" />
+	<h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' and questionScores.typeId != '7' && questionScores.typeId != '5'}" />
      <f:verbatim><br/></f:verbatim>
    	<!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
 
-	<h:outputLink title="#{msg.t_fullShortAnswer}" rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_shortAnswer})" />
-    </h:outputLink>
-
-	<h:outputLink title="#{msg.t_rationale}" rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne ''}"  value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
-    <h:outputText  value="(#{msg.click_rationale})" />
-    </h:outputLink>
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '1' && questionScores.typeId == '5'}">
+    <h:outputText value="#{description.answer}" escape="false"/>
+		<h:outputLink title="#{msg.t_fullShortAnswer}"   value="#" onclick="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('fullShortAnswer.faces?idString=#{description.assessmentGradingId}','fullShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_shortAnswer})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{questionScores.selectedSARationaleView == '2' && questionScores.typeId == '5'}">
+		<h:outputText  escape="false" value="#{description.fullAnswer}"/>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '1'}">
+		<h:outputLink title="#{msg.t_rationale}"  
+	value="#" onclick="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('rationale.faces?idString=#{description.assessmentGradingId}','rationale','width=600,height=600,scrollbars=yes, resizable=yes');">
+    		<h:outputText  value="(#{msg.click_rationale})" />
+    	</h:outputLink>
+    </h:panelGroup>
+    
+    <h:panelGroup rendered="#{(questionScores.typeId == '1' || questionScores.typeId == '2' || questionScores.typeId == '4') && description.rationale ne '' && questionScores.selectedSARationaleView == '2'}">
+		<h:outputText escape="false" value="#{description.rationale}"/>
+    </h:panelGroup>
     
           <h:panelGroup rendered="#{questionScores.typeId == '6'}">
         <f:subview id="displayFileUpload4">

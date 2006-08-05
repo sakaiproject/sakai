@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.HashSet;
+//import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.faces.event.AbortProcessingException;
@@ -38,10 +38,10 @@ import javax.faces.event.ValueChangeListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+//import org.sakaiproject.tool.assessment.business.entity.RecordingData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+//import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -52,7 +52,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
+//import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
@@ -77,7 +77,7 @@ public class QuestionScoreListener
   implements ActionListener, ValueChangeListener
 {
   private static Log log = LogFactory.getLog(QuestionScoreListener.class);
-  private static EvaluationListenerUtil util;
+  //private static EvaluationListenerUtil util;
   private static BeanSort bs;
   private static ContextUtil cu;
 
@@ -91,10 +91,10 @@ public class QuestionScoreListener
   {
     log.debug("QuestionScore LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
-      cu.lookupBean("questionScores");
+      ContextUtil.lookupBean("questionScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
 
     if (!questionScores(publishedId, bean, false))
     {
@@ -110,22 +110,27 @@ public class QuestionScoreListener
   {
     log.debug("QuestionScore CHANGE LISTENER.");
     QuestionScoresBean bean = (QuestionScoresBean)
-      cu.lookupBean("questionScores");
+      ContextUtil.lookupBean("questionScores");
 
     // we probably want to change the poster to be consistent
-    String publishedId = cu.lookupParam("publishedId");
+    String publishedId = ContextUtil.lookupParam("publishedId");
     boolean toggleSubmissionSelection = false;
 
+   
     String selectedvalue= (String) event.getNewValue();
     if ((selectedvalue!=null) && (!selectedvalue.equals("")) ){
       if (event.getComponent().getId().indexOf("sectionpicker") >-1 )
       {
         bean.setSelectedSectionFilterValue(selectedvalue);   // changed section pulldown
       }
-      else
+      else if (event.getComponent().getId().indexOf("allSubmissions")>-1)
       {
         bean.setAllSubmissions(selectedvalue);    // changed submission pulldown
         toggleSubmissionSelection = true;
+      }
+      else  // inline or popup
+      {
+          bean.setSelectedSARationaleView(selectedvalue);    // changed submission pulldown
       }
     }
 
@@ -152,7 +157,7 @@ public class QuestionScoreListener
     {
       PublishedAssessmentService pubService  = new PublishedAssessmentService();
       // get the PublishedAssessment based on publishedId
-      QuestionScoresBean questionBean = (QuestionScoresBean) cu.lookupBean("questionScores");
+      QuestionScoresBean questionBean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
       PublishedAssessmentIfc publishedAssessment = questionBean.getPublishedAssessment();
       if (publishedAssessment == null){
         publishedAssessment = pubService.getPublishedAssessment(publishedId);
@@ -170,19 +175,19 @@ public class QuestionScoreListener
       GradingService delegate =	new GradingService();
 
       TotalScoresBean totalBean =
-        (TotalScoresBean) cu.lookupBean("totalScores");
+        (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 
-      if (cu.lookupParam("sortBy") != null &&
-          !cu.lookupParam("sortBy").trim().equals(""))
-        bean.setSortType(cu.lookupParam("sortBy"));
-      String itemId = cu.lookupParam("itemId");
-      if (cu.lookupParam("newItemId") != null &&
-          !cu.lookupParam("newItemId").trim().equals(""))
-        itemId = cu.lookupParam("newItemId");
+      if (ContextUtil.lookupParam("sortBy") != null &&
+          !ContextUtil.lookupParam("sortBy").trim().equals(""))
+        bean.setSortType(ContextUtil.lookupParam("sortBy"));
+      String itemId = ContextUtil.lookupParam("itemId");
+      if (ContextUtil.lookupParam("newItemId") != null &&
+          !ContextUtil.lookupParam("newItemId").trim().equals(""))
+        itemId = ContextUtil.lookupParam("newItemId");
       
-      if (cu.lookupParam("sortAscending") != null &&
-      		!cu.lookupParam("sortAscending").trim().equals("")){
-      	bean.setSortAscending(Boolean.valueOf(cu.lookupParam("sortAscending")).booleanValue());
+      if (ContextUtil.lookupParam("sortAscending") != null &&
+      		!ContextUtil.lookupParam("sortAscending").trim().equals("")){
+      	bean.setSortAscending(Boolean.valueOf(ContextUtil.lookupParam("sortAscending")).booleanValue());
       }
       
       String which = bean.getAllSubmissions();
@@ -192,12 +197,18 @@ public class QuestionScoreListener
         which = totalBean.getAllSubmissions();
         bean.setAllSubmissions(which);
       }
-
+      
       totalBean.setSelectedSectionFilterValue(bean.getSelectedSectionFilterValue());   // set section pulldown
-
+ 
+      
+      if (bean.getSelectedSARationaleView() == null){
+    	   // if bean.showSARationaleInLine is null, then set inline to be the default
+    	    bean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_POPUP);
+      }
+     
       if ("true".equalsIgnoreCase(totalBean.getAnonymous())){
       //reset sectionaware pulldown to -1 all sections
-      totalBean.setSelectedSectionFilterValue(totalBean.ALL_SECTIONS_SELECT_VALUE);
+      totalBean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
       }
 
 
@@ -437,9 +448,9 @@ log.debug("item==null ");
       if (item!=null)  deliveryItems.add(item);
       bean.setDeliveryItem(deliveryItems);
 
-      if (cu.lookupParam("roleSelection") != null)
+      if (ContextUtil.lookupParam("roleSelection") != null)
       {
-        bean.setRoleSelection(cu.lookupParam("roleSelection"));
+        bean.setRoleSelection(ContextUtil.lookupParam("roleSelection"));
       }
 
       if (bean.getSortType() == null)
@@ -458,7 +469,9 @@ log.debug("item==null ");
       // set recording agent, agent assessmentId,
       // set course_assignment_context value
       // set max tries (0=unlimited), and 30 seconds max length
-      String courseContext = bean.getAssessmentName() + " total ";
+      
+      //String courseContext = bean.getAssessmentName() + " total ";
+      
 // Note this is HTTP-centric right now, we can't use in Faces
 //      AuthoringHelper authoringHelper = new AuthoringHelper();
 //      authoringHelper.getRemoteUserID() needs servlet stuff
@@ -637,7 +650,7 @@ log.debug("item==null ");
 log.debug("getItemScores");
     GradingService delegate = new GradingService();
     QuestionScoresBean questionScoresBean =
-      (QuestionScoresBean) cu.lookupBean("questionScores");
+      (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     HashMap itemScoresMap = questionScoresBean.getItemScoresMap();
 log.debug("getItemScores: itemScoresMap ==null ?" + itemScoresMap);
 log.debug("getItemScores: isValueChange ?" + isValueChange);
@@ -709,7 +722,7 @@ log.debug("getItemScores: map size " + map.size() );
           log.debug("*   do not make a link for = " + item.getItemId());
             partitem.setLinked(false);
           }
-          Iterator iter3 = scores.iterator();
+          //Iterator iter3 = scores.iterator();
           items.add(partitem);
           j++;
         }

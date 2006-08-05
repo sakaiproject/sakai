@@ -49,6 +49,10 @@ public class QuestionScoresBean
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
+
+  public static final String SHOW_SA_RATIONALE_RESPONSES_INLINE = "2"; 
+  public static final String SHOW_SA_RATIONALE_RESPONSES_POPUP = "1"; 
+
   private String assessmentName;
   private String itemName;
     private String partName;
@@ -57,13 +61,13 @@ public class QuestionScoresBean
   private String groupName;
   private String maxScore;
   private Collection agents;
-  private Collection sortedAgents;
+  //private Collection sortedAgents;
   private Collection sections;
   private Collection deliveryItem;
   private String score;
   private String answer;
   private String questionScoreComments;
-  private String sortProperty;
+  //private String sortProperty;
   private String lateHandling; // read-only property set for UI late handling
   private String dueDate;
   private String sortType;
@@ -76,7 +80,7 @@ public class QuestionScoresBean
   private HashMap scoresByItem;
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
   private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
-
+  private String selectedSARationaleView =SHOW_SA_RATIONALE_RESPONSES_POPUP;
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -670,4 +674,12 @@ public class QuestionScoresBean
   public PublishedAssessmentIfc getPublishedAssessment(){
     return publishedAssessment;
   }
+ 
+public String getSelectedSARationaleView() {
+	return selectedSARationaleView;
+}
+
+public void setSelectedSARationaleView(String selectedSARationaleView) {
+	this.selectedSARationaleView = selectedSARationaleView;
+}
 }
