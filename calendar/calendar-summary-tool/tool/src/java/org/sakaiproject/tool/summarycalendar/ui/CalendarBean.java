@@ -25,8 +25,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -43,6 +45,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
@@ -55,44 +58,46 @@ import org.sakaiproject.util.ResourceLoader;
 
 
 public class CalendarBean extends InitializableBean implements Serializable {
-	private static final long	serialVersionUID	= 3399742150736774779L;
-	public static final String	DATE_FORMAT			= "MMM dd, yyyy";
-	
+	private static final long						serialVersionUID		= 3399742150736774779L;
+	public static final String						DATE_FORMAT				= "MMM dd, yyyy";
+
 	/** Our log (commons). */
-	private static Log			LOG						= LogFactory.getLog(CalendarBean.class);
+	private static Log								LOG						= LogFactory.getLog(CalendarBean.class);
 
 	/** Resource bundle */
 	private transient ResourceLoader				msgs					= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
 
 	/** Bean members */
-	private Date				today					= null;
-	private Date				selectedMonth			= null;
-	private Date				selectedDay				= null;
-	private boolean				selectedDayHasEvents	= false;
-	private String				selectedEventRef		= null;
-	private String				selectedCalendarRef		= null;
-	private EventSummary		selectedEvent			= null;
+	private Date									today					= null;
+	private Date									selectedMonth			= null;
+	private Date									selectedDay				= null;
+	private boolean									selectedDayHasEvents	= false;
+	private String									selectedEventRef		= null;
+	private String									selectedCalendarRef		= null;
+	private EventSummary							selectedEvent			= null;
 
 	/** Private members */
-	private boolean				updateEventList			= true;
-	private List				weeks					= new ArrayList();
-	private MonthWeek			week1					= new MonthWeek();
-	private MonthWeek			week2					= new MonthWeek();
-	private MonthWeek			week3					= new MonthWeek();
-	private MonthWeek			week4					= new MonthWeek();
-	private MonthWeek			week5					= new MonthWeek();
-	private MonthWeek			week6					= new MonthWeek();
-	private List				calendarReferences		= new ArrayList();
-	private String				siteId					= null;
-	private String[]			months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct", "mon_nov", "mon_dec" };
-	private Map					eventImageMap			= new HashMap();
-	private boolean				firstTime				= true;
+	private boolean									updateEventList			= true;
+	private List									weeks					= new ArrayList();
+	private MonthWeek								week1					= new MonthWeek();
+	private MonthWeek								week2					= new MonthWeek();
+	private MonthWeek								week3					= new MonthWeek();
+	private MonthWeek								week4					= new MonthWeek();
+	private MonthWeek								week5					= new MonthWeek();
+	private MonthWeek								week6					= new MonthWeek();
+	private List									calendarReferences		= new ArrayList();
+	private String									siteId					= null;
+	private String[]								months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct",
+			"mon_nov", "mon_dec"											};
+	private Map										eventImageMap			= new HashMap();
+	private boolean									firstTime				= true;
 
-	private transient CalendarService		M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
-	private transient TimeService			M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
-	private transient SiteService			M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
-	private transient SecurityService		M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
-	private transient ToolManager			M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	private transient CalendarService				M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
+	private transient TimeService					M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
+	private transient SiteService					M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
+	private transient SecurityService				M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
+	private transient ToolManager					M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	//private transient ServerConfigurationService	M_config				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 
 	// ######################################################################################
 	// Main methods
@@ -138,7 +143,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 						calendarReferences.add(channelArray[i]);
 				}
 			}
-			
+
 			// add current site
 			calendarReferences.add(M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
 		}
@@ -423,6 +428,22 @@ public class CalendarBean extends InitializableBean implements Serializable {
 				selectedEvent.setLocation(event.getLocation());
 				selectedEvent.setSite(M_ss.getSite(calendar.getContext()).getTitle());
 				selectedEvent.setUrl(event.getUrl());
+				// groups
+				if(M_as.unlock("calendar.all.groups", "/site/"+getSiteId())){
+					Collection grps = event.getGroupObjects();
+					if(grps.size() > 0){
+						StringBuffer sb = new StringBuffer();
+						Iterator gi = grps.iterator();
+						while(gi.hasNext()){
+							Group g = (Group) gi.next();
+							if(sb.length() > 0)
+								sb.append(", ");
+							sb.append(g.getTitle());
+						}
+						selectedEvent.setGroups(sb.toString());
+					}
+				}
+				
 			}catch(IdUnusedException e){
 				LOG.error("IdUnusedException: " + e.getMessage());
 			}catch(PermissionException e){

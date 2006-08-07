@@ -39,6 +39,7 @@ public class EventSummary implements Serializable {
 	private String		url				= "";
 	private String		calendarRef		= "";
 	private String		eventRef		= "";
+	private String		groups			= "";
 
 	public String getDisplayName() {
 		return displayName;
@@ -114,6 +115,18 @@ public class EventSummary implements Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getGroups() {
+		return groups;
+	}
+
+	public void setGroups(String groups) {
+		this.groups = groups;
+	}
+
+	public boolean getShowGroups() {
+		return !groups.equals("");
 	}
 
 	private String getTruncated(String str) {

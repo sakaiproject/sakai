@@ -165,6 +165,8 @@
 				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>				
 				<h:outputLabel for="location" value="#{msgs.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
 		        <h:outputText id="location" value="#{CalBean.selectedEvent.location}" rendered="#{CalBean.selectedEvent.hasLocation}" />
+				<h:outputLabel for="groups" value="#{msgs.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
+		        <h:outputText id="groups" value="#{CalBean.selectedEvent.groups}" rendered="#{CalBean.selectedEvent.showGroups}" />
 				<h:outputLabel for="site" value="#{msgs.site}" />
 		        <h:outputText id="site" value="#{CalBean.selectedEvent.site}" />
 				
