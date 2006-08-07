@@ -913,7 +913,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		
 		String creator = entity.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
-		String userId = SessionManager.getCurrentSessionUserId().trim();
+		String userId = SessionManager.getCurrentSessionUserId();
 		
 		// available if user is creator
 		available = creator != null && userId != null && creator.equals(userId);
