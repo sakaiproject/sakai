@@ -90,7 +90,14 @@ public class EnrollmentDecorator implements Serializable {
 					return getNameComparator(sortAscending).compare(o1, o2);
 				}
 				
-				int comparison = section1.getTitle().compareTo(section2.getTitle());
+				int comparison = 0;
+				if(section1.getTitle().equals(section2.getTitle())) {
+					// Use the student name for comparison if the titles are equal
+					comparison = enr1.getUser().getUserUid().compareTo(enr2.getUser().getSortName());
+				} else {
+					// Use the section title for comparison if the titles are different
+					comparison = section1.getTitle().compareTo(section2.getTitle());
+				}
 				return sortAscending ? comparison : (-1 * comparison);
 			}
 		};
